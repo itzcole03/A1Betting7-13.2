@@ -205,8 +205,8 @@ function UnifiedSettingsAdminPage() {
                 </CardHeader>
                 <CardContent className='space-y-4'>
                   <div>
-                    <label className='text-sm font-medium'>Risk Tolerance</label>
-                    <div className='mt-2 grid grid-cols-3 gap-2'>
+                    <span id='risk-tolerance-label' className='text-sm font-medium'>Risk Tolerance</span>
+                    <div className='mt-2 grid grid-cols-3 gap-2' aria-labelledby='risk-tolerance-label'>
                       {['conservative', 'moderate', 'aggressive'].map(level => (
                         <Button
                           key={level}
@@ -222,8 +222,9 @@ function UnifiedSettingsAdminPage() {
                   </div>
 
                   <div>
-                    <label className='text-sm font-medium'>Portfolio Size ($)</label>
+                    <label htmlFor='portfolio-size' className='text-sm font-medium'>Portfolio Size ($)</label>
                     <Input
+                      id='portfolio-size'
                       type='number'
                       value={userSettings.portfolioSize}
                       onChange={e => handleSettingChange('portfolioSize', parseInt(e.target.value))}
@@ -232,8 +233,9 @@ function UnifiedSettingsAdminPage() {
                   </div>
 
                   <div className='flex items-center justify-between'>
-                    <label className='text-sm font-medium'>Auto-Stacking</label>
+                    <label id='auto-stacking-label' htmlFor='auto-stacking-switch' className='text-sm font-medium'>Auto-Stacking</label>
                     <Switch
+                      aria-labelledby='auto-stacking-label'
                       checked={userSettings.autoStaking}
                       onCheckedChange={checked => handleSettingChange('autoStaking', checked)}
                     />
@@ -250,24 +252,27 @@ function UnifiedSettingsAdminPage() {
                 </CardHeader>
                 <CardContent className='space-y-4'>
                   <div className='flex items-center justify-between'>
-                    <label className='text-sm font-medium'>Push Notifications</label>
+                    <label id='push-notifications-label' htmlFor='push-notifications-switch' className='text-sm font-medium'>Push Notifications</label>
                     <Switch
+                      aria-labelledby='push-notifications-label'
                       checked={userSettings.notifications}
                       onCheckedChange={checked => handleSettingChange('notifications', checked)}
                     />
                   </div>
 
                   <div className='flex items-center justify-between'>
-                    <label className='text-sm font-medium'>AI Insights</label>
+                    <label id='ai-insights-label' htmlFor='ai-insights-switch' className='text-sm font-medium'>AI Insights</label>
                     <Switch
+                      aria-labelledby='ai-insights-label'
                       checked={userSettings.aiInsights}
                       onCheckedChange={checked => handleSettingChange('aiInsights', checked)}
                     />
                   </div>
 
                   <div className='flex items-center justify-between'>
-                    <label className='text-sm font-medium'>Quantum Analysis (Beta)</label>
+                    <label id='quantum-analysis-label' htmlFor='quantum-analysis-switch' className='text-sm font-medium'>Quantum Analysis (Beta)</label>
                     <Switch
+                      aria-labelledby='quantum-analysis-label'
                       checked={userSettings.quantumAnalysis}
                       onCheckedChange={checked => handleSettingChange('quantumAnalysis', checked)}
                     />
@@ -294,8 +299,8 @@ function UnifiedSettingsAdminPage() {
                 </CardHeader>
                 <CardContent className='space-y-4'>
                   <div>
-                    <label className='text-sm font-medium'>Primary Model</label>
-                    <select className='mt-2 w-full p-2 border rounded-md'>
+                    <label htmlFor='primary-model-select' className='text-sm font-medium'>Primary Model</label>
+                    <select id='primary-model-select' className='mt-2 w-full p-2 border rounded-md'>
                       <option>Neural Ensemble v3.2</option>
                       <option>Quantum Hybrid v2.1</option>
                       <option>Traditional ML Stack</option>
@@ -303,7 +308,7 @@ function UnifiedSettingsAdminPage() {
                   </div>
 
                   <div>
-                    <label className='text-sm font-medium'>Confidence Threshold</label>
+                    <span className='text-sm font-medium'>Confidence Threshold</span>
                     <div className='mt-2 flex items-center gap-4'>
                       <Progress value={75} className='flex-1' />
                       <span className='text-sm font-medium'>75%</span>
@@ -311,20 +316,20 @@ function UnifiedSettingsAdminPage() {
                   </div>
 
                   <div>
-                    <label className='text-sm font-medium'>Feature Importance Display</label>
+                    <span className='text-sm font-medium'>Feature Importance Display</span>
                     <div className='mt-2 space-y-2'>
-                      <div className='flex items-center gap-2'>
-                        <input type='checkbox' defaultChecked />
+                      <label className='flex items-center gap-2' htmlFor='shap-checkbox'>
+                        <input id='shap-checkbox' type='checkbox' defaultChecked />
                         <span className='text-sm'>SHAP Values</span>
-                      </div>
-                      <div className='flex items-center gap-2'>
-                        <input type='checkbox' defaultChecked />
+                      </label>
+                      <label className='flex items-center gap-2' htmlFor='correlation-checkbox'>
+                        <input id='correlation-checkbox' type='checkbox' defaultChecked />
                         <span className='text-sm'>Correlation Heatmap</span>
-                      </div>
-                      <div className='flex items-center gap-2'>
-                        <input type='checkbox' />
+                      </label>
+                      <label className='flex items-center gap-2' htmlFor='advanced-explanations-checkbox'>
+                        <input id='advanced-explanations-checkbox' type='checkbox' />
                         <span className='text-sm'>Advanced Explanations</span>
-                      </div>
+                      </label>
                     </div>
                   </div>
                 </CardContent>
@@ -350,7 +355,7 @@ function UnifiedSettingsAdminPage() {
                   </div>
 
                   <div>
-                    <label className='text-sm font-medium'>Model Training</label>
+                    <span className='text-sm font-medium'>Model Training</span>
                     <div className='mt-2 space-y-2'>
                       <div className='flex justify-between items-center'>
                         <span className='text-sm'>Last Training</span>
@@ -390,8 +395,9 @@ function UnifiedSettingsAdminPage() {
                   </CardHeader>
                   <CardContent className='space-y-4'>
                     <div className='flex items-center justify-between'>
-                      <span className='text-sm'>Enable Platform</span>
+                      <span id={`enable-platform-label-${platform}`} className='text-sm'>Enable Platform</span>
                       <Switch
+                        aria-labelledby={`enable-platform-label-${platform}`}
                         checked={userSettings.preferredPlatforms.includes(platform)}
                         onCheckedChange={checked => {
                           if (checked) {
@@ -410,7 +416,7 @@ function UnifiedSettingsAdminPage() {
                     </div>
 
                     <div>
-                      <label className='text-sm font-medium'>API Status</label>
+                      <span className='text-sm font-medium'>API Status</span>
                       <div className='mt-2 flex items-center gap-2'>
                         <CheckCircle className='h-4 w-4 text-green-600' />
                         <span className='text-sm text-green-600'>Connected</span>
@@ -418,7 +424,7 @@ function UnifiedSettingsAdminPage() {
                     </div>
 
                     <div>
-                      <label className='text-sm font-medium'>Data Freshness</label>
+                      <span className='text-sm font-medium'>Data Freshness</span>
                       <div className='mt-2 text-sm text-gray-600'>Updated 30 seconds ago</div>
                     </div>
 
@@ -526,9 +532,9 @@ function UnifiedSettingsAdminPage() {
                   <CardContent className='space-y-4'>
                     {Object.entries(apiKeys).map(([platform, key]) => (
                       <div key={platform} className='space-y-2'>
-                        <label className='text-sm font-medium capitalize'>{platform} API Key</label>
+                        <label htmlFor={`api-key-input-${platform}`} className='text-sm font-medium capitalize'>{platform} API Key</label>
                         <div className='flex gap-2'>
-                          <Input type='password' value={key} readOnly className='font-mono' />
+                          <Input id={`api-key-input-${platform}`} type='password' value={key} readOnly className='font-mono' />
                           <Button size='sm' variant='outline'>
                             Rotate
                           </Button>
@@ -569,7 +575,7 @@ function UnifiedSettingsAdminPage() {
                     </Alert>
 
                     <div>
-                      <label className='text-sm font-medium'>Maintenance Mode</label>
+                      <span className='text-sm font-medium'>Maintenance Mode</span>
                       <div className='mt-2 flex items-center gap-4'>
                         <Button size='sm' variant='destructive'>
                           Enable Maintenance

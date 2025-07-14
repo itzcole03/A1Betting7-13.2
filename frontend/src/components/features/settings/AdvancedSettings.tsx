@@ -282,8 +282,9 @@ const AdvancedSettings: React.FC = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>Model Type</label>
+            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='ml-model-type'>Model Type</label>
             <select
+              id='ml-model-type'
               value={mlSettings.predictionEngine.model}
               onChange={e =>
                 setMlSettings(prev => ({
@@ -300,10 +301,11 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='ml-confidence-threshold'>
               Confidence Threshold ({mlSettings.predictionEngine.confidence_threshold})
             </label>
             <input
+              id='ml-confidence-threshold'
               type='range'
               min='0.5'
               max='0.95'
@@ -323,10 +325,11 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='ml-retraining-frequency'>
               Retraining Frequency (hours)
             </label>
             <input
+              id='ml-retraining-frequency'
               type='number'
               min='1'
               max='168'
@@ -394,10 +397,11 @@ const AdvancedSettings: React.FC = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='arbitrage-scan-frequency'>
               Scan Frequency (seconds)
             </label>
             <input
+              id='arbitrage-scan-frequency'
               type='number'
               min='5'
               max='300'
@@ -416,10 +420,11 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='arbitrage-min-profit-threshold'>
               Min Profit Threshold (%)
             </label>
             <input
+              id='arbitrage-min-profit-threshold'
               type='number'
               min='0.5'
               max='10'
@@ -439,10 +444,11 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='arbitrage-max-risk-exposure'>
               Max Risk Exposure ($)
             </label>
             <input
+              id='arbitrage-max-risk-exposure'
               type='number'
               min='1000'
               max='100000'
@@ -482,27 +488,31 @@ const AdvancedSettings: React.FC = () => {
           <label className='block text-sm font-medium text-gray-300 mb-2'>Bookmaker Filters</label>
           <div className='grid grid-cols-2 md:grid-cols-4 gap-2'>
             {['DraftKings', 'FanDuel', 'BetMGM', 'Caesars', 'PointsBet', 'WynnBET'].map(
-              bookmaker => (
-                <label key={bookmaker} className='flex items-center space-x-2'>
-                  <input
-                    type='checkbox'
-                    checked={mlSettings.arbitrageScanner.bookmaker_filters.includes(bookmaker)}
-                    onChange={e => {
-                      const filters = e.target.checked
-                        ? [...mlSettings.arbitrageScanner.bookmaker_filters, bookmaker]
-                        : mlSettings.arbitrageScanner.bookmaker_filters.filter(
-                            b => b !== bookmaker
-                          );
-                      setMlSettings(prev => ({
-                        ...prev,
-                        arbitrageScanner: { ...prev.arbitrageScanner, bookmaker_filters: filters },
-                      }));
-                    }}
-                    className='rounded border-gray-300'
-                  />
-                  <span className='text-gray-300 text-sm'>{bookmaker}</span>
-                </label>
-              )
+              bookmaker => {
+                const inputId = `bookmaker-filter-${bookmaker}`;
+                return (
+                  <label key={bookmaker} className='flex items-center space-x-2' htmlFor={inputId}>
+                    <input
+                      id={inputId}
+                      type='checkbox'
+                      checked={mlSettings.arbitrageScanner.bookmaker_filters.includes(bookmaker)}
+                      onChange={e => {
+                        const filters = e.target.checked
+                          ? [...mlSettings.arbitrageScanner.bookmaker_filters, bookmaker]
+                          : mlSettings.arbitrageScanner.bookmaker_filters.filter(
+                              b => b !== bookmaker
+                            );
+                        setMlSettings(prev => ({
+                          ...prev,
+                          arbitrageScanner: { ...prev.arbitrageScanner, bookmaker_filters: filters },
+                        }));
+                      }}
+                      className='rounded border-gray-300'
+                    />
+                    <span className='text-gray-300 text-sm'>{bookmaker}</span>
+                  </label>
+                );
+              }
             )}
           </div>
         </div>
@@ -522,10 +532,11 @@ const AdvancedSettings: React.FC = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='risk-kelly-fraction'>
               Kelly Fraction ({mlSettings.riskManagement.kelly_fraction})
             </label>
             <input
+              id='risk-kelly-fraction'
               type='range'
               min='0.1'
               max='0.5'
@@ -545,8 +556,9 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>Max Bet Size ($)</label>
+            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='risk-max-bet-size'>Max Bet Size ($)</label>
             <input
+              id='risk-max-bet-size'
               type='number'
               min='10'
               max='10000'
@@ -566,10 +578,11 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='risk-stop-loss-threshold'>
               Stop Loss Threshold ({mlSettings.riskManagement.stop_loss_threshold * 100}%)
             </label>
             <input
+              id='risk-stop-loss-threshold'
               type='range'
               min='0.01'
               max='0.1'
@@ -589,10 +602,11 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='risk-correlation-limit'>
               Correlation Limit ({mlSettings.riskManagement.correlation_limit})
             </label>
             <input
+              id='risk-correlation-limit'
               type='range'
               min='0.3'
               max='0.9'

@@ -418,8 +418,9 @@ const PrizePicks: React.FC = () => {
 
             <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
               <div>
-                <label className='text-sm text-gray-400 mb-1 block'>Sport</label>
+                <label className='text-sm text-gray-400 mb-1 block' htmlFor='pp-filter-sport'>Sport</label>
                 <select
+                  id='pp-filter-sport'
                   value={filters.sport}
                   onChange={e => setFilters({ ...filters, sport: e.target.value })}
                   className='w-full px-3 py-2 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
@@ -433,8 +434,9 @@ const PrizePicks: React.FC = () => {
               </div>
 
               <div>
-                <label className='text-sm text-gray-400 mb-1 block'>Min Confidence (%)</label>
+                <label className='text-sm text-gray-400 mb-1 block' htmlFor='pp-filter-min-confidence'>Min Confidence (%)</label>
                 <input
+                  id='pp-filter-min-confidence'
                   type='range'
                   min='50'
                   max='95'
@@ -448,8 +450,9 @@ const PrizePicks: React.FC = () => {
               </div>
 
               <div>
-                <label className='text-sm text-gray-400 mb-1 block'>Min Value</label>
+                <label className='text-sm text-gray-400 mb-1 block' htmlFor='pp-filter-min-value'>Min Value</label>
                 <input
+                  id='pp-filter-min-value'
                   type='range'
                   min='0'
                   max='5'
@@ -462,8 +465,9 @@ const PrizePicks: React.FC = () => {
               </div>
 
               <div>
-                <label className='text-sm text-gray-400 mb-1 block'>Max Risk</label>
+                <label className='text-sm text-gray-400 mb-1 block' htmlFor='pp-filter-max-risk'>Max Risk</label>
                 <select
+                  id='pp-filter-max-risk'
                   value={filters.maxRisk}
                   onChange={e => setFilters({ ...filters, maxRisk: e.target.value })}
                   className='w-full px-3 py-2 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
@@ -487,8 +491,9 @@ const PrizePicks: React.FC = () => {
                 <h3 className='text-lg font-bold text-white'>Current Lineup</h3>
                 <div className='flex items-center space-x-3'>
                   <div className='flex items-center space-x-2'>
-                    <label className='text-sm text-gray-300'>Entry:</label>
+                    <label className='text-sm text-gray-300' htmlFor='pp-lineup-entry'>Entry:</label>
                     <input
+                      id='pp-lineup-entry'
                       type='number'
                       min='5'
                       max='1000'
@@ -1067,8 +1072,9 @@ const PrizePicks: React.FC = () => {
             <h3 className='text-xl font-bold text-white mb-4'>Save Lineup</h3>
             <div className='space-y-4'>
               <div>
-                <label className='block text-sm text-gray-400 mb-2'>Lineup Name</label>
+                <label className='block text-sm text-gray-400 mb-2' htmlFor='pp-lineup-name'>Lineup Name</label>
                 <input
+                  id='pp-lineup-name'
                   type='text'
                   value={lineupName}
                   onChange={e => setLineupName(e.target.value)}

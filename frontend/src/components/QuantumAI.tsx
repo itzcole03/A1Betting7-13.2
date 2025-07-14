@@ -336,8 +336,9 @@ export const QuantumAI: React.FC = () => {
       <Card className='p-6'>
         <div className='grid grid-cols-1 lg:grid-cols-4 gap-6'>
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>Quantum Algorithm</label>
+            <label className='block text-sm text-gray-400 mb-2' htmlFor='quantum-algorithm'>Quantum Algorithm</label>
             <select
+              id='quantum-algorithm'
               value={selectedAlgorithm}
               onChange={e => setSelectedAlgorithm(e.target.value as any)}
               className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg'
@@ -354,10 +355,11 @@ export const QuantumAI: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>
+            <label className='block text-sm text-gray-400 mb-2' htmlFor='quantum-depth'>
               Quantum Depth: {quantumDepth}
             </label>
             <input
+              id='quantum-depth'
               type='range'
               min='4'
               max='16'
@@ -369,10 +371,11 @@ export const QuantumAI: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>
+            <label className='block text-sm text-gray-400 mb-2' htmlFor='quantum-simulation-speed'>
               Simulation Speed: {simulationSpeed}x
             </label>
             <input
+              id='quantum-simulation-speed'
               type='range'
               min='0.5'
               max='4'

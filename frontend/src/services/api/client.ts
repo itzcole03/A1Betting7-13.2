@@ -19,12 +19,8 @@ class ApiClient {
   private defaultTimeout: number;
 
   constructor() {
-    // TODO: Replace with actual config manager
-    const config: any = { get: () => 'http://localhost:8000' };
     this.baseUrl =
-      ((config.get('api.baseUrl') as string) ||
-        import.meta.env.VITE_API_URL ||
-        'http://localhost:8000') + '/api';
+      (import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api';
     this.defaultHeaders = {
       'Content-Type': 'application/json',
     };

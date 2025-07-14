@@ -1,354 +1,8909 @@
-# A1Betting Ultra-Enhanced App Roadmap (2025 Edition)
+# Project Roadmap
 
-# A1Betting Ultra-Enhanced App Roadmap (2025 Edition)
+## Planned Features
+- [backend/advanced_feature_engineering.py] # Advanced feature engineering imports
+- [backend/advanced_feature_engineering.py] # Initialize advanced feature engineering components
+- [backend/advanced_feature_engineering.py] # Feature selection components
+- [backend/advanced_feature_engineering.py] # 2. Apply each feature engineering strategy
+- [backend/advanced_feature_engineering.py] # 3. Feature interaction discovery
+- [backend/advanced_feature_engineering.py] # 5. Feature quality assessment
+- [backend/advanced_feature_engineering.py] # 6. Feature selection and optimization
+- [backend/advanced_feature_engineering.py] # Basic statistical features
+- [backend/advanced_feature_engineering.py] # Advanced statistical features
+- [backend/advanced_feature_engineering.py] # Percentile features
+- [backend/advanced_feature_engineering.py] # Time-based features
+- [backend/advanced_feature_engineering.py] # Season features
+- [backend/advanced_feature_engineering.py] # Historical pattern features if historical data available
+- [backend/advanced_feature_engineering.py] # Extract price-like features for technical analysis
+- [backend/advanced_feature_engineering.py] # Extract frequency domain features
+- [backend/advanced_feature_engineering.py] # Player performance features
+- [backend/advanced_feature_engineering.py] # Team performance features
+- [backend/advanced_feature_engineering.py] # Game context features
+- [backend/advanced_feature_engineering.py] # Betting market features
+- [backend/advanced_feature_engineering.py] # Injury impact features
+- [backend/advanced_feature_engineering.py] # Weather impact features
+- [backend/advanced_feature_engineering.py] # Interpretability based on feature name
+- [backend/advanced_feature_engineering.py] # Computation cost based on feature name complexity
+- [backend/api_integration.py] # Get top 20 featured props
+- [backend/betting_opportunity_service.py] # Check feature flags
+- [backend/betting_opportunity_service.py] # Generate features for opportunity analysis
+- [backend/betting_opportunity_service.py] # Market spread features
+- [backend/betting_opportunity_service.py] # Volume features
+- [backend/betting_opportunity_service.py] # Liquidity features
+- [backend/betting_opportunity_service.py] # Time-based features
+- [backend/betting_opportunity_service.py] # Prediction-based features
+- [backend/betting_opportunity_service.py] # Log features for drift monitoring
+- [backend/betting_opportunity_service.py] # features["model_version"] = str(getattr(self, "model_version", "unknown"))
+- [backend/config.py] # Feature toggle for LLM endpoints
+- [backend/config.py] # Additional Feature Toggles
+- [backend/enhanced_api_routes.py] # Test enhanced feature engineering
+- [backend/enhanced_api_routes.py] # Generate enhanced features using all requested methods
+- [backend/enhanced_api_routes.py] # Combine all features
+- [backend/enhanced_data_pipeline.py] # Add decomposed components as features
+- [backend/enhanced_data_pipeline.py] # 4. Advanced time series feature extraction
+- [backend/enhanced_data_pipeline.py] # Statistical features
+- [backend/enhanced_data_pipeline.py] # Frequency domain features
+- [backend/enhanced_data_pipeline.py] # Add features to dataframe
+- [backend/enhanced_data_pipeline.py] # Spectral features
+- [backend/enhanced_data_pipeline.py] // 2] - features["spectral_centroid"]) ** 2)
+- [backend/enhanced_ensemble_engine.py] # Aggregate feature importance
+- [backend/enhanced_feature_engineering.py] # Extract features from CWT
+- [backend/enhanced_feature_engineering.py] # Convert to feature vector (simplified)
+- [backend/enhanced_feature_engineering.py] # Remove influence of other features
+- [backend/enhanced_feature_engineering.py] # Residual after regressing target on other features
+- [backend/enhanced_feature_engineering.py] # Residual after regressing current feature on other features
+- [backend/enhanced_feature_engineering.py] # Top features for each criterion
+- [backend/enhanced_feature_engineering.py] # 3. Spectral features
+- [backend/enhanced_feature_engineering.py] # Apply to first few features
+- [backend/enhanced_feature_engineering.py] # Wavelet features
+- [backend/enhanced_feature_engineering.py] # 4. Information theoretic features
+- [backend/enhanced_feature_engineering.py] # Feature relevance ranking
+- [backend/enhanced_feature_engineering.py] # Transfer entropy between features
+- [backend/enhanced_feature_engineering.py] # 5. Graph-based features
+- [backend/enhanced_feature_engineering.py] # Polynomial features (selected)
+- [backend/enhanced_feature_engineering.py] # Only for reasonable number of features
+- [backend/enhanced_feature_engineering.py] # 7. Feature interactions
+- [backend/enhanced_feature_engineering.py] # Ratio features
+- [backend/enhanced_feature_engineering.py] # Bootstrap variance for each feature
+- [backend/enhanced_feature_engineering.py] # 9. Construct final feature matrix
+- [backend/enhanced_feature_engineering.py] # Add selected spectral features
+- [backend/enhanced_feature_engineering.py] # Add centrality features
+- [backend/enhanced_feature_engineering.py] # Combine all features
+- [backend/enhanced_feature_engineering.py] # Global enhanced feature engineering instance
+- [backend/enhanced_model_service.py] # Phase 1: Data Preprocessing and Feature Engineering
+- [backend/enhanced_model_service.py] # Convert features to DataFrame for processing
+- [backend/enhanced_model_service.py] # Enhanced feature engineering
+- [backend/enhanced_model_service.py] # Use engineered features for prediction
+- [backend/enhanced_model_service.py] # Add top engineered features
+- [backend/enhanced_model_service.py] # Limit features
+- [backend/enhanced_model_service.py] # Add manifold features
+- [backend/enhanced_model_service.py] # Add information theoretic features
+- [backend/enhanced_model_service.py] # Generate returns based on predictions and features
+- [backend/enhanced_model_service.py] # Feature stability
+- [backend/enhanced_model_service.py] # Feature engineering component
+- [backend/enhanced_prediction_engine.py] # Compute MI for each feature
+- [backend/enhanced_prediction_engine.py] # Compute mutual information for all features
+- [backend/enhanced_prediction_engine.py] # Feature importance based on lengthscales
+- [backend/enhanced_prediction_engine.py] # Convert features to array
+- [backend/enhanced_prediction_engine.py] # ARD feature importance
+- [backend/enhanced_prediction_engine.py] # Feature selection based on information gain
+- [backend/enhanced_revolutionary_api.py] # Compute eigenvalues of feature covariance matrix
+- [backend/enhanced_revolutionary_api.py] # Compute feature sensitivity (variation)
+- [backend/enhanced_revolutionary_engine.py] # Feature extraction for point cloud
+- [backend/enhanced_revolutionary_engine.py] # Topological feature integration
+- [backend/enhanced_revolutionary_engine.py] # +10 for topological features
+- [backend/enhanced_revolutionary_engine.py] # Extract topological features
+- [backend/enhanced_revolutionary_engine.py] # Integrate topological features with neural network
+- [backend/enhanced_revolutionary_engine.py] # Convert features to tensor
+- [backend/ensemble_engine.py] # Feature compatibility score
+- [backend/ensemble_engine.py] # Extract meta-features
+- [backend/ensemble_engine.py] # Add model agreement features
+- [backend/ensemble_engine.py] # Feature toggles for flexibility
+- [backend/ensemble_engine.py] # Feature preprocessing
+- [backend/ensemble_engine.py] # Sort features for consistent ordering
+- [backend/ensemble_engine.py] # Prepare feature vector
+- [backend/ensemble_engine.py] # Feature importance
+- [backend/ensemble_engine.py] # Aggregate feature importance
+- [backend/ensemble_engine.py] # Normalize feature importance
+- [backend/ensemble_optimizer.py] # Feature importance (if available)
+- [backend/feature_engineering.py] # Copied and adapted from Newfolder backend/FinalPredictionEngine/feature_engineering.py
+- [backend/feature_engineering.py] # Implement feature combination logic
+- [backend/feature_engineering.py] # Calculate time series features
+- [backend/feature_engineering.py] # Get all unique feature names
+- [backend/feature_engineering.py] # Calculate weighted average for each feature
+- [backend/feature_engineering.py] # Sort features by absolute SHAP value importance
+- [backend/feature_engineering.py] # Top 3 most important features
+- [backend/feature_flags.py] # feature_flags.py
+- [backend/feature_flags.py] # --- Singleton FeatureFlags ---
+- [backend/feature_flags.py] # config: { 'features': [...], 'experiments': [...] }
+- [backend/feature_selector.py] # Dummy selection: select first k features
+- [backend/feature_transformation.py] # Example: normalize all numeric features
+- [backend/health_monitor.py] # Check feature flags
+- [backend/integration_test_quantum.py] # Test quantum feature transformation
+- [backend/integration_test_quantum.py] # Test quantum feature transformation with sample data
+- [backend/main.py] # FEATURES AND PREDICTION ENDPOINTS
+- [backend/main.py] # Extract features from the request data
+- [backend/main.py] # Add derived features
+- [backend/main_backup.py] # FEATURES AND PREDICTION ENDPOINTS
+- [backend/main_backup.py] # Extract features from the request data
+- [backend/main_backup.py] # Add derived features
+- [backend/main_enhanced_prod.py] # Adjust based on "features" if provided
+- [backend/model_service.py] # Prepare features
+- [backend/model_service.py] # Feature importance and SHAP values (if requested)
+- [backend/model_service.py] # Feature engineering
+- [backend/model_service.py] # Ensure all required features are present
+- [backend/model_service.py] # Use feature importance as proxy for confidence
+- [backend/model_service.py] # Extract relevant features from prop attributes
+- [backend/model_service.py] # Return top 3 features
+- [backend/performance_test_quantum.py] # Test with various feature sizes
+- [backend/performance_test_quantum.py] # Test quantum feature transformation
+- [backend/phase8_integration_manager.py] # Arbitrage engine with enhanced features
+- [backend/phase8_integration_manager.py] # SHAP explainer with interactive features
+- [backend/phase_6_integration_test.py] # Check for key features
+- [backend/prediction_engine.py] # Scale features
+- [backend/prediction_engine.py] # Prepare features
+- [backend/prediction_engine.py] # Feature importance (if available)
+- [backend/prediction_engine.py] # 1. Feature Engineering and Validation
+- [backend/prediction_engine.py] # Add sport-specific features
+- [backend/prediction_engine.py] # Add derived features
+- [backend/production_fix.py] # Advanced feature engineering
+- [backend/production_fix.py] # Deep learning features
+- [backend/production_fix.py] # Complex non-linear feature interactions
+- [backend/production_fix.py] # Time series features from recent games
+- [backend/realtime_accuracy_monitor.py] # Simplified feature drift calculation
+- [backend/realtime_accuracy_monitor.py] # In a real implementation, this would compare current feature distributions
+- [backend/realtime_engine.py] # Get latest features for this event
+- [backend/realtime_engine.py] # This would fetch the latest features from various sources
+- [backend/realtime_engine.py] # For now, return mock features
+- [backend/revolutionary_accuracy_engine.py] # Topological feature extraction
+- [backend/revolutionary_accuracy_engine.py] # Extract topological features
+- [backend/revolutionary_accuracy_engine.py] # Birth times: when features appear
+- [backend/revolutionary_accuracy_engine.py] # Death times: when features disappear
+- [backend/revolutionary_accuracy_engine.py] # Estimate topological features based on persistence lifetimes
+- [backend/revolutionary_accuracy_engine.py] # Combine topological features
+- [backend/revolutionary_accuracy_engine.py] # Configurable based on feature engineering
+- [backend/revolutionary_accuracy_engine.py] # Convert features to tensor
+- [backend/revolutionary_api.py] # Extract features from prediction data
+- [backend/revolutionary_api.py] # Topological features
+- [backend/sports_expert_api.py] # --- Further Advanced Features & Improvements ---
+- [backend/sports_expert_api.py] # 16. List all agent capabilities/features
+- [backend/start_cloud_integration.py] # Use the complete backend with all features
+- [backend/task_processor.py] # Mock features for batch prediction
+- [backend/test_main.py] # Golf tournaments typically feature many players
+- [backend/ultra_accuracy_engine.py] # Stability with feature perturbations
+- [backend/ultra_accuracy_engine.py] # Example quantum-inspired transformation: add nonlinear, phase, and amplitude features
+- [backend/ultra_accuracy_engine.py] # Standard feature dimension
+- [backend/ultra_accuracy_engine.py] # Quantum-inspired feature transformation pipeline
+- [backend/ultra_accuracy_engine.py] # Efficient block 1: Base feature extraction
+- [backend/ultra_accuracy_engine.py] # Efficient block 2: Enhanced feature learning
+- [backend/ultra_accuracy_engine.py] # Efficient block 3: Deep feature extraction (depth scaling)
+- [backend/ultra_accuracy_engine.py] # Stage 1: Initial feature extraction
+- [backend/ultra_accuracy_engine.py] # Stage 2: Feature refinement
+- [backend/ultra_accuracy_engine.py] # 1. Advanced feature engineering and preprocessing
+- [backend/ultra_accuracy_engine.py] # 1. Quantum-inspired feature transformations
+- [backend/ultra_accuracy_engine.py] # 2. Advanced polynomial and interaction features
+- [backend/ultra_accuracy_engine.py] # 4. Fractal and chaos theory features
+- [backend/ultra_accuracy_engine.py] # 5. Information theory features
+- [backend/ultra_accuracy_engine.py] # 6. Advanced statistical features
+- [backend/ultra_accuracy_engine.py] # 7. Wavelet transformation features
+- [backend/ultra_accuracy_engine.py] # Generate enhanced features for entangled features model
+- [backend/ultra_accuracy_engine.py] # Create a 2D array with at least 2 features for correlation
+- [backend/ultra_accuracy_engine.py] # 1. Ultra-advanced feature engineering with quantum-inspired transformations
+- [backend/ultra_accuracy_engine.py] # Adjust features for timeframe
+- [backend/ultra_accuracy_engine.py] # Apply quantum entanglement for feature interactions
+- [backend/ultra_accuracy_engine_simple.py] # Assign importance based on feature type and variance
+- [backend/ultra_accuracy_engine_simple.py] # Penalize for missing features
+- [backend/validate_complete_integration.py] # Test information theory features
+- [backend/validate_complete_integration.py] # Validate feature engineering results
+- [backend/validate_complete_integration.py] # Feature engineering rigor
+- [backend/validate_complete_integration.py] # Feature completeness recommendations
+- [backend/validate_enhanced_engine.py] # batch, sequence, features
+- [backend/validate_enhanced_engine.py] # Test with sample features
+- [backend/models/api_models.py] # FEATURE ENGINEERING MODELS
+- [backend/models/prediction.py] # JSON string of features
+- [backend/routes/analytics.py] # Prepare features for ML model
+- [backend/routes/analytics.py] # Get key factors from feature importance
+- [backend/routes/analytics.py] # Real feature engineering
+- [backend/routes/analytics.py] # Use real feature engineering if available
+- [backend/routes/analytics.py] # Prepare features
+- [backend/routes/analytics.py] # Get feature importance from models
+- [backend/routes/analytics.py] # This would come from actual model feature importance
+- [backend/routes/shap.py] # Calculate feature importance (normalized)
+- [backend/services/advanced_ensemble_service.py] # Feature engineering
+- [backend/services/advanced_ensemble_service.py] # Prepare features
+- [backend/services/advanced_ensemble_service.py] # Calculate feature importance
+- [backend/services/advanced_ensemble_service.py] # This would integrate with the comprehensive feature engineering service
+- [backend/services/advanced_ensemble_service.py] # For now, return a placeholder feature vector
+- [backend/services/advanced_ensemble_service.py] # 100 features
+- [backend/services/advanced_ensemble_service.py] # Apply feature scaling
+- [backend/services/advanced_ensemble_service.py] # Adjust based on feature quality (placeholder)
+- [backend/services/advanced_ensemble_service.py] # Would be calculated from actual feature quality
+- [backend/services/advanced_ensemble_service.py] # Top 10 features
+- [backend/services/advanced_ensemble_service.py] # Placeholder feature importance - would use actual model feature importance
+- [backend/services/advanced_ensemble_service.py] # Top 15 features
+- [backend/services/advanced_ensemble_service.py] # Top features
+- [backend/services/advanced_ml_service.py] # Create attention-like features
+- [backend/services/advanced_ml_service.py] # Prepare features and target
+- [backend/services/advanced_ml_service.py] # Stack predictions as features for meta-learner
+- [backend/services/advanced_ml_service.py] # Get feature importance
+- [backend/services/advanced_ml_service.py] # Aggregate feature importance
+- [backend/services/advanced_ml_service.py] # Top features
+- [backend/services/async_performance_optimizer.py] # Simulate feature extraction time
+- [backend/services/comprehensive_feature_engine.py] # Feature engineering configuration
+- [backend/services/comprehensive_feature_engine.py] # Initialize feature containers
+- [backend/services/comprehensive_feature_engine.py] # 1. Player Performance Trends (20+ features)
+- [backend/services/comprehensive_feature_engine.py] # 2. Matchup-Specific Performance (15+ features)
+- [backend/services/comprehensive_feature_engine.py] # 3. Rest & Travel Factors (10+ features)
+- [backend/services/comprehensive_feature_engine.py] # 4. Weather Impact (8+ features for outdoor sports)
+- [backend/services/comprehensive_feature_engine.py] # 5. Injury Report Sentiment (12+ features)
+- [backend/services/comprehensive_feature_engine.py] # 6. Line Movement Intelligence (15+ features)
+- [backend/services/comprehensive_feature_engine.py] # 7. Historical Prop Performance (10+ features)
+- [backend/services/comprehensive_feature_engine.py] # 8. Game Script Predictions (8+ features)
+- [backend/services/comprehensive_feature_engine.py] # 9. Referee Impact (6+ features)
+- [backend/services/comprehensive_feature_engine.py] # 10. Venue Effects (8+ features)
+- [backend/services/comprehensive_feature_engine.py] # Calculate feature importance
+- [backend/services/comprehensive_feature_engine.py] # Calculate feature quality score
+- [backend/services/comprehensive_feature_engine.py] # Simulate feature importance based on feature names
+- [backend/services/comprehensive_feature_engine.py] # Check for feature diversity
+- [backend/services/enhanced_ml_ensemble_service.py] # Initialize feature engineering
+- [backend/services/enhanced_ml_ensemble_service.py] # Create basic feature scalers if not exist
+- [backend/services/enhanced_ml_ensemble_service.py] # Generate features if not provided
+- [backend/services/enhanced_ml_ensemble_service.py] # Basic feature set - in production this would be much more comprehensive
+- [backend/services/enhanced_ml_ensemble_service.py] # Player features
+- [backend/services/enhanced_ml_ensemble_service.py] # Statistical features (would come from real data in production)
+- [backend/services/enhanced_ml_ensemble_service.py] # Game context features
+- [backend/services/enhanced_ml_ensemble_service.py] # Market features
+- [backend/services/enhanced_ml_ensemble_service.py] # Convert features to array for sklearn models
+- [backend/services/enhanced_ml_ensemble_service.py] # Feature importance (simplified)
+- [backend/services/intelligent_ensemble_system.py] # Prepare features for prediction
+- [backend/services/intelligent_ensemble_system.py] # Sport-specific features
+- [backend/services/propollama_intelligence_service.py] # Engineer comprehensive features for analysis
+- [backend/services/propollama_intelligence_service.py] # Feature-driven insights
+- [backend/services/propollama_intelligence_service.py] # Analyze feature categories
+- [backend/services/quantum_optimization_service.py] # Quantum feature mapping
+- [backend/services/quantum_optimization_service.py] # Apply quantum feature encoding
+- [backend/services/quantum_optimization_service.py] # Pauli feature map
+- [backend/services/real_ml_service.py] # Team performance features
+- [backend/services/real_ml_service.py] # Player performance features
+- [backend/services/real_ml_service.py] # Feature selection
+- [backend/services/real_ml_service.py] # Scale features
+- [backend/services/real_ml_service.py] # Features that affect prediction confidence
+- [backend/services/real_ml_service.py] # Include market probability as feature
+- [backend/services/real_ml_service.py] # Simple logistic regression models with minimal features
+- [backend/services/real_ml_service.py] # Prepare features
+- [backend/services/real_ml_service.py] # Get feature importance
+- [backend/services/real_ml_service.py] # Prepare features for confidence model
+- [backend/services/real_ml_service.py] # Prepare features
+- [backend/services/real_ml_service.py] # Prepare features
+- [backend/services/real_ml_service.py] # Prepare features
+- [backend/services/real_ml_training_service.py] # Feature names that would come from real NBA data
+- [backend/services/real_ml_training_service.py] # Scale features
+- [backend/services/real_shap_service.py] # Get SHAP values for this feature across all samples
+- [backend/services/real_shap_service.py] # Higher confidence when there are clear dominant features
+- [backend/services/real_time_analysis_engine.py] # Feature engineering
+- [backend/services/real_time_analysis_engine.py] # Add more sophisticated feature engineering
+- [backend/services/real_time_prediction_engine.py] # Match NBA feature count
+- [backend/services/real_time_prediction_engine.py] # Extract features from real prop data
+- [backend/services/real_time_prediction_engine.py] # Scale features
+- [backend/services/real_time_prediction_engine.py] # This would be expanded based on the actual features used in training
+- [backend/services/real_time_prediction_engine.py] # For now, creating a basic feature set that matches the training structure
+- [backend/services/real_time_prediction_engine.py] # Time-based features
+- [backend/services/real_time_prediction_engine.py] # Categorical features (simplified)
+- [backend/services/real_time_prediction_engine.py] # Additional features
+- [backend/services/unified_prediction_service.py] # MoneyMaker AI features
+- [backend/services/unified_prediction_service.py] # Lineup optimization features
+- [backend/services/unified_prediction_service.py] # Enhance each prediction with all features
+- [backend/services/unified_prediction_service.py] # Calculate MoneyMaker AI features
+- [backend/services/unified_prediction_service.py] # Calculate lineup optimization features
+- [backend/services/unified_prediction_service.py] # Calculate feature contributions
+- [backend/services/unified_prediction_service.py] # Extract features for ML ensemble
+- [backend/services/unified_prediction_service.py] # Name length feature
+- [backend/services/unified_prediction_service.py] # Add more features as needed
+- [backend/tests/test_endpoints.py] # Verify features contain expected keys
+- [backend/tests/test_quantum_ensemble.py] # Simulate real betting feature data
+- [backend/tests/test_quantum_ensemble.py] # Convert numpy array to dict format expected by _quantum_feature_transformation
 
-## Overview
+## Known Issues / TODOs
+- test_enhanced_service.py: #!/usr/bin/env python3
+- test_enhanced_service.py: # Initialize service
+- test_enhanced_service.py: # Fetch props
+- test_enhanced_service.py: # Show sample props
+- test_enhanced_service.py: # Check health
+- test_enhanced_service.py: # Clean up
+- backend/admin_api.py: # In-memory log store for demonstration (replace with persistent logging in prod)
+- backend/advanced_best_practices_manager.py: #!/usr/bin/env python3
+- backend/advanced_best_practices_manager.py: # Configure advanced logging
+- backend/advanced_best_practices_manager.py: # Start best practices development phases
+- backend/advanced_best_practices_manager.py: # Generate improvement report
+- backend/advanced_best_practices_manager.py: # Start continuous improvement cycle
+- backend/advanced_best_practices_manager.py: # Innovation enhancements
+- backend/advanced_best_practices_manager.py: # Simulate innovation implementation
+- backend/advanced_best_practices_manager.py: # Simulate work
+- backend/advanced_best_practices_manager.py: # Performance optimizations
+- backend/advanced_best_practices_manager.py: # Simulate optimization
+- backend/advanced_best_practices_manager.py: # Quality improvements
+- backend/advanced_best_practices_manager.py: # Simulate quality improvement
+- backend/advanced_best_practices_manager.py: # UX enhancements
+- backend/advanced_best_practices_manager.py: # Simulate UX enhancement
+- backend/advanced_best_practices_manager.py: # Research activities
+- backend/advanced_best_practices_manager.py: # Simulate research
+- backend/advanced_best_practices_manager.py: # Simulate continuous improvement cycles
+- backend/advanced_best_practices_manager.py: # Simulate continuous improvement activities
+- backend/advanced_best_practices_manager.py: # Wait between cycles
+- backend/advanced_best_practices_manager.py: # Simulate various improvement metrics
+- backend/advanced_best_practices_manager.py: # Display comprehensive report
+- backend/advanced_best_practices_manager.py: # Agent status summary
+- backend/advanced_best_practices_manager.py: # Coordination summary
+- backend/advanced_best_practices_manager.py: # Best practices status
+- backend/advanced_best_practices_manager.py: # Save improvement report
+- backend/advanced_feature_engineering.py: # Technical analysis library
+- backend/advanced_feature_engineering.py: # Advanced feature engineering imports
+- backend/advanced_feature_engineering.py: # Advanced components
+- backend/advanced_feature_engineering.py: # Caching and optimization
+- backend/advanced_feature_engineering.py: # Initialize advanced feature engineering components
+- backend/advanced_feature_engineering.py: # Statistical transformers
+- backend/advanced_feature_engineering.py: # Dimensionality reduction components
+- backend/advanced_feature_engineering.py: # Feature selection components
+- backend/advanced_feature_engineering.py: # Estimator set later
+- backend/advanced_feature_engineering.py: # Clustering components
+- backend/advanced_feature_engineering.py: # Anomaly detection components
+- backend/advanced_feature_engineering.py: # Initialize sentiment analyzer
+- backend/advanced_feature_engineering.py: # pylint: disable=broad-exception-caught
+- backend/advanced_feature_engineering.py: # 1. Basic preprocessing and cleaning
+- backend/advanced_feature_engineering.py: # 2. Apply each feature engineering strategy
+- backend/advanced_feature_engineering.py: # pylint: disable=broad-exception-caught
+- backend/advanced_feature_engineering.py: # 3. Feature interaction discovery
+- backend/advanced_feature_engineering.py: # 4. Advanced statistical transformations
+- backend/advanced_feature_engineering.py: # 5. Feature quality assessment
+- backend/advanced_feature_engineering.py: # 6. Feature selection and optimization
+- backend/advanced_feature_engineering.py: # 7. Calculate overall quality metrics
+- backend/advanced_feature_engineering.py: # Basic statistical features
+- backend/advanced_feature_engineering.py: # Advanced statistical features
+- backend/advanced_feature_engineering.py: # Percentile features
+- backend/advanced_feature_engineering.py: # Moments
+- backend/advanced_feature_engineering.py: # Distribution testing
+- backend/advanced_feature_engineering.py: # Entropy
+- backend/advanced_feature_engineering.py: # Time-based features
+- backend/advanced_feature_engineering.py: # Cyclical encoding
+- backend/advanced_feature_engineering.py: # Season features
+- backend/advanced_feature_engineering.py: # Historical pattern features if historical data available
+- backend/advanced_feature_engineering.py: # Extract price-like features for technical analysis
+- backend/advanced_feature_engineering.py: # Need minimum data for technical indicators
+- backend/advanced_feature_engineering.py: # Convert to pandas Series for technical analysis
+- backend/advanced_feature_engineering.py: # Moving averages
+- backend/advanced_feature_engineering.py: # Momentum indicators
+- backend/advanced_feature_engineering.py: # Volatility indicators
+- backend/advanced_feature_engineering.py: # Volume indicators (using price as proxy)
+- backend/advanced_feature_engineering.py: # Trend indicators
+- backend/advanced_feature_engineering.py: # pylint: disable=broad-exception-caught
+- backend/advanced_feature_engineering.py: # Remove NaN values
+- backend/advanced_feature_engineering.py: # Need minimum data for FFT
+- backend/advanced_feature_engineering.py: # Perform FFT
+- backend/advanced_feature_engineering.py: # Extract frequency domain features
+- backend/advanced_feature_engineering.py: // 2]))]
+- backend/advanced_feature_engineering.py: # Spectral centroid
+- backend/advanced_feature_engineering.py: // 2])
+- backend/advanced_feature_engineering.py: // 2]
+- backend/advanced_feature_engineering.py: # Spectral rolloff
+- backend/advanced_feature_engineering.py: # Spectral bandwidth
+- backend/advanced_feature_engineering.py: # Reshape for clustering (assume single sample)
+- backend/advanced_feature_engineering.py: # K-means clustering distance
+- backend/advanced_feature_engineering.py: # Gaussian Mixture Model probability
+- backend/advanced_feature_engineering.py: # pylint: disable=broad-exception-caught
+- backend/advanced_feature_engineering.py: # Reshape for anomaly detection
+- backend/advanced_feature_engineering.py: # Isolation Forest anomaly score
+- backend/advanced_feature_engineering.py: # Statistical anomaly detection
+- backend/advanced_feature_engineering.py: # Mahalanobis distance (simplified)
+- backend/advanced_feature_engineering.py: # pylint: disable=broad-exception-caught
+- backend/advanced_feature_engineering.py: # Player performance features
+- backend/advanced_feature_engineering.py: # Team performance features
+- backend/advanced_feature_engineering.py: # Game context features
+- backend/advanced_feature_engineering.py: # Betting market features
+- backend/advanced_feature_engineering.py: # Injury impact features
+- backend/advanced_feature_engineering.py: # Weather impact features
+- backend/advanced_feature_engineering.py: # Recent form indicators
+- backend/advanced_feature_engineering.py: # Career performance
+- backend/advanced_feature_engineering.py: # Matchup-specific performance
+- backend/advanced_feature_engineering.py: # Home/away splits
+- backend/advanced_feature_engineering.py: # Limit to prevent explosion
+- backend/advanced_feature_engineering.py: # Pairwise interactions
+- backend/advanced_feature_engineering.py: # Multiple interaction types
+- backend/advanced_feature_engineering.py: # Advanced interactions
+- backend/advanced_feature_engineering.py: # Scale power
+- backend/advanced_feature_engineering.py: # Higher-order interactions (limited)
+- backend/advanced_feature_engineering.py: # Initialize with defaults
+- backend/advanced_feature_engineering.py: # Calculate actual metrics where possible
+- backend/advanced_feature_engineering.py: # Variance-based importance
+- backend/advanced_feature_engineering.py: # Distribution normality
+- backend/advanced_feature_engineering.py: # Simplified
+- backend/advanced_feature_engineering.py: # Interpretability based on feature name
+- backend/advanced_feature_engineering.py: # Computation cost based on feature name complexity
+- backend/advanced_feature_engineering.py: # Domain relevance for sports betting
+- backend/advanced_feature_engineering.py: # Simplified holiday detection
+- backend/advanced_feature_engineering.py: # New Year
+- backend/advanced_feature_engineering.py: # Independence Day
+- backend/advanced_feature_engineering.py: # Christmas
+- backend/advanced_feature_engineering.py: # Thanksgiving (simplified)
+- backend/advanced_feature_engineering.py: # Winter
+- backend/advanced_feature_engineering.py: # Spring
+- backend/advanced_feature_engineering.py: # Summer
+- backend/advanced_feature_engineering.py: # Fall
+- backend/advanced_feature_engineering.py: # Global instance
+- backend/api_integration.py: # Import existing services
+- backend/api_integration.py: # Fallback imports for standalone testing
+- backend/api_integration.py: # Configure logging
+- backend/api_integration.py: # Security
+- backend/api_integration.py: # --- API Models ---
+- backend/api_integration.py: # Authentication Models
+- backend/api_integration.py: # PrizePicks Models
+- backend/api_integration.py: # "over" or "under"
+- backend/api_integration.py: # "normal", "demon", "goblin"
+- backend/api_integration.py: # "over" or "under"
+- backend/api_integration.py: # Prediction Models
+- backend/api_integration.py: # "over" or "under"
+- backend/api_integration.py: # User Management Models
+- backend/api_integration.py: # "deposit", "withdraw", "bet", "win", "loss"
+- backend/api_integration.py: # Analytics Models
+- backend/api_integration.py: # "up", "down", "stable"
+- backend/api_integration.py: # AI Chat Models
+- backend/api_integration.py: # WebSocket Models
+- backend/api_integration.py: # --- Authentication Utilities ---
+- backend/api_integration.py: # Real database integration
+- backend/api_integration.py: # pylint: disable=broad-exception-caught
+- backend/api_integration.py: # In real implementation, fetch from database
+- backend/api_integration.py: # --- PrizePicks Utilities ---
+- backend/api_integration.py: # Check pick count
+- backend/api_integration.py: # Check for duplicate players
+- backend/api_integration.py: # Check pick type limits
+- backend/api_integration.py: # Validate lineup rules with real business logic
+- backend/api_integration.py: # This would need game data integration
+- backend/api_integration.py: # --- WebSocket Connection Manager ---
+- backend/api_integration.py: # --- Router Setup ---
+- backend/api_integration.py: # Create main API router
+- backend/api_integration.py: # --- Authentication Routes ---
+- backend/api_integration.py: # Find user
+- backend/api_integration.py: # pylint: disable=broad-exception-caught
+- backend/api_integration.py: # --- PrizePicks Routes ---
+- backend/api_integration.py: # Use real PrizePicks API integration
+- backend/api_integration.py: //api.prizepicks.com/projections")
+- backend/api_integration.py: # Extract and transform real props data
+- backend/api_integration.py: # Get top 20 featured props
+- backend/api_integration.py: # PrizePicks standard odds
+- backend/api_integration.py: # Based on PrizePicks data quality
+- backend/api_integration.py: # Default sport
+- backend/api_integration.py: # Return empty list when real data unavailable
+- backend/api_integration.py: # Calculate odds and payout
+- backend/api_integration.py: # Default bet amount
+- backend/api_integration.py: # --- Prediction Routes ---
+- backend/api_integration.py: # Integrate with real prediction engine
+- backend/api_integration.py: # Use SportsExpertAgent if available
+- backend/api_integration.py: # pylint: disable=broad-exception-caught
+- backend/api_integration.py: # Return empty analysis if no real data available
+- backend/api_integration.py: # Neutral expectation
+- backend/api_integration.py: # --- User Management Routes ---
+- backend/api_integration.py: # Update bankroll based on transaction type
+- backend/api_integration.py: # Calculate ROI
+- backend/api_integration.py: # --- Analytics Routes ---
+- backend/api_integration.py: # Get real performance data from database
+- backend/api_integration.py: # Would need streak calculation
+- backend/api_integration.py: # Would need streak calculation
+- backend/api_integration.py: # --- AI Chat Routes ---
+- backend/api_integration.py: # Use SportsExpertAgent if available
+- backend/api_integration.py: # pylint: disable=broad-exception-caught
+- backend/api_integration.py: # Fallback response
+- backend/api_integration.py: # --- ML Performance Routes ---
+- backend/api_integration.py: # --- WebSocket Routes ---
+- backend/api_integration.py: # Send periodic odds updates
+- backend/api_integration.py: # Update every 30 seconds
+- backend/api_integration.py: # Send periodic prediction updates
+- backend/api_integration.py: # Update every minute
+- backend/api_integration.py: # Keep connection alive
+- backend/api_integration.py: # --- FastAPI App Creation ---
+- backend/api_integration.py: # CORS middleware
+- backend/api_integration.py: //localhost:8000"}",  # Vite dev server
+- backend/api_integration.py: //localhost:8000"}",  # Alternative dev port
+- backend/api_integration.py: //localhost:8000"}",  # Another common port
+- backend/api_integration.py: # Include API routes
+- backend/api_integration.py: # Include existing sports expert routes if available
+- backend/api_integration.py: # Health check endpoint
+- backend/api_integration.py: # Export the app for use in main application
+- backend/api_integration.py: # ============================================================================
+- backend/api_integration.py: # PREDICTIONS ENDPOINTS
+- backend/api_integration.py: # ============================================================================
+- backend/api_integration.py: # Integrate with real prediction engine or database
+- backend/api_integration.py: # Get recent predictions from database
+- backend/api_integration.py: # Default confidence
+- backend/api_integration.py: # ============================================================================
+- backend/api_integration.py: # ENGINE METRICS ENDPOINT
+- backend/api_integration.py: # ============================================================================
+- backend/api_integration.py: # ============================================================================
+- backend/api_integration.py: # USER PROFILE ENDPOINTS
+- backend/api_integration.py: # ============================================================================
+- backend/api_integration.py: # Mock endpoint removed - use real authentication endpoints in main.py
+- backend/api_integration.py: # Existing user endpoints continue below...
+- backend/arbitrage_engine.py: # Simple arbitrage between 2 outcomes
+- backend/arbitrage_engine.py: # Three-way arbitrage (e.g., Win/Draw/Loss)
+- backend/arbitrage_engine.py: # Arbitrage across different markets
+- backend/arbitrage_engine.py: # Time-based arbitrage
+- backend/arbitrage_engine.py: # Statistical arbitrage
+- backend/arbitrage_engine.py: # Triangular arbitrage
+- backend/arbitrage_engine.py: # Synthetic arbitrage using combinations
+- backend/arbitrage_engine.py: # Dutch book (guaranteed profit)
+- backend/arbitrage_engine.py: # Clear mispricing
+- backend/arbitrage_engine.py: # Slow information incorporation
+- backend/arbitrage_engine.py: # Liquidity-driven mispricing
+- backend/arbitrage_engine.py: # Behavioral-driven inefficiency
+- backend/arbitrage_engine.py: # Market making opportunity
+- backend/arbitrage_engine.py: # Sharp money movement
+- backend/arbitrage_engine.py: # Line moving against public money
+- backend/arbitrage_engine.py: # Financial metrics
+- backend/arbitrage_engine.py: # Risk metrics
+- backend/arbitrage_engine.py: # Market data
+- backend/arbitrage_engine.py: # Execution details
+- backend/arbitrage_engine.py: # Metadata
+- backend/arbitrage_engine.py: # Pricing analysis
+- backend/arbitrage_engine.py: # Statistical measures
+- backend/arbitrage_engine.py: # Market context
+- backend/arbitrage_engine.py: # Opportunity metrics
+- backend/arbitrage_engine.py: # Risk assessment
+- backend/arbitrage_engine.py: # Timing
+- backend/arbitrage_engine.py: # Group odds by event and market
+- backend/arbitrage_engine.py: # Check for different types of arbitrage
+- backend/arbitrage_engine.py: # Sort by profit percentage
+- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
+- backend/arbitrage_engine.py: # Find all possible pairs
+- backend/arbitrage_engine.py: # Check if they're for opposite outcomes
+- backend/arbitrage_engine.py: # Default credit risk
+- backend/arbitrage_engine.py: # Default regulatory risk
+- backend/arbitrage_engine.py: # For two-way markets
+- backend/arbitrage_engine.py: # Historical average
+- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
+- backend/arbitrage_engine.py: # Check if arbitrage exists
+- backend/arbitrage_engine.py: # No arbitrage
+- backend/arbitrage_engine.py: # Calculate optimal stakes for $100 total investment
+- backend/arbitrage_engine.py: # Calculate guaranteed profit
+- backend/arbitrage_engine.py: # Market efficiency score
+- backend/arbitrage_engine.py: # Confidence based on odds quality and recency
+- backend/arbitrage_engine.py: # Higher profits are more suspicious
+- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
+- backend/arbitrage_engine.py: # Group by outcome type
+- backend/arbitrage_engine.py: # Need exactly 3 outcomes for three-way arbitrage
+- backend/arbitrage_engine.py: # Find best odds for each outcome across all sportsbooks
+- backend/arbitrage_engine.py: # Calculate three-way arbitrage
+- backend/arbitrage_engine.py: # Arbitrage exists
+- backend/arbitrage_engine.py: # Higher for three-way
+- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
+- backend/arbitrage_engine.py: # Implementation for cross-market arbitrage
+- backend/arbitrage_engine.py: # This would involve finding arbitrage across different market types
+- backend/arbitrage_engine.py: # Implementation for triangular arbitrage
+- backend/arbitrage_engine.py: # This would involve three related markets forming a triangle
+- backend/arbitrage_engine.py: # Implementation for synthetic arbitrage
+- backend/arbitrage_engine.py: # This would involve creating synthetic positions using multiple markets
+- backend/arbitrage_engine.py: # Factors: time since odds update, sportsbook reliability, market volatility
+- backend/arbitrage_engine.py: # Time risk
+- backend/arbitrage_engine.py: # Risk increases over 5 minutes
+- backend/arbitrage_engine.py: # Sportsbook reliability
+- backend/arbitrage_engine.py: # Market volatility
+- backend/arbitrage_engine.py: # Liquidity score based on volume and max stake
+- backend/arbitrage_engine.py: # Risk that odds will change before execution
+- backend/arbitrage_engine.py: # Calculate time spread between odds
+- backend/arbitrage_engine.py: # Higher spread = higher timing risk
+- backend/arbitrage_engine.py: # Risk maxes out at 10 minutes
+- backend/arbitrage_engine.py: # days
+- backend/arbitrage_engine.py: # 1. Pricing Error Detection
+- backend/arbitrage_engine.py: # 2. Information Lag Detection
+- backend/arbitrage_engine.py: # 3. Behavioral Bias Detection
+- backend/arbitrage_engine.py: # 4. Steam Move Detection
+- backend/arbitrage_engine.py: # 5. Reverse Line Movement Detection
+- backend/arbitrage_engine.py: # Sort by expected value
+- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
+- backend/arbitrage_engine.py: # Calculate fair value using multiple methods
+- backend/arbitrage_engine.py: # Convert to implied probabilities
+- backend/arbitrage_engine.py: # Calculate mispricing
+- backend/arbitrage_engine.py: # Statistical significance test
+- backend/arbitrage_engine.py: # At least 5% mispricing
+- backend/arbitrage_engine.py: # Determine if it's a value bet
+- backend/arbitrage_engine.py: # Market overpricing (value bet)
+- backend/arbitrage_engine.py: # At least 2% edge
+- backend/arbitrage_engine.py: # Will be calculated by risk engine
+- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
+- backend/arbitrage_engine.py: # 1. Historical closing line average
+- backend/arbitrage_engine.py: # 2. Market consensus (average of multiple sportsbooks)
+- backend/arbitrage_engine.py: # 3. Power ratings model
+- backend/arbitrage_engine.py: # Elo-style
+- backend/arbitrage_engine.py: # 4. Machine learning prediction
+- backend/arbitrage_engine.py: # 5. Pinnacle closing line (if available)
+- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
+- backend/arbitrage_engine.py: # Check for recent news/information that hasn't been priced in
+- backend/arbitrage_engine.py: # More than 5 minutes lag
+- backend/arbitrage_engine.py: # Check if the information is material
+- backend/arbitrage_engine.py: # Material information
+- backend/arbitrage_engine.py: # Simplified z-score
+- backend/arbitrage_engine.py: # Estimated
+- backend/arbitrage_engine.py: # Higher due to information lag
+- backend/arbitrage_engine.py: # High urgency
+- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
+- backend/arbitrage_engine.py: # 1. Home bias detection
+- backend/arbitrage_engine.py: # Heavy public support for home team
+- backend/arbitrage_engine.py: # 2. Favorite bias detection
+- backend/arbitrage_engine.py: # Heavy public support for favorite
+- backend/arbitrage_engine.py: # 3. Round number bias
+- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
+- backend/arbitrage_engine.py: # Minimum 2% bias
+- backend/arbitrage_engine.py: # Simplified
+- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
+- backend/arbitrage_engine.py: # Look for rapid line movement with reverse public action
+- backend/arbitrage_engine.py: # Calculate line movement
+- backend/arbitrage_engine.py: # At least 5% movement
+- backend/arbitrage_engine.py: # Check if movement is against public money
+- backend/arbitrage_engine.py: # Steam move: line moves toward underdog while public backs favorite
+- backend/arbitrage_engine.py: # Line shortening, public on this side
+- backend/arbitrage_engine.py: # Line lengthening, public on other side
+- backend/arbitrage_engine.py: # Original odds before steam
+- backend/arbitrage_engine.py: # Higher due to moving line
+- backend/arbitrage_engine.py: # High urgency for steam moves
+- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
+- backend/arbitrage_engine.py: # Implementation for reverse line movement detection
+- backend/arbitrage_engine.py: # 95% or 99%
+- backend/arbitrage_engine.py: # Assuming sample size 100
+- backend/arbitrage_engine.py: # Cap at 25%
+- backend/arbitrage_engine.py: # Detect arbitrage opportunities
+- backend/arbitrage_engine.py: # Detect market inefficiencies
+- backend/arbitrage_engine.py: # Update performance metrics
+- backend/arbitrage_engine.py: # Store in history
+- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
+- backend/arbitrage_engine.py: # Global instance
+- backend/auth.py: # type: ignore[import]
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # type: ignore[import]
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # Security
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # Check if user already exists
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # Create new user
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # type: ignore[misc]
+- backend/auth.py: # type: ignore[misc]
+- backend/auth_service.py: # Configuration
+- backend/auth_service.py: # Check if user exists
+- backend/auth_service.py: # Create user
+- backend/auth_service.py: # Update last login
+- backend/auth_service.py: # Global auth service instance
+- backend/autonomous_project_development_handler.py: # Check for completion condition (robust, error-free, production-ready)
+- backend/autonomous_project_development_handler.py: # Wait before next loop iteration
+- backend/autonomous_recursive_orchestrator.py: #!/usr/bin/env python3
+- backend/autonomous_recursive_orchestrator.py: # Configure autonomous logging
+- backend/autonomous_recursive_orchestrator.py: # From RIAI
+- backend/autonomous_recursive_orchestrator.py: # From Self-Modifying Engine
+- backend/autonomous_recursive_orchestrator.py: # From Quantum Coordination
+- backend/autonomous_recursive_orchestrator.py: # From Advanced Best Practices
+- backend/autonomous_recursive_orchestrator.py: # Execute autonomous development phases
+- backend/autonomous_recursive_orchestrator.py: # Log evolution
+- backend/autonomous_recursive_orchestrator.py: # Generate orchestration report
+- backend/autonomous_recursive_orchestrator.py: # Start infinite autonomous development loop
+- backend/autonomous_recursive_orchestrator.py: # Check if all modules exist and are functional
+- backend/autonomous_recursive_orchestrator.py: # Simulate capability assessment
+- backend/autonomous_recursive_orchestrator.py: # Execute recursive development cycles
+- backend/autonomous_recursive_orchestrator.py: # Simulate recursive development
+- backend/autonomous_recursive_orchestrator.py: # Update orchestration state
+- backend/autonomous_recursive_orchestrator.py: # Recursive enhancement formula inspired by RIAI
+- backend/autonomous_recursive_orchestrator.py: # Simulate evolution system activation
+- backend/autonomous_recursive_orchestrator.py: # Simulate meta-learning integration
+- backend/autonomous_recursive_orchestrator.py: # Simulate consciousness activation
+- backend/autonomous_recursive_orchestrator.py: # Update intelligence level with consciousness boost
+- backend/autonomous_recursive_orchestrator.py: # Demonstrate infinite loop with limited cycles for this demo
+- backend/autonomous_recursive_orchestrator.py: # Limited for demonstration
+- backend/autonomous_recursive_orchestrator.py: # Execute autonomous development cycle
+- backend/autonomous_recursive_orchestrator.py: # Autonomous processing time
+- backend/autonomous_recursive_orchestrator.py: # Autonomous improvements
+- backend/autonomous_recursive_orchestrator.py: # Simulate autonomous improvement
+- backend/autonomous_recursive_orchestrator.py: # Update relevant scores
+- backend/autonomous_recursive_orchestrator.py: # Update autonomous statistics
+- backend/autonomous_recursive_orchestrator.py: # Save orchestration report
+- backend/autonomous_system.py: # Configure autonomous logger
+- backend/autonomous_system.py: # healthy, degraded, unhealthy
+- backend/autonomous_system.py: # Start monitoring tasks
+- backend/autonomous_system.py: # Run all tasks concurrently
+- backend/autonomous_system.py: # System metrics
+- backend/autonomous_system.py: # Process metrics
+- backend/autonomous_system.py: # Application metrics (mock for now)
+- backend/autonomous_system.py: # 1% error rate
+- backend/autonomous_system.py: # 150ms average
+- backend/autonomous_system.py: # 85% cache hit rate
+- backend/autonomous_system.py: # 96.4% accuracy
+- backend/autonomous_system.py: # Store metrics
+- backend/autonomous_system.py: # Keep only last 1000 metrics
+- backend/autonomous_system.py: # CPU Health
+- backend/autonomous_system.py: # Memory Health
+- backend/autonomous_system.py: # Disk Health
+- backend/autonomous_system.py: # Error Rate Health
+- backend/autonomous_system.py: # 5%
+- backend/autonomous_system.py: # 2%
+- backend/autonomous_system.py: # Response Time Health
+- backend/autonomous_system.py: # 1 second
+- backend/autonomous_system.py: # 500ms
+- backend/autonomous_system.py: # ML Model Health
+- backend/autonomous_system.py: # 90%
+- backend/autonomous_system.py: # 95%
+- backend/autonomous_system.py: # Generate recommendations
+- backend/autonomous_system.py: # Overall health assessment
+- backend/autonomous_system.py: # Store health history
+- backend/autonomous_system.py: # Keep only last 1000 health records
+- backend/autonomous_system.py: # Log recommendations
+- backend/autonomous_system.py: # Check every minute
+- backend/autonomous_system.py: # Check every 5 minutes
+- backend/autonomous_system.py: # Check for common error patterns
+- backend/autonomous_system.py: # Check every 3 minutes
+- backend/autonomous_system.py: # Analyze recent metrics
+- backend/autonomous_system.py: # Optimize every 10 minutes
+- backend/autonomous_system.py: # Check every 30 minutes
+- backend/autonomous_system.py: # Manage every 5 minutes
+- backend/autonomous_system.py: # Predict every 30 minutes
+- backend/autonomous_system.py: # Restart failed services
+- backend/autonomous_system.py: # Clear caches
+- backend/autonomous_system.py: # Reset connections
+- backend/autonomous_system.py: # Reload configurations
+- backend/autonomous_system.py: # Immediate actions
+- backend/autonomous_system.py: # Notify administrators (mock implementation)
+- backend/autonomous_system.py: # Performance optimizations
+- backend/autonomous_system.py: # Placeholder methods for various autonomous operations
+- backend/autonomous_system.py: # Test SQLite connection
+- backend/autonomous_system.py: # Test enhanced database manager if available
+- backend/autonomous_system.py: # Check for connection leaks
+- backend/autonomous_system.py: # Test transaction integrity
+- backend/autonomous_system.py: # Log results
+- backend/autonomous_system.py: # Test connection and basic operations
+- backend/autonomous_system.py: # Test basic query
+- backend/autonomous_system.py: # Test table access
+- backend/autonomous_system.py: # Test write operation
+- backend/autonomous_system.py: # Test read operation
+- backend/autonomous_system.py: # Try to import and test enhanced database manager
+- backend/autonomous_system.py: # Test connection
+- backend/autonomous_system.py: # Check for open SQLite connections
+- backend/autonomous_system.py: # Count database-related objects
+- backend/autonomous_system.py: # Arbitrary threshold
+- backend/autonomous_system.py: # Check for open file descriptors to database files
+- backend/autonomous_system.py: # /proc not available on Windows
+- backend/autonomous_system.py: # Test rollback capability
+- backend/autonomous_system.py: # Verify rollback worked
+- backend/autonomous_system.py: # Define critical endpoints to test
+- backend/autonomous_system.py: # Test each endpoint
+- backend/autonomous_system.py: # Make request to localhost (where the FastAPI server runs)
+- backend/autonomous_system.py: //localhost:8000{endpoint['path']}",
+- backend/autonomous_system.py: # Check response status
+- backend/autonomous_system.py: # Check for slow responses
+- backend/autonomous_system.py: # 5 second threshold
+- backend/autonomous_system.py: # Log summary
+- backend/autonomous_system.py: # Trigger healing if too many failures
+- backend/autonomous_system.py: # Less than 70% success rate
+- backend/autonomous_system.py: # Restart services that might be causing issues
+- backend/autonomous_system.py: # Clear caches that might be causing issues
+- backend/autonomous_system.py: # Reset database connections
+- backend/autonomous_system.py: # Wait and re-test
+- backend/autonomous_system.py: # Re-test failed endpoints
+- backend/autonomous_system.py: //localhost:8000{endpoint['path']}"
+- backend/autonomous_system.py: # Extract metrics for analysis
+- backend/autonomous_system.py: # Last 50 data points
+- backend/autonomous_system.py: # CPU usage trend
+- backend/autonomous_system.py: # Memory usage trend
+- backend/autonomous_system.py: # Response time trend
+- backend/autonomous_system.py: # Error rate trend
+- backend/autonomous_system.py: # ML model accuracy trend
+- backend/autonomous_system.py: # Calculate moving averages
+- backend/autonomous_system.py: # Detect anomalies
+- backend/autonomous_system.py: # Log analysis results
+- backend/autonomous_system.py: # Check for concerning trends
+- backend/autonomous_system.py: # CPU usage increasing
+- backend/autonomous_system.py: # Memory usage increasing
+- backend/autonomous_system.py: # Response time increasing
+- backend/autonomous_system.py: # Error rate increasing
+- backend/autonomous_system.py: # Accuracy decreasing
+- backend/autonomous_system.py: # Log anomalies
+- backend/autonomous_system.py: # Store analysis results
+- backend/autonomous_system.py: # Keep only last 100 analyses
+- backend/autonomous_system.py: # Calculate linear regression slope
+- backend/autonomous_system.py: # Calculate mean and standard deviation
+- backend/autonomous_system.py: # Define anomaly threshold (2 standard deviations)
+- backend/autonomous_system.py: # Find anomalies
+- backend/autonomous_system.py: # In a real implementation, you would:
+- backend/autonomous_system.py: # 1. Check authentication logs
+- backend/autonomous_system.py: # 2. Monitor failed login attempts
+- backend/autonomous_system.py: # 3. Detect suspicious patterns
+- backend/autonomous_system.py: # 4. Check for brute force attacks
+- backend/autonomous_system.py: # For now, we'll check basic auth health
+- backend/autonomous_system.py: # Mock implementation - in production, you'd check real auth logs
+- backend/autonomous_system.py: # Get network statistics
+- backend/autonomous_system.py: # Calculate network usage
+- backend/autonomous_system.py: # Check for unusual network activity
+- backend/autonomous_system.py: # 100MB
+- backend/autonomous_system.py: # 100MB
+- backend/autonomous_system.py: # Check if FastAPI server is running
+- backend/autonomous_system.py: # Note: In production, you'd implement actual service restart
+- backend/autonomous_system.py: # For now, log the issue for manual intervention
+- backend/autonomous_system.py: # Check database service
+- backend/autonomous_system.py: # Check for hung processes
+- backend/autonomous_system.py: # Check system resources
+- backend/autonomous_system.py: //localhost:8000/api/health/status")
+- backend/autonomous_system.py: # Check for processes using too much CPU for too long
+- backend/autonomous_system.py: # Get process info
+- backend/autonomous_system.py: # Check if process is using too much CPU
+- backend/autonomous_system.py: # High CPU usage
+- backend/autonomous_system.py: # Running for over 1 hour
+- backend/autonomous_system.py: # Note: In production, you'd implement careful process termination
+- backend/autonomous_system.py: # For safety, we'll just log the issue
+- backend/autonomous_system.py: # You could implement actual termination here with proper safety checks
+- backend/autonomous_system.py: # Example: os.kill(pid, signal.SIGTERM)
+- backend/autonomous_system.py: # Force close any lingering connections
+- backend/autonomous_system.py: # Force garbage collection
+- backend/autonomous_system.py: # Try to reset the enhanced database manager
+- backend/autonomous_system.py: # If the manager has a reset method, call it
+- backend/autonomous_system.py: # Test connection after reset
+- backend/autonomous_system.py: # Give time for reset
+- backend/autonomous_system.py: # Force garbage collection
+- backend/autonomous_system.py: # Clear Python caches
+- backend/autonomous_system.py: # Log memory after cleanup
+- backend/autonomous_system.py: # Get top CPU consuming processes
+- backend/autonomous_system.py: # Processes using >10% CPU
+- backend/autonomous_system.py: # Check database file size
+- backend/autonomous_system.py: # MB
+- backend/autonomous_system.py: # Check log file sizes
+- backend/autonomous_system.py: # MB
+- backend/autonomous_system.py: # Rotate large log files
+- backend/autonomous_system.py: # 100MB threshold
+- backend/autonomous_system.py: # Remove temporary files
+- backend/autonomous_system.py: # Compress old log files
+- backend/autonomous_system.py: # 10MB
+- backend/autonomous_system.py: # Global autonomous system instance
+- backend/betting_opportunity_service.py: # <-- Add this import
+- backend/betting_opportunity_service.py: # Global circuit breaker for Ollama API
+- backend/betting_opportunity_service.py: # Configure logging
+- backend/betting_opportunity_service.py: # Core metrics
+- backend/betting_opportunity_service.py: # Market data
+- backend/betting_opportunity_service.py: # Advanced analytics
+- backend/betting_opportunity_service.py: # Risk metrics
+- backend/betting_opportunity_service.py: # Timing
+- backend/betting_opportunity_service.py: # Additional metadata
+- backend/betting_opportunity_service.py: # Opportunity tracking
+- backend/betting_opportunity_service.py: # Configuration thresholds
+- backend/betting_opportunity_service.py: # 1 hour
+- backend/betting_opportunity_service.py: # Advanced analytics cache
+- backend/betting_opportunity_service.py: # Check feature flags
+- backend/betting_opportunity_service.py: # Process market data
+- backend/betting_opportunity_service.py: # Generate features for opportunity analysis
+- backend/betting_opportunity_service.py: # Detect different types of opportunities
+- backend/betting_opportunity_service.py: # Combine all opportunities
+- backend/betting_opportunity_service.py: # Score and filter opportunities
+- backend/betting_opportunity_service.py: # Update tracking
+- backend/betting_opportunity_service.py: # Clean up expired opportunities
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Runtime validation for input dict
+- backend/betting_opportunity_service.py: # Data quality checks
+- backend/betting_opportunity_service.py: # Strict type checks for required fields
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Extensibility: Add hooks for custom market data validation or enrichment here
+- backend/betting_opportunity_service.py: # Log for model training (anonymized, extensible)
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Hook: feedback/active learning for data quality
+- backend/betting_opportunity_service.py: # Market spread features
+- backend/betting_opportunity_service.py: # Volume features
+- backend/betting_opportunity_service.py: # Liquidity features
+- backend/betting_opportunity_service.py: # Time-based features
+- backend/betting_opportunity_service.py: # Prediction-based features
+- backend/betting_opportunity_service.py: # Market efficiency indicators
+- backend/betting_opportunity_service.py: # Log features for drift monitoring
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Model versioning
+- backend/betting_opportunity_service.py: # Model version is not a float, so do not include in float-typed dict
+- backend/betting_opportunity_service.py: # If needed, store in a separate metadata dict or as a string elsewhere
+- backend/betting_opportunity_service.py: # features["model_version"] = str(getattr(self, "model_version", "unknown"))
+- backend/betting_opportunity_service.py: # Explainability/feedback hook: log for future LLM/AI/feedback use
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Integrate with Prometheus or other monitoring system here
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Integrate with audit logging system here
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Group by market type and find price discrepancies
+- backend/betting_opportunity_service.py: # Look for arbitrage across different sportsbooks
+- backend/betting_opportunity_service.py: # At least 1% return
+- backend/betting_opportunity_service.py: # Arbitrage has high confidence
+- backend/betting_opportunity_service.py: # Arbitrage has no volatility
+- backend/betting_opportunity_service.py: # Arbitrage is time-sensitive
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Group by sportsbook and analyze movement
+- backend/betting_opportunity_service.py: # Calculate movement metrics
+- backend/betting_opportunity_service.py: # Look for significant movement
+- backend/betting_opportunity_service.py: # 5% movement threshold
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Look for inefficient markets (low efficiency score)
+- backend/betting_opportunity_service.py: # Calculate inefficiency score
+- backend/betting_opportunity_service.py: # Find the market with best potential
+- backend/betting_opportunity_service.py: # Conservative estimate
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Calculate composite score
+- backend/betting_opportunity_service.py: # Normalize EV
+- backend/betting_opportunity_service.py: # Normalize Kelly
+- backend/betting_opportunity_service.py: # Risk adjustment
+- backend/betting_opportunity_service.py: # Net odds
+- backend/betting_opportunity_service.py: # Medium risk if no data
+- backend/betting_opportunity_service.py: # Threshold for low volume
+- backend/betting_opportunity_service.py: # Calculate price dispersion
+- backend/betting_opportunity_service.py: # Lower CV indicates higher efficiency
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Sort by timestamp
+- backend/betting_opportunity_service.py: # Calculate price convergence over time
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Global instance
+- backend/betting_opportunity_service.py: # For continual learning
+- backend/betting_opportunity_service.py: # user_id -> context
+- backend/betting_opportunity_service.py: # For uncertain/novel queries
+- backend/betting_opportunity_service.py: # Registered external tools/APIs
+- backend/betting_opportunity_service.py: //localhost:8000\"}/api/tags"
+- backend/betting_opportunity_service.py: # Use the global ollama_circuit_breaker instance
+- backend/betting_opportunity_service.py: # Prefer sports-specific or best generalist models
+- backend/betting_opportunity_service.py: # If user requested a model and it's available, use it
+- backend/betting_opportunity_service.py: # Otherwise, pick the best available from preferred list
+- backend/betting_opportunity_service.py: # Fallback to first available
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Fallback to default
+- backend/betting_opportunity_service.py: # Replace with actual LLM engine import/instantiation as needed
+- backend/betting_opportunity_service.py: # Example: add real compliance/safety logic as needed
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # ...existing code for async methods (discuss_lineup, analyze_prop_bet, answer_question, explain_recommendation, compliance_check, stream_conversation, retrain_agent, log_user_feedback)...
+- backend/betting_opportunity_service.py: # In each public method, add calls to self._emit_metric and self._audit_log, and wrap LLM outputs with self._compliance_filter.
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Integration with LLM fine-tuning pipeline - triggering retraining job
+- backend/betting_opportunity_service.py: # This can be scheduled or triggered by feedback volume, drift, or admin action.
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Retrieval-augmented context (automated)
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Chain-of-thought
+- backend/betting_opportunity_service.py: # Force rationale and citations
+- backend/betting_opportunity_service.py: # User/session context
+- backend/betting_opportunity_service.py: # Get recent team performance data
+- backend/betting_opportunity_service.py: # Get player injury status
+- backend/betting_opportunity_service.py: # Get recent head-to-head data
+- backend/betting_opportunity_service.py: # Get weather data for outdoor sports
+- backend/betting_opportunity_service.py: # This would integrate with your real team stats API
+- backend/betting_opportunity_service.py: # For now, return structured data that represents real team context
+- backend/betting_opportunity_service.py: # This would integrate with injury report APIs
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # Optionally limit history size
+- backend/betting_opportunity_service.py: # Example: If response contains uncertainty or is too generic, flag for review
+- backend/betting_opportunity_service.py: # async context
+- backend/betting_opportunity_service.py: # --- FastAPI Router for Betting Opportunity Service ---
+- backend/betting_opportunity_service.py: # Create router for betting opportunity endpoints
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # In-memory cache (fastest)
+- backend/cache_optimizer.py: # Redis cache (fast, distributed)
+- backend/cache_optimizer.py: # Database cache (persistent)
+- backend/cache_optimizer.py: # Disk cache (cold storage)
+- backend/cache_optimizer.py: # Least Recently Used
+- backend/cache_optimizer.py: # Least Frequently Used
+- backend/cache_optimizer.py: # Time To Live
+- backend/cache_optimizer.py: # Random eviction
+- backend/cache_optimizer.py: # First In First Out
+- backend/cache_optimizer.py: # Adaptive based on access patterns
+- backend/cache_optimizer.py: # Check expiration
+- backend/cache_optimizer.py: # Update access info
+- backend/cache_optimizer.py: # Move to end for LRU
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # Compress if requested
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # Calculate size
+- backend/cache_optimizer.py: # Check if we need to evict entries
+- backend/cache_optimizer.py: # No more entries to evict
+- backend/cache_optimizer.py: # Create cache entry
+- backend/cache_optimizer.py: # Remove existing entry if present
+- backend/cache_optimizer.py: # Add new entry
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # Compress if > 1KB
+- backend/cache_optimizer.py: # Default estimate
+- backend/cache_optimizer.py: # Handle JSON strings
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # Try to deserialize using safe JSON
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # Serialize value using safe JSON
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # Set with TTL if specified
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # Access count for L2->L1 promotion
+- backend/cache_optimizer.py: # Age in seconds for L1->L2 demotion
+- backend/cache_optimizer.py: # Try L1 first (fastest)
+- backend/cache_optimizer.py: # Try L2 (Redis)
+- backend/cache_optimizer.py: # Consider promoting to L1 if frequently accessed
+- backend/cache_optimizer.py: # 1 hour in L1
+- backend/cache_optimizer.py: # If tier specified, use only that tier
+- backend/cache_optimizer.py: # Auto-select tier based on value characteristics
+- backend/cache_optimizer.py: # < 10KB, use L1
+- backend/cache_optimizer.py: # L1 full, fallback to L2
+- backend/cache_optimizer.py: # Large values go to L2
+- backend/cache_optimizer.py: # Default estimate
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/cache_optimizer.py: # Start warming loop in background
+- backend/cache_optimizer.py: # Generate cache key
+- backend/cache_optimizer.py: # Default key generation
+- backend/cache_optimizer.py: # Try to get from cache
+- backend/cache_optimizer.py: # Execute function and cache result
+- backend/cache_optimizer.py: # This would typically fetch popular predictions
+- backend/cache_optimizer.py: # Simulate prediction data
+- backend/cache_optimizer.py: # Every 15 minutes
+- backend/cache_optimizer.py: # Every 5 minutes
+- backend/cache_optimizer.py: # Every 30 minutes
+- backend/cache_optimizer.py: # If hit rate is low, trigger cache warming
+- backend/cache_optimizer.py: # If L1 cache is under-utilized, adjust promotion threshold
+- backend/cache_optimizer.py: # 24 hours at 1-minute intervals
+- backend/cache_optimizer.py: # Calculate trends
+- backend/cache_optimizer.py: # Last hour
+- backend/cache_optimizer.py: # Identify bottlenecks
+- backend/cache_optimizer.py: # Global cache optimizer instance
+- backend/cleanup_console_statements.py: #!/usr/bin/env python3
+- backend/cleanup_console_statements.py: # Remove console.log statements (but keep console.error)
+- backend/cleanup_console_statements.py: # Remove console.debug statements
+- backend/cleanup_console_statements.py: # Remove console.info statements
+- backend/cleanup_console_statements.py: # Remove empty lines that might be left behind
+- backend/cleanup_console_statements.py: # Remove logger.debug statements that are not critical
+- backend/cleanup_console_statements.py: # Keep debug statements that are important for debugging
+- backend/cleanup_console_statements.py: # Frontend cleanup
+- backend/cleanup_console_statements.py: # Backend cleanup (only production files, not automation scripts)
+- backend/cleanup_console_statements.py: # Exclude automation scripts and CLI tools
+- backend/command_registry.py: # Command registry for backend commands
+- backend/command_registry.py: # Register the ultimate autonomous command
+- backend/complete_stub_endpoints.py: # Simulate async training process
+- backend/complete_stub_endpoints.py: # Calculate current stage based on progress
+- backend/complete_stub_endpoints.py: # Simulate rollback process
+- backend/complete_stub_endpoints.py: # Simulate deployment time
+- backend/complete_stub_endpoints.py: # Swap versions
+- backend/complete_stub_endpoints.py: # Simulate SHAP explanation generation
+- backend/complete_stub_endpoints.py: # Simulate audit data retrieval
+- backend/complete_stub_endpoints.py: # Generate sample audit data
+- backend/complete_stub_endpoints.py: # Simulate training stages
+- backend/complete_stub_endpoints.py: # Simulate work
+- backend/complete_stub_endpoints.py: # Simulate analysis
+- backend/complete_stub_endpoints.py: # Scan for markdown files
+- backend/complete_stub_endpoints.py: # Skip virtual environments and node_modules
+- backend/complete_stub_endpoints.py: # Categorize and process files
+- backend/complete_stub_endpoints.py: # Categorize based on filename
+- backend/complete_stub_endpoints.py: # Process each category
+- backend/complete_stub_endpoints.py: # Limit to first 10 files per category
+- backend/complete_stub_endpoints.py: # Extract title from first heading
+- backend/complete_stub_endpoints.py: #'):
+- backend/complete_stub_endpoints.py: #').strip()
+- backend/complete_stub_endpoints.py: # Create summary from first paragraph
+- backend/complete_stub_endpoints.py: # Skip title, get next few lines
+- backend/complete_stub_endpoints.py: #') and line.strip():
+- backend/complete_stub_endpoints.py: # pylint: disable=broad-exception-caught
+- backend/complete_stub_endpoints.py: # Initialize service instances
+- backend/complete_stub_endpoints.py: # Export services for use in main_enhanced.py
+- backend/config.py: # Application Settings
+- backend/config.py: # API Settings
+- backend/config.py: # Model Service Settings
+- backend/config.py: # Changed from 8001 to avoid conflict
+- backend/config.py: # Database Settings
+- backend/config.py: # External API Settings
+- backend/config.py: # PrizePicks API key is not required; public access only
+- backend/config.py: # prizepicks_api_key: Optional[str] = None  # Deprecated, not used
+- backend/config.py: # LLM Settings for Enhanced PropOllama
+- backend/config.py: # ollama or lmstudio
+- backend/config.py: //localhost:11434"
+- backend/config.py: # 5 minutes
+- backend/config.py: # PropOllama Settings
+- backend/config.py: # 1 hour
+- backend/config.py: # 5 minutes
+- backend/config.py: # Rate Limiting
+- backend/config.py: # Caching
+- backend/config.py: # ML Model Settings
+- backend/config.py: # Local LLM Settings (Ollama or LM Studio)
+- backend/config.py: # 'ollama' or 'lmstudio'
+- backend/config.py: //127.0.0.1:11434"  # Ollama default
+- backend/config.py: # model name to force; auto-select if None
+- backend/config.py: # Advanced LLM Settings
+- backend/config.py: # HTTP request timeout in seconds
+- backend/config.py: # batch size for embedding requests
+- backend/config.py: # cache TTL for model list (seconds)
+- backend/config.py: # Feature toggle for LLM endpoints
+- backend/config.py: # turn off LLM routes if False
+- backend/config.py: # Additional Feature Toggles
+- backend/config.py: # Monitoring Settings
+- backend/config.py: # Logging Settings
+- backend/config.py: # Security Settings
+- backend/config.py: # Additional Environment Variables
+- backend/config.py: # Risk controls overrides
+- backend/config.py: # "healthy", "degraded", "unhealthy"
+- backend/config.py: //{self.config.postgres_user}:"
+- backend/config.py: //localhost:6379"
+- backend/config.py: # "prizepicks": self.config.prizepicks_api_key,  # Deprecated, not used
+- backend/config.py: # Global configuration instance
+- backend/config_manager.py: ///./a1betting.db"
+- backend/config_manager.py: # PrizePicks API key is not required; public access only
+- backend/config_manager.py: # prizepicks_api_key: Optional[str] = None  # Deprecated, not used
+- backend/config_manager.py: # prizepicks_api_key=os.getenv("PRIZEPICKS_API_KEY"),  # Deprecated, not used
+- backend/config_manager.py: //localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://127.0.0.1:5173"]
+- backend/config_manager.py: //localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003,http://127.0.0.1:5173"
+- backend/config_manager.py: # Initialize sub-configurations
+- backend/config_manager.py: ///./a1betting.db":
+- backend/config_manager.py: # "prizepicks_configured": bool(self.api_keys.prizepicks_api_key),  # Deprecated, not used
+- backend/config_manager.py: # Global configuration instance
+- backend/config_manager.py: # Convenience functions
+- backend/config_manager.py: # "prizepicks": config.api_keys.prizepicks_api_key,  # Deprecated, not used
+- backend/config_manager.py: # PrizePicks API key is not required; always returns None
+- backend/config_manager.py: # Configuration validation on module import
+- backend/config_manager.py: # Print configuration summary (excluding sensitive data)
+- backend/data_pipeline.py: # Remove requests older than 1 minute
+- backend/data_pipeline.py: # Wait for rate limit
+- backend/data_pipeline.py: # Build URL
+- backend/data_pipeline.py: # Merge headers
+- backend/data_pipeline.py: # Make request with retries
+- backend/data_pipeline.py: # Rate limited
+- backend/data_pipeline.py: # If we get here, all retries failed
+- backend/data_pipeline.py: # pylint: disable=broad-exception-caught
+- backend/data_pipeline.py: //api.sportradar.us/", api_key
+- backend/data_pipeline.py: # Sportradar limits
+- backend/data_pipeline.py: //api.the-odds-api.com/", api_key
+- backend/data_pipeline.py: //api.prizepicks.com/", api_key
+- backend/data_pipeline.py: # PrizePicks doesn't always require API key
+- backend/data_pipeline.py: # Check cache first
+- backend/data_pipeline.py: # Get connector
+- backend/data_pipeline.py: # Fetch data
+- backend/data_pipeline.py: # Update stats
+- backend/data_pipeline.py: # Cache successful responses
+- backend/data_pipeline.py: # Update average latency
+- backend/data_pipeline.py: # Call registered callbacks
+- backend/data_pipeline.py: # pylint: disable=broad-exception-caught
+- backend/data_pipeline.py: # Convert exceptions to error responses
+- backend/data_pipeline.py: # Sportradar live games
+- backend/data_pipeline.py: # Cache for 1 minute for live data
+- backend/data_pipeline.py: # The Odds API live odds
+- backend/data_pipeline.py: # PrizePicks props
+- backend/data_pipeline.py: # NBA
+- backend/data_pipeline.py: # Check individual connectors
+- backend/data_pipeline.py: # Simple health check - create a minimal request
+- backend/data_pipeline.py: # Don't actually make the request, just check if connector is ready
+- backend/data_pipeline.py: # pylint: disable=broad-exception-caught
+- backend/data_pipeline.py: # Global data pipeline instance
+- backend/data_sources.py: # Sportradar, official APIs
+- backend/data_sources.py: # The Odds API, verified sources
+- backend/data_sources.py: # PrizePicks, community sources
+- backend/data_sources.py: # New/testing sources
+- backend/data_sources.py: # 0-1, percentage of expected fields present
+- backend/data_sources.py: # 0-1, estimated accuracy based on cross-validation
+- backend/data_sources.py: # 0-1, how fresh the data is
+- backend/data_sources.py: # 0-1, consistency with other sources
+- backend/data_sources.py: # 0-1, source reliability score
+- backend/data_sources.py: # 0-1, anomaly detection score (0=normal, 1=anomalous)
+- backend/data_sources.py: # 0-1, overall confidence in the data
+- backend/data_sources.py: # Number of data points
+- backend/data_sources.py: # Add more schemas as needed
+- backend/data_sources.py: # Initialize quality metrics
+- backend/data_sources.py: # 1. Completeness Check
+- backend/data_sources.py: # 2. Data Type Validation
+- backend/data_sources.py: # 3. Range Validation
+- backend/data_sources.py: # 4. Anomaly Detection
+- backend/data_sources.py: # 5. Cross-source Consistency Check
+- backend/data_sources.py: # 6. Timeliness Assessment
+- backend/data_sources.py: # Decays over 1 hour
+- backend/data_sources.py: # 7. Source Reliability Score
+- backend/data_sources.py: # 8. Overall Confidence Calculation
+- backend/data_sources.py: # pylint: disable=broad-exception-caught
+- backend/data_sources.py: # Statistical anomaly detection
+- backend/data_sources.py: # Z-score based detection for numerical fields
+- backend/data_sources.py: # Normalize to 0-1
+- backend/data_sources.py: # Return max anomaly score (most suspicious field)
+- backend/data_sources.py: # pylint: disable=broad-exception-caught
+- backend/data_sources.py: # Get recent data from other sources for the same entity
+- backend/data_sources.py: # No comparison data, assume reasonable consistency
+- backend/data_sources.py: # pylint: disable=broad-exception-caught
+- backend/data_sources.py: # This would query the database for historical values
+- backend/data_sources.py: # For now, return empty list
+- backend/data_sources.py: # This would query recent data from other sources
+- backend/data_sources.py: # For now, return empty list
+- backend/data_sources.py: # pylint: disable=broad-exception-caught
+- backend/data_sources.py: # pylint: disable=broad-exception-caught
+- backend/data_sources.py: # Get current rate limit for this endpoint
+- backend/data_sources.py: # 1 minute window
+- backend/data_sources.py: # Distributed rate limiting with Redis
+- backend/data_sources.py: # Local rate limiting
+- backend/data_sources.py: # Clean old entries
+- backend/data_sources.py: # pylint: disable=broad-exception-caught
+- backend/data_sources.py: # Fail open
+- backend/data_sources.py: # Adjust based on recent performance
+- backend/data_sources.py: # CLOSED, OPEN, HALF_OPEN
+- backend/data_sources.py: # pylint: disable=broad-exception-caught
+- backend/data_sources.py: //100}xx"
+- backend/data_sources.py: # Track recent performance for adaptive behavior
+- backend/data_sources.py: # Keep only last 100 requests
+- backend/data_sources.py: # Sort by reliability and recency
+- backend/data_sources.py: # Use weighted average for scores, prioritizing high-quality sources
+- backend/data_sources.py: # Fallback to highest quality source
+- backend/data_sources.py: # Create reconciled data point
+- backend/data_sources.py: # Calculate reconciled quality metrics
+- backend/data_sources.py: # Implement sophisticated player stats reconciliation
+- backend/data_sources.py: # This would include outlier detection, weighted averaging, and confidence intervals
+- backend/data_sources.py: # Find best odds for different bet types
+- backend/data_sources.py: # Calculate market efficiency metrics
+- backend/data_sources.py: # Use most recent, most reliable source
+- backend/data_sources.py: # Cross-reference with multiple sources for confirmation
+- backend/data_sources.py: # 5-minute default cache
+- backend/data_sources.py: # Get all applicable sources for this data type
+- backend/data_sources.py: # This would check if source supports this data type
+- backend/data_sources.py: # Fetch data concurrently from all sources
+- backend/data_sources.py: # Execute all requests concurrently with semaphore protection
+- backend/data_sources.py: # Filter successful results and validate quality
+- backend/data_sources.py: # Reconcile multiple data points
+- backend/data_sources.py: # Cache the reconciled result
+- backend/data_sources.py: # pylint: disable=broad-exception-caught
+- backend/data_sources.py: # This would be implemented per source type
+- backend/data_sources.py: # Create enhanced data point
+- backend/data_sources.py: # Will be set by validator
+- backend/data_sources.py: # Validate and score data quality
+- backend/data_sources.py: # pylint: disable=broad-exception-caught
+- backend/data_sources.py: # This would be implemented with source-specific logic
+- backend/data_sources.py: # For now, return mock data
+- backend/data_sources.py: # Implement data type specific normalization
+- backend/data_sources.py: # Add standard fields
+- backend/data_sources.py: # Would calculate from actual metrics
+- backend/data_sources.py: # Check each data source
+- backend/data_sources.py: # pylint: disable=broad-exception-caught
+- backend/data_sources.py: # Check cache first
+- backend/data_sources.py: # Get data from PrizePicks for player props
+- backend/data_sources.py: # Cache the result
+- backend/data_sources.py: //api.prizepicks.com/projections"
+- backend/data_sources.py: # Enhanced headers for better API compatibility
+- backend/data_sources.py: # Limit concurrent requests
+- backend/data_sources.py: # Global instance
+- backend/database.py: # Database URL
+- backend/database.py: ///./a1betting.db")
+- backend/database.py: # Create engine
+- backend/database.py: # Create session
+- backend/database.py: # Base class for models
+- backend/database.py: # Dependency to get database session
+- backend/database.py: # Create all tables
+- backend/database.py: # Alias get_db to get_db_session for FastAPI dependencies
+- backend/database.py: # Placeholder for async database initialization
+- backend/database.py: # Instantiate the DB manager
+- backend/database.py: # Placeholder class for model performance records to satisfy imports in model_service
+- backend/database.py: # Empty implementation - this is just a placeholder class
+- backend/database.py: # Removed unused PredictionModel import to fix import errors
+- backend/database_health_checker.py: # 1. Connection Test
+- backend/database_health_checker.py: # 2. Query Performance Test
+- backend/database_health_checker.py: # 3. Database Size and Storage
+- backend/database_health_checker.py: # 4. Connection Pool Status
+- backend/database_health_checker.py: # 5. Table Schema Validation
+- backend/database_health_checker.py: # 6. Transaction Log Health
+- backend/database_health_checker.py: # Calculate overall metrics
+- backend/database_health_checker.py: # Determine overall status
+- backend/database_health_checker.py: # Add performance recommendations
+- backend/database_health_checker.py: # Store in history
+- backend/database_health_checker.py: # Test enhanced database manager
+- backend/database_health_checker.py: # Fallback to direct SQLite test
+- backend/database_health_checker.py: # Get database file size
+- backend/database_health_checker.py: # Get available disk space
+- backend/database_health_checker.py: # Check enhanced database manager pool
+- backend/database_health_checker.py: # For SQLite, connections are typically direct
+- backend/database_health_checker.py: # For SQLite, check WAL mode and journal
+- backend/database_health_checker.py: # Check journal mode
+- backend/database_health_checker.py: # Check integrity
+- backend/database_health_checker.py: # Keep only recent history
+- backend/database_health_checker.py: # Last 10 checks
+- backend/database_health_checker.py: # Global instance
+- backend/demo_intelligent_ensemble.py: # Add backend to path
+- backend/demo_intelligent_ensemble.py: # Import the enhanced data fetchers
+- backend/demo_intelligent_ensemble.py: # Test 1: Fetch enhanced props
+- backend/demo_intelligent_ensemble.py: # Show sample props
+- backend/demo_intelligent_ensemble.py: # Show ensemble enhancements if available
+- backend/demo_intelligent_ensemble.py: # Test 2: Generate optimal lineup
+- backend/demo_intelligent_ensemble.py: # Test 3: Show engine availability
+- backend/demo_intelligent_ensemble.py: # Test 4: In-season sports filtering
+- backend/demo_intelligent_ensemble.py: //localhost:8000"
+- backend/demo_intelligent_ensemble.py: # Test 1: Enhanced props endpoint
+- backend/demo_intelligent_ensemble.py: # Check for ensemble enhancements
+- backend/demo_intelligent_ensemble.py: # Test 2: Optimal lineup endpoint
+- backend/demo_intelligent_ensemble.py: # Test 3: Lineup analysis endpoint
+- backend/demo_intelligent_ensemble.py: # This would require prop IDs, so we'll skip the actual call
+- backend/demo_intelligent_ensemble.py: # Run the demo
+- backend/demo_intelligent_ensemble.py: # Optionally test API endpoints if backend is running
+- backend/demo_intelligent_ensemble.py: # asyncio.run(test_api_endpoints())
+- backend/deploy_production.py: #!/usr/bin/env python3
+- backend/deploy_production.py: # Configure logging
+- backend/deploy_production.py: # Create SSL directory
+- backend/deploy_production.py: # Generate self-signed certificate (replace with real certs in production)
+- backend/deploy_production.py: # Set proper permissions
+- backend/deploy_production.py: # SSL configuration
+- backend/deploy_production.py: # Security headers
+- backend/deploy_production.py: # API proxy
+- backend/deploy_production.py: //127.0.0.1:8000;
+- backend/deploy_production.py: # Frontend static files
+- backend/deploy_production.py: # Health check
+- backend/deploy_production.py: # Enable site
+- backend/deploy_production.py: # Test and reload nginx
+- backend/deploy_production.py: # Reload systemd and enable service
+- backend/deploy_production.py: # Create database user and database
+- backend/deploy_production.py: # Create virtual environment if it doesn't exist
+- backend/deploy_production.py: # Install requirements
+- backend/deploy_production.py: # Create log directory
+- backend/deploy_production.py: # Set proper permissions
+- backend/deploy_production.py: # Create logrotate configuration
+- backend/deploy_production.py: # Check if running as root
+- backend/deploy_production.py: # Deployment steps
+- backend/deploy_production.py: # Start services
+- backend/deploy_production.py: //localhost")
+- backend/deploy_production.py: //localhost/api/docs")
+- backend/deploy_production.py: //localhost/health")
+- backend/direct_ollama_test.py: #!/usr/bin/env python3
+- backend/direct_ollama_test.py: # Add backend to path
+- backend/direct_ollama_test.py: # Force refresh models
+- backend/direct_ollama_test.py: # Test simple generation
+- backend/direct_ollama_test.py: # Test PropOllama with real integration
+- backend/direct_ollama_test.py: # Test with a real sports query
+- backend/enhanced_api_routes.py: # Import all enhanced services
+- backend/enhanced_api_routes.py: # Create FastAPI app
+- backend/enhanced_api_routes.py: # Add CORS middleware
+- backend/enhanced_api_routes.py: # Include revolutionary accuracy router
+- backend/enhanced_api_routes.py: # Initialize enhanced services
+- backend/enhanced_api_routes.py: # Pydantic models for API
+- backend/enhanced_api_routes.py: # Global state for monitoring
+- backend/enhanced_api_routes.py: # Check all mathematical engines
+- backend/enhanced_api_routes.py: # Test enhanced prediction engine
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # Test enhanced feature engineering
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # Test enhanced risk management
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # Test enhanced data pipeline
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # Test model service
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # Convert processing level to enhanced settings
+- backend/enhanced_api_routes.py: # Execute unified prediction through model service
+- backend/enhanced_api_routes.py: # Schedule background analysis
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # Generate enhanced features using all requested methods
+- backend/enhanced_api_routes.py: # Combine all features
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # Perform comprehensive risk assessment
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # Get model status from service
+- backend/enhanced_api_routes.py: # Format response
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # Calculate time window
+- backend/enhanced_api_routes.py: # Get performance data (in production, this would come from a metrics database)
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # Process in parallel batches to avoid overwhelming the system
+- backend/enhanced_api_routes.py: # Process batch in parallel
+- backend/enhanced_api_routes.py: # Schedule background analytics
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # Get current system metrics
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # Background tasks
+- backend/enhanced_api_routes.py: # In production, this would go to a database
+- backend/enhanced_api_routes.py: # Keep only last 1000 records in memory
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_api_routes.py: # Error handlers
+- backend/enhanced_api_routes.py: # Configure logging
+- backend/enhanced_api_routes.py: # Start the server
+- backend/enhanced_data_pipeline.py: # Find extrema
+- backend/enhanced_data_pipeline.py: # IMF criteria (simplified)
+- backend/enhanced_data_pipeline.py: # Number of extrema and zero crossings should differ by at most 1
+- backend/enhanced_data_pipeline.py: # Maximum iterations
+- backend/enhanced_data_pipeline.py: # Find extrema
+- backend/enhanced_data_pipeline.py: # Interpolate envelopes
+- backend/enhanced_data_pipeline.py: # Upper envelope
+- backend/enhanced_data_pipeline.py: # Lower envelope
+- backend/enhanced_data_pipeline.py: # Mean envelope
+- backend/enhanced_data_pipeline.py: # Update h
+- backend/enhanced_data_pipeline.py: # Check stopping criterion
+- backend/enhanced_data_pipeline.py: # EMD decomposition
+- backend/enhanced_data_pipeline.py: # Extract IMF
+- backend/enhanced_data_pipeline.py: # Check if it's an IMF
+- backend/enhanced_data_pipeline.py: # Stop if residual is monotonic
+- backend/enhanced_data_pipeline.py: # EMD decomposition
+- backend/enhanced_data_pipeline.py: # Hilbert transform of each IMF
+- backend/enhanced_data_pipeline.py: # Hilbert transform
+- backend/enhanced_data_pipeline.py: # Extract instantaneous attributes
+- backend/enhanced_data_pipeline.py: # Instantaneous frequency (derivative of phase)
+- backend/enhanced_data_pipeline.py: # Pad
+- backend/enhanced_data_pipeline.py: # Frequency grid
+- backend/enhanced_data_pipeline.py: # Interpolate amplitude to frequency grid
+- backend/enhanced_data_pipeline.py: # Find closest frequency bins
+- backend/enhanced_data_pipeline.py: # Continuous Wavelet Transform using Morlet wavelet
+- backend/enhanced_data_pipeline.py: # Generate wavelet at this scale
+- backend/enhanced_data_pipeline.py: # Convolve with signal
+- backend/enhanced_data_pipeline.py: # Synchrosqueezing
+- backend/enhanced_data_pipeline.py: # Compute instantaneous frequency
+- backend/enhanced_data_pipeline.py: # Derivative of CWT
+- backend/enhanced_data_pipeline.py: # Instantaneous frequency
+- backend/enhanced_data_pipeline.py: # Synchrosqueezing reassignment
+- backend/enhanced_data_pipeline.py: # Create frequency grid
+- backend/enhanced_data_pipeline.py: # Find closest frequency bin
+- backend/enhanced_data_pipeline.py: # 1. Kalman filtering (for state estimation)
+- backend/enhanced_data_pipeline.py: # Initialize
+- backend/enhanced_data_pipeline.py: # State estimate
+- backend/enhanced_data_pipeline.py: # Error covariance
+- backend/enhanced_data_pipeline.py: # Prediction
+- backend/enhanced_data_pipeline.py: # Simple random walk model
+- backend/enhanced_data_pipeline.py: # Update
+- backend/enhanced_data_pipeline.py: # Kalman gain
+- backend/enhanced_data_pipeline.py: # 2. Wiener filtering (optimal linear filter)
+- backend/enhanced_data_pipeline.py: # Estimate noise power from high-frequency components
+- backend/enhanced_data_pipeline.py: # High-frequency power (assumed to be mostly noise)
+- backend/enhanced_data_pipeline.py: # Signal power spectrum
+- backend/enhanced_data_pipeline.py: # Wiener filter transfer function
+- backend/enhanced_data_pipeline.py: # Apply filter
+- backend/enhanced_data_pipeline.py: # 3. Adaptive LMS filter
+- backend/enhanced_data_pipeline.py: # Use delayed version as reference (for prediction)
+- backend/enhanced_data_pipeline.py: # Filter weights
+- backend/enhanced_data_pipeline.py: # Input vector
+- backend/enhanced_data_pipeline.py: # Reverse for convolution
+- backend/enhanced_data_pipeline.py: # Filter output
+- backend/enhanced_data_pipeline.py: # Error
+- backend/enhanced_data_pipeline.py: # Update weights
+- backend/enhanced_data_pipeline.py: # Get missing data mask
+- backend/enhanced_data_pipeline.py: # Initialize with zeros for missing entries
+- backend/enhanced_data_pipeline.py: # Estimate tau if not provided
+- backend/enhanced_data_pipeline.py: # Use nuclear norm heuristic
+- backend/enhanced_data_pipeline.py: # SVT algorithm
+- backend/enhanced_data_pipeline.py: # SVD of current estimate
+- backend/enhanced_data_pipeline.py: # Soft thresholding of singular values
+- backend/enhanced_data_pipeline.py: # Reconstruct matrix
+- backend/enhanced_data_pipeline.py: # Update only observed entries
+- backend/enhanced_data_pipeline.py: # Update Y
+- backend/enhanced_data_pipeline.py: # Check convergence
+- backend/enhanced_data_pipeline.py: # Estimate uncertainty for imputed values
+- backend/enhanced_data_pipeline.py: # For each missing entry, estimate uncertainty using nearby observed values
+- backend/enhanced_data_pipeline.py: # Find nearby observed values
+- backend/enhanced_data_pipeline.py: # Row neighbors
+- backend/enhanced_data_pipeline.py: # Column neighbors
+- backend/enhanced_data_pipeline.py: # Estimate uncertainty as variance of nearby values
+- backend/enhanced_data_pipeline.py: # Global variance as fallback
+- backend/enhanced_data_pipeline.py: # EM algorithm for PPCA with missing data
+- backend/enhanced_data_pipeline.py: # Initialize parameters
+- backend/enhanced_data_pipeline.py: # Center data (using observed values)
+- backend/enhanced_data_pipeline.py: # E-step: compute expected sufficient statistics
+- backend/enhanced_data_pipeline.py: # Posterior mean and covariance
+- backend/enhanced_data_pipeline.py: # Second moment
+- backend/enhanced_data_pipeline.py: # M-step: update parameters
+- backend/enhanced_data_pipeline.py: # Update W
+- backend/enhanced_data_pipeline.py: # Update sigma2
+- backend/enhanced_data_pipeline.py: # Check convergence
+- backend/enhanced_data_pipeline.py: # Impute missing values
+- backend/enhanced_data_pipeline.py: # Posterior mean of latent variables
+- backend/enhanced_data_pipeline.py: # Impute missing values
+- backend/enhanced_data_pipeline.py: # Impute each column independently
+- backend/enhanced_data_pipeline.py: # Observed data
+- backend/enhanced_data_pipeline.py: # Missing indices
+- backend/enhanced_data_pipeline.py: # Fit GP
+- backend/enhanced_data_pipeline.py: # Predict missing values
+- backend/enhanced_data_pipeline.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_data_pipeline.py: # Fallback to mean imputation
+- backend/enhanced_data_pipeline.py: # 1. Mahalanobis distance
+- backend/enhanced_data_pipeline.py: # Regularize covariance matrix
+- backend/enhanced_data_pipeline.py: # 2. Robust covariance (Minimum Covariance Determinant)
+- backend/enhanced_data_pipeline.py: # 3. One-Class SVM
+- backend/enhanced_data_pipeline.py: # 4. Local Outlier Factor
+- backend/enhanced_data_pipeline.py: # 5. Ensemble outlier detection
+- backend/enhanced_data_pipeline.py: # Consensus outliers (detected by multiple methods)
+- backend/enhanced_data_pipeline.py: # 1. Statistical process control (control charts)
+- backend/enhanced_data_pipeline.py: # Control window
+- backend/enhanced_data_pipeline.py: # Control limits (3-sigma rule)
+- backend/enhanced_data_pipeline.py: # Check if current point is anomalous
+- backend/enhanced_data_pipeline.py: # 2. Seasonal decomposition anomalies
+- backend/enhanced_data_pipeline.py: # Simple seasonal decomposition
+- backend/enhanced_data_pipeline.py: # Compute seasonal component
+- backend/enhanced_data_pipeline.py: # Deseasonalized data
+- backend/enhanced_data_pipeline.py: # Detect anomalies in deseasonalized series
+- backend/enhanced_data_pipeline.py: # 3. Change point detection
+- backend/enhanced_data_pipeline.py: # Cumulative sum of deviations from mean
+- backend/enhanced_data_pipeline.py: # Detect change points
+- backend/enhanced_data_pipeline.py: # Reset CUSUM
+- backend/enhanced_data_pipeline.py: # 4. Ensemble time series anomaly detection
+- backend/enhanced_data_pipeline.py: # Initialize components
+- backend/enhanced_data_pipeline.py: # Processing history
+- backend/enhanced_data_pipeline.py: # Initialize result containers
+- backend/enhanced_data_pipeline.py: # 1. Missing data analysis and imputation
+- backend/enhanced_data_pipeline.py: # Convert to numpy for processing
+- backend/enhanced_data_pipeline.py: # Matrix completion using SVT
+- backend/enhanced_data_pipeline.py: # Probabilistic PCA imputation
+- backend/enhanced_data_pipeline.py: # Gaussian Process imputation
+- backend/enhanced_data_pipeline.py: # Choose best imputation method (simplified: use SVT)
+- backend/enhanced_data_pipeline.py: # 2. Anomaly detection
+- backend/enhanced_data_pipeline.py: # Multivariate anomaly detection on numerical columns
+- backend/enhanced_data_pipeline.py: # Multivariate outlier detection
+- backend/enhanced_data_pipeline.py: # Time series anomaly detection (if applicable)
+- backend/enhanced_data_pipeline.py: # Sufficient data for time series analysis
+- backend/enhanced_data_pipeline.py: # Limit to first 5 columns for performance
+- backend/enhanced_data_pipeline.py: # Mark anomalous rows
+- backend/enhanced_data_pipeline.py: # 3. Signal processing and decomposition
+- backend/enhanced_data_pipeline.py: # Process first 3 numerical columns
+- backend/enhanced_data_pipeline.py: # EMD decomposition
+- backend/enhanced_data_pipeline.py: # Hilbert-Huang Transform
+- backend/enhanced_data_pipeline.py: # Adaptive filtering
+- backend/enhanced_data_pipeline.py: # Add decomposed components as features
+- backend/enhanced_data_pipeline.py: # Add first 3 IMFs
+- backend/enhanced_data_pipeline.py: # Add filtered signals
+- backend/enhanced_data_pipeline.py: # 4. Advanced time series feature extraction
+- backend/enhanced_data_pipeline.py: # Process first 2 columns
+- backend/enhanced_data_pipeline.py: # Statistical features
+- backend/enhanced_data_pipeline.py: # Frequency domain features
+- backend/enhanced_data_pipeline.py: # Complexity measures
+- backend/enhanced_data_pipeline.py: # Add features to dataframe
+- backend/enhanced_data_pipeline.py: # 5. Statistical properties analysis
+- backend/enhanced_data_pipeline.py: # 6. Quality metrics computation
+- backend/enhanced_data_pipeline.py: # 7. Uncertainty estimation
+- backend/enhanced_data_pipeline.py: # Create final result
+- backend/enhanced_data_pipeline.py: # Store in processing history
+- backend/enhanced_data_pipeline.py: # Basic statistics
+- backend/enhanced_data_pipeline.py: # Distribution tests
+- backend/enhanced_data_pipeline.py: # Autocorrelation
+- backend/enhanced_data_pipeline.py: // 2 :]
+- backend/enhanced_data_pipeline.py: # First zero crossing of autocorrelation
+- backend/enhanced_data_pipeline.py: # FFT
+- backend/enhanced_data_pipeline.py: # Spectral features
+- backend/enhanced_data_pipeline.py: // 2] * power_spectrum[: len(freqs) // 2]
+- backend/enhanced_data_pipeline.py: // 2])
+- backend/enhanced_data_pipeline.py: // 2] - features["spectral_centroid"]) ** 2)
+- backend/enhanced_data_pipeline.py: // 2]
+- backend/enhanced_data_pipeline.py: // 2])
+- backend/enhanced_data_pipeline.py: // 2, 85
+- backend/enhanced_data_pipeline.py: # Peak frequency
+- backend/enhanced_data_pipeline.py: // 2])
+- backend/enhanced_data_pipeline.py: # Spectral entropy
+- backend/enhanced_data_pipeline.py: // 2] / np.sum(
+- backend/enhanced_data_pipeline.py: // 2]
+- backend/enhanced_data_pipeline.py: # Approximate entropy
+- backend/enhanced_data_pipeline.py: # Lyapunov exponent (simplified)
+- backend/enhanced_data_pipeline.py: # Embed the time series
+- backend/enhanced_data_pipeline.py: # Find nearest neighbors and track divergence
+- backend/enhanced_data_pipeline.py: # Hurst exponent
+- backend/enhanced_data_pipeline.py: # Mean-center the data
+- backend/enhanced_data_pipeline.py: # Calculate R/S for different time scales
+- backend/enhanced_data_pipeline.py: // 4)
+- backend/enhanced_data_pipeline.py: # Divide into non-overlapping windows
+- backend/enhanced_data_pipeline.py: // scale
+- backend/enhanced_data_pipeline.py: # Range
+- backend/enhanced_data_pipeline.py: # Standard deviation
+- backend/enhanced_data_pipeline.py: # Fit log(R/S) = H * log(scale) + const
+- backend/enhanced_data_pipeline.py: # Linear regression
+- backend/enhanced_data_pipeline.py: # Correlation analysis
+- backend/enhanced_data_pipeline.py: # Find highly correlated pairs
+- backend/enhanced_data_pipeline.py: # Dimensionality analysis
+- backend/enhanced_data_pipeline.py: # Effective dimensionality (90% variance)
+- backend/enhanced_data_pipeline.py: # First 10 components
+- backend/enhanced_data_pipeline.py: # Data quality metrics
+- backend/enhanced_data_pipeline.py: # Placeholder - would need domain-specific rules
+- backend/enhanced_data_pipeline.py: # Placeholder - would need domain-specific validation
+- backend/enhanced_data_pipeline.py: # Information preservation
+- backend/enhanced_data_pipeline.py: # Mutual information preservation (simplified)
+- backend/enhanced_data_pipeline.py: # Variance preservation
+- backend/enhanced_data_pipeline.py: # Processing efficiency
+- backend/enhanced_data_pipeline.py: # Completeness improvement
+- backend/enhanced_data_pipeline.py: # Imputation uncertainty
+- backend/enhanced_data_pipeline.py: # Transformation uncertainty (simplified)
+- backend/enhanced_data_pipeline.py: # Estimate uncertainty from processing variance
+- backend/enhanced_data_pipeline.py: # Compare original vs processed values
+- backend/enhanced_data_pipeline.py: # Uncertainty as absolute difference
+- backend/enhanced_data_pipeline.py: # Global enhanced data pipeline instance
+- backend/enhanced_database.py: # Ensure this import is present for 'text' usage
+- backend/enhanced_database.py: # Engines
+- backend/enhanced_database.py: # Session makers
+- backend/enhanced_database.py: # Connection pools
+- backend/enhanced_database.py: # Health monitoring
+- backend/enhanced_database.py: # Try primary database first
+- backend/enhanced_database.py: # Fall back to SQLite
+- backend/enhanced_database.py: # Create async engine with connection pooling
+- backend/enhanced_database.py: # Test connection
+- backend/enhanced_database.py: # Create session maker
+- backend/enhanced_database.py: # Create async SQLite engine
+- backend/enhanced_database.py: # Smaller pool for SQLite
+- backend/enhanced_database.py: # Test connection
+- backend/enhanced_database.py: # Correct async usage for SQLAlchemy async
+- backend/enhanced_database.py: # Create session maker
+- backend/enhanced_database.py: # Test the connection
+- backend/enhanced_database.py: # Commit if no exception occurred
+- backend/enhanced_database.py: # Try to recover by switching to fallback
+- backend/enhanced_database.py: # If this is the last attempt, re-raise the exception
+- backend/enhanced_database.py: # Wait before retry
+- backend/enhanced_database.py: # Check primary database
+- backend/enhanced_database.py: # Check fallback database
+- backend/enhanced_database.py: # Update health status
+- backend/enhanced_database.py: # Get connection pool stats
+- backend/enhanced_database.py: # If using fallback, try to reconnect to primary
+- backend/enhanced_database.py: # If primary is down, ensure fallback is working
+- backend/enhanced_database.py: # Create global database configuration
+- backend/enhanced_database.py: //user:pass@localhost:5432/a1betting"
+- backend/enhanced_database.py: ///./a1betting_fallback.db",
+- backend/enhanced_database.py: # Create global database manager
+- backend/enhanced_database.py: # Convenience function for getting database session
+- backend/enhanced_database.py: # Health check function
+- backend/enhanced_database.py: # Recovery function
+- backend/enhanced_ensemble_engine.py: # Import from existing foundation
+- backend/enhanced_ensemble_engine.py: # ['accuracy', 'diversity', 'speed', 'robustness']
+- backend/enhanced_ensemble_engine.py: # Initialize quantum states
+- backend/enhanced_ensemble_engine.py: # Create entanglement matrix
+- backend/enhanced_ensemble_engine.py: # Quantum evolution
+- backend/enhanced_ensemble_engine.py: # Measurement and weight extraction
+- backend/enhanced_ensemble_engine.py: # Evaluate ensemble performance
+- backend/enhanced_ensemble_engine.py: # Apply quantum noise for exploration
+- backend/enhanced_ensemble_engine.py: # Fallback to uniform weights
+- backend/enhanced_ensemble_engine.py: # Normalize to unit magnitude
+- backend/enhanced_ensemble_engine.py: # Entanglement strength based on correlation
+- backend/enhanced_ensemble_engine.py: # Hamiltonian evolution
+- backend/enhanced_ensemble_engine.py: # Self-evolution
+- backend/enhanced_ensemble_engine.py: # Entanglement effects
+- backend/enhanced_ensemble_engine.py: # Renormalize
+- backend/enhanced_ensemble_engine.py: # Probability amplitude
+- backend/enhanced_ensemble_engine.py: # Normalize weights
+- backend/enhanced_ensemble_engine.py: # Renormalize
+- backend/enhanced_ensemble_engine.py: # Weighted performance score
+- backend/enhanced_ensemble_engine.py: # Diversity bonus (entropy of weights)
+- backend/enhanced_ensemble_engine.py: # Historical consistency
+- backend/enhanced_ensemble_engine.py: # Composite score
+- backend/enhanced_ensemble_engine.py: # Simplified consistency calculation
+- backend/enhanced_ensemble_engine.py: # Last 10 predictions
+- backend/enhanced_ensemble_engine.py: # Calculate weight similarity (cosine similarity)
+- backend/enhanced_ensemble_engine.py: # Calculate objective scores for each model
+- backend/enhanced_ensemble_engine.py: # Find Pareto optimal solutions
+- backend/enhanced_ensemble_engine.py: # Select best solution from Pareto frontier
+- backend/enhanced_ensemble_engine.py: # Calculate optimal weights for selected models
+- backend/enhanced_ensemble_engine.py: # Fallback selection
+- backend/enhanced_ensemble_engine.py: # Accuracy objective
+- backend/enhanced_ensemble_engine.py: # Speed objective (inverse of processing time)
+- backend/enhanced_ensemble_engine.py: # Placeholder
+- backend/enhanced_ensemble_engine.py: # Robustness objective
+- backend/enhanced_ensemble_engine.py: # Diversity objective (calculated later)
+- backend/enhanced_ensemble_engine.py: # Placeholder
+- backend/enhanced_ensemble_engine.py: # Calculate diversity scores
+- backend/enhanced_ensemble_engine.py: # Calculate diversity based on prediction differences
+- backend/enhanced_ensemble_engine.py: # This is a simplified calculation
+- backend/enhanced_ensemble_engine.py: # Average diversity
+- backend/enhanced_ensemble_engine.py: # Generate all possible combinations up to max size
+- backend/enhanced_ensemble_engine.py: # Reasonable limit
+- backend/enhanced_ensemble_engine.py: # Check if existing dominates candidate
+- backend/enhanced_ensemble_engine.py: # For diversity, take the average
+- backend/enhanced_ensemble_engine.py: # For other objectives, take weighted average
+- backend/enhanced_ensemble_engine.py: # Score each solution using weighted objectives
+- backend/enhanced_ensemble_engine.py: # Default weights for objectives
+- backend/enhanced_ensemble_engine.py: # Calculate weighted score
+- backend/enhanced_ensemble_engine.py: # Return solution with highest weighted score
+- backend/enhanced_ensemble_engine.py: # Use inverse variance weighting based on model uncertainty
+- backend/enhanced_ensemble_engine.py: # Use model confidence as proxy for inverse variance
+- backend/enhanced_ensemble_engine.py: # Normalize weights
+- backend/enhanced_ensemble_engine.py: # Uniform weights as fallback
+- backend/enhanced_ensemble_engine.py: # Get candidate models
+- backend/enhanced_ensemble_engine.py: # Select optimal ensemble using chosen strategy
+- backend/enhanced_ensemble_engine.py: # Fallback to parent class method
+- backend/enhanced_ensemble_engine.py: # Generate predictions from selected models
+- backend/enhanced_ensemble_engine.py: # Calculate enhanced ensemble prediction
+- backend/enhanced_ensemble_engine.py: # Store performance data for learning
+- backend/enhanced_ensemble_engine.py: # Fallback to parent class
+- backend/enhanced_ensemble_engine.py: # Get model performances
+- backend/enhanced_ensemble_engine.py: # Create correlation matrix (simplified)
+- backend/enhanced_ensemble_engine.py: # Optimize weights
+- backend/enhanced_ensemble_engine.py: # Select models with significant weights
+- backend/enhanced_ensemble_engine.py: # Dynamic threshold
+- backend/enhanced_ensemble_engine.py: # Weighted prediction
+- backend/enhanced_ensemble_engine.py: # Enhanced confidence calculation
+- backend/enhanced_ensemble_engine.py: # Uncertainty quantification
+- backend/enhanced_ensemble_engine.py: # Aggregate feature importance
+- backend/enhanced_ensemble_engine.py: # Create enhanced prediction output
+- backend/enhanced_ensemble_engine.py: # Ensemble type
+- backend/enhanced_ensemble_engine.py: # Aggregate SHAP values if needed
+- backend/enhanced_ensemble_engine.py: # Keep only recent history
+- backend/enhanced_ensemble_engine.py: # Last 50 predictions
+- backend/enhanced_ensemble_engine.py: # Calculate average confidence
+- backend/enhanced_ensemble_engine.py: # Calculate prediction stability
+- backend/enhanced_ensemble_engine.py: # Calculate ensemble diversity
+- backend/enhanced_ensemble_engine.py: # Placeholder
+- backend/enhanced_ensemble_engine.py: # Factory function for easy instantiation
+- backend/enhanced_feature_engineering.py: # Morlet wavelet (complex)
+- backend/enhanced_feature_engineering.py: # Generate wavelet at this scale
+- backend/enhanced_feature_engineering.py: # Convolve with signal (correlation)
+- backend/enhanced_feature_engineering.py: # Extract features from CWT
+- backend/enhanced_feature_engineering.py: # Find local maxima in scale direction
+- backend/enhanced_feature_engineering.py: # Convert to feature vector (simplified)
+- backend/enhanced_feature_engineering.py: # Number of ridges at time t
+- backend/enhanced_feature_engineering.py: # Simplified instantaneous frequency estimation
+- backend/enhanced_feature_engineering.py: # Pad to maintain shape
+- backend/enhanced_feature_engineering.py: # Average across scales
+- backend/enhanced_feature_engineering.py: # Count matches
+- backend/enhanced_feature_engineering.py: # Exclude self-match
+- backend/enhanced_feature_engineering.py: # Coarse-grain the signal
+- backend/enhanced_feature_engineering.py: // scale
+- backend/enhanced_feature_engineering.py: # Calculate sample entropy
+- backend/enhanced_feature_engineering.py: # Need sufficient data points
+- backend/enhanced_feature_engineering.py: # Compute pairwise distances
+- backend/enhanced_feature_engineering.py: # Gaussian kernel
+- backend/enhanced_feature_engineering.py: # Normalize to get transition matrix
+- backend/enhanced_feature_engineering.py: # Symmetric normalization
+- backend/enhanced_feature_engineering.py: # Eigendecomposition
+- backend/enhanced_feature_engineering.py: # Sort by eigenvalue magnitude (descending)
+- backend/enhanced_feature_engineering.py: # Diffusion coordinates
+- backend/enhanced_feature_engineering.py: # Diffusion distance matrix
+- backend/enhanced_feature_engineering.py: # Construct similarity graph
+- backend/enhanced_feature_engineering.py: # Degree matrix
+- backend/enhanced_feature_engineering.py: # Graph Laplacian
+- backend/enhanced_feature_engineering.py: # Normalized Laplacian
+- backend/enhanced_feature_engineering.py: # Eigendecomposition (smallest eigenvalues)
+- backend/enhanced_feature_engineering.py: # Remove first eigenvector (constant vector)
+- backend/enhanced_feature_engineering.py: # Find nearest neighbors
+- backend/enhanced_feature_engineering.py: # Build Hessian matrix
+- backend/enhanced_feature_engineering.py: # Get neighbors
+- backend/enhanced_feature_engineering.py: # Center the neighbors
+- backend/enhanced_feature_engineering.py: # Compute local Hessian approximation
+- backend/enhanced_feature_engineering.py: # SVD of centered neighbors
+- backend/enhanced_feature_engineering.py: # Hessian weights (simplified)
+- backend/enhanced_feature_engineering.py: # Update Hessian matrix
+- backend/enhanced_feature_engineering.py: # Eigendecomposition of Hessian
+- backend/enhanced_feature_engineering.py: # 1. PCA-based estimation
+- backend/enhanced_feature_engineering.py: # 90% variance threshold
+- backend/enhanced_feature_engineering.py: # 95% variance threshold
+- backend/enhanced_feature_engineering.py: # 2. Maximum Likelihood Estimation (Levina & Bickel)
+- backend/enhanced_feature_engineering.py: # Remove self-distance
+- backend/enhanced_feature_engineering.py: # MLE estimate
+- backend/enhanced_feature_engineering.py: # 3. Correlation dimension
+- backend/enhanced_feature_engineering.py: # Normalize data
+- backend/enhanced_feature_engineering.py: # Count points within scale distance
+- backend/enhanced_feature_engineering.py: # Remove diagonal
+- backend/enhanced_feature_engineering.py: # Fit line in log-log space
+- backend/enhanced_feature_engineering.py: # Linear regression
+- backend/enhanced_feature_engineering.py: # Embed time series
+- backend/enhanced_feature_engineering.py: # Shift for lagged transfer entropy
+- backend/enhanced_feature_engineering.py: # Estimate mutual information using k-NN
+- backend/enhanced_feature_engineering.py: # TE(X→Y) = I(Y_future; X_past | Y_past)
+- backend/enhanced_feature_engineering.py: # = I(Y_future; X_past, Y_past) - I(Y_future; Y_past)
+- backend/enhanced_feature_engineering.py: # Joint MI: I(Y_future; X_past, Y_past)
+- backend/enhanced_feature_engineering.py: # Conditional MI: I(Y_future; Y_past)
+- backend/enhanced_feature_engineering.py: # TE(Y→X)
+- backend/enhanced_feature_engineering.py: # Mutual informations
+- backend/enhanced_feature_engineering.py: # PID components (simplified)
+- backend/enhanced_feature_engineering.py: # 1. Mutual Information
+- backend/enhanced_feature_engineering.py: # 2. F-statistic
+- backend/enhanced_feature_engineering.py: # 3. Partial correlation
+- backend/enhanced_feature_engineering.py: # Remove influence of other features
+- backend/enhanced_feature_engineering.py: # Residual after regressing target on other features
+- backend/enhanced_feature_engineering.py: # Residual after regressing current feature on other features
+- backend/enhanced_feature_engineering.py: # Correlation of residuals
+- backend/enhanced_feature_engineering.py: # 4. Ensemble ranking (combine multiple criteria)
+- backend/enhanced_feature_engineering.py: # Weighted average rank
+- backend/enhanced_feature_engineering.py: # Top features for each criterion
+- backend/enhanced_feature_engineering.py: # Compute correlation matrix
+- backend/enhanced_feature_engineering.py: # Create graph
+- backend/enhanced_feature_engineering.py: # Add edges based on correlation threshold
+- backend/enhanced_feature_engineering.py: # Degree centrality
+- backend/enhanced_feature_engineering.py: # Betweenness centrality
+- backend/enhanced_feature_engineering.py: # Closeness centrality
+- backend/enhanced_feature_engineering.py: # Handle disconnected graph
+- backend/enhanced_feature_engineering.py: # Eigenvector centrality
+- backend/enhanced_feature_engineering.py: # PageRank
+- backend/enhanced_feature_engineering.py: # Clustering coefficient
+- backend/enhanced_feature_engineering.py: # 1. Modularity-based (Louvain-like)
+- backend/enhanced_feature_engineering.py: # Greedy modularity maximization
+- backend/enhanced_feature_engineering.py: # Fallback: simple connected components
+- backend/enhanced_feature_engineering.py: # 2. Spectral clustering on graph
+- backend/enhanced_feature_engineering.py: # Graph Laplacian
+- backend/enhanced_feature_engineering.py: # Eigendecomposition
+- backend/enhanced_feature_engineering.py: # Use second smallest eigenvector for bisection
+- backend/enhanced_feature_engineering.py: # Triangle motifs
+- backend/enhanced_feature_engineering.py: # Path motifs (3-node paths)
+- backend/enhanced_feature_engineering.py: # Initialize components
+- backend/enhanced_feature_engineering.py: # Caching
+- backend/enhanced_feature_engineering.py: # 1. Basic statistical transformations
+- backend/enhanced_feature_engineering.py: # 2. Manifold learning
+- backend/enhanced_feature_engineering.py: # Diffusion maps
+- backend/enhanced_feature_engineering.py: # Laplacian eigenmaps
+- backend/enhanced_feature_engineering.py: # Intrinsic dimensionality
+- backend/enhanced_feature_engineering.py: # 3. Spectral features
+- backend/enhanced_feature_engineering.py: # Apply to first few features
+- backend/enhanced_feature_engineering.py: # Wavelet features
+- backend/enhanced_feature_engineering.py: # Multiscale entropy
+- backend/enhanced_feature_engineering.py: # 4. Information theoretic features
+- backend/enhanced_feature_engineering.py: # Feature relevance ranking
+- backend/enhanced_feature_engineering.py: # Transfer entropy between features
+- backend/enhanced_feature_engineering.py: # 5. Graph-based features
+- backend/enhanced_feature_engineering.py: # Construct correlation network
+- backend/enhanced_feature_engineering.py: # Centrality measures
+- backend/enhanced_feature_engineering.py: # Community detection
+- backend/enhanced_feature_engineering.py: # Network motifs
+- backend/enhanced_feature_engineering.py: # 6. Nonlinear transformations
+- backend/enhanced_feature_engineering.py: # Polynomial features (selected)
+- backend/enhanced_feature_engineering.py: # Only for reasonable number of features
+- backend/enhanced_feature_engineering.py: # Log and square root transforms
+- backend/enhanced_feature_engineering.py: # Ensure positive
+- backend/enhanced_feature_engineering.py: # 7. Feature interactions
+- backend/enhanced_feature_engineering.py: # Pairwise products
+- backend/enhanced_feature_engineering.py: # Limit combinatorial explosion
+- backend/enhanced_feature_engineering.py: # Ratio features
+- backend/enhanced_feature_engineering.py: # 8. Uncertainty estimates
+- backend/enhanced_feature_engineering.py: # Bootstrap variance for each feature
+- backend/enhanced_feature_engineering.py: # 9. Construct final feature matrix
+- backend/enhanced_feature_engineering.py: # Add manifold embeddings
+- backend/enhanced_feature_engineering.py: # Add selected spectral features
+- backend/enhanced_feature_engineering.py: # Limit to avoid explosion
+- backend/enhanced_feature_engineering.py: # Add centrality features
+- backend/enhanced_feature_engineering.py: # Combine all features
+- backend/enhanced_feature_engineering.py: # 10. Statistical properties
+- backend/enhanced_feature_engineering.py: # Create result
+- backend/enhanced_feature_engineering.py: # Cache results
+- backend/enhanced_feature_engineering.py: # Global enhanced feature engineering instance
+- backend/enhanced_model_service.py: # Import all enhanced components
+- backend/enhanced_model_service.py: # Model configuration
+- backend/enhanced_model_service.py: # Advanced options
+- backend/enhanced_model_service.py: # Performance options
+- backend/enhanced_model_service.py: # Mathematical rigor options
+- backend/enhanced_model_service.py: # Validation options
+- backend/enhanced_model_service.py: # Core prediction results
+- backend/enhanced_model_service.py: # Individual model results
+- backend/enhanced_model_service.py: # Processing results
+- backend/enhanced_model_service.py: # Mathematical analysis
+- backend/enhanced_model_service.py: # Model performance
+- backend/enhanced_model_service.py: # Quality metrics
+- backend/enhanced_model_service.py: # Metadata
+- backend/enhanced_model_service.py: # Initialize all enhanced components
+- backend/enhanced_model_service.py: # Service state
+- backend/enhanced_model_service.py: # Mathematical validation
+- backend/enhanced_model_service.py: # Initialize result containers
+- backend/enhanced_model_service.py: # Phase 1: Data Preprocessing and Feature Engineering
+- backend/enhanced_model_service.py: # Convert features to DataFrame for processing
+- backend/enhanced_model_service.py: # Enhanced data processing
+- backend/enhanced_model_service.py: # Enhanced feature engineering
+- backend/enhanced_model_service.py: # Use engineered features for prediction
+- backend/enhanced_model_service.py: # Phase 2: Revolutionary Methods (if requested)
+- backend/enhanced_model_service.py: # Phase 3: Bayesian Prediction Engine
+- backend/enhanced_model_service.py: # Prepare training data (if available)
+- backend/enhanced_model_service.py: # Phase 4: Risk Assessment (if requested)
+- backend/enhanced_model_service.py: # Generate synthetic portfolio returns for risk analysis
+- backend/enhanced_model_service.py: # Phase 5: Mathematical Analysis and Validation
+- backend/enhanced_model_service.py: # Phase 6: Model Ensemble and Final Prediction
+- backend/enhanced_model_service.py: # Phase 7: Quality Assessment
+- backend/enhanced_model_service.py: # Construct unified result
+- backend/enhanced_model_service.py: # Core predictions
+- backend/enhanced_model_service.py: # Individual results
+- backend/enhanced_model_service.py: # Processing results
+- backend/enhanced_model_service.py: # Analysis
+- backend/enhanced_model_service.py: # Performance
+- backend/enhanced_model_service.py: # Quality
+- backend/enhanced_model_service.py: # Metadata
+- backend/enhanced_model_service.py: # Cache result if requested
+- backend/enhanced_model_service.py: # Store in history
+- backend/enhanced_model_service.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_model_service.py: # Return fallback result
+- backend/enhanced_model_service.py: # Add top engineered features
+- backend/enhanced_model_service.py: # Limit features
+- backend/enhanced_model_service.py: # Add manifold features
+- backend/enhanced_model_service.py: # Add information theoretic features
+- backend/enhanced_model_service.py: # In a real implementation, this would fetch historical data
+- backend/enhanced_model_service.py: # For now, return synthetic data for demonstration
+- backend/enhanced_model_service.py: # For reproducibility
+- backend/enhanced_model_service.py: # Linear relationship with noise
+- backend/enhanced_model_service.py: # Generate returns based on predictions and features
+- backend/enhanced_model_service.py: # Normalize
+- backend/enhanced_model_service.py: # Add prediction-based signal
+- backend/enhanced_model_service.py: # Generate synthetic return series
+- backend/enhanced_model_service.py: # One year of daily returns
+- backend/enhanced_model_service.py: # Add some autocorrelation
+- backend/enhanced_model_service.py: # Convergence analysis
+- backend/enhanced_model_service.py: # Stability analysis
+- backend/enhanced_model_service.py: # Prediction stability across models
+- backend/enhanced_model_service.py: # Feature stability
+- backend/enhanced_model_service.py: # Information theoretic analysis
+- backend/enhanced_model_service.py: # Complexity analysis
+- backend/enhanced_model_service.py: # Extract prediction values and uncertainties
+- backend/enhanced_model_service.py: # Estimate uncertainty for revolutionary prediction
+- backend/enhanced_model_service.py: # Inverse variance weighting
+- backend/enhanced_model_service.py: # Ensemble prediction
+- backend/enhanced_model_service.py: # Ensemble uncertainty
+- backend/enhanced_model_service.py: # Confidence based on agreement between models
+- backend/enhanced_model_service.py: # Uncertainty bounds (95% confidence interval)
+- backend/enhanced_model_service.py: # Model breakdown
+- backend/enhanced_model_service.py: # Model comparison
+- backend/enhanced_model_service.py: # Mathematical rigor score
+- backend/enhanced_model_service.py: # Bayesian inference component
+- backend/enhanced_model_service.py: # High rigor for proper Bayesian inference
+- backend/enhanced_model_service.py: # Revolutionary methods component
+- backend/enhanced_model_service.py: # Feature engineering component
+- backend/enhanced_model_service.py: # Manifold learning is rigorous
+- backend/enhanced_model_service.py: # Risk assessment component
+- backend/enhanced_model_service.py: # Risk assessment adds rigor
+- backend/enhanced_model_service.py: # Numerical stability score
+- backend/enhanced_model_service.py: # Check for NaN/Inf values
+- backend/enhanced_model_service.py: # Prediction consistency
+- backend/enhanced_model_service.py: # Higher consistency = lower CV
+- backend/enhanced_model_service.py: # Convergence indicators
+- backend/enhanced_model_service.py: # Assume good convergence
+- backend/enhanced_model_service.py: # Theoretical guarantees
+- backend/enhanced_model_service.py: # Bayesian guarantees
+- backend/enhanced_model_service.py: # Revolutionary guarantees
+- backend/enhanced_model_service.py: # Convergence guarantees
+- backend/enhanced_model_service.py: # Convert to serializable format
+- backend/enhanced_model_service.py: # Aggregate statistics
+- backend/enhanced_model_service.py: # Model usage statistics
+- backend/enhanced_model_service.py: # Processing level distribution
+- backend/enhanced_model_service.py: # Determine optimal batch processing strategy
+- backend/enhanced_model_service.py: # Process sequentially for small batches
+- backend/enhanced_model_service.py: # Process in parallel for larger batches
+- backend/enhanced_model_service.py: # Limit concurrent predictions
+- backend/enhanced_model_service.py: # Global enhanced model service instance
+- backend/enhanced_model_service.py: # Convenience functions for external usage
+- backend/enhanced_model_service.py: # Simplified uptime
+- backend/enhanced_prediction_engine.py: # Model evidence (marginal likelihood)
+- backend/enhanced_prediction_engine.py: # Model uncertainty
+- backend/enhanced_prediction_engine.py: # Data uncertainty
+- backend/enhanced_prediction_engine.py: # Variational parameters for weights (mean and log variance)
+- backend/enhanced_prediction_engine.py: # Build network architecture
+- backend/enhanced_prediction_engine.py: # Prior parameters
+- backend/enhanced_prediction_engine.py: # Noise precision (inverse variance)
+- backend/enhanced_prediction_engine.py: # KL(q(w)||p(w)) for Gaussian distributions
+- backend/enhanced_prediction_engine.py: # Sample multiple weight configurations
+- backend/enhanced_prediction_engine.py: # Output layer
+- backend/enhanced_prediction_engine.py: # [n_samples, batch_size, output_dim]
+- backend/enhanced_prediction_engine.py: # Compute statistics
+- backend/enhanced_prediction_engine.py: # Likelihood term (negative log likelihood)
+- backend/enhanced_prediction_engine.py: # KL divergence term
+- backend/enhanced_prediction_engine.py: # ELBO = likelihood - KL divergence
+- backend/enhanced_prediction_engine.py: # Return negative ELBO for minimization
+- backend/enhanced_prediction_engine.py: # Concentration parameter for Dirichlet prior
+- backend/enhanced_prediction_engine.py: # Rate parameter for Gamma prior
+- backend/enhanced_prediction_engine.py: # Use Gaussian KDE for density estimation
+- backend/enhanced_prediction_engine.py: # Sample points for entropy estimation
+- backend/enhanced_prediction_engine.py: # Differential entropy: -âˆ« p(x) log p(x) dx â‰ˆ -E[log p(x)]
+- backend/enhanced_prediction_engine.py: # Compute MI for each feature
+- backend/enhanced_prediction_engine.py: # Compute mutual information for all features
+- backend/enhanced_prediction_engine.py: # Sort by MI score and select top k
+- backend/enhanced_prediction_engine.py: # Prediction entropy
+- backend/enhanced_prediction_engine.py: # True value entropy
+- backend/enhanced_prediction_engine.py: # Joint entropy (approximate)
+- backend/enhanced_prediction_engine.py: # Mutual information: I(X;Y) = H(X) + H(Y) - H(X,Y)
+- backend/enhanced_prediction_engine.py: # Normalized mutual information
+- backend/enhanced_prediction_engine.py: # Information gain ratio
+- backend/enhanced_prediction_engine.py: # Compute predictions with these weights
+- backend/enhanced_prediction_engine.py: # Use logsumexp for numerical stability
+- backend/enhanced_prediction_engine.py: # Initialize weights randomly
+- backend/enhanced_prediction_engine.py: # Sample weight j conditioned on all others
+- backend/enhanced_prediction_engine.py: # Grid search for this weight (simplified)
+- backend/enhanced_prediction_engine.py: # Sample from conditional distribution
+- backend/enhanced_prediction_engine.py: # Sample weights using Gibbs sampling
+- backend/enhanced_prediction_engine.py: # Compute ensemble averages
+- backend/enhanced_prediction_engine.py: # Thermodynamic quantities
+- backend/enhanced_prediction_engine.py: # Heat capacity: C = Î²Â²âŸ¨(E - âŸ¨EâŸ©)Â²âŸ©
+- backend/enhanced_prediction_engine.py: # Free energy (approximate): F = âŸ¨EâŸ© - TS where S â‰ˆ log(Z)
+- backend/enhanced_prediction_engine.py: # Simplified
+- backend/enhanced_prediction_engine.py: # Spectral Mixture Kernel (approximate)
+- backend/enhanced_prediction_engine.py: # Compute pairwise distances
+- backend/enhanced_prediction_engine.py: # Spectral component
+- backend/enhanced_prediction_engine.py: # Neural Network Kernel
+- backend/enhanced_prediction_engine.py: # Gram matrix computation
+- backend/enhanced_prediction_engine.py: # ARD RBF kernel with different lengthscales for each dimension
+- backend/enhanced_prediction_engine.py: # Extract learned lengthscales
+- backend/enhanced_prediction_engine.py: # Compute relevance weights (inverse of lengthscale)
+- backend/enhanced_prediction_engine.py: # Normalize
+- backend/enhanced_prediction_engine.py: # Feature importance based on lengthscales
+- backend/enhanced_prediction_engine.py: # Fit GP
+- backend/enhanced_prediction_engine.py: # Predict on candidates
+- backend/enhanced_prediction_engine.py: # Current best value
+- backend/enhanced_prediction_engine.py: # Expected Improvement
+- backend/enhanced_prediction_engine.py: # Upper Confidence Bound
+- backend/enhanced_prediction_engine.py: # Exploration parameter
+- backend/enhanced_prediction_engine.py: # Probability of Improvement
+- backend/enhanced_prediction_engine.py: # Entropy Search (simplified)
+- backend/enhanced_prediction_engine.py: # DP concentration parameter
+- backend/enhanced_prediction_engine.py: # Initialize variational parameters
+- backend/enhanced_prediction_engine.py: # For each component: mean and precision of weight posterior
+- backend/enhanced_prediction_engine.py: # Stick-breaking weights
+- backend/enhanced_prediction_engine.py: # Responsibility parameters
+- backend/enhanced_prediction_engine.py: # ELBO tracking
+- backend/enhanced_prediction_engine.py: # Update responsibilities (E-step)
+- backend/enhanced_prediction_engine.py: # Compute expected log likelihood under component k
+- backend/enhanced_prediction_engine.py: # Expected log weight
+- backend/enhanced_prediction_engine.py: # Normalize responsibilities
+- backend/enhanced_prediction_engine.py: # Update component parameters (M-step)
+- backend/enhanced_prediction_engine.py: # Avoid division by zero
+- backend/enhanced_prediction_engine.py: # Update weight posterior
+- backend/enhanced_prediction_engine.py: # Precision update (simplified)
+- backend/enhanced_prediction_engine.py: # Mean update
+- backend/enhanced_prediction_engine.py: # Update stick-breaking parameters
+- backend/enhanced_prediction_engine.py: # Compute ELBO (simplified)
+- backend/enhanced_prediction_engine.py: # Check convergence
+- backend/enhanced_prediction_engine.py: # Store results
+- backend/enhanced_prediction_engine.py: # Simplified ELBO computation
+- backend/enhanced_prediction_engine.py: # Simplified - missing KL terms
+- backend/enhanced_prediction_engine.py: # Sample component assignment
+- backend/enhanced_prediction_engine.py: # Sample prediction from chosen component
+- backend/enhanced_prediction_engine.py: # Fixed noise for simplicity
+- backend/enhanced_prediction_engine.py: # Initialize advanced components
+- backend/enhanced_prediction_engine.py: # Performance tracking
+- backend/enhanced_prediction_engine.py: # Convert to tensors
+- backend/enhanced_prediction_engine.py: # Optimizer
+- backend/enhanced_prediction_engine.py: # Compute ELBO loss
+- backend/enhanced_prediction_engine.py: # Convert features to array
+- backend/enhanced_prediction_engine.py: # Initialize results
+- backend/enhanced_prediction_engine.py: # 1. Bayesian Neural Network Prediction
+- backend/enhanced_prediction_engine.py: # Epistemic vs Aleatoric uncertainty decomposition
+- backend/enhanced_prediction_engine.py: # 2. Gaussian Process Prediction
+- backend/enhanced_prediction_engine.py: # ARD feature importance
+- backend/enhanced_prediction_engine.py: # Bayesian optimization metrics
+- backend/enhanced_prediction_engine.py: # 3. Information Theoretic Analysis
+- backend/enhanced_prediction_engine.py: # Mutual information analysis
+- backend/enhanced_prediction_engine.py: # Feature selection based on information gain
+- backend/enhanced_prediction_engine.py: # 4. Statistical Mechanics Analysis
+- backend/enhanced_prediction_engine.py: # Thermodynamic integration
+- backend/enhanced_prediction_engine.py: # 5. Nonparametric Bayesian Prediction
+- backend/enhanced_prediction_engine.py: # Fit DP mixture model
+- backend/enhanced_prediction_engine.py: # Posterior prediction
+- backend/enhanced_prediction_engine.py: # Ensemble prediction with uncertainty propagation
+- backend/enhanced_prediction_engine.py: # Weighted ensemble (inverse variance weighting)
+- backend/enhanced_prediction_engine.py: # Ensemble variance (includes model uncertainty)
+- backend/enhanced_prediction_engine.py: # Fallback prediction
+- backend/enhanced_prediction_engine.py: # Compute information theoretic metrics for final prediction
+- backend/enhanced_prediction_engine.py: # Generate posterior samples (approximate)
+- backend/enhanced_prediction_engine.py: # Credible intervals
+- backend/enhanced_prediction_engine.py: # Model evidence (approximate using BIC)
+- backend/enhanced_prediction_engine.py: # Simple estimate
+- backend/enhanced_prediction_engine.py: # Approximate
+- backend/enhanced_prediction_engine.py: # Information criteria
+- backend/enhanced_prediction_engine.py: # Create result
+- backend/enhanced_prediction_engine.py: # Store prediction history
+- backend/enhanced_prediction_engine.py: # Split data for validation
+- backend/enhanced_prediction_engine.py: # Train and evaluate each model
+- backend/enhanced_prediction_engine.py: # 1. Bayesian NN
+- backend/enhanced_prediction_engine.py: # Evaluate on validation set
+- backend/enhanced_prediction_engine.py: # Compute metrics
+- backend/enhanced_prediction_engine.py: # Predictive likelihood
+- backend/enhanced_prediction_engine.py: # 2. Nonparametric Bayesian
+- backend/enhanced_prediction_engine.py: # Model comparison metrics
+- backend/enhanced_prediction_engine.py: # Simplified comparison based on available metrics
+- backend/enhanced_prediction_engine.py: # Find model with best (lowest) effective information criterion
+- backend/enhanced_prediction_engine.py: # Global enhanced prediction engine instance
+- backend/enhanced_propollama_engine.py: # Keep only recent messages
+- backend/enhanced_propollama_engine.py: # Last 5 messages
+- backend/enhanced_propollama_engine.py: # Default to active if unknown
+- backend/enhanced_propollama_engine.py: # Response templates for different analysis types
+- backend/enhanced_propollama_engine.py: # Add user message to context
+- backend/enhanced_propollama_engine.py: # Generate intelligent response using LLM
+- backend/enhanced_propollama_engine.py: # Add AI response to context
+- backend/enhanced_propollama_engine.py: # Get current predictions from model manager
+- backend/enhanced_propollama_engine.py: # Generate mock predictions for demonstration
+- backend/enhanced_propollama_engine.py: # Filter and rank predictions
+- backend/enhanced_propollama_engine.py: # Select diverse top picks
+- backend/enhanced_propollama_engine.py: # Generate AI reasoning for each bet
+- backend/enhanced_propollama_engine.py: # Generate 50 mock predictions
+- backend/enhanced_propollama_engine.py: # Calculate composite score
+- backend/enhanced_propollama_engine.py: # Weighted scoring: 60% confidence, 40% expected value
+- backend/enhanced_propollama_engine.py: # Scale EV
+- backend/enhanced_propollama_engine.py: # Sort by composite score
+- backend/enhanced_propollama_engine.py: # Ensure diversity: max 3 per sport, max 2 per stat type
+- backend/enhanced_propollama_engine.py: # Minimum confidence threshold
+- backend/enhanced_propollama_engine.py: # Use LLM to generate reasoning
+- backend/enhanced_propollama_engine.py: # Simulate LLM response for now
+- backend/enhanced_propollama_engine.py: # Add user message to context
+- backend/enhanced_propollama_engine.py: # Web research if requested
+- backend/enhanced_propollama_engine.py: # Generate intelligent response using LLM
+- backend/enhanced_propollama_engine.py: # Include best bets if requested
+- backend/enhanced_propollama_engine.py: # Add AI response to context
+- backend/enhanced_propollama_engine.py: # Simulate web research for now
+- backend/enhanced_propollama_engine.py: # In production, this would use DuckDuckGo, Tavily, or other search APIs
+- backend/enhanced_propollama_engine.py: # Get recent predictions from model manager
+- backend/enhanced_propollama_engine.py: # Build enhanced context for LLM
+- backend/enhanced_propollama_engine.py: # Add web research data
+- backend/enhanced_propollama_engine.py: # Generate response based on analysis type
+- backend/enhanced_propollama_engine.py: # Extract prop details from message
+- backend/enhanced_propollama_engine.py: # Find relevant predictions
+- backend/enhanced_propollama_engine.py: # Generate enhanced analysis
+- backend/enhanced_propollama_engine.py: # Detect if user is asking for best bets or recommendations
+- backend/enhanced_propollama_engine.py: # Top 5 for chat
+- backend/enhanced_propollama_engine.py: #1',
+- backend/enhanced_propollama_engine.py: # General response
+- backend/enhanced_propollama_engine.py: # Enhanced pattern matching
+- backend/enhanced_propollama_engine.py: # Get recent predictions from model manager
+- backend/enhanced_propollama_engine.py: # Build context for LLM
+- backend/enhanced_propollama_engine.py: # Generate response based on analysis type
+- backend/enhanced_propollama_engine.py: # Add sport-specific context if detected
+- backend/enhanced_propollama_engine.py: # Add predictions context
+- backend/enhanced_propollama_engine.py: # Top 3 predictions
+- backend/enhanced_propollama_engine.py: # Extract prop details from message
+- backend/enhanced_propollama_engine.py: # Build comprehensive prompt for LLM
+- backend/enhanced_propollama_engine.py: # Get LLM response
+- backend/enhanced_propollama_engine.py: # Extract confidence from response or use default
+- backend/enhanced_propollama_engine.py: # Generate suggestions based on analysis
+- backend/enhanced_propollama_engine.py: # Strategy advice generally has high confidence
+- backend/enhanced_propollama_engine.py: # General chat has moderate confidence
+- backend/enhanced_propollama_engine.py: # Simple extraction - could be enhanced with NLP
+- backend/enhanced_propollama_engine.py: # Extract common patterns
+- backend/enhanced_propollama_engine.py: # Look for player names (capitalized words)
+- backend/enhanced_propollama_engine.py: # Look for numbers (potential lines)
+- backend/enhanced_propollama_engine.py: # Look for confidence percentages
+- backend/enhanced_propollama_engine.py: # Look for confidence keywords
+- backend/enhanced_propollama_engine.py: # Default confidence
+- backend/enhanced_propollama_engine.py: # Use first prediction's SHAP values if available
+- backend/enhanced_propollama_engine.py: # Default SHAP values
+- backend/enhanced_propollama_engine.py: # Fallback methods for when LLM fails
+- backend/enhanced_realtime_system.py: # Prometheus metrics for monitoring
+- backend/enhanced_realtime_system.py: # 0-1 score for data completeness
+- backend/enhanced_realtime_system.py: # 0-1 score for data accuracy
+- backend/enhanced_realtime_system.py: # 0-1 score for data timeliness
+- backend/enhanced_realtime_system.py: # 0-1 score for data consistency
+- backend/enhanced_realtime_system.py: # 0-1 score for data validity
+- backend/enhanced_realtime_system.py: # Basic validation
+- backend/enhanced_realtime_system.py: # Update quality gauge
+- backend/enhanced_realtime_system.py: # Default score for new sources
+- backend/enhanced_realtime_system.py: # Compare with recent historical data
+- backend/enhanced_realtime_system.py: # Timeliness decreases exponentially with age
+- backend/enhanced_realtime_system.py: # 5 minutes
+- backend/enhanced_realtime_system.py: # Look for similar events from other sources
+- backend/enhanced_realtime_system.py: # Default when no comparison available
+- backend/enhanced_realtime_system.py: # Calculate consistency score
+- backend/enhanced_realtime_system.py: # Check for obvious invalid values
+- backend/enhanced_realtime_system.py: # Invalid odds range
+- backend/enhanced_realtime_system.py: # Invalid probability
+- backend/enhanced_realtime_system.py: # Negative scores are invalid
+- backend/enhanced_realtime_system.py: # Numerical similarity
+- backend/enhanced_realtime_system.py: # This would query recent events from database/cache
+- backend/enhanced_realtime_system.py: # Simplified implementation
+- backend/enhanced_realtime_system.py: # 1% minimum profit
+- backend/enhanced_realtime_system.py: # 2% minimum profit
+- backend/enhanced_realtime_system.py: # 5% minimum profit
+- backend/enhanced_realtime_system.py: # Update odds cache
+- backend/enhanced_realtime_system.py: # Extract game information
+- backend/enhanced_realtime_system.py: # Get all odds for this game
+- backend/enhanced_realtime_system.py: # Need at least 2 markets for arbitrage
+- backend/enhanced_realtime_system.py: # Scan different bet types
+- backend/enhanced_realtime_system.py: # Filter by profit thresholds and risk levels
+- backend/enhanced_realtime_system.py: # Update metrics
+- backend/enhanced_realtime_system.py: # Track market latency
+- backend/enhanced_realtime_system.py: # Extract odds for this bet type from all markets
+- backend/enhanced_realtime_system.py: # Find arbitrage opportunities between market pairs
+- backend/enhanced_realtime_system.py: # For moneyline bets
+- backend/enhanced_realtime_system.py: # Find best odds for each team
+- backend/enhanced_realtime_system.py: # Calculate arbitrage
+- backend/enhanced_realtime_system.py: # Arbitrage exists
+- backend/enhanced_realtime_system.py: # Calculate optimal bet allocation
+- backend/enhanced_realtime_system.py: # Calculate market latency impact
+- backend/enhanced_realtime_system.py: # Last 5 updates
+- backend/enhanced_realtime_system.py: # Higher latency increases risk
+- backend/enhanced_realtime_system.py: # Max 2% penalty
+- backend/enhanced_realtime_system.py: # Only include opportunities that meet minimum thresholds
+- backend/enhanced_realtime_system.py: # Sort by profit margin (descending)
+- backend/enhanced_realtime_system.py: # Initialize Redis connection
+- backend/enhanced_realtime_system.py: //localhost:6379")
+- backend/enhanced_realtime_system.py: # Register event processors
+- backend/enhanced_realtime_system.py: # Start background tasks
+- backend/enhanced_realtime_system.py: # Validate event data
+- backend/enhanced_realtime_system.py: # Skip low-quality events
+- backend/enhanced_realtime_system.py: # Add to processing queue
+- backend/enhanced_realtime_system.py: # Update metrics
+- backend/enhanced_realtime_system.py: # Get event from queue
+- backend/enhanced_realtime_system.py: # Process event
+- backend/enhanced_realtime_system.py: # Mark task as done
+- backend/enhanced_realtime_system.py: # Get appropriate processor
+- backend/enhanced_realtime_system.py: # Broadcast to websocket clients if needed
+- backend/enhanced_realtime_system.py: # Store in Redis for caching
+- backend/enhanced_realtime_system.py: # Update processing stats
+- backend/enhanced_realtime_system.py: # Scan for arbitrage opportunities
+- backend/enhanced_realtime_system.py: # If arbitrage opportunities found, create alerts
+- backend/enhanced_realtime_system.py: # Publish to Redis for real-time alerts
+- backend/enhanced_realtime_system.py: # Broadcast to all connected clients
+- backend/enhanced_realtime_system.py: # Remove disconnected clients
+- backend/enhanced_realtime_system.py: # Cache for 1 hour
+- backend/enhanced_realtime_system.py: # Every minute
+- backend/enhanced_realtime_system.py: # Log processing stats
+- backend/enhanced_realtime_system.py: # Reset stats
+- backend/enhanced_realtime_system.py: # Placeholder
+- backend/enhanced_realtime_system.py: # Placeholder
+- backend/enhanced_realtime_system.py: # Factory function
+- backend/enhanced_revolutionary_api.py: # Create router for enhanced revolutionary accuracy endpoints
+- backend/enhanced_revolutionary_api.py: # Mathematical rigor settings
+- backend/enhanced_revolutionary_api.py: # Advanced computation settings
+- backend/enhanced_revolutionary_api.py: # Core predictions with enhanced accuracy
+- backend/enhanced_revolutionary_api.py: # Mathematical rigor metrics
+- backend/enhanced_revolutionary_api.py: # Advanced mathematical properties
+- backend/enhanced_revolutionary_api.py: # Convergence and stability analysis
+- backend/enhanced_revolutionary_api.py: # Computational complexity analysis
+- backend/enhanced_revolutionary_api.py: # Uncertainty quantification
+- backend/enhanced_revolutionary_api.py: # Performance metrics
+- backend/enhanced_revolutionary_api.py: # Mathematical validation
+- backend/enhanced_revolutionary_api.py: # Specific analysis components
+- backend/enhanced_revolutionary_api.py: # Mathematical verification
+- backend/enhanced_revolutionary_api.py: # Set device and precision
+- backend/enhanced_revolutionary_api.py: # Generate enhanced prediction with timing
+- backend/enhanced_revolutionary_api.py: # Extract detailed metrics
+- backend/enhanced_revolutionary_api.py: # Neuromorphic analysis
+- backend/enhanced_revolutionary_api.py: # Additional neuromorphic analysis
+- backend/enhanced_revolutionary_api.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_api.py: # Mamba analysis
+- backend/enhanced_revolutionary_api.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_api.py: # Causal analysis
+- backend/enhanced_revolutionary_api.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_api.py: # Topological analysis
+- backend/enhanced_revolutionary_api.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_api.py: # Riemannian analysis
+- backend/enhanced_revolutionary_api.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_api.py: # Mathematical guarantees validation
+- backend/enhanced_revolutionary_api.py: # Computational complexity analysis
+- backend/enhanced_revolutionary_api.py: # Memory usage estimation (MB)
+- backend/enhanced_revolutionary_api.py: # Uncertainty quantification
+- backend/enhanced_revolutionary_api.py: # Numerical stability checks
+- backend/enhanced_revolutionary_api.py: # Convergence diagnostics
+- backend/enhanced_revolutionary_api.py: # Schedule background deep analysis
+- backend/enhanced_revolutionary_api.py: # Core predictions
+- backend/enhanced_revolutionary_api.py: # Mathematical rigor metrics
+- backend/enhanced_revolutionary_api.py: # Advanced mathematical properties
+- backend/enhanced_revolutionary_api.py: # Convergence and stability
+- backend/enhanced_revolutionary_api.py: # Computational analysis
+- backend/enhanced_revolutionary_api.py: # Uncertainty quantification
+- backend/enhanced_revolutionary_api.py: # Performance metrics
+- backend/enhanced_revolutionary_api.py: # Mathematical validation
+- backend/enhanced_revolutionary_api.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_api.py: # Extract data for analysis
+- backend/enhanced_revolutionary_api.py: # Stability analysis
+- backend/enhanced_revolutionary_api.py: # Convergence analysis
+- backend/enhanced_revolutionary_api.py: # Sensitivity analysis
+- backend/enhanced_revolutionary_api.py: # Robustness analysis
+- backend/enhanced_revolutionary_api.py: # Theoretical guarantees verification
+- backend/enhanced_revolutionary_api.py: # Mathematical consistency checks
+- backend/enhanced_revolutionary_api.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_api.py: # Helper functions for mathematical analysis
+- backend/enhanced_revolutionary_api.py: # Analyze mathematical consistency
+- backend/enhanced_revolutionary_api.py: # Check neuromorphic consistency
+- backend/enhanced_revolutionary_api.py: # Reasonable spike rate
+- backend/enhanced_revolutionary_api.py: # Check Mamba stability
+- backend/enhanced_revolutionary_api.py: # Stability condition
+- backend/enhanced_revolutionary_api.py: # Check causal identifiability
+- backend/enhanced_revolutionary_api.py: # Normalized strength
+- backend/enhanced_revolutionary_api.py: # Check topological validity
+- backend/enhanced_revolutionary_api.py: # Non-negative Betti numbers
+- backend/enhanced_revolutionary_api.py: # Check Riemannian properties
+- backend/enhanced_revolutionary_api.py: # Finite curvature
+- backend/enhanced_revolutionary_api.py: # Store analysis results (would integrate with database)
+- backend/enhanced_revolutionary_api.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_api.py: # Compute eigenvalues of feature covariance matrix
+- backend/enhanced_revolutionary_api.py: # Stability metrics
+- backend/enhanced_revolutionary_api.py: # Lyapunov exponent estimation (simplified)
+- backend/enhanced_revolutionary_api.py: # Estimate convergence rate from eigenvalues
+- backend/enhanced_revolutionary_api.py: # Convergence rate (second largest eigenvalue)
+- backend/enhanced_revolutionary_api.py: # Mixing time estimation
+- backend/enhanced_revolutionary_api.py: # Compute feature sensitivity (variation)
+- backend/enhanced_revolutionary_api.py: # Gradient-based sensitivity (if outcomes available)
+- backend/enhanced_revolutionary_api.py: # Add noise and measure output change
+- backend/enhanced_revolutionary_api.py: # Check data conditions
+- backend/enhanced_revolutionary_api.py: # Check statistical assumptions
+- backend/enhanced_revolutionary_api.py: # Check numerical stability
+- backend/enhanced_revolutionary_api.py: # Dimensionality consistency
+- backend/enhanced_revolutionary_api.py: # Statistical consistency
+- backend/enhanced_revolutionary_api.py: # Correlation structure consistency
+- backend/enhanced_revolutionary_api.py: # Stability score
+- backend/enhanced_revolutionary_api.py: # Convergence score
+- backend/enhanced_revolutionary_api.py: # Theoretical guarantees score
+- backend/enhanced_revolutionary_api.py: # Mathematical consistency score
+- backend/enhanced_revolutionary_api.py: # Overall rigor score
+- backend/enhanced_revolutionary_engine.py: # Install required packages if not available
+- backend/enhanced_revolutionary_engine.py: # Core predictions with uncertainty
+- backend/enhanced_revolutionary_engine.py: # Mathematical rigor metrics
+- backend/enhanced_revolutionary_engine.py: # Advanced mathematical properties
+- backend/enhanced_revolutionary_engine.py: # Convergence and stability
+- backend/enhanced_revolutionary_engine.py: # Meta information
+- backend/enhanced_revolutionary_engine.py: # Biologically accurate neuron parameters
+- backend/enhanced_revolutionary_engine.py: # Resting potential (mV)
+- backend/enhanced_revolutionary_engine.py: # Spike threshold (mV)
+- backend/enhanced_revolutionary_engine.py: # Reset potential (mV)
+- backend/enhanced_revolutionary_engine.py: # Membrane time constant (ms)
+- backend/enhanced_revolutionary_engine.py: # Synaptic time constant (ms)
+- backend/enhanced_revolutionary_engine.py: # Hodgkin-Huxley dynamics parameters
+- backend/enhanced_revolutionary_engine.py: # Max sodium conductance
+- backend/enhanced_revolutionary_engine.py: # Max potassium conductance
+- backend/enhanced_revolutionary_engine.py: # Leak conductance
+- backend/enhanced_revolutionary_engine.py: # Sodium reversal potential
+- backend/enhanced_revolutionary_engine.py: # Potassium reversal potential
+- backend/enhanced_revolutionary_engine.py: # Synaptic weight matrices with Dale's principle
+- backend/enhanced_revolutionary_engine.py: # 80% excitatory, 20% inhibitory (biological ratio)
+- backend/enhanced_revolutionary_engine.py: # STDP learning rule parameters
+- backend/enhanced_revolutionary_engine.py: # STDP time constant +
+- backend/enhanced_revolutionary_engine.py: # STDP time constant -
+- backend/enhanced_revolutionary_engine.py: # STDP amplitude +
+- backend/enhanced_revolutionary_engine.py: # STDP amplitude -
+- backend/enhanced_revolutionary_engine.py: # Homeostatic plasticity
+- backend/enhanced_revolutionary_engine.py: # Target Hz
+- backend/enhanced_revolutionary_engine.py: # Gating variable rate functions
+- backend/enhanced_revolutionary_engine.py: # Update gating variables
+- backend/enhanced_revolutionary_engine.py: # Ionic currents
+- backend/enhanced_revolutionary_engine.py: # Membrane voltage dynamics
+- backend/enhanced_revolutionary_engine.py: # Assuming C_m = 1 Î¼F/cmÂ²
+- backend/enhanced_revolutionary_engine.py: # Post after pre (potentiation)
+- backend/enhanced_revolutionary_engine.py: # Pre after post (depression)
+- backend/enhanced_revolutionary_engine.py: # Fano factor (variance / mean of spike counts)
+- backend/enhanced_revolutionary_engine.py: # Initialize neural states
+- backend/enhanced_revolutionary_engine.py: # Temporal simulation
+- backend/enhanced_revolutionary_engine.py: # ms
+- backend/enhanced_revolutionary_engine.py: # Distribute input over time
+- backend/enhanced_revolutionary_engine.py: # External current from input
+- backend/enhanced_revolutionary_engine.py: # Update neural dynamics
+- backend/enhanced_revolutionary_engine.py: # Detect spikes
+- backend/enhanced_revolutionary_engine.py: # Reset voltage after spike
+- backend/enhanced_revolutionary_engine.py: # Store states
+- backend/enhanced_revolutionary_engine.py: # Final output from last layer activity
+- backend/enhanced_revolutionary_engine.py: # Compute neuromorphic metrics
+- backend/enhanced_revolutionary_engine.py: # Population synchrony using SPIKE-distance
+- backend/enhanced_revolutionary_engine.py: # Network criticality analysis
+- backend/enhanced_revolutionary_engine.py: # Average spike train across neurons
+- backend/enhanced_revolutionary_engine.py: # Compute coefficient of variation of population activity
+- backend/enhanced_revolutionary_engine.py: # Simple criticality measure: balance of activity
+- backend/enhanced_revolutionary_engine.py: # Criticality as proximity to balanced activity
+- backend/enhanced_revolutionary_engine.py: # 10% activity
+- backend/enhanced_revolutionary_engine.py: # Selective mechanism - key innovation of Mamba
+- backend/enhanced_revolutionary_engine.py: # State space parameters (structured)
+- backend/enhanced_revolutionary_engine.py: # Diagonal A matrix (log space)
+- backend/enhanced_revolutionary_engine.py: # Delta parameter for discretization
+- backend/enhanced_revolutionary_engine.py: # Convolution for efficient computation
+- backend/enhanced_revolutionary_engine.py: # A matrix is diagonal for efficiency
+- backend/enhanced_revolutionary_engine.py: # Ensure stability
+- backend/enhanced_revolutionary_engine.py: # Zero-order hold discretization
+- backend/enhanced_revolutionary_engine.py: # [B, D]
+- backend/enhanced_revolutionary_engine.py: # [B, D, N]
+- backend/enhanced_revolutionary_engine.py: # Selection mechanism
+- backend/enhanced_revolutionary_engine.py: # [B, L, D]
+- backend/enhanced_revolutionary_engine.py: # Delta parameter (time step)
+- backend/enhanced_revolutionary_engine.py: # [B, L, D]
+- backend/enhanced_revolutionary_engine.py: # Discretize state space
+- backend/enhanced_revolutionary_engine.py: # Apply selection to B
+- backend/enhanced_revolutionary_engine.py: # [B, L, D, N]
+- backend/enhanced_revolutionary_engine.py: # Parallel scan implementation
+- backend/enhanced_revolutionary_engine.py: # State update: s[t] = A[t] * s[t-1] + B[t] * x[t]
+- backend/enhanced_revolutionary_engine.py: # Output: y[t] = C * s[t] + D * x[t]
+- backend/enhanced_revolutionary_engine.py: # [B, L, output_dim]
+- backend/enhanced_revolutionary_engine.py: # Diagonal A matrix
+- backend/enhanced_revolutionary_engine.py: # Add sequence dimension if missing
+- backend/enhanced_revolutionary_engine.py: # Apply convolution for local dependencies
+- backend/enhanced_revolutionary_engine.py: # Selective scan
+- backend/enhanced_revolutionary_engine.py: # Take final output if sequence
+- backend/enhanced_revolutionary_engine.py: # Compute stability metrics
+- backend/enhanced_revolutionary_engine.py: # Temporal coherence
+- backend/enhanced_revolutionary_engine.py: # Causal discovery network
+- backend/enhanced_revolutionary_engine.py: # Intervention effect estimator
+- backend/enhanced_revolutionary_engine.py: # +1 for intervention variable
+- backend/enhanced_revolutionary_engine.py: # Confounding detector
+- backend/enhanced_revolutionary_engine.py: # Fallback: correlation-based structure learning
+- backend/enhanced_revolutionary_engine.py: # Use real PC algorithm from causal-learn
+- backend/enhanced_revolutionary_engine.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_engine.py: # Fallback to correlation-based
+- backend/enhanced_revolutionary_engine.py: # Build networkx graph for easier manipulation
+- backend/enhanced_revolutionary_engine.py: # Check backdoor criterion
+- backend/enhanced_revolutionary_engine.py: # Adjustment formula: âˆ‘_z P(Y|do(X),Z) * P(Z)
+- backend/enhanced_revolutionary_engine.py: # Simplified estimation
+- backend/enhanced_revolutionary_engine.py: # Try frontdoor criterion or other identification strategies
+- backend/enhanced_revolutionary_engine.py: # Remove all outgoing edges from X
+- backend/enhanced_revolutionary_engine.py: # Check if Z blocks all backdoor paths from X to Y
+- backend/enhanced_revolutionary_engine.py: # Simple check: no path from X to Y in modified graph
+- backend/enhanced_revolutionary_engine.py: # Simplified adjustment effect estimation
+- backend/enhanced_revolutionary_engine.py: # In practice, this would involve integration over confounder distribution
+- backend/enhanced_revolutionary_engine.py: # Use adjacency matrix to compute path strengths
+- backend/enhanced_revolutionary_engine.py: # Adjust for confounders (simplified)
+- backend/enhanced_revolutionary_engine.py: # Reduce effect due to confounding
+- backend/enhanced_revolutionary_engine.py: # Bound the effect
+- backend/enhanced_revolutionary_engine.py: # Check for instrumental variables
+- backend/enhanced_revolutionary_engine.py: # IV estimation (simplified)
+- backend/enhanced_revolutionary_engine.py: # Placeholder for IV effect
+- backend/enhanced_revolutionary_engine.py: # Check frontdoor criterion
+- backend/enhanced_revolutionary_engine.py: # Frontdoor adjustment (simplified)
+- backend/enhanced_revolutionary_engine.py: # Placeholder for frontdoor effect
+- backend/enhanced_revolutionary_engine.py: # Default: return small effect if no identification possible
+- backend/enhanced_revolutionary_engine.py: # Z -> X but Z â†› Y
+- backend/enhanced_revolutionary_engine.py: # X -> M -> Y
+- backend/enhanced_revolutionary_engine.py: # Convert to numpy for causal discovery
+- backend/enhanced_revolutionary_engine.py: # Learn causal structure using PC algorithm
+- backend/enhanced_revolutionary_engine.py: # Detect confounders
+- backend/enhanced_revolutionary_engine.py: # Estimate causal effects for each variable pair
+- backend/enhanced_revolutionary_engine.py: # Neural network adjustment based on causal structure
+- backend/enhanced_revolutionary_engine.py: # Feature extraction for point cloud
+- backend/enhanced_revolutionary_engine.py: # Topological feature integration
+- backend/enhanced_revolutionary_engine.py: # +10 for topological features
+- backend/enhanced_revolutionary_engine.py: # Fallback: simplified topological analysis
+- backend/enhanced_revolutionary_engine.py: # Create Rips complex
+- backend/enhanced_revolutionary_engine.py: # Compute persistence
+- backend/enhanced_revolutionary_engine.py: # Extract Betti numbers
+- backend/enhanced_revolutionary_engine.py: # Extract persistence intervals
+- backend/enhanced_revolutionary_engine.py: # Connected components
+- backend/enhanced_revolutionary_engine.py: # Loops
+- backend/enhanced_revolutionary_engine.py: # Voids
+- backend/enhanced_revolutionary_engine.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_engine.py: # Simple distance-based topology
+- backend/enhanced_revolutionary_engine.py: # Estimate connected components at different scales
+- backend/enhanced_revolutionary_engine.py: # Connected components (H0)
+- backend/enhanced_revolutionary_engine.py: # Components that disappear
+- backend/enhanced_revolutionary_engine.py: # Simplified Betti numbers
+- backend/enhanced_revolutionary_engine.py: # Infinite persistence
+- backend/enhanced_revolutionary_engine.py: # Betti numbers
+- backend/enhanced_revolutionary_engine.py: # Persistence statistics for H1 (loops)
+- backend/enhanced_revolutionary_engine.py: # Topological entropy (simplified)
+- backend/enhanced_revolutionary_engine.py: # Persistence landscape (simplified - just mean birth/death times)
+- backend/enhanced_revolutionary_engine.py: # Extract point cloud representation
+- backend/enhanced_revolutionary_engine.py: # Compute persistent homology
+- backend/enhanced_revolutionary_engine.py: # Extract topological features
+- backend/enhanced_revolutionary_engine.py: # Integrate topological features with neural network
+- backend/enhanced_revolutionary_engine.py: # Compute topological persistence measure
+- backend/enhanced_revolutionary_engine.py: # Embedding to manifold
+- backend/enhanced_revolutionary_engine.py: # Metric tensor network (symmetric positive definite)
+- backend/enhanced_revolutionary_engine.py: # Christoffel symbols network
+- backend/enhanced_revolutionary_engine.py: # Output projection
+- backend/enhanced_revolutionary_engine.py: # Generate metric components
+- backend/enhanced_revolutionary_engine.py: # Ensure positive definiteness: G = L @ L^T + ÎµI
+- backend/enhanced_revolutionary_engine.py: # Lower triangular
+- backend/enhanced_revolutionary_engine.py: # Generate Christoffel symbol components
+- backend/enhanced_revolutionary_engine.py: # Christoffel symbols should satisfy symmetry: Î“^k_{ij} = Î“^k_{ji}
+- backend/enhanced_revolutionary_engine.py: # Compute metric and Christoffel symbols at current point
+- backend/enhanced_revolutionary_engine.py: # Geodesic equation: dÂ²x^k/dtÂ² + Î“^k_{ij} dx^i/dt dx^j/dt = 0
+- backend/enhanced_revolutionary_engine.py: # Acceleration term
+- backend/enhanced_revolutionary_engine.py: # Update velocity and position
+- backend/enhanced_revolutionary_engine.py: # Simple approximation: integrate along straight line in ambient space
+- backend/enhanced_revolutionary_engine.py: # Infinitesimal distance: dsÂ² = g_ij dx^i dx^j
+- backend/enhanced_revolutionary_engine.py: # Simplified parallel transport using connection
+- backend/enhanced_revolutionary_engine.py: # Approximate parallel transport equation
+- backend/enhanced_revolutionary_engine.py: # Transport using metric change (simplified)
+- backend/enhanced_revolutionary_engine.py: # In full implementation, would solve: âˆ‡_X V = 0 along geodesic
+- backend/enhanced_revolutionary_engine.py: # Simplified curvature computation
+- backend/enhanced_revolutionary_engine.py: # Full tensor has R^k_{lij} = âˆ‚Î“^k_{lj}/âˆ‚x^i - âˆ‚Î“^k_{li}/âˆ‚x^j + Î“^k_{mi}Î“^m_{lj} - Î“^k_{mj}Î“^m_{li}
+- backend/enhanced_revolutionary_engine.py: # Simplified scalar curvature approximation
+- backend/enhanced_revolutionary_engine.py: # Embed to manifold
+- backend/enhanced_revolutionary_engine.py: # Compute geometric properties
+- backend/enhanced_revolutionary_engine.py: # Compute distances between points in batch
+- backend/enhanced_revolutionary_engine.py: # Geodesic flow for geometric regularization
+- backend/enhanced_revolutionary_engine.py: # Output projection
+- backend/enhanced_revolutionary_engine.py: # Initialize enhanced models
+- backend/enhanced_revolutionary_engine.py: # Enhanced ensemble weights
+- backend/enhanced_revolutionary_engine.py: # Convert features to tensor
+- backend/enhanced_revolutionary_engine.py: # Base prediction (simple neural network)
+- backend/enhanced_revolutionary_engine.py: # Enhanced neuromorphic prediction
+- backend/enhanced_revolutionary_engine.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_engine.py: # Enhanced Mamba prediction
+- backend/enhanced_revolutionary_engine.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_engine.py: # Enhanced causal inference
+- backend/enhanced_revolutionary_engine.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_engine.py: # Enhanced topological prediction
+- backend/enhanced_revolutionary_engine.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_engine.py: # Enhanced Riemannian prediction
+- backend/enhanced_revolutionary_engine.py: # pylint: disable=broad-exception-caught
+- backend/enhanced_revolutionary_engine.py: # Enhanced ensemble prediction
+- backend/enhanced_revolutionary_engine.py: # Extract advanced metrics
+- backend/enhanced_revolutionary_engine.py: # Create enhanced prediction result
+- backend/enhanced_revolutionary_engine.py: # Core predictions
+- backend/enhanced_revolutionary_engine.py: # Not implemented in this enhanced version
+- backend/enhanced_revolutionary_engine.py: # Not implemented in this enhanced version
+- backend/enhanced_revolutionary_engine.py: # Mathematical rigor metrics
+- backend/enhanced_revolutionary_engine.py: # Advanced mathematical properties
+- backend/enhanced_revolutionary_engine.py: # Convergence and stability
+- backend/enhanced_revolutionary_engine.py: # Meta information
+- backend/enhanced_revolutionary_engine.py: # Will be set by caller
+- backend/enhanced_revolutionary_engine.py: # Largest real part of eigenvalues approximates Lyapunov exponent
+- backend/enhanced_revolutionary_engine.py: # Check for high-dimensional emergence
+- backend/enhanced_revolutionary_engine.py: # Check for temporal emergence
+- backend/enhanced_revolutionary_engine.py: # Check for causal emergence
+- backend/enhanced_revolutionary_engine.py: # Check for topological emergence
+- backend/enhanced_revolutionary_engine.py: # Check for geometric emergence
+- backend/enhanced_revolutionary_engine.py: # Global enhanced engine instance
+- backend/enhanced_risk_management.py: # VaR at different confidence levels
+- backend/enhanced_risk_management.py: # CVaR (Expected Shortfall)
+- backend/enhanced_risk_management.py: # Create block maxima
+- backend/enhanced_risk_management.py: // block_size
+- backend/enhanced_risk_management.py: # Fit GEV distribution
+- backend/enhanced_risk_management.py: # GEV CDF: exp(-[1 + Î¾(x-Î¼)/Ïƒ]^(-1/Î¾)) for Î¾ â‰  0
+- backend/enhanced_risk_management.py: # Gumbel case
+- backend/enhanced_risk_management.py: # General case
+- backend/enhanced_risk_management.py: # Initial parameter estimates
+- backend/enhanced_risk_management.py: # Optimize
+- backend/enhanced_risk_management.py: # Fallback to method of moments
+- backend/enhanced_risk_management.py: # Compute return levels
+- backend/enhanced_risk_management.py: # Gumbel case
+- backend/enhanced_risk_management.py: # Automatic threshold selection using sample quantile
+- backend/enhanced_risk_management.py: # Extract exceedances
+- backend/enhanced_risk_management.py: # Fit GPD: F(x) = 1 - (1 + Î¾x/Ïƒ)^(-1/Î¾)
+- backend/enhanced_risk_management.py: # Exponential case
+- backend/enhanced_risk_management.py: # Initial estimates
+- backend/enhanced_risk_management.py: # Method of moments initial estimates
+- backend/enhanced_risk_management.py: # Estimate high quantiles
+- backend/enhanced_risk_management.py: # Tail probability estimate
+- backend/enhanced_risk_management.py: # High quantile estimates
+- backend/enhanced_risk_management.py: # Use GPD extrapolation
+- backend/enhanced_risk_management.py: # Exponential case
+- backend/enhanced_risk_management.py: # Use empirical quantile
+- backend/enhanced_risk_management.py: # Sort data in descending order
+- backend/enhanced_risk_management.py: # Choose k as square root of sample size (rule of thumb)
+- backend/enhanced_risk_management.py: # Hill estimator: Î³ = (1/k) * Î£ log(X_{i}/X_{k+1})
+- backend/enhanced_risk_management.py: # Asymptotic variance
+- backend/enhanced_risk_management.py: # Confidence interval
+- backend/enhanced_risk_management.py: # Transform to normal scores
+- backend/enhanced_risk_management.py: # Estimate correlation matrix
+- backend/enhanced_risk_management.py: # Log-likelihood
+- backend/enhanced_risk_management.py: # Multivariate normal density
+- backend/enhanced_risk_management.py: # Marginal normal densities
+- backend/enhanced_risk_management.py: # AIC/BIC
+- backend/enhanced_risk_management.py: // 2
+- backend/enhanced_risk_management.py: # Number of correlation parameters
+- backend/enhanced_risk_management.py: # Transform to t-scores (initial guess for degrees of freedom)
+- backend/enhanced_risk_management.py: # Estimate correlation matrix
+- backend/enhanced_risk_management.py: # Log-likelihood
+- backend/enhanced_risk_management.py: # Multivariate t density (approximate)
+- backend/enhanced_risk_management.py: # Marginal t densities
+- backend/enhanced_risk_management.py: # Optimize over degrees of freedom
+- backend/enhanced_risk_management.py: // 2 + 1  # Correlation + df
+- backend/enhanced_risk_management.py: # Clayton copula density
+- backend/enhanced_risk_management.py: # Avoid numerical issues
+- backend/enhanced_risk_management.py: # Remove invalid values
+- backend/enhanced_risk_management.py: # Gumbel copula density (simplified)
+- backend/enhanced_risk_management.py: # Avoid numerical issues
+- backend/enhanced_risk_management.py: # Fit the specified copula
+- backend/enhanced_risk_management.py: # Clayton parameter estimation
+- backend/enhanced_risk_management.py: # Gumbel parameter estimation
+- backend/enhanced_risk_management.py: # Frank copula (simplified)
+- backend/enhanced_risk_management.py: # Rough approximation
+- backend/enhanced_risk_management.py: # Placeholder
+- backend/enhanced_risk_management.py: # 1 parameter
+- backend/enhanced_risk_management.py: # Fit different copulas
+- backend/enhanced_risk_management.py: # Add Archimedean copulas for bivariate case
+- backend/enhanced_risk_management.py: # Select best based on AIC
+- backend/enhanced_risk_management.py: # Discrete version: X_{t+1} = X_t + Î¸(Î¼ - X_t)Î”t + ÏƒâˆšÎ”t Îµ_t
+- backend/enhanced_risk_management.py: # Rearrange: X_{t+1} - X_t = Î¸Î¼Î”t - Î¸X_t Î”t + ÏƒâˆšÎ”t Îµ_t
+- backend/enhanced_risk_management.py: # Linear regression: dX = a + b*X + error
+- backend/enhanced_risk_management.py: # where a = Î¸Î¼Î”t and b = -Î¸Î”t
+- backend/enhanced_risk_management.py: # Extract parameters
+- backend/enhanced_risk_management.py: # Estimate sigma from residuals
+- backend/enhanced_risk_management.py: # Mean reversion half-life
+- backend/enhanced_risk_management.py: # Long-term variance
+- backend/enhanced_risk_management.py: # Detect jumps using threshold method
+- backend/enhanced_risk_management.py: # 3-sigma threshold
+- backend/enhanced_risk_management.py: # Identify potential jumps
+- backend/enhanced_risk_management.py: # Estimate diffusion parameters from normal returns
+- backend/enhanced_risk_management.py: # Estimate jump parameters
+- backend/enhanced_risk_management.py: # Jump intensity
+- backend/enhanced_risk_management.py: # Jump size mean
+- backend/enhanced_risk_management.py: # Model diagnostics
+- backend/enhanced_risk_management.py: # Fit Gaussian mixture model
+- backend/enhanced_risk_management.py: # Extract regime parameters
+- backend/enhanced_risk_management.py: # Predict regime probabilities
+- backend/enhanced_risk_management.py: # Estimate transition matrix (simplified)
+- backend/enhanced_risk_management.py: # Normalize rows
+- backend/enhanced_risk_management.py: # Expected duration in each regime
+- backend/enhanced_risk_management.py: # Initialize components
+- backend/enhanced_risk_management.py: # Risk assessment history
+- backend/enhanced_risk_management.py: # 1. Value at Risk (VaR) estimation
+- backend/enhanced_risk_management.py: # Historical VaR
+- backend/enhanced_risk_management.py: # Parametric VaR (assuming normal)
+- backend/enhanced_risk_management.py: # 2. Conditional Value at Risk (Expected Shortfall)
+- backend/enhanced_risk_management.py: # 3. Extreme Value Theory analysis
+- backend/enhanced_risk_management.py: # GEV for block maxima
+- backend/enhanced_risk_management.py: # Use negative for losses
+- backend/enhanced_risk_management.py: # GPD for tail analysis
+- backend/enhanced_risk_management.py: # Hill estimator
+- backend/enhanced_risk_management.py: # 4. Copula analysis (if individual asset returns provided)
+- backend/enhanced_risk_management.py: # Convert to uniform margins
+- backend/enhanced_risk_management.py: # Fit copula models
+- backend/enhanced_risk_management.py: # Correlation structure
+- backend/enhanced_risk_management.py: # 5. Stochastic process modeling
+- backend/enhanced_risk_management.py: # Ornstein-Uhlenbeck
+- backend/enhanced_risk_management.py: # Jump-diffusion
+- backend/enhanced_risk_management.py: # Create price series (cumulative returns)
+- backend/enhanced_risk_management.py: # Normalize to start at 1
+- backend/enhanced_risk_management.py: # Regime switching
+- backend/enhanced_risk_management.py: # 6. Monte Carlo simulation for portfolio risk
+- backend/enhanced_risk_management.py: # 7. Stress testing
+- backend/enhanced_risk_management.py: # 8. Risk decomposition and attribution
+- backend/enhanced_risk_management.py: # 9. Portfolio optimization metrics
+- backend/enhanced_risk_management.py: # 10. Volatility forecasting
+- backend/enhanced_risk_management.py: # 11. Capital allocation
+- backend/enhanced_risk_management.py: # Create comprehensive result
+- backend/enhanced_risk_management.py: # Store in history
+- backend/enhanced_risk_management.py: # Fit return distribution
+- backend/enhanced_risk_management.py: # Generate scenarios
+- backend/enhanced_risk_management.py: # Portfolio value paths
+- backend/enhanced_risk_management.py: # Risk metrics from simulation
+- backend/enhanced_risk_management.py: # Store subset for memory
+- backend/enhanced_risk_management.py: # Define stress scenarios
+- backend/enhanced_risk_management.py: # -20% single day
+- backend/enhanced_risk_management.py: # -10% scenario
+- backend/enhanced_risk_management.py: # Simulate portfolio impact
+- backend/enhanced_risk_management.py: # Simple linear impact (in practice, would be more sophisticated)
+- backend/enhanced_risk_management.py: # Recovery simulation (mean reversion)
+- backend/enhanced_risk_management.py: # Probability of recovery within period (simplified)
+- backend/enhanced_risk_management.py: # Portfolio variance decomposition
+- backend/enhanced_risk_management.py: # Component contributions (simplified equal weighting assumption)
+- backend/enhanced_risk_management.py: # Marginal risk contributions
+- backend/enhanced_risk_management.py: # Diversification ratio
+- backend/enhanced_risk_management.py: # Basic statistics
+- backend/enhanced_risk_management.py: # Risk-adjusted returns
+- backend/enhanced_risk_management.py: # Assume 2% annual risk-free rate, daily
+- backend/enhanced_risk_management.py: # Sortino ratio (downside deviation)
+- backend/enhanced_risk_management.py: # Maximum drawdown
+- backend/enhanced_risk_management.py: # Calmar ratio
+- backend/enhanced_risk_management.py: # 1. EWMA (Exponentially Weighted Moving Average)
+- backend/enhanced_risk_management.py: # RiskMetrics parameter
+- backend/enhanced_risk_management.py: # Initial variance
+- backend/enhanced_risk_management.py: # Forecast next period
+- backend/enhanced_risk_management.py: # 2. GARCH(1,1) simplified estimation
+- backend/enhanced_risk_management.py: # Simple parameter estimation
+- backend/enhanced_risk_management.py: # Generate forecast
+- backend/enhanced_risk_management.py: # Multi-step ahead variance forecast
+- backend/enhanced_risk_management.py: # Long-run variance
+- backend/enhanced_risk_management.py: # Fallback
+- backend/enhanced_risk_management.py: # Fallback
+- backend/enhanced_risk_management.py: # 3. Historical volatility (rolling window)
+- backend/enhanced_risk_management.py: // 2)
+- backend/enhanced_risk_management.py: # Component VaRs
+- backend/enhanced_risk_management.py: # 95% VaR
+- backend/enhanced_risk_management.py: # Allocate capital proportional to risk
+- backend/enhanced_risk_management.py: # Portfolio-level capital requirement
+- backend/enhanced_risk_management.py: # Economic capital (stressed VaR)
+- backend/enhanced_risk_management.py: # 99% VaR
+- backend/enhanced_risk_management.py: # Global enhanced risk management instance
+- backend/ensemble_engine.py: # Prometheus metrics
+- backend/ensemble_engine.py: # should be timezone-aware
+- backend/ensemble_engine.py: # "performance", "dynamic", "bayesian", "stacking"
+- backend/ensemble_engine.py: # ["accuracy", "diversity", "recent_performance"]
+- backend/ensemble_engine.py: # hours
+- backend/ensemble_engine.py: # hours (1 week)
+- backend/ensemble_engine.py: # for exponential decay in recency weight
+- backend/ensemble_engine.py: # model_name -> model metadata dict
+- backend/ensemble_engine.py: # historic lineage of model versions
+- backend/ensemble_engine.py: # dynamically size executor based on CPU cores
+- backend/ensemble_engine.py: # cache for loaded models to avoid repeated disk I/O
+- backend/ensemble_engine.py: # schedule periodic hyperparameter tuning
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # timezone-aware UTC timestamp
+- backend/ensemble_engine.py: # Initialize metrics
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # Instrument and return cached model if already loaded
+- backend/ensemble_engine.py: # Load model based on type
+- backend/ensemble_engine.py: # Increment load counter and measure latency
+- backend/ensemble_engine.py: # Use joblib for all model loading for safety
+- backend/ensemble_engine.py: # cache and return the loaded model
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # stub: implement tuning with Optuna based on stored cv_scores and metrics
+- backend/ensemble_engine.py: # ... perform tuning and update self.models[name]['hyperparameters'] ...
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # Store in database for persistence
+- backend/ensemble_engine.py: # This would update the database with new metrics
+- backend/ensemble_engine.py: # Score models based on multiple criteria
+- backend/ensemble_engine.py: # Apply selection strategy
+- backend/ensemble_engine.py: # Ensure diversity
+- backend/ensemble_engine.py: # Log selection decision
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # Fallback to top performing models
+- backend/ensemble_engine.py: # Base performance score
+- backend/ensemble_engine.py: # Normalized MSE
+- backend/ensemble_engine.py: # Context-specific performance
+- backend/ensemble_engine.py: # Last 10 predictions
+- backend/ensemble_engine.py: # Recent performance weight
+- backend/ensemble_engine.py: # Feature compatibility score
+- backend/ensemble_engine.py: # Uncertainty score (lower uncertainty is better)
+- backend/ensemble_engine.py: # Composite score
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # Use timezone-aware UTC
+- backend/ensemble_engine.py: # Exponential decay
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # stacking strategy: combine base scores with CV-based weights
+- backend/ensemble_engine.py: # local import for stacking
+- backend/ensemble_engine.py: # retrieve mean CV score or default
+- backend/ensemble_engine.py: # blend base score with cv mean equally
+- backend/ensemble_engine.py: # performance-only strategy
+- backend/ensemble_engine.py: # Select top performers
+- backend/ensemble_engine.py: # Dynamic selection based on recent performance trends
+- backend/ensemble_engine.py: # Bayesian model selection with uncertainty
+- backend/ensemble_engine.py: # Default: top performers
+- backend/ensemble_engine.py: # Implement trend analysis and adaptive selection
+- backend/ensemble_engine.py: # For now, use performance-based selection
+- backend/ensemble_engine.py: # Implement Bayesian selection
+- backend/ensemble_engine.py: # For now, use performance-based selection
+- backend/ensemble_engine.py: # Calculate pairwise correlations (simplified)
+- backend/ensemble_engine.py: # Start with best model
+- backend/ensemble_engine.py: # Always create a tuple of exactly length 2 for the key
+- backend/ensemble_engine.py: # type: ignore
+- backend/ensemble_engine.py: # Base weights from recent performance
+- backend/ensemble_engine.py: # Context-specific adjustments
+- backend/ensemble_engine.py: # Diversity bonuses
+- backend/ensemble_engine.py: # Combine all weight factors
+- backend/ensemble_engine.py: # Normalize weights
+- backend/ensemble_engine.py: # Equal weights as fallback
+- backend/ensemble_engine.py: # Store weight history
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # Return equal weights as fallback
+- backend/ensemble_engine.py: # Calculate accuracy for each model
+- backend/ensemble_engine.py: # type: ignore
+- backend/ensemble_engine.py: # Calculate error
+- backend/ensemble_engine.py: # Calculate performance weights
+- backend/ensemble_engine.py: # Use recent average with exponential weighting
+- backend/ensemble_engine.py: # Default for models without history
+- backend/ensemble_engine.py: # Context-specific model preferences
+- backend/ensemble_engine.py: # This would need access to model type info
+- backend/ensemble_engine.py: # For now, return neutral adjustment
+- backend/ensemble_engine.py: # Models with different types get diversity bonuses
+- backend/ensemble_engine.py: # This is a simplified implementation
+- backend/ensemble_engine.py: # Base bonus
+- backend/ensemble_engine.py: # Prepare training data
+- backend/ensemble_engine.py: # Train meta-model
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # Extract meta-features
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # Basic ensemble statistics
+- backend/ensemble_engine.py: # Number of models
+- backend/ensemble_engine.py: # Add model agreement features
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # TTL cache for ensemble predictions
+- backend/ensemble_engine.py: # Limit concurrent predictions
+- backend/ensemble_engine.py: # Feature toggles for flexibility
+- backend/ensemble_engine.py: # Default ensemble configuration
+- backend/ensemble_engine.py: # Discover and register models
+- backend/ensemble_engine.py: # Load initial models
+- backend/ensemble_engine.py: # Setup Redis cache if configured
+- backend/ensemble_engine.py: # Start background tasks based on config toggles
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # Emit metrics if enabled
+- backend/ensemble_engine.py: # Config
+- backend/ensemble_engine.py: # Feature preprocessing
+- backend/ensemble_engine.py: # Cache lookup
+- backend/ensemble_engine.py: # Try Redis cache first
+- backend/ensemble_engine.py: # Fallback to local cache
+- backend/ensemble_engine.py: # Model selection
+- backend/ensemble_engine.py: # Individual predictions
+- backend/ensemble_engine.py: # Weight calculation
+- backend/ensemble_engine.py: # Ensemble aggregation
+- backend/ensemble_engine.py: # Uncertainty & CI
+- backend/ensemble_engine.py: # Build PredictionOutput
+- backend/ensemble_engine.py: # Store in cache and history
+- backend/ensemble_engine.py: # Background meta-learning if enabled
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # RESOLVED: implement dynamic rebalancing logic
+- backend/ensemble_engine.py: # e.g., update default_config.base_models or thresholds
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # RESOLVED: collect and push performance metrics
+- backend/ensemble_engine.py: # e.g., push to Prometheus or external monitoring
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # Sort features for consistent ordering
+- backend/ensemble_engine.py: # Use config parameters affecting output
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # Prepare feature vector
+- backend/ensemble_engine.py: # Make prediction
+- backend/ensemble_engine.py: # Calculate confidence and uncertainty
+- backend/ensemble_engine.py: # Approximate prediction interval as Â±10% of value
+- backend/ensemble_engine.py: # Feature importance
+- backend/ensemble_engine.py: # SHAP values (stub)
+- backend/ensemble_engine.py: # Will be calculated at ensemble level
+- backend/ensemble_engine.py: # Individual model timing
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # Weighted prediction
+- backend/ensemble_engine.py: # Calculate ensemble confidence interval
+- backend/ensemble_engine.py: # Model agreement score
+- backend/ensemble_engine.py: # Ensemble confidence
+- backend/ensemble_engine.py: # Aggregate feature importance
+- backend/ensemble_engine.py: # Normalize feature importance
+- backend/ensemble_engine.py: # Aggregate SHAP values
+- backend/ensemble_engine.py: # Uncertainty metrics
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # Compute confidence via shared util
+- backend/ensemble_engine.py: # Derive a simple prediction interval Â±10%
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # RESOLVED: integrate SHAP explainer for detailed explainability
+- backend/ensemble_engine.py: # Check individual model health
+- backend/ensemble_engine.py: # Check top 10 models
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # placeholder, override metadata as needed
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_engine.py: # Placeholder for model registry
+- backend/ensemble_engine.py: # Simulate model loading
+- backend/ensemble_engine.py: # Simulate prediction logic
+- backend/ensemble_engine.py: # Instantiate the engine
+- backend/ensemble_optimizer.py: # Advanced ensemble imports
+- backend/ensemble_optimizer.py: # Advanced components
+- backend/ensemble_optimizer.py: # Optimization tracking
+- backend/ensemble_optimizer.py: # Initialize advanced ensemble components
+- backend/ensemble_optimizer.py: # Tree-based models
+- backend/ensemble_optimizer.py: # Linear models
+- backend/ensemble_optimizer.py: # Neural networks
+- backend/ensemble_optimizer.py: # Support Vector Machines
+- backend/ensemble_optimizer.py: # Other models
+- backend/ensemble_optimizer.py: # Simplified transformer-like architecture
+- backend/ensemble_optimizer.py: # 1. Train and evaluate individual models
+- backend/ensemble_optimizer.py: # 2. Select best performing models
+- backend/ensemble_optimizer.py: # 3. Optimize ensemble weights
+- backend/ensemble_optimizer.py: # 4. Create ensemble configuration based on strategy
+- backend/ensemble_optimizer.py: # 5. Validate ensemble performance
+- backend/ensemble_optimizer.py: # 6. Fine-tune if performance is below target
+- backend/ensemble_optimizer.py: # Use ThreadPoolExecutor for parallel model training
+- backend/ensemble_optimizer.py: # Collect results
+- backend/ensemble_optimizer.py: # 5 minute timeout
+- backend/ensemble_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_optimizer.py: # Train model
+- backend/ensemble_optimizer.py: # Make predictions
+- backend/ensemble_optimizer.py: # Calculate metrics
+- backend/ensemble_optimizer.py: # Cross-validation scores
+- backend/ensemble_optimizer.py: # Feature importance (if available)
+- backend/ensemble_optimizer.py: # Calculate additional metrics
+- backend/ensemble_optimizer.py: # Calculated based on model size
+- backend/ensemble_optimizer.py: # Derived from cross-validation scores
+- backend/ensemble_optimizer.py: # Calculated correlation with profit
+- backend/ensemble_optimizer.py: # Calculated Sharpe ratio
+- backend/ensemble_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_optimizer.py: # Return default metrics for failed models
+- backend/ensemble_optimizer.py: # Filter out failed models
+- backend/ensemble_optimizer.py: # Sort by performance
+- backend/ensemble_optimizer.py: # Select top performers ensuring diversity
+- backend/ensemble_optimizer.py: # Check diversity with already selected models
+- backend/ensemble_optimizer.py: # Calculate diversity (simplified correlation-based)
+- backend/ensemble_optimizer.py: # Simplified diversity check based on CV scores
+- backend/ensemble_optimizer.py: # Get predictions from selected models
+- backend/ensemble_optimizer.py: # Default to performance-based
+- backend/ensemble_optimizer.py: # Ensure non-negative
+- backend/ensemble_optimizer.py: # Normalize weights
+- backend/ensemble_optimizer.py: # Normalize weights
+- backend/ensemble_optimizer.py: # Calculate ensemble prediction
+- backend/ensemble_optimizer.py: # Return negative RÂ² (since we want to maximize)
+- backend/ensemble_optimizer.py: # Run optimization
+- backend/ensemble_optimizer.py: # Extract optimal weights
+- backend/ensemble_optimizer.py: # Normalize
+- backend/ensemble_optimizer.py: # Get individual model predictions
+- backend/ensemble_optimizer.py: # pylint: disable=broad-exception-caught
+- backend/ensemble_optimizer.py: # Calculate ensemble prediction based on strategy
+- backend/ensemble_optimizer.py: # Calculate ensemble metrics
+- backend/ensemble_optimizer.py: # Calculate coefficient of variation (inverse of agreement)
+- backend/ensemble_optimizer.py: # Calculate pairwise correlations (simplified)
+- backend/ensemble_optimizer.py: # Simplified correlation for single predictions
+- backend/ensemble_optimizer.py: # Global instance
+- backend/feature_cache.py: # Copied and adapted from Newfolder (example structure)
+- backend/feature_engineering.py: # Copied and adapted from Newfolder backend/FinalPredictionEngine/feature_engineering.py
+- backend/feature_engineering.py: # Implement common validation logic
+- backend/feature_engineering.py: # Implement feature combination logic
+- backend/feature_engineering.py: # Implement optimal stake calculation logic
+- backend/feature_engineering.py: # Calculate time series features
+- backend/feature_engineering.py: # Perform stationarity test
+- backend/feature_engineering.py: # Perform seasonal decomposition
+- backend/feature_engineering.py: // 2, 12)
+- backend/feature_engineering.py: // 2, 12))
+- backend/feature_engineering.py: # Get all unique feature names
+- backend/feature_engineering.py: # Calculate weighted average for each feature
+- backend/feature_engineering.py: # Sort features by absolute SHAP value importance
+- backend/feature_engineering.py: # Top 3 most important features
+- backend/feature_engineering.py: # Add confidence interpretation
+- backend/feature_flags.py: # feature_flags.py
+- backend/feature_flags.py: # --- Interfaces ---
+- backend/feature_flags.py: # --- Singleton FeatureFlags ---
+- backend/feature_flags.py: # config: { 'features': [...], 'experiments': [...] }
+- backend/feature_logger.py: # Copied and adapted from Newfolder (example structure)
+- backend/feature_monitor.py: # Copied and adapted from Newfolder (example structure)
+- backend/feature_registry.py: # Copied and adapted from Newfolder (example structure)
+- backend/feature_selector.py: # Copied and adapted from Newfolder (example structure)
+- backend/feature_selector.py: # Dummy selection: select first k features
+- backend/feature_transformation.py: # Copied and adapted from Newfolder (example structure)
+- backend/feature_transformation.py: # Example: normalize all numeric features
+- backend/feature_transformation.py: # Example normalization
+- backend/feature_validator.py: # Copied and adapted from Newfolder (example structure)
+- backend/feature_validator.py: # Add validation logic as needed
+- backend/fix_metrics.py: #!/usr/bin/env python3
+- backend/fix_metrics.py: # Read the current file
+- backend/fix_metrics.py: # Check if we need to add the calculate_processing_time method
+- backend/fix_metrics.py: # Find where to insert the method (after calculate_average_processing_time)
+- backend/fix_metrics.py: # Add the alias method after calculate_average_processing_time
+- backend/fix_metrics.py: # Find the end of this method
+- backend/fix_metrics.py: # Add the alias method
+- backend/fix_metrics.py: # Skip the lines we already added
+- backend/fix_metrics.py: # Check if we need to add recent_predictions_count to real-time performance
+- backend/fix_metrics.py: # Add the field to get_real_time_performance method
+- backend/fix_metrics.py: # Write the fixed content back
+- backend/health_monitor.py: # Cache results for 30 seconds
+- backend/health_monitor.py: # Run checks in parallel for better performance
+- backend/health_monitor.py: # Combine all check results
+- backend/health_monitor.py: # Update overall status based on individual check
+- backend/health_monitor.py: # Check CPU usage
+- backend/health_monitor.py: # Check memory usage
+- backend/health_monitor.py: # For SQLite, just check if the file exists and is accessible
+- backend/health_monitor.py: # Extract database file path
+- backend/health_monitor.py: ///", "")
+- backend/health_monitor.py: # For other databases, we'd need the actual DB connection
+- backend/health_monitor.py: # For our simple cache implementation, just verify it's working
+- backend/health_monitor.py: # We'll use the simple cache from the main application
+- backend/health_monitor.py: # This is a basic functionality test
+- backend/health_monitor.py: # Test basic HTTP connectivity
+- backend/health_monitor.py: //httpbin.org/status/200", "timeout": 5},
+- backend/health_monitor.py: //8.8.8.8", "timeout": 3},
+- backend/health_monitor.py: # Check API key configurations
+- backend/health_monitor.py: # Check critical configuration
+- backend/health_monitor.py: # Check database configuration
+- backend/health_monitor.py: # Check feature flags
+- backend/health_monitor.py: # Global health checker instance
+- backend/health_monitor.py: # Convenience functions
+- backend/health_monitor.py: # Quick checks only
+- backend/health_monitor.py: # Basic system check
+- backend/install_all_dependencies.py: #!/usr/bin/env python3
+- backend/install_all_dependencies.py: # Core dependencies for enhanced backend
+- backend/install_all_dependencies.py: # ML/AI packages
+- backend/install_all_dependencies.py: # Optional advanced packages
+- backend/install_all_dependencies.py: # Download NLTK data
+- backend/install_all_dependencies.py: # Allow 2 failures
+- backend/integration_test_meta_learning.py: #!/usr/bin/env python3
+- backend/integration_test_meta_learning.py: # 5 examples per class, 3 classes
+- backend/integration_test_meta_learning.py: # Create models
+- backend/integration_test_meta_learning.py: # Test data compatibility
+- backend/integration_test_meta_learning.py: # Train quantum ensemble
+- backend/integration_test_meta_learning.py: # Train meta-learning models
+- backend/integration_test_meta_learning.py: # Test MAML integration
+- backend/integration_test_meta_learning.py: # Test prototypical integration
+- backend/integration_test_meta_learning.py: # Verify all predictions work
+- backend/integration_test_meta_learning.py: # Test prediction shapes
+- backend/integration_test_meta_learning.py: # Create models
+- backend/integration_test_meta_learning.py: # Test data compatibility
+- backend/integration_test_meta_learning.py: # Train NAS model
+- backend/integration_test_meta_learning.py: # Train meta-learning models
+- backend/integration_test_meta_learning.py: # Test Relation Network
+- backend/integration_test_meta_learning.py: # Test Learning-to-Learn
+- backend/integration_test_meta_learning.py: # Verify all predictions work
+- backend/integration_test_meta_learning.py: # Test prediction shapes
+- backend/integration_test_meta_learning.py: # Create all model types
+- backend/integration_test_meta_learning.py: # Verify all models created
+- backend/integration_test_meta_learning.py: # Test end-to-end pipeline
+- backend/integration_test_meta_learning.py: # Train traditional models
+- backend/integration_test_meta_learning.py: # Train meta-learning models
+- backend/integration_test_meta_learning.py: # MAML
+- backend/integration_test_meta_learning.py: # Prototypical
+- backend/integration_test_meta_learning.py: # Relation Network
+- backend/integration_test_meta_learning.py: # Learning-to-Learn
+- backend/integration_test_meta_learning.py: # Test predictions from all models
+- backend/integration_test_meta_learning.py: # Verify all predictions
+- backend/integration_test_meta_learning.py: # Test ensemble diversity
+- backend/integration_test_meta_learning.py: # Compare quantum and NAS predictions
+- backend/integration_test_meta_learning.py: # Test quantum ensemble performance
+- backend/integration_test_meta_learning.py: # Test NAS model performance
+- backend/integration_test_meta_learning.py: # Verify performance requirements
+- backend/integration_test_meta_learning.py: # Test with invalid data
+- backend/integration_test_meta_learning.py: # Test MAML with None data
+- backend/integration_test_meta_learning.py: # Test MAML with empty tasks
+- backend/integration_test_meta_learning.py: # Test Prototypical with mismatched data
+- backend/integration_test_meta_learning.py: # Test MAML adaptation with invalid data
+- backend/integration_test_meta_learning.py: # Summary
+- backend/integration_test_nas.py: #!/usr/bin/env python3
+- backend/integration_test_nas.py: # Create both NAS and quantum models
+- backend/integration_test_nas.py: # Test with same data
+- backend/integration_test_nas.py: # Train both models
+- backend/integration_test_nas.py: # Make predictions
+- backend/integration_test_nas.py: # Verify predictions
+- backend/integration_test_nas.py: # Create all NAS models
+- backend/integration_test_nas.py: # Verify all models created
+- backend/integration_test_nas.py: # Test with same data to verify diversity
+- backend/integration_test_nas.py: # Verify prediction diversity (models should produce different results)
+- backend/integration_test_nas.py: # Calculate correlation (lower = more diverse)
+- backend/integration_test_nas.py: # Test that engine has proper NAS integration
+- backend/integration_test_nas.py: # Test pipeline with NAS models
+- backend/integration_test_nas.py: # Test individual NAS model access
+- backend/integration_test_nas.py: # Train with minimal data
+- backend/integration_test_nas.py: # Test prediction pipeline
+- backend/integration_test_nas.py: # Verify pipeline consistency
+- backend/integration_test_nas.py: # Test model creation times (<3s)
+- backend/integration_test_nas.py: # Test creation time
+- backend/integration_test_nas.py: # Test prediction time
+- backend/integration_test_nas.py: # Check requirements
+- backend/integration_test_nas.py: # Test 1: None data
+- backend/integration_test_nas.py: # Test 2: Empty data
+- backend/integration_test_nas.py: # Test 3: Mismatched dimensions
+- backend/integration_test_nas.py: # Wrong size
+- backend/integration_test_nas.py: # Report results
+- backend/integration_test_nas.py: # Allow 1 failure
+- backend/integration_test_nas.py: # Criterion 1: NAS-Quantum Integration
+- backend/integration_test_nas.py: # Criterion 2: Model Diversity
+- backend/integration_test_nas.py: # Criterion 3: Pipeline Integration
+- backend/integration_test_nas.py: # Criterion 4: Performance Requirements
+- backend/integration_test_nas.py: # Criterion 5: Error Handling
+- backend/integration_test_nas.py: # Run all integration tests
+- backend/integration_test_nas.py: # Generate final report
+- backend/integration_test_quantum.py: #!/usr/bin/env python3
+- backend/integration_test_quantum.py: # Test that _create_quantum_ensemble returns a real object
+- backend/integration_test_quantum.py: # Test that ensemble has required methods
+- backend/integration_test_quantum.py: # Generate synthetic betting data
+- backend/integration_test_quantum.py: # Test quantum feature transformation
+- backend/integration_test_quantum.py: # Test ensemble creation and prediction
+- backend/integration_test_quantum.py: # Create training data
+- backend/integration_test_quantum.py: # Test fit
+- backend/integration_test_quantum.py: # Test prediction
+- backend/integration_test_quantum.py: # Test that engine can still be initialized
+- backend/integration_test_quantum.py: # Test that other methods still exist and work
+- backend/integration_test_quantum.py: # Add other critical methods as needed
+- backend/integration_test_quantum.py: # Test quantum feature transformation with sample data
+- backend/integration_test_quantum.py: # Test with invalid data
+- backend/integration_test_quantum.py: # Expected behavior
+- backend/integration_test_quantum.py: # Test with mismatched dimensions
+- backend/integration_test_quantum.py: # Wrong size
+- backend/integration_test_quantum.py: # Expected behavior
+- backend/integration_test_quantum.py: # Test complete workflow timing
+- backend/integration_test_quantum.py: # Create engine
+- backend/integration_test_quantum.py: # Create ensemble
+- backend/integration_test_quantum.py: # Prepare data
+- backend/integration_test_quantum.py: # Train and predict
+- backend/integration_test_quantum.py: # Reasonable threshold for integrated workflow
+- backend/integration_test_quantum.py: # Run all integration tests
+- backend/integration_test_quantum.py: # Add spacing between tests
+- backend/integration_test_quantum.py: # Generate final report
+- backend/integration_test_real_metrics.py: #!/usr/bin/env python3
+- backend/integration_test_real_metrics.py: //localhost:8000"}/api/ultra-accuracy"
+- backend/integration_test_real_metrics.py: # Test the endpoint (this would normally require the server to be running)
+- backend/integration_test_real_metrics.py: # For now, we'll test the logic directly
+- backend/integration_test_real_metrics.py: # Add some test data to the real metrics system
+- backend/integration_test_real_metrics.py: # Generate test predictions
+- backend/integration_test_real_metrics.py: # Test that the endpoint logic works
+- backend/integration_test_real_metrics.py: # Simulate the endpoint response logic
+- backend/integration_test_real_metrics.py: # Verify the response structure and values
+- backend/integration_test_real_metrics.py: # Verify values are not hardcoded
+- backend/integration_test_real_metrics.py: # Verify response time
+- backend/integration_test_real_metrics.py: # Test the system status endpoint logic
+- backend/integration_test_real_metrics.py: # Simulate the endpoint response logic
+- backend/integration_test_real_metrics.py: # Verify the response structure
+- backend/integration_test_real_metrics.py: # Verify values are not hardcoded (they should be real counts)
+- backend/integration_test_real_metrics.py: # Note: These might be 0 if no models are initialized, which is fine
+- backend/integration_test_real_metrics.py: # Verify response time
+- backend/integration_test_real_metrics.py: # Simulate making predictions and recording metrics
+- backend/integration_test_real_metrics.py: # Simulate prediction creation
+- backend/integration_test_real_metrics.py: # Simulate recording processing time (as done in the endpoint)
+- backend/integration_test_real_metrics.py: # Simulate recording prediction result
+- backend/integration_test_real_metrics.py: # Add some variation
+- backend/integration_test_real_metrics.py: # Verify that metrics were recorded
+- backend/integration_test_real_metrics.py: # Test that metrics reflect the new data
+- backend/integration_test_real_metrics.py: # Get initial state
+- backend/integration_test_real_metrics.py: # Add some new data
+- backend/integration_test_real_metrics.py: # Get updated state
+- backend/integration_test_real_metrics.py: # Verify that real-time metrics updated
+- backend/integration_test_real_metrics.py: # Verify structure
+- backend/integration_test_real_metrics.py: # Test error handling with invalid data
+- backend/integration_test_real_metrics.py: # Invalid negative time
+- backend/integration_test_real_metrics.py: # Test error handling with None prediction
+- backend/integration_test_real_metrics.py: # Invalid None prediction
+- backend/integration_test_real_metrics.py: # Test graceful handling of empty data
+- backend/integration_test_real_metrics.py: # Should return reasonable defaults, not crash
+- backend/integration_test_real_metrics.py: # Detailed results
+- backend/integration_test_real_metrics.py: # Exit with appropriate code
+- backend/integration_test_real_metrics.py: # Success
+- backend/integration_test_real_metrics.py: # Needs improvement
+- backend/llm_routes.py: # LLM endpoint decorator with caching, timeout, and retry logic
+- backend/llm_routes.py: # pylint: disable=broad-exception-caught
+- backend/llm_routes.py: # Prometheus metrics
+- backend/llm_routes.py: # Streaming text generation endpoint
+- backend/llm_routes.py: # Advanced LLM use-cases
+- backend/llm_routes.py: # Perform internal prediction
+- backend/llm_routes.py: # Build prompt for LLM
+- backend/llm_routes.py: # pylint: disable=broad-exception-caught
+- backend/llm_routes.py: # Construct prompt
+- backend/llm_routes.py: # Split into lines or bullets
+- backend/llm_routes.py: # pylint: disable=broad-exception-caught
+- backend/llm_routes.py: # Model management endpoints
+- backend/llm_routes.py: # Sentiment analysis endpoint
+- backend/llm_routes.py: # Health endpoint
+- backend/llm_routes.py: # Prometheus metrics endpoint
+- backend/main.py: # Import from refactored modules
+- backend/main.py: # Optional imports with fallbacks
+- backend/main.py: # type: ignore[import]
+- backend/main.py: ///a1betting.db"
+- backend/main.py: # type: ignore[import]
+- backend/main.py: # type: ignore[import]
+- backend/main.py: # type: ignore[import]
+- backend/main.py: # Remove unused import: KellyCriterionEngine
+- backend/main.py: # ============================================================================
+- backend/main.py: # LIFESPAN EVENT HANDLER
+- backend/main.py: # ============================================================================
+- backend/main.py: # Import autonomous system
+- backend/main.py: # Import database health checker
+- backend/main.py: # Add PrizePicks service import
+- backend/main.py: # Start ALL heavy operations in background without waiting
+- backend/main.py: # DISABLED TO FIX HANGING: asyncio.create_task(deferred_heavy_initialization())
+- backend/main.py: # App is running - return immediately
+- backend/main.py: # Cleanup - minimal and quick
+- backend/main.py: # ============================================================================
+- backend/main.py: # FASTAPI APP INITIALIZATION
+- backend/main.py: # ============================================================================
+- backend/main.py: # Register PrizePicks router for all endpoints and tests
+- backend/main.py: # Register unified API router for enhanced predictions
+- backend/main.py: # Register real-time analysis router for comprehensive multi-sport analysis
+- backend/main.py: # Register feedback router for user feedback system
+- backend/main.py: # Register analytics API router for advanced analytics dashboard
+- backend/main.py: # Register FanDuel router after app initialization
+- backend/main.py: # Register prediction router (specialist models) - DEFERRED TO FIX HANGING
+- backend/main.py: # DISABLED: Importing prediction_engine causes ML training at import time
+- backend/main.py: # Add CORS middleware for frontend integration
+- backend/main.py: # Allow all for development
+- backend/main.py: //7fb6bf6978914ca48f089e6151180b03-a1b171efc67d4aea943f921a9.fly.dev",  # Cloud frontend
+- backend/main.py: //localhost:3000",  # Vite dev server
+- backend/main.py: //localhost:3001",  # Alternative Vite port
+- backend/main.py: //localhost:3002",  # Alternative Vite port
+- backend/main.py: //localhost:3003",  # Alternative Vite port
+- backend/main.py: //localhost:5173",  # Default Vite port
+- backend/main.py: //localhost:8173",  # Current frontend port
+- backend/main.py: //192.168.1.125:5173",  # Local network access
+- backend/main.py: //192.168.1.190:3000",  # Network frontend access
+- backend/main.py: //192.168.1.190:8173",  # Network frontend access (current)
+- backend/main.py: # Add compression middleware
+- backend/main.py: # Application startup time tracking
+- backend/main.py: # Initialize caches for external API calls
+- backend/main.py: # ============================================================================
+- backend/main.py: # MIDDLEWARE SETUP
+- backend/main.py: # ============================================================================
+- backend/main.py: # Log request
+- backend/main.py: # Process request
+- backend/main.py: # Calculate processing time
+- backend/main.py: # Log response
+- backend/main.py: # Add processing time to response headers
+- backend/main.py: # ============================================================================
+- backend/main.py: # BACKGROUND INITIALIZATION
+- backend/main.py: # ============================================================================
+- backend/main.py: # Wait a few seconds to let the app start serving requests first
+- backend/main.py: # Now start the autonomous system in the background
+- backend/main.py: # Initialize enhanced database connection manager
+- backend/main.py: # Initialize enhanced PrizePicks service v2 with ML
+- backend/main.py: # Initialize enhanced PrizePicks service (fallback)
+- backend/main.py: # Initialize global PrizePicks service with existing data (fallback)
+- backend/main.py: # Start enhanced PrizePicks v2 real-time data ingestion
+- backend/main.py: # Ensure database tables exist
+- backend/main.py: # Initialize model service
+- backend/main.py: # type: ignore[import]
+- backend/main.py: # Start propollama cache cleanup
+- backend/main.py: # ============================================================================
+- backend/main.py: # COMPREHENSIVE HEALTH CHECK ENDPOINT
+- backend/main.py: # ============================================================================
+- backend/main.py: # Get basic health status
+- backend/main.py: # Add performance metrics
+- backend/main.py: # Add model status
+- backend/main.py: # Add API metrics
+- backend/main.py: # Basic health endpoint for test compatibility
+- backend/main.py: # /health endpoint for test compatibility (no /api prefix)
+- backend/main.py: # /api/betting-opportunities stub endpoint
+- backend/main.py: # /api/arbitrage-opportunities stub endpoint
+- backend/main.py: # /api/predictions/prizepicks stub endpoint
+- backend/main.py: # ============================================================================
+- backend/main.py: # PRIZEPICKS PROPS ENDPOINT
+- backend/main.py: # ============================================================================
+- backend/main.py: # ============================================================================
+- backend/main.py: # FEATURES AND PREDICTION ENDPOINTS
+- backend/main.py: # ============================================================================
+- backend/main.py: # Extract features from the request data
+- backend/main.py: # Add team stats
+- backend/main.py: # Add player stats
+- backend/main.py: # Add derived features
+- backend/main.py: # Simple prediction logic - in production this would use ML models
+- backend/main.py: # Adjust based on team stats
+- backend/main.py: # Adjust based on player stats
+- backend/main.py: # ============================================================================
+- backend/main.py: # LEGACY ENDPOINTS (TO BE MIGRATED)
+- backend/main.py: # ============================================================================
+- backend/main.py: # These endpoints still need to be migrated to the new route structure
+- backend/main.py: # They are kept here temporarily to maintain backward compatibility
+- backend/main.py: # Mock all data sources
+- backend/main.py: # Mock implementation - would use real SportRadar API
+- backend/main.py: # Mock implementation - would use real odds API
+- backend/main.py: # ============================================================================
+- backend/main.py: # ULTRA-ACCURACY ROUTER INTEGRATION
+- backend/main.py: # ============================================================================
+- backend/main.py: # Register ultra-accuracy router (specialist models)
+- backend/main.py: # type: ignore[import]
+- backend/main.py: # ============================================================================
+- backend/main.py: # LEGACY COMPATIBILITY ENDPOINTS
+- backend/main.py: # ============================================================================
+- backend/main.py: # ============================================================================
+- backend/main.py: # Add comprehensive projections endpoint
+- backend/main.py: # ============================================================================
+- backend/main.py: # ============================================================================
+- backend/main.py: # Autonomous Project Development Endpoint
+- backend/main.py: # ============================================================================
+- backend/main.py: # ============================================================================
+- backend/main.py: # AUTONOMOUS SYSTEM ENDPOINTS
+- backend/main.py: # ============================================================================
+- backend/main.py: # ============================================================================
+- backend/main.py: # ENHANCED HEALTH CHECK WITH AUTONOMOUS INTEGRATION
+- backend/main.py: # ============================================================================
+- backend/main.py: # Get basic health status
+- backend/main.py: # Get autonomous system health
+- backend/main.py: # Add performance metrics
+- backend/main.py: # Add autonomous metrics if available
+- backend/main.py: # Add model status
+- backend/main.py: # Add autonomous metrics if available
+- backend/main.py: # Add API metrics
+- backend/main.py: # Add autonomous status
+- backend/main.py: # ============================================================================
+- backend/main.py: # DATABASE HEALTH CHECK ENDPOINT
+- backend/main.py: # ============================================================================
+- backend/main.py: # Initialize health checker with enhanced database manager
+- backend/main.py: # Perform comprehensive health check
+- backend/main.py: # ============================================================================
+- backend/main.py: # PROPOLLAMA API ENDPOINTS
+- backend/main.py: # ============================================================================
+- backend/main.py: # ============================================================================
+- backend/main.py: # APPLICATION ENTRY POINT
+- backend/main.py: # ============================================================================
+- backend/main_backup.py: # Add current directory to path for local imports
+- backend/main_backup.py: # Configure logging early
+- backend/main_backup.py: # Import from refactored modules
+- backend/main_backup.py: # Optional imports with fallbacks
+- backend/main_backup.py: # type: ignore[import]
+- backend/main_backup.py: # type: ignore[assignment]
+- backend/main_backup.py: # type: ignore[import]
+- backend/main_backup.py: ///a1betting.db"
+- backend/main_backup.py: # type: ignore[import]
+- backend/main_backup.py: # type: ignore[import]
+- backend/main_backup.py: # type: ignore[import]
+- backend/main_backup.py: # type: ignore[assignment,misc]
+- backend/main_backup.py: # type: ignore[assignment,misc]
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # LIFESPAN EVENT HANDLER
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # type: ignore[misc]
+- backend/main_backup.py: # Startup
+- backend/main_backup.py: # Quick initialization - defer heavy operations
+- backend/main_backup.py: # Start background task for heavy initialization
+- backend/main_backup.py: # Shutdown
+- backend/main_backup.py: # Cleanup tasks would go here
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # FASTAPI APP INITIALIZATION
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # Register prediction router (specialist models)
+- backend/main_backup.py: # type: ignore[import]
+- backend/main_backup.py: # Add CORS middleware for cloud frontend integration
+- backend/main_backup.py: # Allow all for development
+- backend/main_backup.py: //7fb6bf6978914ca48f089e6151180b03-a1b171efc67d4aea943f921a9.fly.dev",  # Cloud frontend
+- backend/main_backup.py: //localhost:8000"}",  # Local development
+- backend/main_backup.py: //192.168.1.125:5173",  # Local network access
+- backend/main_backup.py: # Add compression middleware
+- backend/main_backup.py: # Application startup time tracking
+- backend/main_backup.py: # Initialize caches for external API calls
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # MIDDLEWARE SETUP
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # Log request
+- backend/main_backup.py: # Process request
+- backend/main_backup.py: # Calculate processing time
+- backend/main_backup.py: # Log response
+- backend/main_backup.py: # Add processing time to response headers
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # BACKGROUND INITIALIZATION
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # Ensure database tables exist
+- backend/main_backup.py: # Initialize model service
+- backend/main_backup.py: # type: ignore[import]
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # INCLUDE ROUTERS FROM REFACTORED MODULES
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # Include all the refactored route modules
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # ROOT ENDPOINT
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # COMPREHENSIVE HEALTH CHECK ENDPOINT
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # Get basic health status
+- backend/main_backup.py: # Add performance metrics
+- backend/main_backup.py: # Add model status
+- backend/main_backup.py: # Add API metrics
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # PRIZEPICKS PROPS ENDPOINT
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # Import from services
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # FEATURES AND PREDICTION ENDPOINTS
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # Extract features from the request data
+- backend/main_backup.py: # Add team stats
+- backend/main_backup.py: # Add player stats
+- backend/main_backup.py: # Add derived features
+- backend/main_backup.py: # Simple prediction logic - in production this would use ML models
+- backend/main_backup.py: # Adjust based on team stats
+- backend/main_backup.py: # Adjust based on player stats
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # LEGACY ENDPOINTS (TO BE MIGRATED)
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # These endpoints still need to be migrated to the new route structure
+- backend/main_backup.py: # They are kept here temporarily to maintain backward compatibility
+- backend/main_backup.py: # Import from services
+- backend/main_backup.py: # Fetch all data sources
+- backend/main_backup.py: # Mock other data sources
+- backend/main_backup.py: # Mock implementation - would use real SportRadar API
+- backend/main_backup.py: # Mock implementation - would use real odds API
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # ULTRA-ACCURACY ROUTER INTEGRATION
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # Register ultra-accuracy router (specialist models)
+- backend/main_backup.py: # type: ignore[import]
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # LEGACY COMPATIBILITY ENDPOINTS
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # ============================================================================
+- backend/main_backup.py: # APPLICATION ENTRY POINT
+- backend/main_backup.py: # ============================================================================
+- backend/main_complete.py: # Add current directory and parent directory to path for local imports
+- backend/main_complete.py: # Import services
+- backend/main_complete.py: # Configure logging with more detail
+- backend/main_complete.py: # Temporarily increase to DEBUG for investigation
+- backend/main_complete.py: # Add season validation helper
+- backend/main_complete.py: # Example 2024-25 season
+- backend/main_complete.py: # Add other sports as needed
+- backend/main_complete.py: # Add API integration status check
+- backend/main_complete.py: # Initialize PrizePicks service and check status
+- backend/main_complete.py: # Just check if we can initialize
+- backend/main_complete.py: # Import enhanced PropOllama
+- backend/main_complete.py: # Target 96.4% accuracy
+- backend/main_complete.py: # Store reference to PrizePicks service for real data access
+- backend/main_complete.py: # Check API and season status on initialization
+- backend/main_complete.py: # Simulate model training with realistic timing
+- backend/main_complete.py: # Realistic training time
+- backend/main_complete.py: # Full 96.4% accuracy ensemble predictions
+- backend/main_complete.py: # Lightweight but real predictions while training
+- backend/main_complete.py: # Basic real predictions during initialization
+- backend/main_complete.py: # First try to get cached projections (much faster)
+- backend/main_complete.py: # If we have cached projections, use them
+- backend/main_complete.py: # Convert PrizePicks projection to our format
+- backend/main_complete.py: # Log some sample props for verification
+- backend/main_complete.py: # If no cached data, try to get from API (slower, may be rate limited)
+- backend/main_complete.py: //app.prizepicks.com/"
+- backend/main_complete.py: # If we have real projections, use them
+- backend/main_complete.py: # Convert PrizePicks projection to our format
+- backend/main_complete.py: # Log some sample props for verification
+- backend/main_complete.py: # Show first 3 as examples
+- backend/main_complete.py: # No real projections available (likely due to rate limiting)
+- backend/main_complete.py: # Try to load from mock_projections.json
+- backend/main_complete.py: //app.prizepicks.com/"""
+- backend/main_complete.py: # Get REAL props from PrizePicks API instead of generating fake data
+- backend/main_complete.py: # Select top props and create predictions
+- backend/main_complete.py: # Top 10 props
+- backend/main_complete.py: # 80-97% confidence
+- backend/main_complete.py: # 5-25% EV
+- backend/main_complete.py: # -110 American odds
+- backend/main_complete.py: //app.prizepicks.com/ analyzed with advanced ML models.",
+- backend/main_complete.py: # Accuracy improves as models train
+- backend/main_complete.py: # Get REAL props from PrizePicks API
+- backend/main_complete.py: # Use fewer props during training
+- backend/main_complete.py: # Top 8 props during training
+- backend/main_complete.py: # Lower confidence during training
+- backend/main_complete.py: //app.prizepicks.com/ - prediction quality improving as more models come online.",
+- backend/main_complete.py: # Get REAL props from PrizePicks API
+- backend/main_complete.py: # Use just 3 props during initialization
+- backend/main_complete.py: //app.prizepicks.com/ while advanced ML models initialize. Predictions will improve significantly once 96.4% ensemble is ready.",
+- backend/main_complete.py: # Global model manager instance - will be initialized with PrizePicks service in lifespan
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: # LIFESPAN EVENT HANDLER - NON-BLOCKING STARTUP
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: # Initialize performance optimizer
+- backend/main_complete.py: # Start PrizePicks service with optimized async client
+- backend/main_complete.py: # Initialize HTTP client for PrizePicks service
+- backend/main_complete.py: # Initialize model manager with PrizePicks service for REAL data access
+- backend/main_complete.py: # Initialize enhanced PropOllama engine with real model manager
+- backend/main_complete.py: # 🔧 CRITICAL FIX: Start services in background without blocking server startup
+- backend/main_complete.py: # Server can now start immediately while background services initialize
+- backend/main_complete.py: //app.prizepicks.com/"
+- backend/main_complete.py: # Cleanup
+- backend/main_complete.py: # Cancel background tasks first
+- backend/main_complete.py: # Cleanup resources
+- backend/main_complete.py: # Initialize FastAPI app with lifespan handler
+- backend/main_complete.py: # Add CORS middleware for cloud frontend integration
+- backend/main_complete.py: # Allow all for development
+- backend/main_complete.py: //7fb6bf6978914ca48f089e6151180b03-a1b171efc67d4aea943f921a9.fly.dev",  # Cloud frontend
+- backend/main_complete.py: //localhost:8000",  # Local development
+- backend/main_complete.py: //localhost:8173",  # Frontend dev server
+- backend/main_complete.py: //localhost:8174",  # Frontend dev server alt port
+- backend/main_complete.py: //192.168.1.125:5173",  # Local network access
+- backend/main_complete.py: # Add compression middleware
+- backend/main_complete.py: # DIAGNOSTIC: Add request logging middleware to validate server connectivity
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: # ENHANCED PYDANTIC MODELS
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: # AI EXPLAINABILITY ENGINE
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: # Sort SHAP values by importance
+- backend/main_complete.py: # Add confidence assessment
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: # PROPOLLAMA AI CHAT ENGINE
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: # Import the enhanced PropOllama engine
+- backend/main_complete.py: # Initialize enhanced engine with LLM capabilities if available
+- backend/main_complete.py: # Use enhanced engine for intelligent conversation if available
+- backend/main_complete.py: # Convert to PropOllamaResponse format with safe type handling
+- backend/main_complete.py: # Fall back to original implementation
+- backend/main_complete.py: # Fallback to original implementation if enhanced engine fails
+- backend/main_complete.py: # Generate contextual response based on analysis type
+- backend/main_complete.py: # Get real predictions from model manager
+- backend/main_complete.py: # Get real prediction from model manager
+- backend/main_complete.py: # Use first prediction
+- backend/main_complete.py: # Fallback basic prediction if no data available
+- backend/main_complete.py: # Extract confidence as a safe number
+- backend/main_complete.py: # Extract SHAP values safely
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: # GLOBAL INSTANCES
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: # Initialize enhanced PropOllama engine - will be initialized in lifespan with real model manager
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: # API ENDPOINTS
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: //app.prizepicks.com/)",
+- backend/main_complete.py: # PropOllama AI Chat Endpoints
+- backend/main_complete.py: # Fallback error response
+- backend/main_complete.py: # Enhanced Prediction Endpoints
+- backend/main_complete.py: # Get PrizePicks service from app state
+- backend/main_complete.py: # Get current projections
+- backend/main_complete.py: # Get model manager
+- backend/main_complete.py: # Prepare enhanced predictions
+- backend/main_complete.py: # Get ML analysis for the projection
+- backend/main_complete.py: # Create enhanced prediction
+- backend/main_complete.py: # Standard odds for now
+- backend/main_complete.py: # Will add SHAP values in next update
+- backend/main_complete.py: # PrizePicks API Endpoints
+- backend/main_complete.py: # DIAGNOSTIC: Check if app.state has prizepicks_service
+- backend/main_complete.py: # Get PrizePicks service from app state
+- backend/main_complete.py: # DIAGNOSTIC: Check if service is ready with timeout
+- backend/main_complete.py: # Get current projections with timeout to prevent long waits
+- backend/main_complete.py: # 10 second timeout
+- backend/main_complete.py: # DIAGNOSTIC: Log first few projections to understand data structure
+- backend/main_complete.py: # Convert to simple dictionary format for frontend
+- backend/main_complete.py: # Log every 50th projection conversion for debugging
+- backend/main_complete.py: # Log details for first 3 errors
+- backend/main_complete.py: # Get PrizePicks service from app state
+- backend/main_complete.py: # Get leagues
+- backend/main_complete.py: # Get PrizePicks service from app state
+- backend/main_complete.py: # Get current projections count
+- backend/main_complete.py: # ...existing code...
+- backend/main_complete.py: # Include existing routers if available
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: # MAIN APPLICATION STARTUP
+- backend/main_complete.py: # ============================================================================
+- backend/main_complete.py: # Note: App startup handled by lifespan context manager above
+- backend/main_complete.py: # Model training runs in background, server starts immediately
+- backend/main_complete.py: # Test if port is available
+- backend/main_complete.py: # Find available port dynamically
+- backend/main_enhanced_prod.py: # Import configuration manager
+- backend/main_enhanced_prod.py: # Import health monitoring system
+- backend/main_enhanced_prod.py: # Import specialist API integrations
+- backend/main_enhanced_prod.py: # Get global configuration
+- backend/main_enhanced_prod.py: # Configure logging
+- backend/main_enhanced_prod.py: # Initialize FastAPI app
+- backend/main_enhanced_prod.py: # Add CORS middleware
+- backend/main_enhanced_prod.py: # Add compression middleware
+- backend/main_enhanced_prod.py: # Application startup time tracking
+- backend/main_enhanced_prod.py: # Configuration
+- backend/main_enhanced_prod.py: # 5 minutes
+- backend/main_enhanced_prod.py: # Simple cache implementation for production
+- backend/main_enhanced_prod.py: # Initialize caches
+- backend/main_enhanced_prod.py: # Rate limiting
+- backend/main_enhanced_prod.py: # Pydantic Models
+- backend/main_enhanced_prod.py: # Rate limiting decorator
+- backend/main_enhanced_prod.py: # Simple rate limiting based on client IP
+- backend/main_enhanced_prod.py: # External API integration helpers
+- backend/main_enhanced_prod.py: # Use specialist manager to get unified odds data
+- backend/main_enhanced_prod.py: # Convert to legacy format for compatibility
+- backend/main_enhanced_prod.py: # Use specialist manager to get unified game data
+- backend/main_enhanced_prod.py: # Convert to legacy format
+- backend/main_enhanced_prod.py: # Get player props from PrizePicks
+- backend/main_enhanced_prod.py: # Convert to API format
+- backend/main_enhanced_prod.py: # Get news from ESPN
+- backend/main_enhanced_prod.py: # Net odds received
+- backend/main_enhanced_prod.py: # Probability of winning
+- backend/main_enhanced_prod.py: # Probability of losing
+- backend/main_enhanced_prod.py: # Cap at 25% of bankroll
+- backend/main_enhanced_prod.py: # In production, this would call your actual ML models
+- backend/main_enhanced_prod.py: # For now, we'll simulate intelligent predictions
+- backend/main_enhanced_prod.py: # Simulate model prediction (replace with actual model inference)
+- backend/main_enhanced_prod.py: # Slight favorite
+- backend/main_enhanced_prod.py: # Adjust based on "features" if provided
+- backend/main_enhanced_prod.py: # Fetch current odds to calculate expected value
+- backend/main_enhanced_prod.py: # Default odds
+- backend/main_enhanced_prod.py: # Find matching odds
+- backend/main_enhanced_prod.py: # Generate recommendation
+- backend/main_enhanced_prod.py: # API Endpoints
+- backend/main_enhanced_prod.py: # Simulate model probability (replace with actual model)
+- backend/main_enhanced_prod.py: # Only show positive EV opportunities
+- backend/main_enhanced_prod.py: # In production, this would fetch from database
+- backend/main_enhanced_prod.py: # For now, return a mock response
+- backend/main_enhanced_prod.py: # In production, this would fetch real performance metrics
+- backend/main_enhanced_prod.py: # In production, this would fetch from ESPN API or similar
+- backend/main_enhanced_prod.py: # NEW SPECIALIST API ENDPOINTS
+- backend/main_enhanced_prod.py: # Error handlers
+- backend/main_enhanced_prod.py: # Startup and shutdown events using modern lifespan handlers
+- backend/main_enhanced_prod.py: # Startup
+- backend/main_enhanced_prod.py: # Shutdown
+- backend/main_enhanced_prod.py: # Apply lifespan to app
+- backend/main_integrated.py: # Configure logging
+- backend/main_integrated.py: # Lifespan event handler
+- backend/main_integrated.py: # Initialize scheduler and background jobs
+- backend/main_integrated.py: # Temporarily disabled due to sports expert api issues
+- backend/main_integrated.py: # from sports_expert_api import intelligent_scheduler
+- backend/main_integrated.py: # intelligent_scheduler.start()
+- backend/main_integrated.py: # logger.info("✅ Background job scheduler started")
+- backend/main_integrated.py: # pylint: disable=broad-exception-caught
+- backend/main_integrated.py: # Initialize betting service
+- backend/main_integrated.py: # pylint: disable=broad-exception-caught
+- backend/main_integrated.py: # Cleanup on shutdown
+- backend/main_integrated.py: # Temporarily disabled due to sports expert api issues
+- backend/main_integrated.py: # from sports_expert_api import intelligent_scheduler
+- backend/main_integrated.py: # intelligent_scheduler.shutdown()
+- backend/main_integrated.py: # logger.info("✅ Background job scheduler stopped")
+- backend/main_integrated.py: # pylint: disable=broad-exception-caught
+- backend/main_integrated.py: # Create main FastAPI application
+- backend/main_integrated.py: # CORS configuration for cloud frontend integration
+- backend/main_integrated.py: # Allow all for development
+- backend/main_integrated.py: //7fb6bf6978914ca48f089e6151180b03-a1b171efc67d4aea943f921a9.fly.dev",  # Cloud frontend
+- backend/main_integrated.py: //localhost:8000"}",  # Vite dev server
+- backend/main_integrated.py: //localhost:8000"}",  # Alternative React dev server
+- backend/main_integrated.py: //localhost:8000"}",  # Another common dev port
+- backend/main_integrated.py: //127.0.0.1:5173",
+- backend/main_integrated.py: //127.0.0.1:3000",
+- backend/main_integrated.py: //127.0.0.1:8080",
+- backend/main_integrated.py: //192.168.1.125:5173",  # Local network access
+- backend/main_integrated.py: # Include all API routers
+- backend/main_integrated.py: # Import and include the complete API integration
+- backend/main_integrated.py: # Import and include existing sports expert routes
+- backend/main_integrated.py: # Temporarily disabled due to agent variable issue
+- backend/main_integrated.py: # from sports_expert_api import router as sports_expert_router
+- backend/main_integrated.py: # if sports_expert_router:
+- backend/main_integrated.py: #     app.include_router(sports_expert_router)
+- backend/main_integrated.py: #     logger.info("✅ Sports expert routes loaded")
+- backend/main_integrated.py: # Import and include betting opportunity routes
+- backend/main_integrated.py: # Health check endpoints
+- backend/main_integrated.py: # Check betting service
+- backend/main_integrated.py: # pylint: disable=broad-exception-caught
+- backend/main_integrated.py: # Check sports expert agent
+- backend/main_integrated.py: # pylint: disable=broad-exception-caught
+- backend/main_integrated.py: # Check scheduler
+- backend/main_integrated.py: # pylint: disable=broad-exception-caught
+- backend/main_integrated.py: # Static file serving for frontend (if needed)
+- backend/main_integrated.py: # Uncomment if you want to serve the built frontend from the backend
+- backend/main_integrated.py: # static_dir = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
+- backend/main_integrated.py: # if os.path.exists(static_dir):
+- backend/main_integrated.py: #     app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+- backend/main_integrated.py: #     logger.info("✅ Frontend static files mounted")
+- backend/main_integrated.py: # Error handlers
+- backend/main_integrated.py: # Root endpoint
+- backend/main_integrated.py: # Development server configuration
+- backend/main_integrated.py: # Changed from "backend.main_integrated:app"
+- backend/main_simple.py: # Configure logging
+- backend/main_simple.py: # Create FastAPI app
+- backend/main_simple.py: # Add CORS middleware
+- backend/main_simple.py: # Allow all for development
+- backend/main_simple.py: //localhost:3000",
+- backend/main_simple.py: //localhost:5173",
+- backend/main_simple.py: //localhost:8173",
+- backend/main_simple.py: //192.168.1.190:8173",
+- backend/main_simple.py: # Import and include the simple router
+- backend/main_simple.py: # Simple health endpoint
+- backend/memory_bank.py: # Return minimal context for demo
+- backend/minimal_backend.py: # Add the project root to the Python path
+- backend/minimal_backend.py: # Set up logging
+- backend/minimal_backend.py: # App is running - return immediately
+- backend/minimal_backend.py: # Import only the essential routes
+- backend/minimal_backend.py: # Create minimal app
+- backend/minimal_backend.py: # Add only health endpoint
+- backend/minimal_test.py: # App is running
+- backend/minimal_test.py: # Create minimal app
+- backend/model_service.py: # Optional imports with fallbacks
+- backend/model_service.py: # Silence the unused import warning by using it
+- backend/model_service.py: # xgboost, lightgbm, random_forest, neural_net
+- backend/model_service.py: # Load model in thread pool to avoid blocking
+- backend/model_service.py: # For neural networks, using pickle is insecure.
+- backend/model_service.py: # A framework-specific safe loading mechanism should be used.
+- backend/model_service.py: # pylint: disable=broad-exception-caught
+- backend/model_service.py: # Prepare features
+- backend/model_service.py: # Make prediction
+- backend/model_service.py: # Calculate confidence (model-specific logic)
+- backend/model_service.py: # Feature importance and SHAP values (if requested)
+- backend/model_service.py: # Update stats
+- backend/model_service.py: # pylint: disable=broad-exception-caught
+- backend/model_service.py: # Determine which models to use
+- backend/model_service.py: # Feature engineering
+- backend/model_service.py: # Make predictions with all models concurrently
+- backend/model_service.py: # Filter out failed predictions
+- backend/model_service.py: # Calculate ensemble prediction
+- backend/model_service.py: # Update stats
+- backend/model_service.py: # Update average latency
+- backend/model_service.py: # pylint: disable=broad-exception-caught
+- backend/model_service.py: # Ensure all required features are present
+- backend/model_service.py: # pylint: disable=broad-exception-caught
+- backend/model_service.py: # Assuming single output
+- backend/model_service.py: # Use prediction variance across trees with pure Python
+- backend/model_service.py: # Use feature importance as proxy for confidence
+- backend/model_service.py: # Default confidence
+- backend/model_service.py: # Default confidence
+- backend/model_service.py: # pylint: disable=broad-exception-caught
+- backend/model_service.py: # Prefixed with _ to indicate unused
+- backend/model_service.py: # pylint: disable=broad-exception-caught
+- backend/model_service.py: # Prefixed with _ to indicate unused
+- backend/model_service.py: # Prefixed with _ to indicate unused
+- backend/model_service.py: # Prefixed with _ to indicate unused
+- backend/model_service.py: # This would require SHAP library integration
+- backend/model_service.py: # For now, return mock SHAP values
+- backend/model_service.py: # pylint: disable=broad-exception-caught
+- backend/model_service.py: # Weighted average based on model weights and confidence
+- backend/model_service.py: # Fallback to simple average
+- backend/model_service.py: # If config_manager is a Pydantic settings, use its attributes directly
+- backend/model_service.py: # Load default models
+- backend/model_service.py: # Start background tasks
+- backend/model_service.py: # pylint: disable=broad-exception-caught
+- backend/model_service.py: # Make prediction
+- backend/model_service.py: # Store prediction in database
+- backend/model_service.py: # Check individual model health
+- backend/model_service.py: # Unload existing model
+- backend/model_service.py: # Find and reload model
+- backend/model_service.py: # pylint: disable=broad-exception-caught
+- backend/model_service.py: # Look for model configuration files
+- backend/model_service.py: # pylint: disable=broad-exception-caught
+- backend/model_service.py: # pylint: disable=broad-exception-caught
+- backend/model_service.py: # Check for new or updated models
+- backend/model_service.py: # Load new models
+- backend/model_service.py: # Unload removed models
+- backend/model_service.py: # pylint: disable=broad-exception-caught
+- backend/model_service.py: # Every 5 minutes
+- backend/model_service.py: # Log performance metrics
+- backend/model_service.py: # Store performance metrics in database
+- backend/model_service.py: # pylint: disable=broad-exception-caught
+- backend/model_service.py: # Extract relevant features from prop attributes
+- backend/model_service.py: # Create prediction request
+- backend/model_service.py: # Get ensemble prediction
+- backend/model_service.py: # Calculate confidence based on model consensus
+- backend/model_service.py: # Calculate edge using model prediction vs market line
+- backend/model_service.py: # Model consensus rating
+- backend/model_service.py: # Return intelligent defaults based on statistical analysis
+- backend/model_service.py: # Import datetime for time parsing
+- backend/model_service.py: # Use datetime already imported at module level
+- backend/model_service.py: # Default to 7 PM
+- backend/model_service.py: # Standard ranges for different stat types
+- backend/model_service.py: # Standard difficulty
+- backend/model_service.py: # Higher difficulty for unusual lines
+- backend/model_service.py: # Default difficulty
+- backend/model_service.py: # Cap edge at ±15%
+- backend/model_service.py: # Calculate standard deviation using pure Python
+- backend/model_service.py: # Return top 3 features
+- backend/model_service.py: # Statistical confidence based on stat type reliability
+- backend/model_service.py: # Adjust for line difficulty
+- backend/model_service.py: # Neutral edge for fallback
+- backend/model_service.py: # Use line as projection
+- backend/model_service.py: # Lower quality for fallback
+- backend/model_service.py: # Global model service instance
+- backend/model_service.py: # Get configuration from config_manager (Pydantic settings)
+- backend/model_service.py: # Create FastAPI app
+- backend/model_service.py: # Add middleware
+- backend/model_service.py: # Create and initialize model service
+- backend/model_service.py: # Run the server
+- backend/monitoring_service.py: # Copied and adapted from Newfolder backend/services/monitoring_service.py
+- backend/monitoring_service.py: # Adjust import paths as needed for Alpha1
+- backend/monitoring_service.py: # from ..core.config.config import get_settings
+- backend/monitoring_service.py: # from ..database import get_database
+- backend/monitoring_service.py: # ms
+- backend/monitoring_service.py: # 1%
+- backend/monitoring_service.py: # percentage
+- backend/monitoring_service.py: # percentage
+- backend/monitoring_service.py: # ms
+- backend/monitoring_service.py: # ms
+- backend/monitoring_service.py: # 0.5%
+- backend/monitoring_service.py: # 1%
+- backend/monitoring_service.py: # pylint: disable=broad-exception-caught
+- backend/monitoring_service.py: # pylint: disable=broad-exception-caught
+- backend/monitoring_service.py: # pylint: disable=broad-exception-caught
+- backend/monitoring_service.py: # pylint: disable=broad-exception-caught
+- backend/monitoring_service.py: # pylint: disable=broad-exception-caught
+- backend/monitoring_service.py: # pylint: disable=broad-exception-caught
+- backend/monitoring_service.py: # Singleton instance
+- backend/performance_test_meta_learning.py: #!/usr/bin/env python3
+- backend/performance_test_meta_learning.py: # 5 examples per class, 3 classes
+- backend/performance_test_meta_learning.py: # Verify all models created within reasonable time
+- backend/performance_test_meta_learning.py: # Prepare meta-training tasks
+- backend/performance_test_meta_learning.py: # Meta-train the model
+- backend/performance_test_meta_learning.py: # Test adaptation times for different data sizes
+- backend/performance_test_meta_learning.py: # Test adaptation time
+- backend/performance_test_meta_learning.py: # Test prediction time
+- backend/performance_test_meta_learning.py: # Verify adaptation time requirement
+- backend/performance_test_meta_learning.py: # Generate N-way K-shot data
+- backend/performance_test_meta_learning.py: # Test training time
+- backend/performance_test_meta_learning.py: # Test prototype computation time
+- backend/performance_test_meta_learning.py: # Test prediction time
+- backend/performance_test_meta_learning.py: # Verify performance requirements
+- backend/performance_test_meta_learning.py: # Generate paired data
+- backend/performance_test_meta_learning.py: # Test training time
+- backend/performance_test_meta_learning.py: # Test relation computation time
+- backend/performance_test_meta_learning.py: # Test prediction time
+- backend/performance_test_meta_learning.py: # Verify performance requirements
+- backend/performance_test_meta_learning.py: # Test meta-learning performance
+- backend/performance_test_meta_learning.py: # Test meta-learning adaptation
+- backend/performance_test_meta_learning.py: # Test prediction
+- backend/performance_test_meta_learning.py: # Verify performance requirements
+- backend/performance_test_meta_learning.py: # Test with increasing data sizes
+- backend/performance_test_meta_learning.py: # Verify scalability (should scale reasonably)
+- backend/performance_test_meta_learning.py: # Test 1: Model Creation Performance
+- backend/performance_test_meta_learning.py: # Test 2: MAML Adaptation Performance
+- backend/performance_test_meta_learning.py: # Test 3: Prototypical Network Performance
+- backend/performance_test_meta_learning.py: # Test 4: Relation Network Performance
+- backend/performance_test_meta_learning.py: # Test 5: Learning-to-Learn Performance
+- backend/performance_test_meta_learning.py: # Test 6: Scalability Performance
+- backend/performance_test_meta_learning.py: # Summary
+- backend/performance_test_nas.py: #!/usr/bin/env python3
+- backend/performance_test_nas.py: # Check <3s requirement for architecture search
+- backend/performance_test_nas.py: // 10))
+- backend/performance_test_nas.py: # Test training time
+- backend/performance_test_nas.py: # Test prediction time
+- backend/performance_test_nas.py: # Check prediction time requirement
+- backend/performance_test_nas.py: # Test multiple architecture searches
+- backend/performance_test_nas.py: # Test 3 architecture searches
+- backend/performance_test_nas.py: # Create and train a new NAS model (simulating architecture search)
+- backend/performance_test_nas.py: # Baseline memory
+- backend/performance_test_nas.py: # MB
+- backend/performance_test_nas.py: # Memory during NAS model creation and training
+- backend/performance_test_nas.py: # Train models with larger dataset
+- backend/performance_test_nas.py: # Continue with memory measurement
+- backend/performance_test_nas.py: # MB
+- backend/performance_test_nas.py: # Test prediction scalability
+- backend/performance_test_nas.py: // 10, 10)
+- backend/performance_test_nas.py: # Check model creation time requirements
+- backend/performance_test_nas.py: # Check prediction time requirements
+- backend/performance_test_nas.py: # Check architecture search requirements
+- backend/performance_test_nas.py: # Test model creation times
+- backend/performance_test_nas.py: # Test training performance
+- backend/performance_test_nas.py: # Test architecture search efficiency
+- backend/performance_test_nas.py: # Test memory usage
+- backend/performance_test_nas.py: # Test scalability
+- backend/performance_test_nas.py: # Generate final report
+- backend/performance_test_quantum.py: #!/usr/bin/env python3
+- backend/performance_test_quantum.py: # Add backend to path
+- backend/performance_test_quantum.py: # Generate test data
+- backend/performance_test_quantum.py: // 10))
+- backend/performance_test_quantum.py: # Test fit time
+- backend/performance_test_quantum.py: # Test prediction time
+- backend/performance_test_quantum.py: # Check <2s requirement for prediction
+- backend/performance_test_quantum.py: # Baseline memory
+- backend/performance_test_quantum.py: # MB
+- backend/performance_test_quantum.py: # Memory during large data processing
+- backend/performance_test_quantum.py: # MB
+- backend/performance_test_quantum.py: # Test with various feature sizes
+- backend/performance_test_quantum.py: # Check prediction time requirements
+- backend/performance_test_quantum.py: # Check ensemble creation time
+- backend/performance_test_quantum.py: # Reasonable creation time
+- backend/performance_test_quantum.py: # Test ensemble creation
+- backend/performance_test_quantum.py: # Test prediction performance
+- backend/performance_test_quantum.py: # Test memory usage
+- backend/performance_test_quantum.py: # Test quantum feature transformation
+- backend/performance_test_quantum.py: # Generate final report
+- backend/performance_test_real_metrics.py: #!/usr/bin/env python3
+- backend/performance_test_real_metrics.py: # Vary between 0.5 and 1.0
+- backend/performance_test_real_metrics.py: # Add some noise
+- backend/performance_test_real_metrics.py: # Clamp to valid range
+- backend/performance_test_real_metrics.py: # Generate substantial test data
+- backend/performance_test_real_metrics.py: # Add data to metrics system
+- backend/performance_test_real_metrics.py: # Add processing time data
+- backend/performance_test_real_metrics.py: # Add accuracy measurements
+- backend/performance_test_real_metrics.py: # Test calculation performance
+- backend/performance_test_real_metrics.py: # Verify results are reasonable
+- backend/performance_test_real_metrics.py: # Simulate comprehensive API response
+- backend/performance_test_real_metrics.py: # Verify response structure
+- backend/performance_test_real_metrics.py: # Add large amount of data
+- backend/performance_test_real_metrics.py: # Test 1: Empty metrics should give different results than populated
+- backend/performance_test_real_metrics.py: # Populated metrics
+- backend/performance_test_real_metrics.py: # They should be different (proving dynamic calculation)
+- backend/performance_test_real_metrics.py: # Test 2: Different data should give different results
+- backend/performance_test_real_metrics.py: # Add different data pattern
+- backend/performance_test_real_metrics.py: # Modify to create different pattern
+- backend/performance_test_real_metrics.py: # Different accuracy pattern
+- backend/performance_test_real_metrics.py: # Test consensus is not hardcoded to 0.95
+- backend/performance_test_real_metrics.py: # Test processing time is not hardcoded to 2.5
+- backend/performance_test_real_metrics.py: # Test system health metrics are not hardcoded
+- backend/performance_test_real_metrics.py: # At least 2/3 should pass
+- backend/performance_test_real_metrics.py: # Test 1: Metrics calculation performance
+- backend/performance_test_real_metrics.py: # Test 2: API response time
+- backend/performance_test_real_metrics.py: # Test 3: Memory efficiency
+- backend/performance_test_real_metrics.py: # Test 4: Dynamic calculation verification
+- backend/performance_test_real_metrics.py: # Test 5: Hardcoded replacement verification
+- backend/performance_test_real_metrics.py: # Calculate overall score
+- backend/performance_test_real_metrics.py: # Metrics calculation performance (25 points)
+- backend/performance_test_real_metrics.py: # API response time (25 points)
+- backend/performance_test_real_metrics.py: # Memory efficiency (20 points)
+- backend/performance_test_real_metrics.py: # Dynamic calculation (15 points)
+- backend/performance_test_real_metrics.py: # Hardcoded replacement (15 points)
+- backend/performance_test_real_metrics.py: # Exit with appropriate code
+- backend/performance_test_real_metrics.py: # Success
+- backend/performance_test_real_metrics.py: # Needs improvement
+- backend/phase8_integration_manager.py: # Import enhanced components
+- backend/phase8_integration_manager.py: # Import existing foundation
+- backend/phase8_integration_manager.py: # Performance metrics
+- backend/phase8_integration_manager.py: # Resource metrics
+- backend/phase8_integration_manager.py: # Business metrics
+- backend/phase8_integration_manager.py: # Enhanced components
+- backend/phase8_integration_manager.py: # System state
+- backend/phase8_integration_manager.py: # Integration settings
+- backend/phase8_integration_manager.py: # Initialize Enhanced Ensemble Engine
+- backend/phase8_integration_manager.py: # Initialize Enhanced Real-time Engine
+- backend/phase8_integration_manager.py: # Initialize existing components with enhancements
+- backend/phase8_integration_manager.py: # Arbitrage engine with enhanced features
+- backend/phase8_integration_manager.py: # SHAP explainer with interactive features
+- backend/phase8_integration_manager.py: # Start background monitoring
+- backend/phase8_integration_manager.py: # Use specified or default optimization strategy
+- backend/phase8_integration_manager.py: # Generate enhanced prediction
+- backend/phase8_integration_manager.py: # Add SHAP explanation if requested
+- backend/phase8_integration_manager.py: # Check for arbitrage opportunities
+- backend/phase8_integration_manager.py: # Create stream event
+- backend/phase8_integration_manager.py: # Process through enhanced pipeline
+- backend/phase8_integration_manager.py: # Collect component status
+- backend/phase8_integration_manager.py: # Calculate performance metrics
+- backend/phase8_integration_manager.py: # Placeholder - would be calculated from actual metrics
+- backend/phase8_integration_manager.py: # Placeholder
+- backend/phase8_integration_manager.py: # Placeholder
+- backend/phase8_integration_manager.py: # Placeholder
+- backend/phase8_integration_manager.py: # Resource metrics (simplified)
+- backend/phase8_integration_manager.py: # Business metrics
+- backend/phase8_integration_manager.py: # Calculate uptime
+- backend/phase8_integration_manager.py: # Determine overall status
+- backend/phase8_integration_manager.py: # Store in history
+- backend/phase8_integration_manager.py: # Return minimal error state
+- backend/phase8_integration_manager.py: # Check for critical issues
+- backend/phase8_integration_manager.py: # Trigger alerts/recovery procedures
+- backend/phase8_integration_manager.py: # Log periodic health summary
+- backend/phase8_integration_manager.py: # Every 10 minutes
+- backend/phase8_integration_manager.py: # Optimize every hour
+- backend/phase8_integration_manager.py: # Trigger ensemble rebalancing
+- backend/phase8_integration_manager.py: # Get recent performance data
+- backend/phase8_integration_manager.py: # Adjust optimization strategy based on performance
+- backend/phase8_integration_manager.py: # Switch strategies based on performance
+- backend/phase8_integration_manager.py: # Wait 5 minutes on error
+- backend/phase8_integration_manager.py: # Global instance for easy access
+- backend/phase8_integration_manager.py: # Factory function
+- backend/phase9_completion_report.py: #!/usr/bin/env python3
+- backend/phase9_completion_report.py: # Phase 9A: Production Deployment Validation
+- backend/phase9_completion_report.py: # Phase 9B: Autonomous Monitoring Activation
+- backend/phase9_completion_report.py: # Phase 9C: Continuous Improvement Framework
+- backend/phase9_completion_report.py: # Phase 9D: Market Readiness Finalization
+- backend/phase9_completion_report.py: # Overall Autonomous Development Success
+- backend/phase9_completion_report.py: # Business Impact and ROI
+- backend/phase9_completion_report.py: # Technical Achievements
+- backend/phase9_completion_report.py: # Final Status
+- backend/phase9_completion_report.py: # Next Steps
+- backend/phase9_completion_report.py: # Generate completion report
+- backend/phase9_completion_report.py: # Display key results
+- backend/phase9_completion_report.py: # Save detailed report
+- backend/phase_6_integration_test.py: #!/usr/bin/env python3
+- backend/phase_6_integration_test.py: # Add current directory to path
+- backend/phase_6_integration_test.py: # Configure logging
+- backend/phase_6_integration_test.py: # Test phases in order
+- backend/phase_6_integration_test.py: # Generate final report
+- backend/phase_6_integration_test.py: # Test service initialization
+- backend/phase_6_integration_test.py: # Test API health (without making actual calls to avoid rate limits)
+- backend/phase_6_integration_test.py: # Test data structure
+- backend/phase_6_integration_test.py: # Test service initialization
+- backend/phase_6_integration_test.py: # Test model performance retrieval
+- backend/phase_6_integration_test.py: # Test database initialization
+- backend/phase_6_integration_test.py: # Import without initializing to avoid matplotlib dependency
+- backend/phase_6_integration_test.py: # Check if SHAP service file exists
+- backend/phase_6_integration_test.py: # Read and validate structure
+- backend/phase_6_integration_test.py: # Test without full initialization to avoid dependencies
+- backend/phase_6_integration_test.py: # Check if prediction engine file exists
+- backend/phase_6_integration_test.py: # Read and validate structure
+- backend/phase_6_integration_test.py: # Test API file
+- backend/phase_6_integration_test.py: # Check if prediction API exists
+- backend/phase_6_integration_test.py: # Check for required endpoints
+- backend/phase_6_integration_test.py: # Check for CORS configuration
+- backend/phase_6_integration_test.py: # Check for proper error handling
+- backend/phase_6_integration_test.py: # Check if frontend service exists
+- backend/phase_6_integration_test.py: # Check for key methods
+- backend/phase_6_integration_test.py: # Check if component exists
+- backend/phase_6_integration_test.py: # Check for key features
+- backend/phase_6_integration_test.py: # Overall assessment
+- backend/phase_6_integration_test.py: # Phase progression
+- backend/phase_6_integration_test.py: # Next steps
+- backend/phase_6_integration_test.py: # Test duration
+- backend/phase_6_integration_test.py: # Save results
+- backend/phase_7_production_launch.py: #!/usr/bin/env python3
+- backend/phase_7_production_launch.py: # Configure comprehensive logging
+- backend/phase_7_production_launch.py: # Update agent status
+- backend/phase_7_production_launch.py: # Load Phase 6 completion status
+- backend/phase_7_production_launch.py: # Check for Phase 6 completion report
+- backend/phase_7_production_launch.py: # Verify Phase 6 authorization
+- backend/phase_7_production_launch.py: # Execute launch phases with supervisor coordination
+- backend/phase_7_production_launch.py: # Generate comprehensive launch report
+- backend/phase_7_production_launch.py: # Check backend production config
+- backend/phase_7_production_launch.py: # Check frontend production config
+- backend/phase_7_production_launch.py: # Check if database services are importable
+- backend/phase_7_production_launch.py: # Test database initialization
+- backend/phase_7_production_launch.py: # Validate database structure
+- backend/phase_7_production_launch.py: # Simplified validation
+- backend/phase_7_production_launch.py: # Check if API files exist
+- backend/phase_7_production_launch.py: # Validate endpoint structure
+- backend/phase_7_production_launch.py: # Check if package.json exists
+- backend/phase_7_production_launch.py: # Check if build directory exists or can be created
+- backend/phase_7_production_launch.py: # Check for security-related configurations
+- backend/phase_7_production_launch.py: # Environment variables
+- backend/phase_7_production_launch.py: # Simplified security validation
+- backend/phase_7_production_launch.py: # Check for monitoring configuration files
+- backend/phase_7_production_launch.py: # Create production directories
+- backend/phase_7_production_launch.py: # Validate backend service files
+- backend/phase_7_production_launch.py: # Check frontend deployment readiness
+- backend/phase_7_production_launch.py: # Simplified load balancing configuration
+- backend/phase_7_production_launch.py: # Placeholder for actual implementation
+- backend/phase_7_production_launch.py: # Simplified SSL setup
+- backend/phase_7_production_launch.py: # Placeholder for actual implementation
+- backend/phase_7_production_launch.py: # Health check validation
+- backend/phase_7_production_launch.py: # Backend health
+- backend/phase_7_production_launch.py: # Frontend health
+- backend/phase_7_production_launch.py: # Database health
+- backend/phase_7_production_launch.py: # API health
+- backend/phase_7_production_launch.py: # Performance monitoring activation
+- backend/phase_7_production_launch.py: # Error tracking setup
+- backend/phase_7_production_launch.py: # Simplified implementation
+- backend/phase_7_production_launch.py: # Alerting system configuration
+- backend/phase_7_production_launch.py: # Simplified implementation
+- backend/phase_7_production_launch.py: # User analytics initialization
+- backend/phase_7_production_launch.py: # Simplified implementation
+- backend/phase_7_production_launch.py: # Security monitoring setup
+- backend/phase_7_production_launch.py: # Simplified implementation
+- backend/phase_7_production_launch.py: # Database optimization
+- backend/phase_7_production_launch.py: # Simplified implementation
+- backend/phase_7_production_launch.py: # API optimization
+- backend/phase_7_production_launch.py: # Simplified implementation
+- backend/phase_7_production_launch.py: # Frontend optimization
+- backend/phase_7_production_launch.py: # Simplified implementation
+- backend/phase_7_production_launch.py: # Caching configuration
+- backend/phase_7_production_launch.py: # Simplified implementation
+- backend/phase_7_production_launch.py: # Resource optimization
+- backend/phase_7_production_launch.py: # Simplified implementation
+- backend/phase_7_production_launch.py: # Higher threshold for go-live
+- backend/phase_7_production_launch.py: # Comprehensive system check
+- backend/phase_7_production_launch.py: # UAT validation
+- backend/phase_7_production_launch.py: # Simplified implementation
+- backend/phase_7_production_launch.py: # Load testing validation
+- backend/phase_7_production_launch.py: # Simplified implementation
+- backend/phase_7_production_launch.py: # Security testing
+- backend/phase_7_production_launch.py: # Simplified implementation
+- backend/phase_7_production_launch.py: # Disaster recovery testing
+- backend/phase_7_production_launch.py: # Simplified implementation
+- backend/phase_7_production_launch.py: # Calculate overall readiness score
+- backend/phase_7_production_launch.py: # Go-live authorization threshold
+- backend/phase_7_production_launch.py: # Calculate overall metrics
+- backend/phase_7_production_launch.py: # Update final status
+- backend/phase_7_production_launch.py: # Display comprehensive report
+- backend/phase_7_production_launch.py: # Phase-by-phase results
+- backend/phase_7_production_launch.py: # Supervisor coordination summary
+- backend/phase_7_production_launch.py: # Agent status summary
+- backend/phase_7_production_launch.py: # Production readiness assessment
+- backend/phase_7_production_launch.py: # Next steps
+- backend/phase_7_production_launch.py: # Save comprehensive report
+- backend/phase_7_production_launch.py: # Final supervisor assessment
+- backend/prediction_api.py: # Import our real-time prediction engine
+- backend/prediction_api.py: # Initialize FastAPI app
+- backend/prediction_api.py: # Add CORS middleware
+- backend/prediction_api.py: //localhost:8000"}", "${process.env.REACT_APP_API_URL || "http://localhost:8000"}"],  # React dev servers
+- backend/prediction_api.py: # Pydantic models for API responses
+- backend/prediction_api.py: # Global initialization flag
+- backend/prediction_api.py: # Generate predictions using the real-time engine
+- backend/prediction_api.py: # Calculate API latency
+- backend/prediction_api.py: # Convert to API response format
+- backend/prediction_api.py: # Update API latency
+- backend/prediction_api.py: # Convert to response model
+- backend/prediction_api.py: # This would retrieve a specific prediction explanation
+- backend/prediction_api.py: # For now, return a general explanation structure
+- backend/prediction_api.py: # Calculate derived metrics
+- backend/prediction_api.py: # Add model training task to background
+- backend/prediction_api.py: # Import here to avoid circular imports
+- backend/prediction_api.py: # Collect training data
+- backend/prediction_api.py: # Train models
+- backend/prediction_api.py: # Reload models in the prediction engine
+- backend/prediction_engine.py: # Import enhanced services
+- backend/prediction_engine.py: # Configure logging
+- backend/prediction_engine.py: # ============================================================================
+- backend/prediction_engine.py: # ENHANCED PYDANTIC MODELS
+- backend/prediction_engine.py: # ============================================================================
+- backend/prediction_engine.py: # Core Prediction
+- backend/prediction_engine.py: # Financial Analysis
+- backend/prediction_engine.py: # Model Breakdown
+- backend/prediction_engine.py: # Explainability
+- backend/prediction_engine.py: # Metadata
+- backend/prediction_engine.py: # ============================================================================
+- backend/prediction_engine.py: # ENHANCED ML MODELS
+- backend/prediction_engine.py: # ============================================================================
+- backend/prediction_engine.py: # Scale features
+- backend/prediction_engine.py: # Train model
+- backend/prediction_engine.py: # Validate performance
+- backend/prediction_engine.py: # Prepare features
+- backend/prediction_engine.py: # Generate prediction
+- backend/prediction_engine.py: # Calculate confidence based on probability distribution
+- backend/prediction_engine.py: # Feature importance (if available)
+- backend/prediction_engine.py: # Convert to ms
+- backend/prediction_engine.py: # ============================================================================
+- backend/prediction_engine.py: # ENHANCED PREDICTION ENGINE
+- backend/prediction_engine.py: # ============================================================================
+- backend/prediction_engine.py: # Initialize enhanced models
+- backend/prediction_engine.py: # Generate synthetic training data for demonstration
+- backend/prediction_engine.py: # Initialize model weights based on performance
+- backend/prediction_engine.py: # Generate synthetic training data
+- backend/prediction_engine.py: # Create realistic target with some signal
+- backend/prediction_engine.py: # Train all models
+- backend/prediction_engine.py: # pylint: disable=broad-exception-caught
+- backend/prediction_engine.py: # Normalize weights
+- backend/prediction_engine.py: # Kelly Criterion calculation
+- backend/prediction_engine.py: # Assume even odds for simplicity
+- backend/prediction_engine.py: # Cap at 25%
+- backend/prediction_engine.py: # Risk level assessment
+- backend/prediction_engine.py: # Bet sizing recommendations
+- backend/prediction_engine.py: # Expected value calculation
+- backend/prediction_engine.py: # Variance and Sharpe ratio
+- backend/prediction_engine.py: # Market efficiency (higher = more efficient)
+- backend/prediction_engine.py: # Generate mock arbitrage opportunities
+- backend/prediction_engine.py: # Value bets identification
+- backend/prediction_engine.py: # Market sentiment
+- backend/prediction_engine.py: # 1. Feature Engineering and Validation
+- backend/prediction_engine.py: # 2. Generate predictions from all models
+- backend/prediction_engine.py: # Generate SHAP values
+- backend/prediction_engine.py: # Weighted ensemble calculation
+- backend/prediction_engine.py: # pylint: disable=broad-exception-caught
+- backend/prediction_engine.py: # 3. Ensemble aggregation
+- backend/prediction_engine.py: # 4. Calculate ensemble confidence and consensus
+- backend/prediction_engine.py: # 5. Risk assessment
+- backend/prediction_engine.py: # 6. Market analysis
+- backend/prediction_engine.py: # 7. Aggregate SHAP values
+- backend/prediction_engine.py: # 8. Generate explanation
+- backend/prediction_engine.py: # 9. Calculate expected payout
+- backend/prediction_engine.py: # pylint: disable=broad-exception-caught
+- backend/prediction_engine.py: # Add sport-specific features
+- backend/prediction_engine.py: # Add derived features
+- backend/prediction_engine.py: # Check for missing values (represented as 0 or NaN)
+- backend/prediction_engine.py: # Check for outliers (simple z-score based)
+- backend/prediction_engine.py: # Quality score (1 = perfect, 0 = terrible)
+- backend/prediction_engine.py: # Simplified SHAP calculation for demonstration
+- backend/prediction_engine.py: # Normalize to create SHAP-like values
+- backend/prediction_engine.py: # pylint: disable=broad-exception-caught
+- backend/prediction_engine.py: # Average confidence weighted by individual model confidence
+- backend/prediction_engine.py: # Adjust for probability agreement
+- backend/prediction_engine.py: # Lower std = higher agreement
+- backend/prediction_engine.py: # Convert standard deviation to consensus score (0 = no consensus, 1 = perfect consensus)
+- backend/prediction_engine.py: # Weighted average
+- backend/prediction_engine.py: # Use LLM for detailed explanation
+- backend/prediction_engine.py: # pylint: disable=broad-exception-caught
+- backend/prediction_engine.py: # Fallback to rule-based explanation
+- backend/prediction_engine.py: # ============================================================================
+- backend/prediction_engine.py: # ROUTER SETUP
+- backend/prediction_engine.py: # ============================================================================
+- backend/prediction_engine.py: # Initialize services and router
+- backend/prediction_engine.py: # Replace deprecated @router.on_event("startup") with FastAPI lifespan event
+- backend/prediction_engine.py: # Lifespan event handler for startup
+- backend/prediction_engine.py: # Generate prediction
+- backend/prediction_engine.py: # Add background task for performance tracking
+- backend/prediction_engine.py: # pylint: disable=broad-exception-caught
+- backend/prediction_engine.py: # Log prediction for future model improvement
+- backend/prediction_engine.py: # Here you would typically save to database for model retraining
+- backend/prediction_engine.py: # await save_prediction_to_db(request, response)
+- backend/prediction_engine.py: # pylint: disable=broad-exception-caught
+- backend/prediction_engine.py: # Export router for main app
+- backend/production_api.py: # Production API
+- backend/production_fix.py: # Set up logging
+- backend/production_fix.py: # Simulate model loading phases
+- backend/production_fix.py: # Simulate loading progress
+- backend/production_fix.py: # Simulate actual loading time
+- backend/production_fix.py: # Mark as loaded with mock accuracy
+- backend/production_fix.py: # Mock accuracy scores
+- backend/production_fix.py: # Global instances for Phase 3
+- backend/production_fix.py: # Start ML loading in background (non-blocking)
+- backend/production_fix.py: # App is running immediately, ML loads in background
+- backend/production_fix.py: # Cleanup
+- backend/production_fix.py: # Create production-ready app with Phase 3 enhancements
+- backend/production_fix.py: # Add CORS middleware
+- backend/production_fix.py: //localhost:3000",
+- backend/production_fix.py: //localhost:8173",
+- backend/production_fix.py: //localhost:8174",
+- backend/production_fix.py: # Essential endpoints only
+- backend/production_fix.py: # Phase 3: Enhanced PrizePicks endpoint with real ML predictions
+- backend/production_fix.py: # Get all active players
+- backend/production_fix.py: # Generate real ML predictions for each player
+- backend/production_fix.py: # Determine stat type and line based on player sport and position
+- backend/production_fix.py: # Generate prediction for primary stat
+- backend/production_fix.py: # Create enhanced projection with real ML data
+- backend/production_fix.py: # Dynamic odds
+- backend/production_fix.py: # Phase 2: Enhanced ML Status endpoint with real-time loading progress
+- backend/production_fix.py: # Phase 3: Enhanced API status endpoint
+- backend/production_fix.py: # Phase 2: ML control endpoint
+- backend/production_fix.py: # MLB Players - Top stars + Generated players (300+ total)
+- backend/production_fix.py: # Generate MLB players
+- backend/production_fix.py: # Generate additional MLB players
+- backend/production_fix.py: # NBA Players - Stars + Generated (200+ total)
+- backend/production_fix.py: # Generate additional NBA players
+- backend/production_fix.py: # WNBA Players - Stars + Generated (100+ total)
+- backend/production_fix.py: # Generate additional WNBA players
+- backend/production_fix.py: # MLS Players - Stars + Generated (200+ total)
+- backend/production_fix.py: # Generate additional MLS players
+- backend/production_fix.py: # Need at least 2 models for predictions
+- backend/production_fix.py: # Extract relevant stat for prediction
+- backend/production_fix.py: # Scale for visibility
+- backend/production_fix.py: # Default calculation
+- backend/production_fix.py: # Apply matchup difficulty modifier
+- backend/production_fix.py: # Calculate prediction
+- backend/production_fix.py: # Lower confidence without ML
+- backend/production_fix.py: # Simulate ML model predictions using our loaded models
+- backend/production_fix.py: # Calculate ensemble prediction using model accuracies as weights
+- backend/production_fix.py: # Simulate model prediction (in real implementation, this would call actual models)
+- backend/production_fix.py: # Add some variation based on model type
+- backend/production_fix.py: # XGBoost tends to be slightly optimistic
+- backend/production_fix.py: # Neural network is conservative
+- backend/production_fix.py: # Ensemble is balanced
+- backend/production_fix.py: # Autonomous is slightly optimistic
+- backend/production_fix.py: # Calculate weighted ensemble prediction
+- backend/production_fix.py: # Calculate confidence based on model agreement
+- backend/production_fix.py: # Scale by number of models
+- backend/production_fix.py: # Step 1: Calculate base prediction from player stats
+- backend/production_fix.py: # Step 2: Apply ML models for enhancement
+- backend/production_fix.py: # Step 3: Generate final recommendation
+- backend/production_fix.py: # Calculate expected value and risk
+- backend/production_fix.py: # Simplified EV calculation
+- backend/production_fix.py: # Initialize global Phase 3 services (after class definitions)
+- backend/production_fix.py: # Note: Phase 4 components will be initialized after their class definitions
+- backend/production_fix.py: # Phase 3: Player statistics endpoint
+- backend/production_fix.py: # Determine primary stat for the sport
+- backend/production_fix.py: # Phase 4: Core ML Engine with Advanced Models
+- backend/production_fix.py: # XGBoost models for different sports
+- backend/production_fix.py: # Dynamic model weights based on recent performance
+- backend/production_fix.py: # Advanced ensemble prediction with multiple models
+- backend/production_fix.py: # XGBoost prediction
+- backend/production_fix.py: # Neural network prediction
+- backend/production_fix.py: # Time series LSTM prediction
+- backend/production_fix.py: # Weighted ensemble with confidence consideration
+- backend/production_fix.py: # Advanced feature engineering
+- backend/production_fix.py: # Simulate XGBoost prediction with realistic accuracy
+- backend/production_fix.py: # Factor in player performance trends
+- backend/production_fix.py: # Advanced prediction calculation
+- backend/production_fix.py: # Deep learning features
+- backend/production_fix.py: # Neural network simulation with multiple layers
+- backend/production_fix.py: # Complex non-linear feature interactions
+- backend/production_fix.py: # Time series features from recent games
+- backend/production_fix.py: # LSTM trend analysis
+- backend/production_fix.py: # Trend-based prediction
+- backend/production_fix.py: # Weight predictions by confidence and model performance
+- backend/production_fix.py: # Ensemble strength based on agreement
+- backend/production_fix.py: # Could be dynamic based on team stats
+- backend/production_fix.py: # Home field advantage
+- backend/production_fix.py: # Phase 4: Betting Analyzer for Real Betting Recommendations
+- backend/production_fix.py: # Default bankroll
+- backend/production_fix.py: # Minimum confidence for betting
+- backend/production_fix.py: # Minimum 5% expected value
+- backend/production_fix.py: # Max 10% of bankroll per bet
+- backend/production_fix.py: # Skip low confidence predictions
+- backend/production_fix.py: # Calculate implied probability from odds
+- backend/production_fix.py: # Calculate our predicted probability
+- backend/production_fix.py: # Calculate expected value
+- backend/production_fix.py: # Skip negative expected value bets
+- backend/production_fix.py: # Calculate optimal bet size using Kelly Criterion
+- backend/production_fix.py: # Generate betting recommendation
+- backend/production_fix.py: # EV = (probability of win * payout) - (probability of loss * stake)
+- backend/production_fix.py: # Kelly Formula: f = (bp - q) / b
+- backend/production_fix.py: # where b = decimal odds - 1, p = our probability, q = 1 - p
+- backend/production_fix.py: # Cap at maximum bet percentage for safety
+- backend/production_fix.py: # No negative bets
+- backend/production_fix.py: # Phase 4: Risk Manager for Bankroll Management
+- backend/production_fix.py: # Max 5% daily loss
+- backend/production_fix.py: # Max 25% of bankroll in active bets
+- backend/production_fix.py: # Stop after 3 consecutive losses
+- backend/production_fix.py: # Check daily loss limit
+- backend/production_fix.py: # Check session bet limit
+- backend/production_fix.py: # Check consecutive losses
+- backend/production_fix.py: # All checks passed
+- backend/production_fix.py: # Check last 10 bets
+- backend/production_fix.py: # Phase 4: Initialize advanced ML and betting components (after class definitions)
+- backend/production_fix.py: # Fallback to basic components
+- backend/production_fix.py: # Phase 4: Enhanced Betting Recommendations API
+- backend/production_fix.py: # Check if Phase 4 components are available
+- backend/production_fix.py: # Top 5 players for now
+- backend/production_fix.py: # Get advanced ML prediction
+- backend/production_fix.py: # Use Phase 4 advanced prediction engine
+- backend/production_fix.py: # Analyze betting opportunity with real money calculations
+- backend/production_fix.py: # Risk management assessment
+- backend/production_fix.py: # Top 2 per sport
+- backend/production_fix.py: # High confidence only
+- backend/production_fix.py: # Min 10% EV
+- backend/production_fix.py: # Multiple betting scenarios analysis
+- backend/production_fix.py: # Advanced ML prediction
+- backend/production_fix.py: # Betting analysis
+- backend/production_fix.py: # Risk assessment
+- backend/production_fix.py: # Best betting opportunity
+- backend/production_fix.py: # Top 2 per sport
+- backend/production_fix.py: # Determine primary stat
+- backend/production_fix.py: # Advanced prediction
+- backend/production_fix.py: # Betting analysis
+- backend/production_fix.py: # Risk check
+- backend/production_fix.py: # Min 8% expected value
+- backend/production_fix.py: # Portfolio optimization
+- backend/production_fix.py: # Use our Phase 4 recommendations as opportunities
+- backend/production_fix.py: # Get recommendations for all sports
+- backend/production_fix.py: # Top 3 per sport for opportunities
+- backend/production_fix.py: # Mock for frontend compatibility
+- backend/production_fix.py: # Mock for frontend compatibility
+- backend/production_fix.py: # Calculate Phase 4 performance metrics
+- backend/production_fix.py: # 73% win rate from our advanced models
+- backend/production_fix.py: # 15.6% ROI
+- backend/production_fix.py: # Our models are 91% accurate on confidence
+- backend/production_fix.py: # Low overall risk
+- backend/production_fix.py: # 43% average edge
+- backend/production_fix.py: # 12% bankroll utilization
+- backend/production_fix.py: # Well diversified across sports
+- backend/production_fix.py: # Mock betting history with Phase 4 results
+- backend/production_fix.py: # 100% in this sample
+- backend/production_fix.py: # For Phase 4, we'll simulate bet placement
+- backend/production_fix.py: # In production, this would integrate with actual sportsbooks
+- backend/production_fix.py: # Validate bet with our risk manager
+- backend/production_fix.py: # Simulate successful bet placement
+- backend/production_fix.py: # Return players from all sports
+- backend/production_fix.py: # Determine primary stat for each sport
+- backend/production_fix.py: # Generate projection using Phase 4 ML engine if available
+- backend/production_fix.py: # Fallback projection
+- backend/production_fix.py: # Get all active players from different sports
+- backend/production_fix.py: # Skip injured players for now
+- backend/production_fix.py: # Determine stat types based on sport
+- backend/production_fix.py: # Generate ML prediction using Phase 4 engine if available
+- backend/production_fix.py: # Fallback values with realistic confidence distribution
+- backend/production_fix.py: # Boost confidence for star players
+- backend/production_fix.py: # Calculate realistic value and Kelly criterion
+- backend/production_fix.py: # Cap Kelly at 15%
+- backend/production_fix.py: # Create enhanced prop data matching frontend expectations
+- backend/production_fix.py: # Sort by confidence (highest predicted chance of winning first)
+- backend/production_fix.py: # Filter to only include props with reasonable confidence (>= 60%)
+- backend/production_fix.py: # Return top 500 highest confidence props
+- backend/production_fix.py: # Return fallback data
+- backend/production_fix.py: # PropOllama AI Explanation Service
+- backend/production_fix.py: # Generate AI explanation based on the request
+- backend/production_fix.py: # Extract prop information from context
+- backend/production_fix.py: # Generate detailed AI explanation
+- backend/production_fix.py: # General PropOllama response
+- backend/production_fix.py: # ========================================
+- backend/production_fix.py: # ULTIMATE BETTING ANALYSIS SYSTEM
+- backend/production_fix.py: # Real-time PrizePicks Integration with ALL Categories
+- backend/production_fix.py: # ========================================
+- backend/production_fix.py: # Comprehensive category mappings for ALL sports
+- backend/production_fix.py: # Process every sport and category
+- backend/production_fix.py: # Sort by expected value and confidence
+- backend/production_fix.py: # Apply portfolio optimization
+- backend/production_fix.py: # Top 50 players per category
+- backend/production_fix.py: # Generate advanced ML prediction
+- backend/production_fix.py: # Skip low confidence predictions
+- backend/production_fix.py: # Calculate betting opportunity
+- backend/production_fix.py: # Risk assessment
+- backend/production_fix.py: # Portfolio optimization constraints
+- backend/production_fix.py: # Max 25% of bankroll
+- backend/production_fix.py: # Max 5% per bet
+- backend/production_fix.py: # Max 15% per sport
+- backend/production_fix.py: # Greedy selection with constraints
+- backend/production_fix.py: # Check constraints
+- backend/production_fix.py: # Max 10 bets
+- backend/production_fix.py: # Calculate portfolio metrics
+- backend/production_fix.py: # Initialize Ultimate Betting Analyzer
+- backend/production_fix.py: # Comprehensive analysis across all categories
+- backend/production_fix.py: # Add real-time PrizePicks integration status
+- backend/production_fix.py: # In production, this would be "live"
+- backend/production_fix.py: # Simulate real-time PrizePicks data
+- backend/production_fix.py: # Current active props categories
+- backend/production_fix.py: # Top 20 per sport
+- backend/production_fix.py: # Generate realistic lines based on stat type
+- backend/production_fix.py: # Generate ML prediction
+- backend/production_fix.py: # Only include high-confidence props
+- backend/production_fix.py: # Sort by confidence and expected value
+- backend/production_fix.py: # Top 100 props
+- backend/production_fix.py: # Get real-time props
+- backend/production_fix.py: # Get ultimate analysis
+- backend/production_fix.py: # Combine and rank all opportunities
+- backend/production_fix.py: # Process live props
+- backend/production_fix.py: # Top 50 live props
+- backend/production_fix.py: # Process analyzed bets
+- backend/production_fix.py: # Rank by combined score (confidence + expected value)
+- backend/production_fix.py: # Top 10 best bets
+- backend/production_fix.py: # ============================================================================
+- backend/production_fix.py: # SERVER STARTUP
+- backend/production_fix.py: # ============================================================================
+- backend/production_fix.py: //localhost:8000")
+- backend/production_fix.py: //localhost:8000/docs")
+- backend/production_fix.py: # Reference to the app instance in this file
+- backend/production_fix.py: # Accept connections from any IP
+- backend/production_fix.py: # Standard port
+- backend/production_fix.py: # Auto-reload on file changes
+- backend/production_fix.py: # Detailed logging
+- backend/production_fix.py: # Single worker for development
+- backend/production_fix.py: # Log all requests
+- backend/production_operation_manager.py: #!/usr/bin/env python3
+- backend/production_operation_manager.py: # Configure production logging
+- backend/production_operation_manager.py: # ms
+- backend/production_operation_manager.py: # %
+- backend/production_operation_manager.py: # 1%
+- backend/production_operation_manager.py: # %
+- backend/production_operation_manager.py: # Update agent status
+- backend/production_operation_manager.py: # Verify Phase 7 completion
+- backend/production_operation_manager.py: # Start production operation phases
+- backend/production_operation_manager.py: # Generate production operation report
+- backend/production_operation_manager.py: # Start continuous operation if successful
+- backend/production_operation_manager.py: # Check for Phase 7 completion files
+- backend/production_operation_manager.py: # Check if prediction engine is available
+- backend/production_operation_manager.py: # Import and validate prediction engine
+- backend/production_operation_manager.py: # Initialize engine (simplified validation)
+- backend/production_operation_manager.py: # Validate arbitrage detection capability
+- backend/production_operation_manager.py: # Simplified validation
+- backend/production_operation_manager.py: # Check API service files
+- backend/production_operation_manager.py: # Check frontend components
+- backend/production_operation_manager.py: # Check monitoring system files
+- backend/production_operation_manager.py: # Simplified implementation
+- backend/production_operation_manager.py: # Simplified implementation
+- backend/production_operation_manager.py: # Simplified implementation
+- backend/production_operation_manager.py: # Simplified implementation
+- backend/production_operation_manager.py: # Simplified implementation
+- backend/production_operation_manager.py: # Simulate response time optimization
+- backend/production_operation_manager.py: # Validate prediction accuracy
+- backend/production_operation_manager.py: # Validate arbitrage detection
+- backend/production_operation_manager.py: # Setup user satisfaction monitoring
+- backend/production_operation_manager.py: # Simulate continuous operation for demonstration
+- backend/production_operation_manager.py: # Simulate continuous monitoring
+- backend/production_operation_manager.py: # Wait between cycles (shortened for demonstration)
+- backend/production_operation_manager.py: # Simulated health score
+- backend/production_operation_manager.py: # Simulated response time in ms
+- backend/production_operation_manager.py: # Simulated active users
+- backend/production_operation_manager.py: # Update final status
+- backend/production_operation_manager.py: # Display comprehensive report
+- backend/production_operation_manager.py: # Agent status summary
+- backend/production_operation_manager.py: # Coordination summary
+- backend/production_operation_manager.py: # Production status
+- backend/production_operation_manager.py: # Save production report
+- backend/quantum_enhanced_coordinator.py: #!/usr/bin/env python3
+- backend/quantum_enhanced_coordinator.py: # Quantum phases
+- backend/quick_backend.py: #!/usr/bin/env python3
+- backend/quick_backend.py: # Set up logging
+- backend/quick_backend.py: # Create FastAPI app
+- backend/quick_backend.py: # Add CORS
+- backend/quick_backend.py: # Initialize the comprehensive PrizePicks service
+- backend/quick_backend.py: # Start the real-time data ingestion in the background
+- backend/quick_backend.py: # Get real projections from the service
+- backend/quick_backend.py: # Convert to the format the frontend expects
+- backend/quick_backend.py: # Convert to percentage
+- backend/quick_backend.py: # Fallback to enhanced mock data
+- backend/quick_backend.py: # Realistic lines based on stat type
+- backend/quick_backend.py: # Add any other endpoints the frontend might need
+- backend/real_prizepicks_backend.py: # Real PrizePicks Backend
+- backend/realtime_accuracy_monitor.py: # Monitoring and optimization imports
+- backend/realtime_accuracy_monitor.py: # < 60% accuracy
+- backend/realtime_accuracy_monitor.py: # 60-75% accuracy
+- backend/realtime_accuracy_monitor.py: # 75-85% accuracy
+- backend/realtime_accuracy_monitor.py: # 85-92% accuracy
+- backend/realtime_accuracy_monitor.py: # 92-97% accuracy
+- backend/realtime_accuracy_monitor.py: # > 97% accuracy
+- backend/realtime_accuracy_monitor.py: # Monitoring configuration
+- backend/realtime_accuracy_monitor.py: # seconds
+- backend/realtime_accuracy_monitor.py: # Thresholds
+- backend/realtime_accuracy_monitor.py: # Monitoring data storage
+- backend/realtime_accuracy_monitor.py: # Performance tracking
+- backend/realtime_accuracy_monitor.py: # Advanced monitoring components
+- backend/realtime_accuracy_monitor.py: # Initialize Redis connection
+- backend/realtime_accuracy_monitor.py: # Initialize drift detection
+- backend/realtime_accuracy_monitor.py: # Initialize anomaly detection
+- backend/realtime_accuracy_monitor.py: # Initialize accuracy prediction
+- backend/realtime_accuracy_monitor.py: # pylint: disable=broad-exception-caught
+- backend/realtime_accuracy_monitor.py: # Statistical drift detection
+- backend/realtime_accuracy_monitor.py: # Next hour accuracy
+- backend/realtime_accuracy_monitor.py: # Next day
+- backend/realtime_accuracy_monitor.py: # Next week
+- backend/realtime_accuracy_monitor.py: # Start monitoring tasks
+- backend/realtime_accuracy_monitor.py: # Calculate current accuracy metrics
+- backend/realtime_accuracy_monitor.py: # Store metrics
+- backend/realtime_accuracy_monitor.py: # Check for accuracy issues
+- backend/realtime_accuracy_monitor.py: # Process alerts
+- backend/realtime_accuracy_monitor.py: # Update trends and forecasts
+- backend/realtime_accuracy_monitor.py: # Check for optimization triggers
+- backend/realtime_accuracy_monitor.py: # Queue optimizations if needed
+- backend/realtime_accuracy_monitor.py: # Wait for next monitoring cycle
+- backend/realtime_accuracy_monitor.py: # pylint: disable=broad-exception-caught
+- backend/realtime_accuracy_monitor.py: # Get recent predictions and actual results
+- backend/realtime_accuracy_monitor.py: # Last 1000 predictions
+- backend/realtime_accuracy_monitor.py: # Not enough data, return default metrics
+- backend/realtime_accuracy_monitor.py: # Ensure equal length arrays
+- backend/realtime_accuracy_monitor.py: # Calculate accuracy metrics
+- backend/realtime_accuracy_monitor.py: # Clamp to [0, 1]
+- backend/realtime_accuracy_monitor.py: # Calculate confidence and agreement metrics
+- backend/realtime_accuracy_monitor.py: # Calculate calibration error
+- backend/realtime_accuracy_monitor.py: # Calculate drift scores
+- backend/realtime_accuracy_monitor.py: # Calculate latency and variance
+- backend/realtime_accuracy_monitor.py: # Calculate trends
+- backend/realtime_accuracy_monitor.py: # Default confidence
+- backend/realtime_accuracy_monitor.py: # Default agreement
+- backend/realtime_accuracy_monitor.py: # Good uncertainty estimate
+- backend/realtime_accuracy_monitor.py: # Narrower intervals are better
+- backend/realtime_accuracy_monitor.py: # Poor uncertainty estimate
+- backend/realtime_accuracy_monitor.py: # Default
+- backend/realtime_accuracy_monitor.py: # Simplified calibration error calculation
+- backend/realtime_accuracy_monitor.py: # Higher confidence should correlate with lower error
+- backend/realtime_accuracy_monitor.py: # Simplified feature drift calculation
+- backend/realtime_accuracy_monitor.py: # In a real implementation, this would compare current feature distributions
+- backend/realtime_accuracy_monitor.py: # with baseline distributions
+- backend/realtime_accuracy_monitor.py: # Low drift score (placeholder)
+- backend/realtime_accuracy_monitor.py: # Calculate trend using linear regression slope
+- backend/realtime_accuracy_monitor.py: # Weighted combination of key metrics
+- backend/realtime_accuracy_monitor.py: # Store in Redis if available
+- backend/realtime_accuracy_monitor.py: # Set expiration (keep for 7 days)
+- backend/realtime_accuracy_monitor.py: # pylint: disable=broad-exception-caught
+- backend/realtime_accuracy_monitor.py: # Check overall accuracy
+- backend/realtime_accuracy_monitor.py: # Check model agreement
+- backend/realtime_accuracy_monitor.py: # Check prediction confidence
+- backend/realtime_accuracy_monitor.py: # Store alert
+- backend/realtime_accuracy_monitor.py: # Send notification (implementation would depend on notification system)
+- backend/realtime_accuracy_monitor.py: # Auto-trigger optimization for critical alerts
+- backend/realtime_accuracy_monitor.py: # Implementation would integrate with notification system
+- backend/realtime_accuracy_monitor.py: # Trigger real-time accuracy update if needed
+- backend/realtime_accuracy_monitor.py: # Update every 10 predictions
+- backend/realtime_accuracy_monitor.py: # Global instance
+- backend/realtime_engine.py: # Placeholder for aioredis if not installed
+- backend/realtime_engine.py: # Game scores, major injuries
+- backend/realtime_engine.py: # Line movements, odds changes
+- backend/realtime_engine.py: # Player stats, news
+- backend/realtime_engine.py: # Social sentiment, background data
+- backend/realtime_engine.py: # seconds
+- backend/realtime_engine.py: # No aggregation rule, pass through
+- backend/realtime_engine.py: # Add to buffer
+- backend/realtime_engine.py: # Check if we should aggregate
+- backend/realtime_engine.py: # Check if oldest message is beyond buffer time
+- backend/realtime_engine.py: # Still buffering
+- backend/realtime_engine.py: # Aggregate messages
+- backend/realtime_engine.py: # Clear buffer for this key
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Return original on error
+- backend/realtime_engine.py: # Add metadata about aggregation
+- backend/realtime_engine.py: # Sort by timestamp
+- backend/realtime_engine.py: # Calculate movement
+- backend/realtime_engine.py: # Accumulate numerical values
+- backend/realtime_engine.py: # 30 seconds
+- backend/realtime_engine.py: # 1 minute
+- backend/realtime_engine.py: # 5 minutes
+- backend/realtime_engine.py: # 10 minutes
+- backend/realtime_engine.py: # Check cooldown
+- backend/realtime_engine.py: # Update last prediction time
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Initialize Redis for pub/sub
+- backend/realtime_engine.py: # Start processing tasks
+- backend/realtime_engine.py: # Subscribe to Redis channels
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Subscribe to all stream types
+- backend/realtime_engine.py: # Start Redis message handler
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Convert to StreamMessage
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Get message with timeout
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Aggregate message if needed
+- backend/realtime_engine.py: # Message was buffered for aggregation
+- backend/realtime_engine.py: # Check for prediction triggers
+- backend/realtime_engine.py: # Process triggers
+- backend/realtime_engine.py: # Broadcast to subscribers
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Get latest features for this event
+- backend/realtime_engine.py: # Generate new prediction
+- backend/realtime_engine.py: # Broadcast prediction update
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # This would fetch the latest features from various sources
+- backend/realtime_engine.py: # For now, return mock features
+- backend/realtime_engine.py: # 20 minutes
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Check if subscriber is interested in this stream type
+- backend/realtime_engine.py: # Apply filters
+- backend/realtime_engine.py: # Send message
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Mark subscription for removal
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Add more filter types as needed
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Default to allowing message
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Check every 30 seconds
+- backend/realtime_engine.py: # Remove inactive subscribers
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Update every minute
+- backend/realtime_engine.py: # Log statistics
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Cleanup every 5 minutes
+- backend/realtime_engine.py: # Cleanup expired messages in aggregator
+- backend/realtime_engine.py: # Remove messages older than 1 hour
+- backend/realtime_engine.py: # Remove empty buffers
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Add to local queue
+- backend/realtime_engine.py: # Publish to Redis for other instances
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Cancel processing tasks
+- backend/realtime_engine.py: # Close WebSocket connections
+- backend/realtime_engine.py: # Close Redis connection
+- backend/realtime_engine.py: # pylint: disable=broad-exception-caught
+- backend/realtime_engine.py: # Global instance
+- backend/recursive_intelligence_coordinator.py: #!/usr/bin/env python3
+- backend/recursive_intelligence_coordinator.py: # Configure RIAI logging
+- backend/recursive_intelligence_coordinator.py: # Recursive enhancement calculation
+- backend/recursive_intelligence_coordinator.py: # Meta-learning component
+- backend/recursive_intelligence_coordinator.py: # Apply recursive intelligence formula
+- backend/recursive_intelligence_coordinator.py: # Update intelligence state
+- backend/recursive_intelligence_coordinator.py: # Cap at 99.9% to maintain realism
+- backend/recursive_intelligence_coordinator.py: # Analyze reasoning patterns
+- backend/recursive_intelligence_coordinator.py: # Calculate meta-awareness level
+- backend/recursive_intelligence_coordinator.py: # Extract complexity and context depth
+- backend/recursive_intelligence_coordinator.py: # Normalize complexity
+- backend/recursive_intelligence_coordinator.py: // 10  # Context depth approximation
+- backend/recursive_intelligence_coordinator.py: # Apply recursive intelligence function
+- backend/recursive_intelligence_coordinator.py: # Perform meta-cognition
+- backend/recursive_intelligence_coordinator.py: # Update knowledge base with new patterns
+- backend/recursive_intelligence_coordinator.py: # Calculate learning metrics
+- backend/recursive_intelligence_coordinator.py: # Analyze human cognitive pattern
+- backend/recursive_intelligence_coordinator.py: # Default
+- backend/recursive_intelligence_coordinator.py: # Update synchronization state
+- backend/recursive_intelligence_coordinator.py: # Get adaptation strategy
+- backend/recursive_intelligence_coordinator.py: # Calculate synchronization metrics
+- backend/recursive_intelligence_coordinator.py: # Record interaction
+- backend/recursive_intelligence_coordinator.py: # Execute recursive intelligence phases
+- backend/recursive_intelligence_coordinator.py: # Log cognitive evolution
+- backend/recursive_intelligence_coordinator.py: # Generate RIAI evolution report
+- backend/recursive_intelligence_coordinator.py: # Start autonomous evolution cycle
+- backend/recursive_intelligence_coordinator.py: # Simulate recursive learning initialization
+- backend/recursive_intelligence_coordinator.py: # Create initial learning context
+- backend/recursive_intelligence_coordinator.py: # Execute learning cycle
+- backend/recursive_intelligence_coordinator.py: # Synchronize with cognitive patterns
+- backend/recursive_intelligence_coordinator.py: # Implement multi-layered reasoning
+- backend/recursive_intelligence_coordinator.py: # Execute learning cycle for each layer
+- backend/recursive_intelligence_coordinator.py: # Perform autonomous optimization cycles
+- backend/recursive_intelligence_coordinator.py: # Self-optimization context
+- backend/recursive_intelligence_coordinator.py: # Execute autonomous learning cycle
+- backend/recursive_intelligence_coordinator.py: # Update autonomous improvement counter
+- backend/recursive_intelligence_coordinator.py: # Implement cognitive evolution acceleration
+- backend/recursive_intelligence_coordinator.py: # Execute accelerated evolution
+- backend/recursive_intelligence_coordinator.py: # Calculate evolution acceleration
+- backend/recursive_intelligence_coordinator.py: # Update evolution cycles
+- backend/recursive_intelligence_coordinator.py: # Implement self-modifying capabilities
+- backend/recursive_intelligence_coordinator.py: # Simulate self-modification implementation
+- backend/recursive_intelligence_coordinator.py: # Execute autonomous evolution cycles
+- backend/recursive_intelligence_coordinator.py: # Perform autonomous evolution
+- backend/recursive_intelligence_coordinator.py: # Evolution processing time
+- backend/recursive_intelligence_coordinator.py: # Calculate evolution metrics
+- backend/recursive_intelligence_coordinator.py: # Create evolution context
+- backend/recursive_intelligence_coordinator.py: # Execute evolution cycle
+- backend/recursive_intelligence_coordinator.py: # Update intelligence trajectory
+- backend/recursive_intelligence_coordinator.py: # Calculate final intelligence metrics
+- backend/recursive_intelligence_coordinator.py: # Evolution metrics
+- backend/recursive_intelligence_coordinator.py: # Cognitive synchronization status
+- backend/recursive_intelligence_coordinator.py: # RIAI capabilities status
+- backend/recursive_intelligence_coordinator.py: # Save RIAI report
+- backend/revolutionary_accuracy_engine.py: # Advanced ML imports for cutting-edge techniques
+- backend/revolutionary_accuracy_engine.py: # Advanced metrics
+- backend/revolutionary_accuracy_engine.py: # Meta information
+- backend/revolutionary_accuracy_engine.py: # Spiking neuron parameters
+- backend/revolutionary_accuracy_engine.py: # Synaptic connections with spike-timing dependent plasticity
+- backend/revolutionary_accuracy_engine.py: # Adaptive threshold and homeostasis
+- backend/revolutionary_accuracy_engine.py: # Initialize membrane potentials
+- backend/revolutionary_accuracy_engine.py: # Synaptic input
+- backend/revolutionary_accuracy_engine.py: # Leaky integration
+- backend/revolutionary_accuracy_engine.py: # Adaptive threshold with homeostasis
+- backend/revolutionary_accuracy_engine.py: # Spike generation
+- backend/revolutionary_accuracy_engine.py: # Reset membrane potential after spike
+- backend/revolutionary_accuracy_engine.py: # Spike-timing dependent plasticity (simplified)
+- backend/revolutionary_accuracy_engine.py: # Simplified STDP rule: strengthen connections for correlated activity
+- backend/revolutionary_accuracy_engine.py: # Output layer (rate-based)
+- backend/revolutionary_accuracy_engine.py: # Compute neuromorphic metrics
+- backend/revolutionary_accuracy_engine.py: # Cross-correlation based synchrony measure
+- backend/revolutionary_accuracy_engine.py: # Simple burst detection: consecutive spikes above threshold
+- backend/revolutionary_accuracy_engine.py: # Detect bursts as sequences of high spike activity
+- backend/revolutionary_accuracy_engine.py: # Neural network layers
+- backend/revolutionary_accuracy_engine.py: # Physics-informed parameters
+- backend/revolutionary_accuracy_engine.py: # Sports-specific physics constraints
+- backend/revolutionary_accuracy_engine.py: # Conservation of performance energy
+- backend/revolutionary_accuracy_engine.py: # Momentum conservation (performance consistency)
+- backend/revolutionary_accuracy_engine.py: # Entropy constraint (unpredictability bounds)
+- backend/revolutionary_accuracy_engine.py: # Performance bounds constraint
+- backend/revolutionary_accuracy_engine.py: # Fatigue effect (performance degradation over time)
+- backend/revolutionary_accuracy_engine.py: # If temporal information available
+- backend/revolutionary_accuracy_engine.py: # Neural network forward pass
+- backend/revolutionary_accuracy_engine.py: # Bounded activation for stability
+- backend/revolutionary_accuracy_engine.py: # Apply physics constraints
+- backend/revolutionary_accuracy_engine.py: # Compute physics-informed corrections
+- backend/revolutionary_accuracy_engine.py: # Causal graph structure learning
+- backend/revolutionary_accuracy_engine.py: # Intervention mechanism
+- backend/revolutionary_accuracy_engine.py: # Confounding adjustment
+- backend/revolutionary_accuracy_engine.py: # Do-calculus operators
+- backend/revolutionary_accuracy_engine.py: # Soft adjacency matrix with sparsity regularization
+- backend/revolutionary_accuracy_engine.py: # Apply sparsity constraint
+- backend/revolutionary_accuracy_engine.py: # Acyclicity constraint (DAG property)
+- backend/revolutionary_accuracy_engine.py: # Estimate causal graph
+- backend/revolutionary_accuracy_engine.py: # Create intervention mask
+- backend/revolutionary_accuracy_engine.py: # Apply intervention (set intervened variables to their intervention values)
+- backend/revolutionary_accuracy_engine.py: # Do-calculus: P(Y|do(X)) = sum_z P(Y|X,Z) * P(Z)
+- backend/revolutionary_accuracy_engine.py: # Simplified implementation using attention mechanism
+- backend/revolutionary_accuracy_engine.py: # Embed variables to identify confounders
+- backend/revolutionary_accuracy_engine.py: # Estimate confounding adjustment
+- backend/revolutionary_accuracy_engine.py: # Estimate causal effects
+- backend/revolutionary_accuracy_engine.py: # Default interventions
+- backend/revolutionary_accuracy_engine.py: # Combined causal prediction
+- backend/revolutionary_accuracy_engine.py: # Causal graph structure
+- backend/revolutionary_accuracy_engine.py: # Manifold embedding layers
+- backend/revolutionary_accuracy_engine.py: # Riemannian operations
+- backend/revolutionary_accuracy_engine.py: # Geodesic computation network
+- backend/revolutionary_accuracy_engine.py: # Output projection
+- backend/revolutionary_accuracy_engine.py: # Metric tensor distance: sqrt(diff^T * G * diff)
+- backend/revolutionary_accuracy_engine.py: # Simplified parallel transport using connection
+- backend/revolutionary_accuracy_engine.py: # Simplified exponential map (geodesic flow)
+- backend/revolutionary_accuracy_engine.py: # Inverse of exponential map
+- backend/revolutionary_accuracy_engine.py: # Project to tangent space (simplified)
+- backend/revolutionary_accuracy_engine.py: # Simplified curvature computation
+- backend/revolutionary_accuracy_engine.py: # R(X,Y)Z = âˆ‡_Xâˆ‡_Y Z - âˆ‡_Yâˆ‡_X Z - âˆ‡_{[X,Y]} Z
+- backend/revolutionary_accuracy_engine.py: # Use connection weights to approximate curvature
+- backend/revolutionary_accuracy_engine.py: # Embed input onto manifold
+- backend/revolutionary_accuracy_engine.py: # Normalize to unit sphere (example manifold)
+- backend/revolutionary_accuracy_engine.py: # Compute geometric properties
+- backend/revolutionary_accuracy_engine.py: # Parallel transport to common tangent space
+- backend/revolutionary_accuracy_engine.py: # Compute curvature effects
+- backend/revolutionary_accuracy_engine.py: # Apply geometric transformations
+- backend/revolutionary_accuracy_engine.py: # Decode to output
+- backend/revolutionary_accuracy_engine.py: # State space matrices (learnable)
+- backend/revolutionary_accuracy_engine.py: # Selective mechanism (key innovation of Mamba)
+- backend/revolutionary_accuracy_engine.py: # Temporal convolution for local patterns
+- backend/revolutionary_accuracy_engine.py: # State normalization
+- backend/revolutionary_accuracy_engine.py: # Initialize hidden state
+- backend/revolutionary_accuracy_engine.py: # Selection mechanism - decide what to remember/forget
+- backend/revolutionary_accuracy_engine.py: # State update with selective mechanism
+- backend/revolutionary_accuracy_engine.py: # h_{t+1} = A * h_t + B * x_t (modulated by selection)
+- backend/revolutionary_accuracy_engine.py: # Normalize state
+- backend/revolutionary_accuracy_engine.py: # Output computation
+- backend/revolutionary_accuracy_engine.py: # Transpose for convolution
+- backend/revolutionary_accuracy_engine.py: # (batch, input_dim, seq_len)
+- backend/revolutionary_accuracy_engine.py: # Apply temporal convolution
+- backend/revolutionary_accuracy_engine.py: # (batch, state_dim, seq_len)
+- backend/revolutionary_accuracy_engine.py: # (batch, seq_len, state_dim)
+- backend/revolutionary_accuracy_engine.py: # Apply state space transformation
+- backend/revolutionary_accuracy_engine.py: # This is a simplified parallel implementation
+- backend/revolutionary_accuracy_engine.py: # Apply output transformation
+- backend/revolutionary_accuracy_engine.py: # Add sequence dimension
+- backend/revolutionary_accuracy_engine.py: # Use parallel for longer sequences
+- backend/revolutionary_accuracy_engine.py: # Take last output if sequence dimension exists
+- backend/revolutionary_accuracy_engine.py: # Compute temporal coherence
+- backend/revolutionary_accuracy_engine.py: # Topological feature extraction
+- backend/revolutionary_accuracy_engine.py: # Filtration network for topological analysis
+- backend/revolutionary_accuracy_engine.py: # Persistence diagram network
+- backend/revolutionary_accuracy_engine.py: # Betti number estimation
+- backend/revolutionary_accuracy_engine.py: # H0, H1, H2
+- backend/revolutionary_accuracy_engine.py: # Extract topological features
+- backend/revolutionary_accuracy_engine.py: # Compute filtration values
+- backend/revolutionary_accuracy_engine.py: # Approximate birth and death times
+- backend/revolutionary_accuracy_engine.py: # Birth times: when features appear
+- backend/revolutionary_accuracy_engine.py: # Death times: when features disappear
+- backend/revolutionary_accuracy_engine.py: # Persistence pairs
+- backend/revolutionary_accuracy_engine.py: # Simplified Betti number computation
+- backend/revolutionary_accuracy_engine.py: # Estimate topological features based on persistence lifetimes
+- backend/revolutionary_accuracy_engine.py: # Connected components (Î²0)
+- backend/revolutionary_accuracy_engine.py: # Loops (Î²1)
+- backend/revolutionary_accuracy_engine.py: # Voids (Î²2)
+- backend/revolutionary_accuracy_engine.py: # Betti numbers are non-negative
+- backend/revolutionary_accuracy_engine.py: # Encourage diverse persistence lifetimes
+- backend/revolutionary_accuracy_engine.py: # Penalize very short or very long lifetimes
+- backend/revolutionary_accuracy_engine.py: # Encourage topological diversity
+- backend/revolutionary_accuracy_engine.py: # Compute persistence diagram
+- backend/revolutionary_accuracy_engine.py: # Estimate Betti numbers
+- backend/revolutionary_accuracy_engine.py: # Combine topological features
+- backend/revolutionary_accuracy_engine.py: # Final prediction
+- backend/revolutionary_accuracy_engine.py: # Topological regularization
+- backend/revolutionary_accuracy_engine.py: # Compute topological complexity
+- backend/revolutionary_accuracy_engine.py: # Graph attention layers
+- backend/revolutionary_accuracy_engine.py: # Transformer attention for global patterns
+- backend/revolutionary_accuracy_engine.py: # Topological positional encoding
+- backend/revolutionary_accuracy_engine.py: # Output projection
+- backend/revolutionary_accuracy_engine.py: # Graph pooling
+- backend/revolutionary_accuracy_engine.py: # Compute pairwise similarities
+- backend/revolutionary_accuracy_engine.py: # Create adjacency matrix (top-k connections)
+- backend/revolutionary_accuracy_engine.py: # Create edge list
+- backend/revolutionary_accuracy_engine.py: # Skip self-connection
+- backend/revolutionary_accuracy_engine.py: # Fallback: create simple sequential edges
+- backend/revolutionary_accuracy_engine.py: # Use a subset of positional encodings
+- backend/revolutionary_accuracy_engine.py: # Create graph structure
+- backend/revolutionary_accuracy_engine.py: # Add topological positional encoding
+- backend/revolutionary_accuracy_engine.py: # Graph attention layers
+- backend/revolutionary_accuracy_engine.py: # Average over attention heads
+- backend/revolutionary_accuracy_engine.py: # Reshape for transformer
+- backend/revolutionary_accuracy_engine.py: # Add batch dimension for transformer
+- backend/revolutionary_accuracy_engine.py: # Transformer layer for global attention
+- backend/revolutionary_accuracy_engine.py: # Remove batch dimension
+- backend/revolutionary_accuracy_engine.py: # Graph pooling for final representation
+- backend/revolutionary_accuracy_engine.py: # Output projection
+- backend/revolutionary_accuracy_engine.py: # Compute graph metrics
+- backend/revolutionary_accuracy_engine.py: # Simplified clustering coefficient computation
+- backend/revolutionary_accuracy_engine.py: # Avoid division by zero
+- backend/revolutionary_accuracy_engine.py: # Normalize attention weights
+- backend/revolutionary_accuracy_engine.py: # Compute entropy
+- backend/revolutionary_accuracy_engine.py: # Initialize all revolutionary models
+- backend/revolutionary_accuracy_engine.py: # Model dimensions
+- backend/revolutionary_accuracy_engine.py: # Configurable based on feature engineering
+- backend/revolutionary_accuracy_engine.py: # Neuromorphic spiking network
+- backend/revolutionary_accuracy_engine.py: // 2], output_dim
+- backend/revolutionary_accuracy_engine.py: # Physics-informed neural network
+- backend/revolutionary_accuracy_engine.py: // 2], output_dim
+- backend/revolutionary_accuracy_engine.py: # Causal inference module
+- backend/revolutionary_accuracy_engine.py: # Geometric manifold network
+- backend/revolutionary_accuracy_engine.py: # Mamba state space model
+- backend/revolutionary_accuracy_engine.py: # Topological persistence network
+- backend/revolutionary_accuracy_engine.py: # Graph transformer attention
+- backend/revolutionary_accuracy_engine.py: # Initialize ensemble weights
+- backend/revolutionary_accuracy_engine.py: # pylint: disable=broad-exception-caught
+- backend/revolutionary_accuracy_engine.py: # Fallback to simpler models if advanced ones fail
+- backend/revolutionary_accuracy_engine.py: # Simple neural networks as fallbacks
+- backend/revolutionary_accuracy_engine.py: // 2),
+- backend/revolutionary_accuracy_engine.py: // 2, output_dim),
+- backend/revolutionary_accuracy_engine.py: # Convert features to tensor
+- backend/revolutionary_accuracy_engine.py: # Initialize prediction components
+- backend/revolutionary_accuracy_engine.py: # Run all models
+- backend/revolutionary_accuracy_engine.py: # Fallback for simple models
+- backend/revolutionary_accuracy_engine.py: # pylint: disable=broad-exception-caught
+- backend/revolutionary_accuracy_engine.py: # Ensemble combination
+- backend/revolutionary_accuracy_engine.py: # Extract individual contributions
+- backend/revolutionary_accuracy_engine.py: # Revolutionary fusion
+- backend/revolutionary_accuracy_engine.py: # Compute advanced metrics
+- backend/revolutionary_accuracy_engine.py: # Create revolutionary prediction result
+- backend/revolutionary_accuracy_engine.py: # Placeholder
+- backend/revolutionary_accuracy_engine.py: # Placeholder
+- backend/revolutionary_accuracy_engine.py: # Advanced metrics
+- backend/revolutionary_accuracy_engine.py: # Meta information
+- backend/revolutionary_accuracy_engine.py: # Extract numeric values
+- backend/revolutionary_accuracy_engine.py: # Pad or truncate to expected size
+- backend/revolutionary_accuracy_engine.py: # Add batch dimension
+- backend/revolutionary_accuracy_engine.py: # Sophisticated fusion with nonlinear interactions
+- backend/revolutionary_accuracy_engine.py: # Nonlinear interactions
+- backend/revolutionary_accuracy_engine.py: # Stability constraint
+- backend/revolutionary_accuracy_engine.py: # Default weighted average
+- backend/revolutionary_accuracy_engine.py: # Extract metrics from different models
+- backend/revolutionary_accuracy_engine.py: # Aggregate key metrics
+- backend/revolutionary_accuracy_engine.py: # Global instance
+- backend/revolutionary_api.py: # Create router for revolutionary accuracy endpoints
+- backend/revolutionary_api.py: # Core predictions
+- backend/revolutionary_api.py: # Advanced metrics
+- backend/revolutionary_api.py: # Meta information
+- backend/revolutionary_api.py: # Performance metrics
+- backend/revolutionary_api.py: # Research insights
+- backend/revolutionary_api.py: # Generate revolutionary prediction
+- backend/revolutionary_api.py: # Calculate breakthrough methods used
+- backend/revolutionary_api.py: # Discover novel patterns
+- backend/revolutionary_api.py: # Computational complexity analysis
+- backend/revolutionary_api.py: # Schedule background analysis
+- backend/revolutionary_api.py: # Core predictions
+- backend/revolutionary_api.py: # Advanced metrics
+- backend/revolutionary_api.py: # Meta information
+- backend/revolutionary_api.py: # Performance metrics
+- backend/revolutionary_api.py: # Research insights
+- backend/revolutionary_api.py: # pylint: disable=broad-exception-caught
+- backend/revolutionary_api.py: # Extract features from prediction data
+- backend/revolutionary_api.py: # Manifold analysis
+- backend/revolutionary_api.py: # Estimate intrinsic dimensionality
+- backend/revolutionary_api.py: # Compute manifold curvature
+- backend/revolutionary_api.py: # Identify manifold topology
+- backend/revolutionary_api.py: # pylint: disable=broad-exception-caught
+- backend/revolutionary_api.py: # Extract variables from prediction data
+- backend/revolutionary_api.py: # Causal discovery using constraint-based methods
+- backend/revolutionary_api.py: # Estimate causal effects using do-calculus
+- backend/revolutionary_api.py: # Identify confounders and mediators
+- backend/revolutionary_api.py: # Causal pathway analysis
+- backend/revolutionary_api.py: # pylint: disable=broad-exception-caught
+- backend/revolutionary_api.py: # Extract point cloud data
+- backend/revolutionary_api.py: # Persistent homology computation
+- backend/revolutionary_api.py: # Betti numbers across filtration
+- backend/revolutionary_api.py: # Topological features
+- backend/revolutionary_api.py: # Persistence landscapes
+- backend/revolutionary_api.py: # pylint: disable=broad-exception-caught
+- backend/revolutionary_api.py: # Helper functions for advanced analysis
+- backend/revolutionary_api.py: # Simplified estimation - in practice would use more sophisticated methods
+- backend/revolutionary_api.py: # Estimate dimension from slope
+- backend/revolutionary_api.py: # Simplified curvature estimation
+- backend/revolutionary_api.py: # Find nearest neighbors
+- backend/revolutionary_api.py: # Estimate local curvature using neighbor variance
+- backend/revolutionary_api.py: # Log patterns for continuous learning
+- backend/revolutionary_api.py: # Store prediction for future analysis
+- backend/revolutionary_api.py: # This would integrate with the database in a real implementation
+- backend/revolutionary_api.py: # Identify interesting patterns
+- backend/revolutionary_api.py: # pylint: disable=broad-exception-caught
+- backend/revolutionary_api.py: # Additional helper functions would be implemented here...
+- backend/riai_coordinator.py: #!/usr/bin/env python3
+- backend/riai_coordinator.py: # Autonomous evolution cycles
+- backend/riai_coordinator.py: # Generate comprehensive report
+- backend/riai_coordinator.py: # Save evolution report
+- backend/risk_management.py: # type: ignore[reportMissingTypeStubs]
+- backend/risk_management.py: # Optional imports with fallbacks
+- backend/risk_management.py: # type: ignore[import]
+- backend/risk_management.py: # type: ignore[import]
+- backend/risk_management.py: # type: ignore[import]
+- backend/risk_management.py: # 95% VaR
+- backend/risk_management.py: # 99% VaR
+- backend/risk_management.py: # Conditional VaR (95%)
+- backend/risk_management.py: # Maximum historical drawdown
+- backend/risk_management.py: # Risk-adjusted return
+- backend/risk_management.py: # Downside deviation adjusted return
+- backend/risk_management.py: # Return / max drawdown
+- backend/risk_management.py: # Optimal Kelly fraction
+- backend/risk_management.py: # Probability of ruin
+- backend/risk_management.py: # Expected time to bankruptcy
+- backend/risk_management.py: # Portfolio correlation risk
+- backend/risk_management.py: # Market liquidity risk
+- backend/risk_management.py: # Prediction model uncertainty
+- backend/risk_management.py: # Confidence bounds
+- backend/risk_management.py: # Overall risk score (0-100)
+- backend/risk_management.py: # Load risk control parameters from config
+- backend/risk_management.py: # Basic Kelly formula: f = (bp - q) / b
+- backend/risk_management.py: # where b = odds - 1, p = win probability, q = 1 - p
+- backend/risk_management.py: # Net odds
+- backend/risk_management.py: # Basic Kelly fraction
+- backend/risk_management.py: # Apply risk controls and adjustments
+- backend/risk_management.py: # 1. Maximum Kelly fraction cap
+- backend/risk_management.py: # 2. Volatility adjustment
+- backend/risk_management.py: # 3. Correlation adjustment (reduce sizing for correlated bets)
+- backend/risk_management.py: # 4. Drawdown protection
+- backend/risk_management.py: # More than 10% drawdown
+- backend/risk_management.py: # Risk level classification
+- backend/risk_management.py: # pylint: disable=broad-exception-caught
+- backend/risk_management.py: # Days
+- backend/risk_management.py: # Convert to list for calculations (numpy handled in individual methods)
+- backend/risk_management.py: # Calculate basic risk metrics
+- backend/risk_management.py: # Calculate drawdown metrics
+- backend/risk_management.py: # Calculate risk-adjusted ratios
+- backend/risk_management.py: # Calculate portfolio-specific risks
+- backend/risk_management.py: # Kelly criterion analysis
+- backend/risk_management.py: # Bankruptcy analysis
+- backend/risk_management.py: # Confidence intervals
+- backend/risk_management.py: # Overall risk score
+- backend/risk_management.py: # pylint: disable=broad-exception-caught
+- backend/risk_management.py: # Use cast to handle conditional numpy import
+- backend/risk_management.py: # Pure Python implementation
+- backend/risk_management.py: # Pure Python implementation
+- backend/risk_management.py: # Daily risk-free rate
+- backend/risk_management.py: # Annualized
+- backend/risk_management.py: # Pure Python implementation
+- backend/risk_management.py: # Pure Python implementation
+- backend/risk_management.py: # Simplified correlation risk calculation
+- backend/risk_management.py: # In practice, this would analyze correlations between position outcomes
+- backend/risk_management.py: # Placeholder
+- backend/risk_management.py: # Simplified liquidity risk calculation
+- backend/risk_management.py: # Cap at 25%
+- backend/risk_management.py: # Simplified bankruptcy probability calculation
+- backend/risk_management.py: # Use geometric Brownian motion to estimate bankruptcy probability
+- backend/risk_management.py: # P(ruin) â‰ˆ exp(-2Î¼ * initial_capital / ÏƒÂ²)
+- backend/risk_management.py: # Positive expectancy, theoretically infinite time to ruin
+- backend/risk_management.py: # Deterministic case
+- backend/risk_management.py: # Approximation for expected time to ruin
+- backend/risk_management.py: # E[T] â‰ˆ -bankroll / mean_return for small volatility
+- backend/risk_management.py: # Pure Python implementation
+- backend/risk_management.py: # Normalize individual risk components to 0-1 scale
+- backend/risk_management.py: # VaR component
+- backend/risk_management.py: # Drawdown component
+- backend/risk_management.py: # Inverse Sharpe (lower is better)
+- backend/risk_management.py: # Already 0-1
+- backend/risk_management.py: # Weighted average of risk components
+- backend/risk_management.py: # Scale to 0-100
+- backend/risk_management.py: # pylint: disable=broad-exception-caught
+- backend/risk_management.py: # Default moderate risk
+- backend/risk_management.py: # Prepare optimization data
+- backend/risk_management.py: # Apply optimization method
+- backend/risk_management.py: # Apply constraints and validation
+- backend/risk_management.py: # Calculate portfolio metrics
+- backend/risk_management.py: # Pure Python implementation
+- backend/risk_management.py: # Simplified portfolio variance calculation
+- backend/risk_management.py: # Calculate risk contributions
+- backend/risk_management.py: # pylint: disable=broad-exception-caught
+- backend/risk_management.py: # If numpy/scipy not available, use simple equal weight with risk adjustment
+- backend/risk_management.py: # Simple implementation: weight by expected return/risk ratio
+- backend/risk_management.py: # Avoid division by zero
+- backend/risk_management.py: # Only positive scores
+- backend/risk_management.py: # Equal weights fallback
+- backend/risk_management.py: # Full numpy/scipy implementation
+- backend/risk_management.py: # Risk aversion parameter based on risk tolerance
+- backend/risk_management.py: # Convert to numpy arrays
+- backend/risk_management.py: # Covariance matrix
+- backend/risk_management.py: # Objective: maximize return - risk_aversion * variance
+- backend/risk_management.py: # Constraints
+- backend/risk_management.py: # type: ignore[arg-type]
+- backend/risk_management.py: # Weights sum to 1
+- backend/risk_management.py: # Bounds (0 to 0.5 for each position to ensure diversification)
+- backend/risk_management.py: # Initial guess (equal weights)
+- backend/risk_management.py: # Optimize
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # pylint: disable=broad-exception-caught
+- backend/risk_management.py: # Check if numpy and scipy are available for complex optimization
+- backend/risk_management.py: # Simple fallback: equal weights
+- backend/risk_management.py: # Create covariance matrix
+- backend/risk_management.py: # Objective: minimize sum of squared risk contribution differences
+- backend/risk_management.py: # Calculate portfolio variance using matrix multiplication
+- backend/risk_management.py: # Calculate marginal risk contributions
+- backend/risk_management.py: # Risk contributions
+- backend/risk_management.py: # Target equal risk contribution
+- backend/risk_management.py: # Constraints
+- backend/risk_management.py: # type: ignore[arg-type]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # pylint: disable=broad-exception-caught
+- backend/risk_management.py: # Simplified implementation - in practice would require market cap weights and views
+- backend/risk_management.py: # Check if scipy is available
+- backend/risk_management.py: # Conservative Kelly fractions
+- backend/risk_management.py: # For Kelly optimization, we need to solve for optimal fractions
+- backend/risk_management.py: # that maximize logarithmic utility
+- backend/risk_management.py: # Approximate Kelly utility using log expected return
+- backend/risk_management.py: # Avoid log of negative numbers
+- backend/risk_management.py: # Constraint functions with proper type annotations
+- backend/risk_management.py: # Total Kelly < 25%
+- backend/risk_management.py: # Conservative initial guess
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # Handle optimization result safely
+- backend/risk_management.py: # type: ignore[arg-type]
+- backend/risk_management.py: # type: ignore[arg-type]
+- backend/risk_management.py: # type: ignore[arg-type]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # Normalize to ensure they sum to something reasonable
+- backend/risk_management.py: # type: ignore[arg-type]
+- backend/risk_management.py: # pylint: disable=broad-exception-caught
+- backend/risk_management.py: # Create identity matrix (fallback when numpy not available)
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # pylint: disable=broad-exception-caught
+- backend/risk_management.py: # Fallback to manual identity matrix
+- backend/risk_management.py: # Manual identity matrix creation
+- backend/risk_management.py: # Estimate correlations based on opportunity characteristics
+- backend/risk_management.py: # type: ignore[return-value]
+- backend/risk_management.py: # Simple heuristic-based correlation estimation
+- backend/risk_management.py: # Same event = high correlation
+- backend/risk_management.py: # Same sport = moderate correlation
+- backend/risk_management.py: # Same market type = moderate correlation
+- backend/risk_management.py: # Same team/player = high correlation
+- backend/risk_management.py: # Cap at 0.9
+- backend/risk_management.py: # Ensure weights are non-negative
+- backend/risk_management.py: # Ensure no single position exceeds maximum allocation
+- backend/risk_management.py: # Renormalize if necessary
+- backend/risk_management.py: # Pure Python implementation
+- backend/risk_management.py: # Ensure no single position exceeds maximum allocation
+- backend/risk_management.py: # Renormalize if necessary
+- backend/risk_management.py: # Use numpy implementation
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[operator]
+- backend/risk_management.py: # type: ignore[arg-type]
+- backend/risk_management.py: # Pure Python fallback
+- backend/risk_management.py: # Create covariance matrix manually
+- backend/risk_management.py: # Calculate portfolio variance
+- backend/risk_management.py: # Calculate marginal contributions
+- backend/risk_management.py: # Calculate risk contributions
+- backend/risk_management.py: # pylint: disable=broad-exception-caught
+- backend/risk_management.py: # Use numpy implementation
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[arg-type]
+- backend/risk_management.py: # Pure Python fallback
+- backend/risk_management.py: # Create covariance matrix manually
+- backend/risk_management.py: # Calculate portfolio variance
+- backend/risk_management.py: # Calculate marginal risk contributions
+- backend/risk_management.py: # pylint: disable=broad-exception-caught
+- backend/risk_management.py: # Use numpy implementation
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # Diversification ratio = weighted average volatility / portfolio volatility
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[attr-defined]
+- backend/risk_management.py: # type: ignore[arg-type]
+- backend/risk_management.py: # Pure Python fallback
+- backend/risk_management.py: # Weighted average volatility
+- backend/risk_management.py: # Portfolio volatility calculation
+- backend/risk_management.py: # pylint: disable=broad-exception-caught
+- backend/risk_management.py: # 5% of bankroll per position
+- backend/risk_management.py: # 10% of bankroll per day
+- backend/risk_management.py: # 25% of bankroll total
+- backend/risk_management.py: # 20% cash reserve
+- backend/risk_management.py: # 15% in correlated positions
+- backend/risk_management.py: # 20% drawdown triggers stop
+- backend/risk_management.py: # Max 5 positions per event
+- backend/risk_management.py: # Extract opportunity parameters
+- backend/risk_management.py: # Basic validation
+- backend/risk_management.py: # Kelly calculation
+- backend/risk_management.py: # Calculate base position size
+- backend/risk_management.py: # Apply risk controls
+- backend/risk_management.py: # Calculate bounds
+- backend/risk_management.py: # Minimum $1 or 10% of calculated
+- backend/risk_management.py: # No more than 2x Kelly
+- backend/risk_management.py: # Ensure final stake is within bounds
+- backend/risk_management.py: # Risk-adjusted stake considering uncertainty
+- backend/risk_management.py: # Calculate expected metrics
+- backend/risk_management.py: # pylint: disable=broad-exception-caught
+- backend/risk_management.py: # 1. Single position limit
+- backend/risk_management.py: # 2. Daily risk limit
+- backend/risk_management.py: # 3. Total exposure limit
+- backend/risk_management.py: # 4. Correlation limit
+- backend/risk_management.py: # 5. Event concentration limit
+- backend/risk_management.py: # Reduce by 50%
+- backend/risk_management.py: # 6. Drawdown protection
+- backend/risk_management.py: # Stop trading
+- backend/risk_management.py: # More than 10% drawdown
+- backend/risk_management.py: # Calculate total adjustment (minimum of all adjustments)
+- backend/risk_management.py: # Same event
+- backend/risk_management.py: # Same sport and similar timing
+- backend/risk_management.py: # Same team/player
+- backend/risk_management.py: # Simplified implementation - would track historical peak in production
+- backend/risk_management.py: # Estimate peak bankroll from historical data
+- backend/risk_management.py: # Assume 10% above current as approximation
+- backend/risk_management.py: # High correlation
+- backend/risk_management.py: # Moderate correlation
+- backend/risk_management.py: # Low correlation
+- backend/risk_management.py: # Simplified risk metrics calculation
+- backend/risk_management.py: # In practice, would use full portfolio analysis
+- backend/risk_management.py: # Simplified VaR (could lose 95% of stake)
+- backend/risk_management.py: # Global instance
+- backend/run_backend.py: #!/usr/bin/env python3
+- backend/run_backend.py: # Add the backend directory to Python path
+- backend/run_backend.py: # Add the parent directory as well for any cross-directory imports
+- backend/run_backend.py: # Set working directory to backend
+- backend/run_backend.py: # Import and run the main enhanced backend
+- backend/run_backend.py: # Test critical imports first
+- backend/run_backend.py: # Import and run main enhanced
+- backend/run_backend.py: # Fallback to basic main.py
+- backend/run_backend.py: # pylint: disable=broad-exception-caught
+- backend/security_config.py: # Security Configuration
+- backend/security_config.py: # Configure logging
+- backend/security_config.py: # Security constants
+- backend/security_config.py: # Password hashing
+- backend/security_config.py: # JWT Bearer token handler
+- backend/security_config.py: # RESOLVED: Replace with actual database lookup
+- backend/security_config.py: # For now, using a simple in-memory user store
+- backend/security_config.py: # RESOLVED: Replace with actual database lookup
+- backend/security_config.py: # RESOLVED: Implement API key validation against database
+- backend/security_config.py: # For now, accepting any 32+ character key
+- backend/security_config.py: # Global security manager instance
+- backend/security_config.py: # Security middleware functions
+- backend/security_config.py: # Get user from kwargs (assumes user is passed as parameter)
+- backend/security_config.py: # Rate limiting configuration
+- backend/security_config.py: # 5 requests per 5 minutes
+- backend/security_config.py: # 100 requests per minute
+- backend/security_config.py: # 20 predictions per minute
+- backend/security_config.py: # Clean old requests
+- backend/security_config.py: # Check limit
+- backend/security_config.py: # Add current request
+- backend/security_config.py: # Global rate limiter instance
+- backend/security_config.py: # Security headers configuration
+- backend/security_hardening.py: #!/usr/bin/env python3
+- backend/security_hardening.py: # Security patterns to detect
+- backend/security_hardening.py: # Count by type
+- backend/security_hardening.py: # Critical files
+- backend/security_hardening.py: # Save report
+- backend/security_scanner.py: #!/usr/bin/env python3
+- backend/security_scanner.py: # Security patterns to detect
+- backend/security_scanner.py: # Scan Python files
+- backend/security_scanner.py: # Group by type
+- backend/security_scanner.py: # Show first 5
+- backend/security_scanner.py: # Save detailed report
+- backend/self_modifying_engine.py: #!/usr/bin/env python3
+- backend/shap_explainer.py: # Dummy model for demonstration; replace with your real model
+- backend/shap_explainer.py: # SHAP Explainer integration
+- backend/shap_explainer.py: # pylint: disable=broad-exception-caught
+- backend/simple_backend.py: #!/usr/bin/env python3
+- backend/simple_backend.py: # Add CORS middleware
+- backend/simple_backend.py: # Backend caching and rate limiting
+- backend/simple_backend.py: # 5 minutes between API calls
+- backend/simple_backend.py: # 3 minutes cache TTL
+- backend/simple_backend.py: # Circuit breaker settings
+- backend/simple_backend.py: # 5 minutes
+- backend/simple_backend.py: # Aggressive 5-second timeout
+- backend/simple_backend.py: # Normal operation
+- backend/simple_backend.py: # Failing, don't try
+- backend/simple_backend.py: # Testing recovery
+- backend/simple_backend.py: # Initialize cache with high-quality mock data on startup
+- backend/simple_backend.py: # Always try cache first for instant response
+- backend/simple_backend.py: # Return enhanced mock data immediately if circuit breaker is open
+- backend/simple_backend.py: # Check rate limiting
+- backend/simple_backend.py: # Try to fetch real data with aggressive timeout
+- backend/simple_backend.py: # Use asyncio.wait_for for absolute timeout control
+- backend/simple_backend.py: # Fallback to enhanced mock data
+- backend/simple_backend.py: # Ultra-aggressive timeout configuration
+- backend/simple_backend.py: # 2 seconds to connect
+- backend/simple_backend.py: # 2 seconds to read
+- backend/simple_backend.py: # 1 second to write
+- backend/simple_backend.py: # 1 second for pool
+- backend/simple_backend.py: # Don't follow redirects to avoid delays
+- backend/simple_backend.py: //api.prizepicks.com/projections"
+- backend/simple_backend.py: # Don't keep connection alive
+- backend/simple_backend.py: # Reduced for faster response
+- backend/simple_backend.py: # Quick processing without extensive data manipulation
+- backend/simple_backend.py: # Limit to 10 for speed
+- backend/simple_backend.py: # Simplified
+- backend/simple_backend.py: # Enhanced mock props with real player names and realistic stats
+- backend/simple_backend.py: # Generate realistic props
+- backend/simple_backend.py: # Generate realistic lines based on stat type
+- backend/simple_backend.py: # Try to get cached enhanced data first
+- backend/simple_backend.py: # Get the base props (this will use its own caching)
+- backend/simple_backend.py: # Enhance each prop with additional ML data
+- backend/simple_backend.py: # Include all original data
+- backend/simple_backend.py: # Cache the enhanced props
+- backend/simple_backend.py: //localhost:8000")
+- backend/simple_celery_worker.py: #!/usr/bin/env python3
+- backend/simple_celery_worker.py: # Simple Redis connection
+- backend/simple_celery_worker.py: //localhost:6379')
+- backend/simple_celery_worker.py: //localhost:6379')
+- backend/simple_healthy_backend.py: #!/usr/bin/env python3
+- backend/simple_healthy_backend.py: # Configure logging
+- backend/simple_healthy_backend.py: # Initialize FastAPI app
+- backend/simple_healthy_backend.py: # Add CORS middleware
+- backend/simple_healthy_backend.py: # Import real PrizePicks service
+- backend/simple_healthy_backend.py: # Get real props from PrizePicks API
+- backend/simple_healthy_backend.py: # Convert to API response format
+- backend/simple_healthy_backend.py: # CRITICAL: NO fallback to mock data - return empty list
+- backend/simple_healthy_backend.py: # Get props first
+- backend/simple_healthy_backend.py: # type: ignore[misc]
+- backend/simple_healthy_backend.py: # Filter high confidence props as recommendations with type safety
+- backend/simple_healthy_backend.py: # type: ignore[misc]
+- backend/simple_healthy_backend.py: # type: ignore[misc]
+- backend/simple_healthy_backend.py: # type: ignore[misc]
+- backend/simple_healthy_backend.py: # type: ignore[misc]
+- backend/simple_model_service.py: #!/usr/bin/env python3
+- backend/simple_model_service.py: # Configure logging
+- backend/simple_model_service.py: # Initialize FastAPI app
+- backend/simple_ollama_test.py: #!/usr/bin/env python3
+- backend/simple_ollama_test.py: # List models
+- backend/simple_ollama_test.py: //localhost:11434/api/tags")
+- backend/simple_ollama_test.py: # Test generation with llama3:8b
+- backend/simple_ollama_test.py: //localhost:11434/api/generate",
+- backend/simple_propollama_backend.py: # Setup logging
+- backend/simple_propollama_backend.py: # PropOllama Models
+- backend/simple_propollama_backend.py: # Simple PropOllama Engine
+- backend/simple_propollama_backend.py: # Real analysis based on message content
+- backend/simple_propollama_backend.py: # Create engine instance
+- backend/simple_propollama_backend.py: # API Endpoints
+- backend/simple_propollama_backend.py: //localhost:8000"}")
+- backend/simple_propollama_backend.py: //localhost:8000"}/api/propollama/chat")
+- backend/simple_server.py: #!/usr/bin/env python3
+- backend/simple_server.py: # Import the real PrizePicks service
+- backend/simple_server.py: # Add CORS middleware
+- backend/simple_server.py: # Initialize services
+- backend/simple_server.py: # Define sport seasons (months when each sport is active)
+- backend/simple_server.py: # April-October
+- backend/simple_server.py: # September-February
+- backend/simple_server.py: # October-June
+- backend/simple_server.py: # October-June
+- backend/simple_server.py: # May-October
+- backend/simple_server.py: # February-November
+- backend/simple_server.py: # February-November
+- backend/simple_server.py: # Year-round
+- backend/simple_server.py: # Year-round
+- backend/simple_server.py: # Year-round
+- backend/simple_server.py: # Year-round
+- backend/simple_server.py: # Year-round
+- backend/simple_server.py: # February-November
+- backend/simple_server.py: # March-October
+- backend/simple_server.py: # Year-round
+- backend/simple_server.py: # August-January
+- backend/simple_server.py: # November-April
+- backend/simple_server.py: # Initialize the service if needed
+- backend/simple_server.py: # Fetch real PrizePicks data
+- backend/simple_server.py: # DIAGNOSTIC: Log what we got from real API
+- backend/simple_server.py: # Count props by sport
+- backend/simple_server.py: # Check if we have off-season sports in July
+- backend/simple_server.py: # Transform real props to enhanced format (with seasonal filtering)
+- backend/simple_server.py: # ✅ CRITICAL FIX: Apply seasonal filtering to real API props
+- backend/simple_server.py: # Default recommendation
+- backend/simple_server.py: # Sort by confidence (highest first)
+- backend/simple_server.py: # Fall through to backup data
+- backend/simple_server.py: # Backup: Return current in-season props only
+- backend/simple_server.py: # Get sports that are currently in season
+- backend/simple_server.py: # Create props organized by sport
+- backend/simple_server.py: # Filter props to only include sports that are currently in season
+- backend/simple_server.py: # If no in-season props available, return year-round sports
+- backend/simple_server.py: # Sort by confidence (highest first) to show the best bets
+- backend/simple_server.py: # Find available port dynamically
+- backend/simple_server_backup.py: #!/usr/bin/env python3
+- backend/simple_server_backup.py: # Import the real PrizePicks service
+- backend/simple_server_backup.py: # Add CORS middleware
+- backend/simple_server_backup.py: # Initialize services
+- backend/simple_server_backup.py: # Define sport seasons (months when each sport is active)
+- backend/simple_server_backup.py: # April-October
+- backend/simple_server_backup.py: # September-February
+- backend/simple_server_backup.py: # October-June
+- backend/simple_server_backup.py: # October-June
+- backend/simple_server_backup.py: # May-October
+- backend/simple_server_backup.py: # February-November
+- backend/simple_server_backup.py: # February-November
+- backend/simple_server_backup.py: # Year-round
+- backend/simple_server_backup.py: # Year-round
+- backend/simple_server_backup.py: # Year-round
+- backend/simple_server_backup.py: # Year-round
+- backend/simple_server_backup.py: # Year-round
+- backend/simple_server_backup.py: # February-November
+- backend/simple_server_backup.py: # March-October
+- backend/simple_server_backup.py: # Year-round
+- backend/simple_server_backup.py: # August-January
+- backend/simple_server_backup.py: # November-April
+- backend/simple_server_backup.py: # Initialize the service if needed
+- backend/simple_server_backup.py: # Fetch real PrizePicks data
+- backend/simple_server_backup.py: # Fallback to enhanced fetcher for in-season sports
+- backend/simple_server_backup.py: # Transform real data to our format with enhanced analysis
+- backend/simple_server_backup.py: # Default recommendation
+- backend/simple_server_backup.py: # Sort by confidence (highest first)
+- backend/simple_server_backup.py: # Fall through to backup data
+- backend/simple_server_backup.py: # If no in-season props available, return year-round sports
+- backend/simple_server_backup.py: # Sort by confidence (highest first) to show the best bets
+- backend/simple_server_backup.py: # Only include props from sports that are currently in season
+- backend/simple_server_backup.py: # If no in-season props available, return year-round sports
+- backend/simple_server_backup.py: # Sort by confidence (highest first) to show the best bets
+- backend/simple_server_backup.py: # MLB Props (existing ones updated)
+- backend/simple_server_backup.py: # WNBA Props (existing A'ja Wilson updated)
+- backend/simple_server_backup.py: # NBA Props
+- backend/simple_server_backup.py: # SOCCER Props
+- backend/simple_server_backup.py: # PGA Props
+- backend/simple_server_backup.py: # TENNIS Props
+- backend/simple_server_backup.py: # MMA Props
+- backend/simple_server_backup.py: # KBO Props
+- backend/simple_server_backup.py: # NASCAR Props
+- backend/simple_server_backup.py: # BOXING Props
+- backend/simple_server_backup.py: # CS2 Props
+- backend/simple_server_backup.py: # Sort by confidence (highest first) to show the best bets
+- backend/simple_server_backup.py: # Simulate AI response based on user message
+- backend/simple_server_backup.py: # Find available port dynamically
+- backend/simple_server_clean.py: #!/usr/bin/env python3
+- backend/simple_server_clean.py: # Import the real PrizePicks service
+- backend/simple_server_clean.py: # Add CORS middleware
+- backend/simple_server_clean.py: # Initialize services
+- backend/simple_server_clean.py: # Define sport seasons (months when each sport is active)
+- backend/simple_server_clean.py: # April-October
+- backend/simple_server_clean.py: # September-February
+- backend/simple_server_clean.py: # October-June
+- backend/simple_server_clean.py: # October-June
+- backend/simple_server_clean.py: # May-October
+- backend/simple_server_clean.py: # February-November
+- backend/simple_server_clean.py: # February-November
+- backend/simple_server_clean.py: # Year-round
+- backend/simple_server_clean.py: # Year-round
+- backend/simple_server_clean.py: # Year-round
+- backend/simple_server_clean.py: # Year-round
+- backend/simple_server_clean.py: # Year-round
+- backend/simple_server_clean.py: # February-November
+- backend/simple_server_clean.py: # March-October
+- backend/simple_server_clean.py: # Year-round
+- backend/simple_server_clean.py: # August-January
+- backend/simple_server_clean.py: # November-April
+- backend/simple_server_clean.py: # Initialize the service if needed
+- backend/simple_server_clean.py: # Fetch real PrizePicks data
+- backend/simple_server_clean.py: # Transform real props to enhanced format
+- backend/simple_server_clean.py: # Default recommendation
+- backend/simple_server_clean.py: # Sort by confidence (highest first)
+- backend/simple_server_clean.py: # Fall through to backup data
+- backend/simple_server_clean.py: # Backup: Return current in-season props only
+- backend/simple_server_clean.py: # Get sports that are currently in season
+- backend/simple_server_clean.py: # Create props organized by sport
+- backend/simple_server_clean.py: # Filter props to only include sports that are currently in season
+- backend/simple_server_clean.py: # If no in-season props available, return year-round sports
+- backend/simple_server_clean.py: # Sort by confidence (highest first) to show the best bets
+- backend/simple_server_clean.py: # Find available port dynamically
+- backend/specialist_apis.py: # Simple in-memory cache implementation
+- backend/specialist_apis.py: # Expired, remove it
+- backend/specialist_apis.py: # Simple eviction if at max size
+- backend/specialist_apis.py: # Remove oldest entry
+- backend/specialist_apis.py: # Cache configuration
+- backend/specialist_apis.py: # 5 minutes
+- backend/specialist_apis.py: //api.sportradar.us", name="Sportradar"
+- backend/specialist_apis.py: # Map sport to Sportradar endpoint
+- backend/specialist_apis.py: //api.prizepicks.com", name="PrizePicks"
+- backend/specialist_apis.py: # Extract unique games from props data
+- backend/specialist_apis.py: # PrizePicks doesn't always provide team matchup
+- backend/specialist_apis.py: # Extract player name
+- backend/specialist_apis.py: # PrizePicks typically uses standard odds
+- backend/specialist_apis.py: # ESPN API is mostly public
+- backend/specialist_apis.py: //site.api.espn.com/apis/site/v2/sports",
+- backend/specialist_apis.py: # Map sport to ESPN endpoint
+- backend/specialist_apis.py: # Convert ESPN stats format
+- backend/specialist_apis.py: //api.the-odds-api.com/v4", name="TheOdds"
+- backend/specialist_apis.py: # Map sport to TheOdds API sport key
+- backend/specialist_apis.py: # Initialize APIs with environment variables
+- backend/specialist_apis.py: # PrizePicks API is public; no key required
+- backend/specialist_apis.py: # prizepicks_key = os.getenv("PRIZEPICKS_API_KEY")
+- backend/specialist_apis.py: # if prizepicks_key:
+- backend/specialist_apis.py: #     self.prizepicks = PrizePicksAPI(prizepicks_key)
+- backend/specialist_apis.py: #     logger.info("âœ… PrizePicks API initialized")
+- backend/specialist_apis.py: # Global instance
+- backend/sports_expert_api.py: # --- Background Job Scheduling (APScheduler) ---
+- backend/sports_expert_api.py: # import random  # pylint: disable=unused-import
+- backend/sports_expert_api.py: # JWT and password hashing will be implemented as stubs for now
+- backend/sports_expert_api.py: # import jwt  # pip install PyJWT
+- backend/sports_expert_api.py: # from passlib.context import CryptContext  # pip install passlib
+- backend/sports_expert_api.py: # Enhanced imports for computational perfection
+- backend/sports_expert_api.py: # Create FastAPI router for sports expert endpoints
+- backend/sports_expert_api.py: # Frontend integration imports
+- backend/sports_expert_api.py: # --- Frontend API Response Models ---
+- backend/sports_expert_api.py: # --- Authentication Models ---
+- backend/sports_expert_api.py: # --- PrizePicks Models ---
+- backend/sports_expert_api.py: # "over" or "under"
+- backend/sports_expert_api.py: # "normal", "demon", "goblin"
+- backend/sports_expert_api.py: # "over" or "under"
+- backend/sports_expert_api.py: # --- Prediction Models ---
+- backend/sports_expert_api.py: # "over" or "under"
+- backend/sports_expert_api.py: # --- Authentication Utilities ---
+- backend/sports_expert_api.py: # Stub implementations for authentication (replace with real implementations)
+- backend/sports_expert_api.py: # In production, use proper JWT implementation
+- backend/sports_expert_api.py: # For now, return a simple base64 encoded token
+- backend/sports_expert_api.py: # Check expiration
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # Dummy user database (replace with real database integration)
+- backend/sports_expert_api.py: # Initialize logger
+- backend/sports_expert_api.py: # Performance monitoring and caching
+- backend/sports_expert_api.py: # Keep last 1000 job results
+- backend/sports_expert_api.py: # Circuit breaker pattern for job resilience
+- backend/sports_expert_api.py: # Check circuit breaker state
+- backend/sports_expert_api.py: # Reset on success
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # Check cache if enabled
+- backend/sports_expert_api.py: # Update metrics
+- backend/sports_expert_api.py: # Cache result if enabled
+- backend/sports_expert_api.py: # Store execution result
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # Trigger garbage collection for long-running jobs
+- backend/sports_expert_api.py: # Add cleanup logic here
+- backend/sports_expert_api.py: # Register signal handlers
+- backend/sports_expert_api.py: # Reference to FastAPI app (for startup event)
+- backend/sports_expert_api.py: # Will be set by main app
+- backend/sports_expert_api.py: # Will be set by main app
+- backend/sports_expert_api.py: # --- Notification Hook (Email) ---
+- backend/sports_expert_api.py: # Rate limiting for notifications
+- backend/sports_expert_api.py: # Rate limiter: max 1 email per 5 minutes per subject
+- backend/sports_expert_api.py: # 5 minutes
+- backend/sports_expert_api.py: # Retry logic with exponential backoff
+- backend/sports_expert_api.py: # High priority
+- backend/sports_expert_api.py: # Update rate limiter
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # Exponential backoff with jitter
+- backend/sports_expert_api.py: # Add notification rate limiter
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # Notify on successful model refresh (critical operation)
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # --- Beneficial Custom Background Jobs ---
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # Example threshold
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # Simulate restore (stub)
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # Example: random spike simulation for demo
+- backend/sports_expert_api.py: # Example threshold
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # Core critical jobs with high priority
+- backend/sports_expert_api.py: # Enhanced beneficial jobs
+- backend/sports_expert_api.py: # Send startup notification
+- backend/sports_expert_api.py: # FastAPI startup event to launch scheduler
+- backend/sports_expert_api.py: # --- User-Facing One-Click Automation Endpoints ---
+- backend/sports_expert_api.py: # 36. Full automated workflow: from data ingest to lineup/prop recommendation to compliance/reporting to feedback to session cleanup
+- backend/sports_expert_api.py: # 1. Ingest data (stub)
+- backend/sports_expert_api.py: # 2. Recommend lineup
+- backend/sports_expert_api.py: # 3. Recommend prop bets
+- backend/sports_expert_api.py: # 4. Explain bet
+- backend/sports_expert_api.py: # 5. Compliance check
+- backend/sports_expert_api.py: # 6. Feedback
+- backend/sports_expert_api.py: # 7. Session cleanup
+- backend/sports_expert_api.py: # 37. One-click: get my lineup
+- backend/sports_expert_api.py: # 38. One-click: get my prop bet
+- backend/sports_expert_api.py: # 39. One-click: explain my bet
+- backend/sports_expert_api.py: # 40. One-click: optimize my lineup
+- backend/sports_expert_api.py: # 41. One-click: compliance check
+- backend/sports_expert_api.py: # 42. One-click: feedback and retrain
+- backend/sports_expert_api.py: # 43. One-click: full reset (clear all state, logs, sessions, feedback)
+- backend/sports_expert_api.py: # Clear state
+- backend/sports_expert_api.py: # Remove logs
+- backend/sports_expert_api.py: # Remove explainability report
+- backend/sports_expert_api.py: # --- Automation & Ops Endpoints ---
+- backend/sports_expert_api.py: # 26. Automated daily/periodic state backup
+- backend/sports_expert_api.py: # 27. Automated log rotation
+- backend/sports_expert_api.py: # Touch new log file
+- backend/sports_expert_api.py: # 28. Automated plugin/model update check (stub)
+- backend/sports_expert_api.py: # In production, implement real update check logic
+- backend/sports_expert_api.py: # 29. Automated compliance/explainability report generation (stub)
+- backend/sports_expert_api.py: # 30. Automated feedback/active learning retraining (stub)
+- backend/sports_expert_api.py: # 31. Automated healthcheck/alerting (stub)
+- backend/sports_expert_api.py: # In production, send alert (email, Slack, etc)
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # 32. Automated endpoint usage analytics (stub)
+- backend/sports_expert_api.py: # In production, integrate with real analytics
+- backend/sports_expert_api.py: # 33. Automated admin action logging (stub)
+- backend/sports_expert_api.py: # In production, append to admin action log
+- backend/sports_expert_api.py: # 34. Automated session cleanup (stub)
+- backend/sports_expert_api.py: # 35. Automated plugin security scan (stub)
+- backend/sports_expert_api.py: #
+- backend/sports_expert_api.py: # --- Further Advanced Features & Improvements ---
+- backend/sports_expert_api.py: # 1. Async SSE endpoint for real-time streaming (Server-Sent Events)
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # 2. Download/export all agent state as JSON
+- backend/sports_expert_api.py: # 3. Upload/import agent state
+- backend/sports_expert_api.py: # 4. Download/export logs as a file
+- backend/sports_expert_api.py: # 16. List all agent capabilities/features
+- backend/sports_expert_api.py: # 17. Return OpenAPI schema for this router
+- backend/sports_expert_api.py: # 18. Return a quickstart JSON for frontend integration
+- backend/sports_expert_api.py: # 19. Return a summary of all plugin/tool code
+- backend/sports_expert_api.py: # 20. Return a summary of all models and their status
+- backend/sports_expert_api.py: # 21. Return a summary of all feedback/active learning items
+- backend/sports_expert_api.py: # 22. Return a summary of all user/session context
+- backend/sports_expert_api.py: # 23. Return a summary of all logs/errors
+- backend/sports_expert_api.py: # 24. Return a summary of all compliance/explainability reports
+- backend/sports_expert_api.py: # 25. Return a summary of all admin actions (stub)
+- backend/sports_expert_api.py: # 5. System dependency/version checks
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # 6. Admin reload/shutdown (stub)
+- backend/sports_expert_api.py: # In production, use a proper shutdown signal
+- backend/sports_expert_api.py: # 7. List all REST endpoints
+- backend/sports_expert_api.py: # 8. Usage/cost analytics (advanced)
+- backend/sports_expert_api.py: # 9. Advanced user/session analytics
+- backend/sports_expert_api.py: # 10. Plugin hot-reload (stub)
+- backend/sports_expert_api.py: # 11. Model download/check (stub)
+- backend/sports_expert_api.py: # 12. Compliance/explainability report download as file
+- backend/sports_expert_api.py: # 13. Healthcheck with dependency checks
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # 14. Admin broadcast message (stub)
+- backend/sports_expert_api.py: # 15. Agent self-test
+- backend/sports_expert_api.py: # --- Enhanced Agent Interface with Type Safety ---
+- backend/sports_expert_api.py: # Check if agent implements expected interface
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # Create safe agent wrapper
+- backend/sports_expert_api.py: # --- Enhanced Scheduler with Intelligent Job Management ---
+- backend/sports_expert_api.py: # Health score 0-1
+- backend/sports_expert_api.py: # Update job health based on execution
+- backend/sports_expert_api.py: # Adapt interval based on performance
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/sports_expert_api.py: # Health scoring: success rate + performance factor
+- backend/sports_expert_api.py: # Penalty for slow jobs
+- backend/sports_expert_api.py: # Alert on poor health
+- backend/sports_expert_api.py: # Simple adaptive logic - can be enhanced
+- backend/sports_expert_api.py: # Slow job
+- backend/sports_expert_api.py: # Increase interval
+- backend/sports_expert_api.py: # Implementation depends on trigger type
+- backend/sports_expert_api.py: # Fast job
+- backend/sports_expert_api.py: # Could decrease interval if system allows
+- backend/sports_expert_api.py: # Create intelligent scheduler instance
+- backend/sports_expert_api.py: # --- Final Agent and Router Setup ---
+- backend/sports_expert_api.py: # This section must be at the end to resolve dependencies
+- backend/sports_expert_api.py: # Import the actual router and agent from the main service
+- backend/sports_expert_api.py: # Get agent instance or create fallback
+- backend/sports_expert_api.py: # Create a fallback instance
+- backend/sports_expert_api.py: # Update safe agent wrapper with actual agent
+- backend/sports_expert_api.py: # Create minimal fallbacks
+- backend/sports_expert_api.py: # Add endpoint to get intelligent scheduler status
+- backend/sports_expert_api.py: # pylint: disable=broad-exception-caught
+- backend/start_cloud_integration.py: #!/usr/bin/env python3
+- backend/start_cloud_integration.py: //localhost:8000"}/health", timeout=2)
+- backend/start_cloud_integration.py: //7fb6bf6978914ca48f089e6151180b03-a1b171efc67d4aea943f921a9.fly.dev")
+- backend/start_cloud_integration.py: # Start the enhanced backend
+- backend/start_cloud_integration.py: # Use the complete backend with all features
+- backend/start_cloud_integration.py: # pylint: disable=broad-exception-caught
+- backend/start_cloud_integration.py: //192.168.1.125:8000/health", timeout=5)
+- backend/start_cloud_integration.py: # Check dependencies
+- backend/start_cloud_integration.py: # Check port availability
+- backend/start_cloud_integration.py: # Start backend
+- backend/start_cloud_integration.py: # Test connection after startup
+- backend/system_monitor.py: # Optional imports with fallbacks
+- backend/system_monitor.py: # type: ignore[import]
+- backend/system_monitor.py: # type: ignore[import]
+- backend/system_monitor.py: # type: ignore[import]
+- backend/system_monitor.py: # System down, data loss
+- backend/system_monitor.py: # Performance degradation, errors
+- backend/system_monitor.py: # Warnings, capacity issues
+- backend/system_monitor.py: # Information, minor issues
+- backend/system_monitor.py: # General information
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # seconds
+- backend/system_monitor.py: # ms
+- backend/system_monitor.py: # %
+- backend/system_monitor.py: # % (low is bad)
+- backend/system_monitor.py: # % (low is bad)
+- backend/system_monitor.py: # pylint: disable=broad-exception-caught
+- backend/system_monitor.py: # CPU metrics
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # Memory metrics
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # Disk metrics
+- backend/system_monitor.py: # Network metrics
+- backend/system_monitor.py: # Database metrics
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # Cache metrics (if available)
+- backend/system_monitor.py: # type: ignore[import]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # Task queue metrics (if available)
+- backend/system_monitor.py: # type: ignore[import]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # pylint: disable=broad-exception-caught
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # Check if alert already exists (avoid duplicates)
+- backend/system_monitor.py: # Update existing alert
+- backend/system_monitor.py: # Send notifications
+- backend/system_monitor.py: # Send resolution notification
+- backend/system_monitor.py: # pylint: disable=broad-exception-caught
+- backend/system_monitor.py: # pylint: disable=broad-exception-caught
+- backend/system_monitor.py: # Group by severity
+- backend/system_monitor.py: # Group by metric type
+- backend/system_monitor.py: # Resolution time statistics
+- backend/system_monitor.py: # Start health check tasks
+- backend/system_monitor.py: # pylint: disable=broad-exception-caught
+- backend/system_monitor.py: # Execute health check with timeout
+- backend/system_monitor.py: # pylint: disable=broad-exception-caught
+- backend/system_monitor.py: # pylint: disable=broad-exception-caught
+- backend/system_monitor.py: # Determine overall status
+- backend/system_monitor.py: # Register default health checks
+- backend/system_monitor.py: # Setup default notification channels
+- backend/system_monitor.py: # Start all monitoring components
+- backend/system_monitor.py: # pylint: disable=broad-exception-caught
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # pylint: disable=broad-exception-caught
+- backend/system_monitor.py: # type: ignore[import]
+- backend/system_monitor.py: # type: ignore[misc]
+- backend/system_monitor.py: # pylint: disable=broad-exception-caught
+- backend/system_monitor.py: # Register health checks
+- backend/system_monitor.py: # This would typically use real webhook URLs from environment variables
+- backend/system_monitor.py: # Using environment-based configuration instead of hardcoded URLs
+- backend/system_monitor.py: # Critical alerts to all channels
+- backend/system_monitor.py: //hooks.slack.com/services/YOUR/CRITICAL/WEBHOOK",
+- backend/system_monitor.py: # High severity alerts to operations team
+- backend/system_monitor.py: //hooks.slack.com/services/YOUR/OPS/WEBHOOK",
+- backend/system_monitor.py: # All alerts to monitoring channel
+- backend/system_monitor.py: //hooks.slack.com/services/YOUR/MONITORING/WEBHOOK",
+- backend/system_monitor.py: # Check every 30 seconds
+- backend/system_monitor.py: # Check metrics against thresholds
+- backend/system_monitor.py: # Check for critical threshold
+- backend/system_monitor.py: # Check for warning threshold
+- backend/system_monitor.py: # Resolve warning alert if value is back to normal
+- backend/system_monitor.py: # pylint: disable=broad-exception-caught
+- backend/system_monitor.py: # For metrics where low values are bad (e.g., cache hit rate, accuracy)
+- backend/system_monitor.py: # Check every 5 minutes
+- backend/system_monitor.py: # Run anomaly detection for each metric type
+- backend/system_monitor.py: # System resource summary
+- backend/system_monitor.py: # 24 hours of minute-level data
+- backend/system_monitor.py: # Standard deviations for anomaly threshold
+- backend/system_monitor.py: # Calculate baseline statistics
+- backend/system_monitor.py: # Detect outliers
+- backend/system_monitor.py: # Check last 10 data points
+- backend/system_monitor.py: # pylint: disable=broad-exception-caught
+- backend/system_monitor.py: # Global system monitor instance
+- backend/task_processor.py: # Real-time predictions, arbitrage alerts
+- backend/task_processor.py: # Model training, data pipeline failures
+- backend/task_processor.py: # Analytics updates, performance monitoring
+- backend/task_processor.py: # Cleanup tasks, historical analysis
+- backend/task_processor.py: # Maintenance, optimization
+- backend/task_processor.py: # Execution configuration
+- backend/task_processor.py: # Scheduling
+- backend/task_processor.py: # Dependencies
+- backend/task_processor.py: # Resource requirements
+- backend/task_processor.py: # MB
+- backend/task_processor.py: # Metadata
+- backend/task_processor.py: # Timing
+- backend/task_processor.py: # Resource usage
+- backend/task_processor.py: # Retry information
+- backend/task_processor.py: # Worker information
+- backend/task_processor.py: # We are using JSON strings now
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Serialize task using safe JSON
+- backend/task_processor.py: # Add to priority queue
+- backend/task_processor.py: # Use timestamp as score for FIFO within same priority
+- backend/task_processor.py: # Store task data
+- backend/task_processor.py: # 24 hours TTL
+- backend/task_processor.py: # Set expiry if specified
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Check priority queues from highest to lowest
+- backend/task_processor.py: # Get next task (FIFO within priority)
+- backend/task_processor.py: # task_id is already a string with decode_responses=True
+- backend/task_processor.py: # Try to acquire lock on this task
+- backend/task_processor.py: # 1 hour lock
+- backend/task_processor.py: # Remove from queue
+- backend/task_processor.py: # Get task data
+- backend/task_processor.py: # Task data not found, release lock
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Store result with 7 days TTL
+- backend/task_processor.py: # Release task lock
+- backend/task_processor.py: # Clean up task data if completed successfully
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Get counts for each priority
+- backend/task_processor.py: # Get oldest and newest task times
+- backend/task_processor.py: # Count results
+- backend/task_processor.py: # Count active locks
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: // 2)
+- backend/task_processor.py: # Performance tracking
+- backend/task_processor.py: # Task registry
+- backend/task_processor.py: # Create worker tasks
+- backend/task_processor.py: # Start monitoring task
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Shutdown executors
+- backend/task_processor.py: # Get next task
+- backend/task_processor.py: # Execute task
+- backend/task_processor.py: # Store result
+- backend/task_processor.py: # Update stats
+- backend/task_processor.py: # No tasks available, wait before checking again
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Wait before retrying
+- backend/task_processor.py: # Check if task function exists
+- backend/task_processor.py: # Execute with timeout
+- backend/task_processor.py: # CPU-intensive task, use process executor
+- backend/task_processor.py: # Regular task, use thread executor
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Monitor every minute
+- backend/task_processor.py: # Log performance stats
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Default task implementations
+- backend/task_processor.py: # Import here to avoid circular imports
+- backend/task_processor.py: # This would trigger actual data ingestion
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Simulate model training
+- backend/task_processor.py: # Simulate training time
+- backend/task_processor.py: # Mock accuracy
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Import here to avoid circular imports
+- backend/task_processor.py: # Mock features for batch prediction
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Import here to avoid circular imports
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Import here to avoid circular imports
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Simulate performance analysis
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Simulate cleanup
+- backend/task_processor.py: # Simulate cleanup time
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Simulate backup
+- backend/task_processor.py: # Simulate backup time
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Simulate cache warming
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Simulate analytics computation
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Immediate execution
+- backend/task_processor.py: # Check every minute
+- backend/task_processor.py: # Check scheduled tasks
+- backend/task_processor.py: # Create new instance for execution
+- backend/task_processor.py: # pylint: disable=broad-exception-caught
+- backend/task_processor.py: # Simplified cron check - in production would use proper cron parsing
+- backend/task_processor.py: # Every 6 hours
+- backend/task_processor.py: # Daily at midnight
+- backend/task_processor.py: # Every 15 minutes
+- backend/task_processor.py: # Schedule default recurring tasks
+- backend/task_processor.py: # Start workers
+- backend/task_processor.py: # Start worker in background
+- backend/task_processor.py: # Start scheduler
+- backend/task_processor.py: # Worker stats
+- backend/task_processor.py: # Daily at midnight
+- backend/task_processor.py: # Daily at midnight
+- backend/task_processor.py: # Every 15 minutes
+- backend/task_processor.py: # Every 6 hours
+- backend/task_processor.py: # Global task processor instance
+- backend/test_api_endpoint.py: #!/usr/bin/env python3
+- backend/test_api_endpoint.py: # NFL should not be present in July
+- backend/test_api_endpoint.py: # Show first 3
+- backend/test_api_endpoint.py: # Check if MLB is included (should be in July)
+- backend/test_api_endpoint.py: # Show first 3
+- backend/test_backend.py: # Create a simple FastAPI app for testing
+- backend/test_backend.py: # Add CORS middleware
+- backend/test_edge_cases.py: #!/usr/bin/env python3
+- backend/test_edge_cases.py: # Add backend path for imports
+- backend/test_edge_cases.py: # Test 1: Season Transitions
+- backend/test_edge_cases.py: # Test 2: Specific Sport Availability
+- backend/test_edge_cases.py: # Test 3: Critical Off-Season Detection
+- backend/test_edge_cases.py: # Test 4: Year-Round Sports Check
+- backend/test_edge_cases.py: # Test 5: Current Month Reality Check
+- backend/test_edge_cases.py: # Check for common issues
+- backend/test_edge_cases.py: # Test 6: Playoff Edge Cases (Conceptual)
+- backend/test_enhanced_propollama.py: # Mock dependencies if not available
+- backend/test_enhanced_propollama.py: # Return a mock response
+- backend/test_ensemble_simple.py: # Pytest fixture to provide enhanced props for optimal lineup test
+- backend/test_ensemble_simple.py: # Sample MLB props (in-season)
+- backend/test_ensemble_simple.py: # Sample WNBA props (in-season)
+- backend/test_ensemble_simple.py: # Simulate ensemble predictions
+- backend/test_ensemble_simple.py: # Simulate multiple engine predictions
+- backend/test_ensemble_simple.py: # Simulate engine weights
+- backend/test_ensemble_simple.py: # Calculate weighted ensemble prediction
+- backend/test_ensemble_simple.py: # Calculate ensemble confidence (based on agreement)
+- backend/test_ensemble_simple.py: # Calculate win probability
+- backend/test_ensemble_simple.py: # Sigmoid
+- backend/test_ensemble_simple.py: # Calculate expected value
+- backend/test_ensemble_simple.py: # Break-even for -110 odds
+- backend/test_ensemble_simple.py: # Calculate risk score
+- backend/test_ensemble_simple.py: # Generate recommendation
+- backend/test_ensemble_simple.py: # Enhance prop with ensemble data
+- backend/test_ensemble_simple.py: # Sort props by combined score
+- backend/test_ensemble_simple.py: # Combined score
+- backend/test_ensemble_simple.py: # Sort by score (highest first)
+- backend/test_ensemble_simple.py: # Select top 3 for lineup
+- backend/test_ensemble_simple.py: # Calculate lineup metrics
+- backend/test_ensemble_simple.py: # Combined win probability (assuming independence)
+- backend/test_ensemble_simple.py: # Average metrics
+- backend/test_ensemble_simple.py: # Overall recommendation
+- backend/test_ensemble_simple.py: # Define season ranges
+- backend/test_ensemble_simple.py: # Test 1: Enhanced prop predictions
+- backend/test_ensemble_simple.py: # Test 2: Optimal lineup generation
+- backend/test_ensemble_simple.py: # Test 3: In-season sports filtering
+- backend/test_ensemble_simple.py: # Test 4: Performance summary
+- backend/test_ensemble_simple.py: # Test 5: Engine simulation summary
+- backend/test_ensemble_simple.py: # Run the comprehensive test
+- backend/test_main.py: # Configure logging
+- backend/test_main.py: # ============================================================================
+- backend/test_main.py: # MODEL MANAGER - SIMPLIFIED FOR TESTING
+- backend/test_main.py: # ============================================================================
+- backend/test_main.py: # Simulate quick training
+- backend/test_main.py: # Get all active sports and events for current time
+- backend/test_main.py: # Get events for today and next 7 days
+- backend/test_main.py: # 0=Monday, 6=Sunday
+- backend/test_main.py: # MLB - Daily games in season (April-October)
+- backend/test_main.py: # WNBA - Games typically Tue/Thu/Sat/Sun (May-October)
+- backend/test_main.py: # Tue, Thu, Sat, Sun
+- backend/test_main.py: # MLS - Weekend games primarily (March-November)
+- backend/test_main.py: # Sat, Sun
+- backend/test_main.py: # Tennis - Year-round tournaments
+- backend/test_main.py: # Golf - Primarily Thursday-Sunday (year-round)
+- backend/test_main.py: # Thu-Sun
+- backend/test_main.py: # NASCAR - Sunday races (February-November)
+- backend/test_main.py: # Sunday
+- backend/test_main.py: # MMA - Weekend events
+- backend/test_main.py: # Sat, Sun
+- backend/test_main.py: # NFL - September through February, primarily Sunday/Monday/Thursday
+- backend/test_main.py: # Mon, Thu, Sun
+- backend/test_main.py: # NBA - October through June, games most nights
+- backend/test_main.py: # Most weekdays
+- backend/test_main.py: # NHL - October through June, games most nights
+- backend/test_main.py: # MLB: April - October
+- backend/test_main.py: # WNBA: May - October
+- backend/test_main.py: # MLS Soccer: February - November
+- backend/test_main.py: # Tennis: Year-round tournaments
+- backend/test_main.py: # Golf: Year-round PGA Tour
+- backend/test_main.py: # NFL: September - February
+- backend/test_main.py: # NBA: October - June
+- backend/test_main.py: # NHL: October - June
+- backend/test_main.py: # MMA: Year-round events
+- backend/test_main.py: # NASCAR: February - November
+- backend/test_main.py: # No events available, return a general prediction
+- backend/test_main.py: # Use first available event for training prediction
+- backend/test_main.py: # MLB teams
+- backend/test_main.py: # AL East
+- backend/test_main.py: # AL Central
+- backend/test_main.py: # AL West
+- backend/test_main.py: # NL East
+- backend/test_main.py: # NL Central
+- backend/test_main.py: # NL West
+- backend/test_main.py: # Generate 8-12 games per day (realistic MLB schedule)
+- backend/test_main.py: # Determine game time (afternoon/evening games)
+- backend/test_main.py: # WNBA has fewer daily games
+- backend/test_main.py: # Golf tournaments typically feature many players
+- backend/test_main.py: # Different number of games based on season stage
+- backend/test_main.py: # Regular season
+- backend/test_main.py: # Playoffs
+- backend/test_main.py: # February (Super Bowl)
+- backend/test_main.py: # Limit to reasonable number of predictions (50-100 for UI performance)
+- backend/test_main.py: # Famous MLB players for realistic props
+- backend/test_main.py: # Player hitting props
+- backend/test_main.py: # Hits props
+- backend/test_main.py: # RBIs props
+- backend/test_main.py: # Pitcher props
+- backend/test_main.py: # Strikeouts
+- backend/test_main.py: # Game totals
+- backend/test_main.py: # Current WNBA stars
+- backend/test_main.py: # Player scoring props
+- backend/test_main.py: # Assists props
+- backend/test_main.py: # Current NBA superstars
+- backend/test_main.py: # Player scoring props
+- backend/test_main.py: # Current MLS stars
+- backend/test_main.py: # Goals and shots props
+- backend/test_main.py: # Match totals
+- backend/test_main.py: # Set betting props
+- backend/test_main.py: # Total games prop
+- backend/test_main.py: # Top golfers
+- backend/test_main.py: # Top 10 finish props
+- backend/test_main.py: # Top NASCAR drivers
+- backend/test_main.py: # Top 5 finish props
+- backend/test_main.py: # Fight duration props
+- backend/test_main.py: # Method of victory
+- backend/test_main.py: # Current NFL stars
+- backend/test_main.py: # QB passing yards
+- backend/test_main.py: # RB rushing yards
+- backend/test_main.py: # Current NHL stars
+- backend/test_main.py: # Player points props
+- backend/test_main.py: # Game total goals
+- backend/test_main.py: # Global model manager
+- backend/test_main.py: # ============================================================================
+- backend/test_main.py: # LIFESPAN EVENT HANDLER
+- backend/test_main.py: # ============================================================================
+- backend/test_main.py: # Start training without blocking
+- backend/test_main.py: # ============================================================================
+- backend/test_main.py: # FASTAPI APP
+- backend/test_main.py: # ============================================================================
+- backend/test_main.py: # CORS
+- backend/test_main.py: # ============================================================================
+- backend/test_main.py: # API ENDPOINTS
+- backend/test_main.py: # ============================================================================
+- backend/test_main.py: # Generate sophisticated AI response based on current sports
+- backend/test_main.py: # General sports analysis for currently active sports
+- backend/test_phase_2_complete.py: #!/usr/bin/env python3
+- backend/test_phase_2_complete.py: # Test PropOllama Intelligence Integration
+- backend/test_phase_2_complete.py: # Generate intelligent analysis
+- backend/test_phase_2_complete.py: # Success criteria
+- backend/test_phase_3.py: #!/usr/bin/env python3
+- backend/test_phase_3.py: # Test data collection
+- backend/test_phase_3.py: # Test performance metrics
+- backend/test_real_integration.py: #!/usr/bin/env python3
+- backend/test_real_integration.py: # Add services to path
+- backend/test_real_integration.py: # Configure logging
+- backend/test_real_integration.py: # Test real projections
+- backend/test_real_integration.py: # Validate response
+- backend/test_real_integration.py: # Check if we got real data or empty (both are valid)
+- backend/test_real_integration.py: # Validate data structure
+- backend/test_real_integration.py: # Test leagues endpoint
+- backend/test_real_integration.py: # Test real odds from The Odds API
+- backend/test_real_integration.py: # Validate odds data structure
+- backend/test_real_integration.py: # Test arbitrage detection
+- backend/test_real_integration.py: # Check for common mock data indicators
+- backend/test_real_integration.py: # Common mock player
+- backend/test_real_integration.py: # This would scan actual API responses for mock indicators
+- backend/test_real_integration.py: # For now, we'll assume no mock data since we're using real services
+- backend/test_real_integration.py: # Phase 1: PrizePicks validation
+- backend/test_real_integration.py: # Phase 2: Sportsbook validation
+- backend/test_real_integration.py: # Mock data validation
+- backend/test_real_integration.py: # Overall status
+- backend/test_real_integration.py: # Run validation
+- backend/test_real_integration.py: # Generate report
+- backend/test_real_integration.py: # Print results
+- backend/test_real_integration.py: # Save report
+- backend/test_seasonal_filtering.py: #!/usr/bin/env python3
+- backend/test_seasonal_filtering.py: # Test July (current month)
+- backend/test_seasonal_filtering.py: # Test September (NFL season)
+- backend/test_seasonal_filtering.py: # Test February (NFL/NBA season)
+- backend/test_seasonal_filtering.py: # Verify July doesn't include NFL
+- backend/test_seasonal_filtering.py: # Verify July includes MLB
+- backend/test_seasonal_filtering.py: # Verify September includes NFL
+- backend/test_simple_props.py: #!/usr/bin/env python3
+- backend/test_unified_interface.py: #!/usr/bin/env python3
+- backend/test_unified_interface.py: # Test 1: Import and initialize PropOllama engine
+- backend/test_unified_interface.py: # Test 2: Initialize with mock model manager
+- backend/test_unified_interface.py: # Test 3: Generate best bets
+- backend/test_unified_interface.py: # Show sample bets
+- backend/test_unified_interface.py: # Test 4: Test chat functionality
+- backend/test_unified_interface.py: # Test simple chat
+- backend/test_unified_interface.py: # Test 5: Test PrizePicks service integration
+- backend/test_unified_interface.py: # Initialize service
+- backend/test_unified_interface.py: # Get projections
+- backend/test_unified_interface.py: # Test 6: Test comprehensive integration
+- backend/test_unified_interface.py: # Create engine with real PrizePicks data
+- backend/test_unified_interface.py: # Test health endpoint
+- backend/test_unified_interface.py: //localhost:8001/api/health/status", timeout=10.0)
+- backend/test_unified_interface.py: # Test best bets endpoint
+- backend/test_unified_interface.py: //localhost:8001/api/propollama/best-bets-unified?limit=3", timeout=30.0)
+- backend/test_unified_interface.py: # Test chat endpoint
+- backend/test_unified_interface.py: //localhost:8001/api/propollama/chat-unified", json=chat_data, timeout=30.0)
+- backend/test_unified_interface.py: # Run tests
+- backend/ultra_accuracy_engine.py: # Advanced ML imports
+- backend/ultra_accuracy_engine.py: # Basic metrics
+- backend/ultra_accuracy_engine.py: # Advanced accuracy metrics
+- backend/ultra_accuracy_engine.py: # Percentage of correct direction predictions
+- backend/ultra_accuracy_engine.py: # Accuracy of magnitude predictions
+- backend/ultra_accuracy_engine.py: # Brier score for probability predictions
+- backend/ultra_accuracy_engine.py: # Mean calibration error
+- backend/ultra_accuracy_engine.py: # Prediction interval sharpness
+- backend/ultra_accuracy_engine.py: # Prediction interval coverage
+- backend/ultra_accuracy_engine.py: # Consistency metrics
+- backend/ultra_accuracy_engine.py: # Consistency across time
+- backend/ultra_accuracy_engine.py: # Stability across CV folds
+- backend/ultra_accuracy_engine.py: # Stability with feature perturbations
+- backend/ultra_accuracy_engine.py: # Robustness to input noise
+- backend/ultra_accuracy_engine.py: # Business metrics
+- backend/ultra_accuracy_engine.py: # Accuracy when translated to profit
+- backend/ultra_accuracy_engine.py: # Accuracy adjusted for risk
+- backend/ultra_accuracy_engine.py: # Accuracy for Kelly criterion
+- backend/ultra_accuracy_engine.py: # Risk-adjusted returns
+- backend/ultra_accuracy_engine.py: # Maximum consecutive losses
+- backend/ultra_accuracy_engine.py: # Percentage of profitable predictions
+- backend/ultra_accuracy_engine.py: # Meta-learning metrics
+- backend/ultra_accuracy_engine.py: # How well knowledge transfers
+- backend/ultra_accuracy_engine.py: # Accuracy with limited data
+- backend/ultra_accuracy_engine.py: # Ability to learn continuously
+- backend/ultra_accuracy_engine.py: # Computational metrics
+- backend/ultra_accuracy_engine.py: # Time to make prediction
+- backend/ultra_accuracy_engine.py: # Time to train model
+- backend/ultra_accuracy_engine.py: # Memory consumption
+- backend/ultra_accuracy_engine.py: # Model complexity score
+- backend/ultra_accuracy_engine.py: # Confidence metrics
+- backend/ultra_accuracy_engine.py: # Quality of uncertainty estimates
+- backend/ultra_accuracy_engine.py: # Correlation between confidence and accuracy
+- backend/ultra_accuracy_engine.py: # Penalty for overconfident predictions
+- backend/ultra_accuracy_engine.py: # Example quantum-inspired transformation: add nonlinear, phase, and amplitude features
+- backend/ultra_accuracy_engine.py: # Input validation
+- backend/ultra_accuracy_engine.py: # Calculate weights by inverse MSE (simple stacking)
+- backend/ultra_accuracy_engine.py: # Advanced components
+- backend/ultra_accuracy_engine.py: # Performance tracking
+- backend/ultra_accuracy_engine.py: # Advanced caching
+- backend/ultra_accuracy_engine.py: # 1. Quantum-Inspired Ensemble Models
+- backend/ultra_accuracy_engine.py: # 2. Neural Architecture Search Models
+- backend/ultra_accuracy_engine.py: # 3. Meta-Learning Models
+- backend/ultra_accuracy_engine.py: # 4. Advanced Uncertainty Quantification
+- backend/ultra_accuracy_engine.py: # 5. Transformer-Based Models
+- backend/ultra_accuracy_engine.py: # 6. Deep Reinforcement Learning Models
+- backend/ultra_accuracy_engine.py: # 7. Graph Neural Networks
+- backend/ultra_accuracy_engine.py: # 8. Bayesian Optimization Framework
+- backend/ultra_accuracy_engine.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_engine.py: # Quantum-inspired ensemble using superposition principles
+- backend/ultra_accuracy_engine.py: # Quantum-inspired hyperparameters
+- backend/ultra_accuracy_engine.py: # Quantum-inspired prime number
+- backend/ultra_accuracy_engine.py: # Create model with quantum-inspired parameters
+- backend/ultra_accuracy_engine.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_engine.py: # Define explicit input dimension for the model
+- backend/ultra_accuracy_engine.py: # Standard feature dimension
+- backend/ultra_accuracy_engine.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_engine.py: # Real quantum-inspired transformer using mathematical transformations
+- backend/ultra_accuracy_engine.py: # Quantum-inspired feature transformation pipeline
+- backend/ultra_accuracy_engine.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_engine.py: # NAS-inspired optimal architecture based on search principles
+- backend/ultra_accuracy_engine.py: # This architecture is optimized for structured data regression
+- backend/ultra_accuracy_engine.py: # Compile with NAS-optimized hyperparameters
+- backend/ultra_accuracy_engine.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_engine.py: # EfficientNet-inspired architecture adapted for structured data
+- backend/ultra_accuracy_engine.py: # Uses compound scaling principles: depth, width, and resolution
+- backend/ultra_accuracy_engine.py: # Efficient block 1: Base feature extraction
+- backend/ultra_accuracy_engine.py: # Width scaling
+- backend/ultra_accuracy_engine.py: # Efficient block 2: Enhanced feature learning
+- backend/ultra_accuracy_engine.py: # Efficient block 3: Deep feature extraction (depth scaling)
+- backend/ultra_accuracy_engine.py: # Efficient block 4: Refined representation
+- backend/ultra_accuracy_engine.py: # Final prediction layer
+- backend/ultra_accuracy_engine.py: # EfficientNet-style optimization
+- backend/ultra_accuracy_engine.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_engine.py: # Fallback to simple efficient architecture
+- backend/ultra_accuracy_engine.py: # Create AutoKeras model with optimized settings for <3s requirement
+- backend/ultra_accuracy_engine.py: # Reduced to meet <3s architecture search requirement
+- backend/ultra_accuracy_engine.py: # Reduced epochs for faster search
+- backend/ultra_accuracy_engine.py: # Enhanced fallback sequential model with proper input shape
+- backend/ultra_accuracy_engine.py: # Progressive NAS-inspired architecture that grows in complexity
+- backend/ultra_accuracy_engine.py: # Stage 1: Initial feature extraction
+- backend/ultra_accuracy_engine.py: # Stage 2: Feature refinement
+- backend/ultra_accuracy_engine.py: # Stage 3: Representation learning
+- backend/ultra_accuracy_engine.py: # Stage 4: Final prediction
+- backend/ultra_accuracy_engine.py: # Progressive learning rate and advanced optimization
+- backend/ultra_accuracy_engine.py: # 1. Advanced feature engineering and preprocessing
+- backend/ultra_accuracy_engine.py: # 2. Quantum-inspired ensemble prediction
+- backend/ultra_accuracy_engine.py: # 3. Advanced uncertainty quantification
+- backend/ultra_accuracy_engine.py: # 4. Meta-learning optimization
+- backend/ultra_accuracy_engine.py: # 5. Neural architecture search refinement
+- backend/ultra_accuracy_engine.py: # 6. Transformer-based temporal adjustment
+- backend/ultra_accuracy_engine.py: # 7. Deep reinforcement learning optimization
+- backend/ultra_accuracy_engine.py: # 8. Graph neural network relationship modeling
+- backend/ultra_accuracy_engine.py: # 9. Bayesian optimization final refinement
+- backend/ultra_accuracy_engine.py: # 10. Quantum correction and coherence analysis
+- backend/ultra_accuracy_engine.py: # Create comprehensive prediction result
+- backend/ultra_accuracy_engine.py: # Update accuracy tracking
+- backend/ultra_accuracy_engine.py: # 1. Quantum-inspired feature transformations
+- backend/ultra_accuracy_engine.py: # 2. Advanced polynomial and interaction features
+- backend/ultra_accuracy_engine.py: # 3. Temporal pattern encoding
+- backend/ultra_accuracy_engine.py: # 4. Fractal and chaos theory features
+- backend/ultra_accuracy_engine.py: # 5. Information theory features
+- backend/ultra_accuracy_engine.py: # 6. Advanced statistical features
+- backend/ultra_accuracy_engine.py: # 7. Wavelet transformation features
+- backend/ultra_accuracy_engine.py: # Generate enhanced features for entangled features model
+- backend/ultra_accuracy_engine.py: # Quantum superposition-inspired transformations
+- backend/ultra_accuracy_engine.py: # Create a 2D array with at least 2 features for correlation
+- backend/ultra_accuracy_engine.py: # Quantum-inspired nonlinear transformations
+- backend/ultra_accuracy_engine.py: # Limit to avoid explosion
+- backend/ultra_accuracy_engine.py: # Higher-order interactions
+- backend/ultra_accuracy_engine.py: # Various interaction types
+- backend/ultra_accuracy_engine.py: # Trigonometric interactions
+- backend/ultra_accuracy_engine.py: # Fractal dimension approximation
+- backend/ultra_accuracy_engine.py: # Lyapunov exponent approximation
+- backend/ultra_accuracy_engine.py: # Hurst exponent approximation
+- backend/ultra_accuracy_engine.py: # Correlation dimension
+- backend/ultra_accuracy_engine.py: # Entropy approximation
+- backend/ultra_accuracy_engine.py: # Mutual information approximation
+- backend/ultra_accuracy_engine.py: # Simplified mutual information
+- backend/ultra_accuracy_engine.py: # Kolmogorov complexity approximation (compression ratio)
+- backend/ultra_accuracy_engine.py: # Basic metrics
+- backend/ultra_accuracy_engine.py: # Advanced accuracy metrics
+- backend/ultra_accuracy_engine.py: # Consistency metrics
+- backend/ultra_accuracy_engine.py: # Business metrics
+- backend/ultra_accuracy_engine.py: # Placeholder
+- backend/ultra_accuracy_engine.py: # Placeholder
+- backend/ultra_accuracy_engine.py: # Placeholder
+- backend/ultra_accuracy_engine.py: # Placeholder
+- backend/ultra_accuracy_engine.py: # Placeholder
+- backend/ultra_accuracy_engine.py: # Placeholder
+- backend/ultra_accuracy_engine.py: # Placeholder
+- backend/ultra_accuracy_engine.py: # Placeholder
+- backend/ultra_accuracy_engine.py: # Placeholder
+- backend/ultra_accuracy_engine.py: # Placeholder
+- backend/ultra_accuracy_engine.py: # Simplified Brier score calculation
+- backend/ultra_accuracy_engine.py: # Convert to probability-like score
+- backend/ultra_accuracy_engine.py: # Get recent predictions and actual outcomes
+- backend/ultra_accuracy_engine.py: # Evaluate current accuracy
+- backend/ultra_accuracy_engine.py: # Optimize based on performance
+- backend/ultra_accuracy_engine.py: # Update model weights based on performance
+- backend/ultra_accuracy_engine.py: # Retrain underperforming models
+- backend/ultra_accuracy_engine.py: # Sleep for optimization interval
+- backend/ultra_accuracy_engine.py: # Optimize every hour
+- backend/ultra_accuracy_engine.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_engine.py: # Retry in 30 minutes
+- backend/ultra_accuracy_engine.py: # 1. Ultra-advanced feature engineering with quantum-inspired transformations
+- backend/ultra_accuracy_engine.py: # 2. Dynamic model selection based on context and market conditions
+- backend/ultra_accuracy_engine.py: # 3. Real-time market microstructure analysis
+- backend/ultra_accuracy_engine.py: # 4. Behavioral pattern recognition with deep learning
+- backend/ultra_accuracy_engine.py: # 5. Multi-timeframe consensus prediction
+- backend/ultra_accuracy_engine.py: # 6. Quantum-inspired ensemble fusion
+- backend/ultra_accuracy_engine.py: # 7. Advanced uncertainty quantification and calibration
+- backend/ultra_accuracy_engine.py: # 8. Real-time adaptation based on recent performance
+- backend/ultra_accuracy_engine.py: # 9. Final accuracy optimization with meta-learning
+- backend/ultra_accuracy_engine.py: # Only return prediction if it meets ultra-high accuracy criteria
+- backend/ultra_accuracy_engine.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_engine.py: # Apply quantum-inspired transformations
+- backend/ultra_accuracy_engine.py: # Incorporate alternative data with quantum weighting
+- backend/ultra_accuracy_engine.py: # Apply advanced mathematical transformations
+- backend/ultra_accuracy_engine.py: # Analyze current market regime
+- backend/ultra_accuracy_engine.py: # Get model performance for current regime
+- backend/ultra_accuracy_engine.py: # Select models that historically achieve target accuracy in this regime
+- backend/ultra_accuracy_engine.py: # If not enough high-accuracy models, use ensemble of best available
+- backend/ultra_accuracy_engine.py: # Apply contextual filtering
+- backend/ultra_accuracy_engine.py: # Ensure diversity in model types
+- backend/ultra_accuracy_engine.py: # Calculate overall predictability score
+- backend/ultra_accuracy_engine.py: # Apply quantum-enhanced pattern recognition
+- backend/ultra_accuracy_engine.py: # Calculate overall behavioral impact
+- backend/ultra_accuracy_engine.py: # Adjust features for timeframe
+- backend/ultra_accuracy_engine.py: # Generate predictions for this timeframe
+- backend/ultra_accuracy_engine.py: # Calculate consensus across timeframes
+- backend/ultra_accuracy_engine.py: # Generate predictions from all optimal models
+- backend/ultra_accuracy_engine.py: # Apply quantum superposition to combine predictions
+- backend/ultra_accuracy_engine.py: # Apply quantum entanglement for feature interactions
+- backend/ultra_accuracy_engine.py: # Incorporate microstructure insights
+- backend/ultra_accuracy_engine.py: # Apply behavioral pattern corrections
+- backend/ultra_accuracy_engine.py: # Incorporate multi-timeframe consensus
+- backend/ultra_accuracy_engine.py: # Calculate quantum advantage
+- backend/ultra_accuracy_engine.py: # Apply isotonic regression calibration
+- backend/ultra_accuracy_engine.py: # Apply Platt scaling calibration
+- backend/ultra_accuracy_engine.py: # Apply temperature scaling
+- backend/ultra_accuracy_engine.py: # Apply conformal prediction intervals
+- backend/ultra_accuracy_engine.py: # Apply Bayesian calibration
+- backend/ultra_accuracy_engine.py: # Get recent performance for this context
+- backend/ultra_accuracy_engine.py: # Apply performance-based adjustment
+- backend/ultra_accuracy_engine.py: # Apply market condition adjustment
+- backend/ultra_accuracy_engine.py: # Apply drift detection and correction
+- backend/ultra_accuracy_engine.py: # Apply meta-learning model to optimize prediction
+- backend/ultra_accuracy_engine.py: # Apply neural architecture search optimization
+- backend/ultra_accuracy_engine.py: # Apply reinforcement learning optimization
+- backend/ultra_accuracy_engine.py: # Final ensemble optimization
+- backend/ultra_accuracy_engine.py: # Meta-learning model creation methods
+- backend/ultra_accuracy_engine.py: # Reduced for speed
+- backend/ultra_accuracy_engine.py: # Increased for faster convergence
+- backend/ultra_accuracy_engine.py: # Increased for faster adaptation
+- backend/ultra_accuracy_engine.py: # Create base model architecture
+- backend/ultra_accuracy_engine.py: # Simplified architecture: single hidden layer for faster training
+- backend/ultra_accuracy_engine.py: # Limit tasks for speed during testing
+- backend/ultra_accuracy_engine.py: # Fast inner loop adaptation
+- backend/ultra_accuracy_engine.py: # Single fast gradient step
+- backend/ultra_accuracy_engine.py: # Simplified meta-update for speed
+- backend/ultra_accuracy_engine.py: # Fast meta-update if reasonable performance
+- backend/ultra_accuracy_engine.py: # Fast weight interpolation
+- backend/ultra_accuracy_engine.py: # Skip problematic tasks
+- backend/ultra_accuracy_engine.py: # Clone and configure for fast adaptation
+- backend/ultra_accuracy_engine.py: # Use aggressive learning rate for fast adaptation
+- backend/ultra_accuracy_engine.py: # Single fast adaptation step with full batch
+- backend/ultra_accuracy_engine.py: # Build embedding network
+- backend/ultra_accuracy_engine.py: // 2, activation="relu", name="proto_embed2"
+- backend/ultra_accuracy_engine.py: # Simply compute prototypes after "training"
+- backend/ultra_accuracy_engine.py: # Get embeddings for support examples
+- backend/ultra_accuracy_engine.py: # For regression, create value-based prototypes
+- backend/ultra_accuracy_engine.py: # If no prototypes, use embedding model directly
+- backend/ultra_accuracy_engine.py: # Get embeddings for query examples
+- backend/ultra_accuracy_engine.py: # Find closest prototype
+- backend/ultra_accuracy_engine.py: # Build embedding and relation networks
+- backend/ultra_accuracy_engine.py: // 2, activation="relu", name="rel_embed2"
+- backend/ultra_accuracy_engine.py: # Input: concatenated embeddings of two examples
+- backend/ultra_accuracy_engine.py: // 2, activation="relu", name="rel_relation2"
+- backend/ultra_accuracy_engine.py: # Get embeddings for both sets
+- backend/ultra_accuracy_engine.py: # Concatenate embeddings
+- backend/ultra_accuracy_engine.py: # Train relation network
+- backend/ultra_accuracy_engine.py: # Get embeddings
+- backend/ultra_accuracy_engine.py: # Concatenate and compute relations
+- backend/ultra_accuracy_engine.py: # Build meta-learning architecture
+- backend/ultra_accuracy_engine.py: # Input: gradients and loss history
+- backend/ultra_accuracy_engine.py: # Variable sequence length
+- backend/ultra_accuracy_engine.py: // 2, activation="relu", name="l2l_base2"
+- backend/ultra_accuracy_engine.py: # Clone base model for adaptation
+- backend/ultra_accuracy_engine.py: # Simple adaptation
+- backend/ultra_accuracy_engine.py: # Initialize performance tracking
+- backend/ultra_accuracy_engine.py: # Cache TTL in seconds
+- backend/ultra_accuracy_engine.py: # Store prediction result with timestamp
+- backend/ultra_accuracy_engine.py: # Keep only recent results for memory efficiency (last 10000)
+- backend/ultra_accuracy_engine.py: # Keep only recent times for memory efficiency
+- backend/ultra_accuracy_engine.py: # Keep only recent measurements
+- backend/ultra_accuracy_engine.py: # Default when no data
+- backend/ultra_accuracy_engine.py: # Calculate consensus based on prediction confidence and accuracy
+- backend/ultra_accuracy_engine.py: # Last 100 predictions
+- backend/ultra_accuracy_engine.py: # Weight by confidence and actual accuracy
+- backend/ultra_accuracy_engine.py: # Clamp to [0, 1]
+- backend/ultra_accuracy_engine.py: # Default when no data
+- backend/ultra_accuracy_engine.py: # Sort by timestamp and return accuracy values
+- backend/ultra_accuracy_engine.py: # Default when no data
+- backend/ultra_accuracy_engine.py: # Count actual models from engine
+- backend/ultra_accuracy_engine.py: # Count quantum models
+- backend/ultra_accuracy_engine.py: # Count NAS models
+- backend/ultra_accuracy_engine.py: # Count meta-learning models
+- backend/ultra_accuracy_engine.py: # Count cache size
+- backend/ultra_accuracy_engine.py: # Simulate NAS performance based on available data
+- backend/ultra_accuracy_engine.py: # Last 50 for NAS analysis
+- backend/ultra_accuracy_engine.py: # NAS takes longer
+- backend/ultra_accuracy_engine.py: # Simulate meta-learning metrics
+- backend/ultra_accuracy_engine.py: # Few-shot learning context
+- backend/ultra_accuracy_engine.py: # Meta-learning adaptation time
+- backend/ultra_accuracy_engine.py: # Calculate metrics for last hour
+- backend/ultra_accuracy_engine.py: # Get recent processing times
+- backend/ultra_accuracy_engine.py: # Calculate error rate (predictions with accuracy < 0.5)
+- backend/ultra_accuracy_engine_simple.py: # Realistic target
+- backend/ultra_accuracy_engine_simple.py: # Realistic threshold
+- backend/ultra_accuracy_engine_simple.py: # Realistic uncertainty
+- backend/ultra_accuracy_engine_simple.py: # Real market efficiency calculation
+- backend/ultra_accuracy_engine_simple.py: # Calculate efficiency score based on real metrics
+- backend/ultra_accuracy_engine_simple.py: # Higher volume = more efficient
+- backend/ultra_accuracy_engine_simple.py: # Lower spread = more efficient
+- backend/ultra_accuracy_engine_simple.py: # Lower volatility = more efficient
+- backend/ultra_accuracy_engine_simple.py: # Predictability is inverse of efficiency
+- backend/ultra_accuracy_engine_simple.py: # Fallback to conservative estimates
+- backend/ultra_accuracy_engine_simple.py: # Real behavioral pattern analysis
+- backend/ultra_accuracy_engine_simple.py: # Overreaction bias - based on recent vs long-term performance
+- backend/ultra_accuracy_engine_simple.py: # Herding behavior - based on public betting patterns
+- backend/ultra_accuracy_engine_simple.py: # Anchoring - based on historical results
+- backend/ultra_accuracy_engine_simple.py: # Recency bias - based on recent game impact
+- backend/ultra_accuracy_engine_simple.py: # Confirmation bias - based on line movement
+- backend/ultra_accuracy_engine_simple.py: # Calculate overall impact
+- backend/ultra_accuracy_engine_simple.py: # Scale for realism
+- backend/ultra_accuracy_engine_simple.py: # Determine primary pattern
+- backend/ultra_accuracy_engine_simple.py: # Fallback patterns
+- backend/ultra_accuracy_engine_simple.py: # Initialize with real performance data
+- backend/ultra_accuracy_engine_simple.py: # Use real ML service if available
+- backend/ultra_accuracy_engine_simple.py: # Get real ML prediction
+- backend/ultra_accuracy_engine_simple.py: # Fallback to heuristic
+- backend/ultra_accuracy_engine_simple.py: # Apply market efficiency analysis
+- backend/ultra_accuracy_engine_simple.py: # Apply behavioral pattern detection
+- backend/ultra_accuracy_engine_simple.py: # Calculate real confidence incorporating all factors
+- backend/ultra_accuracy_engine_simple.py: # Calculate uncertainty
+- backend/ultra_accuracy_engine_simple.py: # Check if prediction meets ultra-accuracy threshold
+- backend/ultra_accuracy_engine_simple.py: # Generate prediction interval
+- backend/ultra_accuracy_engine_simple.py: # Calculate model consensus
+- backend/ultra_accuracy_engine_simple.py: # Calculate model contributions
+- backend/ultra_accuracy_engine_simple.py: # Calculate risk metrics using real market data
+- backend/ultra_accuracy_engine_simple.py: # Generate rationale
+- backend/ultra_accuracy_engine_simple.py: # Create prediction result
+- backend/ultra_accuracy_engine_simple.py: # ELO-based calculation
+- backend/ultra_accuracy_engine_simple.py: # Calculate win probability using ELO formula
+- backend/ultra_accuracy_engine_simple.py: # Adjust for home advantage
+- backend/ultra_accuracy_engine_simple.py: # Adjust for recent form
+- backend/ultra_accuracy_engine_simple.py: # Start with ML model confidence
+- backend/ultra_accuracy_engine_simple.py: # Adjust based on market efficiency
+- backend/ultra_accuracy_engine_simple.py: # Less efficient market = higher confidence in edge
+- backend/ultra_accuracy_engine_simple.py: # Adjust based on behavioral patterns
+- backend/ultra_accuracy_engine_simple.py: # Strong patterns = higher confidence
+- backend/ultra_accuracy_engine_simple.py: # Adjust based on prediction extremeness
+- backend/ultra_accuracy_engine_simple.py: # More extreme predictions = higher confidence
+- backend/ultra_accuracy_engine_simple.py: # Calculate consensus based on model agreement
+- backend/ultra_accuracy_engine_simple.py: # High agreement = high consensus
+- backend/ultra_accuracy_engine_simple.py: # Assign importance based on feature type and variance
+- backend/ultra_accuracy_engine_simple.py: # Adjust weight based on value significance
+- backend/ultra_accuracy_engine_simple.py: # Scale based on magnitude
+- backend/ultra_accuracy_engine_simple.py: # Normalize to sum to 1.0
+- backend/ultra_accuracy_engine_simple.py: # Weight by recent performance
+- backend/ultra_accuracy_engine_simple.py: # Normalize
+- backend/ultra_accuracy_engine_simple.py: # Calculate raw edge
+- backend/ultra_accuracy_engine_simple.py: # Adjust for confidence and market efficiency
+- backend/ultra_accuracy_engine_simple.py: # Penalize for missing features
+- backend/ultra_accuracy_engine_simple.py: # Penalize for null values
+- backend/ultra_accuracy_engine_simple.py: # Determine prediction strength
+- backend/ultra_accuracy_engine_simple.py: # Update accuracy history with real calculation
+- backend/ultra_accuracy_engine_simple.py: # Simple accuracy calculation based on recent outcomes
+- backend/ultra_accuracy_engine_simple.py: # Simulated but realistic
+- backend/ultra_accuracy_engine_simple.py: # Keep only last 50 entries
+- backend/ultra_accuracy_engine_simple.py: # Create singleton instance with realistic configuration
+- backend/ultra_accuracy_engine_simple.py: # Realistic target
+- backend/ultra_accuracy_engine_simple.py: # Realistic threshold
+- backend/ultra_accuracy_routes.py: # Initialize ultra-accuracy engine
+- backend/ultra_accuracy_routes.py: # Initialize real performance metrics system
+- backend/ultra_accuracy_routes.py: # Generate ultra-accurate prediction
+- backend/ultra_accuracy_routes.py: # Prediction rejected - doesn't meet ultra-accuracy criteria
+- backend/ultra_accuracy_routes.py: # Convert prediction to response format
+- backend/ultra_accuracy_routes.py: # Record processing time in real metrics
+- backend/ultra_accuracy_routes.py: # Log successful prediction for monitoring
+- backend/ultra_accuracy_routes.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_routes.py: # Use the market efficiency analyzer from ultra engine
+- backend/ultra_accuracy_routes.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_routes.py: # Use the behavioral pattern detector from ultra engine
+- backend/ultra_accuracy_routes.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_routes.py: # Update model performance asynchronously
+- backend/ultra_accuracy_routes.py: # Record accuracy measurement in real metrics
+- backend/ultra_accuracy_routes.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_routes.py: # Calculate system-wide performance metrics using RealPerformanceMetrics
+- backend/ultra_accuracy_routes.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_routes.py: # Get real system health metrics
+- backend/ultra_accuracy_routes.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_routes.py: # Background task functions
+- backend/ultra_accuracy_routes.py: # Calculate accuracy based on actual outcome (simplified)
+- backend/ultra_accuracy_routes.py: # In a real system, this would compare against the prediction
+- backend/ultra_accuracy_routes.py: # Clamp to [0, 1]
+- backend/ultra_accuracy_routes.py: # pylint: disable=broad-exception-caught
+- backend/ultra_accuracy_routes.py: # Health check endpoint
+- backend/unified_feature_service.py: # Copied and adapted from Newfolder (example structure)
+- backend/unified_feature_service.py: # Example pipeline: validate -> transform -> select -> cache -> monitor
+- backend/user_models.py: # Status fields
+- backend/user_models.py: # Timestamps
+- backend/user_models.py: # User preferences and settings
+- backend/user_models.py: # Financial tracking
+- backend/user_models.py: # Relationships
+- backend/user_models.py: # Session metadata
+- backend/user_models.py: # Timestamps
+- backend/user_models.py: # Status
+- backend/user_models.py: # Relationship
+- backend/user_models.py: # Bet details
+- backend/user_models.py: # Financial details
+- backend/user_models.py: # Status and result
+- backend/user_models.py: # pending, won, lost, void, cancelled
+- backend/user_models.py: # Metadata
+- backend/user_models.py: # Timestamps
+- backend/user_models.py: # Relationship
+- backend/user_models.py: # Transaction details
+- backend/user_models.py: # deposit, withdrawal, bet_stake, bet_payout, bonus
+- backend/user_models.py: # Status and metadata
+- backend/user_models.py: # External references
+- backend/user_models.py: # Timestamps
+- backend/user_models.py: # Relationship
+- backend/user_models.py: # Preference details
+- backend/user_models.py: # Metadata
+- backend/validate_complete_integration.py: # Validate prediction structure
+- backend/validate_complete_integration.py: # Mathematical validation
+- backend/validate_complete_integration.py: # pylint: disable=broad-exception-caught
+- backend/validate_complete_integration.py: # Test Bayesian prediction
+- backend/validate_complete_integration.py: # Test Gaussian Process
+- backend/validate_complete_integration.py: # Test Information Theoretic
+- backend/validate_complete_integration.py: # Validate results
+- backend/validate_complete_integration.py: # pylint: disable=broad-exception-caught
+- backend/validate_complete_integration.py: # Test wavelet transforms
+- backend/validate_complete_integration.py: # Test manifold learning
+- backend/validate_complete_integration.py: # Test information theory features
+- backend/validate_complete_integration.py: # Validate feature engineering results
+- backend/validate_complete_integration.py: # pylint: disable=broad-exception-caught
+- backend/validate_complete_integration.py: # Test extreme value analysis
+- backend/validate_complete_integration.py: # Test copula modeling
+- backend/validate_complete_integration.py: # Test stochastic process modeling
+- backend/validate_complete_integration.py: # Validate risk management results
+- backend/validate_complete_integration.py: # pylint: disable=broad-exception-caught
+- backend/validate_complete_integration.py: # Create test data matrix
+- backend/validate_complete_integration.py: # Test anomaly detection
+- backend/validate_complete_integration.py: # Test signal processing
+- backend/validate_complete_integration.py: # Test missing data imputation
+- backend/validate_complete_integration.py: # Validate data pipeline results
+- backend/validate_complete_integration.py: # pylint: disable=broad-exception-caught
+- backend/validate_complete_integration.py: # Initialize model service
+- backend/validate_complete_integration.py: # Test unified prediction
+- backend/validate_complete_integration.py: # Test model status
+- backend/validate_complete_integration.py: # Test performance metrics
+- backend/validate_complete_integration.py: # Validate model service results
+- backend/validate_complete_integration.py: # pylint: disable=broad-exception-caught
+- backend/validate_complete_integration.py: # Run all validations
+- backend/validate_complete_integration.py: # pylint: disable=broad-exception-caught
+- backend/validate_complete_integration.py: # Calculate overall success metrics
+- backend/validate_complete_integration.py: # Generate integration report
+- backend/validate_complete_integration.py: # Revolutionary engine rigor
+- backend/validate_complete_integration.py: # Prediction engine rigor
+- backend/validate_complete_integration.py: # Feature engineering rigor
+- backend/validate_complete_integration.py: # Score based on reasonable processing time (< 10 seconds is excellent)
+- backend/validate_complete_integration.py: # For other services, check if all expected validations passed
+- backend/validate_complete_integration.py: # Performance recommendations
+- backend/validate_complete_integration.py: # Mathematical rigor recommendations
+- backend/validate_complete_integration.py: # Feature completeness recommendations
+- backend/validate_complete_integration.py: # Run complete validation
+- backend/validate_complete_integration.py: # Print results
+- backend/validate_complete_integration.py: # Save report to file
+- backend/validate_complete_integration.py: # Return appropriate exit code
+- backend/validate_enhanced_engine.py: #!/usr/bin/env python3
+- backend/validate_enhanced_engine.py: # Create network
+- backend/validate_enhanced_engine.py: # Test with random input
+- backend/validate_enhanced_engine.py: # Validate mathematical properties
+- backend/validate_enhanced_engine.py: # Test Hodgkin-Huxley dynamics
+- backend/validate_enhanced_engine.py: # Reasonable voltage change
+- backend/validate_enhanced_engine.py: # pylint: disable=broad-exception-caught
+- backend/validate_enhanced_engine.py: # Create Mamba model
+- backend/validate_enhanced_engine.py: # Test with sequence
+- backend/validate_enhanced_engine.py: # batch, sequence, features
+- backend/validate_enhanced_engine.py: # Validate mathematical properties
+- backend/validate_enhanced_engine.py: # Test eigenvalue stability
+- backend/validate_enhanced_engine.py: # pylint: disable=broad-exception-caught
+- backend/validate_enhanced_engine.py: # Create causal inference module
+- backend/validate_enhanced_engine.py: # Generate synthetic causal data
+- backend/validate_enhanced_engine.py: # True causal structure: X1 -> X3 -> X5, X2 -> X4 -> X5
+- backend/validate_enhanced_engine.py: # Test PC algorithm
+- backend/validate_enhanced_engine.py: # Test causal inference
+- backend/validate_enhanced_engine.py: # Validate results
+- backend/validate_enhanced_engine.py: # Check if discovered some causal relationships
+- backend/validate_enhanced_engine.py: # pylint: disable=broad-exception-caught
+- backend/validate_enhanced_engine.py: # Create topological network
+- backend/validate_enhanced_engine.py: # Test with point cloud data
+- backend/validate_enhanced_engine.py: # Validate topological analysis
+- backend/validate_enhanced_engine.py: # Display Betti numbers
+- backend/validate_enhanced_engine.py: # pylint: disable=broad-exception-caught
+- backend/validate_enhanced_engine.py: # Create Riemannian network
+- backend/validate_enhanced_engine.py: # Test with manifold data
+- backend/validate_enhanced_engine.py: # Validate geometric properties
+- backend/validate_enhanced_engine.py: # Test metric tensor computation
+- backend/validate_enhanced_engine.py: # Check positive definiteness
+- backend/validate_enhanced_engine.py: # pylint: disable=broad-exception-caught
+- backend/validate_enhanced_engine.py: # Create enhanced engine
+- backend/validate_enhanced_engine.py: # Test with sample features
+- backend/validate_enhanced_engine.py: # Generate prediction
+- backend/validate_enhanced_engine.py: # Validate prediction structure
+- backend/validate_enhanced_engine.py: # Mathematical guarantees summary
+- backend/validate_enhanced_engine.py: # pylint: disable=broad-exception-caught
+- backend/validate_enhanced_engine.py: # Benchmark with different input sizes
+- backend/validate_enhanced_engine.py: # Average over 3 runs
+- backend/validate_enhanced_engine.py: # Check scaling behavior
+- backend/validate_enhanced_engine.py: # Should scale better than quadratic
+- backend/validate_enhanced_engine.py: # pylint: disable=broad-exception-caught
+- backend/ws.py: # pylint: disable=broad-exception-caught
+- backend/ws.py: # pylint: disable=broad-exception-caught
+- backend/ws.py: # pylint: disable=broad-exception-caught
+- backend/ws.py: # pylint: disable=broad-exception-caught
+- backend/auth/security.py: # Password hashing context
+- backend/auth/security.py: # OAuth2PasswordBearer for token extraction
+- backend/auth/security.py: # JWT Configuration
+- backend/auth/security.py: # Verify token type
+- backend/auth/security.py: # Check expiration
+- backend/auth/security.py: # 1 hour expiry
+- backend/auth/security.py: # Global security manager instance
+- backend/auth/security.py: # Ensure username and user_id are not None
+- backend/auth/security.py: # Ensure scopes is a list of strings, default to empty list if not
+- backend/auth/security.py: # Default to empty list if invalid type or content
+- backend/auth/user_service.py: # Database setup
+- backend/auth/user_service.py: # In-memory database for development (replace with real database in production)
+- backend/auth/user_service.py: ///./users.db"
+- backend/auth/user_service.py: # Profile information
+- backend/auth/user_service.py: # conservative, moderate, aggressive
+- backend/auth/user_service.py: # List of preferred bookmakers
+- backend/auth/user_service.py: # Settings
+- backend/auth/user_service.py: # User preferences and settings
+- backend/auth/user_service.py: # Create tables
+- backend/auth/user_service.py: # Session will be closed by caller
+- backend/auth/user_service.py: # Check if username already exists
+- backend/auth/user_service.py: # Check if email already exists
+- backend/auth/user_service.py: # Create new user
+- backend/auth/user_service.py: # Find user by username or email
+- backend/auth/user_service.py: # Update last login
+- backend/auth/user_service.py: # Update allowed fields
+- backend/auth/user_service.py: # Global user service instance
+- backend/middleware/advanced_rate_limiting.py: #!/usr/bin/env python3
+- backend/middleware/advanced_rate_limiting.py: # Default rate limits for different endpoint types
+- backend/middleware/advanced_rate_limiting.py: # 100 requests per hour
+- backend/middleware/advanced_rate_limiting.py: # 1000 requests per hour
+- backend/middleware/advanced_rate_limiting.py: # 5000 requests per hour
+- backend/middleware/advanced_rate_limiting.py: # 10000 requests per hour
+- backend/middleware/advanced_rate_limiting.py: # 50 predictions per 5 minutes
+- backend/middleware/advanced_rate_limiting.py: # 10 heavy operations per 5 minutes
+- backend/middleware/advanced_rate_limiting.py: # Endpoint-specific rate limits
+- backend/middleware/advanced_rate_limiting.py: # Login attempts
+- backend/middleware/advanced_rate_limiting.py: # Health checks
+- backend/middleware/advanced_rate_limiting.py: # IP-based rate limits for additional security
+- backend/middleware/advanced_rate_limiting.py: # 1000 requests per hour per IP
+- backend/middleware/advanced_rate_limiting.py: # Reduced limit for suspicious IPs
+- backend/middleware/advanced_rate_limiting.py: # Get applicable rate limit
+- backend/middleware/advanced_rate_limiting.py: # Check user-based rate limit
+- backend/middleware/advanced_rate_limiting.py: # Check IP-based rate limit if IP provided
+- backend/middleware/advanced_rate_limiting.py: # Return the most restrictive result
+- backend/middleware/advanced_rate_limiting.py: # Check for exact endpoint match
+- backend/middleware/advanced_rate_limiting.py: # Check for wildcard matches
+- backend/middleware/advanced_rate_limiting.py: # Fall back to user tier default
+- backend/middleware/advanced_rate_limiting.py: # Default to sliding window
+- backend/middleware/advanced_rate_limiting.py: # Use Redis for distributed rate limiting
+- backend/middleware/advanced_rate_limiting.py: # Remove old entries
+- backend/middleware/advanced_rate_limiting.py: # Count current requests
+- backend/middleware/advanced_rate_limiting.py: # Add current request
+- backend/middleware/advanced_rate_limiting.py: # Set expiration
+- backend/middleware/advanced_rate_limiting.py: # +1 for current request
+- backend/middleware/advanced_rate_limiting.py: # Fall back to allowing the request
+- backend/middleware/advanced_rate_limiting.py: # In-memory fallback (not recommended for production)
+- backend/middleware/advanced_rate_limiting.py: # Simplified for demo
+- backend/middleware/advanced_rate_limiting.py: // rate_limit.window_seconds) * rate_limit.window_seconds
+- backend/middleware/advanced_rate_limiting.py: # Increment counter
+- backend/middleware/advanced_rate_limiting.py: # Set expiration on first request
+- backend/middleware/advanced_rate_limiting.py: # Simplified for demo
+- backend/middleware/advanced_rate_limiting.py: # Get current bucket state
+- backend/middleware/advanced_rate_limiting.py: # Calculate tokens to add
+- backend/middleware/advanced_rate_limiting.py: # Check if request can be served
+- backend/middleware/advanced_rate_limiting.py: # Update bucket state
+- backend/middleware/advanced_rate_limiting.py: # Simplified in-memory version
+- backend/middleware/advanced_rate_limiting.py: # Time to get next token
+- backend/middleware/advanced_rate_limiting.py: # Store in Redis for analytics
+- backend/middleware/advanced_rate_limiting.py: # Keep for 7 days
+- backend/middleware/advanced_rate_limiting.py: # Clear specific endpoint
+- backend/middleware/advanced_rate_limiting.py: # Clear all endpoints for identifier
+- backend/middleware/advanced_rate_limiting.py: # Decorator for easy rate limiting
+- backend/middleware/advanced_rate_limiting.py: # Get identifier (this would need to be adapted based on your framework)
+- backend/middleware/advanced_rate_limiting.py: # Default identifier
+- backend/middleware/advanced_rate_limiting.py: # Use function name as endpoint if not specified
+- backend/middleware/advanced_rate_limiting.py: # Check rate limit
+- backend/middleware/advanced_rate_limiting.py: # This would raise an appropriate HTTP exception in a web framework
+- backend/middleware/advanced_rate_limiting.py: # Record the request
+- backend/middleware/advanced_rate_limiting.py: # Test rate limiting
+- backend/middleware/advanced_rate_limiting.py: # Show status
+- backend/middleware/caching.py: # Simple TTL Cache implementation
+- backend/middleware/caching.py: # Remove oldest entries
+- backend/middleware/caching.py: # Create cache key from function name and arguments
+- backend/middleware/caching.py: # Check cache first
+- backend/middleware/caching.py: # Retry logic
+- backend/middleware/caching.py: # Cache the successful result
+- backend/middleware/caching.py: # Exponential backoff
+- backend/middleware/caching.py: # If all retries failed, raise the last exception
+- backend/middleware/metrics_middleware.py: # Start tracking request
+- backend/middleware/metrics_middleware.py: # Process request
+- backend/middleware/metrics_middleware.py: # Update metrics
+- backend/middleware/metrics_middleware.py: # Record error metrics
+- backend/middleware/rate_limit.py: # Clean old requests
+- backend/middleware/rate_limit.py: # Check rate limit
+- backend/middleware/rate_limit.py: # Add current request
+- backend/middleware/rate_limit.py: # Process request
+- backend/middleware/request_tracking.py: # Log request details
+- backend/middleware/request_tracking.py: # Process request
+- backend/middleware/request_tracking.py: # Log response details
+- backend/middleware/request_tracking.py: # Log error details
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # HEALTH CHECK MODELS
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # BETTING MODELS
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # PERFORMANCE MODELS
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # RISK MANAGEMENT MODELS
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # USER MODELS
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # DATA MODELS
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # PREDICTION MODELS
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # FEATURE ENGINEERING MODELS
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # ============================================================================
+- backend/models/api_models.py: # SPECIALIST DATA MODELS
+- backend/models/api_models.py: # ============================================================================
+- backend/models/bet.py: # match_winner, over_under, etc.
+- backend/models/bet.py: # home_team, away_team, over, under
+- backend/models/bet.py: # pending, won, lost, void
+- backend/models/bet.py: # Relationships
+- backend/models/bet.py: # user = relationship("User", back_populates="bets")
+- backend/models/bet.py: # match = relationship("Match", back_populates="bets")
+- backend/models/match.py: # football, basketball, baseball, etc.
+- backend/models/match.py: # NFL, NBA, MLB, etc.
+- backend/models/match.py: # 2024, 2024-25, etc.
+- backend/models/match.py: # Week number for sports that use weeks
+- backend/models/match.py: # Match timing
+- backend/models/match.py: # Match status
+- backend/models/match.py: # scheduled, live, finished, cancelled, postponed
+- backend/models/match.py: # Scores
+- backend/models/match.py: # Additional match details
+- backend/models/match.py: # External IDs for API integration
+- backend/models/match.py: # ID from external sports API
+- backend/models/match.py: # Flags
+- backend/models/match.py: # Relationships
+- backend/models/match.py: # bets = relationship("Bet", back_populates="match")
+- backend/models/match.py: # predictions = relationship("Prediction", back_populates="match")
+- backend/models/prediction.py: # For sports that can have draws
+- backend/models/prediction.py: # 0.0 to 1.0
+- backend/models/prediction.py: # JSON string of features
+- backend/models/prediction.py: # Additional prediction fields
+- backend/models/prediction.py: # Relationships
+- backend/models/prediction.py: # match = relationship("Match", back_populates="predictions")
+- backend/routes/admin.py: # Add admin endpoints here as needed
+- backend/routes/analytics.py: # Real ML implementation using trained models
+- backend/routes/analytics.py: # Prepare features for ML model
+- backend/routes/analytics.py: # Would come from real team ratings
+- backend/routes/analytics.py: # Get real ML prediction
+- backend/routes/analytics.py: # Calculate other probabilities
+- backend/routes/analytics.py: # For sports without draws
+- backend/routes/analytics.py: # Adjust for sports with draws (like soccer)
+- backend/routes/analytics.py: # Get key factors from feature importance
+- backend/routes/analytics.py: # Fallback to simple calculation
+- backend/routes/analytics.py: # Fallback to simple calculation
+- backend/routes/analytics.py: # Generate recommendation based on real ML output
+- backend/routes/analytics.py: # Combine team and player stats
+- backend/routes/analytics.py: # Convert to array format for ML models
+- backend/routes/analytics.py: # Real feature engineering
+- backend/routes/analytics.py: # Use real feature engineering if available
+- backend/routes/analytics.py: # Use real ML models for prediction
+- backend/routes/analytics.py: # Prepare features
+- backend/routes/analytics.py: # Get real ML prediction
+- backend/routes/analytics.py: # Fallback prediction
+- backend/routes/analytics.py: # Fallback prediction
+- backend/routes/analytics.py: # Get real ML performance metrics
+- backend/routes/analytics.py: # Get real model performance
+- backend/routes/analytics.py: # Would come from real metrics
+- backend/routes/analytics.py: # Get feature importance from models
+- backend/routes/analytics.py: # This would come from actual model feature importance
+- backend/routes/analytics.py: # Calculate trends from real performance
+- backend/routes/analytics.py: # Fallback analytics
+- backend/routes/analytics.py: # Fallback analytics
+- backend/routes/analytics_api.py: # Calculate timeframe dates
+- backend/routes/analytics_api.py: # Get performance metrics
+- backend/routes/analytics_api.py: # Get quantum metrics
+- backend/routes/analytics_api.py: # Get system health
+- backend/routes/analytics_api.py: # Get model performance from ensemble
+- backend/routes/analytics_api.py: # Get individual model metrics
+- backend/routes/analytics_api.py: # Convert RÂ² to percentage
+- backend/routes/analytics_api.py: # Estimated predictions
+- backend/routes/analytics_api.py: # Fallback with simulated metrics
+- backend/routes/analytics_api.py: # Sort by accuracy
+- backend/routes/analytics_api.py: # Get quantum portfolio manager analytics
+- backend/routes/analytics_api.py: # Calculate quantum advantage metrics
+- backend/routes/analytics_api.py: # Simulated
+- backend/routes/analytics_api.py: # Get system metrics
+- backend/routes/analytics_api.py: # Simulate prediction latency (would be real metrics in production)
+- backend/routes/analytics_api.py: # Calculate uptime (simplified)
+- backend/routes/analytics_api.py: # Health status based on metrics
+- backend/routes/analytics_api.py: # Fallback to simulated metrics
+- backend/routes/analytics_api.py: # Get current portfolio metrics
+- backend/routes/analytics_api.py: # Generate insights based on performance
+- backend/routes/analytics_api.py: # Performance trend insight
+- backend/routes/analytics_api.py: # Quantum optimization insight
+- backend/routes/analytics_api.py: # Model recommendation
+- backend/routes/analytics_api.py: # Portfolio optimization
+- backend/routes/analytics_api.py: # In production, this would query actual performance data
+- backend/routes/analytics_api.py: # For now, return simulated metrics based on timeframe
+- backend/routes/analytics_api.py: # Simulate performance trends
+- backend/routes/analytics_api.py: # Slight improvement over time
+- backend/routes/analytics_api.py: # Slight decrease for longer periods
+- backend/routes/analytics_api.py: # ~18 bets per day
+- backend/routes/analytics_api.py: # Based on ROI
+- backend/routes/analytics_api.py: # Fallback metrics
+- backend/routes/auth.py: # Create user in database
+- backend/routes/auth.py: # Create access and refresh tokens
+- backend/routes/auth.py: # Convert user profile to response format
+- backend/routes/auth.py: # Authenticate user
+- backend/routes/auth.py: # Create access and refresh tokens
+- backend/routes/auth.py: # Convert user profile to response format
+- backend/routes/auth.py: # Verify refresh token
+- backend/routes/auth.py: # Get user to ensure they still exist and are active
+- backend/routes/auth.py: # Create new access token
+- backend/routes/auth.py: # Convert user profile to response format
+- backend/routes/auth.py: # Keep the same refresh token
+- backend/routes/auth.py: # Convert profile data to dict
+- backend/routes/auth.py: # Update user profile
+- backend/routes/betting.py: # Temporarily commenting out corrupted data_fetchers
+- backend/routes/betting.py: # from services.data_fetchers import fetch_betting_opportunities_internal
+- backend/routes/betting.py: # Filter by sport if specified
+- backend/routes/betting.py: # Apply limit
+- backend/routes/betting.py: # Mock implementation - would connect to real arbitrage detection service
+- backend/routes/feedback.py: # Email configuration (you'll need to set these environment variables)
+- backend/routes/feedback.py: # Create message
+- backend/routes/feedback.py: # Email body
+- backend/routes/feedback.py: # Send email
+- backend/routes/feedback.py: # Validate rating
+- backend/routes/feedback.py: # Validate message
+- backend/routes/feedback.py: # Save feedback to file (backup)
+- backend/routes/feedback.py: # Send email in background
+- backend/routes/feedback.py: # Load and analyze feedback
+- backend/routes/feedback.py: # Calculate statistics
+- backend/routes/feedback.py: # 7 days ago
+- backend/routes/feedback.py: # Count by type
+- backend/routes/feedback.py: # Average rating
+- backend/routes/feedback.py: # Recent feedback (last 7 days)
+- backend/routes/health.py: # Import scraper service
+- backend/routes/health.py: # Add scraper health to response model
+- backend/routes/health.py: # Check if llm_engine is initialized and has models
+- backend/routes/health.py: # Try to ensure initialization
+- backend/routes/health.py: # Update MODEL_STATE based on actual status
+- backend/routes/health.py: # Get PrizePicks scraper health
+- backend/routes/health.py: # Overall status considers scraper
+- backend/routes/health.py: # Include scraper health data
+- backend/routes/health.py: # Check if model is in available models
+- backend/routes/health.py: # MAX_QUEUE_SIZE constant
+- backend/routes/health.py: # Default value
+- backend/routes/performance.py: # Temporarily commenting out corrupted data_fetchers
+- backend/routes/performance.py: # from services.data_fetchers import fetch_performance_stats_internal
+- backend/routes/performance.py: # Real implementation using transaction service
+- backend/routes/performance.py: # Default to user 1 for now
+- backend/routes/performance.py: # Real implementation using transaction service
+- backend/routes/performance.py: # Default to user 1 for now
+- backend/routes/prizepicks.py: # comprehensive_prizepicks_service, # This import is not directly used
+- backend/routes/prizepicks.py: # Import the new dependency
+- backend/routes/prizepicks.py: # Cache for PrizePicks data
+- backend/routes/prizepicks.py: # Use enhanced service v2 for better data quality with ML
+- backend/routes/prizepicks.py: # Optionally filter by sport (only if sport is a string)
+- backend/routes/prizepicks.py: # Prefixed with _ to indicate unused
+- backend/routes/prizepicks.py: # Mock implementation - would use ML models for recommendations
+- backend/routes/prizepicks.py: # Filter by sport if specified
+- backend/routes/prizepicks.py: # Filter by confidence if specified
+- backend/routes/prizepicks.py: # Use enhanced service for comprehensive projections
+- backend/routes/prizepicks.py: # Optionally filter by sport/league (only if values are strings)
+- backend/routes/prizepicks.py: # optimization_params = request_data.get("optimization_params", {}) # Removed unused variable
+- backend/routes/prizepicks.py: # Mock optimization logic - in production would use real ML optimization
+- backend/routes/prizepicks.py: # Base multiplier
+- backend/routes/prizepicks.py: # Calculate Kelly optimization
+- backend/routes/prizepicks.py: # Calculate risk score
+- backend/routes/prizepicks.py: # Calculate value score
+- backend/routes/prizepicks.py: # Premium over 70% confidence
+- backend/routes/prizepicks.py: # Generate correlation matrix (mock)
+- backend/routes/prizepicks.py: # This endpoint is now directly integrated with the enhanced fetcher
+- backend/routes/prizepicks.py: # and does not require the old mock fetcher imports.
+- backend/routes/prizepicks.py: # The logic for fetching and filtering props is handled by the service.
+- backend/routes/prizepicks.py: # The generate_optimal_betting_lineup function is now part of the service
+- backend/routes/prizepicks.py: # and handles the ensemble prediction logic.
+- backend/routes/prizepicks.py: # For now, we'll just return the filtered props.
+- backend/routes/prizepicks.py: # The actual lineup generation and prediction will happen within the service.
+- backend/routes/prizepicks.py: # This endpoint is now directly integrated with the enhanced fetcher
+- backend/routes/prizepicks.py: # and does not require the old mock fetcher imports.
+- backend/routes/prizepicks.py: # The logic for fetching and filtering props is handled by the service.
+- backend/routes/prizepicks.py: # Filter to requested props
+- backend/routes/prizepicks.py: # The generate_optimal_betting_lineup function is now part of the service
+- backend/routes/prizepicks.py: # and handles the ensemble prediction logic.
+- backend/routes/prizepicks.py: # For now, we'll just return the filtered props.
+- backend/routes/prizepicks.py: # The actual lineup generation and prediction will happen within the service.
+- backend/routes/prizepicks.py: # This would integrate with historical data analysis
+- backend/routes/prizepicks.py: # For now, return a basic response
+- backend/routes/prizepicks.py: # This status is now managed by the service
+- backend/routes/prizepicks.py: # Get enhanced props first to find the target prop
+- backend/routes/prizepicks.py: # Find the specific prop
+- backend/routes/prizepicks.py: # Corrected loop syntax here
+- backend/routes/prizepicks.py: # Initialize explanation_data here to avoid re-declaration errors
+- backend/routes/prizepicks.py: # Try to generate AI explanation using LLM
+- backend/routes/prizepicks.py: # Generate AI explanation using the analyze_prop_bet method
+- backend/routes/prizepicks.py: # Use the AI response if available, otherwise create structured response
+- backend/routes/prizepicks.py: # Fallback explanation
+- backend/routes/prizepicks.py: # Always try to use enhanced fetcher since original is corrupted
+- backend/routes/prizepicks.py: # Import the enhanced fetcher class
+- backend/routes/prizepicks.py: # Get enhanced props
+- backend/routes/prizepicks.py: # Apply enhanced formatting to all props
+- backend/routes/prizepicks.py: # Filter by sport if specified
+- backend/routes/prizepicks.py: # Filter by confidence if specified
+- backend/routes/prizepicks.py: # Legacy endpoint for backward compatibility
+- backend/routes/prizepicks.py: # Secure health endpoint
+- backend/routes/prizepicks.py: # Return health from enhanced service v2, fallback to other services
+- backend/routes/prizepicks.py: # Create and secure heal endpoint
+- backend/routes/prizepicks.py: # Option 1: Restart the comprehensive service's ingestion (most direct healing)
+- backend/routes/prizepicks.py: # Or, if a more specific reset function exists:
+- backend/routes/prizepicks.py: # await comprehensive_prizepicks_service.reset_scraper_state()
+- backend/routes/prizepicks_simple.py: # router = APIRouter(prefix="/api/prizepicks", tags=["PrizePicks-Simple"])
+- backend/routes/prizepicks_simple.py: # @router.get("/props")
+- backend/routes/prizepicks_simple.py: # Quick mock data that returns immediately
+- backend/routes/prizepicks_simple.py: # Apply filters
+- backend/routes/prizepicks_simple.py: # @router.get("/recommendations")
+- backend/routes/prizepicks_simple.py: # @router.get("/status")
+- backend/routes/propollama.py: # Rate limiting configuration
+- backend/routes/propollama.py: # seconds
+- backend/routes/propollama.py: # Response cache configuration
+- backend/routes/propollama.py: # 5 minutes
+- backend/routes/propollama.py: # Check cache first
+- backend/routes/propollama.py: # Ensure LLM engine is ready
+- backend/routes/propollama.py: # Try LLM analysis with circuit breaker
+- backend/routes/propollama.py: # Circuit breaker open: fallback to cache or default
+- backend/routes/propollama.py: # LLM call failed: fallback to cache or default
+- backend/routes/propollama.py: # Extract confidence and key factors
+- backend/routes/propollama.py: # Parse the analysis
+- backend/routes/propollama.py: # Prepare response
+- backend/routes/propollama.py: # Cache the response
+- backend/routes/propollama.py: # Cleanup task for expired cache entries
+- backend/routes/propollama.py: # Run every minute
+- backend/routes/propollama.py: # Cleanup task will be started when the router is included
+- backend/routes/real_time_analysis.py: # "OVER" or "UNDER"
+- backend/routes/real_time_analysis.py: # Analysis results
+- backend/routes/real_time_analysis.py: # UI display
+- backend/routes/real_time_analysis.py: # Start the analysis engine
+- backend/routes/real_time_analysis.py: # 3 minutes estimated
+- backend/routes/real_time_analysis.py: # Determine status
+- backend/routes/real_time_analysis.py: # This would fetch results from the completed analysis
+- backend/routes/real_time_analysis.py: # For now, return structured response format
+- backend/routes/real_time_analysis.py: # Mock high-quality opportunities for demonstration
+- backend/routes/real_time_analysis.py: # Add UI color coding
+- backend/routes/real_time_analysis.py: # Mock optimal 6-bet lineup
+- backend/routes/real_time_analysis.py: # Add 5 more bets for complete lineup
+- backend/routes/shap.py: # Import SHAP explainer
+- backend/routes/shap.py: # Generate explanation
+- backend/routes/shap.py: # Mock SHAP explanation
+- backend/routes/shap.py: # Generate mock SHAP values
+- backend/routes/shap.py: # Calculate feature importance (normalized)
+- backend/routes/shap.py: # Generate explanation text
+- backend/routes/shap.py: # Calculate prediction
+- backend/routes/shap.py: # Add a fallback explanation
+- backend/routes/unified_api.py: # Get enhanced predictions from unified service
+- backend/routes/unified_api.py: # Limit results
+- backend/routes/unified_api.py: # Convert to dictionaries for JSON response
+- backend/routes/unified_api.py: # Get portfolio metrics if optimization is enabled
+- backend/routes/unified_api.py: # Get AI insights if requested
+- backend/routes/unified_api.py: # Get current predictions for portfolio optimization
+- backend/routes/unified_api.py: # Limit to max positions
+- backend/routes/unified_api.py: # Get portfolio metrics
+- backend/routes/unified_api.py: # Calculate optimization recommendations
+- backend/routes/unified_api.py: # Get current predictions
+- backend/routes/unified_api.py: # Filter to selected bets
+- backend/routes/unified_api.py: # Calculate portfolio analysis
+- backend/routes/unified_api.py: # Risk analysis
+- backend/routes/unified_api.py: # Correlation analysis
+- backend/routes/unified_api.py: # Diversification analysis
+- backend/routes/unified_api.py: # Allocation recommendations
+- backend/routes/unified_api.py: # Get predictions with AI insights
+- backend/routes/unified_api.py: # Get detailed AI insights
+- backend/routes/unified_api.py: # Combine insights with predictions
+- backend/routes/unified_api.py: # Limit to top 10
+- backend/routes/unified_api.py: # Global insights summary
+- backend/routes/unified_api.py: # Mock live game context (would integrate with real sports data)
+- backend/routes/unified_api.py: # Get relevant bets for this game
+- backend/routes/unified_api.py: # Match bets to game (simplified logic)
+- backend/routes/unified_api.py: # Mock game teams
+- backend/routes/unified_api.py: # Mock current stats
+- backend/routes/unified_api.py: # Live betting opportunities
+- backend/routes/unified_api.py: # Top 3 opportunities
+- backend/routes/unified_api.py: # Get enhanced predictions
+- backend/routes/unified_api.py: # Mock multi-platform data (would integrate with real APIs)
+- backend/routes/unified_api.py: # Top 10 opportunities
+- backend/routes/unified_api.py: # Mock platform-specific data
+- backend/routes/unified_api.py: # Slight variations
+- backend/routes/unified_api.py: # Odds variations
+- backend/routes/unified_api.py: # Calculate best platform
+- backend/routes/unified_api.py: # Arbitrage opportunities
+- backend/routes/unified_api.py: # Mock arbitrage
+- backend/routes/unified_api.py: # Based on analysis
+- backend/routes/unified_api.py: # Get service health
+- backend/routes/unified_api.py: # Add API health metrics
+- backend/routes/unified_api.py: # Combine health data
+- backend/routes/user.py: # Add user endpoints here as needed
+- backend/services/__init__.py: # Temporarily commenting out corrupted data_fetchers
+- backend/services/__init__.py: # from .data_fetchers import (
+- backend/services/__init__.py: #     fetch_betting_opportunities_internal,
+- backend/services/__init__.py: #     fetch_performance_stats_internal,
+- backend/services/__init__.py: #     fetch_prizepicks_props_internal,
+- backend/services/__init__.py: #     fetch_historical_internal,
+- backend/services/__init__.py: #     fetch_news_internal,
+- backend/services/__init__.py: #     fetch_injuries_internal,
+- backend/services/__init__.py: # )
+- backend/services/__init__.py: # Temporarily removing corrupted data_fetchers functions
+- backend/services/__init__.py: # "fetch_betting_opportunities_internal",
+- backend/services/__init__.py: # "fetch_performance_stats_internal",
+- backend/services/__init__.py: # "fetch_prizepicks_props_internal",
+- backend/services/__init__.py: # "fetch_historical_internal",
+- backend/services/__init__.py: # "fetch_news_internal",
+- backend/services/__init__.py: # "fetch_injuries_internal",
+- backend/services/advanced_ensemble_service.py: # Model storage
+- backend/services/advanced_ensemble_service.py: # Performance tracking
+- backend/services/advanced_ensemble_service.py: # Feature engineering
+- backend/services/advanced_ensemble_service.py: # Configuration
+- backend/services/advanced_ensemble_service.py: # hours
+- backend/services/advanced_ensemble_service.py: # hour
+- backend/services/advanced_ensemble_service.py: # Initialize base models
+- backend/services/advanced_ensemble_service.py: # Initialize sport-specific models
+- backend/services/advanced_ensemble_service.py: # XGBoost configuration for maximum accuracy
+- backend/services/advanced_ensemble_service.py: # Will be initialized when needed
+- backend/services/advanced_ensemble_service.py: # LightGBM configuration
+- backend/services/advanced_ensemble_service.py: # Will be initialized when needed
+- backend/services/advanced_ensemble_service.py: # CatBoost configuration
+- backend/services/advanced_ensemble_service.py: # Will be initialized when needed
+- backend/services/advanced_ensemble_service.py: # Prepare features
+- backend/services/advanced_ensemble_service.py: # Get predictions from all models
+- backend/services/advanced_ensemble_service.py: # Calculate ensemble prediction
+- backend/services/advanced_ensemble_service.py: # Calculate confidence and intervals
+- backend/services/advanced_ensemble_service.py: # Generate SHAP explanations
+- backend/services/advanced_ensemble_service.py: # Calculate feature importance
+- backend/services/advanced_ensemble_service.py: # Risk assessment
+- backend/services/advanced_ensemble_service.py: # Generate recommendation
+- backend/services/advanced_ensemble_service.py: # Generate reasoning
+- backend/services/advanced_ensemble_service.py: # Calculate accuracy score
+- backend/services/advanced_ensemble_service.py: # Log prediction for performance tracking
+- backend/services/advanced_ensemble_service.py: # This would integrate with the comprehensive feature engineering service
+- backend/services/advanced_ensemble_service.py: # For now, return a placeholder feature vector
+- backend/services/advanced_ensemble_service.py: # 100 features
+- backend/services/advanced_ensemble_service.py: # Apply feature scaling
+- backend/services/advanced_ensemble_service.py: # Simulate base model predictions
+- backend/services/advanced_ensemble_service.py: # Scaled prediction
+- backend/services/advanced_ensemble_service.py: # Sport-specific model predictions
+- backend/services/advanced_ensemble_service.py: # Neural network predictions
+- backend/services/advanced_ensemble_service.py: # Calculate weighted average based on model performance
+- backend/services/advanced_ensemble_service.py: # Get model weight (default to equal weighting)
+- backend/services/advanced_ensemble_service.py: # Default weights
+- backend/services/advanced_ensemble_service.py: # Calculate prediction variance (lower variance = higher confidence)
+- backend/services/advanced_ensemble_service.py: # Coefficient of variation
+- backend/services/advanced_ensemble_service.py: # Base confidence (inverse of coefficient of variation)
+- backend/services/advanced_ensemble_service.py: # Adjust based on number of models
+- backend/services/advanced_ensemble_service.py: # Adjust based on feature quality (placeholder)
+- backend/services/advanced_ensemble_service.py: # Would be calculated from actual feature quality
+- backend/services/advanced_ensemble_service.py: # Calculate interval based on confidence level
+- backend/services/advanced_ensemble_service.py: # Placeholder SHAP values - would use actual SHAP library in production
+- backend/services/advanced_ensemble_service.py: # Generate realistic SHAP values
+- backend/services/advanced_ensemble_service.py: # Top 10 features
+- backend/services/advanced_ensemble_service.py: # Placeholder feature importance - would use actual model feature importance
+- backend/services/advanced_ensemble_service.py: # Generate realistic importance scores
+- backend/services/advanced_ensemble_service.py: # Top 15 features
+- backend/services/advanced_ensemble_service.py: # Model disagreement risk
+- backend/services/advanced_ensemble_service.py: # 20% range
+- backend/services/advanced_ensemble_service.py: # Confidence risk
+- backend/services/advanced_ensemble_service.py: # Extreme value risk
+- backend/services/advanced_ensemble_service.py: # Unrealistic values
+- backend/services/advanced_ensemble_service.py: # Model consensus
+- backend/services/advanced_ensemble_service.py: # Top features
+- backend/services/advanced_ensemble_service.py: # SHAP insights
+- backend/services/advanced_ensemble_service.py: # Prediction quality
+- backend/services/advanced_ensemble_service.py: # Base accuracy by sport and prop type
+- backend/services/advanced_ensemble_service.py: # Adjust based on confidence
+- backend/services/advanced_ensemble_service.py: # Scale from 0.8 to 1.0
+- backend/services/advanced_ensemble_service.py: # Store prediction in accuracy history
+- backend/services/advanced_ensemble_service.py: # This would implement the retraining logic
+- backend/services/advanced_ensemble_service.py: # For now, just log the action
+- backend/services/advanced_ensemble_service.py: # This would implement dynamic weight updating
+- backend/services/advanced_ensemble_service.py: # For now, just log the action
+- backend/services/advanced_ensemble_service.py: # Global service instance
+- backend/services/advanced_ensemble_service.py: # For testing
+- backend/services/advanced_ml_service.py: # ML/AI imports
+- backend/services/advanced_ml_service.py: # Define multiple neural architectures
+- backend/services/advanced_ml_service.py: # Train each architecture
+- backend/services/advanced_ml_service.py: # Calculate ensemble weights based on performance
+- backend/services/advanced_ml_service.py: # Equal weights if all models failed
+- backend/services/advanced_ml_service.py: # Weighted ensemble prediction
+- backend/services/advanced_ml_service.py: # Hyperparameter grid for optimization
+- backend/services/advanced_ml_service.py: # Time series cross-validation
+- backend/services/advanced_ml_service.py: # Grid search with cross-validation
+- backend/services/advanced_ml_service.py: # Fallback to default parameters
+- backend/services/advanced_ml_service.py: # Create LightGBM dataset
+- backend/services/advanced_ml_service.py: # Train with early stopping
+- backend/services/advanced_ml_service.py: # For now, use MLPRegressor with attention-like patterns
+- backend/services/advanced_ml_service.py: # In production, this would be a proper transformer implementation
+- backend/services/advanced_ml_service.py: # Create attention-like features
+- backend/services/advanced_ml_service.py: # Simple attention mechanism simulation
+- backend/services/advanced_ml_service.py: # Self-attention like computation
+- backend/services/advanced_ml_service.py: # Add positional encoding
+- backend/services/advanced_ml_service.py: # Prepare features and target
+- backend/services/advanced_ml_service.py: # Initialize models
+- backend/services/advanced_ml_service.py: # Train all models
+- backend/services/advanced_ml_service.py: # Wait for all models to complete
+- backend/services/advanced_ml_service.py: # Check training results
+- backend/services/advanced_ml_service.py: # Train meta-learner for ensemble
+- backend/services/advanced_ml_service.py: # Run in thread pool for CPU-intensive training
+- backend/services/advanced_ml_service.py: # Get base model predictions
+- backend/services/advanced_ml_service.py: # Stack predictions as features for meta-learner
+- backend/services/advanced_ml_service.py: # Simple linear meta-learner
+- backend/services/advanced_ml_service.py: # Get predictions from all models
+- backend/services/advanced_ml_service.py: # Get feature importance
+- backend/services/advanced_ml_service.py: # Ensemble prediction
+- backend/services/advanced_ml_service.py: # Meta-learner ensemble
+- backend/services/advanced_ml_service.py: # Simple averaging
+- backend/services/advanced_ml_service.py: # Calculate uncertainty
+- backend/services/advanced_ml_service.py: # Uncertainty bounds (95% confidence interval)
+- backend/services/advanced_ml_service.py: # Aggregate feature importance
+- backend/services/advanced_ml_service.py: # Generate explanation
+- backend/services/advanced_ml_service.py: # Main prediction
+- backend/services/advanced_ml_service.py: # Model consensus
+- backend/services/advanced_ml_service.py: # Top features
+- backend/services/advanced_ml_service.py: # This would be implemented with proper backtesting data
+- backend/services/advanced_ml_service.py: # For now, return placeholder performance
+- backend/services/advanced_ml_service.py: # Global advanced ML ensemble instance
+- backend/services/async_performance_optimizer.py: #!/usr/bin/env python3
+- backend/services/async_performance_optimizer.py: # Initialize HTTP session
+- backend/services/async_performance_optimizer.py: # Initialize database pool (example for PostgreSQL)
+- backend/services/async_performance_optimizer.py: //user:password@localhost/db",
+- backend/services/async_performance_optimizer.py: # Test synchronous version
+- backend/services/async_performance_optimizer.py: # Test asynchronous version
+- backend/services/async_performance_optimizer.py: # Calculate improvement
+- backend/services/async_performance_optimizer.py: # Simulate async operations
+- backend/services/async_performance_optimizer.py: # Run prediction
+- backend/services/async_performance_optimizer.py: # Store result asynchronously
+- backend/services/async_performance_optimizer.py: # Simulate validation time
+- backend/services/async_performance_optimizer.py: # Simulate feature extraction time
+- backend/services/async_performance_optimizer.py: # Simulate model loading time
+- backend/services/async_performance_optimizer.py: # Simulate prediction time
+- backend/services/async_performance_optimizer.py: # Simulate prediction logic
+- backend/services/async_performance_optimizer.py: # Simulate storing to database
+- backend/services/async_performance_optimizer.py: # Check for specific patterns
+- backend/services/async_performance_optimizer.py: # Global instance
+- backend/services/async_performance_optimizer.py: # Demo prediction endpoint
+- backend/services/async_performance_optimizer.py: # Demo batch predictions
+- backend/services/async_performance_optimizer.py: # Show performance summary
+- backend/services/cache_manager.py: # Cache TTL settings (in minutes)
+- backend/services/cache_manager.py: # ESPN game data expires in 30 minutes
+- backend/services/cache_manager.py: # PrizePicks projections expire in 15 minutes
+- backend/services/cache_manager.py: # SportRadar stats expire in 1 hour
+- backend/services/cache_manager.py: # TheOdds odds expire in 10 minutes (fastest refresh)
+- backend/services/cache_manager.py: # Player data expires in 24 hours
+- backend/services/cache_manager.py: # Generated lineups expire in 5 minutes
+- backend/services/cache_manager.py: # Check file modification time
+- backend/services/cache_manager.py: # Add metadata
+- backend/services/cache_manager.py: # Global cache instance
+- backend/services/calculations.py: # Extract relevant attributes
+- backend/services/calculations.py: # Base confidence calculation
+- backend/services/calculations.py: # Adjust based on player performance vs line
+- backend/services/calculations.py: # Adjust based on variance (lower variance = higher confidence)
+- backend/services/calculations.py: # Adjust based on sample size
+- backend/services/calculations.py: # Ensure confidence is between 0 and 1
+- backend/services/calculations.py: # Extract relevant attributes
+- backend/services/calculations.py: # Calculate implied probability from odds
+- backend/services/calculations.py: # Calculate our estimated probability
+- backend/services/calculations.py: # Player averages above the line
+- backend/services/calculations.py: # Conservative estimate
+- backend/services/calculations.py: # Player averages below the line
+- backend/services/calculations.py: # Conservative estimate
+- backend/services/calculations.py: # Calculate edge
+- backend/services/calculations.py: # Extract relevant attributes
+- backend/services/calculations.py: # Base projection on player average
+- backend/services/calculations.py: # Adjust for recent form (weighted average)
+- backend/services/calculations.py: # Adjust for variance (regression to mean)
+- backend/services/comprehensive_feature_engine.py: # Feature engineering configuration
+- backend/services/comprehensive_feature_engine.py: # games
+- backend/services/comprehensive_feature_engine.py: # Initialize feature containers
+- backend/services/comprehensive_feature_engine.py: # 1. Player Performance Trends (20+ features)
+- backend/services/comprehensive_feature_engine.py: # 2. Matchup-Specific Performance (15+ features)
+- backend/services/comprehensive_feature_engine.py: # 3. Rest & Travel Factors (10+ features)
+- backend/services/comprehensive_feature_engine.py: # 4. Weather Impact (8+ features for outdoor sports)
+- backend/services/comprehensive_feature_engine.py: # 5. Injury Report Sentiment (12+ features)
+- backend/services/comprehensive_feature_engine.py: # 6. Line Movement Intelligence (15+ features)
+- backend/services/comprehensive_feature_engine.py: # 7. Historical Prop Performance (10+ features)
+- backend/services/comprehensive_feature_engine.py: # 8. Game Script Predictions (8+ features)
+- backend/services/comprehensive_feature_engine.py: # 9. Referee Impact (6+ features)
+- backend/services/comprehensive_feature_engine.py: # 10. Venue Effects (8+ features)
+- backend/services/comprehensive_feature_engine.py: # Calculate feature importance
+- backend/services/comprehensive_feature_engine.py: # Calculate feature quality score
+- backend/services/comprehensive_feature_engine.py: # Cache and log
+- backend/services/comprehensive_feature_engine.py: # Rolling averages for different windows
+- backend/services/comprehensive_feature_engine.py: # Placeholder
+- backend/services/comprehensive_feature_engine.py: # Performance metrics
+- backend/services/comprehensive_feature_engine.py: # vs season avg
+- backend/services/comprehensive_feature_engine.py: # vs opponent team
+- backend/services/comprehensive_feature_engine.py: # vs position/defense rankings
+- backend/services/comprehensive_feature_engine.py: # Home/Away splits
+- backend/services/comprehensive_feature_engine.py: # Conference/Division
+- backend/services/comprehensive_feature_engine.py: # Strength of schedule
+- backend/services/comprehensive_feature_engine.py: # Rest days
+- backend/services/comprehensive_feature_engine.py: # Travel factors
+- backend/services/comprehensive_feature_engine.py: # miles
+- backend/services/comprehensive_feature_engine.py: # Schedule difficulty
+- backend/services/comprehensive_feature_engine.py: # Temperature
+- backend/services/comprehensive_feature_engine.py: # Fahrenheit
+- backend/services/comprehensive_feature_engine.py: # vs seasonal avg
+- backend/services/comprehensive_feature_engine.py: # Wind
+- backend/services/comprehensive_feature_engine.py: # mph
+- backend/services/comprehensive_feature_engine.py: # degrees
+- backend/services/comprehensive_feature_engine.py: # Precipitation
+- backend/services/comprehensive_feature_engine.py: # percent
+- backend/services/comprehensive_feature_engine.py: # Combined weather impact
+- backend/services/comprehensive_feature_engine.py: # Indoor sports - minimal weather impact
+- backend/services/comprehensive_feature_engine.py: # Injury status
+- backend/services/comprehensive_feature_engine.py: # days
+- backend/services/comprehensive_feature_engine.py: # Sentiment analysis of injury reports
+- backend/services/comprehensive_feature_engine.py: # Load management
+- backend/services/comprehensive_feature_engine.py: # Team injury context
+- backend/services/comprehensive_feature_engine.py: # Recovery metrics
+- backend/services/comprehensive_feature_engine.py: # days
+- backend/services/comprehensive_feature_engine.py: # Line movement
+- backend/services/comprehensive_feature_engine.py: # Sharp money indicators
+- backend/services/comprehensive_feature_engine.py: # Market efficiency
+- backend/services/comprehensive_feature_engine.py: # Betting volume
+- backend/services/comprehensive_feature_engine.py: # Historical line performance
+- backend/services/comprehensive_feature_engine.py: # Historical prop performance
+- backend/services/comprehensive_feature_engine.py: # Value analysis
+- backend/services/comprehensive_feature_engine.py: # Streak analysis
+- backend/services/comprehensive_feature_engine.py: # Game pace
+- backend/services/comprehensive_feature_engine.py: # possessions for NBA
+- backend/services/comprehensive_feature_engine.py: # Scoring environment
+- backend/services/comprehensive_feature_engine.py: # NBA total
+- backend/services/comprehensive_feature_engine.py: # Game flow
+- backend/services/comprehensive_feature_engine.py: # Competitive balance
+- backend/services/comprehensive_feature_engine.py: # Officiating tendencies
+- backend/services/comprehensive_feature_engine.py: # vs league avg
+- backend/services/comprehensive_feature_engine.py: # Historical with referee
+- backend/services/comprehensive_feature_engine.py: # vs player avg
+- backend/services/comprehensive_feature_engine.py: # Referee consistency
+- backend/services/comprehensive_feature_engine.py: # Home court advantage
+- backend/services/comprehensive_feature_engine.py: # Venue characteristics
+- backend/services/comprehensive_feature_engine.py: # years
+- backend/services/comprehensive_feature_engine.py: # Historical performance at venue
+- backend/services/comprehensive_feature_engine.py: # vs overall avg
+- backend/services/comprehensive_feature_engine.py: # Simulate feature importance based on feature names
+- backend/services/comprehensive_feature_engine.py: # Normalize to sum to 1
+- backend/services/comprehensive_feature_engine.py: # Check for missing values
+- backend/services/comprehensive_feature_engine.py: # Check for feature diversity
+- backend/services/comprehensive_feature_engine.py: # Normalize
+- backend/services/comprehensive_feature_engine.py: # Check for reasonable ranges
+- backend/services/comprehensive_feature_engine.py: # Combined quality score
+- backend/services/comprehensive_feature_engine.py: # Add to history
+- backend/services/comprehensive_feature_engine.py: # Global service instance
+- backend/services/comprehensive_feature_engine.py: # For testing
+- backend/services/comprehensive_prizepicks_service.py: # Stub unresolved models
+- backend/services/comprehensive_prizepicks_service.py: # Modern SQLAlchemy base for ORM models
+- backend/services/comprehensive_prizepicks_service.py: # Return mock data instantly to avoid endpoint hangs
+- backend/services/comprehensive_prizepicks_service.py: ///prizepicks_data.db"):
+- backend/services/comprehensive_prizepicks_service.py: //api.prizepicks.com"
+- backend/services/comprehensive_prizepicks_service.py: # TODO: Implement scraping logic
+- backend/services/comprehensive_prizepicks_service.py: # Potentially raise a custom exception or trigger a fallback
+- backend/services/comprehensive_prizepicks_service.py: # General SQLAlchemy error
+- backend/services/comprehensive_prizepicks_service.py: # Keep this as a fallback for truly unexpected issues for now
+- backend/services/comprehensive_prizepicks_service.py: //app.prizepicks.com/",
+- backend/services/comprehensive_prizepicks_service.py: //app.prizepicks.com",
+- backend/services/comprehensive_prizepicks_service.py: # Ensure SSL verification is enabled
+- backend/services/comprehensive_prizepicks_service.py: # Load existing projections from database for immediate access
+- backend/services/comprehensive_prizepicks_service.py: # 🔍 DIAGNOSTIC: Track data loading
+- backend/services/comprehensive_prizepicks_service.py: # TODO: Implement loading of recent projections
+- backend/services/comprehensive_prizepicks_service.py: # try:
+- backend/services/comprehensive_prizepicks_service.py: #     logger.info("📊 Loading existing projections from database...")
+- backend/services/comprehensive_prizepicks_service.py: #     from datetime import datetime, timedelta
+- backend/services/comprehensive_prizepicks_service.py: #     recent_cutoff = datetime.now() - timedelta(hours=24)
+- backend/services/comprehensive_prizepicks_service.py: #     recent_projections = self.session.query(ProjectionHistory).filter(ProjectionHistory.fetched_at >= recent_cutoff).filter(ProjectionHistory.status.in_(["active", "pre_game", "open", "live"])).order_by(ProjectionHistory.fetched_at.desc()).all()
+- backend/services/comprehensive_prizepicks_service.py: #     logger.info(f"🔍 DIAGNOSTIC: Found {len(recent_projections)} records in database")
+- backend/services/comprehensive_prizepicks_service.py: #     for record in recent_projections:
+- backend/services/comprehensive_prizepicks_service.py: #         pass
+- backend/services/comprehensive_prizepicks_service.py: #     logger.info(f"✅ Loaded {len(recent_projections)} existing projections from database")
+- backend/services/comprehensive_prizepicks_service.py: # except Exception as e:
+- backend/services/comprehensive_prizepicks_service.py: #     logger.error(f"❌ Error loading existing projections: {e}")
+- backend/services/comprehensive_prizepicks_service.py: # Advanced anti-bot options
+- backend/services/comprehensive_prizepicks_service.py: # Optionally disable images for speed
+- backend/services/comprehensive_prizepicks_service.py: # Randomize user-agent
+- backend/services/comprehensive_prizepicks_service.py: # Proxy support (optional, add your proxies here)
+- backend/services/comprehensive_prizepicks_service.py: # e.g., ["http://proxy1:port", "http://proxy2:port"]
+- backend/services/comprehensive_prizepicks_service.py: # Headless mode (optional, but some sites block headless)
+- backend/services/comprehensive_prizepicks_service.py: # options.headless = True
+- backend/services/comprehensive_prizepicks_service.py: //app.prizepicks.com/")
+- backend/services/comprehensive_prizepicks_service.py: # Inject cookies
+- backend/services/comprehensive_prizepicks_service.py: # Wait for main content
+- backend/services/comprehensive_prizepicks_service.py: # Try multiple selectors for sport tabs
+- backend/services/comprehensive_prizepicks_service.py: # Iterate over each sport tab, click, and extract prop cards
+- backend/services/comprehensive_prizepicks_service.py: # Simulate human-like mouse movement and click
+- backend/services/comprehensive_prizepicks_service.py: # Wait for prop cards to load
+- backend/services/comprehensive_prizepicks_service.py: # Random delay between tabs
+- backend/services/comprehensive_prizepicks_service.py: # Deduplicate props by id
+- backend/services/comprehensive_prizepicks_service.py: # Run blocking Selenium in executor for async compatibility, with timeout
+- backend/services/comprehensive_prizepicks_service.py: # 60s timeout
+- backend/services/comprehensive_prizepicks_service.py: # Fetch all leagues first
+- backend/services/comprehensive_prizepicks_service.py: # Fetch projections for each league
+- backend/services/comprehensive_prizepicks_service.py: # Small delay to respect rate limits
+- backend/services/comprehensive_prizepicks_service.py: # Check cache first
+- backend/services/comprehensive_prizepicks_service.py: # Cache expired, remove it
+- backend/services/comprehensive_prizepicks_service.py: # Rate limiting
+- backend/services/comprehensive_prizepicks_service.py: # Prepare headers to mimic a real browser and avoid bot detection
+- backend/services/comprehensive_prizepicks_service.py: # Add API key if available (not required for PrizePicks)
+- backend/services/comprehensive_prizepicks_service.py: # if self.api_key:
+- backend/services/comprehensive_prizepicks_service.py: #     headers["Authorization"] = f"Bearer {self.api_key}"
+- backend/services/comprehensive_prizepicks_service.py: #     logger.debug("🔑 Using API key authentication")
+- backend/services/comprehensive_prizepicks_service.py: # else:
+- backend/services/comprehensive_prizepicks_service.py: # Implement rate limiting - ensure minimum time between requests
+- backend/services/comprehensive_prizepicks_service.py: # Retry logic with exponential backoff
+- backend/services/comprehensive_prizepicks_service.py: # Handle rate limiting with proper exponential backoff
+- backend/services/comprehensive_prizepicks_service.py: # Use exponential backoff with minimum wait time
+- backend/services/comprehensive_prizepicks_service.py: # 5, 10, 20 seconds
+- backend/services/comprehensive_prizepicks_service.py: # Ensure minimum wait time to avoid rapid retries
+- backend/services/comprehensive_prizepicks_service.py: # At least 5 seconds
+- backend/services/comprehensive_prizepicks_service.py: # Handle authentication errors
+- backend/services/comprehensive_prizepicks_service.py: # Cache successful response
+- backend/services/comprehensive_prizepicks_service.py: # Catch network errors, DNS errors, etc.
+- backend/services/comprehensive_prizepicks_service.py: # Increased per_page limit
+- backend/services/comprehensive_prizepicks_service.py: # Process included data for player and league info
+- backend/services/comprehensive_prizepicks_service.py: # Create lookup maps
+- backend/services/comprehensive_prizepicks_service.py: # Get player info
+- backend/services/comprehensive_prizepicks_service.py: # Get league info
+- backend/services/comprehensive_prizepicks_service.py: # Create PrizePicksProjection object
+- backend/services/comprehensive_prizepicks_service.py: # Store in current projections
+- backend/services/comprehensive_prizepicks_service.py: # Add to historical data
+- backend/services/comprehensive_prizepicks_service.py: # Update player trends
+- backend/services/comprehensive_prizepicks_service.py: # Store in database
+- backend/services/comprehensive_prizepicks_service.py: # await self.store_projection_history(projection)
+- backend/services/comprehensive_prizepicks_service.py: # async def store_projection_history(self, projection: Any):
+- backend/services/comprehensive_prizepicks_service.py: # Check if record already exists
+- backend/services/comprehensive_prizepicks_service.py: # async def analyze_projections_continuously(self):
+- backend/services/comprehensive_prizepicks_service.py: #     """Continuously analyze projections for value and accuracy"""
+- backend/services/comprehensive_prizepicks_service.py: #     while True:
+- backend/services/comprehensive_prizepicks_service.py: #         try:
+- backend/services/comprehensive_prizepicks_service.py: #             start_time = time.time()
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #             analyses_created = 0
+- backend/services/comprehensive_prizepicks_service.py: #             for projection_id, projection in self.current_projections.items():
+- backend/services/comprehensive_prizepicks_service.py: #                 if projection_id not in self.analysis_cache:
+- backend/services/comprehensive_prizepicks_service.py: #                     analysis = await self.analyze_projection(projection)
+- backend/services/comprehensive_prizepicks_service.py: #                     self.analysis_cache[projection_id] = analysis
+- backend/services/comprehensive_prizepicks_service.py: #                     analyses_created += 1
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #             analysis_time = time.time() - start_time
+- backend/services/comprehensive_prizepicks_service.py: #             logger.info(
+- backend/services/comprehensive_prizepicks_service.py: #                 f"📊 Created {analyses_created} new analyses in {analysis_time:.2f}s"
+- backend/services/comprehensive_prizepicks_service.py: #             )
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #             # Clean old cache entries
+- backend/services/comprehensive_prizepicks_service.py: #             self.clean_analysis_cache()
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #             await asyncio.sleep(60)  # Analyze every minute
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #         except Exception as e:
+- backend/services/comprehensive_prizepicks_service.py: #             logger.error(f"❌ Analysis error: {e}")
+- backend/services/comprehensive_prizepicks_service.py: #             await asyncio.sleep(30)
+- backend/services/comprehensive_prizepicks_service.py: # async def analyze_projection(
+- backend/services/comprehensive_prizepicks_service.py: #     # self, projection: Any
+- backend/services/comprehensive_prizepicks_service.py: # ) -> Any:
+- backend/services/comprehensive_prizepicks_service.py: #     """Analyze a single projection for value and accuracy"""
+- backend/services/comprehensive_prizepicks_service.py: #     try:
+- backend/services/comprehensive_prizepicks_service.py: #         # Get player historical performance
+- backend/services/comprehensive_prizepicks_service.py: #         player_history = await self.get_player_historical_performance(
+- backend/services/comprehensive_prizepicks_service.py: #             projection.player_id, projection.stat_type
+- backend/services/comprehensive_prizepicks_service.py: #         )
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #         # Calculate predicted value based on historical data
+- backend/services/comprehensive_prizepicks_service.py: #         predicted_value = self.calculate_predicted_value(player_history, projection)
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #         # Calculate confidence based on data quality and consistency
+- backend/services/comprehensive_prizepicks_service.py: #         confidence = self.calculate_prediction_confidence(
+- backend/services/comprehensive_prizepicks_service.py: #             player_history, projection
+- backend/services/comprehensive_prizepicks_service.py: #         )
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #         # Calculate value bet score
+- backend/services/comprehensive_prizepicks_service.py: #         value_score = self.calculate_value_bet_score(
+- backend/services/comprehensive_prizepicks_service.py: #             predicted_value, projection.line_score
+- backend/services/comprehensive_prizepicks_service.py: #         )
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #         # Generate recommendation
+- backend/services/comprehensive_prizepicks_service.py: #         recommendation = self.generate_recommendation(
+- backend/services/comprehensive_prizepicks_service.py: #             predicted_value, projection.line_score, confidence
+- backend/services/comprehensive_prizepicks_service.py: #         )
+- backend/services/comprehensive_prizepicks_service.py: # Create reasoning
+- backend/services/comprehensive_prizepicks_service.py: # Will be filled by market comparison service
+- backend/services/comprehensive_prizepicks_service.py: # def calculate_predicted_value(
+- backend/services/comprehensive_prizepicks_service.py: #     self, history: List[Dict], projection: Any
+- backend/services/comprehensive_prizepicks_service.py: # ) -> float:
+- backend/services/comprehensive_prizepicks_service.py: #     """Calculate predicted value based on historical performance"""
+- backend/services/comprehensive_prizepicks_service.py: #     if not history:
+- backend/services/comprehensive_prizepicks_service.py: #         return projection.line_score
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     # Get recent performance (last 10 games)
+- backend/services/comprehensive_prizepicks_service.py: #     recent_games = sorted(history, key=lambda x: x["game_date"], reverse=True)[:10]
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     if not recent_games:
+- backend/services/comprehensive_prizepicks_service.py: #         return projection.line_score
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     # Calculate weighted average (more recent games weighted higher)
+- backend/services/comprehensive_prizepicks_service.py: #     total_weight = 0
+- backend/services/comprehensive_prizepicks_service.py: #     weighted_sum = 0
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     for i, game in enumerate(recent_games):
+- backend/services/comprehensive_prizepicks_service.py: #         weight = 1.0 / (i + 1)  # Recent games get higher weight
+- backend/services/comprehensive_prizepicks_service.py: #         weighted_sum += game["actual_value"] * weight
+- backend/services/comprehensive_prizepicks_service.py: #         total_weight += weight
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     predicted = (
+- backend/services/comprehensive_prizepicks_service.py: #         weighted_sum / total_weight if total_weight > 0 else projection.line_score
+- backend/services/comprehensive_prizepicks_service.py: #     )
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     # Apply trend adjustment
+- backend/services/comprehensive_prizepicks_service.py: #     if len(recent_games) >= 5:
+- backend/services/comprehensive_prizepicks_service.py: #         trend = self.calculate_trend(recent_games[:5])
+- backend/services/comprehensive_prizepicks_service.py: #         predicted += trend * 0.1  # Small trend adjustment
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     return round(predicted, 1)
+- backend/services/comprehensive_prizepicks_service.py: # def calculate_prediction_confidence(
+- backend/services/comprehensive_prizepicks_service.py: #     self, history: List[Dict], projection: Any
+- backend/services/comprehensive_prizepicks_service.py: # ) -> float:
+- backend/services/comprehensive_prizepicks_service.py: #     """Calculate confidence in prediction based on data quality"""
+- backend/services/comprehensive_prizepicks_service.py: #     base_confidence = 0.5
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     if not history:
+- backend/services/comprehensive_prizepicks_service.py: #         return base_confidence
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     # Factor 1: Sample size
+- backend/services/comprehensive_prizepicks_service.py: #     sample_size_factor = min(len(history) / 20, 1.0) * 0.2
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     # Factor 2: Consistency (lower variance = higher confidence)
+- backend/services/comprehensive_prizepicks_service.py: #     values = [game["actual_value"] for game in history]
+- backend/services/comprehensive_prizepicks_service.py: #     if len(values) > 1:
+- backend/services/comprehensive_prizepicks_service.py: # Factor 3: Recency (more recent data = higher confidence)
+- backend/services/comprehensive_prizepicks_service.py: # Factor 4: League quality (some leagues have more predictable data)
+- backend/services/comprehensive_prizepicks_service.py: # Cap at 95%
+- backend/services/comprehensive_prizepicks_service.py: # Convert difference to value score (larger differences = higher value)
+- backend/services/comprehensive_prizepicks_service.py: # No significant value
+- backend/services/comprehensive_prizepicks_service.py: # Scale the value score
+- backend/services/comprehensive_prizepicks_service.py: # def generate_reasoning(
+- backend/services/comprehensive_prizepicks_service.py: #     self,
+- backend/services/comprehensive_prizepicks_service.py: #     history: List[Dict],
+- backend/services/comprehensive_prizepicks_service.py: #     predicted: float,
+- backend/services/comprehensive_prizepicks_service.py: #     projection: Any,
+- backend/services/comprehensive_prizepicks_service.py: #     confidence: float,
+- backend/services/comprehensive_prizepicks_service.py: # ) -> List[str]:
+- backend/services/comprehensive_prizepicks_service.py: #     """Generate human-readable reasoning for the analysis"""
+- backend/services/comprehensive_prizepicks_service.py: #     reasoning = []
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     if not history:
+- backend/services/comprehensive_prizepicks_service.py: #         reasoning.append("Limited historical data available")
+- backend/services/comprehensive_prizepicks_service.py: #         return reasoning
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     # Sample size reasoning
+- backend/services/comprehensive_prizepicks_service.py: #     reasoning.append(f"Based on {len(history)} historical games")
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     # Recent performance
+- backend/services/comprehensive_prizepicks_service.py: #     recent = sorted(history, key=lambda x: x["game_date"], reverse=True)[:5]
+- backend/services/comprehensive_prizepicks_service.py: #     if recent:
+- backend/services/comprehensive_prizepicks_service.py: # Trend analysis
+- backend/services/comprehensive_prizepicks_service.py: # Confidence reasoning
+- backend/services/comprehensive_prizepicks_service.py: # Value reasoning
+- backend/services/comprehensive_prizepicks_service.py: # Sort by date (oldest first for trend calculation)
+- backend/services/comprehensive_prizepicks_service.py: # Calculate simple linear trend
+- backend/services/comprehensive_prizepicks_service.py: # Calculate trend direction
+- backend/services/comprehensive_prizepicks_service.py: # def assess_risk(
+- backend/services/comprehensive_prizepicks_service.py: #     self, projection: Any, confidence: float
+- backend/services/comprehensive_prizepicks_service.py: # ) -> Dict[str, Any]:
+- backend/services/comprehensive_prizepicks_service.py: #     """Assess risk factors for the projection"""
+- backend/services/comprehensive_prizepicks_service.py: #     risk_factors = []
+- backend/services/comprehensive_prizepicks_service.py: #     risk_score = 0.0
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     # Time until game
+- backend/services/comprehensive_prizepicks_service.py: #     time_to_game = (
+- backend/services/comprehensive_prizepicks_service.py: #         projection.start_time - datetime.now(timezone.utc)
+- backend/services/comprehensive_prizepicks_service.py: #     ).total_seconds() / 3600
+- backend/services/comprehensive_prizepicks_service.py: #     if time_to_game < 2:  # Less than 2 hours
+- backend/services/comprehensive_prizepicks_service.py: #         risk_factors.append("Game starting soon - lineup changes possible")
+- backend/services/comprehensive_prizepicks_service.py: #         risk_score += 0.1
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     # Promotional props are riskier
+- backend/services/comprehensive_prizepicks_service.py: #     if projection.is_promo:
+- backend/services/comprehensive_prizepicks_service.py: #         risk_factors.append("Promotional prop - potentially boosted line")
+- backend/services/comprehensive_prizepicks_service.py: #         risk_score += 0.2
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     # Low confidence increases risk
+- backend/services/comprehensive_prizepicks_service.py: #     if confidence < 0.6:
+- backend/services/comprehensive_prizepicks_service.py: #         risk_factors.append("Low prediction confidence")
+- backend/services/comprehensive_prizepicks_service.py: #         risk_score += 0.3
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     # New players or limited data
+- backend/services/comprehensive_prizepicks_service.py: #     player_data_points = len(
+- backend/services/comprehensive_prizepicks_service.py: #         self.player_trends.get(f"{projection.player_id}_{projection.stat_type}", [])
+- backend/services/comprehensive_prizepicks_service.py: #     )
+- backend/services/comprehensive_prizepicks_service.py: #     if player_data_points < 5:
+- backend/services/comprehensive_prizepicks_service.py: #         risk_factors.append("Limited historical data for player")
+- backend/services/comprehensive_prizepicks_service.py: #         risk_score += 0.2
+- backend/services/comprehensive_prizepicks_service.py: #
+- backend/services/comprehensive_prizepicks_service.py: #     return {
+- backend/services/comprehensive_prizepicks_service.py: #         "risk_score": min(risk_score, 1.0),
+- backend/services/comprehensive_prizepicks_service.py: #         "risk_factors": risk_factors,
+- backend/services/comprehensive_prizepicks_service.py: #         "recommendation": (
+- backend/services/comprehensive_prizepicks_service.py: #             "HIGH_RISK"
+- backend/services/comprehensive_prizepicks_service.py: #             if risk_score > 0.5
+- backend/services/comprehensive_prizepicks_service.py: #             else "MODERATE_RISK" if risk_score > 0.2 else "LOW_RISK"
+- backend/services/comprehensive_prizepicks_service.py: #         ),
+- backend/services/comprehensive_prizepicks_service.py: #     }
+- backend/services/comprehensive_prizepicks_service.py: # Query last 50 games for the player and stat type
+- backend/services/comprehensive_prizepicks_service.py: # This would integrate with sports data APIs to get actual results
+- backend/services/comprehensive_prizepicks_service.py: # For now, we'll implement the framework
+- backend/services/comprehensive_prizepicks_service.py: # RESOLVED: Integrate with ESPN, NBA API, etc. to get actual game results
+- backend/services/comprehensive_prizepicks_service.py: # and update our accuracy tracking
+- backend/services/comprehensive_prizepicks_service.py: # Update every hour
+- backend/services/comprehensive_prizepicks_service.py: # Wait 30 minutes on error
+- backend/services/comprehensive_prizepicks_service.py: # 5%+ value
+- backend/services/comprehensive_prizepicks_service.py: # High confidence
+- backend/services/comprehensive_prizepicks_service.py: # Low risk
+- backend/services/comprehensive_prizepicks_service.py: # Sort by value score
+- backend/services/comprehensive_prizepicks_service.py: # Log top 3 opportunities
+- backend/services/comprehensive_prizepicks_service.py: # Check every 5 minutes
+- backend/services/comprehensive_prizepicks_service.py: # Remove analyses older than cache TTL
+- backend/services/comprehensive_prizepicks_service.py: # Sort by value score
+- backend/services/comprehensive_prizepicks_service.py: # Duplicate scrape_prizepicks_props method removed. Use the main async method defined earlier.
+- backend/services/comprehensive_prizepicks_service.py: # Removed unused helper functions safe_parse_datetime and safe_float
+- backend/services/comprehensive_prizepicks_service.py: # Update current_projections with new props
+- backend/services/comprehensive_prizepicks_service.py: # Scrape every 5 minutes
+- backend/services/comprehensive_prizepicks_service.py: # Global service instance
+- backend/services/comprehensive_prizepicks_service.py: # For testing: run the scraping logic directly and close browser
+- backend/services/comprehensive_sportsbook_integration.py: # "player_props", "game_lines", "futures"
+- backend/services/comprehensive_sportsbook_integration.py: # "points", "rebounds", "assists", "spread", "total"
+- backend/services/comprehensive_sportsbook_integration.py: # "over", "under", "neutral"
+- backend/services/comprehensive_sportsbook_integration.py: # "up", "down", "stable"
+- backend/services/comprehensive_sportsbook_integration.py: # 0-10 scale of weather impact on game
+- backend/services/comprehensive_sportsbook_integration.py: # "out", "questionable", "probable", "healthy"
+- backend/services/comprehensive_sportsbook_integration.py: # 0-10 scale of impact on performance
+- backend/services/comprehensive_sportsbook_integration.py: # Performance tracking
+- backend/services/comprehensive_sportsbook_integration.py: # Configuration
+- backend/services/comprehensive_sportsbook_integration.py: # 5 minutes
+- backend/services/comprehensive_sportsbook_integration.py: # 10 minutes
+- backend/services/comprehensive_sportsbook_integration.py: # 5 minutes
+- backend/services/comprehensive_sportsbook_integration.py: # 10 minutes
+- backend/services/comprehensive_sportsbook_integration.py: # 5 minutes
+- backend/services/comprehensive_sportsbook_integration.py: # 30 minutes
+- backend/services/comprehensive_sportsbook_integration.py: # Initialize each provider
+- backend/services/comprehensive_sportsbook_integration.py: # Note: Premium providers would require API keys
+- backend/services/comprehensive_sportsbook_integration.py: # self.providers[SportsbookProvider.PINNACLE] = PinnacleProvider(api_key="...")
+- backend/services/comprehensive_sportsbook_integration.py: # self.providers[SportsbookProvider.DRAFTKINGS] = DraftKingsProvider(api_key="...")
+- backend/services/comprehensive_sportsbook_integration.py: # Start background tasks for each provider
+- backend/services/comprehensive_sportsbook_integration.py: # Start analysis tasks
+- backend/services/comprehensive_sportsbook_integration.py: # Fetch data from provider
+- backend/services/comprehensive_sportsbook_integration.py: # Update metrics
+- backend/services/comprehensive_sportsbook_integration.py: # Wait 1 minute on error
+- backend/services/comprehensive_sportsbook_integration.py: # Convert to standardized format
+- backend/services/comprehensive_sportsbook_integration.py: # Store odds data
+- backend/services/comprehensive_sportsbook_integration.py: # Keep only recent data (last 24 hours)
+- backend/services/comprehensive_sportsbook_integration.py: # Temperature impact
+- backend/services/comprehensive_sportsbook_integration.py: # Extreme temperatures
+- backend/services/comprehensive_sportsbook_integration.py: # Uncomfortable temperatures
+- backend/services/comprehensive_sportsbook_integration.py: # Wind impact
+- backend/services/comprehensive_sportsbook_integration.py: # High wind
+- backend/services/comprehensive_sportsbook_integration.py: # Moderate wind
+- backend/services/comprehensive_sportsbook_integration.py: # Precipitation impact
+- backend/services/comprehensive_sportsbook_integration.py: # Heavy rain/snow
+- backend/services/comprehensive_sportsbook_integration.py: # Light precipitation
+- backend/services/comprehensive_sportsbook_integration.py: # Visibility impact
+- backend/services/comprehensive_sportsbook_integration.py: # Poor visibility
+- backend/services/comprehensive_sportsbook_integration.py: # Analyze each market
+- backend/services/comprehensive_sportsbook_integration.py: # Need at least 2 providers for comparison
+- backend/services/comprehensive_sportsbook_integration.py: # Analyze every minute
+- backend/services/comprehensive_sportsbook_integration.py: # Get most recent odds from each provider
+- backend/services/comprehensive_sportsbook_integration.py: # Find best lines and odds
+- backend/services/comprehensive_sportsbook_integration.py: # Calculate arbitrage opportunity
+- backend/services/comprehensive_sportsbook_integration.py: # Calculate market efficiency
+- backend/services/comprehensive_sportsbook_integration.py: # Analyze line movement
+- backend/services/comprehensive_sportsbook_integration.py: # Detect sharp money and steam moves
+- backend/services/comprehensive_sportsbook_integration.py: # Would need public betting data
+- backend/services/comprehensive_sportsbook_integration.py: # Convert American odds to decimal
+- backend/services/comprehensive_sportsbook_integration.py: # Calculate implied probabilities
+- backend/services/comprehensive_sportsbook_integration.py: # Arbitrage profit = 1 - (1/over_odds + 1/under_odds)
+- backend/services/comprehensive_sportsbook_integration.py: # Default efficiency
+- backend/services/comprehensive_sportsbook_integration.py: # Lower standard deviation = higher efficiency
+- backend/services/comprehensive_sportsbook_integration.py: # Sort by timestamp
+- backend/services/comprehensive_sportsbook_integration.py: # Compare first and last lines
+- backend/services/comprehensive_sportsbook_integration.py: # Analyze sharp money direction
+- backend/services/comprehensive_sportsbook_integration.py: # This would require more sophisticated analysis in production
+- backend/services/comprehensive_sportsbook_integration.py: # Placeholder
+- backend/services/comprehensive_sportsbook_integration.py: # Look for rapid line movement in last 30 minutes
+- backend/services/comprehensive_sportsbook_integration.py: # Check for significant line movement
+- backend/services/comprehensive_sportsbook_integration.py: # Significant movement threshold
+- backend/services/comprehensive_sportsbook_integration.py: # This would require public betting percentage data
+- backend/services/comprehensive_sportsbook_integration.py: # Placeholder implementation
+- backend/services/comprehensive_sportsbook_integration.py: # Sort by profit
+- backend/services/comprehensive_sportsbook_integration.py: # Log top opportunities
+- backend/services/comprehensive_sportsbook_integration.py: # Check every 2 minutes
+- backend/services/comprehensive_sportsbook_integration.py: # Check every 3 minutes
+- backend/services/comprehensive_sportsbook_integration.py: # Check every 5 minutes
+- backend/services/comprehensive_sportsbook_integration.py: # API Methods for external access
+- backend/services/comprehensive_sportsbook_integration.py: # Provider Classes (Simplified implementations - would be expanded in production)
+- backend/services/comprehensive_sportsbook_integration.py: # This would use a real API key and fetch from api.the-odds-api.com
+- backend/services/comprehensive_sportsbook_integration.py: # Global service instance
+- backend/services/comprehensive_sportsbook_integration.py: # For testing
+- backend/services/data_fetchers.py: # Import intelligent ensemble system
+- backend/services/data_fetchers.py: # Import real data service
+- backend/services/data_fetchers.py: # SportRadar MLB Daily Schedule API (2025 season)
+- backend/services/data_fetchers.py: //api.sportradar.us/mlb/trial/v7/en/games/2025/07/08/schedule.json?api_key={api_key}"
+- backend/services/data_fetchers.py: # Enhance existing props with SportRadar data
+- backend/services/data_fetchers.py: # Add SportRadar enhanced data
+- backend/services/data_fetchers.py: # Get more accurate lines and confidence from SportRadar
+- backend/services/data_fetchers.py: # Enhance pitcher strikeout props with SportRadar data
+- backend/services/data_fetchers.py: # Enhance home run props with SportRadar data
+- backend/services/data_fetchers.py: # TheOdds API for MLB odds
+- backend/services/data_fetchers.py: //api.the-odds-api.com/v4/sports/baseball_mlb/odds?apiKey={api_key}&regions=us&markets=h2h,spreads,totals"
+- backend/services/data_fetchers.py: # Enhance props with real odds data
+- backend/services/data_fetchers.py: # Update with real market odds
+- backend/services/data_fetchers.py: # Adjust odds based on real market data
+- backend/services/data_fetchers.py: # More realistic odds from TheOdds
+- backend/services/data_fetchers.py: # Improve confidence based on market consensus
+- backend/services/data_fetchers.py: # Note: DailyFantasy API implementation would go here
+- backend/services/data_fetchers.py: # For now, just mark as enhanced since we don't have the real key
+- backend/services/data_fetchers.py: # Use real data service for production-ready betting opportunities
+- backend/services/data_fetchers.py: # Fallback: minimal real data instead of mock
+- backend/services/data_fetchers.py: # Use real data service for database-backed performance stats
+- backend/services/data_fetchers.py: # Fallback: zero stats instead of mock data
+- backend/services/data_fetchers.py: # Import the real PrizePicks service
+- backend/services/data_fetchers.py: # Initialize the service
+- backend/services/data_fetchers.py: # Fetch real projections from API
+- backend/services/data_fetchers.py: # If we got real data, process it
+- backend/services/data_fetchers.py: # Convert to the expected format for frontend
+- backend/services/data_fetchers.py: # Calculate confidence based on historical data
+- backend/services/data_fetchers.py: # Default confidence
+- backend/services/data_fetchers.py: # Calculate expected value and Kelly fraction
+- backend/services/data_fetchers.py: # Determine recommendation
+- backend/services/data_fetchers.py: # Default odds
+- backend/services/data_fetchers.py: # Default odds
+- backend/services/data_fetchers.py: # Default venue
+- backend/services/data_fetchers.py: # If no real data available, return current realistic data
+- backend/services/data_fetchers.py: # Provide current realistic data instead of empty array
+- backend/services/data_fetchers.py: # Import seasonal utilities
+- backend/services/data_fetchers.py: # Fallback to local function if utility not available
+- backend/services/data_fetchers.py: # ✅ Use dynamic seasonal filtering instead of hardcoded July logic
+- backend/services/data_fetchers.py: # Determine off-season sports for logging
+- backend/services/data_fetchers.py: # MLB (IN SEASON)
+- backend/services/data_fetchers.py: # Create sample MLB props for current games
+- backend/services/data_fetchers.py: # WNBA (IN SEASON)
+- backend/services/data_fetchers.py: # MLS (IN SEASON)
+- backend/services/data_fetchers.py: # Year-round sports
+- backend/services/data_fetchers.py: # Get API keys from environment
+- backend/services/data_fetchers.py: # Current date analysis for what sports are in season (July 8, 2025)
+- backend/services/data_fetchers.py: # MLB: In season (April - October) ✅
+- backend/services/data_fetchers.py: # NBA: Off season (runs October - June) ❌
+- backend/services/data_fetchers.py: # NHL: Off season (runs October - June) ❌
+- backend/services/data_fetchers.py: # WNBA: In season (May - October) ✅
+- backend/services/data_fetchers.py: # MLS: In season (February - November) ✅
+- backend/services/data_fetchers.py: # Tennis: Year-round tournaments ✅
+- backend/services/data_fetchers.py: # Golf: Year-round tournaments ✅
+- backend/services/data_fetchers.py: # UFC: Year-round events ✅
+- backend/services/data_fetchers.py: # NASCAR: In season (February - November) ✅
+- backend/services/data_fetchers.py: # NFL: Off season (September - February) ❌
+- backend/services/data_fetchers.py: # Esports: Year-round ✅
+- backend/services/data_fetchers.py: # Define what sports are currently in season
+- backend/services/data_fetchers.py: # MLB (April-October: months 4-10)
+- backend/services/data_fetchers.py: # WNBA (May-October: months 5-10)
+- backend/services/data_fetchers.py: # MLS (February-November: months 2-11)
+- backend/services/data_fetchers.py: # Year-round sports
+- backend/services/data_fetchers.py: # NASCAR (February-November: months 2-11)
+- backend/services/data_fetchers.py: # Real player databases for common teams with correct positions
+- backend/services/data_fetchers.py: # PrizePicks standard stat types by sport
+- backend/services/data_fetchers.py: # Only fetch MLB if it's in season
+- backend/services/data_fetchers.py: //site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"
+- backend/services/data_fetchers.py: # Top 4 games
+- backend/services/data_fetchers.py: # Get real player names with correct positions
+- backend/services/data_fetchers.py: # Create multiple MLB props with real player names and correct positions
+- backend/services/data_fetchers.py: # Skip NBA - Off season in July (October-June season)
+- backend/services/data_fetchers.py: # Only fetch WNBA if it's in season
+- backend/services/data_fetchers.py: //site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard"
+- backend/services/data_fetchers.py: # Skip NHL - Off season in July (October-June season)
+- backend/services/data_fetchers.py: # Only fetch MLS if it's in season
+- backend/services/data_fetchers.py: //site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard"
+- backend/services/data_fetchers.py: # Year-round sports - Tennis (always in season)
+- backend/services/data_fetchers.py: # Year-round sports - Golf (always in season)
+- backend/services/data_fetchers.py: # Year-round sports - UFC (always in season)
+- backend/services/data_fetchers.py: # NASCAR if in season (February-November)
+- backend/services/data_fetchers.py: # Skip NFL - Off season in July (September-February season)
+- backend/services/data_fetchers.py: # Esports (year-round)
+- backend/services/data_fetchers.py: # Enhance with real external APIs
+- backend/services/data_fetchers.py: # Return minimal fallback data even if everything fails
+- backend/services/data_fetchers.py: # Get real player names with correct positions
+- backend/services/data_fetchers.py: # Select appropriate players for prop types
+- backend/services/data_fetchers.py: # If no pitcher found, use any player but mark as pitcher
+- backend/services/data_fetchers.py: # Create multiple props per team with real player names and correct positions
+- backend/services/data_fetchers.py: # Skip NBA - Off season in July (October-June season)
+- backend/services/data_fetchers.py: # ...existing code...
+- backend/services/data_fetchers.py: # Only fetch WNBA if it's in season
+- backend/services/data_fetchers.py: //site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard"
+- backend/services/data_fetchers.py: # Skip NHL - Off season in July (October-June season)
+- backend/services/data_fetchers.py: # Only fetch MLS if it's in season
+- backend/services/data_fetchers.py: //site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard"
+- backend/services/data_fetchers.py: # MLS - Soccer
+- backend/services/data_fetchers.py: //site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard"
+- backend/services/data_fetchers.py: # Add popular sports that might not have current games
+- backend/services/data_fetchers.py: # Tennis - ATP/WTA
+- backend/services/data_fetchers.py: # Add 3 tennis props
+- backend/services/data_fetchers.py: # Golf - PGA
+- backend/services/data_fetchers.py: # Add 2 golf props
+- backend/services/data_fetchers.py: # UFC/MMA
+- backend/services/data_fetchers.py: # Add 2 UFC props
+- backend/services/data_fetchers.py: # NASCAR
+- backend/services/data_fetchers.py: # Add 2 NASCAR props
+- backend/services/data_fetchers.py: # Add NFL (even in off-season, might have props for futures/awards)
+- backend/services/data_fetchers.py: # Add 3 NFL props
+- backend/services/data_fetchers.py: # Esports
+- backend/services/data_fetchers.py: # Add 2 esports props
+- backend/services/data_fetchers.py: # Enhance with real API keys if available
+- backend/services/data_fetchers.py: # Generate some fallback game times if we don't have any
+- backend/services/data_fetchers.py: # Create comprehensive fallback props for all major sports
+- backend/services/data_fetchers.py: # Return minimal fallback data even if everything fails
+- backend/services/data_fetchers.py: # Production-ready realistic props data for ACTIVE sports (late June/July)
+- backend/services/data_fetchers.py: # 7 PM
+- backend/services/data_fetchers.py: # 8:30 PM
+- backend/services/data_fetchers.py: # 10 PM
+- backend/services/data_fetchers.py: # MLB Props (Active Season)
+- backend/services/data_fetchers.py: //site.api.espn.com/apis/site/v2/sports/{sp}/scoreboard"
+- backend/services/data_fetchers.py: # Determine scores
+- backend/services/data_fetchers.py: //site.api.espn.com/apis/site/v2/sports/{sp}/news"
+- backend/services/data_fetchers.py: //site.api.espn.com/apis/site/v2/sports/{sp}/injuries"
+- backend/services/data_fetchers_backup.py: # Import intelligent ensemble system
+- backend/services/data_fetchers_backup.py: # Import real data service
+- backend/services/data_fetchers_backup.py: # SportRadar MLB Daily Schedule API (2025 season)
+- backend/services/data_fetchers_backup.py: //api.sportradar.us/mlb/trial/v7/en/games/2025/07/08/schedule.json?api_key={api_key}"
+- backend/services/data_fetchers_backup.py: # Enhance existing props with SportRadar data
+- backend/services/data_fetchers_backup.py: # Add SportRadar enhanced data
+- backend/services/data_fetchers_backup.py: # Get more accurate lines and confidence from SportRadar
+- backend/services/data_fetchers_backup.py: # Enhance pitcher strikeout props with SportRadar data
+- backend/services/data_fetchers_backup.py: # Enhance home run props with SportRadar data
+- backend/services/data_fetchers_backup.py: # TheOdds API for MLB odds
+- backend/services/data_fetchers_backup.py: //api.the-odds-api.com/v4/sports/baseball_mlb/odds?apiKey={api_key}&regions=us&markets=h2h,spreads,totals"
+- backend/services/data_fetchers_backup.py: # Enhance props with real odds data
+- backend/services/data_fetchers_backup.py: # Update with real market odds
+- backend/services/data_fetchers_backup.py: # Adjust odds based on real market data
+- backend/services/data_fetchers_backup.py: # More realistic odds from TheOdds
+- backend/services/data_fetchers_backup.py: # Improve confidence based on market consensus
+- backend/services/data_fetchers_backup.py: # Note: DailyFantasy API implementation would go here
+- backend/services/data_fetchers_backup.py: # For now, just mark as enhanced since we don't have the real key
+- backend/services/data_fetchers_backup.py: # Use real data service for production-ready betting opportunities
+- backend/services/data_fetchers_backup.py: # Fallback: minimal real data instead of mock
+- backend/services/data_fetchers_backup.py: # Use real data service for database-backed performance stats
+- backend/services/data_fetchers_backup.py: # Fallback: zero stats instead of mock data
+- backend/services/data_fetchers_backup.py: # Import the real PrizePicks service
+- backend/services/data_fetchers_backup.py: # Initialize the service
+- backend/services/data_fetchers_backup.py: # Fetch real projections from API
+- backend/services/data_fetchers_backup.py: # If we got real data, process it
+- backend/services/data_fetchers_backup.py: # Convert to the expected format for frontend
+- backend/services/data_fetchers_backup.py: # Calculate confidence based on historical data
+- backend/services/data_fetchers_backup.py: # Default confidence
+- backend/services/data_fetchers_backup.py: # Calculate expected value and Kelly fraction
+- backend/services/data_fetchers_backup.py: # Determine recommendation
+- backend/services/data_fetchers_backup.py: # Default odds
+- backend/services/data_fetchers_backup.py: # Default odds
+- backend/services/data_fetchers_backup.py: # Default venue
+- backend/services/data_fetchers_backup.py: # If no real data available, return current realistic data
+- backend/services/data_fetchers_backup.py: # Provide current realistic data instead of empty array
+- backend/services/data_fetchers_backup.py: # Define what sports are currently in season for July
+- backend/services/data_fetchers_backup.py: # MLB (April-October: months 4-10)
+- backend/services/data_fetchers_backup.py: # WNBA (May-October: months 5-10)
+- backend/services/data_fetchers_backup.py: # MLS (February-November: months 2-11)
+- backend/services/data_fetchers_backup.py: # Year-round sports
+- backend/services/data_fetchers_backup.py: # NASCAR (February-November: months 2-11)
+- backend/services/data_fetchers_backup.py: # MLB (IN SEASON)
+- backend/services/data_fetchers_backup.py: # Create sample MLB props for current games
+- backend/services/data_fetchers_backup.py: # WNBA (IN SEASON)
+- backend/services/data_fetchers_backup.py: # MLS (IN SEASON)
+- backend/services/data_fetchers_backup.py: # Year-round sports
+- backend/services/data_fetchers_backup.py: # Get API keys from environment
+- backend/services/data_fetchers_backup.py: # Current date analysis for what sports are in season (July 8, 2025)
+- backend/services/data_fetchers_backup.py: # MLB: In season (April - October) ✅
+- backend/services/data_fetchers_backup.py: # NBA: Off season (runs October - June) ❌
+- backend/services/data_fetchers_backup.py: # NHL: Off season (runs October - June) ❌
+- backend/services/data_fetchers_backup.py: # WNBA: In season (May - October) ✅
+- backend/services/data_fetchers_backup.py: # MLS: In season (February - November) ✅
+- backend/services/data_fetchers_backup.py: # Tennis: Year-round tournaments ✅
+- backend/services/data_fetchers_backup.py: # Golf: Year-round tournaments ✅
+- backend/services/data_fetchers_backup.py: # UFC: Year-round events ✅
+- backend/services/data_fetchers_backup.py: # NASCAR: In season (February - November) ✅
+- backend/services/data_fetchers_backup.py: # NFL: Off season (September - February) ❌
+- backend/services/data_fetchers_backup.py: # Esports: Year-round ✅
+- backend/services/data_fetchers_backup.py: # Define what sports are currently in season
+- backend/services/data_fetchers_backup.py: # MLB (April-October: months 4-10)
+- backend/services/data_fetchers_backup.py: # WNBA (May-October: months 5-10)
+- backend/services/data_fetchers_backup.py: # MLS (February-November: months 2-11)
+- backend/services/data_fetchers_backup.py: # Year-round sports
+- backend/services/data_fetchers_backup.py: # NASCAR (February-November: months 2-11)
+- backend/services/data_fetchers_backup.py: # Real player databases for common teams with correct positions
+- backend/services/data_fetchers_backup.py: # PrizePicks standard stat types by sport
+- backend/services/data_fetchers_backup.py: # Only fetch MLB if it's in season
+- backend/services/data_fetchers_backup.py: //site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"
+- backend/services/data_fetchers_backup.py: # Top 4 games
+- backend/services/data_fetchers_backup.py: # Get real player names with correct positions
+- backend/services/data_fetchers_backup.py: # Create multiple MLB props with real player names and correct positions
+- backend/services/data_fetchers_backup.py: # Skip NBA - Off season in July (October-June season)
+- backend/services/data_fetchers_backup.py: # Only fetch WNBA if it's in season
+- backend/services/data_fetchers_backup.py: //site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard"
+- backend/services/data_fetchers_backup.py: # Skip NHL - Off season in July (October-June season)
+- backend/services/data_fetchers_backup.py: # Only fetch MLS if it's in season
+- backend/services/data_fetchers_backup.py: //site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard"
+- backend/services/data_fetchers_backup.py: # Year-round sports - Tennis (always in season)
+- backend/services/data_fetchers_backup.py: # Year-round sports - Golf (always in season)
+- backend/services/data_fetchers_backup.py: # Year-round sports - UFC (always in season)
+- backend/services/data_fetchers_backup.py: # NASCAR if in season (February-November)
+- backend/services/data_fetchers_backup.py: # Skip NFL - Off season in July (September-February season)
+- backend/services/data_fetchers_backup.py: # Esports (year-round)
+- backend/services/data_fetchers_backup.py: # Enhance with real external APIs
+- backend/services/data_fetchers_backup.py: # Return minimal fallback data even if everything fails
+- backend/services/data_fetchers_backup.py: # Get real player names with correct positions
+- backend/services/data_fetchers_backup.py: # Select appropriate players for prop types
+- backend/services/data_fetchers_backup.py: # If no pitcher found, use any player but mark as pitcher
+- backend/services/data_fetchers_backup.py: # Create multiple props per team with real player names and correct positions
+- backend/services/data_fetchers_backup.py: # Skip NBA - Off season in July (October-June season)
+- backend/services/data_fetchers_backup.py: # Commented out NBA section - off season
+- backend/services/data_fetchers_backup.py: # NBA - Basketball
+- backend/services/data_fetchers_backup.py: //site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+- backend/services/data_fetchers_backup.py: # More games
+- backend/services/data_fetchers_backup.py: # Get real player names with correct positions
+- backend/services/data_fetchers_backup.py: # Create multiple NBA props with real player names and correct positions
+- backend/services/data_fetchers_backup.py: # Only fetch WNBA if it's in season
+- backend/services/data_fetchers_backup.py: //site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard"
+- backend/services/data_fetchers_backup.py: # Skip NHL - Off season in July (October-June season)
+- backend/services/data_fetchers_backup.py: # Only fetch MLS if it's in season
+- backend/services/data_fetchers_backup.py: //site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard"
+- backend/services/data_fetchers_backup.py: # MLS - Soccer
+- backend/services/data_fetchers_backup.py: //site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard"
+- backend/services/data_fetchers_backup.py: # Add popular sports that might not have current games
+- backend/services/data_fetchers_backup.py: # Tennis - ATP/WTA
+- backend/services/data_fetchers_backup.py: # Add 3 tennis props
+- backend/services/data_fetchers_backup.py: # Golf - PGA
+- backend/services/data_fetchers_backup.py: # Add 2 golf props
+- backend/services/data_fetchers_backup.py: # UFC/MMA
+- backend/services/data_fetchers_backup.py: # Add 2 UFC props
+- backend/services/data_fetchers_backup.py: # NASCAR
+- backend/services/data_fetchers_backup.py: # Add 2 NASCAR props
+- backend/services/data_fetchers_backup.py: # Add NFL (even in off-season, might have props for futures/awards)
+- backend/services/data_fetchers_backup.py: # Add 3 NFL props
+- backend/services/data_fetchers_backup.py: # Esports
+- backend/services/data_fetchers_backup.py: # Add 2 esports props
+- backend/services/data_fetchers_backup.py: # Enhance with real API keys if available
+- backend/services/data_fetchers_backup.py: # Generate some fallback game times if we don't have any
+- backend/services/data_fetchers_backup.py: # Create comprehensive fallback props for all major sports
+- backend/services/data_fetchers_backup.py: # Return minimal fallback data even if everything fails
+- backend/services/data_fetchers_backup.py: # Production-ready realistic props data for ACTIVE sports (late June/July)
+- backend/services/data_fetchers_backup.py: # 7 PM
+- backend/services/data_fetchers_backup.py: # 8:30 PM
+- backend/services/data_fetchers_backup.py: # 10 PM
+- backend/services/data_fetchers_backup.py: # MLB Props (Active Season)
+- backend/services/data_fetchers_backup.py: //site.api.espn.com/apis/site/v2/sports/{sp}/scoreboard"
+- backend/services/data_fetchers_backup.py: # Determine scores
+- backend/services/data_fetchers_backup.py: //site.api.espn.com/apis/site/v2/sports/{sp}/news"
+- backend/services/data_fetchers_backup.py: //site.api.espn.com/apis/site/v2/sports/{sp}/injuries"
+- backend/services/data_fetchers_enhanced.py: # Try to import the intelligent ensemble system
+- backend/services/data_fetchers_enhanced.py: # Get base props data
+- backend/services/data_fetchers_enhanced.py: # If ensemble system is available, enhance props with predictions
+- backend/services/data_fetchers_enhanced.py: # Get ensemble prediction for this prop
+- backend/services/data_fetchers_enhanced.py: # Enhance prop with ensemble data
+- backend/services/data_fetchers_enhanced.py: # Generate AI explanation for the prop
+- backend/services/data_fetchers_enhanced.py: # Keep original prop if enhancement fails
+- backend/services/data_fetchers_enhanced.py: # Get props if not provided
+- backend/services/data_fetchers_enhanced.py: # Use ensemble system if available
+- backend/services/data_fetchers_enhanced.py: # Sort props by confidence and expected value
+- backend/services/data_fetchers_enhanced.py: # Simple scoring: confidence * expected_value
+- backend/services/data_fetchers_enhanced.py: # Sort by score (highest first)
+- backend/services/data_fetchers_enhanced.py: # Select top props
+- backend/services/data_fetchers_enhanced.py: # Calculate basic metrics
+- backend/services/data_fetchers_enhanced.py: # Simple combined win probability (very rough estimate)
+- backend/services/data_fetchers_enhanced.py: # Rough conversion
+- backend/services/data_fetchers_enhanced.py: # Generate recommendation
+- backend/services/data_fetchers_enhanced.py: # Define what sports are currently in season
+- backend/services/data_fetchers_enhanced.py: # MLB (April-October: months 4-10)
+- backend/services/data_fetchers_enhanced.py: # WNBA (May-October: months 5-10)
+- backend/services/data_fetchers_enhanced.py: # MLS (February-November: months 2-11)
+- backend/services/data_fetchers_enhanced.py: # Year-round sports
+- backend/services/data_fetchers_enhanced.py: # NASCAR (February-November: months 2-11)
+- backend/services/data_fetchers_enhanced.py: # Get API keys
+- backend/services/data_fetchers_enhanced.py: # Create client with shorter timeout to prevent hanging
+- backend/services/data_fetchers_enhanced.py: # MLB (IN SEASON)
+- backend/services/data_fetchers_enhanced.py: # WNBA (IN SEASON)
+- backend/services/data_fetchers_enhanced.py: # MLS (IN SEASON)
+- backend/services/data_fetchers_enhanced.py: # Year-round sports
+- backend/services/data_fetchers_enhanced.py: # Skip external API enhancement if we have timeout issues
+- backend/services/data_fetchers_enhanced.py: # Try to fetch from ESPN API with shorter timeout
+- backend/services/data_fetchers_enhanced.py: //site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard",
+- backend/services/data_fetchers_enhanced.py: # 5 second timeout
+- backend/services/data_fetchers_enhanced.py: # Real MLB players with their actual teams
+- backend/services/data_fetchers_enhanced.py: # Process real games from ESPN
+- backend/services/data_fetchers_enhanced.py: # Top 4 games
+- backend/services/data_fetchers_enhanced.py: # Get real game time
+- backend/services/data_fetchers_enhanced.py: # Get venue name
+- backend/services/data_fetchers_enhanced.py: # Match players to teams in this game
+- backend/services/data_fetchers_enhanced.py: # Use any player for this game
+- backend/services/data_fetchers_enhanced.py: # Generate realistic line values based on stat type
+- backend/services/data_fetchers_enhanced.py: # Total Bases
+- backend/services/data_fetchers_enhanced.py: # If no games found, create some props with default real data
+- backend/services/data_fetchers_enhanced.py: # Try to fetch WNBA data with timeout
+- backend/services/data_fetchers_enhanced.py: //site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard",
+- backend/services/data_fetchers_enhanced.py: # 5 second timeout
+- backend/services/data_fetchers_enhanced.py: # Process real games
+- backend/services/data_fetchers_enhanced.py: # Get real game time
+- backend/services/data_fetchers_enhanced.py: # Get venue name
+- backend/services/data_fetchers_enhanced.py: # Generate realistic line values based on stat type
+- backend/services/data_fetchers_enhanced.py: # Assists
+- backend/services/data_fetchers_enhanced.py: # Fallback if no games found
+- backend/services/data_fetchers_enhanced.py: # SportRadar MLB Daily Schedule API
+- backend/services/data_fetchers_enhanced.py: //api.sportradar.us/mlb/trial/v7/en/games/2025/07/08/schedule.json?api_key={api_key}"
+- backend/services/data_fetchers_enhanced.py: # Enhance MLB props with SportRadar data
+- backend/services/data_fetchers_enhanced.py: # Increase confidence with real data
+- backend/services/data_fetchers_enhanced.py: # TheOdds API for MLB odds
+- backend/services/data_fetchers_enhanced.py: //api.the-odds-api.com/v4/sports/baseball_mlb/odds?apiKey={api_key}&regions=us&markets=h2h,spreads,totals"
+- backend/services/data_fetchers_enhanced.py: # Enhance props with real odds data
+- backend/services/data_fetchers_enhanced.py: # Update with more realistic market odds
+- backend/services/data_fetchers_enhanced.py: # Create comprehensive prompt for AI explanation
+- backend/services/data_fetchers_enhanced.py: # Generate AI explanation using LLM
+- backend/services/data_fetchers_enhanced.py: # Map different stat types to realistic ranges
+- backend/services/data_fetchers_enhanced.py: # Scale the raw score to the realistic range
+- backend/services/data_fetchers_enhanced.py: # Ensure 0-1 range
+- backend/services/data_fetchers_enhanced.py: # Round to appropriate precision
+- backend/services/data_fetchers_enhanced.py: # Round to nearest 0.5
+- backend/services/data_fetchers_enhanced.py: # Default formatting for unknown stat types
+- backend/services/data_fetchers_enhanced.py: # Calculate implied probability from confidence
+- backend/services/data_fetchers_enhanced.py: # Calculate value rating (difference from fair odds)
+- backend/services/data_fetchers_enhanced.py: # Standard -110 odds = 1.91
+- backend/services/data_fetchers_enhanced.py: # Calculate Kelly criterion percentage
+- backend/services/data_fetchers_enhanced.py: # Cap at 25%
+- backend/services/data_fetchers_enhanced.py: # Risk score based on confidence and volatility
+- backend/services/data_fetchers_enhanced.py: # Format line score properly
+- backend/services/data_fetchers_enhanced.py: # Add betting metrics
+- backend/services/data_fetchers_temp.py: # Generate realistic mock data
+- backend/services/data_fetchers_temp.py: # Sort by expected value and confidence
+- backend/services/data_fetchers_temp.py: # Take top props for lineup
+- backend/services/data_fetchers_working.py: # Define what sports are currently in season for July
+- backend/services/data_fetchers_working.py: # MLB (April-October: months 4-10)
+- backend/services/data_fetchers_working.py: # WNBA (May-October: months 5-10)
+- backend/services/data_fetchers_working.py: # MLS (February-November: months 2-11)
+- backend/services/data_fetchers_working.py: # Year-round sports
+- backend/services/data_fetchers_working.py: # NASCAR (February-November: months 2-11)
+- backend/services/data_fetchers_working.py: # MLB (IN SEASON)
+- backend/services/data_fetchers_working.py: # Create sample MLB props for current games
+- backend/services/data_fetchers_working.py: # WNBA (IN SEASON)
+- backend/services/data_fetchers_working.py: # MLS (IN SEASON)
+- backend/services/data_fetchers_working.py: # Year-round sports
+- backend/services/database_service.py: # Unified Base for all models
+- backend/services/database_service.py: # Database setup
+- backend/services/database_service.py: # Relationships
+- backend/services/database_service.py: # Relationships
+- backend/services/database_service.py: # Relationships
+- backend/services/database_service.py: # Session will be closed by caller
+- backend/services/database_service.py: # Initialize database and create singleton
+- backend/services/database_service.py: # Create a minimal fallback service
+- backend/services/enhanced_ml_ensemble_service.py: # 5 minutes
+- backend/services/enhanced_ml_ensemble_service.py: # Load existing trained models
+- backend/services/enhanced_ml_ensemble_service.py: # Initialize feature engineering
+- backend/services/enhanced_ml_ensemble_service.py: # Validate model integrity
+- backend/services/enhanced_ml_ensemble_service.py: # Load the win probability model
+- backend/services/enhanced_ml_ensemble_service.py: # Check for other model files
+- backend/services/enhanced_ml_ensemble_service.py: # Create basic feature scalers if not exist
+- backend/services/enhanced_ml_ensemble_service.py: # Initialize scalers for different data types
+- backend/services/enhanced_ml_ensemble_service.py: # Basic validation - check if model has predict method
+- backend/services/enhanced_ml_ensemble_service.py: # Handle packaged models
+- backend/services/enhanced_ml_ensemble_service.py: # Check cache first
+- backend/services/enhanced_ml_ensemble_service.py: # Generate features if not provided
+- backend/services/enhanced_ml_ensemble_service.py: # Get predictions from all available models
+- backend/services/enhanced_ml_ensemble_service.py: # Calculate ensemble prediction
+- backend/services/enhanced_ml_ensemble_service.py: # Cache result
+- backend/services/enhanced_ml_ensemble_service.py: # Basic feature set - in production this would be much more comprehensive
+- backend/services/enhanced_ml_ensemble_service.py: # Player features
+- backend/services/enhanced_ml_ensemble_service.py: # Statistical features (would come from real data in production)
+- backend/services/enhanced_ml_ensemble_service.py: # Game context features
+- backend/services/enhanced_ml_ensemble_service.py: # Market features
+- backend/services/enhanced_ml_ensemble_service.py: # Convert features to array for sklearn models
+- backend/services/enhanced_ml_ensemble_service.py: # Direct model prediction
+- backend/services/enhanced_ml_ensemble_service.py: # Probability prediction
+- backend/services/enhanced_ml_ensemble_service.py: # Handle packaged models
+- backend/services/enhanced_ml_ensemble_service.py: # Add synthetic model predictions for ensemble robustness
+- backend/services/enhanced_ml_ensemble_service.py: # Calculate weighted average
+- backend/services/enhanced_ml_ensemble_service.py: # Default weight
+- backend/services/enhanced_ml_ensemble_service.py: # Calculate confidence based on model agreement
+- backend/services/enhanced_ml_ensemble_service.py: # Ensemble confidence (slightly higher due to multiple models)
+- backend/services/enhanced_ml_ensemble_service.py: # Calculate probabilities
+- backend/services/enhanced_ml_ensemble_service.py: # Generate recommendation
+- backend/services/enhanced_ml_ensemble_service.py: # Calculate risk score (lower is better)
+- backend/services/enhanced_ml_ensemble_service.py: # Calculate Kelly fraction and expected value
+- backend/services/enhanced_ml_ensemble_service.py: # Assuming -110 odds
+- backend/services/enhanced_ml_ensemble_service.py: # Generate reasoning
+- backend/services/enhanced_ml_ensemble_service.py: # Feature importance (simplified)
+- backend/services/enhanced_ml_ensemble_service.py: # Use a sigmoid-like function for smooth probability calculation
+- backend/services/enhanced_ml_ensemble_service.py: # Sigmoid transformation
+- backend/services/enhanced_ml_ensemble_service.py: # Ensure reasonable bounds
+- backend/services/enhanced_ml_ensemble_service.py: # Simple statistical fallback
+- backend/services/enhanced_ml_ensemble_service.py: # Lower confidence for fallback
+- backend/services/enhanced_ml_ensemble_service.py: # Ultimate fallback
+- backend/services/enhanced_ml_ensemble_service.py: # Global service instance
+- backend/services/enhanced_prizepicks_service.py: # Import ML ensemble service
+- backend/services/enhanced_prizepicks_service.py: //api.prizepicks.com"
+- backend/services/enhanced_prizepicks_service.py: # 5 minutes
+- backend/services/enhanced_prizepicks_service.py: # Respect rate limits
+- backend/services/enhanced_prizepicks_service.py: //app.prizepicks.com/",
+- backend/services/enhanced_prizepicks_service.py: //app.prizepicks.com/",
+- backend/services/enhanced_prizepicks_service.py: # Try known PrizePicks API endpoints
+- backend/services/enhanced_prizepicks_service.py: # Parse the API response structure
+- backend/services/enhanced_prizepicks_service.py: # Check cache first
+- backend/services/enhanced_prizepicks_service.py: # Try API first, fallback to enhanced mock data
+- backend/services/enhanced_prizepicks_service.py: # Cache the results
+- backend/services/enhanced_prizepicks_service.py: # Get ML prediction for this prop
+- backend/services/enhanced_prizepicks_service.py: # Update prop with ML predictions
+- backend/services/enhanced_prizepicks_service.py: # Add original prop if enhancement fails
+- backend/services/enhanced_prizepicks_service.py: # Return original props if enhancement fails
+- backend/services/enhanced_prizepicks_service.py: # Global service instance
+- backend/services/enhanced_prizepicks_service_v2.py: # Import ML ensemble service
+- backend/services/enhanced_prizepicks_service_v2.py: //api.prizepicks.com"
+- backend/services/enhanced_prizepicks_service_v2.py: # 5 minutes
+- backend/services/enhanced_prizepicks_service_v2.py: # Respect rate limits
+- backend/services/enhanced_prizepicks_service_v2.py: //app.prizepicks.com/",
+- backend/services/enhanced_prizepicks_service_v2.py: //app.prizepicks.com",
+- backend/services/enhanced_prizepicks_service_v2.py: # Initialize ML ensemble service
+- backend/services/enhanced_prizepicks_service_v2.py: # Try known PrizePicks API endpoints
+- backend/services/enhanced_prizepicks_service_v2.py: # Parse the API response structure
+- backend/services/enhanced_prizepicks_service_v2.py: # Get ML prediction for this prop
+- backend/services/enhanced_prizepicks_service_v2.py: # Update prop with ML predictions
+- backend/services/enhanced_prizepicks_service_v2.py: # Add original prop if enhancement fails
+- backend/services/enhanced_prizepicks_service_v2.py: # Return original props if enhancement fails
+- backend/services/enhanced_prizepicks_service_v2.py: # Check cache first
+- backend/services/enhanced_prizepicks_service_v2.py: # Try API first, fallback to enhanced mock data
+- backend/services/enhanced_prizepicks_service_v2.py: # Enhance props with ML predictions
+- backend/services/enhanced_prizepicks_service_v2.py: # Cache the results
+- backend/services/enhanced_prizepicks_service_v2.py: # Global service instance
+- backend/services/enterprise_data_pipeline.py: # "required", "type", "range", "pattern", "custom"
+- backend/services/enterprise_data_pipeline.py: # "error", "warning", "info"
+- backend/services/enterprise_data_pipeline.py: # Database Models
+- backend/services/enterprise_data_pipeline.py: //localhost:6379", database_url: str = "sqlite:///data_pipeline.db"):
+- backend/services/enterprise_data_pipeline.py: # Initialize connections
+- backend/services/enterprise_data_pipeline.py: # Data storage
+- backend/services/enterprise_data_pipeline.py: # Metrics
+- backend/services/enterprise_data_pipeline.py: # 24 hours of minute-by-minute data
+- backend/services/enterprise_data_pipeline.py: # Configuration
+- backend/services/enterprise_data_pipeline.py: # 5 minutes
+- backend/services/enterprise_data_pipeline.py: # 3 minutes
+- backend/services/enterprise_data_pipeline.py: # 10 minutes
+- backend/services/enterprise_data_pipeline.py: # 30 minutes
+- backend/services/enterprise_data_pipeline.py: # 1 hour
+- backend/services/enterprise_data_pipeline.py: # 1 minute
+- backend/services/enterprise_data_pipeline.py: # Initialize Redis connection
+- backend/services/enterprise_data_pipeline.py: # Initialize database
+- backend/services/enterprise_data_pipeline.py: # Setup validation rules
+- backend/services/enterprise_data_pipeline.py: # Setup data processors
+- backend/services/enterprise_data_pipeline.py: # Setup cache strategies
+- backend/services/enterprise_data_pipeline.py: # PrizePicks validation rules
+- backend/services/enterprise_data_pipeline.py: # Sportsbook validation rules
+- backend/services/enterprise_data_pipeline.py: # Player stats validation rules
+- backend/services/enterprise_data_pipeline.py: # Injury reports validation rules
+- backend/services/enterprise_data_pipeline.py: # Weather validation rules
+- backend/services/enterprise_data_pipeline.py: # 5 minutes
+- backend/services/enterprise_data_pipeline.py: # 3 minutes
+- backend/services/enterprise_data_pipeline.py: # 10 minutes
+- backend/services/enterprise_data_pipeline.py: # 30 minutes
+- backend/services/enterprise_data_pipeline.py: # Start background tasks
+- backend/services/enterprise_data_pipeline.py: # Initialize metrics for this ingestion
+- backend/services/enterprise_data_pipeline.py: # Create data point
+- backend/services/enterprise_data_pipeline.py: # Validate data
+- backend/services/enterprise_data_pipeline.py: # Process data
+- backend/services/enterprise_data_pipeline.py: # Cache data
+- backend/services/enterprise_data_pipeline.py: # Store in stream
+- backend/services/enterprise_data_pipeline.py: # Log to database
+- backend/services/enterprise_data_pipeline.py: # Update metrics
+- backend/services/enterprise_data_pipeline.py: # Update pipeline metrics
+- backend/services/enterprise_data_pipeline.py: # Calculate overall quality
+- backend/services/enterprise_data_pipeline.py: # Normalize player name
+- backend/services/enterprise_data_pipeline.py: # Ensure line score is float
+- backend/services/enterprise_data_pipeline.py: # Add derived fields
+- backend/services/enterprise_data_pipeline.py: # Convert odds to decimal if needed
+- backend/services/enterprise_data_pipeline.py: # Calculate implied probabilities
+- backend/services/enterprise_data_pipeline.py: # Calculate derived statistics
+- backend/services/enterprise_data_pipeline.py: # Standardize status
+- backend/services/enterprise_data_pipeline.py: # Calculate weather impact score
+- backend/services/enterprise_data_pipeline.py: # Temperature impact
+- backend/services/enterprise_data_pipeline.py: # Wind impact
+- backend/services/enterprise_data_pipeline.py: # Precipitation impact
+- backend/services/enterprise_data_pipeline.py: # Adjust based on data quality
+- backend/services/enterprise_data_pipeline.py: # Adjust based on source reliability
+- backend/services/enterprise_data_pipeline.py: # Freshness score decreases over time
+- backend/services/enterprise_data_pipeline.py: # 5 minutes
+- backend/services/enterprise_data_pipeline.py: # 15 minutes
+- backend/services/enterprise_data_pipeline.py: # 30 minutes
+- backend/services/enterprise_data_pipeline.py: # 1 hour
+- backend/services/enterprise_data_pipeline.py: # Determine cache strategy
+- backend/services/enterprise_data_pipeline.py: # Serialize data
+- backend/services/enterprise_data_pipeline.py: # Store in cache
+- backend/services/enterprise_data_pipeline.py: # Create hash of relevant fields
+- backend/services/enterprise_data_pipeline.py: # Calculate quality metrics for each source
+- backend/services/enterprise_data_pipeline.py: # Check data freshness
+- backend/services/enterprise_data_pipeline.py: # Decreases over 1 hour
+- backend/services/enterprise_data_pipeline.py: # Log quality metrics to database
+- backend/services/enterprise_data_pipeline.py: # Would calculate from actual data
+- backend/services/enterprise_data_pipeline.py: # Check every 5 minutes
+- backend/services/enterprise_data_pipeline.py: # Get cache statistics
+- backend/services/enterprise_data_pipeline.py: # Clean expired keys if needed
+- backend/services/enterprise_data_pipeline.py: # 100 MB threshold
+- backend/services/enterprise_data_pipeline.py: # Would implement cache cleaning logic here
+- backend/services/enterprise_data_pipeline.py: # Check every 10 minutes
+- backend/services/enterprise_data_pipeline.py: # Collect current metrics
+- backend/services/enterprise_data_pipeline.py: # Log summary
+- backend/services/enterprise_data_pipeline.py: # Collect every minute
+- backend/services/enterprise_data_pipeline.py: # 30 minutes
+- backend/services/enterprise_data_pipeline.py: # Check every 5 minutes
+- backend/services/enterprise_data_pipeline.py: # Simple anomaly detection based on throughput changes
+- backend/services/enterprise_data_pipeline.py: # 50% drop
+- backend/services/enterprise_data_pipeline.py: # Check every 5 minutes
+- backend/services/enterprise_data_pipeline.py: # API Methods
+- backend/services/enterprise_data_pipeline.py: # Check for issues
+- backend/services/enterprise_data_pipeline.py: # 10% error rate
+- backend/services/enterprise_data_pipeline.py: # Check for stale data
+- backend/services/enterprise_data_pipeline.py: # 30 minutes
+- backend/services/enterprise_data_pipeline.py: # Global pipeline instance
+- backend/services/enterprise_data_pipeline.py: # For testing
+- backend/services/intelligent_ensemble_system.py: # Import all available prediction engines
+- backend/services/intelligent_ensemble_system.py: # 5-minute cache
+- backend/services/intelligent_ensemble_system.py: # 30-minute cache for API calls
+- backend/services/intelligent_ensemble_system.py: # In-season sports (current active seasons)
+- backend/services/intelligent_ensemble_system.py: # Initialize all available engines
+- backend/services/intelligent_ensemble_system.py: # Initialize engine weights based on historical performance
+- backend/services/intelligent_ensemble_system.py: # MLB: April - October
+- backend/services/intelligent_ensemble_system.py: # NFL: September - February
+- backend/services/intelligent_ensemble_system.py: # NBA: October - June
+- backend/services/intelligent_ensemble_system.py: # NHL: October - June
+- backend/services/intelligent_ensemble_system.py: # College Football: August - January
+- backend/services/intelligent_ensemble_system.py: # College Basketball: November - April
+- backend/services/intelligent_ensemble_system.py: # MLS: February - November
+- backend/services/intelligent_ensemble_system.py: # Tennis, Golf: Year-round
+- backend/services/intelligent_ensemble_system.py: # Initialize main prediction engine
+- backend/services/intelligent_ensemble_system.py: # Initialize enhanced mathematical engine
+- backend/services/intelligent_ensemble_system.py: # Initialize ensemble engine
+- backend/services/intelligent_ensemble_system.py: # Initialize ultra accuracy engine
+- backend/services/intelligent_ensemble_system.py: # Initialize real ML service
+- backend/services/intelligent_ensemble_system.py: # Initialize recursive AI
+- backend/services/intelligent_ensemble_system.py: # Default weights based on engine sophistication and expected performance
+- backend/services/intelligent_ensemble_system.py: # Highest weight for ultra accuracy engine
+- backend/services/intelligent_ensemble_system.py: # Mathematical sophistication
+- backend/services/intelligent_ensemble_system.py: # Advanced ensemble methods
+- backend/services/intelligent_ensemble_system.py: # Self-evolving AI
+- backend/services/intelligent_ensemble_system.py: # Main prediction engine
+- backend/services/intelligent_ensemble_system.py: # Production ML models
+- backend/services/intelligent_ensemble_system.py: # Only assign weights to available engines
+- backend/services/intelligent_ensemble_system.py: # Normalize weights to sum to 1.0
+- backend/services/intelligent_ensemble_system.py: # Check cache first
+- backend/services/intelligent_ensemble_system.py: # Make fresh API call
+- backend/services/intelligent_ensemble_system.py: # Cache the result
+- backend/services/intelligent_ensemble_system.py: # Check cache first
+- backend/services/intelligent_ensemble_system.py: # 5-minute cache
+- backend/services/intelligent_ensemble_system.py: # Prepare features for prediction
+- backend/services/intelligent_ensemble_system.py: # Get predictions from all available engines
+- backend/services/intelligent_ensemble_system.py: # Calculate weighted ensemble prediction
+- backend/services/intelligent_ensemble_system.py: # Calculate confidence and other metrics
+- backend/services/intelligent_ensemble_system.py: # Create ensemble prediction result
+- backend/services/intelligent_ensemble_system.py: # Cache the result
+- backend/services/intelligent_ensemble_system.py: # Sport-specific features
+- backend/services/intelligent_ensemble_system.py: # Low confidence with single prediction
+- backend/services/intelligent_ensemble_system.py: # Lower standard deviation = higher confidence
+- backend/services/intelligent_ensemble_system.py: # Bonus for more engines agreeing
+- backend/services/intelligent_ensemble_system.py: # Bonus for high-weight engines
+- backend/services/intelligent_ensemble_system.py: # Simple sigmoid transformation
+- backend/services/intelligent_ensemble_system.py: # Sigmoid with scaling factor
+- backend/services/intelligent_ensemble_system.py: # Clamp between 10% and 90%
+- backend/services/intelligent_ensemble_system.py: # Assume standard -110 odds for simplicity
+- backend/services/intelligent_ensemble_system.py: # Break-even point for -110 odds
+- backend/services/intelligent_ensemble_system.py: # EV calculation
+- backend/services/intelligent_ensemble_system.py: # High risk with single prediction
+- backend/services/intelligent_ensemble_system.py: # Risk based on prediction variance
+- backend/services/intelligent_ensemble_system.py: # Risk based on confidence (inverse relationship)
+- backend/services/intelligent_ensemble_system.py: # Slight over the line
+- backend/services/intelligent_ensemble_system.py: # Filter to only in-season sports
+- backend/services/intelligent_ensemble_system.py: # Get ensemble predictions for all props
+- backend/services/intelligent_ensemble_system.py: # Sort by combined score (win probability * confidence * (1 - risk_score))
+- backend/services/intelligent_ensemble_system.py: # EV boost
+- backend/services/intelligent_ensemble_system.py: # Sort by combined score (highest first)
+- backend/services/intelligent_ensemble_system.py: # Select top props for lineup
+- backend/services/intelligent_ensemble_system.py: # Calculate lineup metrics
+- backend/services/intelligent_ensemble_system.py: # Combined lineup probability (assuming independence)
+- backend/services/intelligent_ensemble_system.py: # Average metrics
+- backend/services/intelligent_ensemble_system.py: # Generate overall recommendation
+- backend/services/intelligent_ensemble_system.py: # Format lineup response
+- backend/services/intelligent_ensemble_system.py: # Keep only recent performance data (last 100 predictions)
+- backend/services/intelligent_ensemble_system.py: # Recalculate weights based on recent performance
+- backend/services/intelligent_ensemble_system.py: # Need at least 10 predictions to adjust weight
+- backend/services/intelligent_ensemble_system.py: # Last 20 predictions
+- backend/services/intelligent_ensemble_system.py: # Normalize scores to weights
+- backend/services/intelligent_ensemble_system.py: # Global ensemble system instance
+- backend/services/propollama_intelligence_service.py: # Import here to avoid circular imports
+- backend/services/propollama_intelligence_service.py: # Get maximum accuracy prediction
+- backend/services/propollama_intelligence_service.py: # Engineer comprehensive features for analysis
+- backend/services/propollama_intelligence_service.py: # Generate intelligent response
+- backend/services/propollama_intelligence_service.py: # Create comprehensive analysis
+- backend/services/propollama_intelligence_service.py: # Track analysis
+- backend/services/propollama_intelligence_service.py: # Base analysis
+- backend/services/propollama_intelligence_service.py: # Prediction summary
+- backend/services/propollama_intelligence_service.py: # Model consensus analysis
+- backend/services/propollama_intelligence_service.py: # Feature-driven insights
+- backend/services/propollama_intelligence_service.py: # Risk assessment
+- backend/services/propollama_intelligence_service.py: # Recommendation with reasoning
+- backend/services/propollama_intelligence_service.py: # Add specific reasoning
+- backend/services/propollama_intelligence_service.py: # Performance context
+- backend/services/propollama_intelligence_service.py: # Market context
+- backend/services/propollama_intelligence_service.py: # Lower variance = higher consensus
+- backend/services/propollama_intelligence_service.py: # Analyze feature categories
+- backend/services/propollama_intelligence_service.py: # Top 3 categories
+- backend/services/propollama_intelligence_service.py: # Generate insights
+- backend/services/propollama_intelligence_service.py: # Update metrics
+- backend/services/propollama_intelligence_service.py: # Global service instance
+- backend/services/quantum_optimization_service.py: # Initialize amplitudes with superposition
+- backend/services/quantum_optimization_service.py: # Normalize
+- backend/services/quantum_optimization_service.py: # Initialize random phases
+- backend/services/quantum_optimization_service.py: # Calculate initial energy
+- backend/services/quantum_optimization_service.py: # Calculate confidence based on amplitude distribution
+- backend/services/quantum_optimization_service.py: # Probability amplitude squared
+- backend/services/quantum_optimization_service.py: # Energy function balances return vs risk
+- backend/services/quantum_optimization_service.py: # Annealing schedule - exponential cooling
+- backend/services/quantum_optimization_service.py: # Generate new state through quantum tunneling
+- backend/services/quantum_optimization_service.py: # Accept/reject based on quantum Boltzmann distribution
+- backend/services/quantum_optimization_service.py: # Check convergence
+- backend/services/quantum_optimization_service.py: # Quantum tunneling allows escaping local minima
+- backend/services/quantum_optimization_service.py: # Perturb amplitudes with quantum noise
+- backend/services/quantum_optimization_service.py: # Add quantum fluctuation
+- backend/services/quantum_optimization_service.py: # Renormalize to maintain quantum constraint
+- backend/services/quantum_optimization_service.py: # Update phases with quantum evolution
+- backend/services/quantum_optimization_service.py: # Quantum Boltzmann acceptance
+- backend/services/quantum_optimization_service.py: # Construct quantum state from parameters
+- backend/services/quantum_optimization_service.py: # Calculate expectation value of Hamiltonian
+- backend/services/quantum_optimization_service.py: # Add regularization terms
+- backend/services/quantum_optimization_service.py: # Initialize parameters randomly
+- backend/services/quantum_optimization_service.py: # Classical optimization of quantum circuit parameters
+- backend/services/quantum_optimization_service.py: # Construct optimal quantum state
+- backend/services/quantum_optimization_service.py: # Quantum feature mapping
+- backend/services/quantum_optimization_service.py: # Quantum kernel computation
+- backend/services/quantum_optimization_service.py: # Quantum support vector machine for portfolio optimization
+- backend/services/quantum_optimization_service.py: # Construct optimal state
+- backend/services/quantum_optimization_service.py: # Normalize data
+- backend/services/quantum_optimization_service.py: # Apply quantum feature encoding
+- backend/services/quantum_optimization_service.py: # Quantum SVM objective with kernel
+- backend/services/quantum_optimization_service.py: # Constraints: weights sum to 1, non-negative
+- backend/services/quantum_optimization_service.py: # Convert amplitudes to allocation weights
+- backend/services/quantum_optimization_service.py: # Calculate confidence interval
+- backend/services/quantum_optimization_service.py: # Quantum advantage score
+- backend/services/quantum_optimization_service.py: # Entanglement score based on amplitude correlations
+- backend/services/quantum_optimization_service.py: # Track performance
+- backend/services/quantum_optimization_service.py: # Fallback to equal weighting
+- backend/services/quantum_optimization_service.py: # No quantum advantage in fallback
+- backend/services/quantum_optimization_service.py: # Global quantum portfolio manager instance
+- backend/services/real_data_service.py: # Import unified database service
+- backend/services/real_data_service.py: # Only define here
+- backend/services/real_data_service.py: # API configurations
+- backend/services/real_data_service.py: # PrizePicks API key is not required; public access only
+- backend/services/real_data_service.py: # self.prizepicks_api_key = get_api_key("prizepicks")  # Deprecated, not used
+- backend/services/real_data_service.py: # Fetch from The Odds API
+- backend/services/real_data_service.py: # type: ignore
+- backend/services/real_data_service.py: # Fetch from database-stored opportunities
+- backend/services/real_data_service.py: # type: ignore
+- backend/services/real_data_service.py: # Calculate value bets using real odds comparison
+- backend/services/real_data_service.py: # type: ignore
+- backend/services/real_data_service.py: # Fallback to minimal real data instead of mock
+- backend/services/real_data_service.py: //api.the-odds-api.com/v4/sports/{sport}/odds"
+- backend/services/real_data_service.py: # type: ignore
+- backend/services/real_data_service.py: # Map sport keys to readable names
+- backend/services/real_data_service.py: # Head-to-head (moneyline)
+- backend/services/real_data_service.py: # Point spreads
+- backend/services/real_data_service.py: # Over/Under
+- backend/services/real_data_service.py: # Find home and away odds
+- backend/services/real_data_service.py: # Calculate implied probabilities
+- backend/services/real_data_service.py: # Normalize probabilities (remove vig)
+- backend/services/real_data_service.py: # Calculate expected value (simplified Kelly criterion)
+- backend/services/real_data_service.py: # Determine confidence and risk level
+- backend/services/real_data_service.py: # type: ignore
+- backend/services/real_data_service.py: # Find spread and odds
+- backend/services/real_data_service.py: # Calculate probability and value
+- backend/services/real_data_service.py: # Simplified model: assume fair probability around 50% for spreads
+- backend/services/real_data_service.py: # type: ignore
+- backend/services/real_data_service.py: # Use over bet as primary
+- backend/services/real_data_service.py: # Simplified model for totals
+- backend/services/real_data_service.py: # type: ignore
+- backend/services/real_data_service.py: # Get upcoming matches with external IDs (indicating we have odds data)
+- backend/services/real_data_service.py: # Create basic opportunities from stored match data
+- backend/services/real_data_service.py: # Default fair odds
+- backend/services/real_data_service.py: # Group opportunities by event
+- backend/services/real_data_service.py: # Find best odds for comparison
+- backend/services/real_data_service.py: # Recalculate expected value based on best available odds
+- backend/services/real_data_service.py: # Within 5% of best odds
+- backend/services/real_data_service.py: # Enhanced expected value calculation
+- backend/services/real_data_service.py: # type: ignore
+- backend/services/real_data_service.py: # Single opportunity, add as-is
+- backend/services/real_data_service.py: # type: ignore
+- backend/services/real_data_service.py: # Sort by expected value and return top opportunities
+- backend/services/real_data_service.py: # type: ignore
+- backend/services/real_data_service.py: # Get any recent matches as fallback
+- backend/services/real_data_service.py: # Get user-specific stats if user_id provided, otherwise aggregate
+- backend/services/real_data_service.py: # No filter for aggregate stats
+- backend/services/real_data_service.py: # Calculate real performance metrics
+- backend/services/real_data_service.py: # Today's profit
+- backend/services/real_data_service.py: # Weekly profit
+- backend/services/real_data_service.py: # Monthly profit
+- backend/services/real_data_service.py: # Total bets and win rate
+- backend/services/real_data_service.py: # Average odds
+- backend/services/real_data_service.py: # ROI calculation
+- backend/services/real_data_service.py: # Active bets
+- backend/services/real_data_service.py: # Return minimal real stats instead of mock
+- backend/services/real_data_service.py: # PrizePicks API is public; no key required
+- backend/services/real_data_service.py: //api.prizepicks.com/projections"
+- backend/services/real_data_service.py: # Standard PrizePicks odds
+- backend/services/real_data_service.py: # Return top 20 props
+- backend/services/real_data_service.py: # Use ESPN API to get player stats as fallback
+- backend/services/real_data_service.py: # Wrap ESPN API call in circuit breaker
+- backend/services/real_data_service.py: //site.api.espn.com/apis/site/v2/sports/{sport}/scoreboard"
+- backend/services/real_data_service.py: # Limit to 3 events per sport
+- backend/services/real_data_service.py: # 2 props per team
+- backend/services/real_data_service.py: # Return top 15 fallback props
+- backend/services/real_data_service.py: # Global instance
+- backend/services/real_data_service.py: # Global ESPN circuit breaker instance
+- backend/services/real_ml_service.py: # Initialize model directory
+- backend/services/real_ml_service.py: # Generate synthetic training data based on real sports patterns
+- backend/services/real_ml_service.py: # Train ensemble models
+- backend/services/real_ml_service.py: # Fallback to simplified models
+- backend/services/real_ml_service.py: # For reproducible results
+- backend/services/real_ml_service.py: # Team performance features
+- backend/services/real_ml_service.py: # Generate realistic team stats
+- backend/services/real_ml_service.py: # 0-1 form rating
+- backend/services/real_ml_service.py: # -1 to 1
+- backend/services/real_ml_service.py: # ~10% advantage
+- backend/services/real_ml_service.py: # Calculate realistic win probabilities
+- backend/services/real_ml_service.py: # Logistic function for win probability
+- backend/services/real_ml_service.py: # ELO-style rating difference
+- backend/services/real_ml_service.py: # Recent form impact
+- backend/services/real_ml_service.py: # Convert to probability using sigmoid
+- backend/services/real_ml_service.py: # Generate actual outcomes based on true probabilities
+- backend/services/real_ml_service.py: # Generate market odds (with some inefficiency)
+- backend/services/real_ml_service.py: # Calculate value bets
+- backend/services/real_ml_service.py: # Player props data
+- backend/services/real_ml_service.py: // 2)
+- backend/services/real_ml_service.py: # Player performance features
+- backend/services/real_ml_service.py: # 0-100 rating
+- backend/services/real_ml_service.py: # Recent average
+- backend/services/real_ml_service.py: # Season average
+- backend/services/real_ml_service.py: # 0=away, 1=home
+- backend/services/real_ml_service.py: # Health factor
+- backend/services/real_ml_service.py: # Calculate expected performance
+- backend/services/real_ml_service.py: # Home advantage
+- backend/services/real_ml_service.py: # Add realistic variance
+- backend/services/real_ml_service.py: # Generate actual performance with noise
+- backend/services/real_ml_service.py: # Generate market lines (with some inefficiency)
+- backend/services/real_ml_service.py: # Determine if actual performance beats line
+- backend/services/real_ml_service.py: # Calculate confidence based on model certainty
+- backend/services/real_ml_service.py: # Feature selection
+- backend/services/real_ml_service.py: # Split data
+- backend/services/real_ml_service.py: # Scale features
+- backend/services/real_ml_service.py: # Train ensemble model
+- backend/services/real_ml_service.py: # Train individual models
+- backend/services/real_ml_service.py: # Create voting ensemble
+- backend/services/real_ml_service.py: # Evaluate model
+- backend/services/real_ml_service.py: # Store model and metadata
+- backend/services/real_ml_service.py: # Save model to disk
+- backend/services/real_ml_service.py: # Features that affect prediction confidence
+- backend/services/real_ml_service.py: # Calculate confidence based on prediction certainty
+- backend/services/real_ml_service.py: # Higher differences = higher confidence
+- backend/services/real_ml_service.py: # Add some noise to make it realistic
+- backend/services/real_ml_service.py: # Split and scale
+- backend/services/real_ml_service.py: # Train regression model
+- backend/services/real_ml_service.py: # Evaluate
+- backend/services/real_ml_service.py: # Store model
+- backend/services/real_ml_service.py: # Include market probability as feature
+- backend/services/real_ml_service.py: # Split and scale
+- backend/services/real_ml_service.py: # Train model
+- backend/services/real_ml_service.py: # Evaluate
+- backend/services/real_ml_service.py: # Store model
+- backend/services/real_ml_service.py: # Split and scale
+- backend/services/real_ml_service.py: # Train ensemble
+- backend/services/real_ml_service.py: # Evaluate
+- backend/services/real_ml_service.py: # Store model
+- backend/services/real_ml_service.py: # Calculate market efficiency metrics
+- backend/services/real_ml_service.py: # Split and scale
+- backend/services/real_ml_service.py: # Train model
+- backend/services/real_ml_service.py: # Evaluate
+- backend/services/real_ml_service.py: # Store model
+- backend/services/real_ml_service.py: # Simple logistic regression models with minimal features
+- backend/services/real_ml_service.py: # Create dummy training data
+- backend/services/real_ml_service.py: # Conservative estimate
+- backend/services/real_ml_service.py: # Prepare features
+- backend/services/real_ml_service.py: # Scale and predict
+- backend/services/real_ml_service.py: # Get probability and confidence
+- backend/services/real_ml_service.py: # Calculate confidence using confidence model
+- backend/services/real_ml_service.py: # Get feature importance
+- backend/services/real_ml_service.py: # Fallback to simple calculation
+- backend/services/real_ml_service.py: # Fallback to heuristic calculation
+- backend/services/real_ml_service.py: # Higher rating difference = higher confidence
+- backend/services/real_ml_service.py: # Prepare features for confidence model
+- backend/services/real_ml_service.py: # Scale and predict
+- backend/services/real_ml_service.py: # Conservative default
+- backend/services/real_ml_service.py: # Prepare features
+- backend/services/real_ml_service.py: # Scale and predict
+- backend/services/real_ml_service.py: # Get probability of being a value bet
+- backend/services/real_ml_service.py: # Calculate expected value
+- backend/services/real_ml_service.py: # Prepare features
+- backend/services/real_ml_service.py: # Scale and predict
+- backend/services/real_ml_service.py: # Get probability of beating the line
+- backend/services/real_ml_service.py: # Calculate confidence based on model certainty
+- backend/services/real_ml_service.py: # Confidence = max probability
+- backend/services/real_ml_service.py: # Fallback analysis
+- backend/services/real_ml_service.py: # Prepare features
+- backend/services/real_ml_service.py: # Scale and predict
+- backend/services/real_ml_service.py: # Calculate additional metrics
+- backend/services/real_ml_service.py: # Less efficient = more predictable
+- backend/services/real_ml_service.py: # Estimate market bias
+- backend/services/real_ml_service.py: # Simple ELO-based expected probability
+- backend/services/real_ml_service.py: # Calculate overall performance
+- backend/services/real_ml_service.py: # Store the outcome for performance tracking
+- backend/services/real_ml_service.py: # Keep only recent history (last 1000 predictions)
+- backend/services/real_ml_service.py: # Recalculate performance metrics periodically
+- backend/services/real_ml_service.py: # This would involve comparing predictions to actual outcomes
+- backend/services/real_ml_service.py: # For now, we'll update the metadata with current performance
+- backend/services/real_ml_service.py: # Simulated improvement
+- backend/services/real_ml_service.py: # Exponential moving average of accuracy
+- backend/services/real_ml_service.py: # Create singleton instance
+- backend/services/real_ml_training_service.py: # Real accuracy metrics (not fabricated)
+- backend/services/real_ml_training_service.py: # Mean Absolute Error
+- backend/services/real_ml_training_service.py: # Mean Squared Error
+- backend/services/real_ml_training_service.py: # Root Mean Squared Error
+- backend/services/real_ml_training_service.py: # R-squared
+- backend/services/real_ml_training_service.py: # Cross-validation scores
+- backend/services/real_ml_training_service.py: # Cross-validation mean
+- backend/services/real_ml_training_service.py: # Cross-validation standard deviation
+- backend/services/real_ml_training_service.py: # Training details
+- backend/services/real_ml_training_service.py: # Validation details
+- backend/services/real_ml_training_service.py: # Create directories
+- backend/services/real_ml_training_service.py: # Initialize database for storing real training data
+- backend/services/real_ml_training_service.py: # Create table for real sports data
+- backend/services/real_ml_training_service.py: # Create table for model training results
+- backend/services/real_ml_training_service.py: # In production, this would fetch from multiple real sources:
+- backend/services/real_ml_training_service.py: # - ESPN API historical data
+- backend/services/real_ml_training_service.py: # - Sports Reference
+- backend/services/real_ml_training_service.py: # - Official league APIs
+- backend/services/real_ml_training_service.py: # - Weather APIs for outdoor sports
+- backend/services/real_ml_training_service.py: # For now, create a minimal real data structure
+- backend/services/real_ml_training_service.py: # In production, this would be replaced with actual API calls
+- backend/services/real_ml_training_service.py: # Simulate collecting real NBA game data
+- backend/services/real_ml_training_service.py: # This would be replaced with real API calls in production
+- backend/services/real_ml_training_service.py: # For demonstration, creating a minimal dataset structure
+- backend/services/real_ml_training_service.py: # Feature names that would come from real NBA data
+- backend/services/real_ml_training_service.py: # Points per game
+- backend/services/real_ml_training_service.py: # Field goal percentage
+- backend/services/real_ml_training_service.py: # Home court advantage
+- backend/services/real_ml_training_service.py: # In production, this would query real NBA databases
+- backend/services/real_ml_training_service.py: # For now, return empty to maintain data integrity
+- backend/services/real_ml_training_service.py: # No fabricated data
+- backend/services/real_ml_training_service.py: # Split data for training and testing
+- backend/services/real_ml_training_service.py: # Scale features
+- backend/services/real_ml_training_service.py: # Train multiple model types
+- backend/services/real_ml_training_service.py: # Train the model
+- backend/services/real_ml_training_service.py: # Make predictions
+- backend/services/real_ml_training_service.py: # Calculate real metrics (not fabricated)
+- backend/services/real_ml_training_service.py: # Cross-validation for robust validation
+- backend/services/real_ml_training_service.py: # Convert to positive MAE
+- backend/services/real_ml_training_service.py: # Generate unique model ID
+- backend/services/real_ml_training_service.py: # Save model
+- backend/services/real_ml_training_service.py: # Save both model and scaler
+- backend/services/real_ml_training_service.py: # Create metrics object
+- backend/services/real_ml_training_service.py: # Save metrics to database
+- backend/services/real_ml_training_service.py: # Store in memory
+- backend/services/real_ml_training_service.py: # Calculate real aggregate metrics
+- backend/services/real_ml_training_service.py: # In production, this would test on completely independent data
+- backend/services/real_ml_training_service.py: # For now, return validation that no fabricated metrics are used
+- backend/services/real_ml_training_service.py: # Global instance
+- backend/services/real_prizepicks_service.py: # Real market data
+- backend/services/real_prizepicks_service.py: //api.prizepicks.com"
+- backend/services/real_prizepicks_service.py: # 1 second between requests
+- backend/services/real_prizepicks_service.py: # 5 minutes
+- backend/services/real_prizepicks_service.py: # Real API endpoints
+- backend/services/real_prizepicks_service.py: # Check cache
+- backend/services/real_prizepicks_service.py: # Make real API call
+- backend/services/real_prizepicks_service.py: # Process real data
+- backend/services/real_prizepicks_service.py: # Create lookup maps for included data
+- backend/services/real_prizepicks_service.py: # Get related data
+- backend/services/real_prizepicks_service.py: # Calculate real market metrics
+- backend/services/real_prizepicks_service.py: # Real probability calculation (not mock)
+- backend/services/real_prizepicks_service.py: # Create real prop object
+- backend/services/real_prizepicks_service.py: # Cache real data
+- backend/services/real_prizepicks_service.py: # CRITICAL: NO fallback to mock data
+- backend/services/real_prizepicks_service.py: # Return empty list to maintain data integrity
+- backend/services/real_prizepicks_service.py: # Real EV calculation (not mock)
+- backend/services/real_prizepicks_service.py: # Simplified EV calculation for demonstration
+- backend/services/real_prizepicks_service.py: # In production, this would use more sophisticated models
+- backend/services/real_prizepicks_service.py: # Real confidence calculation based on actual PrizePicks data
+- backend/services/real_prizepicks_service.py: # Adjust based on real attributes
+- backend/services/real_prizepicks_service.py: # More recent props might be more confident
+- backend/services/real_prizepicks_service.py: # Global instance
+- backend/services/real_shap_service.py: # "global", "local"
+- backend/services/real_shap_service.py: # "positive", "negative", "neutral"
+- backend/services/real_shap_service.py: # Load the real trained model
+- backend/services/real_shap_service.py: # Create SHAP explainer based on model type
+- backend/services/real_shap_service.py: # For classification models
+- backend/services/real_shap_service.py: # For regression models
+- backend/services/real_shap_service.py: # Store explainer
+- backend/services/real_shap_service.py: # Ensure input is 2D for SHAP
+- backend/services/real_shap_service.py: # Generate real SHAP values
+- backend/services/real_shap_service.py: # Get prediction
+- backend/services/real_shap_service.py: # Extract SHAP values (handle different SHAP output formats)
+- backend/services/real_shap_service.py: # First sample
+- backend/services/real_shap_service.py: # First sample
+- backend/services/real_shap_service.py: # Create explanation object
+- backend/services/real_shap_service.py: # Cache explanation
+- backend/services/real_shap_service.py: # Generate SHAP values for sample data
+- backend/services/real_shap_service.py: # Extract values
+- backend/services/real_shap_service.py: # Calculate global importance metrics
+- backend/services/real_shap_service.py: # Get SHAP values for this feature across all samples
+- backend/services/real_shap_service.py: # Calculate importance metrics
+- backend/services/real_shap_service.py: # Determine impact direction
+- backend/services/real_shap_service.py: # Will be set after sorting
+- backend/services/real_shap_service.py: # Sort by importance and assign ranks
+- backend/services/real_shap_service.py: # Store global importance
+- backend/services/real_shap_service.py: # Calculate confidence based on SHAP value distribution
+- backend/services/real_shap_service.py: # Higher confidence when there are clear dominant features
+- backend/services/real_shap_service.py: # Create user-friendly summary
+- backend/services/real_shap_service.py: # Sort by impact magnitude
+- backend/services/real_shap_service.py: # Top 5 most impactful
+- backend/services/real_shap_service.py: # Top 10
+- backend/services/real_shap_service.py: # Global instance
+- backend/services/real_time_analysis_engine.py: # points, rebounds, assists, etc.
+- backend/services/real_time_analysis_engine.py: # Analysis results
+- backend/services/real_time_analysis_engine.py: # Metadata
+- backend/services/real_time_analysis_engine.py: # Rate limiting configuration
+- backend/services/real_time_analysis_engine.py: # Analysis configuration
+- backend/services/real_time_analysis_engine.py: # Progress tracking
+- backend/services/real_time_analysis_engine.py: # Initialize progress tracking
+- backend/services/real_time_analysis_engine.py: # Start analysis in background
+- backend/services/real_time_analysis_engine.py: # Phase 1: Data Collection
+- backend/services/real_time_analysis_engine.py: # Phase 2: ML Analysis
+- backend/services/real_time_analysis_engine.py: # Phase 3: Cross-Sport Optimization
+- backend/services/real_time_analysis_engine.py: # Phase 4: Surface Best Opportunities
+- backend/services/real_time_analysis_engine.py: # Create semaphore to respect rate limits
+- backend/services/real_time_analysis_engine.py: # Max 10 concurrent requests
+- backend/services/real_time_analysis_engine.py: # Create tasks for all sportsbook/sport combinations
+- backend/services/real_time_analysis_engine.py: # Execute all fetches with rate limiting
+- backend/services/real_time_analysis_engine.py: # Flatten results
+- backend/services/real_time_analysis_engine.py: # Rate limiting
+- backend/services/real_time_analysis_engine.py: # This would interface with actual sportsbook APIs
+- backend/services/real_time_analysis_engine.py: # For now, implementing with comprehensive mock data that represents real structure
+- backend/services/real_time_analysis_engine.py: # Add other sportsbooks...
+- backend/services/real_time_analysis_engine.py: # Process in batches for efficiency
+- backend/services/real_time_analysis_engine.py: # Analyze batch with ensemble models
+- backend/services/real_time_analysis_engine.py: # Update progress
+- backend/services/real_time_analysis_engine.py: # Brief pause to prevent overwhelming
+- backend/services/real_time_analysis_engine.py: # Feature engineering
+- backend/services/real_time_analysis_engine.py: # Run through ensemble models (47+ models)
+- backend/services/real_time_analysis_engine.py: # Update bet with analysis results
+- backend/services/real_time_analysis_engine.py: # Only keep high-quality opportunities
+- backend/services/real_time_analysis_engine.py: # Group bets by sport for diversification
+- backend/services/real_time_analysis_engine.py: # Generate optimal lineups with cross-sport diversification
+- backend/services/real_time_analysis_engine.py: # 6-bet lineup optimization
+- backend/services/real_time_analysis_engine.py: # 10-bet lineup optimization
+- backend/services/real_time_analysis_engine.py: # Conservative lineup (3-4 bets, highest confidence)
+- backend/services/real_time_analysis_engine.py: # Sort by confidence and expected value
+- backend/services/real_time_analysis_engine.py: # Select top 6 with sport diversification
+- backend/services/real_time_analysis_engine.py: # Prefer sports diversification but don't force it
+- backend/services/real_time_analysis_engine.py: # Fill remaining slots with best available
+- backend/services/real_time_analysis_engine.py: # Calculate lineup metrics
+- backend/services/real_time_analysis_engine.py: # Would calculate actual correlations
+- backend/services/real_time_analysis_engine.py: # Additional methods for data fetching, analysis, etc.
+- backend/services/real_time_analysis_engine.py: # This would call actual PrizePicks API
+- backend/services/real_time_analysis_engine.py: # Returning structured mock data for now
+- backend/services/real_time_analysis_engine.py: # Implementation of rate limiting logic
+- backend/services/real_time_analysis_engine.py: # Basic throttling
+- backend/services/real_time_analysis_engine.py: # Add more sophisticated feature engineering
+- backend/services/real_time_analysis_engine.py: # This would interface with actual ML models
+- backend/services/real_time_analysis_engine.py: # Mock high-accuracy prediction for now
+- backend/services/real_time_analysis_engine.py: # Similar logic to 6-bet but larger lineup
+- backend/services/real_time_analysis_engine.py: # Highest confidence, lowest risk selections
+- backend/services/real_time_analysis_engine.py: # Remove duplicates and sort by quality
+- backend/services/real_time_analysis_engine.py: # Sort by composite score
+- backend/services/real_time_analysis_engine.py: # Return top opportunities
+- backend/services/real_time_analysis_engine.py: # Global instance
+- backend/services/real_time_performance_metrics.py: #!/usr/bin/env python3
+- backend/services/real_time_performance_metrics.py: # Performance thresholds
+- backend/services/real_time_performance_metrics.py: # 5 seconds
+- backend/services/real_time_performance_metrics.py: # 2 seconds
+- backend/services/real_time_performance_metrics.py: # 5%
+- backend/services/real_time_performance_metrics.py: # 2%
+- backend/services/real_time_performance_metrics.py: # Monitoring state
+- backend/services/real_time_performance_metrics.py: # Performance optimization suggestions
+- backend/services/real_time_performance_metrics.py: # MB/s
+- backend/services/real_time_performance_metrics.py: # Active connections (simplified)
+- backend/services/real_time_performance_metrics.py: # Last 5 minutes
+- backend/services/real_time_performance_metrics.py: # CPU alerts
+- backend/services/real_time_performance_metrics.py: # Memory alerts
+- backend/services/real_time_performance_metrics.py: # Response time alerts
+- backend/services/real_time_performance_metrics.py: # Error rate alerts
+- backend/services/real_time_performance_metrics.py: # Add alerts with timestamps
+- backend/services/real_time_performance_metrics.py: # Keep only recent alerts (last hour)
+- backend/services/real_time_performance_metrics.py: # Last 10 snapshots
+- backend/services/real_time_performance_metrics.py: # Analyze CPU usage patterns
+- backend/services/real_time_performance_metrics.py: # Analyze memory usage patterns
+- backend/services/real_time_performance_metrics.py: # Analyze response time patterns
+- backend/services/real_time_performance_metrics.py: # 1 second
+- backend/services/real_time_performance_metrics.py: # Analyze error rate patterns
+- backend/services/real_time_performance_metrics.py: # Last 60 snapshots
+- backend/services/real_time_performance_metrics.py: # Assuming 10s intervals
+- backend/services/real_time_performance_metrics.py: # CPU penalty
+- backend/services/real_time_performance_metrics.py: # Memory penalty
+- backend/services/real_time_performance_metrics.py: # Response time penalty
+- backend/services/real_time_performance_metrics.py: # Error rate penalty
+- backend/services/real_time_performance_metrics.py: # Global instance for easy access
+- backend/services/real_time_performance_metrics.py: # Start monitoring
+- backend/services/real_time_performance_metrics.py: # Simulate some metrics
+- backend/services/real_time_performance_metrics.py: # Get summary
+- backend/services/real_time_performance_metrics.py: # Save report
+- backend/services/real_time_prediction_engine.py: # Import our real services
+- backend/services/real_time_prediction_engine.py: # Prop identification
+- backend/services/real_time_prediction_engine.py: # Prediction results (from real models)
+- backend/services/real_time_prediction_engine.py: # Model information
+- backend/services/real_time_prediction_engine.py: # Explanation
+- backend/services/real_time_prediction_engine.py: # Risk assessment
+- backend/services/real_time_prediction_engine.py: # Metadata
+- backend/services/real_time_prediction_engine.py: # Minutes since data collection
+- backend/services/real_time_prediction_engine.py: # Prediction generation time
+- backend/services/real_time_prediction_engine.py: # 5 minutes
+- backend/services/real_time_prediction_engine.py: # Load all available trained models
+- backend/services/real_time_prediction_engine.py: # Validate model integration
+- backend/services/real_time_prediction_engine.py: # Initialize SHAP service
+- backend/services/real_time_prediction_engine.py: # Get model performance data
+- backend/services/real_time_prediction_engine.py: # Load model files
+- backend/services/real_time_prediction_engine.py: # Test with sample data structure
+- backend/services/real_time_prediction_engine.py: # Match NBA feature count
+- backend/services/real_time_prediction_engine.py: # Test prediction pipeline
+- backend/services/real_time_prediction_engine.py: # Remove invalid model
+- backend/services/real_time_prediction_engine.py: # Get real props from PrizePicks
+- backend/services/real_time_prediction_engine.py: # Calculate API latency
+- backend/services/real_time_prediction_engine.py: # Extract features from real prop data
+- backend/services/real_time_prediction_engine.py: # Generate ensemble prediction
+- backend/services/real_time_prediction_engine.py: # Scale features
+- backend/services/real_time_prediction_engine.py: # Generate prediction
+- backend/services/real_time_prediction_engine.py: # Calculate ensemble prediction
+- backend/services/real_time_prediction_engine.py: # Calculate prediction probability and confidence
+- backend/services/real_time_prediction_engine.py: # Generate SHAP explanation
+- backend/services/real_time_prediction_engine.py: # Calculate expected value and risk
+- backend/services/real_time_prediction_engine.py: # Generate recommendation
+- backend/services/real_time_prediction_engine.py: # Create prediction object
+- backend/services/real_time_prediction_engine.py: # Will be calculated at API level
+- backend/services/real_time_prediction_engine.py: # This would be expanded based on the actual features used in training
+- backend/services/real_time_prediction_engine.py: # For now, creating a basic feature set that matches the training structure
+- backend/services/real_time_prediction_engine.py: # The line itself
+- backend/services/real_time_prediction_engine.py: # Multiplier/odds
+- backend/services/real_time_prediction_engine.py: # Market implied probability
+- backend/services/real_time_prediction_engine.py: # Market expected value
+- backend/services/real_time_prediction_engine.py: # Market confidence
+- backend/services/real_time_prediction_engine.py: # Time-based features
+- backend/services/real_time_prediction_engine.py: # Game hour
+- backend/services/real_time_prediction_engine.py: # Day of week
+- backend/services/real_time_prediction_engine.py: # Categorical features (simplified)
+- backend/services/real_time_prediction_engine.py: # Sport hash
+- backend/services/real_time_prediction_engine.py: # League hash
+- backend/services/real_time_prediction_engine.py: # Stat type hash
+- backend/services/real_time_prediction_engine.py: # Position hash
+- backend/services/real_time_prediction_engine.py: # Additional features
+- backend/services/real_time_prediction_engine.py: # Player name length (proxy for player recognition)
+- backend/services/real_time_prediction_engine.py: # Home/away indicator
+- backend/services/real_time_prediction_engine.py: # Simple probability calculation - would be more sophisticated in production
+- backend/services/real_time_prediction_engine.py: # Higher predicted value = higher probability of going over
+- backend/services/real_time_prediction_engine.py: # Cap at 0.9
+- backend/services/real_time_prediction_engine.py: # Lower predicted value = lower probability of going over
+- backend/services/real_time_prediction_engine.py: # Floor at 0.1
+- backend/services/real_time_prediction_engine.py: # Base confidence on model agreement and number of models
+- backend/services/real_time_prediction_engine.py: # Bonus for more models
+- backend/services/real_time_prediction_engine.py: # Determine confidence level
+- backend/services/real_time_prediction_engine.py: # Use the real SHAP service
+- backend/services/real_time_prediction_engine.py: # Extract top factors from SHAP explanation
+- backend/services/real_time_prediction_engine.py: # Sort by importance and take top 3
+- backend/services/real_time_prediction_engine.py: # Default key factors
+- backend/services/real_time_prediction_engine.py: # EV = (probability * payout) - (1 - probability) * stake
+- backend/services/real_time_prediction_engine.py: # Assuming stake of 1 unit
+- backend/services/real_time_prediction_engine.py: # Profit if win
+- backend/services/real_time_prediction_engine.py: # Risk is inverse of confidence and agreement
+- backend/services/real_time_prediction_engine.py: # Calculate error rate
+- backend/services/real_time_prediction_engine.py: # Calculate average latency (simplified)
+- backend/services/real_time_prediction_engine.py: # Would be calculated from actual measurements
+- backend/services/real_time_prediction_engine.py: # Would be calculated from actual data
+- backend/services/real_time_prediction_engine.py: # Global instance
+- backend/services/transaction_service.py: # Production-ready transaction data structure
+- backend/services/transaction_service.py: # Apply pagination
+- backend/services/transaction_service.py: # Convert to TransactionModel objects
+- backend/services/transaction_service.py: # Production-ready active bet data structure
+- backend/services/transaction_service.py: # Apply pagination
+- backend/services/transaction_service.py: # Convert to ActiveBetModel objects
+- backend/services/transaction_service.py: # Global transaction service instance
+- backend/services/unified_prediction_service.py: # Import advanced services
+- backend/services/unified_prediction_service.py: # Core PrizePicks data
+- backend/services/unified_prediction_service.py: # MoneyMaker AI features
+- backend/services/unified_prediction_service.py: # Lineup optimization features
+- backend/services/unified_prediction_service.py: # Advanced analytics
+- backend/services/unified_prediction_service.py: # Portfolio metrics
+- backend/services/unified_prediction_service.py: # Multi-platform data
+- backend/services/unified_prediction_service.py: # MoneyMaker algorithm parameters
+- backend/services/unified_prediction_service.py: # Lineup optimization parameters
+- backend/services/unified_prediction_service.py: # Get base PrizePicks data
+- backend/services/unified_prediction_service.py: # Enhance each prediction with all features
+- backend/services/unified_prediction_service.py: # Apply portfolio optimization if requested
+- backend/services/unified_prediction_service.py: # Try enhanced service first, fallback to comprehensive
+- backend/services/unified_prediction_service.py: # Filter by sport and confidence
+- backend/services/unified_prediction_service.py: # Return mock data for development
+- backend/services/unified_prediction_service.py: # Extract base data
+- backend/services/unified_prediction_service.py: # Calculate MoneyMaker AI features
+- backend/services/unified_prediction_service.py: # Calculate lineup optimization features
+- backend/services/unified_prediction_service.py: # Generate SHAP explanation
+- backend/services/unified_prediction_service.py: # Calculate risk assessment
+- backend/services/unified_prediction_service.py: # Calculate portfolio metrics
+- backend/services/unified_prediction_service.py: # Conservative Kelly
+- backend/services/unified_prediction_service.py: # Convert confidence to probability
+- backend/services/unified_prediction_service.py: # Estimate odds from line (simplified)
+- backend/services/unified_prediction_service.py: # Standard -105 odds approximation
+- backend/services/unified_prediction_service.py: # Kelly formula: f = (bp - q) / b
+- backend/services/unified_prediction_service.py: # where b = odds-1, p = probability, q = 1-p
+- backend/services/unified_prediction_service.py: # Cap at 25% for risk management
+- backend/services/unified_prediction_service.py: # Standard odds
+- backend/services/unified_prediction_service.py: # EV = (probability * profit) - (1-probability * loss)
+- backend/services/unified_prediction_service.py: # Quantum entanglement factors (mock sophisticated calculation)
+- backend/services/unified_prediction_service.py: # 80-99
+- backend/services/unified_prediction_service.py: # 85-99
+- backend/services/unified_prediction_service.py: # Static for now
+- backend/services/unified_prediction_service.py: # Quantum superposition calculation
+- backend/services/unified_prediction_service.py: # Apply quantum uncertainty principle
+- backend/services/unified_prediction_service.py: # Simulate neural network layers
+- backend/services/unified_prediction_service.py: # Hidden layer activations (ReLU)
+- backend/services/unified_prediction_service.py: # Output layer (sigmoid activation)
+- backend/services/unified_prediction_service.py: # Simplified correlation based on team and sport
+- backend/services/unified_prediction_service.py: # Same team correlation boost
+- backend/services/unified_prediction_service.py: # Same sport correlation
+- backend/services/unified_prediction_service.py: # Synergy based on diversification and complementary stats
+- backend/services/unified_prediction_service.py: # Different stat types
+- backend/services/unified_prediction_service.py: # Higher stack potential for same team/game
+- backend/services/unified_prediction_service.py: # Optimal stack size is 2-3 players
+- backend/services/unified_prediction_service.py: # High potential for first player
+- backend/services/unified_prediction_service.py: # Good stacking opportunity
+- backend/services/unified_prediction_service.py: # Over-concentrated
+- backend/services/unified_prediction_service.py: # Check existing sports/stats in portfolio
+- backend/services/unified_prediction_service.py: # Calculate feature contributions
+- backend/services/unified_prediction_service.py: # Risk factors
+- backend/services/unified_prediction_service.py: # Higher risk for lower confidence
+- backend/services/unified_prediction_service.py: # Risk from extreme lines
+- backend/services/unified_prediction_service.py: # Base market risk
+- backend/services/unified_prediction_service.py: # Impact based on correlation and concentration
+- backend/services/unified_prediction_service.py: # Variance based on confidence and line
+- backend/services/unified_prediction_service.py: # Base line variance
+- backend/services/unified_prediction_service.py: # Calculate correlation matrix
+- backend/services/unified_prediction_service.py: # Optimize allocation using Modern Portfolio Theory
+- backend/services/unified_prediction_service.py: # Update optimal stakes based on portfolio optimization
+- backend/services/unified_prediction_service.py: # Sort by optimal allocation
+- backend/services/unified_prediction_service.py: # Calculate correlation based on team, sport, and stat type
+- backend/services/unified_prediction_service.py: # Same team correlation
+- backend/services/unified_prediction_service.py: # Same sport correlation
+- backend/services/unified_prediction_service.py: # Same stat type correlation
+- backend/services/unified_prediction_service.py: # Expected returns (based on expected value)
+- backend/services/unified_prediction_service.py: # Risk (based on variance contribution)
+- backend/services/unified_prediction_service.py: # Simple optimization: weight by Sharpe ratio with correlation adjustment
+- backend/services/unified_prediction_service.py: # Adjust for correlation (reduce weights for highly correlated assets)
+- backend/services/unified_prediction_service.py: # Normalize weights
+- backend/services/unified_prediction_service.py: # Convert predictions to format expected by quantum optimizer
+- backend/services/unified_prediction_service.py: # Get quantum optimization
+- backend/services/unified_prediction_service.py: # Extract features for ML ensemble
+- backend/services/unified_prediction_service.py: # Get advanced ML prediction if ensemble is trained
+- backend/services/unified_prediction_service.py: # Normalize to 0-1
+- backend/services/unified_prediction_service.py: # Normalize assuming max ~100
+- backend/services/unified_prediction_service.py: # Name length feature
+- backend/services/unified_prediction_service.py: # Normalize odds
+- backend/services/unified_prediction_service.py: # Add more features as needed
+- backend/services/unified_prediction_service.py: # Calculate portfolio metrics
+- backend/services/unified_prediction_service.py: # Diversification score
+- backend/services/unified_prediction_service.py: # Kelly optimization score
+- backend/services/unified_prediction_service.py: # Correlation matrix
+- backend/services/unified_prediction_service.py: # Optimal allocation
+- backend/services/unified_prediction_service.py: # Risk-adjusted return (Sharpe-like ratio)
+- backend/services/unified_prediction_service.py: # Confidence interval (Monte Carlo simulation)
+- backend/services/unified_prediction_service.py: # Simplified
+- backend/services/unified_prediction_service.py: # Estimated
+- backend/services/unified_prediction_service.py: # Simple confidence interval based on standard deviation
+- backend/services/unified_prediction_service.py: # 95% confidence interval
+- backend/services/unified_prediction_service.py: # Global instance
+- backend/src/auth.py: # Optional JWT import
+- backend/src/auth.py: # type: ignore
+- backend/src/auth.py: # type: ignore
+- backend/src/auth.py: # type: ignore
+- backend/src/auth.py: # Real database integration
+- backend/src/auth.py: # type: ignore
+- backend/src/auth.py: # type: ignore
+- backend/src/auth.py: # type: ignore
+- backend/testing/comprehensive_test_framework.py: #!/usr/bin/env python3
+- backend/testing/comprehensive_test_framework.py: # 'passed', 'failed', 'skipped'
+- backend/testing/comprehensive_test_framework.py: # Test configuration
+- backend/testing/comprehensive_test_framework.py: //localhost:8000"}',
+- backend/testing/comprehensive_test_framework.py: # Create HTTP session for API testing
+- backend/testing/comprehensive_test_framework.py: # Ensure test directories exist
+- backend/testing/comprehensive_test_framework.py: # Test health endpoint
+- backend/testing/comprehensive_test_framework.py: # Create pytest configuration to fix the issues found
+- backend/testing/comprehensive_test_framework.py: # Write pytest.ini file
+- backend/testing/comprehensive_test_framework.py: # Run pytest
+- backend/testing/comprehensive_test_framework.py: # Run multiple requests to get average
+- backend/testing/comprehensive_test_framework.py: # Ensure full response is received
+- backend/testing/comprehensive_test_framework.py: # Convert to ms
+- backend/testing/comprehensive_test_framework.py: # Skip failed requests for performance testing
+- backend/testing/comprehensive_test_framework.py: # Get system metrics
+- backend/testing/comprehensive_test_framework.py: # Check if resources are within acceptable limits
+- backend/testing/comprehensive_test_framework.py: # API Connectivity Tests
+- backend/testing/comprehensive_test_framework.py: # API Endpoint Tests
+- backend/testing/comprehensive_test_framework.py: # Unit Tests
+- backend/testing/comprehensive_test_framework.py: # Performance Tests
+- backend/testing/comprehensive_test_framework.py: # System Resource Tests
+- backend/testing/comprehensive_test_framework.py: # Calculate statistics
+- backend/testing/comprehensive_test_framework.py: # Create test suite
+- backend/testing/comprehensive_test_framework.py: # Generate report
+- backend/testing/comprehensive_test_framework.py: # Save report
+- backend/testing/comprehensive_test_framework.py: # API connectivity recommendations
+- backend/testing/comprehensive_test_framework.py: # Performance recommendations
+- backend/testing/comprehensive_test_framework.py: # Unit test recommendations
+- backend/testing/comprehensive_test_framework.py: # Resource recommendations
+- backend/testing/comprehensive_test_framework.py: # General recommendations
+- backend/testing/comprehensive_test_framework.py: # Global instance
+- backend/testing/comprehensive_test_framework.py: # Run comprehensive test suite
+- backend/testing/comprehensive_test_framework.py: # Show first 5 failures
+- backend/testing/comprehensive_test_framework.py: # Show first 5 recommendations
+- backend/tests/test_api_v1.py: # Mock the external API call to avoid 403 errors in tests
+- backend/tests/test_api_v1.py: # This test might still fail if it relies on external services or complex dependencies
+- backend/tests/test_api_v1.py: # that are not mocked. For now, we expect it to run without crashing.
+- backend/tests/test_api_v1.py: # More tests can be added here for other v1 endpoints.
+- backend/tests/test_endpoints.py: # Create test client with proper configuration
+- backend/tests/test_endpoints.py: # Handle newer TestClient versions
+- backend/tests/test_endpoints.py: # Sample test data
+- backend/tests/test_endpoints.py: # Verify features contain expected keys
+- backend/tests/test_meta_learning.py: # Support set: 5 examples per class, 3 classes
+- backend/tests/test_meta_learning.py: # 5 * 3 classes
+- backend/tests/test_meta_learning.py: # Class labels
+- backend/tests/test_meta_learning.py: # Query set: 3 examples per class
+- backend/tests/test_meta_learning.py: # 3 * 3 classes
+- backend/tests/test_meta_learning.py: # N-way K-shot data: 3-way 5-shot
+- backend/tests/test_meta_learning.py: # Support examples
+- backend/tests/test_meta_learning.py: # Query examples
+- backend/tests/test_meta_learning.py: # 3 queries per class
+- backend/tests/test_meta_learning.py: # Paired data for relation learning
+- backend/tests/test_meta_learning.py: # First set of examples
+- backend/tests/test_meta_learning.py: # Second set of examples
+- backend/tests/test_meta_learning.py: # Binary relations
+- backend/tests/test_meta_learning.py: # Get few-shot learning data
+- backend/tests/test_meta_learning.py: # Test meta-training
+- backend/tests/test_meta_learning.py: # Test few-shot adaptation
+- backend/tests/test_meta_learning.py: # Test prediction after adaptation
+- backend/tests/test_meta_learning.py: # Get prototypical learning data
+- backend/tests/test_meta_learning.py: # Test training with episodic data
+- backend/tests/test_meta_learning.py: # Test prototype computation
+- backend/tests/test_meta_learning.py: # Test prediction
+- backend/tests/test_meta_learning.py: # Get relation learning data
+- backend/tests/test_meta_learning.py: # Test training with relation data
+- backend/tests/test_meta_learning.py: # Test relation computation
+- backend/tests/test_meta_learning.py: # Test prediction
+- backend/tests/test_meta_learning.py: # Test that all components can be created together
+- backend/tests/test_meta_learning.py: # Test that they can work with compatible data
+- backend/tests/test_meta_learning.py: # Train quantum ensemble
+- backend/tests/test_meta_learning.py: # Train NAS model
+- backend/tests/test_meta_learning.py: # Train meta-learning models with few-shot data
+- backend/tests/test_meta_learning.py: # Test MAML adaptation
+- backend/tests/test_meta_learning.py: # Test prototypical network
+- backend/tests/test_meta_learning.py: # Verify all predictions work
+- backend/tests/test_meta_learning.py: # Test MAML adaptation time
+- backend/tests/test_meta_learning.py: # Prepare meta-learning data
+- backend/tests/test_meta_learning.py: # Meta-train the model
+- backend/tests/test_meta_learning.py: # Test adaptation time
+- backend/tests/test_meta_learning.py: # Test prediction time
+- backend/tests/test_meta_learning.py: # Test with None data
+- backend/tests/test_meta_learning.py: # Expected behavior
+- backend/tests/test_meta_learning.py: # Test with empty tasks
+- backend/tests/test_meta_learning.py: # Expected behavior
+- backend/tests/test_meta_learning.py: # Test with invalid adaptation data
+- backend/tests/test_meta_learning.py: # Expected behavior
+- backend/tests/test_meta_learning.py: # Test prototypical network with mismatched data
+- backend/tests/test_meta_learning.py: # Wrong size
+- backend/tests/test_meta_learning.py: # Expected behavior
+- backend/tests/test_meta_learning.py: # Test that engine has proper meta-learning integration
+- backend/tests/test_meta_learning.py: # Test individual model access
+- backend/tests/test_meta_learning.py: # First task
+- backend/tests/test_meta_learning.py: # Adapt to first few-shot scenario
+- backend/tests/test_meta_learning.py: # Second task (continual learning)
+- backend/tests/test_meta_learning.py: # Should not forget previous learning
+- backend/tests/test_meta_learning.py: # Adapt to second few-shot scenario
+- backend/tests/test_meta_learning.py: # Create all meta-learning models
+- backend/tests/test_meta_learning.py: # Verify all models created
+- backend/tests/test_meta_learning.py: # Test that they have different capabilities
+- backend/tests/test_meta_learning.py: # MAML should have adaptation capability
+- backend/tests/test_meta_learning.py: # Prototypical should have prototype computation
+- backend/tests/test_meta_learning.py: # Test with same data to verify different approaches
+- backend/tests/test_meta_learning.py: # Test MAML approach
+- backend/tests/test_meta_learning.py: # Test Prototypical approach
+- backend/tests/test_meta_learning.py: # Models should produce different results (diversity)
+- backend/tests/test_nas_implementation.py: # Simulate real NAS training data
+- backend/tests/test_nas_implementation.py: # Smaller dataset for faster architecture search testing
+- backend/tests/test_nas_implementation.py: # Test AutoML model creation
+- backend/tests/test_nas_implementation.py: # Test that it can handle structured data
+- backend/tests/test_nas_implementation.py: # Should not raise an exception
+- backend/tests/test_nas_implementation.py: # Test progressive NAS model
+- backend/tests/test_nas_implementation.py: # Test that it can perform architecture search (simplified)
+- backend/tests/test_nas_implementation.py: # Test that NAS models can be evaluated and compared
+- backend/tests/test_nas_implementation.py: # All models should be created successfully
+- backend/tests/test_nas_implementation.py: # Test basic evaluation capability
+- backend/tests/test_nas_implementation.py: # Test that NAS models can work alongside quantum ensemble
+- backend/tests/test_nas_implementation.py: # Test that both can work with the same data
+- backend/tests/test_nas_implementation.py: # Train quantum ensemble
+- backend/tests/test_nas_implementation.py: # Train NAS model
+- backend/tests/test_nas_implementation.py: # Test NAS optimal model creation time
+- backend/tests/test_nas_implementation.py: # Test architecture search time (simplified)
+- backend/tests/test_nas_implementation.py: # Allow slightly more time for actual training, but should still be reasonable
+- backend/tests/test_nas_implementation.py: # Test with invalid data
+- backend/tests/test_nas_implementation.py: # Test with None data
+- backend/tests/test_nas_implementation.py: # Expected behavior
+- backend/tests/test_nas_implementation.py: # Test with empty data
+- backend/tests/test_nas_implementation.py: # Expected behavior
+- backend/tests/test_nas_implementation.py: # Test with mismatched dimensions
+- backend/tests/test_nas_implementation.py: # Wrong size
+- backend/tests/test_nas_implementation.py: # Expected behavior
+- backend/tests/test_nas_implementation.py: # Test prediction before fitting
+- backend/tests/test_nas_implementation.py: # Note: Some models may not enforce this, so we don't fail if it works
+- backend/tests/test_nas_implementation.py: # Expected behavior for models that enforce fitting
+- backend/tests/test_nas_implementation.py: # Create different NAS models
+- backend/tests/test_nas_implementation.py: # All should be created and be different types/configurations
+- backend/tests/test_nas_implementation.py: # Test that they can all work with the same data format
+- backend/tests/test_nas_implementation.py: # Test that NAS models are properly initialized in the engine
+- backend/tests/test_nas_implementation.py: # Test that the models dictionary is accessible
+- backend/tests/test_nas_implementation.py: # Test that we can access individual NAS models
+- backend/tests/test_nas_implementation.py: # All should integrate with the engine's architecture
+- backend/tests/test_quantum_ensemble.py: # Simulate real betting feature data
+- backend/tests/test_quantum_ensemble.py: # Convert numpy array to dict format expected by _quantum_feature_transformation
+- backend/tests/test_quantum_ensemble.py: # Pass empty data
+- backend/tests/test_real_metrics.py: #!/usr/bin/env python3
+- backend/tests/test_real_metrics.py: # Import the classes we'll be testing
+- backend/tests/test_real_metrics.py: # This test should FAIL initially - we need to create RealPerformanceMetrics class
+- backend/tests/test_real_metrics.py: # Verify it's a real object with expected methods
+- backend/tests/test_real_metrics.py: # Verify it's not a mock
+- backend/tests/test_real_metrics.py: # Add some prediction data
+- backend/tests/test_real_metrics.py: # Add actual outcome
+- backend/tests/test_real_metrics.py: # Should not be hardcoded 0.95
+- backend/tests/test_real_metrics.py: # Test with different prediction sets gives different results
+- backend/tests/test_real_metrics.py: # Record some processing times
+- backend/tests/test_real_metrics.py: # Should not be hardcoded 2.5
+- backend/tests/test_real_metrics.py: # Should be close to actual average
+- backend/tests/test_real_metrics.py: # Add historical accuracy data
+- backend/tests/test_real_metrics.py: # Should return real trend data
+- backend/tests/test_real_metrics.py: # Should not be empty list (hardcoded behavior)
+- backend/tests/test_real_metrics.py: # Should reflect actual trend (increasing in this case)
+- backend/tests/test_real_metrics.py: # Should return real metrics
+- backend/tests/test_real_metrics.py: # Should not be hardcoded values
+- backend/tests/test_real_metrics.py: # Should reflect actual model counts
+- backend/tests/test_real_metrics.py: # Test integration with quantum ensemble
+- backend/tests/test_real_metrics.py: # Test integration with NAS models
+- backend/tests/test_real_metrics.py: # Test integration with meta-learning
+- backend/tests/test_real_metrics.py: # Add substantial data to test performance
+- backend/tests/test_real_metrics.py: # Test calculation speed
+- backend/tests/test_real_metrics.py: # Should complete in <100ms
+- backend/tests/test_real_metrics.py: # Test comprehensive metrics API response
+- backend/tests/test_real_metrics.py: # Simulate what the API endpoint would call
+- backend/tests/test_real_metrics.py: # Should complete in <500ms
+- backend/tests/test_real_metrics.py: # Verify response structure
+- backend/tests/test_real_metrics.py: # Test memory usage doesn't grow unbounded
+- backend/tests/test_real_metrics.py: # Add large amount of tracking data
+- backend/tests/test_real_metrics.py: # Memory increase should be reasonable (less than 100MB)
+- backend/tests/test_real_metrics.py: # Test with no data
+- backend/tests/test_real_metrics.py: # Test with invalid data
+- backend/tests/test_real_metrics.py: # Should handle gracefully
+- backend/tests/test_real_metrics.py: # Test with extreme values
+- backend/tests/test_real_metrics.py: # Extreme value
+- backend/tests/test_real_metrics.py: # Invalid confidence
+- backend/tests/test_real_metrics.py: # Should handle extreme values gracefully
+- backend/tests/test_real_metrics.py: # This test verifies the API endpoint integration
+- backend/tests/test_real_metrics.py: # Mock the ultra_engine to test API behavior
+- backend/tests/test_real_metrics.py: # Test that metrics are calculated, not hardcoded
+- backend/tests/test_real_metrics.py: # Should not be hardcoded values
+- backend/tests/test_real_metrics.py: # Should be reasonable values
+- backend/tests/test_real_metrics.py: # Mock engine with actual model structures
+- backend/tests/test_real_metrics.py: # Should reflect actual counts, not hardcoded
+- backend/tests/test_real_metrics.py: # Real count
+- backend/tests/test_real_metrics.py: # Real count
+- backend/tests/test_real_metrics.py: # Real count
+- backend/tests/test_real_metrics.py: # Real count
+- backend/tests/test_real_metrics.py: # Test with different counts to verify dynamic calculation
+- backend/tests/test_real_metrics.py: # Different count
+- backend/tests/test_real_metrics.py: # Different count
+- backend/tests/test_real_metrics.py: # Different count
+- backend/tests/test_real_metrics.py: # Different count
+- backend/tests/test_real_metrics.py: # Should reflect the new actual counts
+- backend/tests/test_real_metrics.py: # Different from first test
+- backend/tests/test_real_metrics.py: # Different from first test
+- backend/tests/test_real_metrics.py: # Different from first test
+- backend/tests/test_real_metrics.py: # Different from first test
+- backend/tests/test_real_metrics.py: # Verify they're different (proving dynamic calculation)
+- backend/tests/test_real_metrics.py: # Test that metrics update in real-time
+- backend/tests/test_real_metrics.py: # Add new prediction data
+- backend/tests/test_real_metrics.py: # Metrics should update
+- backend/tests/test_real_metrics.py: # Should include recent prediction
+- backend/tests/test_real_metrics.py: # Run tests to establish TDD red phase
+- backend/utils/circuit_breaker.py: # CLOSED, OPEN, HALF_OPEN
+- backend/utils/error_handler.py: # Get full stack trace
+- backend/utils/error_handler.py: # Build log message with full error details
+- backend/utils/error_handler.py: # Log with full error object to preserve stack trace
+- backend/utils/error_handler.py: # Specific exception types for better error handling
+- backend/utils/error_handler.py: # Utility function to convert generic exceptions to specific ones
+- backend/utils/llm_engine.py: # Generic type for request results
+- backend/utils/llm_engine.py: # Constants for timeouts and health checks
+- backend/utils/llm_engine.py: # seconds
+- backend/utils/llm_engine.py: # seconds
+- backend/utils/llm_engine.py: # seconds
+- backend/utils/llm_engine.py: # "ready", "loading", "error"
+- backend/utils/llm_engine.py: # Enhanced logging for model states
+- backend/utils/llm_engine.py: # Request queue for handling requests before models are ready
+- backend/utils/llm_engine.py: # Create a new dictionary to ensure TypedDict compatibility on update
+- backend/utils/llm_engine.py: # Reconstruct with explicit type
+- backend/utils/llm_engine.py: # Check request timeout
+- backend/utils/llm_engine.py: # Modern config using Pydantic BaseSettings
+- backend/utils/llm_engine.py: //localhost:11434"
+- backend/utils/llm_engine.py: # Singleton config instance
+- backend/utils/llm_engine.py: # Categorize models
+- backend/utils/llm_engine.py: # Find the first available model from preferences
+- backend/utils/llm_engine.py: # Fallback to first available model or default
+- backend/utils/llm_engine.py: # Start health check task
+- backend/utils/llm_engine.py: # Start health check task if we're in an event loop
+- backend/utils/llm_engine.py: # Short delay on error
+- backend/utils/llm_engine.py: # Send a minimal request to verify model is responsive
+- backend/utils/llm_engine.py: # Short timeout for health checks
+- backend/utils/llm_engine.py: # If client has ensure_models_ready method, delegate to it
+- backend/utils/llm_engine.py: # Otherwise, check if we have models loaded
+- backend/utils/llm_engine.py: # Return zero embedding as fallback
+- backend/utils/llm_engine.py: # Default embedding size
+- backend/utils/llm_engine.py: # Update model health on successful request
+- backend/utils/llm_engine.py: # Update model health on error
+- backend/utils/llm_engine.py: # PropOllama-specific methods
+- backend/utils/llm_engine.py: # Get the best model from config manager
+- backend/utils/llm_engine.py: # Fallback to available models if preferred not found
+- backend/utils/llm_engine.py: # Look for embedding models
+- backend/utils/llm_engine.py: # Look for generation models (non-embedding)
+- backend/utils/llm_engine.py: # Final fallback
+- backend/utils/llm_engine.py: # HTTP client with configured timeout
+- backend/utils/llm_engine.py: # Load LLM settings
+- backend/utils/llm_engine.py: # Prepare for lazy initialization
+- backend/utils/llm_engine.py: # Initialize appropriate client with timeout
+- backend/utils/llm_engine.py: # Override select_model to use engine mapping or default override
+- backend/utils/llm_engine.py: # Initialize the client
+- backend/utils/llm_engine.py: # Initialize the client first
+- backend/utils/llm_engine.py: # Initialize models
+- backend/utils/llm_engine.py: # If client has ensure_models_ready method, delegate to it
+- backend/utils/llm_engine.py: # Otherwise, check if we have models loaded
+- backend/utils/llm_engine.py: # Refresh config manager first
+- backend/utils/llm_engine.py: # Get models from client
+- backend/utils/llm_engine.py: # Update task mappings with better model selection
+- backend/utils/llm_engine.py: # pylint: disable=broad-exception-caught
+- backend/utils/llm_engine.py: # Set fallback models
+- backend/utils/llm_engine.py: # Prefer named embedding models
+- backend/utils/llm_engine.py: # Prefer instruct/chat models, then general models
+- backend/utils/llm_engine.py: # Look for general models excluding embedding
+- backend/utils/llm_engine.py: # For sports analysis, prefer models that are good at reasoning
+- backend/utils/llm_engine.py: # For conversation, prefer chat/instruct models
+- backend/utils/llm_engine.py: # Use runtime override if provided
+- backend/utils/llm_engine.py: # Fallback to initial task mapping
+- backend/utils/llm_engine.py: # PropOllama-specific methods for sports betting analysis
+- backend/utils/llm_engine.py: # Singleton
+- backend/utils/metrics_collector.py: # Update metrics
+- backend/utils/metrics_collector.py: # Cleanup old metrics periodically
+- backend/utils/metrics_collector.py: # Every minute
+- backend/utils/metrics_collector.py: # Clean up request metrics
+- backend/utils/metrics_collector.py: # Clean up endpoint metrics
+- backend/utils/metrics_collector.py: # Global metrics collector instance
+- backend/utils/prediction_utils.py: # default proxy
+- backend/utils/prediction_utils.py: # pylint: disable=broad-exception-caught
+- backend/utils/prediction_utils.py: # pylint: disable=broad-exception-caught
+- backend/utils/rate_limiter.py: # Cleanup task will be started when needed
+- backend/utils/rate_limiter.py: # Start cleanup task on first use
+- backend/utils/rate_limiter.py: # No event loop running, cleanup will happen manually
+- backend/utils/rate_limiter.py: # Remove old timestamps
+- backend/utils/rate_limiter.py: # Count recent requests
+- backend/utils/rate_limiter.py: # Add new request
+- backend/utils/rate_limiter.py: # Clean up each key's timestamps
+- backend/utils/rate_limiter.py: # Remove empty entries
+- backend/utils/rate_limiter.py: # Run every minute
+- backend/utils/seasonal_utils.py: # April-October
+- backend/utils/seasonal_utils.py: # September-February
+- backend/utils/seasonal_utils.py: # October-June
+- backend/utils/seasonal_utils.py: # October-June
+- backend/utils/seasonal_utils.py: # May-October
+- backend/utils/seasonal_utils.py: # February-November
+- backend/utils/seasonal_utils.py: # February-November (alias for MLS)
+- backend/utils/seasonal_utils.py: # Year-round
+- backend/utils/seasonal_utils.py: # Year-round
+- backend/utils/seasonal_utils.py: # Year-round
+- backend/utils/seasonal_utils.py: # Year-round
+- backend/utils/seasonal_utils.py: # Year-round
+- backend/utils/seasonal_utils.py: # February-November
+- backend/utils/seasonal_utils.py: # March-October (Korean Baseball)
+- backend/utils/seasonal_utils.py: # Year-round (esports)
+- backend/utils/seasonal_utils.py: # Year-round
+- backend/utils/seasonal_utils.py: # Year-round (alias for PGA)
+- backend/utils/seasonal_utils.py: # August-January (College Football)
+- backend/utils/seasonal_utils.py: # November-April (College Basketball)
+- backend/utils/seasonal_utils.py: # Check if this sport is in season
+- backend/utils/serialization_utils.py: # A registry to hold all the classes we can serialize/deserialize.
+- backend/utils/serialization_utils.py: # This is a security measure to prevent arbitrary class instantiation.
+- backend/utils/serialization_utils.py: # Add a __type__ key to identify the original class for deserialization.
+- backend/utils/serialization_utils.py: # Always convert datetime to UTC and store in ISO format with timezone.
+- backend/utils/serialization_utils.py: # Store the enum's class and member name.
+- backend/utils/serialization_utils.py: # If the class isn't registered or isn't an enum, we can't safely proceed.
+- backend/utils/serialization_utils.py: # Handle registered dataclasses
+- backend/utils/serialization_utils.py: # Remove our custom type hint before passing to the class constructor.
+- backend/utils/serialization_utils.py: # Recursively deserialize nested objects
+- backend/utils/serialization_utils.py: # If the type is not recognized, return the dict as is.
 
-This roadmap guides the autonomous and human development of the A1Betting platform, integrating backend modules and frontend features for a robust, real-time sports betting experience. Each phase is fully fleshed out with objectives, deliverables, edge cases, and explicit notes for when sequential thinking should be used.
+## Technical Debt
 
 ---
-
-## Phase 1: Foundation & Inventory
-
-**Objectives:**
-
-- Validate backend and frontend structure, including all submodules and dependencies.
-- Build a comprehensive inventory of all modules, services, and components.
-- Ensure the environment is stable, reproducible, and documented for onboarding.
-
-**Deliverables:**
-
-- `Inventory.md` with:
-  - Full module/component list
-  - Dependency graph
-  - Version matrix for dependencies
-  - Platform-specific setup notes
-- Verified backend and frontend startup, health endpoints operational.
-- All known issues and lint errors resolved.
-- Automated environment setup script (e.g., `setup.sh`/`setup.bat`).
-
-**Checkpoints:**
-
-- Inventory.md reviewed and validated by both agent and human.
-- Environment setup script tested on all target OSes.
-- Health endpoints and startup logs archived for reproducibility.
-
-**Edge Cases:**
-
-- Hidden dependencies, circular imports, or platform-specific issues.
-- Inconsistent environment setup across OSes.
-- Legacy code or undocumented modules.
-
-**Sequential Thinking Triggers & Examples:**
-
-- When a dependency error is ambiguous, recursively trace imports and document findings.
-- If a module’s purpose or relationship is unclear, break down its usage and dependencies step by step.
-- When onboarding a new developer or agent, use sequential thinking to validate environment setup and inventory completeness.
-
----
-
-## Phase 2: Backend Feature Integration
-
-**Objectives:**
-
-- Integrate all backend modules/services into PrizePicks/PropOllama endpoints.
-- Ensure real-time data scraping, robust error handling, and health checks.
-- Modularize backend for future extensibility and third-party integrations.
-
-**Deliverables:**
-
-- Responsive endpoints returning:
-  - Mock data for development
-  - Live data for production
-- Ensemble ML, risk management, caching, and monitoring connections validated.
-- Autonomous system endpoints and background initialization validated.
-- Legacy endpoints hardened for backward compatibility.
-- API contract documentation for each endpoint.
-
-**Checkpoints:**
-
-- All endpoints tested with both mock and live data.
-- Error handling validated with simulated failures.
-- API contract reviewed and versioned.
-
-**Edge Cases:**
-
-- Data source outages, schema changes, or unexpected API responses.
-- ML model failures or slow initialization.
-- Backward compatibility with legacy clients.
-
-**Sequential Thinking Triggers & Examples:**
-
-- When integrating a new data source, break down the process: schema validation → error handling → live test.
-- For ML ensemble failures, sequentially isolate model, data, and runtime issues.
-- When refactoring legacy endpoints, use stepwise validation to ensure no regressions.
-
----
-
-## Phase 3: Frontend Modernization
-
-**Objectives:**
-
-- Implement a streamlined, user-friendly frontend with three main pages:
-  1. **Locked Bets/PropOllama Main Page:**
-     - Display the most accurately predicted, real-time, locked sports bets for users to profit from.
-     - Pull bets from multiple real-time available sportsbooks, labeling each bet with its source site for transparency.
-     - PrizePicks should be the default and priority source, but other sportsbooks can be included and clearly labeled.
-     - Use advanced code and LLMs to compute and surface the best possible predictions.
-     - Internally analyze all available data and modules to serve only the most actionable information.
-  2. **Live-Stream Page:**
-     - Embed an internal browser display set to 'the.streameast.app' for users to watch games in real time.
-     - Integrate live game context with betting recommendations.
-  3. **Conjoined Settings/Admin Page:**
-     - Show basic settings for regular users (profile, theme store, background service monitoring, etc.).
-     - Show advanced admin features only for administrators (scrape and merge best features from existing settings/admin pages).
-     - Leverage all existing code and modules for maximum capability and best-in-class experience.
-
-**Deliverables:**
-
-- Unified React/Vite/TypeScript frontend with:
-  - Locked Bets/PropOllama main interface (single page, clean output)
-    - Supports pulling bets from multiple sportsbooks, with clear source labeling and PrizePicks as the default/priority.
-  - Live-stream page with embedded browser (the.streameast.app)
-  - Conjoined settings/admin page (conditional rendering for admin features)
-- Unified analytics, dashboards, modals, tables, charts, loaders, error boundaries, and connection status indicators.
-- Polished theme, styles, and assets.
-- Accessibility audit and performance benchmarks.
-
-**Checkpoints:**
-
-- All pages functional, visually appealing, and easy to use on all target devices.
-- Accessibility and performance validated.
-- Frontend-backend integration tested with live and mock data.
-- All existing code and modules leveraged for best possible user experience.
-
-**Edge Cases:**
-
-- Responsive design issues, browser compatibility, or accessibility gaps.
-- API changes breaking frontend integration.
-- Performance bottlenecks with large datasets.
-- Conditional rendering and feature access for admin vs. regular users.
-
-**Sequential Thinking Triggers & Examples:**
-
-- For multi-step user flows (e.g., placing a bet or switching between main/stream/settings pages), break down each UI interaction and backend call.
-- When merging features from existing settings/admin pages, sequentially analyze and select the best components and logic.
-- For accessibility or performance audits, sequentially validate each requirement and benchmark.
-
----
-
-## Phase 4: End-to-End Integration & Testing
-
-**Objectives:**
-
-- Ensure reliability, performance, and error resilience.
-- Automate regression and load testing for future releases.
-
-**Deliverables:**
-Agent Automation Scripts:
-
-- `scripts/auto_inventory.py`: Recursively scan and document all modules/components.
-- `scripts/auto_env_setup.py`: Generate and validate environment setup scripts for all OSes.
-- `scripts/auto_health_check.py`: Create health endpoint test routines.
-- API contracts
-- Autonomous system behaviors
-- Real-time data flow, error handling, and autonomous operations validated.
-- Monitoring of logs and health endpoints for issues.
-- Regression and load test scripts.
-  **Checkpoints:**
-
-Agent Automation Scripts:
-
-- `scripts/auto_endpoint_test.py`: Generate and run endpoint tests (mock/live).
-- `scripts/auto_error_sim.py`: Simulate and validate error handling for endpoints.
-- `scripts/auto_api_contract.py`: Auto-generate API contract docs from codebase.
-  **Edge Cases:**
-
-- Flaky tests, race conditions, or intermittent data flow issues.
-- Uncaught exceptions or silent failures in autonomous operations.
-- Load-induced failures or bottlenecks.
-  **Sequential Thinking Triggers & Examples:**
-
-- For test failures, break down the test steps and trace the error source recursively.
-  Agent Automation Scripts:
-  - `scripts/auto_ui_test.js`: Generate and run UI/UX flow tests.
-  - `scripts/auto_accessibility_audit.js`: Automated accessibility and performance checks.
-  - `scripts/auto_frontend_integration.js`: Validate frontend-backend integration with live/mock data.
-
----
-
-## Phase 5: Production Hardening & Deployment
-
-**Objectives:**
-
-- Ensure security, scalability, and maintainability for production.
-- Automate deployment and rollback procedures.
-
-Agent Automation Scripts:
-
-- `scripts/auto_e2e_test.py`: Generate and run end-to-end tests for all features.
-- `scripts/auto_regression_test.py`: Automate regression testing for new releases.
-- `scripts/auto_load_test.py`: Simulate load and monitor system response.
-- Optimized database and model performance.
-- Monitoring, logging, and alerting set up.
-- Deployment documentation and environment configuration.
-- Automated deployment and rollback scripts.
-
-Agent Automation Scripts:
-
-- `scripts/auto_security_audit.py`: Automated security and vulnerability scans.
-- `scripts/auto_deploy.py`: Generate and execute deployment/rollback routines.
-- `scripts/auto_monitor.py`: Set up and validate monitoring/alerting scripts.
-
-**Edge Cases:**
-
-- Security vulnerabilities, scaling bottlenecks, or deployment misconfigurations.
-- Cloud provider or CI/CD pipeline issues.
-  Agent Automation Scripts:
-  - `scripts/auto_doc_update.py`: Auto-generate and update documentation after each release.
-  - `scripts/auto_feedback_analysis.py`: Analyze user/agent feedback and suggest improvements.
-  - `scripts/auto_self_heal.py`: Monitor and trigger self-healing routines.
-- For security reviews, stepwise validate each vulnerability and mitigation.
-- When deploying, break down each step and validate outcomes before proceeding.
-- For rollback, sequentially test recovery from each failure scenario.
-
----
-
-## Phase 6: Documentation & Continuous Improvement
-
-**Objectives:**
-
-- Document all features, endpoints, and modules for maintainability.
-- Enable autonomous continuous improvement and self-healing.
-- Automate documentation updates and feedback analysis.
-
-**Deliverables:**
-
-- Comprehensive README, API docs, and usage guides.
-- Documentation of autonomous system capabilities and health checks.
-- Feedback loop for ongoing optimization and self-healing routines.
-- Automated documentation update scripts and feedback analysis reports.
-
-**Checkpoints:**
-
-- Documentation reviewed and updated after every major release.
-- Feedback loop validated with real user/agent input.
-- Self-healing routines tested and documented.
-
-**Edge Cases:**
-
-- Outdated documentation, missing feature notes, or unclear usage guides.
-- Feedback loop failing to trigger improvements.
-- Documentation automation failures or missed updates.
-
-**Sequential Thinking Triggers & Examples:**
-
-- For documentation audits, stepwise review each feature and endpoint for completeness.
-- When analyzing feedback, break down user/agent reports and trace improvement actions.
-- For self-healing routines, sequentially test each trigger and recovery path.
-
----
-
-## Progress Tracking
-
-- Each phase, task, and checkpoint should be tracked in `Inventory.md` and health endpoints.
-- Use sequential thinking for ambiguous progress validation or when phases overlap.
-
----
-
-## Completion Summary - FULLY VALIDATED ✅
-
-**Validation Date**: January 13, 2025
-**Status**: All phases of the A1Betting Ultra-Enhanced App Roadmap are now **FULLY IMPLEMENTED AND VALIDATED**.
-
-### **Implementation Verification**
-
-- ✅ **Phase 1-6**: All phases completed according to specifications
-- ✅ **3-Page Design**: Streamlined frontend exactly as specified
-- ✅ **Backend Integration**: Multi-platform APIs with fallback systems
-- ✅ **Frontend Modernization**: Professional UI with comprehensive error handling
-- ✅ **End-to-End Testing**: All functionality validated and operational
-- ✅ **Production Hardening**: Security, performance, and deployment readiness confirmed
-- ✅ **Documentation**: Complete documentation updated and validated
-
-### **Platform State**
-
-The platform is **production-ready** and **fully operational** with:
-
-- **Streamlined 3-page navigation** (Locked Bets, Live Stream, Settings)
-- **Advanced AI prediction engine** with quantum confidence scoring
-- **Multi-sportsbook integration** with PrizePicks as primary source
-- **Real-time data processing** with comprehensive fallback systems
-- **Professional user interface** with error boundaries and responsive design
-- **Complete backend infrastructure** with 47+ ML models and health monitoring
-
-### **Deployment Ready**
-
-Backend and frontend are robust, production-ready, and validated by comprehensive tests and health checks. Autonomous system is operational and all documentation is updated. The platform is ready for immediate deployment and real-world usage.
-
----
-
-## LockedBets Component Roadmap (2025)
-
-### Features & Status
-
-- [x] Robust error boundary with logging, stack trace, and reset
-- [x] Accessible, animated loading spinner
-- [x] Advanced multi-select and search filtering
-- [x] Real-time polling for backend updates (every 30s)
-- [x] Toast notifications for errors and refreshes
-- [x] Manual API response validation for LockedBet shape
-- [x] TypeScript strictness enabled in tsconfig.json
-- [x] Comprehensive unit tests for all UI states
-
-### Implementation Summary
-
-- All features are implemented and tested in `LockedBets.tsx` and `LockedBets.test.tsx`.
-- TypeScript strict mode is enabled for maximum type safety.
-- Unit tests cover loading, error, empty, populated, filter, and admin mode states.
-- Toast notifications provide user feedback for errors and refreshes.
-- Polling and manual refresh are coordinated for real-time updates.
-
-### Next Steps / Future Enhancements
-
-- [ ] Integrate WebSocket for push updates if backend supports
-- [ ] Add analytics and dashboard modules when available
-- [ ] Enhance UI with more animations and transitions
-- [ ] Add e2e tests for full user flows
-- [ ] Monitor performance and optimize as needed
-
----
-
-**Status:** All current roadmap items for LockedBets are complete and validated. LockedBets is production-ready.
-
----
-
-## 🎯 **FINAL VALIDATION STATUS - JANUARY 13, 2025**
-
-### **✅ ROADMAP COMPLETION VERIFIED**
-
-**All phases have been implemented and validated:**
-
-1. **✅ Phase 1: Foundation & Inventory** - Environment stable, components inventoried, health checks operational
-2. **✅ Phase 2: Backend Feature Integration** - Multi-platform APIs, ML models, real-time data pipeline
-3. **✅ Phase 3: Frontend Modernization** - Streamlined 3-page design exactly as specified
-4. **✅ Phase 4: End-to-End Integration & Testing** - Complete functionality validation
-5. **✅ Phase 5: Production Hardening & Deployment** - Security, performance, deployment readiness
-6. **✅ Phase 6: Documentation & Continuous Improvement** - Complete documentation updated
-
-### **🚀 PLATFORM READY FOR PRODUCTION**
-
-- **Application**: Fully functional with 3-page navigation
-- **Features**: All specified features implemented and validated
-- **Performance**: Optimized with sub-1-second load times
-- **Error Handling**: Comprehensive fallback systems
-- **Documentation**: README.md and Inventory.md fully updated
-- **Deployment**: Ready for immediate production deployment
-
-### **🎉 VALIDATION COMPLETE**
-
-The A1Betting Ultra-Enhanced Platform is now **production-ready** and **fully operational** according to all roadmap specifications. All claims have been verified and validated.
-
----
-
-**This roadmap was designed for autonomous, step-by-step execution. Each phase builds on the previous, with explicit notes for when sequential thinking should be used to resolve ambiguity, multi-step problems, or complex integrations. All phases are now complete and validated.**
+This roadmap is auto-generated from codebase comments and TODOs.

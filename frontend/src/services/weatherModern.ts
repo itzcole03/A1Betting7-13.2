@@ -1,80 +1,46 @@
-﻿import { UnifiedConfig } from '@/unified/UnifiedConfig.js';
-import { EventBus } from '@/unified/EventBus.js';
+﻿import { EventBus } from '@/unified/EventBus.js';
 import type { WeatherData } from '@/types/core.js';
 
 export class WeatherService {
   private readonly eventBus: EventBus;
-  private readonly config: UnifiedConfig;
   private cache = new Map<string, { data: WeatherData; timestamp: number }>();
   private readonly CACHE_TTL = 600000; // 10 minutes;
 
   constructor() {
-    this.config = UnifiedConfig.getInstance();
     this.eventBus = EventBus.getInstance();
   }
 
   /**
    * Get current weather for a location;
    */
-  async getCurrentWeather(location: string): Promise<WeatherData> {
-    if (!this.config.get('enableWeather')) {
-      this.eventBus.emit('error:occurred', error);
-      throw error;
-    }
-
-    if (cached) return cached;
-
-    try {
-      // Replace with real API call using config values if available;
-      // Example: fetch from OpenWeatherMap or similar;
-      throw new Error('Weather API integration not implemented.');
-    } catch (error) {
-      this.eventBus.emit('error:occurred', error as Error);
-      throw error;
-    }
+  async getCurrentWeather(location: string): Promise<any> {
+    // TODO: Integrate with real weather API endpoints for current, historical, and alerts
+    throw new Error('Weather API integration not implemented.');
   }
 
   /**
    * Get historical weather data;
    */
 
-  async getHistoricalWeather(_location: string, _date: string): Promise<WeatherData> {
-    if (!this.config.get('enableWeather')) {
-      this.eventBus.emit('error:occurred', error);
-      throw error;
-    }
-    try {
-      throw new Error('Historical weather API integration not implemented.');
-    } catch (error) {
-      this.eventBus.emit('error:occurred', error as Error);
-      throw error;
-    }
+  async getHistoricalWeather(location: string, date: string): Promise<any> {
+    // TODO: Replace with real API call
+    throw new Error('Historical weather API integration not implemented.');
   }
 
   /**
    * Get weather alerts for a location;
    */
 
-  async getWeatherAlerts(_location: string): Promise<WeatherData['alerts']> {
-    if (!this.config.get('enableWeather')) {
-      this.eventBus.emit('error:occurred', error);
-      throw error;
-    }
-    try {
-      throw new Error('Weather alerts API integration not implemented.');
-    } catch (error) {
-      this.eventBus.emit('error:occurred', error as Error);
-      throw error;
-    }
+  async getWeatherAlerts(location: string): Promise<any> {
+    // TODO: Replace with real API call
+    throw new Error('Weather alerts API integration not implemented.');
   }
 
   /**
    * Get cached data if still valid;
    */
   private getCachedData(key: string): WeatherData | null {
-    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
-      return cached.data;
-    }
+    // This method is no longer used as the cache is removed.
     return null;
   }
 }

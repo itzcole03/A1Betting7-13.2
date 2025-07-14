@@ -341,10 +341,11 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
               <div className='space-y-6'>
                 {/* Search */}
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>Search</label>
+                  <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='af-search'>Search</label>
                   <div className='relative'>
                     <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
                     <input
+                      id='af-search'
                       type='text'
                       value={filters.search}
                       onChange={e => updateFilter('search', e.target.value)}
@@ -460,8 +461,9 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                 {/* Odds Range */}
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>Min Odds</label>
+                    <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='af-min-odds'>Min Odds</label>
                     <input
+                      id='af-min-odds'
                       type='number'
                       step='0.01'
                       value={filters.minOdds || ''}
@@ -473,8 +475,9 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                     />
                   </div>
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>Max Odds</label>
+                    <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='af-max-odds'>Max Odds</label>
                     <input
+                      id='af-max-odds'
                       type='number'
                       step='0.01'
                       value={filters.maxOdds || ''}
@@ -490,10 +493,9 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                 {/* Value Range */}
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>
-                      Min Value
-                    </label>
+                    <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='af-min-value'>Min Value</label>
                     <input
+                      id='af-min-value'
                       type='number'
                       step='0.1'
                       value={filters.minValue || ''}
@@ -505,10 +507,9 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                     />
                   </div>
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>
-                      Max Value
-                    </label>
+                    <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='af-max-value'>Max Value</label>
                     <input
+                      id='af-max-value'
                       type='number'
                       step='0.1'
                       value={filters.maxValue || ''}
@@ -524,10 +525,9 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                 {/* Date Range */}
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>
-                      Start Date
-                    </label>
+                    <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='af-start-date'>Start Date</label>
                     <input
+                      id='af-start-date'
                       type='datetime-local'
                       value={
                         filters.dateRange.start
@@ -544,8 +544,9 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                     />
                   </div>
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>End Date</label>
+                    <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='af-end-date'>End Date</label>
                     <input
+                      id='af-end-date'
                       type='datetime-local'
                       value={
                         filters.dateRange.end
@@ -566,8 +567,9 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                 {/* Sorting */}
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>Sort By</label>
+                    <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='af-sort-by'>Sort By</label>
                     <select
+                      id='af-sort-by'
                       value={filters.sortBy}
                       onChange={e =>
                         updateFilter('sortBy', e.target.value as FilterState['sortBy'])
@@ -582,8 +584,9 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                     </select>
                   </div>
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>Order</label>
+                    <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='af-sort-order'>Order</label>
                     <select
+                      id='af-sort-order'
                       value={filters.sortOrder}
                       onChange={e =>
                         updateFilter('sortOrder', e.target.value as FilterState['sortOrder'])
@@ -625,7 +628,9 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                 <div className='p-4 bg-slate-700/30 rounded-lg'>
                   <h3 className='text-lg font-bold text-white mb-3'>Save Current Filters</h3>
                   <div className='flex items-center space-x-3'>
+                    <label htmlFor='af-preset-name' className='sr-only'>Preset Name</label>
                     <input
+                      id='af-preset-name'
                       type='text'
                       value={presetName}
                       onChange={e => setPresetName(e.target.value)}
@@ -636,6 +641,7 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                       onClick={savePreset}
                       disabled={!presetName.trim()}
                       className='px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 rounded-lg text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed'
+                      aria-label='Save Preset'
                     >
                       Save
                     </button>
@@ -656,6 +662,7 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                           <button
                             onClick={() => onLoadPreset?.(preset.filters)}
                             className='px-3 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded text-sm transition-colors'
+                            aria-label={`Load preset ${preset.name}`}
                           >
                             Load
                           </button>

@@ -268,8 +268,9 @@ export const NewsHub: React.FC = () => {
       <Card className='p-6'>
         <div className='grid grid-cols-1 lg:grid-cols-5 gap-4'>
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>Category</label>
+            <label className='block text-sm text-gray-400 mb-2' htmlFor='news-category'>Category</label>
             <select
+              id='news-category'
               value={selectedCategory}
               onChange={e => setSelectedCategory(e.target.value)}
               className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg'
@@ -285,8 +286,9 @@ export const NewsHub: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>Sport</label>
+            <label className='block text-sm text-gray-400 mb-2' htmlFor='news-sport'>Sport</label>
             <select
+              id='news-sport'
               value={selectedSport}
               onChange={e => setSelectedSport(e.target.value)}
               className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg'
@@ -302,8 +304,9 @@ export const NewsHub: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>Sort By</label>
+            <label className='block text-sm text-gray-400 mb-2' htmlFor='news-sort-by'>Sort By</label>
             <select
+              id='news-sort-by'
               value={sortBy}
               onChange={e => setSortBy(e.target.value as any)}
               className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg'
@@ -317,10 +320,11 @@ export const NewsHub: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>Search</label>
+            <label className='block text-sm text-gray-400 mb-2' htmlFor='news-search'>Search</label>
             <div className='relative'>
               <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
               <input
+                id='news-search'
                 type='text'
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}

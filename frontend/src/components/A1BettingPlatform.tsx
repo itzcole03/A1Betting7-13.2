@@ -120,18 +120,7 @@ interface APIStatus {
 }
 
 // TODO: Replace with actual import path for productionApiService
-// import { productionApiService } from '../services/productionApiService';
-interface ProductionApiService {
-  getBettingOpportunities: () => Promise<any[]>;
-  getArbitrageOpportunities: () => Promise<any[]>;
-  getPredictions: () => Promise<any[]>;
-}
-
-const productionApiService = (window as unknown as { productionApiService?: ProductionApiService }).productionApiService || {
-  getBettingOpportunities: async () => [],
-  getArbitrageOpportunities: async () => [],
-  getPredictions: async () => []
-} as ProductionApiService;
+import { productionApiService } from '../services/api/ProductionApiService';
 
 const CommandSummarySidebar: React.FC = () => {
   const { commands, loading, error, queue } = useCommandSummary();

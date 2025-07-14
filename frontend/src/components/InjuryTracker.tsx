@@ -55,14 +55,14 @@ export const InjuryTracker: React.FC = () => {
   useEffect(() => {
     const generateInjuryReports = (): InjuryReport[] => {
       const sports = ['NBA', 'NFL', 'MLB', 'NHL'];
-      const teams = {
+      const teams: { [key: string]: string[] } = {
         NBA: ['Lakers', 'Warriors', 'Celtics', 'Heat', 'Nets', 'Knicks'],
         NFL: ['Chiefs', 'Bills', 'Cowboys', 'Patriots', 'Packers', 'Ravens'],
         MLB: ['Yankees', 'Red Sox', 'Dodgers', 'Astros', 'Giants', 'Mets'],
         NHL: ['Rangers', 'Lightning', 'Bruins', 'Kings', 'Penguins', 'Capitals'],
       };
 
-      const positions = {
+      const positions: { [key: string]: string[] } = {
         NBA: ['PG', 'SG', 'SF', 'PF', 'C'],
         NFL: ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'CB', 'S', 'K'],
         MLB: ['P', 'C', '1B', '2B', '3B', 'SS', 'OF'],
@@ -300,8 +300,9 @@ export const InjuryTracker: React.FC = () => {
       <Card className='p-6'>
         <div className='grid grid-cols-1 lg:grid-cols-4 gap-4'>
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>Sport</label>
+            <label className='block text-sm text-gray-400 mb-2' htmlFor='injury-filter-sport'>Sport</label>
             <select
+              id='injury-filter-sport'
               value={selectedSport}
               onChange={e => setSelectedSport(e.target.value)}
               className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg'
@@ -316,8 +317,9 @@ export const InjuryTracker: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>Severity</label>
+            <label className='block text-sm text-gray-400 mb-2' htmlFor='injury-filter-severity'>Severity</label>
             <select
+              id='injury-filter-severity'
               value={selectedSeverity}
               onChange={e => setSelectedSeverity(e.target.value)}
               className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg'
@@ -332,10 +334,11 @@ export const InjuryTracker: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>Search</label>
+            <label className='block text-sm text-gray-400 mb-2' htmlFor='injury-filter-search'>Search</label>
             <div className='relative'>
               <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
               <input
+                id='injury-filter-search'
                 type='text'
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}

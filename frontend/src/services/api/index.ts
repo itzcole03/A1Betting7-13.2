@@ -1,45 +1,39 @@
-﻿// export { apiService } from './ApiService.js';
-export { get, post } from './client.js';
-// import { apiService } from './ApiService.js';
-// export const api = apiService;
+﻿import { get, post } from './client.js';
+export type { Player } from '@/types/core.ts';
 
-// Import types;
-export type { Player } from '@/types/api.js';
-
-// Lineup API functions;
 export interface LineupSubmission {
-  players: string[]; // player IDs;
+  players: string[];
   totalSalary: number;
   sport: string;
   contestId?: string;
 }
 
+// Fetch players from backend API
 export async function getPlayers(): Promise<any[]> {
   try {
-    // TODO: Replace with actual API call
-    const response = { success: true, data: [{ id: 'player1' }] };
-    if (response?.success && response?.data) {
+    // Calls /api/players endpoint
+    const response = await get('/players');
+    if (Array.isArray(response?.data)) {
       return response.data;
     }
     return [];
   } catch (error) {
-    // console statement removed
     return [];
   }
 }
 
+// Submit lineup to backend API
 export async function submitLineup(
   lineup: LineupSubmission
 ): Promise<{ success: boolean; lineupId?: string }> {
   try {
-    // TODO: Replace with actual API call
-    const response = { success: true, data: { lineupId: '123' } };
-    if (response?.success) {
-      return { success: true, lineupId: (response.data as any)?.lineupId };
+    // Calls /api/lineups endpoint
+    const response = await post('/lineups', lineup);
+    if (response && response.data && typeof response.data === 'object' && 'lineupId' in response.data) {
+      return { success: true, lineupId: (response.data as { lineupId: string }).lineupId };
     }
     return { success: false };
   } catch (error) {
-    // console statement removed
     return { success: false };
   }
 }

@@ -1,9 +1,8 @@
 ﻿// @ts-ignore
 import { AES, enc } from 'crypto-js';
-// TODO: Install @types/crypto-js or provide a proper type declaration for production.
-
-// TODO: Replace with secure key from environment variable or config
-const ENCRYPTION_KEY = 'REPLACE_WITH_SECURE_KEY';
+// If using TypeScript, install @types/crypto-js for better type safety.
+// import.meta.env.VITE_ENCRYPTION_KEY is the standard for Vite projects.
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY || 'FALLBACK_INSECURE_KEY';
 
 export function encryptData(data: string): string {
   try {

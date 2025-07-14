@@ -1,6 +1,11 @@
 ﻿import { PerformanceMetrics, RiskProfile } from '@/types/core';
-// TODO: TrendDelta type is missing; define as any for now
-type TrendDelta = any;
+// TrendDelta type for analytics trend API
+export interface TrendDelta {
+  trend: number;
+  delta: number;
+  period: 'day' | 'week' | 'month';
+  confidence: number;
+}
 import { BaseService } from './BaseService';
 
 export interface RecentActivity {

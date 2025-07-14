@@ -238,10 +238,11 @@ export const BankrollManager: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>
+            <label htmlFor='kelly-fraction-range' className='block text-sm text-gray-400 mb-2'>
               Kelly Fraction: {kellyFraction}
             </label>
             <input
+              id='kelly-fraction-range'
               type='range'
               min='0.1'
               max='1'

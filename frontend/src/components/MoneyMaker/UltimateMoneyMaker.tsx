@@ -331,12 +331,13 @@ const UltimateMoneyMaker: React.FC = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
           <div>
-            <label className='block text-sm font-medium text-gray-400 mb-2'>
+            <label className='block text-sm font-medium text-gray-400 mb-2' htmlFor='umm-investment'>
               Investment Amount
             </label>
             <div className='relative'>
               <DollarSign className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
               <input
+                id='umm-investment'
                 type='number'
                 value={config.investment}
                 onChange={e => setConfig({ ...config, investment: parseInt(e.target.value) || 0 })}
@@ -347,8 +348,9 @@ const UltimateMoneyMaker: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-400 mb-2'>Strategy Type</label>
+            <label className='block text-sm font-medium text-gray-400 mb-2' htmlFor='umm-strategy'>Strategy Type</label>
             <select
+              id='umm-strategy'
               value={config.strategy}
               onChange={e => setConfig({ ...config, strategy: e.target.value as any })}
               className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400'
@@ -361,11 +363,12 @@ const UltimateMoneyMaker: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-400 mb-2'>
+            <label className='block text-sm font-medium text-gray-400 mb-2' htmlFor='umm-confidence'>
               Confidence Threshold
             </label>
             <div className='relative'>
               <input
+                id='umm-confidence'
                 type='range'
                 min='80'
                 max='99'
@@ -378,10 +381,11 @@ const UltimateMoneyMaker: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-400 mb-2'>Portfolio Size</label>
+            <label className='block text-sm font-medium text-gray-400 mb-2' htmlFor='umm-portfolio'>Portfolio Size</label>
             <div className='relative'>
               <Target className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
               <input
+                id='umm-portfolio'
                 type='number'
                 min='1'
                 max='10'

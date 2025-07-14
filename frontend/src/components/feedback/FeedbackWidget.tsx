@@ -192,7 +192,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
       <div className='bg-white rounded-lg p-6 max-w-md w-full mx-4'>
         <div className='flex items-center justify-between mb-4'>
           <h3 className='text-lg font-semibold text-gray-900'>Send Feedback</h3>
-          <button onClick={onClose} className='text-gray-400 hover:text-gray-600'>
+          <button onClick={onClose} className='text-gray-400 hover:text-gray-600' aria-label='Close'>
             <X size={20} />
           </button>
         </div>
@@ -200,8 +200,9 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
         <form onSubmit={onSubmit} className='space-y-4'>
           {/* Feedback Type */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>Feedback Type</label>
+            <label className='block text-sm font-medium text-gray-700 mb-2' htmlFor='feedback-type'>Feedback Type</label>
             <select
+              id='feedback-type'
               value={feedback.type}
               onChange={e =>
                 setFeedback(prev => ({ ...prev, type: e.target.value as FeedbackData['type'] }))
@@ -217,10 +218,8 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
           {/* Rating */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
-              How would you rate this feature?
-            </label>
-            <div className='flex gap-1'>
+            <label className='block text-sm font-medium text-gray-700 mb-2' id='feedback-rating-label'>How would you rate this feature?</label>
+            <div className='flex gap-1' aria-labelledby='feedback-rating-label'>
               {[1, 2, 3, 4, 5].map(star => (
                 <button
                   key={star}
@@ -229,6 +228,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
                   className={`p-1 ${
                     star <= (feedback.rating || 0) ? 'text-yellow-400' : 'text-gray-300'
                   } hover:text-yellow-400 transition-colors`}
+                  aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
                 >
                   <Star size={20} fill='currentColor' />
                 </button>
@@ -238,8 +238,9 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
           {/* Message */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>Your feedback *</label>
+            <label className='block text-sm font-medium text-gray-700 mb-2' htmlFor='feedback-message'>Your feedback *</label>
             <textarea
+              id='feedback-message'
               value={feedback.message}
               onChange={e => setFeedback(prev => ({ ...prev, message: e.target.value }))}
               placeholder='Tell us what you think...'

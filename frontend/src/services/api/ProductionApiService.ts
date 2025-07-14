@@ -262,9 +262,9 @@ export class ProductionApiService {
   // Health check endpoint;
   async healthCheck(): Promise<boolean> {
     try {
-      // TODO: Implement actual health check logic
-      return true;
-    } catch {
+      const response = await this.get<SystemHealth>('/health', undefined, { cache: false });
+      return response.success && response.data?.status === 'online';
+    } catch (error) {
       return false;
     }
   }

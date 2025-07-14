@@ -12,6 +12,17 @@ const AuthPage: React.FC = () => {
   const { login, changePassword, loading, error, user, isAuthenticated, requiresPasswordChange } =
     useAuth();
 
+  // Forgot password state
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [forgotPasswordError, setForgotPasswordError] = useState<string | undefined>(undefined);
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState<string | undefined>(undefined);
+
+  // Forgot password modal state
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotStatus, setForgotStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [forgotMessage, setForgotMessage] = useState('');
+
   // Redirect to password change if required
   useEffect(() => {
     if (isAuthenticated && requiresPasswordChange) {
@@ -23,9 +34,53 @@ const AuthPage: React.FC = () => {
     await login(email, password);
   };
 
-  const handleForgotPassword = (email: string) => {
-    // TODO: Implement forgot password functionality
-    console.log('Forgot password for:', email);
+  // Forgot password handler
+  const handleForgotPassword = async (email: string) => {
+    setForgotPasswordLoading(true);
+    setForgotPasswordError(undefined);
+    setForgotPasswordSuccess(undefined);
+    try {
+      // Call backend endpoint
+      const response = await fetch(
+        (import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/auth/forgot-password',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setForgotPasswordSuccess('Password reset instructions sent to your email.');
+      } else {
+        setForgotPasswordError(data.message || 'Failed to send password reset instructions.');
+      }
+    } catch (error) {
+      setForgotPasswordError('Network error. Please try again later.');
+    } finally {
+      setForgotPasswordLoading(false);
+    }
+  };
+
+  const submitForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotStatus('loading');
+    setForgotMessage('');
+    try {
+      // TODO: Replace with real API call
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      setForgotStatus('success');
+      setForgotMessage('If this email is registered, a password reset link has been sent.');
+    } catch (err) {
+      setForgotStatus('error');
+      setForgotMessage('Failed to send reset email. Please try again later.');
+    }
+  };
+
+  const closeForgotModal = () => {
+    setShowForgotModal(false);
+    setForgotStatus('idle');
+    setForgotMessage('');
   };
 
   const handleRequestAccess = () => {
@@ -49,9 +104,9 @@ const AuthPage: React.FC = () => {
     confirmPassword: string
   ) => {
     await changePassword({
-      currentPassword,
+      userId: user?.id || '',
+      oldPassword: currentPassword,
       newPassword,
-      confirmPassword,
     });
   };
 
@@ -158,9 +213,52 @@ const AuthPage: React.FC = () => {
                 onPasswordChange={handlePasswordChange}
                 loading={loading}
                 error={error}
-                isFirstLogin={user?.isFirstLogin || user?.mustChangePassword}
                 userEmail={user?.email}
               />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Forgot Password Modal */}
+        <AnimatePresence>
+          {showForgotModal && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm'
+            >
+              <div className='bg-slate-900 rounded-xl shadow-lg p-8 w-full max-w-sm relative'>
+                <button
+                  className='absolute top-2 right-2 text-gray-400 hover:text-white text-xl'
+                  onClick={closeForgotModal}
+                  aria-label='Close'
+                >
+                  &times;
+                </button>
+                <h2 className='text-xl font-bold text-white mb-2'>Forgot Password</h2>
+                <p className='text-gray-400 mb-4'>Enter your email address and we'll send you a password reset link.</p>
+                <form onSubmit={submitForgotPassword} className='space-y-4'>
+                  <input
+                    type='email'
+                    className='w-full px-4 py-2 rounded-md bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-cyber-primary'
+                    placeholder='Email address'
+                    value={forgotEmail}
+                    onChange={e => setForgotEmail(e.target.value)}
+                    required
+                  />
+                  <button
+                    type='submit'
+                    className='w-full py-2 rounded-md bg-cyber-primary text-slate-900 font-semibold hover:bg-cyber-accent transition-colors disabled:opacity-60'
+                    disabled={forgotStatus === 'loading'}
+                  >
+                    {forgotStatus === 'loading' ? 'Sending...' : 'Send Reset Link'}
+                  </button>
+                </form>
+                {forgotMessage && (
+                  <div className={`mt-4 text-sm ${forgotStatus === 'success' ? 'text-green-400' : 'text-red-400'}`}>{forgotMessage}</div>
+                )}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

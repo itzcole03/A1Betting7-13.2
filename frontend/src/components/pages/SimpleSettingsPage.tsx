@@ -11,8 +11,8 @@ const SimpleSettingsPage: React.FC = () => {
 
           <div className='space-y-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>Risk Tolerance</label>
-              <select className='w-full p-2 border border-gray-300 rounded-md'>
+              <label htmlFor='risk-tolerance' className='block text-sm font-medium text-gray-700 mb-2'>Risk Tolerance</label>
+              <select id='risk-tolerance' className='w-full p-2 border border-gray-300 rounded-md'>
                 <option>Conservative</option>
                 <option>Moderate</option>
                 <option>Aggressive</option>
@@ -20,10 +20,11 @@ const SimpleSettingsPage: React.FC = () => {
             </div>
 
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <label htmlFor='portfolio-size' className='block text-sm font-medium text-gray-700 mb-2'>
                 Portfolio Size ($)
               </label>
               <input
+                id='portfolio-size'
                 type='number'
                 className='w-full p-2 border border-gray-300 rounded-md'
                 placeholder='1000'
@@ -31,13 +32,13 @@ const SimpleSettingsPage: React.FC = () => {
             </div>
 
             <div className='flex items-center'>
-              <input type='checkbox' className='mr-2' />
-              <label className='text-sm text-gray-700'>Enable notifications</label>
+              <input id='enable-notifications' type='checkbox' className='mr-2' />
+              <label htmlFor='enable-notifications' className='text-sm text-gray-700'>Enable notifications</label>
             </div>
 
             <div className='flex items-center'>
-              <input type='checkbox' className='mr-2' />
-              <label className='text-sm text-gray-700'>Auto-refresh data</label>
+              <input id='auto-refresh' type='checkbox' className='mr-2' />
+              <label htmlFor='auto-refresh' className='text-sm text-gray-700'>Auto-refresh data</label>
             </div>
           </div>
 

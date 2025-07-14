@@ -39,8 +39,8 @@ export class APITestSuite {
     const recommendations: string[] = [];
 
     // Test 1: Configuration Validation;
-    // console statement removed
-    results.configuration = { valid: true, issues: [], recommendations: [] }; // TODO: Restore real validation
+    const configValid = this.apiConfig.validateConfig();
+    results.configuration = { valid: configValid, issues: configValid ? [] : ['Invalid config'], recommendations: [] };
 
     // Test 2: Live API Connections;
     // console statement removed

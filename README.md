@@ -1,568 +1,438 @@
-# 🌌 A1Betting - Real-Time Sports Intelligence Platform
-
-## ⚡️ Diagnostic Entry & Build Troubleshooting (2025)
-
-### Minimal Diagnostic Entry
-
-To isolate build and launch issues, the Electron app now uses a minimal entry point (`index.js`) that writes a log file (`minimal-entry.log`) on startup. This confirms the entry file is executed and helps debug silent launch failures.
-
-### Build File Inclusion
-
-Ensure `index.js` is included in the `"files"` array in `package.json` so it is packaged in the output and asar archive. Without this, Electron-builder will fail with an entry file error.
-
-### Windows File Lock Troubleshooting
-
-On Windows, builds may fail with file lock errors ("The process cannot access the file because it is being used by another process"). To resolve:
-
-- Close all running Electron apps and file explorer windows in the output directory.
-- Manually delete the `electron-dist/win-unpacked` directory before rebuilding.
-
-### Incremental Main Process Restoration
-
-After confirming the minimal entry launches, incrementally restore your real main process logic (e.g., `main-sportsbook-api.cjs`) in `index.js`, adding diagnostic logs at each step. Test after each change to isolate any issues.
-
----
-
-## 🛠️ Development & Debugging Enhancements (2025)
-
-### Robust Diagnostic Logging
-
-- Early diagnostic logging added to `index.js` and `main-sportsbook-api.cjs` to confirm startup and isolate silent failures.
-- All critical startup steps log to `minimal-entry.log` and other diagnostic files for easy troubleshooting.
-
-### Dynamic Require Logic for Asar/Unpacked Environments
-
-- Logger and utility modules use dynamic require logic to work in both asar-packed and unpacked environments, preventing module resolution errors.
-- `utils/logger.js` is maximally robust to handle missing dependencies and syntax issues.
-
-### Electron-Builder Configuration Improvements
-
-- `package.json` updated to include all required files (including `index.js`) in the `"files"` array.
-- `asarUnpack` rules expanded to ensure logger dependencies and utilities are available at runtime.
-
-### Postbuild Script for Package.json Inclusion
-
-- A postbuild script copies `package.json` to the output directory after build, ensuring Electron can locate the entry file and dependencies.
-
-### Troubleshooting & Verification Steps
-
-- Common Windows build issues (file lock, permission denied) are documented, with manual deletion and process closure steps.
-- Diagnostic logs and direct file inspection are used to verify build output and runtime behavior.
-- Incremental restoration/testing workflow is recommended for isolating and fixing launch failures.
-
-### Testing & Validation
-
-- After each build, verify the presence of diagnostic logs and all required files in the output directory.
-- If errors occur, use diagnostic logs and incremental restoration to isolate and resolve issues before proceeding with full feature integration.
-
----
-
-> **🚀 Desktop Application - Production-Ready Electron App**
->
-> A comprehensive sports analytics platform featuring real-time analysis of thousands of bets across all sports, 47+ ML model ensemble, and professional-grade betting intelligence delivered as a native desktop application.
-
-**Desktop App Download: [GitHub Releases](https://github.com/a1betting/releases) • Web Dashboard: `http://localhost:8173` • Backend API: `http://localhost:8000`**
-
-![Platform Status](https://img.shields.io/badge/Status-Desktop%20Ready-brightgreen) ![Electron](https://img.shields.io/badge/Electron-32.3.3-blue) ![React](https://img.shields.io/badge/React-18.3.1-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-red) ![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue) ![Python](https://img.shields.io/badge/Python-3.11+-yellow) ![Desktop](https://img.shields.io/badge/Desktop-Ready%20✅-green)
-
-## 💻 **Desktop Application - Ready for Download**
-
-A1Betting is now available as a **native desktop application** built with Electron, providing a professional-grade sports betting analysis platform that users can download and run locally.
-
-### **🎯 Desktop Features**
-
-- **Native Desktop Experience**: Full-featured application with system integration
-- **Offline Functionality**: Local data persistence and offline analysis capabilities
-- **Desktop Notifications**: Real-time alerts for high-value betting opportunities
-- **Menu Integration**: Native menus for quick access to features and settings
-- **Auto-Updates**: Seamless application updates via built-in updater
-- **Cross-Platform**: Available for Windows (.exe), macOS (.dmg), and Linux (.AppImage)
-- **Secure Storage**: Encrypted local storage for API keys and user preferences
-- **Multi-Window Support**: Separate windows for analysis, streaming, and settings
-
-### **📦 Installation Requirements**
-
-#### **For End Users (Download & Install)**
-
-1. **Download**: Get the latest release from [GitHub Releases](https://github.com/a1betting/releases)
-2. **Install**: Run the installer for your platform:
-   - **Windows**: `A1Betting-1.0.0-x64.exe` (NSIS installer)
-   - **macOS**: `A1Betting-1.0.0-arm64.dmg` or `A1Betting-1.0.0-x64.dmg`
-   - **Linux**: `A1Betting-1.0.0-x64.AppImage`
-3. **Launch**: Open A1Betting from your applications menu
-4. **Setup**: Configure API keys and preferences on first launch
-
-#### **For Developers (Build from Source)**
-
-**Prerequisites:**
-
-- Node.js 20.x or higher
-- Python 3.11+ (for backend)
-- Git
-
-**Installation Steps:**
-
-```bash
-# Clone the repository
-git clone https://github.com/a1betting/a1betting-app.git
-cd a1betting-app
-
-# Frontend setup
-cd frontend
-npm install
-
-# Install additional Electron dependencies
-npm install electron electron-builder wait-on electron-reload --save-dev
-
-# Build the web application
-npm run build
-
-# Build desktop application
-npm run electron:build
-
-# Or run in development mode
-npm run electron:dev
-```
-
-**Build Commands:**
-
-```bash
-# Development
-npm run electron:dev      # Run in development with hot reload
-npm run electron          # Run built app in development
-
-# Production Builds
-npm run electron:build    # Build for current platform
-npm run electron:dist     # Build and create installer
-npm run electron:pack     # Build without installer (faster)
-
-# Platform-specific builds (requires platform or CI)
-npm run electron:build -- --win    # Windows .exe
-npm run electron:build -- --mac    # macOS .dmg
-npm run electron:build -- --linux  # Linux .AppImage
-```
-
----
-
-## 🎯 **Current Platform Status - DESKTOP READY ✅**
-
-A1Betting has been **completely transformed into a production-ready desktop application** with native system integration and professional-grade features.
-
-### **🖥️ Desktop Application Architecture**
-
-The platform now implements a **complete Electron-based desktop application** with modern native features:
-
-#### **📍 Main Window: 🎯 AI-Enhanced Locked Bets**
-
-- **Primary Value Proposition**: Most accurately predicted, real-time, locked sports bets
-- **Native Desktop UI**: Full desktop integration with system menus and notifications
-- **Modern 3x3 Grid Layout**: Enhanced prop cards with improved spacing and information structure
-- **Multi-Sportsbook Integration**: Pulls bets from multiple sources with clear source labeling
-- **PrizePicks Priority**: Default and priority source with transparent multi-platform support
-- **Advanced AI Computing**: LLMs and advanced algorithms for best possible predictions
-- **Real-time Predictions**: Quantum AI predictions with portfolio optimization
-- **Desktop Notifications**: System notifications for high-value opportunities
-- **Offline Capability**: Local data persistence and offline analysis
-
-#### **📍 Integrated Features: 📺 Live Stream & ⚙️ Settings**
-
-- **Embedded Browser**: Internal browser display for live streaming
-- **Live Game Context**: Integrated with betting recommendations
-- **Native Settings**: Desktop-optimized settings with secure credential storage
-- **System Integration**: Native menus, keyboard shortcuts, and window management
-
-#### **🚀 Desktop-Specific Features**
-
-- **System Tray Integration**: Minimize to system tray with quick access
-- **Keyboard Shortcuts**: Global hotkeys for rapid analysis and navigation
-- **File System Access**: Import/export betting data and configurations
-- **Multi-Monitor Support**: Optimized layout for multiple displays
-- **Native Notifications**: Desktop alerts for opportunities and analysis completion
-- **Auto-Updater**: Seamless background updates with user notifications
-- **Secure Storage**: Encrypted local storage for sensitive data
-
----
-
-## 🏗️ **Desktop Architecture Overview**
-
-### **Electron Stack - Production Implementation**
-
-```
-Electron 32.3.3 + React 18.3.1 + TypeScript 5.8.3
-├── 🖥️ Main Process (Node.js)
-│   ├── Window Management
-│   ├── System Integration
-│   ├── Auto-Updater
-│   ├── Native Menus
-│   ├── Security Policies
-│   └── IPC Communication
-├── 🎯 Renderer Process (React App)
-│   ├── AI-Enhanced Locked Bets
-│   ├── Real-Time Analysis Engine
-│   ├── Portfolio Optimization
-│   ├── Smart Stacking Analysis
-│   ├── PropOllama AI Chat
-│   └── Multi-Sportsbook Integration
-├── 🔒 Preload Scripts
-│   ├── Secure API Exposure
-│   ├── Context Isolation
-│   ├── IPC Handlers
-│   └── Security Boundaries
-└── 📦 Distribution
-    ├── Windows NSIS Installer
-    ├── macOS DMG Package
-    ├── Linux AppImage
-    └── Auto-Update Channels
-```
-
-### **Backend Integration - Local & Remote**
-
-```
-FastAPI + SQLite + Local Storage
-├── 🗄️ Local Database (SQLite)
-│   ├── User Settings & Preferences
-│   ├── Cached Predictions & Analysis
-│   ├── Betting History & Performance
-│   ├── API Keys (Encrypted)
-│   └── Offline Data Persistence
-├── 📡 Remote API Integration
-│   ├── Real-Time Sportsbook Data
-│   ├── ML Model Predictions
-│   ├── Live Sports Data Feeds
-│   └── Market Analytics
-├── 🤖 Local AI Processing
-│   ├── TensorFlow.js Models
-│   ├── Local Inference Engine
-│   ├── Offline Predictions
-│   └── Performance Analytics
-└── 🔄 Sync & Backup
-    ├── Cloud Data Sync
-    ├── Automatic Backups
-    ├── Multi-Device Sync
-    └── Data Recovery
-```
-
----
-
-## 🚀 **Quick Start - Desktop Application**
-
-### **🎯 For End Users**
-
-1. **Download**: Visit [GitHub Releases](https://github.com/a1betting/releases)
-2. **Install**: Run the installer for your operating system
-3. **Launch**: Open A1Betting from your applications
-4. **Setup**: Configure your betting preferences and API keys
-5. **Analyze**: Start real-time sports betting analysis
-
-### **🛠️ For Developers**
-
-```bash
-# Clone and setup
-git clone https://github.com/a1betting/a1betting-app.git
-cd a1betting-app/frontend
-
-# Install dependencies
-npm install
-
-# Install Electron dependencies
-npm install electron electron-builder wait-on --save-dev
-
-# Development mode (hot reload)
-npm run electron:dev
-
-# Build for production
-npm run build && npm run electron:build
-```
-
-**Desktop URL:** Native desktop application
-**Web Fallback:** `http://localhost:8173` (development)
-
----
-
-## 🎮 **Desktop Features & Capabilities**
-
-### **🎯 Native Desktop Integration**
-
-#### **🖥️ System Integration**
-
-- **Native Menus**: File, Edit, View, Analysis, Window, Help menus with keyboard shortcuts
-- **System Notifications**: Desktop alerts for high-value betting opportunities
-- **Keyboard Shortcuts**: Global hotkeys for analysis, refresh, and navigation
-- **System Tray**: Minimize to tray with quick access menu
-- **Multi-Window**: Separate windows for different features and analysis
-- **Auto-Launch**: Optional startup with system boot
-
-#### **📊 Enhanced Performance**
-
-- **Local Processing**: SQLite database for instant data access
-- **Offline Mode**: Cached data and local analysis when internet is unavailable
-- **Memory Management**: Optimized for long-running desktop use
-- **Background Processing**: Analysis continues when window is minimized
-- **Resource Optimization**: Efficient CPU and memory usage
-
-#### **🔒 Security & Privacy**
-
-- **Encrypted Storage**: Local data encryption for sensitive information
-- **Secure Communication**: HTTPS enforcement and certificate validation
-- **API Key Management**: Secure credential storage with encryption
-- **Data Privacy**: Local-first approach with optional cloud sync
-- **Update Security**: Signed updates with verification
-
-### **📈 Real-Time Analysis Engine**
-
-#### **🚀 Desktop-Optimized Analysis**
-
-- **Background Processing**: Analysis continues while using other applications
-- **Desktop Notifications**: Instant alerts for new opportunities
-- **Local Caching**: Faster repeated analysis with local data storage
-- **Batch Processing**: Process multiple sports and sportsbooks simultaneously
-- **Resource Management**: Intelligent CPU and memory usage optimization
-
-#### **🎯 Advanced Features**
-
-- **Multi-Sport Analysis**: Simultaneous analysis across all major sports
-- **Cross-Sportsbook Arbitrage**: Real-time opportunity detection
-- **Portfolio Optimization**: Advanced risk management and allocation
-- **Historical Analytics**: Local database of past performance and trends
-- **Predictive Modeling**: Local ML models for faster inference
-
----
-
-## 📦 **Distribution & Deployment**
-
-### **🏭 Build Configuration**
-
-#### **Windows Distribution**
-
-- **NSIS Installer**: Professional installer with uninstaller
-- **Code Signing**: Trusted certificate for Windows Defender compatibility
-- **Auto-Updates**: Seamless background updates
-- **System Integration**: Start menu, desktop shortcuts, file associations
-
-#### **macOS Distribution**
-
-- **DMG Package**: Native macOS installer experience
-- **App Notarization**: Apple security compliance
-- **Retina Support**: High-DPI display optimization
-- **Apple Silicon**: Native ARM64 builds for M1/M2 Macs
-
-#### **Linux Distribution**
-
-- **AppImage**: Portable application format
-- **Debian Package**: APT repository integration
-- **Snap Package**: Universal Linux package format
-- **Desktop Integration**: Native desktop environment support
-
-### **🔄 Auto-Update System**
-
-- **Background Updates**: Automatic update checking and downloading
-- **Incremental Updates**: Efficient delta updates to minimize bandwidth
-- **Rollback Support**: Automatic rollback on update failures
-- **User Control**: Optional manual update approval
-- **Release Channels**: Stable, beta, and nightly update channels
-
----
-
-## 🔧 **Technology Stack - Desktop Implementation**
-
-### **Desktop Technologies**
-
-- **Electron 32.3.3**: Native desktop application framework
-- **React 18.3.1**: Modern UI framework with desktop optimizations
-- **TypeScript 5.8.3**: Type-safe development with Electron APIs
-- **SQLite**: Local database for data persistence and caching
-- **Better-SQLite3**: High-performance SQLite bindings for Node.js
-- **Electron-Builder**: Professional application packaging and distribution
-- **Auto-Updater**: Built-in update mechanism with security verification
-
-### **Security & Performance**
-
-- **Context Isolation**: Secure renderer process isolation
-- **Preload Scripts**: Safe API exposure with security boundaries
-- **Content Security Policy**: Protection against XSS and code injection
-- **Node Integration**: Disabled in renderer for security
-- **Encrypted Storage**: Local data encryption for sensitive information
-- **Memory Management**: Optimized for long-running desktop use
-
----
-
-## 🚦 **Development Status - Desktop Ready ✅**
-
-### **✅ Completed Desktop Features**
-
-#### **Phase 1: Electron Foundation ✅**
-
-- [x] **Electron Setup**: Main process, renderer process, and build configuration
-- [x] **Window Management**: Multi-window support with native menus
-- [x] **System Integration**: Native notifications, system tray, keyboard shortcuts
-- [x] **Security Implementation**: Context isolation, preload scripts, CSP
-
-#### **Phase 2: Desktop Distribution ✅**
-
-- [x] **Electron-Builder**: Professional packaging for Windows, macOS, Linux
-- [x] **Installer Creation**: NSIS (Windows), DMG (macOS), AppImage (Linux)
-- [x] **Auto-Update System**: Background updates with user control
-- [x] **Code Signing**: Preparation for trusted certificate signing
-
-#### **Phase 3: Data Persistence ✅**
-
-- [x] **SQLite Integration**: Local database for settings and cache
-- [x] **Migration System**: Database schema versioning and updates
-- [x] **Encrypted Storage**: Secure credential and API key management
-- [x] **Offline Functionality**: Local data persistence and analysis
-
-### **🎯 Desktop Achievements**
-
-1. **Native Application**: Complete Electron desktop app with system integration
-2. **Cross-Platform**: Windows, macOS, and Linux distribution ready
-3. **Professional Packaging**: Proper installers with uninstall support
-4. **Security Compliant**: Secure architecture with encrypted local storage
-5. **Auto-Updates**: Seamless update system for continuous deployment
-6. **Performance Optimized**: Memory management and background processing
-7. **Offline Capable**: Local data persistence and offline analysis
-8. **System Integration**: Native menus, notifications, and shortcuts
-
-### **📊 Desktop Metrics**
-
-- **Application Size**: ~150MB (includes Chromium and Node.js runtime)
-- **Startup Time**: < 3 seconds on modern hardware
-- **Memory Usage**: ~200MB baseline (optimized for desktop use)
-- **Update Size**: < 50MB incremental updates
-- **Platform Support**: Windows 10+, macOS 10.15+, Ubuntu 18.04+
-
----
-
-## 📖 **Development & Deployment Guide**
-
-### **🔧 Development Commands**
-
-```bash
-# Frontend development
-cd frontend
-npm run dev          # Web development server
-npm run electron:dev # Electron development with hot reload
-npm run build        # Build web application
-npm run type-check   # TypeScript validation
-
-# Electron building
-npm run electron:pack    # Package without installer (fast)
-npm run electron:build   # Build with installer
-npm run electron:dist    # Full distribution build
-npm run postinstall      # Install native dependencies
-
-# Backend development
-cd backend
-python main.py       # Start FastAPI server
-pytest               # Run tests
-```
-
-### **🌐 Access Points**
-
-- **Desktop Application**: Native app (post-installation)
-- **Development Web**: `http://localhost:8173`
-- **API Documentation**: `http://localhost:8000/docs`
-- **Health Check**: `http://localhost:8000/api/health/all`
-
-### **📦 Distribution Files**
-
-```
-electron-dist/
-├── A1Betting-1.0.0-x64.exe          # Windows installer
-├── A1Betting-1.0.0-arm64.dmg        # macOS Apple Silicon
-├── A1Betting-1.0.0-x64.dmg          # macOS Intel
-├── A1Betting-1.0.0-x64.AppImage     # Linux portable
-├── A1Betting-1.0.0.deb              # Debian package
-└── latest.yml                        # Auto-update metadata
-```
-
----
-
-## 🎯 **Desktop Application Roadmap Completion**
-
-The A1Betting platform has been **fully transformed into a production-ready desktop application** with native system integration:
-
-### **✅ All Desktop Phases Complete**
-
-1. **Desktop Foundation**: Electron architecture with security and performance
-2. **System Integration**: Native menus, notifications, and system tray
-3. **Data Persistence**: SQLite database with encrypted storage
-4. **Distribution**: Professional installers for all major platforms
-5. **Auto-Updates**: Seamless update system with security verification
-6. **Security Hardening**: Secure architecture with encrypted local storage
-
-### **🏆 Desktop Application Ready For**
-
-- **Professional Deployment**: Production-ready installers for end users
-- **Enterprise Distribution**: Corporate deployment with admin controls
-- **App Store Distribution**: Preparation for Microsoft Store, Mac App Store
-- **Continuous Updates**: Automatic updates with rollback support
-- **Multi-Platform Support**: Windows, macOS, and Linux compatibility
-
----
-
-**🎯 A1Betting: Professional Desktop Sports Intelligence Platform**
-
-_Native desktop application with real-time analysis, secure local storage, and professional-grade features._
-
-**Ready for Download**: Complete desktop application with installers for Windows, macOS, and Linux platforms.
-
----
-
-## 🩺 Health API & Data Source Diagnostics (NEW)
-
-A1Betting now includes a dedicated **Health API** for real-time diagnostics and transparency into all backend data sources (PrizePicks, Sportradar, TheOddsAPI, etc.).
-
-### What is the Health API?
-- A minimal FastAPI server that exposes health and status endpoints for all backend data sources.
-- Designed for non-coders, admins, and support to quickly diagnose data issues, API key problems, or stale data.
-- Surfaces live/fallback/error status, last successful fetch, error details, and API key presence for each source.
-
-### How to Run the Health API
-1. **Open a terminal in your project root.**
-2. **Start the health server:**
-   ```bash
-   python -m backend.health_api
-   # or (if uvicorn is installed)
-   uvicorn backend.health_api:app --host 0.0.0.0 --port 8010 --reload
-   ```
-3. **Visit:** [http://localhost:8010/api/health/data-sources](http://localhost:8010/api/health/data-sources)
-
-### Endpoints
-- `/api/health` — Basic health check (always returns status: healthy)
-- `/api/health/data-sources` — **Full per-source health report** (PrizePicks, Sportradar, TheOddsAPI, etc.)
-
-### Example Output
+<!--- AI_CONTEXT_BLOCK_START --->
 ```json
 {
-  "data_sources": [
-    {
-      "data_source": "prizepicks",
-      "status": "success",
-      "last_success": "2025-07-14T10:19:23.975621+00:00",
-      "last_error": null,
-      "latency": 1.36,
-      "api_key_present": false
-    }
+  "project": "A1Betting7-13.2",
+  "last_updated": "2025-07-14 11:50 UTC",
+  "directory": [
+    "\u2514\u2500\u2500 itzcole03-a1betting7-13.2/",
+    "    \u251c\u2500\u2500 README.md",
+    "    \u251c\u2500\u2500 ADMIN_MODE_FEATURES.md",
+    "    \u251c\u2500\u2500 API_DOCUMENTATION.md",
+    "    \u251c\u2500\u2500 CHANGELOG.md",
+    "    \u251c\u2500\u2500 cookies.txt",
+    "    \u251c\u2500\u2500 FEATURE_INTEGRATION_ROADMAP.md",
+    "    \u251c\u2500\u2500 Inventory.md",
+    "    \u251c\u2500\u2500 prizepicks_data.db",
+    "    \u251c\u2500\u2500 roadmap.md",
+    "    \u251c\u2500\u2500 test_enhanced_service.py",
+    "    \u251c\u2500\u2500 test_output.txt",
+    "    \u251c\u2500\u2500 users.db",
+    "    \u251c\u2500\u2500 backend/",
+    "    \u2502   \u251c\u2500\u2500 README.md",
+    "    \u2502   \u251c\u2500\u2500 __init__.py",
+    "    \u2502   \u251c\u2500\u2500 a1betting_fallback.db",
+    "    \u2502   \u251c\u2500\u2500 admin_api.py",
+    "    \u2502   \u251c\u2500\u2500 advanced_best_practices_manager.py",
+    "    \u2502   \u251c\u2500\u2500 ADVANCED_BEST_PRACTICES_REPORT_20250701_151152.json",
+    "    \u2502   \u251c\u2500\u2500 advanced_feature_engineering.py",
+    "    \u2502   \u251c\u2500\u2500 agent_planner.py",
+    "    \u2502   \u251c\u2500\u2500 api_integration.py",
+    "    \u2502   \u251c\u2500\u2500 arbitrage_engine.py",
+    "    \u2502   \u251c\u2500\u2500 auth.py",
+    "    \u2502   \u251c\u2500\u2500 auth_service.py",
+    "    \u2502   \u251c\u2500\u2500 autonomous_project_development_handler.py",
+    "    \u2502   \u251c\u2500\u2500 autonomous_recursive_orchestrator.py",
+    "    \u2502   \u251c\u2500\u2500 autonomous_system.py",
+    "    \u2502   \u251c\u2500\u2500 backend_8001.py",
+    "    \u2502   \u251c\u2500\u2500 BACKEND_FILE_USAGE_ANALYSIS.md",
+    "    \u2502   \u251c\u2500\u2500 background_agents.py",
+    "    \u2502   \u251c\u2500\u2500 betting_opportunity_service.py",
+    "    \u2502   \u251c\u2500\u2500 cache_optimizer.py",
+    "    \u2502   \u251c\u2500\u2500 cleanup_console_statements.py",
+    "    \u2502   \u251c\u2500\u2500 command_registry.py",
+    "    \u2502   \u251c\u2500\u2500 complete_stub_endpoints.py",
+    "    \u2502   \u251c\u2500\u2500 config.py",
+    "    \u2502   \u251c\u2500\u2500 config_manager.py",
+    "    \u2502   \u251c\u2500\u2500 data_pipeline.py"
   ],
-  "timestamp": "2025-07-14T05:19:24.054247"
+  "api_endpoints": [
+    "backend/admin_api.py: @router.get(\"/admin/logs\", response_model=List[LogEntry])",
+    "backend/admin_api.py: @router.post(\"/admin/logs\")",
+    "backend/admin_api.py: @router.get(\"/admin/users\", response_model=List[User])",
+    "backend/admin_api.py: @router.get(\"/admin/health\")",
+    "backend/api_integration.py: @app.get(\"/health\")",
+    "backend/backend_8001.py: @app.get(\"/\")",
+    "backend/backend_8001.py: @app.get(\"/health\")",
+    "backend/backend_8001.py: @app.get(\"/api/prizepicks/props\")",
+    "backend/betting_opportunity_service.py: @router.get(\"/opportunities\")",
+    "backend/betting_opportunity_service.py: @router.get(\"/status\")"
+  ],
+  "file_types": {
+    ".py": 229,
+    ".md": 54,
+    ".txt": 16,
+    ".json": 11,
+    ".js": 9,
+    ".db": 6,
+    ".bat": 5,
+    ".html": 5,
+    ".ps1": 4,
+    "(no ext)": 3,
+    ".sh": 3,
+    ".cjs": 3,
+    ".example": 2,
+    ".ini": 1,
+    ".pkl": 1,
+    ".backup": 1,
+    ".code-workspace": 1
+  },
+  "health": {
+    "backend": "present",
+    "frontend": "present",
+    "api_health": "/api/health"
+  }
 }
 ```
+<!--- AI_CONTEXT_BLOCK_END --->
+![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Python](https://img.shields.io/badge/python-3.8%2B-blue) ![TypeScript](https://img.shields.io/badge/typescript-%5E5.0-blue) ![Build](https://img.shields.io/badge/build-passing-brightgreen) ![Code Size](https://img.shields.io/github/languages/code-size/itzcole03/A1Betting7-13.2) ![Repo Size](https://img.shields.io/github/repo-size/itzcole03/A1Betting7-13.2)
 
-### How to Interpret
-- **status**: `success` (live), `error` (unreachable), `degraded` (partial), etc.
-- **last_success**: Last time data was fetched successfully.
-- **last_error**: Error message if the last fetch failed.
-- **latency**: Time (seconds) for the last fetch attempt.
-- **api_key_present**: Whether an API key is configured for this source.
+# A1Betting7-13.2
 
-### Who Should Use This?
-- **Non-coders**: No coding required! Just run the command and visit the URL.
-- **Admins/Support**: Instantly see if a data source is down, missing a key, or returning errors.
-- **Developers**: Use for debugging, monitoring, and integration testing.
+**Professional Desktop Sports Intelligence Platform**
 
-### Troubleshooting
-- If the endpoint is not available, ensure the health server is running and port 8010 is open.
-- If you see `ModuleNotFoundError: No module named 'config'`, make sure you are running from the project root and all dependencies are installed.
-- For further help, see the [API_DOCUMENTATION.md](API_DOCUMENTATION.md) or contact support.
+---
+## 🤖 AI Agent Quick Start (Copilot/LLM/Auto Mode)
+---
+This project is designed for seamless use with AI copilots and LLM-based agents (e.g., Copilot, Cursor, GPT-4, etc.).
+- **All auto-generated sections are clearly marked.**
+- **To update documentation, run:**
+  ```
+  python scripts/extract_digest_for_docs.py
+  ```
+- **Copilots should use the auto-generated sections for context, code search, and code generation.**
+- **Manual narrative sections are for human onboarding, tutorials, and conceptual docs.**
+- **Copilots should preserve manual narrative sections and only regenerate auto-generated blocks.**
+- **All diagrams are in Mermaid format for easy parsing and visualization.**
+- **Last Updated:** 2025-07-14 11:50 UTC
+---
+---
+## 🤖 Copilot/AI Agent Integration
+---
+- Use the auto-generated sections for code search, refactoring, and onboarding.
+- Use the directory tree and architecture diagrams for project navigation.
+- Use the API docs for endpoint discovery and code generation.
+- Use the roadmap for feature planning and TODO tracking.
+- To keep docs in sync, always run the extraction script after code changes.
+- Manual narrative sections are for human context and should be preserved.
+---
+---
+## 🤖 Context for LLMs
+---
+- Use only the auto-generated sections for code search and context.
+- Do not hallucinate features or endpoints not present in the docs.
+- Always preserve the Manual Narrative Section.
+- If you update code, rerun the extraction script to keep docs in sync.
+---
+---
+## 📝 Manual Narrative Section (Human-Written)
+---
+_Add onboarding, tutorials, conceptual explanations, and human context here.
+Copilots and AI agents should **not** overwrite this section!_
+---
+---
+## 🚀 Quick Start
+---
+1. Clone the repo
+   ```
+   git clone https://github.com/itzcole03/A1Betting7-13.2.git
+   cd A1Betting7-13.2
+   ```
+2. Install dependencies
+   ```
+   cd frontend && npm install
+   cd ../backend && pip install -r requirements.txt
+   ```
+3. Start the backend
+   ```
+   python main.py
+   ```
+4. Start the frontend
+   ```
+   cd ../frontend && npm run dev
+   ```
+5. Open the app
+   - Web: http://localhost:8173
+   - Desktop: Run the Electron app
+---
+---
+## ❓ FAQ / Troubleshooting
+---
+- **Q: I get a port in use error when starting the frontend?**
+  - A: The dev server will try the next available port. Check the terminal for the new port.
+- **Q: Backend won't start, missing dependencies?**
+  - A: Run `pip install -r requirements.txt` in the backend directory.
+- **Q: How do I regenerate documentation?**
+  - A: Run `python scripts/extract_digest_for_docs.py` from the project root.
+- **Q: Where do I add onboarding or tutorials?**
+  - A: In the Manual Narrative Section of the README.
+---
+---
+## 🔗 Related Resources
+---
+- [API Documentation](API_DOCUMENTATION.md)
+- [Roadmap](roadmap.md)
+- [Changelog](CHANGELOG.md)
+- [Feature Integration Roadmap](FEATURE_INTEGRATION_ROADMAP.md)
+---
+---
+## 🩺 Project Health
+---
+- All core services present.
+- Health API available at `/api/health` (see backend).
+- For live status, run the backend and visit http://localhost:8000/api/health/all
+---
+---
+## 📝 Changelog (Latest)
+---
+# A1Betting Platform Changelog
 
+## [Latest] - 2024-12-19
+
+### 🚀 MAJOR: Real-Time Multi-Sport Analysis System
+
+#### 🎯 New Real-Time Analysis Engine
+
+- **ADDED**: Comprehensive on-demand analysis across ALL sports (NBA, NFL, MLB, NHL, Soccer, Tennis, Golf, UFC, Boxing, eSports, Cricket, Rugby)
+- **ADDED**: 47+ ML model ensemble for maximum prediction accuracy
+- **ADDED**: Multi-sportsbook integration (DraftKings, FanDuel, BetMGM, Caesars, Pinnacle, PrizePicks + more)
+- **ADDED**: Cross-sport optimization for 6-bet and 10-bet optimal lineups
+- **ADDED**: Smart rate limiting to respect API provider limits while maximizing data freshness
+- **ADDED**: Real-time progress monitoring with live status updates
+
+#### Backend Infrastructure
+
+- **CREATED**: `real_time_analysis_engine.py` - Core analysis engine processing thousands of bets
+- **CREATED**: `real_time_analysis.py` - API endpoints for analysis management
+- **ADDED**: `/api/analysis/start` - Trigger comprehensive analysis
+---
+---
+## 🤖 Contributing as an AI Agent
+---
+- Open a pull request with a clear description of your changes.
+- Tag your PR with `[AI]` in the title.
+- If you are an LLM, summarize your reasoning and cite relevant code sections.
+- Respect the Manual Narrative Section and do not overwrite it.
+- If you are unsure, ask for human review.
+---
+---
+## 🤖 AI Self-Test
+---
+To verify documentation and code are in sync, copilots/LLMs should:
+1. Parse the AI_CONTEXT_BLOCK at the top of this README.
+2. Compare directory and endpoints to the current codebase.
+3. If drift is detected, run `python scripts/extract_digest_for_docs.py` to update docs.
+4. Report pass/fail in PRs or issues.
+---
+---
+## 📜 Data Provenance & Usage Policy
+---
+All code and data in this repo are original or properly attributed.
+AI agents must cite this repo and relevant files when generating new content.
+For external data, see the LICENSE and attribution files.
+---
+---
+## 🔄 Streaming/Partial Update
+---
+For large repos, you can update only specific sections:
+- To update only API docs: run the extraction script with the `--api` flag (future).
+- To update only the roadmap: run with the `--roadmap` flag (future).
+- For now, the script updates all docs at once.
+---
+---
+## 🩺 Continuous Doc Health
+---
+- Last doc update: 2025-07-14 11:50 UTC
+- Last code update: (see git log)
+- If doc/code drift is detected, run the extraction script.
+---
+---
+## 🧠 LLM Prompt Engineering Tips
+---
+- Use the AI_CONTEXT_BLOCK for instant context loading.
+- Ask for code samples, API endpoints, or directory structure as needed.
+- Use the roadmap and changelog for planning and history.
+- Always cite sources and preserve manual narrative.
+---
+---
+## 🤖 AI/LLM Usage Policy
+---
+- AI agents may open PRs, refactor code, and generate tests.
+- All major changes should be reviewed by a human.
+- Manual narrative and license sections must be preserved.
+- Cite this repo and relevant files in all AI-generated content.
+---
+---
+## 🚨 DO NOT EDIT BELOW THIS LINE: AUTO-GENERATED BY extract_digest_for_docs.py 🚨
+---
+**Last Updated:** 2025-07-14 11:50 UTC
+---
+
+## Features
+- Native Electron desktop app (Windows, macOS, Linux)
+- FastAPI backend with health monitoring
+- Real-time sports data, analytics, and predictions
+- Secure local storage (SQLite, encrypted)
+- Auto-updates, system tray, and notifications
+- Modular, extensible architecture
+- Professional packaging and distribution
+- Comprehensive test suite
+- Modern UI/UX
+- And more!
+
+---
+
+## Directory Structure
+````markdown
+└── itzcole03-a1betting7-13.2/
+    ├── README.md
+    ├── ADMIN_MODE_FEATURES.md
+    ├── API_DOCUMENTATION.md
+    ├── CHANGELOG.md
+    ├── cookies.txt
+    ├── FEATURE_INTEGRATION_ROADMAP.md
+    ├── Inventory.md
+    ├── prizepicks_data.db
+    ├── roadmap.md
+    ├── test_enhanced_service.py
+    ├── test_output.txt
+    ├── users.db
+    ├── backend/
+    │   ├── README.md
+    │   ├── __init__.py
+    │   ├── a1betting_fallback.db
+    │   ├── admin_api.py
+    │   ├── advanced_best_practices_manager.py
+    │   ├── ADVANCED_BEST_PRACTICES_REPORT_20250701_151152.json
+    │   ├── advanced_feature_engineering.py
+    │   ├── agent_planner.py
+    │   ├── api_integration.py
+    │   ├── arbitrage_engine.py
+    │   ├── auth.py
+    │   ├── auth_service.py
+    │   ├── autonomous_project_development_handler.py
+    │   ├── autonomous_recursive_orchestrator.py
+    │   ├── autonomous_system.py
+    │   ├── backend_8001.py
+    │   ├── BACKEND_FILE_USAGE_ANALYSIS.md
+    │   ├── background_agents.py
+    │   ├── betting_opportunity_service.py
+    │   ├── cache_optimizer.py
+    │   ├── cleanup_console_statements.py
+    │   ├── command_registry.py
+    │   ├── complete_stub_endpoints.py
+    │   ├── config.py
+    │   ├── config_manager.py
+    │   ├── data_pipeline.py
+...
+````
+
+---
+
+## Visual Directory Tree
+```mermaid
+graph TD
+    itzcole03-a1betting7-13.2[itzcole03-a1betting7-13.2]
+    ____README.md[README.md]
+    ____ADMIN_MODE_FEATURES.md[ADMIN_MODE_FEATURES.md]
+    ____API_DOCUMENTATION.md[API_DOCUMENTATION.md]
+    ____CHANGELOG.md[CHANGELOG.md]
+    ____cookies.txt[cookies.txt]
+    ____FEATURE_INTEGRATION_ROADMAP.md[FEATURE_INTEGRATION_ROADMAP.md]
+    ____Inventory.md[Inventory.md]
+    ____prizepicks_data.db[prizepicks_data.db]
+    ____roadmap.md[roadmap.md]
+    ____test_enhanced_service.py[test_enhanced_service.py]
+    ____test_output.txt[test_output.txt]
+    ____users.db[users.db]
+    ____backend[backend]
+    ____│   README.md[│   README.md]
+    ____│   __init__.py[│   __init__.py]
+    ____│   a1betting_fallback.db[│   a1betting_fallback.db]
+    ____│   admin_api.py[│   admin_api.py]
+    ____│   advanced_best_practices_manager.py[│   advanced_best_practices_manager.py]
+    ____│   ADVANCED_BEST_PRACTICES_REPORT_20250701_151152.json[│   ADVANCED_BEST_PRACTICES_REPORT_20250701_151152.json]
+```
+
+---
+
+## Architecture Diagram
+```mermaid
+graph LR
+Frontend[Frontend (Electron/React)] --> Backend[Backend (FastAPI/Python)]
+Backend --> DB[(SQLite/Encrypted)]
+Backend --> APIs[External APIs]
+Frontend --> User[User]
+```
+
+---
+
+## Technology Stack
+- .py: 229 files
+- .md: 54 files
+- .txt: 16 files
+- .json: 11 files
+- .js: 9 files
+- .db: 6 files
+- .bat: 5 files
+- .html: 5 files
+- .ps1: 4 files
+- (no ext): 3 files
+- .sh: 3 files
+- .cjs: 3 files
+- .example: 2 files
+- .ini: 1 files
+- .pkl: 1 files
+- .backup: 1 files
+- .code-workspace: 1 files
+
+---
+
+## API Endpoints
+- backend/admin_api.py: @router.get("/admin/logs", response_model=List[LogEntry])
+- backend/admin_api.py: @router.post("/admin/logs")
+- backend/admin_api.py: @router.get("/admin/users", response_model=List[User])
+- backend/admin_api.py: @router.get("/admin/health")
+- backend/api_integration.py: @app.get("/health")
+- backend/backend_8001.py: @app.get("/")
+- backend/backend_8001.py: @app.get("/health")
+- backend/backend_8001.py: @app.get("/api/prizepicks/props")
+- backend/betting_opportunity_service.py: @router.get("/opportunities")
+- backend/betting_opportunity_service.py: @router.get("/status")
+- ...
+
+## Example Code
+```python
+class LogEntry(BaseModel):
+```
+```python
+class User(BaseModel):
+```
+```python
+def get_logs():
+```
+```python
+class AdvancedSupervisorCoordinator:
+```
+```python
+class AdvancedBestPracticesManager:
+```
+...
+
+---
+## Detailed API Reference
+---
+## How to Contribute
+1. Fork the repo and create a feature branch.
+2. Add your feature or fix.
+3. Submit a pull request with a clear description.
+
+---
+## Vision
+A1Betting7-13.2 aims to be the most robust, powerful, and beautifully designed sports intelligence platform for professionals and enthusiasts alike.
+---
+---
+## 📄 License and Attribution
+---
+This project is licensed under the MIT License.
+See LICENSE file for details.
 ---

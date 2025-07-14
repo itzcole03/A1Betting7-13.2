@@ -39,24 +39,28 @@ export default function Settings() {
           <section>
             <h3 className='text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200'>Theme</h3>
             <div className='flex flex-col space-y-3'>
-              {themes.map(t => (
-                <label key={t.value} className='flex items-center cursor-pointer'>
-                  <input
-                    type='radio'
-                    name='theme'
-                    value={t.value}
-                    checked={theme === t.value}
-                    onChange={() => setTheme(t.value as any)}
-                    className='form-radio h-5 w-5 text-blue-600 dark:text-blue-400'
-                  />
-                  <span className='ml-3 text-slate-800 dark:text-slate-100'>{t.label}</span>
-                  {theme === t.value && (
-                    <span className='ml-2 px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-medium'>
-                      Selected
-                    </span>
-                  )}
-                </label>
-              ))}
+              {themes.map(t => {
+                const inputId = `theme-radio-${t.value}`;
+                return (
+                  <label key={t.value} className='flex items-center cursor-pointer' htmlFor={inputId}>
+                    <input
+                      type='radio'
+                      name='theme'
+                      id={inputId}
+                      value={t.value}
+                      checked={theme === t.value}
+                      onChange={() => setTheme(t.value as any)}
+                      className='form-radio h-5 w-5 text-blue-600 dark:text-blue-400'
+                    />
+                    <span className='ml-3 text-slate-800 dark:text-slate-100'>{t.label}</span>
+                    {theme === t.value && (
+                      <span className='ml-2 px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-medium'>
+                        Selected
+                      </span>
+                    )}
+                  </label>
+                );
+              })}
             </div>
           </section>
         );
@@ -68,15 +72,15 @@ export default function Settings() {
             <div className='space-y-4'>
               <div className='flex items-center justify-between'>
                 <span className='text-slate-800 dark:text-slate-100'>Email Notifications</span>
-                <input type='checkbox' className='form-checkbox h-5 w-5 text-blue-600' />
+                <input type='checkbox' className='form-checkbox h-5 w-5 text-blue-600' aria-label='Email Notifications' />
               </div>
               <div className='flex items-center justify-between'>
                 <span className='text-slate-800 dark:text-slate-100'>Push Notifications</span>
-                <input type='checkbox' className='form-checkbox h-5 w-5 text-blue-600' />
+                <input type='checkbox' className='form-checkbox h-5 w-5 text-blue-600' aria-label='Push Notifications' />
               </div>
               <div className='flex items-center justify-between'>
                 <span className='text-slate-800 dark:text-slate-100'>Betting Alerts</span>
-                <input type='checkbox' className='form-checkbox h-5 w-5 text-blue-600' defaultChecked />
+                <input type='checkbox' className='form-checkbox h-5 w-5 text-blue-600' defaultChecked aria-label='Betting Alerts' />
               </div>
             </div>
           </section>

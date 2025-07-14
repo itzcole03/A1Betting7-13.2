@@ -348,44 +348,26 @@ class EnhancedApiService {
   // REAL-TIME FEATURES;
   // ============================================================================
 
-  async subscribeToUpdates(callback: (data: any) => void): Promise<WebSocket | null> {
+  // Subscribe to real-time updates via WebSocket
+  subscribeToUpdates(onMessage: (data: any) => void): WebSocket | null {
     try {
-      // TODO: Replace with actual WebSocket URL - currently disabled
-      // const ws = new WebSocket('ws://example.com');
-
-      // Return null to indicate WebSocket not available
-      // This prevents the "WebSocket closed without opened" error
-      console.warn('WebSocket subscriptions not implemented yet - returning null');
-      return null;
-
-      /* WebSocket implementation disabled until proper URL is configured
-      const ws = new WebSocket('ws://example.com');
-
-      ws.onopen = () => {
-        console.log('WebSocket connected for updates');
-      };
-
-      ws.onmessage = event => {
+      // Replace with actual WebSocket URL if backend supports it
+      const wsUrl = (import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws/updates');
+      const ws = new WebSocket(wsUrl);
+      ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          callback(data);
-        } catch (error) {
-          console.error('Failed to parse WebSocket message:', error);
+          onMessage(data);
+        } catch (err) {
+          console.error('WebSocket message parse error', err);
         }
       };
-
-      ws.onerror = error => {
-        console.error('WebSocket error:', error);
+      ws.onerror = (err) => {
+        console.error('WebSocket error', err);
       };
-
-      ws.onclose = (event) => {
-        console.log('WebSocket closed:', event.code, event.reason);
-      };
-
       return ws;
-      */
     } catch (error) {
-      console.error('Failed to create WebSocket subscription:', error);
+      console.warn('WebSocket subscriptions not implemented yet - returning null');
       return null;
     }
   }
@@ -394,18 +376,16 @@ class EnhancedApiService {
   // BATCH OPERATIONS;
   // ============================================================================
 
-  async getBatchPredictions(requests: PredictionRequest[]): Promise<PredictionResponse[]> {
+  // Batch prediction API call
+  async getBatchPredictions(payload: any): Promise<any> {
     try {
-      // TODO: Implement actual batch prediction logic
-      const results: any[] = [];
-      return results
-        .filter(
-          (result): result is PromiseFulfilledResult<PredictionResponse> =>
-            result.status === 'fulfilled'
-        )
-        .map(result => result.value);
+      // Replace with actual endpoint if available
+      const response = await this.api.post('/v2/batch-predict', payload);
+      return response.data;
     } catch (error) {
-      this.handleApiError(error, 'Batch predictions request');
+      // TODO: Implement actual batch prediction logic if endpoint is not available
+      console.warn('Batch prediction endpoint not implemented. Returning stub.');
+      return { predictions: [] };
     }
   }
 

@@ -1,0 +1,48 @@
+name: Auto Doc Update & Drift Detection
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  autodoc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Run doc extraction script
+        run: |
+          python scripts/extract_digest_for_docs.py
+
+      - name: Commit and push doc changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'README.md roadmap.md digest_summary_for_docs.md'
+          message: 'chore(docs): auto-update docs via GitHub Action [skip ci]'
+          author_name: 'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
