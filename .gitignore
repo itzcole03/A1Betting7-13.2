@@ -73,3 +73,4 @@ organized_chat_data_*.json
 extracted_chat_data_*.json
 gitingest_summary.txt
 supervisor_chats/*.json
+frontend/electron-dist/
