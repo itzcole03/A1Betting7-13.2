@@ -1,0 +1,409 @@
+/* ===========================================
+   CYBER THEME - EXACT PROTOTYPE MATCH
+   =========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+/* Force body and html styling to match prototype */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+#root {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+}
+
+/* Keyframe Animations */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes glow-pulse {
+  0% {
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 40px rgba(0, 255, 136, 0.8);
+  }
+}
+
+@keyframes slide-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes cyber-pulse {
+  0%,
+  100% {
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+  }
+  50% {
+    text-shadow:
+      0 0 20px rgba(0, 255, 136, 1),
+      0 0 30px rgba(0, 255, 136, 0.8);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Beautiful Glass Morphism - Exact Prototype Match */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.dark .glass-card {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Ensure glass cards work in all contexts */
+.glass-card,
+.glass-card.dark {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Holographic Text Effect - Exact Prototype Match */
+.holographic {
+  background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff, #06ffa5, #ffbe0b) !important;
+  background-size: 400% 400% !important;
+  animation: gradient-shift 8s ease infinite !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: transparent !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Modern Button Styles */
+.cyber-btn {
+  background: linear-gradient(45deg, #00ff88, #00d4ff);
+  border: none;
+  color: #000 !important; /* Force black text for better contrast */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+/* Improve button text visibility globally */
+button {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.mega-button {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.cyber-button {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.cyber-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s;
+}
+
+.cyber-btn:hover::before {
+  left: 100%;
+}
+
+.cyber-btn:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Clean Navigation */
+.nav-item {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  margin-bottom: 4px;
+}
+
+.nav-item:hover {
+  background: rgba(0, 255, 136, 0.1);
+  border-left: 4px solid #00ff88;
+  padding-left: 16px;
+}
+
+.nav-item.active {
+  background: rgba(0, 255, 136, 0.2);
+  border-left: 4px solid #00ff88;
+  padding-left: 16px;
+  box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+  color: #fff !important; /* Ensure white text on darker green background */
+}
+
+/* Floating Elements */
+.float-element {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #00ff88, #00d4ff);
+  border-radius: 10px;
+}
+
+/* Input Styling */
+input[type='number'],
+select,
+input[type='text'],
+input[type='email'],
+textarea {
+  font-size: 16px !important;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: inherit;
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+}
+
+input[type='number']:focus,
+select:focus,
+input[type='text']:focus,
+input[type='email']:focus,
+textarea:focus {
+  outline: none;
+  border-color: #00ff88;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+}
+
+/* Background Effects - Exact Prototype Match */
+.cyber-bg {
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(0, 212, 255, 0.03) 0%, transparent 50%);
+  font-family: 'Inter', system-ui, sans-serif;
+  color: white;
+}
+
+/* Neon Shadows */
+.shadow-neon {
+  box-shadow:
+    0 0 20px rgba(0, 255, 136, 0.6),
+    0 0 40px rgba(0, 255, 136, 0.4);
+}
+
+.shadow-neon-pink {
+  box-shadow:
+    0 0 20px rgba(255, 16, 240, 0.6),
+    0 0 40px rgba(255, 16, 240, 0.4);
+}
+
+.shadow-neon-blue {
+  box-shadow:
+    0 0 20px rgba(0, 212, 255, 0.6),
+    0 0 40px rgba(0, 212, 255, 0.4);
+}
+
+/* Animation Classes */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite alternate;
+}
+
+.animate-slide-in-up {
+  animation: slide-in-up 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.6s ease-out;
+}
+
+.animate-cyber-pulse {
+  animation: cyber-pulse 3s ease-in-out infinite;
+}
+
+/* Card Hover Effects - Exact Prototype Match */
+.metric-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.metric-card:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow:
+    0 0 20px rgba(0, 255, 136, 0.6),
+    0 0 40px rgba(0, 255, 136, 0.4);
+  border-color: rgba(0, 255, 136, 0.3);
+}
+
+/* Status Indicators */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-active {
+  background: #00ff88;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+}
+
+.status-warning {
+  background: #ffbe0b;
+  box-shadow: 0 0 10px rgba(255, 190, 11, 0.8);
+}
+
+.status-error {
+  background: #ff006e;
+  box-shadow: 0 0 10px rgba(255, 0, 110, 0.8);
+}
+
+/* Beautiful Typography */
+.cyber-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.cyber-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Loading Animations */
+.cyber-loading {
+  background: linear-gradient(45deg, #00ff88, #00d4ff, #8338ec, #ff006e);
+  background-size: 400% 400%;
+  animation: gradient-shift 2s ease infinite;
+  border-radius: 4px;
+  height: 4px;
+}
+
+/* Button Variant Styling for Better Visibility */
+.mega-button[style*='background'] {
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.mega-button[style*='transparent'] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(6, 255, 165, 0.8) !important;
+  color: #ffffff !important;
+}
+
+/* Secondary button improvements */
+.mega-button:not([style*='gradient']) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+/* Primary/active button improvements */
+.mega-button[style*='gradient'] {
+  color: #000 !important;
+  font-weight: 600 !important;
+}
+
+/* Hover states for better feedback */
+.mega-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.cyber-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  .glass-card {
+    backdrop-filter: blur(10px);
+  }
+
+  .cyber-btn {
+    font-size: 14px;
+    padding: 12px 24px;
+  }
+
+  .mega-button {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+}

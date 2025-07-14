@@ -1,0 +1,444 @@
+/* Enhanced Quantum Dashboard Styles - Matching HTML Reference Exactly */
+
+/* Ultra Glass Morphism - Exact match to HTML reference */
+.ultra-glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(25px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.dark .ultra-glass {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Quantum Card Enhancement */
+.quantum-card {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 8px 32px rgba(31, 38, 135, 0.37),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.quantum-card:hover {
+  border-color: rgba(0, 255, 136, 0.3);
+  box-shadow:
+    0 12px 48px rgba(0, 255, 136, 0.15),
+    0 0 20px rgba(0, 255, 136, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Advanced Holographic Text - Exact match to HTML */
+.holographic {
+  background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff, #06ffa5, #ffbe0b, #ff006e);
+  background-size: 600% 600%;
+  animation:
+    gradient-shift 10s ease infinite,
+    hologram-flicker 3s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 100% 50%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes hologram-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  60% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.9;
+  }
+}
+
+/* Enhanced Animations - Matching HTML reference */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotateY(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotateY(5deg);
+  }
+}
+
+@keyframes cyber-pulse {
+  0%,
+  100% {
+    text-shadow:
+      0 0 10px rgba(0, 255, 136, 0.8),
+      0 0 20px rgba(0, 255, 136, 0.4);
+  }
+  50% {
+    text-shadow:
+      0 0 20px rgba(0, 255, 136, 1),
+      0 0 40px rgba(0, 255, 136, 0.8),
+      0 0 60px rgba(0, 255, 136, 0.4);
+  }
+}
+
+@keyframes neural-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes quantum-spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(90deg) scale(1.1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1);
+  }
+  75% {
+    transform: rotate(270deg) scale(0.9);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes slide-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes glow-pulse {
+  0% {
+    box-shadow:
+      0 0 20px rgba(0, 255, 136, 0.4),
+      0 0 40px rgba(0, 255, 136, 0.2);
+  }
+  100% {
+    box-shadow:
+      0 0 40px rgba(0, 255, 136, 0.8),
+      0 0 80px rgba(0, 255, 136, 0.4);
+  }
+}
+
+/* Enhanced Neon Shadows - Exact HTML match */
+.shadow-neon {
+  box-shadow:
+    0 0 20px rgba(0, 255, 136, 0.6),
+    0 0 40px rgba(0, 255, 136, 0.4),
+    0 0 60px rgba(0, 255, 136, 0.2);
+}
+
+.shadow-neon-pink {
+  box-shadow:
+    0 0 20px rgba(255, 16, 240, 0.6),
+    0 0 40px rgba(255, 16, 240, 0.4);
+}
+
+.shadow-neon-blue {
+  box-shadow:
+    0 0 20px rgba(0, 212, 255, 0.6),
+    0 0 40px rgba(0, 212, 255, 0.4);
+}
+
+.shadow-neon-purple {
+  box-shadow:
+    0 0 20px rgba(124, 58, 237, 0.6),
+    0 0 40px rgba(124, 58, 237, 0.4);
+}
+
+.shadow-quantum {
+  box-shadow:
+    0 0 30px rgba(14, 165, 233, 0.5),
+    0 0 60px rgba(14, 165, 233, 0.3);
+}
+
+/* Float Animation Enhancement */
+.float-element {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Custom Scrollbar - Matching HTML design */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #00ff88, #00d4ff);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #00d4ff, #7c3aed);
+}
+
+/* Enhanced Font Cyber - Exact HTML match */
+.font-cyber {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+/* Neural Activity Indicators */
+.animate-neural-pulse {
+  animation: neural-pulse 4s ease-in-out infinite;
+}
+
+.animate-cyber-pulse {
+  animation: cyber-pulse 3s ease-in-out infinite;
+}
+
+.animate-quantum-spin {
+  animation: quantum-spin 8s linear infinite;
+}
+
+/* Theme Variations - Matching HTML */
+.theme-neural-purple {
+  background: linear-gradient(
+    135deg,
+    #0f0f23 0%,
+    #1e1b4b 25%,
+    #581c87 50%,
+    #6b21a8 75%,
+    #1e1b4b 100%
+  );
+}
+
+.theme-cyber-blue {
+  background: linear-gradient(
+    135deg,
+    #0c1445 0%,
+    #1e3a8a 25%,
+    #1e40af 50%,
+    #2563eb 75%,
+    #1e3a8a 100%
+  );
+}
+
+.theme-quantum-dark {
+  background: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #1e293b 25%,
+    #334155 50%,
+    #475569 75%,
+    #1e293b 100%
+  );
+}
+
+/* Navigation Active States - Exact HTML match */
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 212, 255, 0.2));
+  border: 2px solid rgba(0, 255, 136, 0.4);
+  box-shadow:
+    0 0 20px rgba(0, 255, 136, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateX(5px);
+}
+
+/* Particle Effects Background */
+.particle {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: linear-gradient(45deg, #00ff88, #00d4ff);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  animation: matrix-rain 12s linear infinite;
+}
+
+@keyframes matrix-rain {
+  0% {
+    transform: translateY(-100vh);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+/* Enhanced Status Indicators */
+.status-indicator-active {
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+  animation: pulse 2s infinite;
+}
+
+.status-indicator-neural {
+  box-shadow: 0 0 10px rgba(147, 51, 234, 0.5);
+  animation: neural-pulse 3s infinite;
+}
+
+/* Enhanced Button Styles - Matching HTML */
+.quantum-btn {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 212, 255, 0.2));
+  border: 2px solid rgba(0, 255, 136, 0.4);
+  color: #00ff88;
+  font-weight: bold;
+  font-family: 'Orbitron', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.quantum-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.3), rgba(0, 212, 255, 0.3));
+  border-color: rgba(0, 255, 136, 0.6);
+  box-shadow:
+    0 0 20px rgba(0, 255, 136, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.quantum-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.quantum-btn:hover::before {
+  left: 100%;
+}
+
+/* Enhanced Admin Control Styles */
+.admin-control {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.admin-control:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateY(-2px);
+}
+
+/* Loading States */
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* Enhanced Responsive Design */
+@media (max-width: 768px) {
+  .holographic {
+    font-size: 3rem;
+  }
+
+  .quantum-card {
+    padding: 1rem;
+  }
+
+  .ultra-glass {
+    backdrop-filter: blur(15px);
+  }
+}
+
+/* Performance Optimizations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  .float-element,
+  .animate-neural-pulse,
+  .animate-cyber-pulse,
+  .animate-quantum-spin {
+    animation: none;
+  }
+
+  .quantum-card {
+    transition: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .quantum-card {
+    border: 2px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .holographic {
+    background: linear-gradient(45deg, #ffffff, #00ff88);
+  }
+}

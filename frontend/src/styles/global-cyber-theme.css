@@ -1,0 +1,330 @@
+/* ============================================================================
+   GLOBAL CYBER THEME - CONSISTENT STYLING ACROSS ALL COMPONENTS
+   ============================================================================ */
+
+:root {
+  /* Cyber Color Palette */
+  --cyber-primary: #06ffa5;
+  --cyber-secondary: #00ff88;
+  --cyber-accent: #00d4ff;
+  --cyber-purple: #7c3aed;
+  --cyber-dark: #0f172a;
+  --cyber-glass: rgba(255, 255, 255, 0.02);
+  --cyber-border: rgba(255, 255, 255, 0.1);
+
+  /* Text Colors */
+  --cyber-text-primary: rgb(255, 255, 255);
+  --cyber-text-secondary: rgb(209, 213, 219);
+  --cyber-text-muted: rgb(156, 163, 175);
+
+  /* Gradients */
+  --cyber-bg-gradient: linear-gradient(
+    135deg,
+    rgb(15, 23, 42) 0%,
+    rgb(124, 58, 237) 50%,
+    rgb(15, 23, 42) 100%
+  );
+  --cyber-button-gradient: linear-gradient(135deg, rgba(6, 255, 165, 0.8), rgba(0, 255, 136, 0.6));
+  --cyber-card-gradient: linear-gradient(45deg, #00ff88, #00d4ff);
+
+  /* Glass Effects */
+  --cyber-glass-panel: blur(40px) saturate(2);
+  --cyber-glass-card: blur(20px) saturate(1.8);
+  --cyber-glass-button: blur(10px);
+
+  /* Shadows */
+  --cyber-shadow-main: 0 8px 32px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+  --cyber-shadow-card: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --cyber-shadow-glow: 0 4px 20px rgba(6, 255, 165, 0.4), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+
+  /* Transitions */
+  --cyber-transition: all 0.3s ease;
+  --cyber-transition-fast: all 0.15s ease;
+}
+
+/* ============================================================================
+   GLOBAL BODY AND HTML STYLING
+   ============================================================================ */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: var(--cyber-bg-gradient);
+  color: var(--cyber-text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+body.theme-cyber {
+  background: var(--cyber-bg-gradient);
+  color: var(--cyber-text-primary);
+}
+
+#root {
+  min-height: 100vh;
+  background: var(--cyber-bg-gradient);
+  color: var(--cyber-text-primary);
+}
+
+/* ============================================================================
+   UNIVERSAL COMPONENT STYLING
+   ============================================================================ */
+
+/* All cards and panels */
+.cyber-container,
+.mega-card,
+.universal-card,
+[class*='card'],
+[class*='panel'],
+[class*='container'] {
+  backdrop-filter: var(--cyber-glass-card);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--cyber-border);
+  border-radius: 12px;
+  box-shadow: var(--cyber-shadow-card);
+  transition: var(--cyber-transition);
+  color: var(--cyber-text-primary);
+}
+
+/* All buttons */
+.cyber-button,
+.mega-button,
+.universal-button,
+button:not(.unstyled) {
+  backdrop-filter: var(--cyber-glass-button);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--cyber-border);
+  border-radius: 12px;
+  color: var(--cyber-text-secondary);
+  transition: var(--cyber-transition);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Active/Primary buttons */
+.cyber-button.active,
+.cyber-button-primary,
+.mega-button.active,
+.universal-button.primary,
+button.active,
+button.primary {
+  background: var(--cyber-button-gradient);
+  border: 1px solid rgba(6, 255, 165, 0.5);
+  box-shadow: var(--cyber-shadow-glow);
+  color: #000 !important; /* Black text on green background */
+}
+
+/* Hover effects */
+.cyber-button:hover,
+.mega-button:hover,
+.universal-button:hover,
+button:not(.unstyled):hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Text styling */
+.cyber-text,
+.mega-text,
+.universal-text,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+div {
+  color: var(--cyber-text-primary);
+}
+
+.cyber-text-secondary,
+.text-secondary {
+  color: var(--cyber-text-secondary);
+}
+
+.cyber-text-muted,
+.text-muted {
+  color: var(--cyber-text-muted);
+}
+
+/* Input styling */
+input,
+select,
+textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--cyber-border);
+  border-radius: 8px;
+  color: var(--cyber-text-primary);
+  padding: 8px 12px;
+  transition: var(--cyber-transition);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--cyber-primary);
+  box-shadow: 0 0 0 2px rgba(6, 255, 165, 0.2);
+  outline: none;
+}
+
+/* Sidebar styling */
+.sidebar,
+.mega-sidebar,
+.universal-sidebar {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: var(--cyber-glass-panel);
+  border-right: 1px solid var(--cyber-border);
+}
+
+/* Navigation styling */
+.nav-item,
+.navigation-item,
+.sidebar-item {
+  color: var(--cyber-text-secondary);
+  transition: var(--cyber-transition);
+}
+
+.nav-item.active,
+.navigation-item.active,
+.sidebar-item.active {
+  background: var(--cyber-button-gradient);
+  color: #000;
+}
+
+/* Header styling */
+.header,
+.mega-header,
+.universal-header {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: var(--cyber-glass-panel);
+  border-bottom: 1px solid var(--cyber-border);
+}
+
+/* ============================================================================
+   ANIMATIONS AND EFFECTS
+   ============================================================================ */
+
+@keyframes cyber-glow {
+  from {
+    box-shadow:
+      0 0 20px rgba(6, 255, 165, 0.6),
+      0 0 40px rgba(6, 255, 165, 0.4);
+  }
+  to {
+    box-shadow:
+      0 0 30px rgba(6, 255, 165, 0.8),
+      0 0 60px rgba(6, 255, 165, 0.6);
+  }
+}
+
+@keyframes cyber-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.cyber-glow {
+  animation: cyber-glow 2s ease-in-out infinite alternate;
+}
+
+.cyber-pulse {
+  animation: cyber-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .cyber-container,
+  .mega-card,
+  .universal-card {
+    padding: 16px;
+    margin: 8px;
+  }
+
+  .cyber-button,
+  .mega-button,
+  .universal-button {
+    padding: 10px 14px;
+  }
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+.cyber-background {
+  background: var(--cyber-bg-gradient);
+}
+
+.cyber-glass {
+  backdrop-filter: var(--cyber-glass-card);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--cyber-border);
+}
+
+.cyber-text-primary {
+  color: var(--cyber-text-primary);
+}
+
+.cyber-text-secondary {
+  color: var(--cyber-text-secondary);
+}
+
+.cyber-text-muted {
+  color: var(--cyber-text-muted);
+}
+
+.cyber-transition {
+  transition: var(--cyber-transition);
+}
+
+.cyber-border {
+  border: 1px solid var(--cyber-border);
+}
+
+.cyber-rounded {
+  border-radius: 12px;
+}
+
+/* ============================================================================
+   COMPONENT-SPECIFIC OVERRIDES
+   ============================================================================ */
+
+/* Ensure all MUI components follow cyber theme */
+.MuiPaper-root {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: var(--cyber-glass-card);
+  border: 1px solid var(--cyber-border) !important;
+  color: var(--cyber-text-primary) !important;
+}
+
+.MuiButton-root {
+  backdrop-filter: var(--cyber-glass-button);
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--cyber-border) !important;
+  color: var(--cyber-text-secondary) !important;
+}
+
+/* Ensure all Chakra UI components follow cyber theme */
+.chakra-ui-theme {
+  background: var(--cyber-bg-gradient);
+  color: var(--cyber-text-primary);
+}
+
+/* React Query DevTools styling */
+.tsqd-main-panel {
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--cyber-border) !important;
+}

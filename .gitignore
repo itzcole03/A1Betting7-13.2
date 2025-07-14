@@ -1,0 +1,75 @@
+# Node modules
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+build/
+out/
+.next/
+.vite/
+.vercel/
+.cache/
+coverage/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDEs & Editors
+.vscode/
+.idea/
+.DS_Store
+*.sw?
+*.sublime*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Testing
+coverage/
+*.lcov
+
+# Storybook
+storybook-static/
+
+# Misc
+*.local
+*.log
+*.tmp
+
+.config/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-selfcheck.json
+*.egg-info/
+.tox/
+.hypothesis/
+.pytest_cache/
+
+# Database
+a1betting.db
+*.sqlite3
+
+# Cursor AI IDE local config
+.cursor/
+# Large data files
+organized_chat_data_*.json
+extracted_chat_data_*.json
+gitingest_summary.txt
+supervisor_chats/*.json

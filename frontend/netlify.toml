@@ -1,0 +1,27 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[[redirects]]
+  from = "/api/*"
+  to = "http://localhost:8000/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/health"
+  to = "http://localhost:8000/health"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/ws/*"
+  to = "ws://localhost:8000/:splat"
+  status = 200
+  force = true
+
+# Fallback for SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

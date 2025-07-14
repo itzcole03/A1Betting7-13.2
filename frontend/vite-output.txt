@@ -1,0 +1,12 @@
+
+> frontend@0.0.0 dev
+> vite --host 0.0.0.0 --port 8173
+
+
+[31mΓ£ÿ[39m node v22.16.0, and vite v6.3.5 are [31mnot yet supported[39m in the Community edition of [33mConsole Ninja[39m.
+We are working hard on it for you [36mhttps://tinyurl.com/3h9mtwra[39m.
+
+Estimated release dates:
+  - Community users: [36maround 19th July, 2025 [1m(subject to team availability)[22m[39m
+[33m  - PRO users[39m:       [1m[32mpriority access is available now[39m[22m
+

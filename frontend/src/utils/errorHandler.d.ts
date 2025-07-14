@@ -1,0 +1,31 @@
+﻿import { BettingSystemError } from '@/unified/UnifiedError.ts';
+export declare class ErrorHandler {
+  private static instance;
+  private readonly eventBus;
+  private readonly performanceMonitor;
+  private readonly monitor;
+  private readonly configManager;
+  private errors;
+  private apiCalls;
+  private config;
+  private flushTimer;
+  private readonly DEFAULT_MAX_ERRORS;
+  private readonly DEFAULT_FLUSH_INTERVAL;
+  private constructor();
+  static getInstance(): ErrorHandler;
+  private setupGlobalHandlers;
+  private startFlushTimer;
+  handleError(error: Error | BettingSystemError, context?: Record<string, any>): Promise<void>;
+  private normalizeError;
+  private isBettingSystemError;
+  private logError;
+  private logApiCall;
+  private triggerEmergencyProcedures;
+  generateReport(): Record<string, any>;
+  downloadReport(): void;
+  clearLogs(): void;
+  flush(): Promise<void>;
+  destroy(): void;
+}
+declare const errorHandler: ErrorHandler;
+export default errorHandler;

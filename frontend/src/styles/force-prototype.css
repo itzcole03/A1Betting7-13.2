@@ -1,0 +1,182 @@
+/* FORCE PROTOTYPE STYLING - CRITICAL OVERRIDES */
+
+/* Ensure root and body always have the correct background */
+html,
+body,
+#root {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+/* Override any Tailwind or other CSS that might interfere */
+.cyber-bg {
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(0, 212, 255, 0.03) 0%, transparent 50%) !important;
+  color: white !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+/* Force all major layout elements */
+.flex {
+  display: flex !important;
+}
+
+.min-h-screen {
+  min-height: 100vh !important;
+}
+
+/* Beautiful glass morphism exactly like prototype */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Sidebar width and styling */
+.w-80 {
+  width: 20rem !important;
+}
+
+/* Text colors */
+.text-white {
+  color: white !important;
+}
+
+.text-electric-400 {
+  color: #06ffa5 !important;
+}
+
+.text-gray-400 {
+  color: #9ca3af !important;
+}
+
+.text-gray-300 {
+  color: #d1d5db !important;
+}
+
+/* Holographic text override */
+.holographic {
+  background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff, #06ffa5, #ffbe0b) !important;
+  background-size: 400% 400% !important;
+  animation: gradient-shift 8s ease infinite !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Animations */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.float-element {
+  animation: float 4s ease-in-out infinite !important;
+}
+
+/* Force proper spacing */
+.p-6 {
+  padding: 1.5rem !important;
+}
+
+.p-8 {
+  padding: 2rem !important;
+}
+
+.space-x-3 > * + * {
+  margin-left: 0.75rem !important;
+}
+
+.space-x-6 > * + * {
+  margin-left: 1.5rem !important;
+}
+
+/* Grid layouts */
+.grid {
+  display: grid !important;
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.gap-6 {
+  gap: 1.5rem !important;
+}
+
+/* Rounded corners */
+.rounded-xl {
+  border-radius: 0.75rem !important;
+}
+
+.rounded-2xl {
+  border-radius: 1rem !important;
+}
+
+/* Typography */
+.text-4xl {
+  font-size: 2.25rem !important;
+  line-height: 2.5rem !important;
+}
+
+.text-xl {
+  font-size: 1.25rem !important;
+  line-height: 1.75rem !important;
+}
+
+.font-black {
+  font-weight: 900 !important;
+}
+
+.font-bold {
+  font-weight: 700 !important;
+}
+
+.tracking-tight {
+  letter-spacing: -0.025em !important;
+}
+
+/* Buttons */
+.cyber-btn {
+  background: linear-gradient(45deg, #00ff88, #00d4ff) !important;
+  border: none !important;
+  color: black !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.cyber-btn:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.6) !important;
+  transform: translateY(-2px) !important;
+}

@@ -1,0 +1,12 @@
+Replace this line in your AdvancedIntelligenceHub.tsx imports:
+
+FIND:
+  Globe,
+} from "lucide-react";
+
+REPLACE WITH:
+  Globe,
+  DollarSign,
+} from "lucide-react";
+
+This will add the missing DollarSign icon that's causing the error.

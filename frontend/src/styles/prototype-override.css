@@ -1,0 +1,58 @@
+/* EXACT PROTOTYPE OVERRIDE - FORCE STYLING */
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+#root {
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+}
+
+/* Force all divs to inherit color */
+div,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: inherit !important;
+}
+
+/* Override any conflicting styles */
+* {
+  box-sizing: border-box;
+}
+
+.bg-gradient-to-br {
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+}
+
+.from-slate-900 {
+  --tw-gradient-from: #0f172a !important;
+}
+
+.via-purple-900 {
+  --tw-gradient-to: #7c3aed !important;
+}
+
+.to-slate-900 {
+  --tw-gradient-to: #0f172a !important;
+}
+
+.text-white {
+  color: white !important;
+}
+
+.font-sans {
+  font-family: 'Inter', system-ui, sans-serif !important;
+}

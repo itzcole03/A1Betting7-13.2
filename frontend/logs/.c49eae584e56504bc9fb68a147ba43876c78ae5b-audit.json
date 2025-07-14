@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\logs\\.c49eae584e56504bc9fb68a147ba43876c78ae5b-audit.json",
+    "files": [
+        {
+            "date": 1752478501598,
+            "name": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\logs\\error-2025-07-14.log",
+            "hash": "aa89ecbc39bd88a16de8dab5da82757fa1909cc5a560ee0bf99eeacc7f1322e2"
+        }
+    ],
+    "hashType": "sha256"
+}

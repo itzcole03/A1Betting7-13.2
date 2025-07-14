@@ -1,0 +1,241 @@
+/* Real-Time API Integration Dashboard Styles */
+
+.api-dashboard-container {
+  padding: 20px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.loading-container {
+  padding: 20px;
+  text-align: center;
+}
+
+.loading-title {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.loading-subtitle {
+  color: #666;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 15px;
+}
+
+.dashboard-title {
+  margin: 0;
+  color: #1a202c;
+}
+
+.dashboard-subtitle {
+  margin: 5px 0 0 0;
+  color: #666;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.refresh-button,
+.test-button {
+  padding: 8px 16px;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.refresh-button {
+  background-color: #3b82f6;
+}
+
+.test-button {
+  background-color: #10b981;
+}
+
+.refresh-button:disabled,
+.test-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.api-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.api-status-card {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.api-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.api-card-title {
+  margin: 0;
+  font-size: 16px;
+  color: #1a202c;
+  text-transform: capitalize;
+}
+
+.api-status-icon {
+  font-size: 20px;
+}
+
+.api-card-details {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.api-detail-row {
+  margin-bottom: 6px;
+}
+
+.api-status-text {
+  margin-left: 6px;
+}
+
+.api-service-description {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #888;
+}
+
+.api-config-section {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.config-section-title {
+  margin: 0 0 12px 0;
+  color: #1a202c;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.config-item {
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.config-item-sportradar,
+.config-item-theodds {
+  background-color: #f0f9ff;
+}
+
+.config-item-prizepicks,
+.config-item-espn {
+  background-color: #f0fdf4;
+}
+
+.test-results-section {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.test-results-title {
+  margin: 0 0 12px 0;
+  color: #1a202c;
+}
+
+.test-summary {
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.test-summary-success {
+  background-color: #f0fdf4;
+  border: 1px solid #16a34a;
+}
+
+.test-summary-error {
+  background-color: #fef2f2;
+  border: 1px solid #dc2626;
+}
+
+.recommendations-title {
+  margin: 0 0 8px 0;
+  color: #1a202c;
+}
+
+.recommendations-list {
+  margin: 0;
+  padding-left: 20px;
+  color: #666;
+}
+
+.recommendation-item {
+  margin-bottom: 4px;
+}
+
+.dashboard-footer {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e2e8f0;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Status Color Classes */
+.status-operational {
+  color: #10b981;
+}
+
+.status-degraded {
+  color: #f59e0b;
+}
+
+.status-down {
+  color: #ef4444;
+}
+
+.status-unknown {
+  color: #6b7280;
+}
+
+.border-operational {
+  border-color: #10b981;
+}
+
+.border-degraded {
+  border-color: #f59e0b;
+}
+
+.border-down {
+  border-color: #ef4444;
+}
+
+.border-unknown {
+  border-color: #6b7280;
+}

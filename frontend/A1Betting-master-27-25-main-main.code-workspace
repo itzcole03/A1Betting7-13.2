@@ -1,0 +1,52 @@
+{
+  "folders": [
+    {
+      "name": "A1Betting Root",
+      "path": "..",
+    },
+    {
+      "name": "Frontend",
+      "path": ".",
+    },
+    {
+      "name": "Backend",
+      "path": "../backend",
+    },
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "explicit",
+    },
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "files.associations": {
+      "*.tsx": "typescriptreact",
+      "*.ts": "typescript",
+    },
+    "emmet.includeLanguages": {
+      "javascript": "javascriptreact",
+      "typescript": "typescriptreact",
+    },
+    "liveServer.settings.port": 3001,
+    "liveServer.settings.root": "/frontend/dist",
+    "livePreview.defaultPreviewPath": "/frontend/dist/index.html",
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/build": true,
+      "**/.git": true,
+      "**/venv": true,
+      "**/__pycache__": true,
+    },
+    "files.watcherExclude": {
+      "**/node_modules/**": true,
+      "**/dist/**": true,
+      "**/build/**": true,
+      "**/.git/**": true,
+      "**/venv/**": true,
+      "**/__pycache__/**": true,
+    },
+    "powershell.cwd": "A1Betting Root",
+  },
+}

@@ -1,0 +1,641 @@
+/* ===========================================
+   ENHANCED CYBER THEME - LIGHT & DARK MODE
+   =========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+/* ============================================================================
+   KEYFRAME ANIMATIONS
+   ============================================================================ */
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes glow-pulse {
+  0% {
+    box-shadow: 0 0 20px rgba(6, 255, 165, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 40px rgba(6, 255, 165, 0.8);
+  }
+}
+
+@keyframes cyber-pulse {
+  0%,
+  100% {
+    text-shadow: 0 0 10px rgba(6, 255, 165, 0.8);
+  }
+  50% {
+    text-shadow:
+      0 0 20px rgba(6, 255, 165, 1),
+      0 0 30px rgba(6, 255, 165, 0.8);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes slide-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  transition: all 0.3s ease;
+}
+
+#root {
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+/* ============================================================================
+   CYBER LIGHT MODE STYLES
+   ============================================================================ */
+
+.theme-cyber-light,
+.cyber-light {
+  --cyber-primary: #06ffa5;
+  --cyber-secondary: #00ff88;
+  --cyber-accent: #00d4ff;
+  --cyber-purple: #7c3aed;
+  --cyber-background: linear-gradient(
+    135deg,
+    #f8fafc 0%,
+    #e2e8f0 25%,
+    #cbd5e1 50%,
+    #e2e8f0 75%,
+    #f8fafc 100%
+  );
+  --cyber-surface: rgba(255, 255, 255, 0.8);
+  --cyber-text-primary: #0f172a;
+  --cyber-text-secondary: #334155;
+  --cyber-text-muted: #64748b;
+  --cyber-border: rgba(15, 23, 42, 0.1);
+  --cyber-shadow: 0 8px 32px rgba(15, 23, 42, 0.1);
+  --cyber-glow: 0 0 20px rgba(6, 255, 165, 0.3);
+}
+
+.theme-cyber-light html,
+.theme-cyber-light body,
+.cyber-light html,
+.cyber-light body {
+  background: var(--cyber-background) !important;
+  color: var(--cyber-text-primary) !important;
+}
+
+.theme-cyber-light #root,
+.cyber-light #root {
+  background: var(--cyber-background) !important;
+  color: var(--cyber-text-primary) !important;
+}
+
+/* Glass morphism for light mode */
+.theme-cyber-light .glass-card,
+.cyber-light .glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.1);
+}
+
+/* ============================================================================
+   CYBER DARK MODE STYLES
+   ============================================================================ */
+
+.theme-cyber-dark,
+.cyber-dark {
+  --cyber-primary: #06ffa5;
+  --cyber-secondary: #00ff88;
+  --cyber-accent: #00d4ff;
+  --cyber-purple: #7c3aed;
+  --cyber-background: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #1e293b 25%,
+    #334155 50%,
+    #1e293b 75%,
+    #0f172a 100%
+  );
+  --cyber-surface: rgba(255, 255, 255, 0.05);
+  --cyber-text-primary: #ffffff;
+  --cyber-text-secondary: #e2e8f0;
+  --cyber-text-muted: #94a3b8;
+  --cyber-border: rgba(255, 255, 255, 0.1);
+  --cyber-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --cyber-glow: 0 0 20px rgba(6, 255, 165, 0.6);
+}
+
+.theme-cyber-dark html,
+.theme-cyber-dark body,
+.cyber-dark html,
+.cyber-dark body {
+  background: var(--cyber-background) !important;
+  color: var(--cyber-text-primary) !important;
+}
+
+.theme-cyber-dark #root,
+.cyber-dark #root {
+  background: var(--cyber-background) !important;
+  color: var(--cyber-text-primary) !important;
+}
+
+/* Glass morphism for dark mode */
+.theme-cyber-dark .glass-card,
+.cyber-dark .glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================================================
+   UNIVERSAL CYBER COMPONENTS
+   ============================================================================ */
+
+.glass-card {
+  backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+/* Holographic Text Effect */
+.holographic {
+  background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff, #06ffa5, #ffbe0b) !important;
+  background-size: 400% 400% !important;
+  animation: gradient-shift 8s ease infinite !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: transparent !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Modern Button Styles */
+.cyber-btn {
+  background: linear-gradient(45deg, var(--cyber-primary), var(--cyber-secondary));
+  border: none;
+  color: #000 !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  padding: 12px 24px;
+  cursor: pointer;
+}
+
+.cyber-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s;
+}
+
+.cyber-btn:hover::before {
+  left: 100%;
+}
+
+.cyber-btn:hover {
+  box-shadow: var(--cyber-glow);
+  transform: translateY(-2px);
+}
+
+/* Clean Navigation */
+.nav-item {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  margin-bottom: 4px;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background: rgba(6, 255, 165, 0.1);
+  border-left: 4px solid var(--cyber-primary);
+  padding-left: 16px;
+}
+
+.nav-item.active {
+  background: rgba(6, 255, 165, 0.2);
+  border-left: 4px solid var(--cyber-primary);
+  padding-left: 16px;
+  box-shadow: 0 4px 12px rgba(6, 255, 165, 0.3);
+  color: var(--cyber-text-primary) !important;
+}
+
+/* Input Styling */
+input[type='number'],
+select,
+input[type='text'],
+input[type='email'],
+textarea {
+  font-size: 16px !important;
+  background: var(--cyber-surface) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--cyber-border) !important;
+  color: var(--cyber-text-primary) !important;
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Special dropdown arrow styling */
+select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306ffa5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 16px !important;
+  padding-right: 40px !important;
+}
+
+.cyber-light select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+.cyber-dark select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306ffa5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+/* Enhanced dropdown option styling for better visibility */
+option {
+  background: var(--cyber-surface) !important;
+  color: var(--cyber-text-primary) !important;
+  border: none !important;
+  padding: 8px 12px !important;
+}
+
+/* Light mode option styling */
+.cyber-light option,
+.theme-cyber-light option {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #0f172a !important;
+}
+
+/* Dark mode option styling with high contrast */
+.cyber-dark option,
+.theme-cyber-dark option {
+  background: rgba(15, 23, 42, 0.95) !important;
+  color: #ffffff !important;
+}
+
+/* Hover states for options */
+.cyber-dark option:hover,
+.theme-cyber-dark option:hover {
+  background: rgba(6, 255, 165, 0.2) !important;
+  color: #ffffff !important;
+}
+
+.cyber-light option:hover,
+.theme-cyber-light option:hover {
+  background: rgba(6, 255, 165, 0.1) !important;
+  color: #0f172a !important;
+}
+
+/* Selected option styling */
+.cyber-dark option:checked,
+.theme-cyber-dark option:checked {
+  background: rgba(6, 255, 165, 0.3) !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+.cyber-light option:checked,
+.theme-cyber-light option:checked {
+  background: rgba(6, 255, 165, 0.2) !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+input[type='number']:focus,
+select:focus,
+input[type='text']:focus,
+input[type='email']:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: var(--cyber-primary) !important;
+  box-shadow: 0 0 20px rgba(6, 255, 165, 0.3) !important;
+}
+
+/* Additional dropdown fixes for browser compatibility */
+select option,
+select optgroup {
+  font-size: 16px !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  line-height: 1.5 !important;
+}
+
+/* Force dropdown options to be visible in all browsers */
+html[data-theme='cyber-dark'] select option,
+body.cyber-dark select option,
+body.theme-cyber-dark select option,
+.cyber-dark select option,
+.theme-cyber-dark select option {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+html[data-theme='cyber-light'] select option,
+body.cyber-light select option,
+body.theme-cyber-light select option,
+.cyber-light select option,
+.theme-cyber-light select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: none !important;
+}
+
+/* Firefox specific fixes */
+@-moz-document url-prefix() {
+  .cyber-dark select option,
+  .theme-cyber-dark select option {
+    background: #0f172a !important;
+    color: #ffffff !important;
+  }
+
+  .cyber-light select option,
+  .theme-cyber-light select option {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+}
+
+/* Card Hover Effects */
+.metric-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: var(--cyber-surface);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--cyber-border);
+  border-radius: 12px;
+}
+
+.metric-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--cyber-glow);
+  border-color: rgba(6, 255, 165, 0.3);
+}
+
+/* Status Indicators */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-active {
+  background: var(--cyber-primary);
+  box-shadow: 0 0 10px rgba(6, 255, 165, 0.8);
+}
+
+.status-warning {
+  background: #fbbf24;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+}
+
+.status-error {
+  background: #ff4757;
+  box-shadow: 0 0 10px rgba(255, 71, 87, 0.8);
+}
+
+/* Typography */
+.cyber-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--cyber-text-primary);
+}
+
+.cyber-mono {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--cyber-text-primary);
+}
+
+/* Loading Animations */
+.cyber-loading {
+  background: linear-gradient(
+    45deg,
+    var(--cyber-primary),
+    var(--cyber-accent),
+    var(--cyber-purple),
+    #ff006e
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 2s ease infinite;
+  border-radius: 4px;
+  height: 4px;
+}
+
+/* Button Improvements */
+.mega-button,
+.cyber-button {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.mega-button:hover,
+.cyber-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--cyber-shadow);
+}
+
+/* Primary buttons with gradient */
+.mega-button[style*='gradient'],
+.cyber-button[style*='gradient'] {
+  color: #000 !important;
+  font-weight: 600 !important;
+}
+
+/* Secondary buttons */
+.mega-button:not([style*='gradient']),
+.cyber-button:not([style*='gradient']) {
+  background: var(--cyber-surface) !important;
+  border: 1px solid var(--cyber-border) !important;
+  color: var(--cyber-text-primary) !important;
+}
+
+/* Animation Classes */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite alternate;
+}
+.animate-slide-in-up {
+  animation: slide-in-up 0.6s ease-out;
+}
+.animate-slide-in-right {
+  animation: slide-in-right 0.6s ease-out;
+}
+.animate-cyber-pulse {
+  animation: cyber-pulse 3s ease-in-out infinite;
+}
+
+/* Shadow Effects */
+.shadow-neon {
+  box-shadow:
+    0 0 20px rgba(6, 255, 165, 0.6),
+    0 0 40px rgba(6, 255, 165, 0.4);
+}
+
+.shadow-neon-pink {
+  box-shadow:
+    0 0 20px rgba(255, 16, 240, 0.6),
+    0 0 40px rgba(255, 16, 240, 0.4);
+}
+
+.shadow-neon-blue {
+  box-shadow:
+    0 0 20px rgba(0, 212, 255, 0.6),
+    0 0 40px rgba(0, 212, 255, 0.4);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, var(--cyber-primary), var(--cyber-accent));
+  border-radius: 10px;
+}
+
+/* Floating Elements */
+.float-element {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ============================================================================
+   RESPONSIVE UTILITIES
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .glass-card {
+    backdrop-filter: blur(10px);
+  }
+
+  .cyber-btn {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+
+  .mega-button {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+}
+
+/* ============================================================================
+   THEME TOGGLE ANIMATIONS
+   ============================================================================ */
+
+.theme-transition {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ensure smooth transitions between themes */
+* {
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+.cyber-bg {
+  background: var(--cyber-background);
+}
+.cyber-surface {
+  background: var(--cyber-surface);
+}
+.cyber-text-primary {
+  color: var(--cyber-text-primary);
+}
+.cyber-text-secondary {
+  color: var(--cyber-text-secondary);
+}
+.cyber-text-muted {
+  color: var(--cyber-text-muted);
+}
+.cyber-border {
+  border-color: var(--cyber-border);
+}
+.cyber-shadow {
+  box-shadow: var(--cyber-shadow);
+}
+.cyber-glow {
+  box-shadow: var(--cyber-glow);
+}

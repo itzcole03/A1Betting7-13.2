@@ -1,0 +1,5 @@
+
+    def calculate_processing_time(self) -> float:
+        """Alias for calculate_average_processing_time for backward compatibility"""
+        return self.calculate_average_processing_time()
+

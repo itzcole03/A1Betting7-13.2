@@ -1,0 +1,351 @@
+/* A1Betting Enhanced Cyber Theme Styles */
+
+/* ============================================================================
+   GLOBAL STYLES & RESET
+   ============================================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    'Oxygen',
+    'Ubuntu',
+    'Cantarell',
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #000;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+#root {
+  height: 100%;
+}
+
+/* ============================================================================
+   DROPDOWN/SELECT UNIVERSAL STYLING - PURPLE GRADIENT THEME
+   ============================================================================ */
+
+select:not(.no-style) {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.9) 0%,
+    rgba(124, 58, 237, 0.8) 50%,
+    rgba(15, 23, 42, 0.9) 100%
+  ) !important;
+  border: 1px solid rgba(124, 58, 237, 0.3) !important;
+  border-radius: 8px !important;
+  color: white !important;
+  font-weight: 500 !important;
+  padding: 12px 16px !important;
+  backdrop-filter: blur(4px) !important;
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2) !important;
+  transition: all 0.2s ease !important;
+  appearance: none !important;
+  cursor: pointer !important;
+}
+
+select:not(.no-style):hover {
+  border-color: rgba(168, 85, 247, 0.5) !important;
+  box-shadow: 0 6px 8px -1px rgba(124, 58, 237, 0.3) !important;
+}
+
+select:not(.no-style):focus {
+  border-color: #06b6d4 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.5) !important;
+}
+
+select:not(.no-style) option {
+  background-color: #1e293b !important;
+  color: white !important;
+  padding: 8px 16px !important;
+}
+
+select:not(.no-style) option:hover,
+select:not(.no-style) option:checked {
+  background-color: #7c3aed !important;
+}
+
+/* ============================================================================
+   CYBER GLASS MORPHISM EFFECTS
+   ============================================================================ */
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(6, 182, 212, 0.3);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(6, 182, 212, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================================================
+   CYBER BUTTON EFFECTS
+   ============================================================================ */
+
+.cyber-button {
+  position: relative;
+  background: linear-gradient(135deg, #000 0%, #111 50%, #000 100%);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: 8px;
+  color: #06b6d4;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 24px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.cyber-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.cyber-button:hover::before {
+  left: 100%;
+}
+
+.cyber-button:hover {
+  border-color: #06b6d4;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+  color: #fff;
+}
+
+/* ============================================================================
+   NEON GLOW EFFECTS
+   ============================================================================ */
+
+.neon-text {
+  color: #06b6d4;
+  text-shadow:
+    0 0 5px rgba(6, 182, 212, 0.5),
+    0 0 10px rgba(6, 182, 212, 0.5),
+    0 0 15px rgba(6, 182, 212, 0.5);
+}
+
+.neon-border {
+  border: 1px solid #06b6d4;
+  box-shadow:
+    0 0 5px rgba(6, 182, 212, 0.3),
+    inset 0 0 5px rgba(6, 182, 212, 0.1);
+}
+
+/* ============================================================================
+   ANIMATED GRADIENTS
+   ============================================================================ */
+
+.animated-gradient {
+  background: linear-gradient(-45deg, #000, #111, #222, #111, #000);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ============================================================================
+   HOLOGRAPHIC EFFECTS
+   ============================================================================ */
+
+.holographic {
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(6, 182, 212, 0.1),
+    transparent,
+    rgba(168, 85, 247, 0.1),
+    transparent
+  );
+  background-size: 200% 200%;
+  animation: holographicShimmer 3s ease-in-out infinite;
+}
+
+@keyframes holographicShimmer {
+  0%,
+  100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+.blur-bg {
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.cyber-border {
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  position: relative;
+}
+
+.cyber-border::before,
+.cyber-border::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #06b6d4;
+}
+
+.cyber-border::before {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.cyber-border::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+}
+
+.scan-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.scan-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #06b6d4, transparent);
+  animation: scanLine 2s linear infinite;
+}
+
+@keyframes scanLine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+  }
+
+  .cyber-button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+/* ============================================================================
+   SCROLLBAR STYLING
+   ============================================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #06b6d4, #a855f7);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #0891b2, #9333ea);
+}
+
+/* ============================================================================
+   LOADING ANIMATIONS
+   ============================================================================ */
+
+.pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulseGlow {
+  from {
+    box-shadow: 0 0 5px rgba(6, 182, 212, 0.2);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.6);
+  }
+}
+
+.loading-dots::after {
+  content: '';
+  animation: loadingDots 1.5s steps(3, end) infinite;
+}
+
+@keyframes loadingDots {
+  0%,
+  20% {
+    content: '';
+  }
+  40% {
+    content: '.';
+  }
+  60% {
+    content: '..';
+  }
+  80%,
+  100% {
+    content: '...';
+  }
+}

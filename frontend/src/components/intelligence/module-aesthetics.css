@@ -1,0 +1,358 @@
+/* Enhanced Module Management Aesthetics */
+
+/* Main container improvements */
+.module-management-enhanced {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.95) 0%,
+    rgba(30, 41, 59, 0.9) 50%,
+    rgba(51, 65, 85, 0.85) 100%
+  );
+  border: 1px solid rgba(71, 85, 105, 0.3);
+  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+}
+
+/* Performance dashboard cards */
+.performance-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(51, 65, 85, 0.4) 100%);
+  border: 1px solid rgba(71, 85, 105, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.performance-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(34, 197, 94, 0.5) 50%, transparent 100%);
+}
+
+.performance-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.3);
+  border-color: rgba(71, 85, 105, 0.5);
+}
+
+/* Enhanced module cards */
+.module-card-enhanced {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(51, 65, 85, 0.3) 100%);
+  border: 2px solid rgba(71, 85, 105, 0.3);
+  border-radius: 20px;
+  padding: 1.75rem;
+  backdrop-filter: blur(16px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.module-card-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  pointer-events: none;
+}
+
+.module-card-enhanced:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(71, 85, 105, 0.6);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.module-card-enhanced.active {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.15) 0%,
+    rgba(16, 185, 129, 0.1) 50%,
+    rgba(59, 130, 246, 0.15) 100%
+  );
+  border-color: rgba(34, 197, 94, 0.5);
+  box-shadow:
+    0 25px 50px -12px rgba(34, 197, 94, 0.3),
+    0 0 0 1px rgba(34, 197, 94, 0.2);
+}
+
+/* Module card header */
+.module-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.module-icon-container {
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: rgba(71, 85, 105, 0.2);
+  transition: all 0.3s ease;
+}
+
+.module-card-enhanced.active .module-icon-container {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.25) 0%, rgba(59, 130, 246, 0.25) 100%);
+  box-shadow: 0 8px 16px -4px rgba(34, 197, 94, 0.3);
+}
+
+/* Module title and category */
+.module-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: rgba(248, 250, 252, 0.95);
+  margin-bottom: 0.25rem;
+}
+
+.module-category {
+  font-size: 0.75rem;
+  color: rgba(148, 163, 184, 0.8);
+  text-transform: capitalize;
+  font-weight: 500;
+}
+
+/* Money badge */
+.money-badge-enhanced {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(45deg, #fbbf24, #f59e0b, #d97706);
+  color: #000;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 12px;
+  box-shadow:
+    0 8px 16px -4px rgba(251, 191, 36, 0.4),
+    0 0 0 2px rgba(255, 255, 255, 0.1);
+  animation: pulse-glow 2s infinite;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 8px 16px -4px rgba(251, 191, 36, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 24px -6px rgba(251, 191, 36, 0.6);
+  }
+}
+
+/* Progress bars */
+.progress-bar-container {
+  width: 100%;
+  height: 6px;
+  background: rgba(71, 85, 105, 0.3);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.progress-high {
+  background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7);
+}
+
+.progress-medium {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd);
+}
+
+.progress-low {
+  background: linear-gradient(90deg, #6b7280, #9ca3af, #d1d5db);
+}
+
+/* Metrics containers */
+.metric-container {
+  background: rgba(71, 85, 105, 0.15);
+  border: 1px solid rgba(71, 85, 105, 0.2);
+  border-radius: 10px;
+  padding: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.metric-container:hover {
+  background: rgba(71, 85, 105, 0.25);
+  border-color: rgba(71, 85, 105, 0.4);
+}
+
+/* Enhanced buttons */
+.action-button-enhanced {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-button-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  transition: left 0.5s ease;
+}
+
+.action-button-enhanced:hover::before {
+  left: 100%;
+}
+
+.action-button-enhanced:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px -6px rgba(59, 130, 246, 0.4);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.action-button-profit {
+  background: linear-gradient(135deg, #10b981, #047857);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.action-button-profit:hover {
+  box-shadow: 0 12px 24px -6px rgba(16, 185, 129, 0.4);
+}
+
+/* Toggle switches */
+.toggle-enhanced {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.toggle-enhanced.active {
+  filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.5));
+}
+
+/* Refined spacing */
+.module-grid-enhanced {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.performance-grid-enhanced {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Typography improvements */
+.performance-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+}
+
+.performance-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.performance-subtitle {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* Badge improvements */
+.priority-badge-enhanced {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Active glow effect */
+.active-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+  animation: active-pulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes active-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}

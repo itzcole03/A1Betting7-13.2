@@ -1,0 +1,374 @@
+/* ===========================================
+   CYBER THEME OVERRIDE - ENSURE PRIORITY
+   =========================================== */
+
+/* ============================================================================
+   GLOBAL OVERRIDES - HIGHEST PRIORITY
+   ============================================================================ */
+
+/* Force theme consistency across all elements */
+html.cyber-light,
+html.cyber-light body,
+html.cyber-light #root {
+  background: linear-gradient(
+    135deg,
+    #f8fafc 0%,
+    #e2e8f0 25%,
+    #cbd5e1 50%,
+    #e2e8f0 75%,
+    #f8fafc 100%
+  ) !important;
+  color: #0f172a !important;
+  min-height: 100vh !important;
+}
+
+html.cyber-dark,
+html.cyber-dark body,
+html.cyber-dark #root {
+  background: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #1e293b 25%,
+    #334155 50%,
+    #1e293b 75%,
+    #0f172a 100%
+  ) !important;
+  color: #ffffff !important;
+  min-height: 100vh !important;
+}
+
+/* ============================================================================
+   COMPONENT OVERRIDES
+   ============================================================================ */
+
+/* Glass card overrides */
+.cyber-light .glass-card,
+.theme-cyber-light .glass-card {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.1) !important;
+}
+
+.cyber-dark .glass-card,
+.theme-cyber-dark .glass-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Button overrides */
+.cyber-light .cyber-btn,
+.theme-cyber-light .cyber-btn,
+.cyber-light .mega-button,
+.theme-cyber-light .mega-button {
+  color: #000 !important;
+}
+
+.cyber-dark .cyber-btn,
+.theme-cyber-dark .cyber-btn,
+.cyber-dark .mega-button,
+.theme-cyber-dark .mega-button {
+  color: #000 !important;
+}
+
+/* Text overrides for light mode */
+.cyber-light,
+.theme-cyber-light {
+  color: #0f172a !important;
+}
+
+.cyber-light .cyber-text-primary,
+.theme-cyber-light .cyber-text-primary,
+.cyber-light h1,
+.cyber-light h2,
+.cyber-light h3,
+.cyber-light h4,
+.cyber-light h5,
+.cyber-light h6,
+.theme-cyber-light h1,
+.theme-cyber-light h2,
+.theme-cyber-light h3,
+.theme-cyber-light h4,
+.theme-cyber-light h5,
+.theme-cyber-light h6 {
+  color: #0f172a !important;
+}
+
+.cyber-light .cyber-text-secondary,
+.theme-cyber-light .cyber-text-secondary {
+  color: #334155 !important;
+}
+
+.cyber-light .cyber-text-muted,
+.theme-cyber-light .cyber-text-muted {
+  color: #64748b !important;
+}
+
+/* Text overrides for dark mode */
+.cyber-dark,
+.theme-cyber-dark {
+  color: #ffffff !important;
+}
+
+.cyber-dark .cyber-text-primary,
+.theme-cyber-dark .cyber-text-primary,
+.cyber-dark h1,
+.cyber-dark h2,
+.cyber-dark h3,
+.cyber-dark h4,
+.cyber-dark h5,
+.cyber-dark h6,
+.theme-cyber-dark h1,
+.theme-cyber-dark h2,
+.theme-cyber-dark h3,
+.theme-cyber-dark h4,
+.theme-cyber-dark h5,
+.theme-cyber-dark h6 {
+  color: #ffffff !important;
+}
+
+.cyber-dark .cyber-text-secondary,
+.theme-cyber-dark .cyber-text-secondary {
+  color: #e2e8f0 !important;
+}
+
+.cyber-dark .cyber-text-muted,
+.theme-cyber-dark .cyber-text-muted {
+  color: #94a3b8 !important;
+}
+
+/* ============================================================================
+   INPUT AND FORM OVERRIDES
+   ============================================================================ */
+
+.cyber-light input,
+.cyber-light select,
+.cyber-light textarea,
+.theme-cyber-light input,
+.theme-cyber-light select,
+.theme-cyber-light textarea {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  color: #0f172a !important;
+}
+
+.cyber-dark input,
+.cyber-dark select,
+.cyber-dark textarea,
+.theme-cyber-dark input,
+.theme-cyber-dark select,
+.theme-cyber-dark textarea {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+/* ============================================================================
+   DROPDOWN OPTION OVERRIDES - HIGHEST SPECIFICITY
+   ============================================================================ */
+
+/* Light mode dropdown options */
+.cyber-light select option,
+.theme-cyber-light select option,
+html.cyber-light select option,
+body.cyber-light select option,
+html.theme-cyber-light select option,
+body.theme-cyber-light select option {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: none !important;
+  padding: 8px 12px !important;
+  font-size: 16px !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+/* Dark mode dropdown options with maximum contrast */
+.cyber-dark select option,
+.theme-cyber-dark select option,
+html.cyber-dark select option,
+body.cyber-dark select option,
+html.theme-cyber-dark select option,
+body.theme-cyber-dark select option {
+  background-color: #0f172a !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 8px 12px !important;
+  font-size: 16px !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+/* Hover and selected states for dropdown options */
+.cyber-dark select option:hover,
+.theme-cyber-dark select option:hover {
+  background-color: rgba(6, 255, 165, 0.2) !important;
+  background: rgba(6, 255, 165, 0.2) !important;
+  color: #ffffff !important;
+}
+
+.cyber-light select option:hover,
+.theme-cyber-light select option:hover {
+  background-color: rgba(6, 255, 165, 0.1) !important;
+  background: rgba(6, 255, 165, 0.1) !important;
+  color: #0f172a !important;
+}
+
+.cyber-dark select option:checked,
+.cyber-dark select option[selected],
+.theme-cyber-dark select option:checked,
+.theme-cyber-dark select option[selected] {
+  background-color: rgba(6, 255, 165, 0.3) !important;
+  background: rgba(6, 255, 165, 0.3) !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+.cyber-light select option:checked,
+.cyber-light select option[selected],
+.theme-cyber-light select option:checked,
+.theme-cyber-light select option[selected] {
+  background-color: rgba(6, 255, 165, 0.2) !important;
+  background: rgba(6, 255, 165, 0.2) !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+/* ============================================================================
+   NAVIGATION OVERRIDES
+   ============================================================================ */
+
+.cyber-light .nav-item,
+.theme-cyber-light .nav-item {
+  color: #0f172a !important;
+}
+
+.cyber-light .nav-item:hover,
+.theme-cyber-light .nav-item:hover {
+  background: rgba(6, 255, 165, 0.1) !important;
+  color: #0f172a !important;
+}
+
+.cyber-light .nav-item.active,
+.theme-cyber-light .nav-item.active {
+  background: rgba(6, 255, 165, 0.2) !important;
+  color: #0f172a !important;
+}
+
+.cyber-dark .nav-item,
+.theme-cyber-dark .nav-item {
+  color: #ffffff !important;
+}
+
+.cyber-dark .nav-item:hover,
+.theme-cyber-dark .nav-item:hover {
+  background: rgba(6, 255, 165, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.cyber-dark .nav-item.active,
+.theme-cyber-dark .nav-item.active {
+  background: rgba(6, 255, 165, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* ============================================================================
+   CARD OVERRIDES
+   ============================================================================ */
+
+.cyber-light .metric-card,
+.theme-cyber-light .metric-card {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  color: #0f172a !important;
+}
+
+.cyber-dark .metric-card,
+.theme-cyber-dark .metric-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+/* ============================================================================
+   ANIMATION CONSISTENCY
+   ============================================================================ */
+
+/* Ensure smooth transitions between themes */
+.cyber-light *,
+.cyber-dark *,
+.theme-cyber-light *,
+.theme-cyber-dark * {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease !important;
+}
+
+/* ============================================================================
+   SCROLLBAR OVERRIDES
+   ============================================================================ */
+
+.cyber-light ::-webkit-scrollbar-track,
+.theme-cyber-light ::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.1) !important;
+}
+
+.cyber-dark ::-webkit-scrollbar-track,
+.theme-cyber-dark ::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ============================================================================
+   UTILITY OVERRIDES
+   ============================================================================ */
+
+/* Ensure holographic text works in both modes */
+.holographic {
+  background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff, #06ffa5, #ffbe0b) !important;
+  background-size: 400% 400% !important;
+  animation: gradient-shift 8s ease infinite !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+/* Cyber primary color consistency */
+.cyber-light,
+.cyber-dark,
+.theme-cyber-light,
+.theme-cyber-dark {
+  --cyber-primary: #06ffa5;
+  --cyber-secondary: #00ff88;
+  --cyber-accent: #00d4ff;
+}
+
+/* ============================================================================
+   COMPONENT LIBRARY OVERRIDES
+   ============================================================================ */
+
+/* Ensure MUI components respect cyber theme */
+.cyber-light .MuiPaper-root,
+.theme-cyber-light .MuiPaper-root {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  color: #0f172a !important;
+}
+
+.cyber-dark .MuiPaper-root,
+.theme-cyber-dark .MuiPaper-root {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+/* Ensure buttons maintain cyber aesthetics */
+.cyber-light .MuiButton-root,
+.cyber-dark .MuiButton-root,
+.theme-cyber-light .MuiButton-root,
+.theme-cyber-dark .MuiButton-root {
+  text-transform: none !important;
+  border-radius: 8px !important;
+}

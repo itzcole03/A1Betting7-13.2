@@ -1,0 +1,101 @@
+/* Global dropdown styling with purple gradient theme */
+select:not(.no-style) {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.9) 0%,
+    rgba(124, 58, 237, 0.8) 50%,
+    rgba(15, 23, 42, 0.9) 100%
+  ) !important;
+  border: 1px solid rgba(124, 58, 237, 0.3) !important;
+  border-radius: 8px !important;
+  color: white !important;
+  font-weight: 500 !important;
+  padding: 12px 16px !important;
+  backdrop-filter: blur(4px) !important;
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2) !important;
+  transition: all 0.2s ease !important;
+  appearance: none !important;
+  cursor: pointer !important;
+}
+
+select:not(.no-style):hover {
+  border-color: rgba(168, 85, 247, 0.5) !important;
+}
+
+select:not(.no-style):focus {
+  border-color: #06b6d4 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.5) !important;
+}
+
+select:not(.no-style) option {
+  background-color: #1e293b !important;
+  color: white !important;
+  padding: 8px 16px !important;
+}
+
+select:not(.no-style) option:hover,
+select:not(.no-style) option:checked {
+  background-color: #7c3aed !important;
+}
+
+/* Specific styling for sport selectors */
+.sport-selector {
+  background: linear-gradient(
+    135deg,
+    rgb(15, 23, 42) 0%,
+    rgb(124, 58, 237) 50%,
+    rgb(15, 23, 42) 100%
+  ) !important;
+  border: 1px solid rgba(124, 58, 237, 0.3) !important;
+  border-radius: 8px !important;
+  color: white !important;
+  font-weight: 500 !important;
+  padding: 12px 16px !important;
+  backdrop-filter: blur(4px) !important;
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2) !important;
+  transition: all 0.2s ease !important;
+  appearance: none !important;
+  cursor: pointer !important;
+}
+
+.sport-selector:hover {
+  border-color: rgba(168, 85, 247, 0.5) !important;
+}
+
+.sport-selector:focus {
+  border-color: #06b6d4 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.5) !important;
+}
+
+.sport-selector option {
+  background-color: #1e293b !important;
+  color: white !important;
+  padding: 8px 16px !important;
+}
+
+/* Fix white text on white background issue */
+select option {
+  background-color: #1e293b !important;
+  color: white !important;
+}
+
+/* Enhanced dropdown arrow styling */
+.sport-selector-wrapper {
+  position: relative;
+}
+
+.sport-selector-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #e5e7eb;
+  pointer-events: none;
+}

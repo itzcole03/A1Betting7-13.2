@@ -1,0 +1,10 @@
+# Minimal requirements for basic backend functionality
+fastapi
+uvicorn[standard]
+pydantic
+numpy
+pandas
+scikit-learn
+httpx
+python-dotenv
+python-multipart

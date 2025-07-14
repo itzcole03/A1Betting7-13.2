@@ -1,0 +1,47 @@
+# Node modules
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+build/
+out/
+.next/
+.vite/
+.vercel/
+.cache/
+coverage/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDEs & Editors
+.vscode/
+.idea/
+.DS_Store
+*.sw?
+*.sublime*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Testing
+coverage/
+*.lcov
+
+# Storybook
+storybook-static/
+
+# Misc
+*.local
+*.log
+*.tmp
