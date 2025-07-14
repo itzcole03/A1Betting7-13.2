@@ -1285,6 +1285,11 @@ from backend.routes.propollama import router as propollama_router
 
 app.include_router(propollama_router, prefix="/api/propollama")
 
+from backend.routes.health import router as health_router
+logger.info("[DIAGNOSTIC] About to register health_router at /api/healthx")
+app.include_router(health_router, prefix="/api/healthx")
+logger.info("[DIAGNOSTIC] Registered health_router at /api/healthx")
+
 
 # ============================================================================
 # APPLICATION ENTRY POINT
