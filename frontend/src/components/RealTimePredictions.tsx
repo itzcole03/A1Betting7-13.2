@@ -14,6 +14,8 @@ import {
   realTimePredictionService,
 } from '../services/realTimePredictionService';
 import { safeNumber } from '../utils/UniversalUtils';
+import { userPersonalizationService } from '@/services/analytics/userPersonalizationService';
+import { useAuth } from '@/auth/AuthContext';
 
 interface RealTimePredictionsProps {
   sport?: string;
@@ -35,6 +37,7 @@ const RealTimePredictions: React.FC<RealTimePredictionsProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [apiHealthy, setApiHealthy] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const { user } = useAuth();
 
   // Fetch predictions from the real-time API
   const fetchPredictions = useCallback(async () => {
@@ -53,12 +56,23 @@ const RealTimePredictions: React.FC<RealTimePredictionsProps> = ({
       }
 
       // Fetch predictions
+      // Pass user.id to enable backend personalization
       const predictionData = await realTimePredictionService.getLivePredictions({
         sport,
         limit,
-      });
+      }, user && user.id);
 
-      setPredictions(predictionData);
+      // Personalize predictions for the current user
+      let personalizedPredictions = predictionData;
+      if (user && user.id) {
+        personalizedPredictions = await Promise.all(
+          predictionData.map(prediction =>
+            userPersonalizationService.getPersonalizedPrediction(user.id, prediction)
+          )
+        );
+      }
+
+      setPredictions(personalizedPredictions);
       setLastUpdate(new Date());
 
       // Fetch system health and stats
@@ -76,7 +90,7 @@ const RealTimePredictions: React.FC<RealTimePredictionsProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [sport, limit]);
+  }, [sport, limit, user]);
 
   // Initial load
   useEffect(() => {

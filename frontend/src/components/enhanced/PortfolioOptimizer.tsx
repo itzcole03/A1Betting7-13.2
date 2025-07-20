@@ -151,12 +151,13 @@ const PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
 
       {/* Investment Amount Input */}
       <div className='bg-gray-700/30 rounded-lg p-4'>
-        <label className='block text-sm font-medium text-gray-300 mb-2'>
+        <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='po-investment-amount'>
           Total Investment Amount
         </label>
         <div className='relative'>
           <DollarSign className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400' />
           <input
+            id='po-investment-amount'
             type='number'
             value={investmentAmount}
             onChange={e => onInvestmentChange(Number(e.target.value))}
@@ -172,8 +173,9 @@ const PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
       {/* Optimization Settings */}
       <div className='grid grid-cols-2 gap-4'>
         <div>
-          <label className='block text-sm font-medium text-gray-300 mb-2'>Optimization Mode</label>
+          <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='po-optimization-mode'>Optimization Mode</label>
           <select
+            id='po-optimization-mode'
             value={optimizationMode}
             onChange={e => setOptimizationMode(e.target.value as any)}
             className='w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500'
@@ -185,8 +187,9 @@ const PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
         </div>
 
         <div>
-          <label className='block text-sm font-medium text-gray-300 mb-2'>Max Positions</label>
+          <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='po-max-positions'>Max Positions</label>
           <select
+            id='po-max-positions'
             value={maxPositions}
             onChange={e => setMaxPositions(Number(e.target.value))}
             className='w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500'

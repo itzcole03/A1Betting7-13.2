@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Brain,
-  Zap,
-  TrendingUp,
-  AlertTriangle,
-  Target,
   Activity,
+  AlertTriangle,
   BarChart3,
-  Cpu,
-  Eye,
+  Brain,
   ChevronDown,
   ChevronUp,
+  Cpu,
+  Eye,
   Info,
+  Target,
+  TrendingUp,
+  Zap,
 } from 'lucide-react';
-import { AIInsights, EnhancedPrediction, SHAPExplanation } from '../../types/enhancedBetting';
+import React, { useState } from 'react';
+import { AIInsights, EnhancedPrediction } from '../../types/enhancedBetting';
 
 interface AIInsightsPanelProps {
   insights: AIInsights[];
@@ -153,9 +153,12 @@ const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
                 </div>
                 <div className='text-right'>
                   <div className='text-sm font-semibold text-cyan-400'>
-                    {bet.confidence.toFixed(1)}%
+                    {typeof bet.confidence === 'number' ? bet.confidence.toFixed(1) : '--'}%
                   </div>
-                  <div className='text-xs text-gray-400'>+{bet.expected_value.toFixed(2)} EV</div>
+                  <div className='text-xs text-gray-400'>
+                    +{typeof bet.expected_value === 'number' ? bet.expected_value.toFixed(2) : '--'}{' '}
+                    EV
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -363,8 +366,8 @@ const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
                             selectedBet.risk_assessment.overall_risk < 0.3
                               ? 'text-green-400'
                               : selectedBet.risk_assessment.overall_risk < 0.6
-                                ? 'text-yellow-400'
-                                : 'text-red-400'
+                              ? 'text-yellow-400'
+                              : 'text-red-400'
                           }`}
                         >
                           {(selectedBet.risk_assessment.overall_risk * 100).toFixed(1)}%
@@ -377,8 +380,8 @@ const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
                             selectedBet.risk_assessment.risk_level === 'low'
                               ? 'text-green-400'
                               : selectedBet.risk_assessment.risk_level === 'medium'
-                                ? 'text-yellow-400'
-                                : 'text-red-400'
+                              ? 'text-yellow-400'
+                              : 'text-red-400'
                           }`}
                         >
                           {selectedBet.risk_assessment.risk_level}

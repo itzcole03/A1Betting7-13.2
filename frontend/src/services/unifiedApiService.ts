@@ -16,24 +16,16 @@ import {
   CorrelationMatrix,
 } from '../types/enhancedBetting';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 class UnifiedApiService {
   private baseUrl: string;
   private timeout: number;
 
   constructor() {
-    // Determine base URL based on environment
-    if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname;
-      if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        this.baseUrl = 'http://localhost:8000/api/unified';
-      } else {
-        // Use the current origin for production
-        this.baseUrl = `${window.location.origin}/api/unified`;
-      }
-    } else {
-      this.baseUrl = 'http://localhost:8000/api/unified';
-    }
+    this.baseUrl = `${API_URL}/api/unified`;
     this.timeout = 5000; // 5 seconds
+    console.log('[A1BETTING FRONTEND] Using backend:', API_URL);
   }
 
   private async fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
@@ -55,15 +47,19 @@ class UnifiedApiService {
       // Check if response is HTML instead of JSON
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('text/html')) {
-        console.warn(
+        console.debug(
           `API endpoint ${url} returned HTML instead of JSON - likely a 404 or error page`
         );
-        throw new Error(`API endpoint not available: ${url}`);
+        throw new Error('API_UNAVAILABLE');
       }
 
       return response;
     } catch (error) {
       clearTimeout(timeoutId);
+      // Convert network errors to a more descriptive error
+      if (error instanceof Error && error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('API_UNAVAILABLE');
+      }
       throw error;
     }
   }
@@ -103,7 +99,7 @@ class UnifiedApiService {
 
       return await this.safeJsonParse(response);
     } catch (error) {
-      console.warn('Enhanced bets API unavailable, using fallback data:', error);
+      console.debug('Enhanced bets API unavailable, using fallback data');
 
       // Return fallback data when API is not available
       return this.getFallbackEnhancedBets(params);

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import React, { useEffect, useState } from 'react';
 
 // Types for prediction explanation
 interface PredictionFactor {
@@ -102,14 +102,14 @@ const getImpactColor = (impact: number, variant: string = 'default') => {
         intensity > 0.7
           ? 'text-green-700 bg-green-100'
           : intensity > 0.4
-            ? 'text-green-600 bg-green-50'
-            : 'text-green-500 bg-green-25',
+          ? 'text-green-600 bg-green-50'
+          : 'text-green-500 bg-green-25',
       cyber:
         intensity > 0.7
           ? 'text-green-300 bg-green-500/30'
           : intensity > 0.4
-            ? 'text-green-300 bg-green-500/20'
-            : 'text-green-300 bg-green-500/10',
+          ? 'text-green-300 bg-green-500/20'
+          : 'text-green-300 bg-green-500/10',
     };
     return variant === 'cyber' ? colors.cyber : colors.default;
   } else {
@@ -119,14 +119,14 @@ const getImpactColor = (impact: number, variant: string = 'default') => {
         intensity > 0.7
           ? 'text-red-700 bg-red-100'
           : intensity > 0.4
-            ? 'text-red-600 bg-red-50'
-            : 'text-red-500 bg-red-25',
+          ? 'text-red-600 bg-red-50'
+          : 'text-red-500 bg-red-25',
       cyber:
         intensity > 0.7
           ? 'text-red-300 bg-red-500/30'
           : intensity > 0.4
-            ? 'text-red-300 bg-red-500/20'
-            : 'text-red-300 bg-red-500/10',
+          ? 'text-red-300 bg-red-500/20'
+          : 'text-red-300 bg-red-500/10',
     };
     return variant === 'cyber' ? colors.cyber : colors.default;
   }
@@ -224,7 +224,12 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center'>
       {/* Backdrop */}
-      <div className='absolute inset-0 bg-black/50 backdrop-blur-sm' onClick={onClose} />
+      <div
+        className='absolute inset-0 bg-black/50 backdrop-blur-sm'
+        onClick={onClose}
+        role='button'
+        tabIndex={0}
+      />
 
       {/* Overlay Content */}
       <div
@@ -375,8 +380,8 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                   explanation.metadata.reliability === 'high'
                     ? 'text-green-600'
                     : explanation.metadata.reliability === 'medium'
-                      ? 'text-yellow-600'
-                      : 'text-red-600'
+                    ? 'text-yellow-600'
+                    : 'text-red-600'
                 )}
               >
                 {explanation.metadata.reliability}
@@ -403,8 +408,8 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                     ? 'text-cyan-300 border-b-2 border-cyan-500'
                     : 'text-blue-600 border-b-2 border-blue-500'
                   : variant === 'cyber'
-                    ? 'text-cyan-400/70 hover:text-cyan-300'
-                    : 'text-gray-600 hover:text-gray-800'
+                  ? 'text-cyan-400/70 hover:text-cyan-300'
+                  : 'text-gray-600 hover:text-gray-800'
               )}
             >
               {tab}

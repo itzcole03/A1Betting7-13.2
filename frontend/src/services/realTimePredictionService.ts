@@ -7,7 +7,7 @@
  */
 
 import axios, { AxiosResponse } from 'axios';
-import { backendDiscovery } from './backendDiscovery';
+import { discoverBackend } from './backendDiscovery';
 
 // Real-time prediction types matching the backend API
 export interface RealTimePrediction {
@@ -89,7 +89,7 @@ class RealTimePredictionService {
    * Get real-time predictions from the Phase 5 prediction engine
    * CRITICAL: Returns only real predictions from trained models
    */
-  async getLivePredictions(request: PredictionRequest = {}): Promise<RealTimePrediction[]> {
+  async getLivePredictions(request: PredictionRequest = {}, userId?: string): Promise<RealTimePrediction[]> {
     try {
       console.log('🎯 Fetching real-time predictions with auto-discovery...');
 
@@ -100,19 +100,23 @@ class RealTimePredictionService {
       if (request.sport) params.append('sport', request.sport);
       if (request.limit) params.append('limit', request.limit.toString());
 
+      // Prepare headers
+      const headers: Record<string, string> = {};
+      if (userId) headers['user_id'] = userId;
+
       // Try enhanced endpoint first (our current working endpoint)
       let response: AxiosResponse<RealTimePrediction[]>;
       try {
         response = await axios.get(
           `${baseUrl}/api/predictions/prizepicks/enhanced?${params.toString()}`,
-          { timeout: this.timeout }
+          { timeout: this.timeout, headers }
         );
       } catch (enhancedError) {
         // Fallback to live endpoint
         console.log('🔄 Enhanced endpoint failed, trying live endpoint...');
         response = await axios.get(
           `${baseUrl}/api/predictions/prizepicks/live?${params.toString()}`,
-          { timeout: this.timeout }
+          { timeout: this.timeout, headers }
         );
       }
 

@@ -28,7 +28,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
   const handlers = useRef<Record<string, ((data: any) => void)[]>>({});
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8080'); // Replace with real endpoint
+    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
+    const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
     ws.onopen = () => setConnected(true);
     ws.onclose = () => setConnected(false);

@@ -308,8 +308,9 @@ const ArbitrageScanner: React.FC = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
           <div>
-            <label className='text-sm text-gray-400 mb-1 block'>Sport</label>
+            <label className='text-sm text-gray-400 mb-1 block' htmlFor='arb-filter-sport'>Sport</label>
             <select
+              id='arb-filter-sport'
               value={filters.sport}
               onChange={e => setFilters({ ...filters, sport: e.target.value })}
               className='w-full px-3 py-2 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
@@ -323,8 +324,9 @@ const ArbitrageScanner: React.FC = () => {
           </div>
 
           <div>
-            <label className='text-sm text-gray-400 mb-1 block'>Min Profit (%)</label>
+            <label className='text-sm text-gray-400 mb-1 block' htmlFor='arb-filter-min-profit'>Min Profit (%)</label>
             <input
+              id='arb-filter-min-profit'
               type='range'
               min='0.5'
               max='10'
@@ -337,8 +339,9 @@ const ArbitrageScanner: React.FC = () => {
           </div>
 
           <div>
-            <label className='text-sm text-gray-400 mb-1 block'>Max Stake ($)</label>
+            <label className='text-sm text-gray-400 mb-1 block' htmlFor='arb-filter-max-stake'>Max Stake ($)</label>
             <input
+              id='arb-filter-max-stake'
               type='range'
               min='1000'
               max='50000'
@@ -353,8 +356,9 @@ const ArbitrageScanner: React.FC = () => {
           </div>
 
           <div>
-            <label className='text-sm text-gray-400 mb-1 block'>Difficulty</label>
+            <label className='text-sm text-gray-400 mb-1 block' htmlFor='arb-filter-difficulty'>Difficulty</label>
             <select
+              id='arb-filter-difficulty'
               value={filters.difficulty}
               onChange={e => setFilters({ ...filters, difficulty: e.target.value })}
               className='w-full px-3 py-2 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'

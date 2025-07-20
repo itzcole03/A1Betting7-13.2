@@ -124,8 +124,14 @@ export const Settings: React.FC<SettingsProps> = ({ className = '' }) => {
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>Theme</label>
+                  <label
+                    htmlFor='theme-select'
+                    className='block text-sm font-medium text-gray-300 mb-2'
+                  >
+                    Theme
+                  </label>
                   <select
+                    id='theme-select'
                     value={settings.general.theme}
                     onChange={e => updateSetting('general', 'theme', e.target.value)}
                     className='w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500'
@@ -137,8 +143,14 @@ export const Settings: React.FC<SettingsProps> = ({ className = '' }) => {
                 </div>
 
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>Language</label>
+                  <label
+                    htmlFor='language-select'
+                    className='block text-sm font-medium text-gray-300 mb-2'
+                  >
+                    Language
+                  </label>
                   <select
+                    id='language-select'
                     value={settings.general.language}
                     onChange={e => updateSetting('general', 'language', e.target.value)}
                     className='w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500'
@@ -150,8 +162,14 @@ export const Settings: React.FC<SettingsProps> = ({ className = '' }) => {
                 </div>
 
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>Timezone</label>
+                  <label
+                    htmlFor='timezone-select'
+                    className='block text-sm font-medium text-gray-300 mb-2'
+                  >
+                    Timezone
+                  </label>
                   <select
+                    id='timezone-select'
                     value={settings.general.timezone}
                     onChange={e => updateSetting('general', 'timezone', e.target.value)}
                     className='w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500'
@@ -186,7 +204,10 @@ export const Settings: React.FC<SettingsProps> = ({ className = '' }) => {
                 {Object.entries(settings.notifications).map(([key, value]) => (
                   <div key={key} className='flex items-center justify-between'>
                     <div>
-                      <label className='text-sm font-medium text-gray-300 capitalize'>
+                      <label
+                        htmlFor={`notification-${key}`}
+                        className='text-sm font-medium text-gray-300 capitalize'
+                      >
                         {key.replace(/([A-Z])/g, ' $1').trim()}
                       </label>
                       <p className='text-xs text-gray-400'>
@@ -199,6 +220,7 @@ export const Settings: React.FC<SettingsProps> = ({ className = '' }) => {
                       </p>
                     </div>
                     <input
+                      id={`notification-${key}`}
                       type='checkbox'
                       checked={value}
                       onChange={e => updateSetting('notifications', key, e.target.checked)}
@@ -217,7 +239,10 @@ export const Settings: React.FC<SettingsProps> = ({ className = '' }) => {
               <div className='space-y-4'>
                 <div className='flex items-center justify-between'>
                   <div>
-                    <label className='text-sm font-medium text-gray-300'>
+                    <label
+                      htmlFor='twoFactor-checkbox'
+                      className='text-sm font-medium text-gray-300'
+                    >
                       Two-Factor Authentication
                     </label>
                     <p className='text-xs text-gray-400'>
@@ -225,6 +250,7 @@ export const Settings: React.FC<SettingsProps> = ({ className = '' }) => {
                     </p>
                   </div>
                   <input
+                    id='twoFactor-checkbox'
                     type='checkbox'
                     checked={settings.security.twoFactor}
                     onChange={e => updateSetting('security', 'twoFactor', e.target.checked)}
@@ -233,10 +259,14 @@ export const Settings: React.FC<SettingsProps> = ({ className = '' }) => {
                 </div>
 
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>
+                  <label
+                    htmlFor='sessionTimeout-input'
+                    className='block text-sm font-medium text-gray-300 mb-2'
+                  >
                     Session Timeout (minutes)
                   </label>
                   <input
+                    id='sessionTimeout-input'
                     type='number'
                     value={settings.security.sessionTimeout}
                     onChange={e =>
@@ -257,10 +287,14 @@ export const Settings: React.FC<SettingsProps> = ({ className = '' }) => {
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>
+                  <label
+                    htmlFor='defaultStake-input'
+                    className='block text-sm font-medium text-gray-300 mb-2'
+                  >
                     Default Stake ($)
                   </label>
                   <input
+                    id='defaultStake-input'
                     type='number'
                     value={settings.betting.defaultStake}
                     onChange={e =>
@@ -272,10 +306,14 @@ export const Settings: React.FC<SettingsProps> = ({ className = '' }) => {
                 </div>
 
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>
+                  <label
+                    htmlFor='maxStake-input'
+                    className='block text-sm font-medium text-gray-300 mb-2'
+                  >
                     Maximum Stake ($)
                   </label>
                   <input
+                    id='maxStake-input'
                     type='number'
                     value={settings.betting.maxStake}
                     onChange={e => updateSetting('betting', 'maxStake', parseInt(e.target.value))}
@@ -285,8 +323,14 @@ export const Settings: React.FC<SettingsProps> = ({ className = '' }) => {
                 </div>
 
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>Risk Level</label>
+                  <label
+                    htmlFor='riskLevel-select'
+                    className='block text-sm font-medium text-gray-300 mb-2'
+                  >
+                    Risk Level
+                  </label>
                   <select
+                    id='riskLevel-select'
                     value={settings.betting.riskLevel}
                     onChange={e => updateSetting('betting', 'riskLevel', e.target.value)}
                     className='w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500'
@@ -298,10 +342,14 @@ export const Settings: React.FC<SettingsProps> = ({ className = '' }) => {
                 </div>
 
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>
+                  <label
+                    htmlFor='stopLoss-input'
+                    className='block text-sm font-medium text-gray-300 mb-2'
+                  >
                     Stop Loss ($)
                   </label>
                   <input
+                    id='stopLoss-input'
                     type='number'
                     value={settings.betting.stopLoss}
                     onChange={e => updateSetting('betting', 'stopLoss', parseInt(e.target.value))}

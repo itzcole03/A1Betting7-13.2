@@ -3,7 +3,7 @@
  * Handles authentication, retries, caching, and error management
  */
 
-import { backendDiscovery } from '../backendDiscovery';
+import { discoverBackend } from '../backendDiscovery';
 
 interface ApiConfig {
   baseURL: string;
@@ -48,10 +48,12 @@ class ApiService {
    */
   private async getBaseURL(): Promise<string> {
     try {
-      return await backendDiscovery.getBackendUrl();
+      const url = await discoverBackend();
+      if (!url) throw new Error('No backend discovered');
+      return url;
     } catch (error) {
       console.warn('Failed to discover backend, using configured baseURL:', error);
-      return this.config.baseURL;
+      return this.config.baseURL; // or a fallback URL
     }
   }
 

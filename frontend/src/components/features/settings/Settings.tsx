@@ -1,33 +1,23 @@
-import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Settings as SettingsIcon,
-  User,
+  AlertTriangle,
   Bell,
-  Shield,
+  CheckCircle,
+  ChevronRight,
   Database,
-  Palette,
-  Zap,
   DollarSign,
-  Brain,
-  Eye,
-  Clock,
-  Globe,
-  Key,
-  Smartphone,
-  Mail,
-  Lock,
-  Trash2,
   Download,
-  Upload,
+  Info,
+  Mail,
+  Palette,
   RefreshCw,
   Save,
-  AlertTriangle,
-  CheckCircle,
-  Info,
-  ChevronRight,
-  Toggle,
+  Shield,
+  Smartphone,
+  Upload,
+  User,
 } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Layout } from '../../core/Layout';
 
 interface UserProfile {
@@ -385,8 +375,8 @@ const Settings: React.FC = () => {
                           userProfile.subscription.plan === 'elite'
                             ? 'bg-purple-500/20 text-purple-400'
                             : userProfile.subscription.plan === 'pro'
-                              ? 'bg-cyan-500/20 text-cyan-400'
-                              : 'bg-gray-500/20 text-gray-400'
+                            ? 'bg-cyan-500/20 text-cyan-400'
+                            : 'bg-gray-500/20 text-gray-400'
                         }`}
                       >
                         {userProfile.subscription.plan.toUpperCase()}
@@ -400,10 +390,14 @@ const Settings: React.FC = () => {
 
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>
+                    <label
+                      htmlFor='settings-first-name'
+                      className='block text-sm font-medium text-gray-300 mb-2'
+                    >
                       First Name
                     </label>
                     <input
+                      id='settings-first-name'
                       type='text'
                       value={userProfile.firstName}
                       onChange={e =>
@@ -416,10 +410,14 @@ const Settings: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>
+                    <label
+                      htmlFor='settings-last-name'
+                      className='block text-sm font-medium text-gray-300 mb-2'
+                    >
                       Last Name
                     </label>
                     <input
+                      id='settings-last-name'
                       type='text'
                       value={userProfile.lastName}
                       onChange={e =>
@@ -432,8 +430,14 @@ const Settings: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>Email</label>
+                    <label
+                      htmlFor='settings-email'
+                      className='block text-sm font-medium text-gray-300 mb-2'
+                    >
+                      Email
+                    </label>
                     <input
+                      id='settings-email'
                       type='email'
                       value={userProfile.email}
                       onChange={e =>
@@ -444,8 +448,14 @@ const Settings: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>Username</label>
+                    <label
+                      htmlFor='settings-username'
+                      className='block text-sm font-medium text-gray-300 mb-2'
+                    >
+                      Username
+                    </label>
                     <input
+                      id='settings-username'
                       type='text'
                       value={userProfile.username}
                       onChange={e =>
@@ -458,8 +468,14 @@ const Settings: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>Timezone</label>
+                    <label
+                      htmlFor='settings-timezone'
+                      className='block text-sm font-medium text-gray-300 mb-2'
+                    >
+                      Timezone
+                    </label>
                     <select
+                      id='settings-timezone'
                       value={userProfile.timezone}
                       onChange={e =>
                         setUserProfile(prev =>
@@ -476,8 +492,14 @@ const Settings: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className='block text-sm font-medium text-gray-300 mb-2'>Language</label>
+                    <label
+                      htmlFor='settings-language'
+                      className='block text-sm font-medium text-gray-300 mb-2'
+                    >
+                      Language
+                    </label>
                     <select
+                      id='settings-language'
                       value={userProfile.language}
                       onChange={e =>
                         setUserProfile(prev =>
@@ -670,8 +692,14 @@ const Settings: React.FC = () => {
           <div className='space-y-6'>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               <div>
-                <label className='block text-sm font-medium text-gray-300 mb-2'>Theme</label>
+                <label
+                  htmlFor='settings-theme-select'
+                  className='block text-sm font-medium text-gray-300 mb-2'
+                >
+                  Theme
+                </label>
                 <select
+                  id='settings-theme-select'
                   value={platformSettings.theme}
                   onChange={e =>
                     setPlatformSettings(prev => ({
@@ -688,10 +716,14 @@ const Settings: React.FC = () => {
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-300 mb-2'>
+                <label
+                  htmlFor='settings-default-sport-select'
+                  className='block text-sm font-medium text-gray-300 mb-2'
+                >
                   Default Sport
                 </label>
                 <select
+                  id='settings-default-sport-select'
                   value={platformSettings.defaultSport}
                   onChange={e =>
                     setPlatformSettings(prev => ({
@@ -709,10 +741,14 @@ const Settings: React.FC = () => {
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-300 mb-2'>
+                <label
+                  htmlFor='settings-refresh-interval'
+                  className='block text-sm font-medium text-gray-300 mb-2'
+                >
                   Refresh Interval (seconds)
                 </label>
                 <input
+                  id='settings-refresh-interval'
                   type='number'
                   min='10'
                   max='300'
@@ -728,8 +764,14 @@ const Settings: React.FC = () => {
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-300 mb-2'>Accent Color</label>
+                <label
+                  htmlFor='settings-accent-color'
+                  className='block text-sm font-medium text-gray-300 mb-2'
+                >
+                  Accent Color
+                </label>
                 <input
+                  id='settings-accent-color'
                   type='color'
                   value={platformSettings.accentColor}
                   onChange={e =>
@@ -799,10 +841,14 @@ const Settings: React.FC = () => {
           <div className='space-y-6'>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               <div>
-                <label className='block text-sm font-medium text-gray-300 mb-2'>
+                <label
+                  htmlFor='settings-bankroll'
+                  className='block text-sm font-medium text-gray-300 mb-2'
+                >
                   Default Bankroll ($)
                 </label>
                 <input
+                  id='settings-bankroll'
                   type='number'
                   min='0'
                   value={bettingSettings.defaultBankroll}
@@ -817,10 +863,14 @@ const Settings: React.FC = () => {
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-300 mb-2'>
+                <label
+                  htmlFor='settings-max-bet-size'
+                  className='block text-sm font-medium text-gray-300 mb-2'
+                >
                   Max Bet Size ($)
                 </label>
                 <input
+                  id='settings-max-bet-size'
                   type='number'
                   min='0'
                   value={bettingSettings.maxBetSize}
@@ -835,10 +885,14 @@ const Settings: React.FC = () => {
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-300 mb-2'>
+                <label
+                  htmlFor='settings-kelly-fraction'
+                  className='block text-sm font-medium text-gray-300 mb-2'
+                >
                   Kelly Fraction
                 </label>
                 <input
+                  id='settings-kelly-fraction'
                   type='number'
                   min='0'
                   max='1'
@@ -855,10 +909,14 @@ const Settings: React.FC = () => {
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-300 mb-2'>
+                <label
+                  htmlFor='settings-risk-tolerance'
+                  className='block text-sm font-medium text-gray-300 mb-2'
+                >
                   Risk Tolerance
                 </label>
                 <select
+                  id='settings-risk-tolerance'
                   value={bettingSettings.riskTolerance}
                   onChange={e =>
                     setBettingSettings(prev => ({
@@ -875,10 +933,14 @@ const Settings: React.FC = () => {
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-300 mb-2'>
+                <label
+                  htmlFor='settings-arbitrage-threshold'
+                  className='block text-sm font-medium text-gray-300 mb-2'
+                >
                   Arbitrage Threshold (%)
                 </label>
                 <input
+                  id='settings-arbitrage-threshold'
                   type='number'
                   min='0'
                   max='50'
@@ -895,10 +957,14 @@ const Settings: React.FC = () => {
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-300 mb-2'>
+                <label
+                  htmlFor='settings-min-edge'
+                  className='block text-sm font-medium text-gray-300 mb-2'
+                >
                   Minimum Edge (%)
                 </label>
                 <input
+                  id='settings-min-edge'
                   type='number'
                   min='0'
                   max='100'
@@ -982,8 +1048,14 @@ const Settings: React.FC = () => {
 
                     <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
                       <div>
-                        <label className='block text-xs text-gray-400 mb-1'>API Key</label>
+                        <label
+                          htmlFor={`settings-api-key-${provider}`}
+                          className='block text-xs text-gray-400 mb-1'
+                        >
+                          API Key
+                        </label>
                         <input
+                          id={`settings-api-key-${provider}`}
                           type='password'
                           value={settings.apiKey}
                           onChange={e =>
@@ -1001,8 +1073,14 @@ const Settings: React.FC = () => {
                       </div>
 
                       <div>
-                        <label className='block text-xs text-gray-400 mb-1'>Rate Limit</label>
+                        <label
+                          htmlFor={`settings-rate-limit-${provider}`}
+                          className='block text-xs text-gray-400 mb-1'
+                        >
+                          Rate Limit
+                        </label>
                         <input
+                          id={`settings-rate-limit-${provider}`}
                           type='number'
                           value={settings.rateLimit}
                           onChange={e =>
@@ -1019,8 +1097,14 @@ const Settings: React.FC = () => {
                       </div>
 
                       <div>
-                        <label className='block text-xs text-gray-400 mb-1'>Priority</label>
+                        <label
+                          htmlFor={`settings-priority-${provider}`}
+                          className='block text-xs text-gray-400 mb-1'
+                        >
+                          Priority
+                        </label>
                         <input
+                          id={`settings-priority-${provider}`}
                           type='number'
                           value={settings.priority}
                           onChange={e =>
@@ -1045,10 +1129,14 @@ const Settings: React.FC = () => {
               <h3 className='text-lg font-bold text-white mb-4'>Caching & Performance</h3>
               <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>
+                  <label
+                    htmlFor='settings-cache-ttl'
+                    className='block text-sm font-medium text-gray-300 mb-2'
+                  >
                     Cache TTL (seconds)
                   </label>
                   <input
+                    id='settings-cache-ttl'
                     type='number'
                     value={apiSettings.caching.ttl}
                     onChange={e =>
@@ -1062,10 +1150,14 @@ const Settings: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>
+                  <label
+                    htmlFor='settings-cache-max-size'
+                    className='block text-sm font-medium text-gray-300 mb-2'
+                  >
                     Max Cache Size (MB)
                   </label>
                   <input
+                    id='settings-cache-max-size'
                     type='number'
                     value={apiSettings.caching.maxSize}
                     onChange={e =>
@@ -1079,10 +1171,14 @@ const Settings: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>
+                  <label
+                    htmlFor='settings-retry-attempts'
+                    className='block text-sm font-medium text-gray-300 mb-2'
+                  >
                     Retry Attempts
                   </label>
                   <input
+                    id='settings-retry-attempts'
                     type='number'
                     value={apiSettings.retries.maxAttempts}
                     onChange={e =>

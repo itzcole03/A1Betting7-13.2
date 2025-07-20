@@ -1,20 +1,18 @@
-import React, { useState, useEffect } from 'react';
 import {
-  User,
+  Activity,
+  AlertTriangle,
+  BarChart3,
+  Bell,
+  Database,
+  Monitor,
+  Palette,
+  RefreshCw,
   Settings,
   Shield,
-  Database,
-  BarChart3,
-  RefreshCw,
-  Monitor,
-  Bell,
-  Palette,
-  Key,
-  Activity,
+  User,
   Users,
-  Server,
-  AlertTriangle,
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
 interface UserProfile {
@@ -91,8 +89,11 @@ const SettingsAdminPage: React.FC = () => {
         <h3 className='text-lg font-semibold text-white mb-4'>Profile Information</h3>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>Username</label>
+            <label htmlFor='settings-username-input' className='block text-sm text-gray-400 mb-2'>
+              Username
+            </label>
             <input
+              id='settings-username-input'
               type='text'
               value={userProfile.username}
               onChange={e => setUserProfile({ ...userProfile, username: e.target.value })}
@@ -100,8 +101,11 @@ const SettingsAdminPage: React.FC = () => {
             />
           </div>
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>Email</label>
+            <label htmlFor='settings-email-input' className='block text-sm text-gray-400 mb-2'>
+              Email
+            </label>
             <input
+              id='settings-email-input'
               type='email'
               value={userProfile.email}
               onChange={e => setUserProfile({ ...userProfile, email: e.target.value })}
@@ -114,8 +118,8 @@ const SettingsAdminPage: React.FC = () => {
               {userProfile.role === 'admin'
                 ? '🛡️ Administrator'
                 : userProfile.role === 'super_admin'
-                  ? '👑 Super Admin'
-                  : '👤 User'}
+                ? '👑 Super Admin'
+                : '👤 User'}
             </div>
           </div>
           <div>
@@ -142,14 +146,25 @@ const SettingsAdminPage: React.FC = () => {
               <div className='text-white font-medium'>Auto-refresh Locked Bets</div>
               <div className='text-gray-400 text-sm'>Automatically refresh every 30 seconds</div>
             </div>
-            <input type='checkbox' defaultChecked className='toggle' />
+            <input
+              id='settings-autorefresh-checkbox'
+              type='checkbox'
+              defaultChecked
+              className='toggle'
+            />
+            <label htmlFor='settings-autorefresh-checkbox' className='sr-only'>
+              Auto-refresh Locked Bets
+            </label>
           </div>
           <div className='flex items-center justify-between'>
             <div>
               <div className='text-white font-medium'>Show High Confidence Only</div>
               <div className='text-gray-400 text-sm'>Only display bets with 85%+ confidence</div>
             </div>
-            <input type='checkbox' className='toggle' />
+            <input id='settings-highconfidence-checkbox' type='checkbox' className='toggle' />
+            <label htmlFor='settings-highconfidence-checkbox' className='sr-only'>
+              Show High Confidence Only
+            </label>
           </div>
           <div className='flex items-center justify-between'>
             <div>
@@ -158,7 +173,10 @@ const SettingsAdminPage: React.FC = () => {
                 Warn when bet size exceeds Kelly recommendation
               </div>
             </div>
-            <input type='checkbox' defaultChecked className='toggle' />
+            <input id='settings-kelly-checkbox' type='checkbox' defaultChecked className='toggle' />
+            <label htmlFor='settings-kelly-checkbox' className='sr-only'>
+              Kelly Criterion Warnings
+            </label>
           </div>
         </div>
       </div>
@@ -167,8 +185,16 @@ const SettingsAdminPage: React.FC = () => {
         <h3 className='text-lg font-semibold text-white mb-4'>Display Settings</h3>
         <div className='space-y-4'>
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>Default Sport Filter</label>
-            <select className='w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2'>
+            <label
+              htmlFor='settings-defaultsport-select'
+              className='block text-sm text-gray-400 mb-2'
+            >
+              Default Sport Filter
+            </label>
+            <select
+              id='settings-defaultsport-select'
+              className='w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2'
+            >
               <option value='ALL'>All Sports</option>
               <option value='NBA'>NBA</option>
               <option value='NFL'>NFL</option>
@@ -177,8 +203,16 @@ const SettingsAdminPage: React.FC = () => {
             </select>
           </div>
           <div>
-            <label className='block text-sm text-gray-400 mb-2'>Minimum Confidence Threshold</label>
-            <select className='w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2'>
+            <label
+              htmlFor='settings-confidence-select'
+              className='block text-sm text-gray-400 mb-2'
+            >
+              Minimum Confidence Threshold
+            </label>
+            <select
+              id='settings-confidence-select'
+              className='w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2'
+            >
               <option value='50'>50%</option>
               <option value='60'>60%</option>
               <option value='70'>70%</option>
@@ -368,12 +402,16 @@ const SettingsAdminPage: React.FC = () => {
           {/* Sidebar Navigation */}
           <div className='lg:w-64'>
             <div className='bg-gray-800 border border-gray-700 rounded-lg p-4'>
-              <nav className='space-y-2'>
+              <nav className='space-y-2' role='tablist' aria-label='Settings Tabs'>
                 {tabs.map(tab => {
                   const Icon = tab.icon;
                   return (
                     <button
                       key={tab.id}
+                      role='tab'
+                      aria-selected={activeTab === tab.id}
+                      aria-controls={`tab-panel-${tab.id}`}
+                      id={`tab-${tab.id}`}
                       onClick={() => setActiveTab(tab.id)}
                       className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
                         activeTab === tab.id

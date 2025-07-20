@@ -248,10 +248,10 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
           </p>
         </div>
         <div className='flex space-x-2'>
-          <Badge variant={explanation.confidence > 0.8 ? 'success' : 'warning'}>
+          <Badge variant={explanation.confidence > 0.8 ? 'default' : 'secondary'}>
             {explanation.confidence > 0.8 ? 'High Confidence' : 'Medium Confidence'}
           </Badge>
-          {realTimeUpdates && <Badge variant='info'>Live</Badge>}
+          {realTimeUpdates && <Badge variant='default'>Live</Badge>}
         </div>
       </div>
 
@@ -263,8 +263,11 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
         <CardContent>
           <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
             <div>
-              <label className='block text-sm font-medium mb-2'>Sort By</label>
+              <label className='block text-sm font-medium mb-2' htmlFor='shap-sort-by'>
+                Sort By
+              </label>
               <select
+                id='shap-sort-by'
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value as any)}
                 className='w-full p-2 border rounded-md'
@@ -276,10 +279,11 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
             </div>
 
             <div>
-              <label className='block text-sm font-medium mb-2'>
+              <label className='block text-sm font-medium mb-2' htmlFor='shap-confidence-threshold'>
                 Confidence Threshold: {safeNumber(confidenceThreshold).toFixed(2)}
               </label>
               <Slider
+                id='shap-confidence-threshold'
                 value={[confidenceThreshold]}
                 onValueChange={value => setConfidenceThreshold(value[0])}
                 max={1}
@@ -290,8 +294,14 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
             </div>
 
             <div className='flex items-center space-x-2'>
-              <Switch checked={showPositiveOnly} onCheckedChange={setShowPositiveOnly} />
-              <label className='text-sm font-medium'>Positive Only</label>
+              <Switch
+                id='shap-positive-only'
+                checked={showPositiveOnly}
+                onCheckedChange={setShowPositiveOnly}
+              />
+              <label className='text-sm font-medium' htmlFor='shap-positive-only'>
+                Positive Only
+              </label>
             </div>
 
             <div>
@@ -343,7 +353,10 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
       </div>
 
       {/* Visualization Tabs */}
-      <Tabs value={viewMode} onValueChange={setViewMode}>
+      <Tabs
+        value={viewMode}
+        onValueChange={value => setViewMode(value as 'waterfall' | 'force' | 'summary')}
+      >
         <TabsList className='grid w-full grid-cols-3'>
           <TabsTrigger value='waterfall'>Waterfall</TabsTrigger>
           <TabsTrigger value='force'>Force Plot</TabsTrigger>
@@ -409,13 +422,20 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
                     <div
                       key={feature.feature}
                       className='flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100'
+                      tabIndex={0}
+                      role='button'
                       onClick={() => handleFeatureClick(feature.feature)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          handleFeatureClick(feature.feature);
+                        }
+                      }}
                     >
                       <div className='flex items-center space-x-3'>
                         <div className='text-sm font-medium text-gray-900'>
                           {index + 1}. {feature.feature}
                         </div>
-                        <Badge variant={feature.impact > 0 ? 'success' : 'destructive'}>
+                        <Badge variant={feature.impact > 0 ? 'default' : 'destructive'}>
                           {feature.impact > 0 ? '+' : ''}
                           {safeNumber(feature.impact).toFixed(3)}
                         </Badge>

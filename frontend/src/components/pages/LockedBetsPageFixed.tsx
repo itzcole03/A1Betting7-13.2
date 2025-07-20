@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { RefreshCw, TrendingUp, Target, Zap, DollarSign, MessageCircle } from 'lucide-react';
+import { DollarSign, RefreshCw, Target, TrendingUp, Zap } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import PropOllamaChatBox from '../shared/PropOllamaChatBox';
 
@@ -165,15 +165,15 @@ const LockedBetsPage: React.FC = () => {
       bet.ensemble_confidence >= 85
         ? 'text-green-400'
         : bet.ensemble_confidence >= 75
-          ? 'text-yellow-400'
-          : 'text-orange-400';
+        ? 'text-yellow-400'
+        : 'text-orange-400';
 
     const riskColor =
       bet.risk_score <= 30
         ? 'text-green-400'
         : bet.risk_score <= 50
-          ? 'text-yellow-400'
-          : 'text-red-400';
+        ? 'text-yellow-400'
+        : 'text-red-400';
 
     return (
       <div
@@ -212,7 +212,9 @@ const LockedBetsPage: React.FC = () => {
           <div className='text-center'>
             <div className='text-sm text-gray-400'>Recommendation</div>
             <div
-              className={`text-lg font-bold ${bet.recommendation === 'OVER' ? 'text-green-400' : 'text-red-400'}`}
+              className={`text-lg font-bold ${
+                bet.recommendation === 'OVER' ? 'text-green-400' : 'text-red-400'
+              }`}
             >
               {bet.recommendation}
             </div>
@@ -300,7 +302,11 @@ const LockedBetsPage: React.FC = () => {
                 Most accurately predicted, real-time sports bets powered by advanced ML ensemble
               </p>
             </div>
+            <label htmlFor='lockedbets-refresh-btn' className='sr-only'>
+              Refresh locked bets
+            </label>
             <button
+              id='lockedbets-refresh-btn'
               onClick={fetchLockedBets}
               disabled={isLoading}
               className='flex items-center space-x-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 disabled:bg-gray-600 text-white rounded-lg font-medium transition-colors'
@@ -371,8 +377,11 @@ const LockedBetsPage: React.FC = () => {
           {/* Filters */}
           <div className='flex flex-wrap items-center gap-4 mb-6'>
             <div className='flex items-center space-x-2'>
-              <label className='text-sm text-gray-400'>Sport:</label>
+              <label htmlFor='lockedbets-sport-select' className='text-sm text-gray-400'>
+                Sport:
+              </label>
               <select
+                id='lockedbets-sport-select'
                 value={selectedSport}
                 onChange={e => setSelectedSport(e.target.value)}
                 className='bg-gray-800 border border-gray-600 text-white rounded px-3 py-1 text-sm'
@@ -385,8 +394,11 @@ const LockedBetsPage: React.FC = () => {
               </select>
             </div>
             <div className='flex items-center space-x-2'>
-              <label className='text-sm text-gray-400'>Min Confidence:</label>
+              <label htmlFor='lockedbets-confidence-select' className='text-sm text-gray-400'>
+                Min Confidence:
+              </label>
               <select
+                id='lockedbets-confidence-select'
                 value={minConfidence}
                 onChange={e => setMinConfidence(Number(e.target.value))}
                 className='bg-gray-800 border border-gray-600 text-white rounded px-3 py-1 text-sm'
@@ -429,7 +441,11 @@ const LockedBetsPage: React.FC = () => {
             <p className='text-gray-400 mb-4'>
               Try adjusting your filters or check back later for new predictions
             </p>
+            <label htmlFor='lockedbets-refresh-data-btn' className='sr-only'>
+              Refresh locked bets data
+            </label>
             <button
+              id='lockedbets-refresh-data-btn'
               onClick={fetchLockedBets}
               className='px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium transition-colors'
             >

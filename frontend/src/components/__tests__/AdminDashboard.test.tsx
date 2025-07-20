@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import AdminDashboard from '../AdminDashboard';
 import { useAuth } from '../../contexts/AuthContext';
+import AdminDashboard from '../AdminDashboard';
 
 // Mock the AuthContext
 jest.mock('../../contexts/AuthContext', () => ({
@@ -15,7 +15,8 @@ const mockLocation = {
   href: '',
   reload: jest.fn(),
 };
-Object.defineProperty(window, 'location', {
+// Use globalThis for safe mocking in Jest
+Object.defineProperty(globalThis, 'location', {
   value: mockLocation,
   writable: true,
 });

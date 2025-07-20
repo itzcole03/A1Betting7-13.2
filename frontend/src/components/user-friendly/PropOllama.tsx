@@ -1,8 +1,15 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
-import { backendDiscovery } from '../../services/backendDiscovery';
+import Message from './Message';
 
-interface PropOllamaMessage {
+// Props interface for PropOllama
+export interface PropOllamaProps {
+  variant?: 'cyber' | 'classic';
+  className?: string;
+}
+
+// Message interface for chat messages
+export interface PropOllamaMessage {
   id: string;
   type: 'user' | 'ai';
   content: string;
@@ -12,137 +19,162 @@ interface PropOllamaMessage {
   shap_explanation?: Record<string, number>;
 }
 
-interface PropOllamaProps {
-  variant?: 'standard' | 'cyber';
-  className?: string;
-}
-
 const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = '' }) => {
+  const baseClasses = `w-full h-screen flex flex-col rounded-lg border transition-all duration-200 ${
+    variant === 'cyber'
+      ? 'border-cyan-400/30 bg-gray-900 text-cyan-100'
+      : 'border-gray-200 bg-white text-gray-900 dark:bg-gray-900 dark:text-white'
+  }`;
   const [messages, setMessages] = useState<PropOllamaMessage[]>([]);
-
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [models, setModels] = useState<string[]>([]);
+  const [selectedModel, setSelectedModel] = useState<string>('');
+  const [modelHealth, setModelHealth] = useState<Record<string, any>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const handleSendMessage = async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage: PropOllamaMessage = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: input,
-      timestamp: new Date(),
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
-
-    try {
-      // Use the enhanced backendDiscovery for PropOllama chat
-      const backendUrl = await backendDiscovery.getBackendUrl();
-      const chatApiUrl = `${backendUrl}/api/propollama/chat`;
-
-      const response = await fetch(chatApiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: input,
-          analysisType: detectAnalysisType(input),
-        }),
+    const inputEl = document.getElementById('propollama-input');
+    if (inputEl) (inputEl as HTMLInputElement).focus();
+    // Fetch available models
+    fetch('/api/propollama/models')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data.models)) {
+          setModels(data.models);
+          setSelectedModel(data.models[0] || '');
+        }
       });
-
-      if (!response.ok) {
-        throw new Error(`Backend error: ${response.status} ${response.statusText}`);
-      }
-
-      const chatResponse = await response.json();
-
-      const aiResponse: PropOllamaMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai' as const,
-        content: chatResponse.content,
-        timestamp: new Date(),
-        confidence: chatResponse.confidence,
-        suggestions: chatResponse.suggestions,
-        shap_explanation: chatResponse.shap_explanation,
-      };
-
-      // Simulate AI thinking time for better UX
-      setTimeout(
-        () => {
-          setMessages(prev => [...prev, aiResponse]);
-          setIsLoading(false);
-        },
-        800 + Math.random() * 800
-      );
-    } catch (error) {
-      console.error('Error sending message:', error);
-      const errorMessage: PropOllamaMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content: `🚨 **Error Connecting to PropOllama AI**
-
-I couldn't connect to the backend. Please ensure the backend is running and accessible.
-
-**Details:**
-${error instanceof Error ? error.message : 'An unknown error occurred.'}
-
-You can try again in a few moments.`,
-        timestamp: new Date(),
-        confidence: 0,
-        suggestions: ['Try again', 'Check backend status'],
-      };
-      setMessages(prev => [...prev, errorMessage]);
-      setIsLoading(false);
-    }
-  };
-
-  const detectAnalysisType = (message: string): string => {
-    const lowerMessage = message.toLowerCase();
-    if (lowerMessage.includes('prop') || lowerMessage.includes('player')) return 'prop';
-    if (lowerMessage.includes('spread') || lowerMessage.includes('line')) return 'spread';
-    if (
-      lowerMessage.includes('total') ||
-      lowerMessage.includes('over') ||
-      lowerMessage.includes('under')
-    )
-      return 'total';
-    if (
-      lowerMessage.includes('strategy') ||
-      lowerMessage.includes('bankroll') ||
-      lowerMessage.includes('kelly')
-    )
-      return 'strategy';
-    return 'general';
-  };
+    // Fetch model health
+    fetch('/api/propollama/model_health')
+      .then(res => res.json())
+      .then(data => {
+        if (data.model_health) setModelHealth(data.model_health);
+      });
+  }, []);
 
   const handleSuggestionClick = (suggestion: string) => {
     setInput(suggestion);
+    // Optionally, auto-send suggestion:
+    // setTimeout(() => handleSendMessage(), 100);
   };
 
-  const baseClasses = `
-    w-full h-screen flex flex-col rounded-lg border transition-all duration-200
-    ${
-      variant === 'cyber'
-        ? 'bg-black border-cyan-400/30 text-cyan-300'
-        : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white'
+  // Send user message and handle streaming LLM response
+  const handleSendMessage = async () => {
+    const trimmed = input.trim();
+    if (!trimmed) return;
+    setError(null);
+    setIsLoading(true);
+    const userMessage: PropOllamaMessage = {
+      id:
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}-user`,
+      type: 'user',
+      content: trimmed,
+      timestamp: new Date(),
+    };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+
+    try {
+      // Build payload: send message, context, and selected model
+      const payload: any = { message: userMessage.content };
+      if (selectedModel) payload.model = selectedModel;
+      // If you want to add context, do it here as a dictionary
+      // Example: payload.context = { topic: 'sports_betting_analysis' };
+      const jsonString = JSON.stringify(payload);
+      console.log('[PropOllama] Sending JSON:', jsonString);
+      const response = await fetch('/api/propollama/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: jsonString,
+      });
+      if (!response.ok) {
+        let backendError = '';
+        try {
+          backendError = await response.text();
+        } catch {}
+        let errorMsg = `HTTP ${response.status}`;
+        try {
+          const errJson = JSON.parse(backendError);
+          if (errJson?.detail) {
+            if (typeof errJson.detail === 'string') {
+              errorMsg += `: ${errJson.detail}`;
+            } else if (typeof errJson.detail === 'object') {
+              if (errJson.detail.message) errorMsg += `: ${errJson.detail.message}`;
+              if (errJson.detail.trace) errorMsg += `\nTrace: ${errJson.detail.trace}`;
+            } else if (Array.isArray(errJson.detail)) {
+              errorMsg += `: ${errJson.detail
+                .map((d: any) => d?.msg || JSON.stringify(d))
+                .join(', ')}`;
+            }
+          }
+        } catch {
+          errorMsg += `: ${backendError}`;
+        }
+        console.error('[PropOllama] Backend error response:', errorMsg);
+        setError(errorMsg);
+        return;
+      }
+      // Health check logic (in scope for button)
+      const checkHealth = async () => {
+        try {
+          const res = await fetch('/api/propollama/health');
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          setError(null);
+          alert(`PropOllama API Health: ${data.status} - ${data.message}`);
+        } catch (err: any) {
+          setError(`Health check failed: ${err.message}`);
+        }
+      };
+
+      // Streaming response handling (if backend supports it)
+      const reader = response.body?.getReader();
+      let aiMessage: PropOllamaMessage = {
+        id:
+          typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
+            : `${Date.now()}-ai`,
+        type: 'ai',
+        content: '',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, aiMessage]);
+      let done = false;
+      while (reader && !done) {
+        const { value, done: streamDone } = await reader.read();
+        if (value) {
+          const chunk = new TextDecoder().decode(value);
+          aiMessage = { ...aiMessage, content: aiMessage.content + chunk };
+          setMessages(prev => prev.map(m => (m.id === aiMessage.id ? aiMessage : m)));
+        }
+        done = streamDone;
+      }
+    } catch (err: any) {
+      console.error('[PropOllama] Error:', err);
+      setError(err.message || 'Unknown error');
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     }
-    ${className}
-  `;
+  };
+
+  // Scroll to bottom on new message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   return (
-    <div className={baseClasses}>
+    <div
+      className={`${baseClasses} ${className}`}
+      role='main'
+      aria-label='PropOllama chat interface'
+    >
       {/* Header */}
       <div
         className={`p-6 border-b ${
@@ -169,9 +201,53 @@ You can try again in a few moments.`,
               >
                 Powered by 96.4% Accuracy ML Ensemble
               </p>
+              <button
+                type='button'
+                onClick={checkHealth}
+                className={`mt-2 px-3 py-1 rounded text-xs font-medium border ${
+                  variant === 'cyber'
+                    ? 'bg-cyan-900/30 text-cyan-300 border-cyan-400/30 hover:bg-cyan-800/50'
+                    : 'bg-gray-100 text-blue-600 border-blue-200 hover:bg-blue-50'
+                }`}
+                aria-label='Check PropOllama API health'
+              >
+                Check API Health
+              </button>
+              {/* Model selection dropdown and health */}
+              <div className='mt-2 flex items-center gap-2'>
+                <label htmlFor='model-select' className='font-semibold'>
+                  Model:
+                </label>
+                <select
+                  id='model-select'
+                  value={selectedModel}
+                  onChange={e => setSelectedModel(e.target.value)}
+                  className='bg-gray-800 text-cyan-100 border border-cyan-400 rounded px-2 py-1'
+                >
+                  {models.map(m => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+                {/* Model health status */}
+                {selectedModel && modelHealth[selectedModel] && (
+                  <span
+                    className={`ml-2 px-2 py-1 rounded text-xs ${
+                      modelHealth[selectedModel].status === 'ready'
+                        ? 'bg-green-700 text-green-100'
+                        : 'bg-red-700 text-red-100'
+                    }`}
+                  >
+                    {modelHealth[selectedModel].status}
+                    {modelHealth[selectedModel].last_error
+                      ? ` (${modelHealth[selectedModel].last_error})`
+                      : ''}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-
           {/* Status Indicators */}
           <div className='flex space-x-2'>
             <div
@@ -195,9 +271,14 @@ You can try again in a few moments.`,
           </div>
         </div>
       </div>
-
       {/* Messages */}
-      <div className='flex-1 overflow-y-auto p-6 space-y-4'>
+      <div
+        className='flex-1 overflow-y-auto p-6 space-y-4'
+        aria-live='polite'
+        aria-atomic='false'
+        role='list'
+        aria-label='Chat message history'
+      >
         <AnimatePresence>
           {messages.map((message, index) => (
             <motion.div
@@ -206,184 +287,91 @@ You can try again in a few moments.`,
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
-              className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div
-                className={`max-w-4xl rounded-lg p-4 ${
-                  message.type === 'user'
-                    ? variant === 'cyber'
-                      ? 'bg-cyan-400/10 border border-cyan-400/30'
-                      : 'bg-blue-50 border border-blue-200'
-                    : variant === 'cyber'
-                      ? 'bg-gray-900/50 border border-cyan-400/20'
-                      : 'bg-gray-50 border border-gray-200 dark:bg-gray-800 dark:border-gray-700'
-                }`}
-              >
-                <div className='flex items-start space-x-3'>
-                  <div
-                    className={`text-lg ${
-                      message.type === 'user'
-                        ? variant === 'cyber'
-                          ? 'text-cyan-400'
-                          : 'text-blue-600'
-                        : variant === 'cyber'
-                          ? 'text-green-400'
-                          : 'text-green-600'
-                    }`}
-                  >
-                    {message.type === 'user' ? '👤' : '🤖'}
-                  </div>
-                  <div className='flex-1'>
-                    <div
-                      className={`prose prose-sm max-w-none ${
-                        variant === 'cyber' ? 'prose-invert' : ''
-                      }`}
-                    >
-                      <div className='whitespace-pre-wrap'>{message.content}</div>
-                    </div>
-
-                    {/* AI Message Features */}
-                    {message.type === 'ai' && (
-                      <div className='mt-4 space-y-3'>
-                        {/* Confidence Score */}
-                        {message.confidence && (
-                          <div className='flex items-center space-x-2'>
-                            <span
-                              className={`text-xs font-medium ${
-                                variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600'
-                              }`}
-                            >
-                              Confidence:
-                            </span>
-                            <div
-                              className={`px-2 py-1 rounded-full text-xs font-bold ${
-                                message.confidence >= 80
-                                  ? variant === 'cyber'
-                                    ? 'bg-green-400/20 text-green-400'
-                                    : 'bg-green-100 text-green-700'
-                                  : message.confidence >= 65
-                                    ? variant === 'cyber'
-                                      ? 'bg-yellow-400/20 text-yellow-400'
-                                      : 'bg-yellow-100 text-yellow-700'
-                                    : variant === 'cyber'
-                                      ? 'bg-red-400/20 text-red-400'
-                                      : 'bg-red-100 text-red-700'
-                              }`}
-                            >
-                              {message.confidence}%
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Suggestions */}
-                        {message.suggestions && message.suggestions.length > 0 && (
-                          <div>
-                            <span
-                              className={`text-xs font-medium ${
-                                variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600'
-                              }`}
-                            >
-                              Quick Actions:
-                            </span>
-                            <div className='flex flex-wrap gap-2 mt-2'>
-                              {message.suggestions.map((suggestion, idx) => (
-                                <button
-                                  key={idx}
-                                  onClick={() => handleSuggestionClick(suggestion)}
-                                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all hover:scale-105 ${
-                                    variant === 'cyber'
-                                      ? 'bg-cyan-400/10 text-cyan-400 border border-cyan-400/30 hover:bg-cyan-400/20'
-                                      : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
-                                  }`}
-                                >
-                                  {suggestion}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    <div
-                      className={`text-xs mt-2 ${
-                        variant === 'cyber' ? 'text-gray-500' : 'text-gray-400'
-                      }`}
-                    >
-                      {message.timestamp.toLocaleTimeString()}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Message
+                message={message}
+                variant={variant}
+                onSuggestionClick={handleSuggestionClick}
+              />
             </motion.div>
           ))}
         </AnimatePresence>
-
         {/* Loading Indicator */}
         {isLoading && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className='flex justify-start'
+            aria-live='assertive'
+            aria-busy='true'
           >
             <div
-              className={`max-w-md rounded-lg p-4 ${
+              className={`max-w-md rounded-lg p-4 flex items-center space-x-3 ${
                 variant === 'cyber'
                   ? 'bg-gray-900/50 border border-cyan-400/20'
                   : 'bg-gray-50 border border-gray-200'
               }`}
+              role='status'
+              aria-label='Loading AI response'
             >
-              <div className='flex items-center space-x-3'>
-                <div
-                  className={`text-lg ${variant === 'cyber' ? 'text-green-400' : 'text-green-600'}`}
-                >
-                  🤖
-                </div>
-                <div className='flex space-x-1'>
-                  <div
-                    className={`w-2 h-2 rounded-full animate-bounce ${
-                      variant === 'cyber' ? 'bg-cyan-400' : 'bg-blue-600'
-                    }`}
-                    style={{ animationDelay: '0ms' }}
-                  ></div>
-                  <div
-                    className={`w-2 h-2 rounded-full animate-bounce ${
-                      variant === 'cyber' ? 'bg-cyan-400' : 'bg-blue-600'
-                    }`}
-                    style={{ animationDelay: '150ms' }}
-                  ></div>
-                  <div
-                    className={`w-2 h-2 rounded-full animate-bounce ${
-                      variant === 'cyber' ? 'bg-cyan-400' : 'bg-blue-600'
-                    }`}
-                    style={{ animationDelay: '300ms' }}
-                  ></div>
-                </div>
-                <span
-                  className={`text-sm ${variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600'}`}
-                >
-                  Analyzing with 96.4% accuracy models...
-                </span>
-              </div>
+              <span className='sr-only'>Loading AI response...</span>
+              <svg
+                className={`animate-spin h-6 w-6 ${
+                  variant === 'cyber' ? 'text-cyan-400' : 'text-blue-600'
+                }`}
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+                aria-hidden='true'
+              >
+                <circle
+                  className='opacity-25'
+                  cx='12'
+                  cy='12'
+                  r='10'
+                  stroke='currentColor'
+                  strokeWidth='4'
+                ></circle>
+                <path className='opacity-75' fill='currentColor' d='M4 12a8 8 0 018-8v8z'></path>
+              </svg>
+              <span
+                className={`text-sm ${variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600'}`}
+              >
+                Analyzing with 96.4% accuracy models...
+              </span>
             </div>
           </motion.div>
         )}
-
+        {/* Error Message */}
+        {error && (
+          <div className='mt-2 text-red-500 text-sm' role='alert' aria-live='assertive'>
+            <strong>Error:</strong> {error}
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
-
       {/* Input */}
       <div
         className={`p-6 border-t ${
           variant === 'cyber' ? 'border-cyan-400/30' : 'border-gray-200 dark:border-gray-700'
         }`}
       >
-        <div className='flex space-x-4'>
+        <form
+          className='flex space-x-4'
+          onSubmit={e => {
+            e.preventDefault();
+            handleSendMessage();
+          }}
+          aria-label='Send message form'
+        >
           <input
+            id='propollama-input'
             type='text'
             value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyPress={e => e.key === 'Enter' && handleSendMessage()}
+            onChange={e => {
+              setInput(e.target.value);
+              if (error) setError(null);
+            }}
             placeholder='Ask me about props, spreads, strategy, or anything betting related...'
             className={`flex-1 px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 transition-all ${
               variant === 'cyber'
@@ -391,22 +379,30 @@ You can try again in a few moments.`,
                 : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-blue-500'
             }`}
             disabled={isLoading}
+            aria-label='Type your message'
+            autoComplete='off'
+            required
+            aria-invalid={!!error}
+            aria-describedby='propollama-input-desc'
           />
+          <span id='propollama-input-desc' className='sr-only'>
+            Enter your message and press Send or Enter to chat with PropOllama AI.
+          </span>
           <button
-            onClick={handleSendMessage}
+            type='submit'
             disabled={!input.trim() || isLoading}
             className={`px-6 py-3 rounded-lg font-medium transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
               variant === 'cyber'
                 ? 'bg-gradient-to-r from-cyan-400 to-blue-500 text-black hover:from-cyan-300 hover:to-blue-400'
                 : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-400 hover:to-purple-500'
             }`}
+            aria-label='Send message'
           >
             {isLoading ? 'Analyzing...' : 'Send'}
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );
 };
-
 export default PropOllama;

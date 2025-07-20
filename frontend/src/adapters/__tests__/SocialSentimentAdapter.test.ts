@@ -1,6 +1,4 @@
-﻿import { SocialSentimentAdapter } from '@/adapters/SocialSentimentAdapter';
-
-describe('SocialSentimentAdapter', () => {
+﻿describe('SocialSentimentAdapter', () => {
   let adapter: SocialSentimentAdapter;
 
   beforeEach(() => {

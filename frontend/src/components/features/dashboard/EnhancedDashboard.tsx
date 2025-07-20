@@ -1,39 +1,24 @@
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-  TrendingUp,
-  DollarSign,
-  Brain,
-  Zap,
-  Trophy,
-  Target,
   Activity,
-  BarChart3,
-  Clock,
-  AlertTriangle,
-  Cpu,
-  RefreshCw,
-  ChevronUp,
+  Brain,
   ChevronDown,
-  Filter,
+  ChevronUp,
+  Clock,
+  Cpu,
+  DollarSign,
   Globe,
-  Users,
-  Star,
+  RefreshCw,
+  Target,
   TrendingDown,
-  Eye,
-  Calendar,
+  TrendingUp,
+  Trophy,
+  Zap,
 } from 'lucide-react';
-import { Layout } from '../../core/Layout';
-import {
-  SPORTS_CONFIG,
-  getSportDisplayName,
-  getSportColor,
-  getSportEmoji,
-  getActiveSports,
-  getFantasySports,
-  getSportsByCategory,
-} from '../../../constants/sports';
+import React, { useEffect, useState } from 'react';
+import { SPORTS_CONFIG, getActiveSports, getSportColor } from '../../../constants/sports';
 import AdvancedFilters, { FilterState } from '../../core/AdvancedFilters';
+import { Layout } from '../../core/Layout';
 
 interface MetricCard {
   id: string;
@@ -262,7 +247,9 @@ const EnhancedDashboard: React.FC = () => {
       id: 'total-profit',
       title: 'Total Profit',
       value: `$${overall.totalProfit.toLocaleString()}`,
-      change: `${overall.totalProfit >= 0 ? '+' : ''}$${Math.abs(overall.totalProfit * 0.1).toFixed(0)}`,
+      change: `${overall.totalProfit >= 0 ? '+' : ''}$${Math.abs(overall.totalProfit * 0.1).toFixed(
+        0
+      )}`,
       changeType: overall.totalProfit >= 0 ? 'positive' : 'negative',
       icon: <DollarSign className='w-6 h-6' />,
       description: 'Realized profits',
@@ -322,7 +309,12 @@ const EnhancedDashboard: React.FC = () => {
       subtitle='Multi-Sport Platform Overview & Performance Metrics'
       headerActions={
         <div className='flex items-center space-x-3'>
+          {/* Visually hidden label for timeframe select */}
+          <label htmlFor='dashboard-timeframe-select' className='sr-only'>
+            Select timeframe
+          </label>
           <select
+            id='dashboard-timeframe-select'
             value={selectedTimeframe}
             onChange={e => setSelectedTimeframe(e.target.value as any)}
             className='px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
@@ -332,7 +324,12 @@ const EnhancedDashboard: React.FC = () => {
             <option value='30d'>30 Days</option>
             <option value='90d'>90 Days</option>
           </select>
+          {/* Visually hidden label for refresh button */}
+          <label htmlFor='dashboard-refresh-btn' className='sr-only'>
+            Refresh dashboard data
+          </label>
           <button
+            id='dashboard-refresh-btn'
             onClick={loadDashboardData}
             disabled={isRefreshing}
             className='flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 rounded-lg text-white font-medium transition-all disabled:opacity-50'
@@ -383,8 +380,8 @@ const EnhancedDashboard: React.FC = () => {
                         metric.changeType === 'positive'
                           ? 'text-green-400'
                           : metric.changeType === 'negative'
-                            ? 'text-red-400'
-                            : 'text-gray-400'
+                          ? 'text-red-400'
+                          : 'text-gray-400'
                       }`}
                     >
                       {metric.change}
@@ -449,7 +446,9 @@ const EnhancedDashboard: React.FC = () => {
                   <div className='flex items-center space-x-2'>
                     {getTrendIcon(sport.trend)}
                     <div
-                      className={`w-3 h-3 rounded-full ${sport.isActive ? 'bg-green-400' : 'bg-gray-400'}`}
+                      className={`w-3 h-3 rounded-full ${
+                        sport.isActive ? 'bg-green-400' : 'bg-gray-400'
+                      }`}
                     />
                   </div>
                 </div>
@@ -470,7 +469,9 @@ const EnhancedDashboard: React.FC = () => {
                   <div>
                     <div className='text-gray-400'>Profit</div>
                     <div
-                      className={`font-bold ${sport.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                      className={`font-bold ${
+                        sport.profit >= 0 ? 'text-green-400' : 'text-red-400'
+                      }`}
                     >
                       ${Math.abs(sport.profit).toFixed(0)}
                     </div>
@@ -550,8 +551,8 @@ const EnhancedDashboard: React.FC = () => {
                         opportunity.status === 'active'
                           ? 'bg-green-500/20 text-green-400'
                           : opportunity.status === 'pending'
-                            ? 'bg-yellow-500/20 text-yellow-400'
-                            : 'bg-gray-500/20 text-gray-400'
+                          ? 'bg-yellow-500/20 text-yellow-400'
+                          : 'bg-gray-500/20 text-gray-400'
                       }`}
                     >
                       {opportunity.status.toUpperCase()}

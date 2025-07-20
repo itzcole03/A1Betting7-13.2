@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
@@ -17,7 +17,9 @@ masterServiceRegistry
     const loadTime = performance.now() - startTime;
     console.log(`✅ Master Service Registry initialized in ${loadTime.toFixed(2)}ms`);
     console.log(
-      `📊 Services: ${masterServiceRegistry.getSystemStatistics().totalServices} total, ${masterServiceRegistry.getSystemStatistics().healthyServices} healthy`
+      `📊 Services: ${masterServiceRegistry.getSystemStatistics().totalServices} total, ${
+        masterServiceRegistry.getSystemStatistics().healthyServices
+      } healthy`
     );
   })
   .catch(error => {
@@ -29,7 +31,9 @@ if (rootElement) {
   const root = createRoot(rootElement);
   root.render(
     <React.StrictMode>
-      <App />
+      <Suspense fallback={<div className='loading-spinner' />}>
+        <App />
+      </Suspense>
     </React.StrictMode>
   );
 } else {

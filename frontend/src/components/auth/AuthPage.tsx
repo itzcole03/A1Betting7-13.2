@@ -1,16 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import LoginForm from './LoginForm';
-import AccessRequestForm from './AccessRequestForm';
-import PasswordChangeForm from './PasswordChangeForm';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import Register from '../Register'; // Import the registration form
+import AccessRequestForm from './AccessRequestForm';
+import LoginForm from './LoginForm';
+import PasswordChangeForm from './PasswordChangeForm';
 
-type AuthMode = 'login' | 'request-access' | 'password-change';
+type AuthMode = 'login' | 'signup' | 'request-access' | 'password-change';
 
 const AuthPage: React.FC = () => {
   const [authMode, setAuthMode] = useState<AuthMode>('login');
-  const { login, changePassword, loading, error, user, isAuthenticated, requiresPasswordChange } =
-    useAuth();
+  const {
+    login,
+    register,
+    changePassword,
+    loading,
+    error,
+    user,
+    isAuthenticated,
+    requiresPasswordChange,
+  } = useAuth();
 
   // Forgot password state
   const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
@@ -20,7 +29,9 @@ const AuthPage: React.FC = () => {
   // Forgot password modal state
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotStatus, setForgotStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [forgotStatus, setForgotStatus] = useState<'idle' | 'loading' | 'success' | 'error'>(
+    'idle'
+  );
   const [forgotMessage, setForgotMessage] = useState('');
 
   // Redirect to password change if required
@@ -68,7 +79,7 @@ const AuthPage: React.FC = () => {
     setForgotMessage('');
     try {
       // TODO: Replace with real API call
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+      await new Promise(resolve => setTimeout(resolve, 1200));
       setForgotStatus('success');
       setForgotMessage('If this email is registered, a password reset link has been sent.');
     } catch (err) {
@@ -108,6 +119,11 @@ const AuthPage: React.FC = () => {
       oldPassword: currentPassword,
       newPassword,
     });
+  };
+
+  // Registration success handler
+  const handleRegisterSuccess = () => {
+    setAuthMode('login');
   };
 
   return (
@@ -156,6 +172,16 @@ const AuthPage: React.FC = () => {
                 Sign In
               </button>
               <button
+                onClick={() => setAuthMode('signup')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                  authMode === 'signup'
+                    ? 'bg-cyber-primary text-slate-900'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Sign Up
+              </button>
+              <button
                 onClick={() => setAuthMode('request-access')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
                   authMode === 'request-access'
@@ -188,7 +214,18 @@ const AuthPage: React.FC = () => {
               />
             </motion.div>
           )}
-
+          {authMode === 'signup' && (
+            <motion.div
+              key='signup'
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* Integrate Register form, pass AuthContext register and success handler */}
+              <Register onSuccess={handleRegisterSuccess} />
+            </motion.div>
+          )}
           {authMode === 'request-access' && (
             <motion.div
               key='request-access'
@@ -200,7 +237,6 @@ const AuthPage: React.FC = () => {
               <AccessRequestForm onRequestSubmitted={handleAccessRequestSubmitted} />
             </motion.div>
           )}
-
           {authMode === 'password-change' && (
             <motion.div
               key='password-change'
@@ -237,7 +273,9 @@ const AuthPage: React.FC = () => {
                   &times;
                 </button>
                 <h2 className='text-xl font-bold text-white mb-2'>Forgot Password</h2>
-                <p className='text-gray-400 mb-4'>Enter your email address and we'll send you a password reset link.</p>
+                <p className='text-gray-400 mb-4'>
+                  Enter your email address and we'll send you a password reset link.
+                </p>
                 <form onSubmit={submitForgotPassword} className='space-y-4'>
                   <input
                     type='email'
@@ -256,7 +294,13 @@ const AuthPage: React.FC = () => {
                   </button>
                 </form>
                 {forgotMessage && (
-                  <div className={`mt-4 text-sm ${forgotStatus === 'success' ? 'text-green-400' : 'text-red-400'}`}>{forgotMessage}</div>
+                  <div
+                    className={`mt-4 text-sm ${
+                      forgotStatus === 'success' ? 'text-green-400' : 'text-red-400'
+                    }`}
+                  >
+                    {forgotMessage}
+                  </div>
                 )}
               </div>
             </motion.div>
@@ -272,15 +316,24 @@ const AuthPage: React.FC = () => {
         >
           <p className='text-xs text-gray-500'>© 2024 A1 Betting Platform. All rights reserved.</p>
           <div className='flex justify-center space-x-4 mt-2'>
-            <a href='#' className='text-xs text-gray-500 hover:text-gray-400 transition-colors'>
+            <button
+              type='button'
+              className='text-xs text-gray-500 hover:text-gray-400 transition-colors bg-transparent border-none p-0 cursor-pointer'
+            >
               Terms
-            </a>
-            <a href='#' className='text-xs text-gray-500 hover:text-gray-400 transition-colors'>
+            </button>
+            <button
+              type='button'
+              className='text-xs text-gray-500 hover:text-gray-400 transition-colors bg-transparent border-none p-0 cursor-pointer'
+            >
               Privacy
-            </a>
-            <a href='#' className='text-xs text-gray-500 hover:text-gray-400 transition-colors'>
+            </button>
+            <button
+              type='button'
+              className='text-xs text-gray-500 hover:text-gray-400 transition-colors bg-transparent border-none p-0 cursor-pointer'
+            >
               Support
-            </a>
+            </button>
           </div>
         </motion.div>
       </div>

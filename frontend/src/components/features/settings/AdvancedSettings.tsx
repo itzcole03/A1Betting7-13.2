@@ -1,33 +1,20 @@
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Settings,
-  Database,
-  Zap,
-  Brain,
-  Shield,
   Activity,
-  Server,
-  Globe,
-  Clock,
-  Target,
-  Sliders,
-  ToggleLeft,
-  ToggleRight,
-  Save,
-  RefreshCw,
   AlertTriangle,
+  Brain,
   CheckCircle,
-  Info,
   Cpu,
-  MemoryStick,
+  Database,
+  Globe,
   HardDrive,
-  Network,
-  Eye,
-  EyeOff,
-  Key,
-  Lock,
+  RefreshCw,
+  Save,
+  Server,
+  Shield,
+  Target,
 } from 'lucide-react';
+import React, { useState } from 'react';
 import { Layout } from '../../core/Layout';
 
 interface MLSettings {
@@ -282,7 +269,9 @@ const AdvancedSettings: React.FC = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='ml-model-type'>Model Type</label>
+            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='ml-model-type'>
+              Model Type
+            </label>
             <select
               id='ml-model-type'
               value={mlSettings.predictionEngine.model}
@@ -301,7 +290,10 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='ml-confidence-threshold'>
+            <label
+              className='block text-sm font-medium text-gray-300 mb-2'
+              htmlFor='ml-confidence-threshold'
+            >
               Confidence Threshold ({mlSettings.predictionEngine.confidence_threshold})
             </label>
             <input
@@ -325,7 +317,10 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='ml-retraining-frequency'>
+            <label
+              className='block text-sm font-medium text-gray-300 mb-2'
+              htmlFor='ml-retraining-frequency'
+            >
               Retraining Frequency (hours)
             </label>
             <input
@@ -397,7 +392,10 @@ const AdvancedSettings: React.FC = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='arbitrage-scan-frequency'>
+            <label
+              className='block text-sm font-medium text-gray-300 mb-2'
+              htmlFor='arbitrage-scan-frequency'
+            >
               Scan Frequency (seconds)
             </label>
             <input
@@ -420,7 +418,10 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='arbitrage-min-profit-threshold'>
+            <label
+              className='block text-sm font-medium text-gray-300 mb-2'
+              htmlFor='arbitrage-min-profit-threshold'
+            >
               Min Profit Threshold (%)
             </label>
             <input
@@ -444,7 +445,10 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='arbitrage-max-risk-exposure'>
+            <label
+              className='block text-sm font-medium text-gray-300 mb-2'
+              htmlFor='arbitrage-max-risk-exposure'
+            >
               Max Risk Exposure ($)
             </label>
             <input
@@ -485,13 +489,18 @@ const AdvancedSettings: React.FC = () => {
         </div>
 
         <div className='mt-6'>
-          <label className='block text-sm font-medium text-gray-300 mb-2'>Bookmaker Filters</label>
+          <label
+            htmlFor='bookmaker-filter-DraftKings'
+            className='block text-sm font-medium text-gray-300 mb-2'
+          >
+            Bookmaker Filters
+          </label>
           <div className='grid grid-cols-2 md:grid-cols-4 gap-2'>
             {['DraftKings', 'FanDuel', 'BetMGM', 'Caesars', 'PointsBet', 'WynnBET'].map(
               bookmaker => {
                 const inputId = `bookmaker-filter-${bookmaker}`;
                 return (
-                  <label key={bookmaker} className='flex items-center space-x-2' htmlFor={inputId}>
+                  <div key={bookmaker} className='flex items-center space-x-2'>
                     <input
                       id={inputId}
                       type='checkbox'
@@ -504,13 +513,18 @@ const AdvancedSettings: React.FC = () => {
                             );
                         setMlSettings(prev => ({
                           ...prev,
-                          arbitrageScanner: { ...prev.arbitrageScanner, bookmaker_filters: filters },
+                          arbitrageScanner: {
+                            ...prev.arbitrageScanner,
+                            bookmaker_filters: filters,
+                          },
                         }));
                       }}
                       className='rounded border-gray-300'
                     />
-                    <span className='text-gray-300 text-sm'>{bookmaker}</span>
-                  </label>
+                    <label htmlFor={inputId} className='text-gray-300 text-sm'>
+                      {bookmaker}
+                    </label>
+                  </div>
                 );
               }
             )}
@@ -532,7 +546,10 @@ const AdvancedSettings: React.FC = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='risk-kelly-fraction'>
+            <label
+              className='block text-sm font-medium text-gray-300 mb-2'
+              htmlFor='risk-kelly-fraction'
+            >
               Kelly Fraction ({mlSettings.riskManagement.kelly_fraction})
             </label>
             <input
@@ -556,7 +573,12 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='risk-max-bet-size'>Max Bet Size ($)</label>
+            <label
+              className='block text-sm font-medium text-gray-300 mb-2'
+              htmlFor='risk-max-bet-size'
+            >
+              Max Bet Size ($)
+            </label>
             <input
               id='risk-max-bet-size'
               type='number'
@@ -578,7 +600,10 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='risk-stop-loss-threshold'>
+            <label
+              className='block text-sm font-medium text-gray-300 mb-2'
+              htmlFor='risk-stop-loss-threshold'
+            >
               Stop Loss Threshold ({mlSettings.riskManagement.stop_loss_threshold * 100}%)
             </label>
             <input
@@ -602,7 +627,10 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='risk-correlation-limit'>
+            <label
+              className='block text-sm font-medium text-gray-300 mb-2'
+              htmlFor='risk-correlation-limit'
+            >
               Correlation Limit ({mlSettings.riskManagement.correlation_limit})
             </label>
             <input
@@ -694,10 +722,14 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label
+              htmlFor='advanced-cache-ttl'
+              className='block text-sm font-medium text-gray-300 mb-2'
+            >
               Cache TTL (seconds)
             </label>
             <input
+              id='advanced-cache-ttl'
               type='number'
               min='60'
               max='3600'
@@ -728,10 +760,14 @@ const AdvancedSettings: React.FC = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label
+              htmlFor='advanced-max-requests'
+              className='block text-sm font-medium text-gray-300 mb-2'
+            >
               Max Requests/Minute
             </label>
             <input
+              id='advanced-max-requests'
               type='number'
               min='100'
               max='10000'
@@ -747,8 +783,14 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>Timeout (ms)</label>
+            <label
+              htmlFor='advanced-timeout'
+              className='block text-sm font-medium text-gray-300 mb-2'
+            >
+              Timeout (ms)
+            </label>
             <input
+              id='advanced-timeout'
               type='number'
               min='1000'
               max='60000'
@@ -764,8 +806,14 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>Retry Attempts</label>
+            <label
+              htmlFor='advanced-retry-attempts'
+              className='block text-sm font-medium text-gray-300 mb-2'
+            >
+              Retry Attempts
+            </label>
             <input
+              id='advanced-retry-attempts'
               type='number'
               min='1'
               max='10'
@@ -833,10 +881,14 @@ const AdvancedSettings: React.FC = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label
+              htmlFor='advanced-primary-odds-provider'
+              className='block text-sm font-medium text-gray-300 mb-2'
+            >
               Primary Odds Provider
             </label>
             <select
+              id='advanced-primary-odds-provider'
               value={dataSettings.sources.primary_odds_provider}
               onChange={e =>
                 setDataSettings(prev => ({
@@ -854,10 +906,14 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label
+              htmlFor='advanced-data-refresh-rate'
+              className='block text-sm font-medium text-gray-300 mb-2'
+            >
               Data Refresh Rate (seconds)
             </label>
             <input
+              id='advanced-data-refresh-rate'
               type='number'
               min='10'
               max='300'
@@ -873,10 +929,14 @@ const AdvancedSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label
+              htmlFor='advanced-historical-data-retention'
+              className='block text-sm font-medium text-gray-300 mb-2'
+            >
               Historical Data Retention (days)
             </label>
             <input
+              id='advanced-historical-data-retention'
               type='number'
               min='30'
               max='1095'
@@ -923,8 +983,14 @@ const AdvancedSettings: React.FC = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>Database Type</label>
+            <label
+              htmlFor='advanced-database-type'
+              className='block text-sm font-medium text-gray-300 mb-2'
+            >
+              Database Type
+            </label>
             <select
+              id='advanced-database-type'
               value={dataSettings.storage.database_type}
               onChange={e =>
                 setDataSettings(prev => ({
@@ -1087,8 +1153,8 @@ const AdvancedSettings: React.FC = () => {
               saveStatus === 'saved'
                 ? 'bg-green-500/10 border-green-500/20'
                 : saveStatus === 'error'
-                  ? 'bg-red-500/10 border-red-500/20'
-                  : 'bg-blue-500/10 border-blue-500/20'
+                ? 'bg-red-500/10 border-red-500/20'
+                : 'bg-blue-500/10 border-blue-500/20'
             }`}
           >
             <div className='flex items-center space-x-2'>
@@ -1102,8 +1168,8 @@ const AdvancedSettings: React.FC = () => {
                   saveStatus === 'saved'
                     ? 'text-green-400'
                     : saveStatus === 'error'
-                      ? 'text-red-400'
-                      : 'text-blue-400'
+                    ? 'text-red-400'
+                    : 'text-blue-400'
                 }`}
               >
                 {saveStatus === 'saving' && 'Saving configuration...'}

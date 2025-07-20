@@ -5,7 +5,7 @@
  */
 
 import axios, { AxiosResponse } from 'axios';
-import { backendDiscovery } from './backendDiscovery';
+import { discoverBackend } from './backendDiscovery';
 
 export interface PropOllamaRequest {
   message: string;

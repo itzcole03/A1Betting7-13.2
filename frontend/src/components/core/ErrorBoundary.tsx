@@ -1,4 +1,5 @@
 import React, { Component, ReactNode } from 'react';
+import { provider } from '../../utils/tracing';
 
 interface Props {
   children: ReactNode;
@@ -22,6 +23,20 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    // Log error to OpenTelemetry (SigNoz)
+    try {
+      const tracer = provider.getTracer('A1Betting-Frontend');
+      const span = tracer.startSpan('ErrorBoundary.componentDidCatch', {
+        attributes: {
+          error_message: error.message,
+          error_stack: error.stack || '',
+          error_component_stack: errorInfo.componentStack || '',
+        },
+      });
+      span.end();
+    } catch (otelError) {
+      console.warn('Failed to log error to OpenTelemetry:', otelError);
+    }
   }
 
   render() {
@@ -31,17 +46,32 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className='flex items-center justify-center h-64'>
+        <div className='flex items-center justify-center h-64' role='alert' aria-live='assertive'>
           <div className='text-center'>
-            <h2 className='text-xl font-semibold text-red-600 mb-2'>Something went wrong</h2>
-            <p className='text-gray-600'>
-              {this.state.error?.message || 'An unexpected error occurred'}
+            <h2 className='text-xl font-semibold text-red-600 mb-2'>Oops! Something went wrong.</h2>
+            <p className='text-gray-600 mb-2'>
+              {this.state.error?.message || 'An unexpected error occurred.'}
+            </p>
+            <p className='text-gray-500 text-sm mb-4'>
+              You can try again, refresh the page, or{' '}
+              <a href='mailto:support@a1betting.com' className='underline text-blue-500'>
+                report this issue
+              </a>
+              .
             </p>
             <button
               onClick={() => this.setState({ hasError: false, error: undefined })}
-              className='mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600'
+              className='mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600'
+              aria-label='Try again'
             >
               Try again
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className='mt-2 ml-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600'
+              aria-label='Refresh page'
+            >
+              Refresh
             </button>
           </div>
         </div>

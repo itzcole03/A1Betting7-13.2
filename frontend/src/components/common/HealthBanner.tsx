@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import backendDiscovery from '../../services/backendDiscovery';
+import { discoverBackend } from '../../services/backendDiscovery';
 
 const HealthBanner: React.FC = () => {
   const [backendStatus, setBackendStatus] = useState<'healthy' | 'error' | 'stale' | 'unknown'>('unknown');
@@ -24,14 +24,15 @@ const HealthBanner: React.FC = () => {
   useEffect(() => {
     const fetchHealth = async () => {
       try {
-        const backendUrl = await backendDiscovery.getBackendUrlWithRetry();
+        const backendUrl = await discoverBackend();
+        if (!backendUrl) throw new Error('No backend discovered');
         const res = await fetch(`${backendUrl}/api/health`);
         if (res.ok) {
           setBackendStatus('healthy');
         } else {
           setBackendStatus('error');
         }
-      } catch {
+      } catch (error) {
         setBackendStatus('error');
       }
     };
@@ -44,7 +45,8 @@ const HealthBanner: React.FC = () => {
   useEffect(() => {
     const fetchDataSources = async () => {
       try {
-        const backendUrl = await backendDiscovery.getBackendUrlWithRetry();
+        const backendUrl = await discoverBackend();
+        if (!backendUrl) throw new Error('No backend discovered');
         const res = await fetch(`${backendUrl}/api/health/data-sources`);
         if (res.ok) {
           const data = await res.json();
@@ -54,7 +56,7 @@ const HealthBanner: React.FC = () => {
           setDataSources(null);
           setDataSourceError('Could not fetch data source health.');
         }
-      } catch {
+      } catch (error) {
         setDataSources(null);
         setDataSourceError('Could not fetch data source health.');
       }
@@ -81,7 +83,8 @@ const HealthBanner: React.FC = () => {
   useEffect(() => {
     const fetchScraperHealth = async () => {
       try {
-        const backendUrl = await backendDiscovery.getBackendUrlWithRetry();
+        const backendUrl = await discoverBackend();
+        if (!backendUrl) throw new Error('No backend discovered');
         // /status is admin-protected; for demo, skip auth. In production, add auth headers.
         const res = await fetch(`${backendUrl}/status`, {
           credentials: 'include',
@@ -95,7 +98,7 @@ const HealthBanner: React.FC = () => {
           setScraperHealth(null);
           setScraperHealthError('Could not fetch PrizePicks scraper health.');
         }
-      } catch {
+      } catch (error) {
         setScraperHealth(null);
         setScraperHealthError('Could not fetch PrizePicks scraper health.');
       }

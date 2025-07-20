@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useState } from 'react';
 
 export interface ServiceStatus {
   id: string;
@@ -216,7 +216,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
         </div>
 
         {/* Navigation Tabs */}
-        <div className='flex space-x-1 mb-6'>
+        <nav className='flex space-x-1 mb-6' role='tablist' aria-label='Backend Control Tabs'>
           {[
             { id: 'services', label: 'Services', show: showServices },
             { id: 'metrics', label: 'Metrics', show: showMetrics },
@@ -227,6 +227,10 @@ export const BackendControl: React.FC<BackendControlProps> = ({
             .map(tab => (
               <button
                 key={tab.id}
+                role='tab'
+                aria-selected={activeTab === tab.id}
+                aria-controls={`tab-panel-${tab.id}`}
+                id={`tab-${tab.id}`}
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
                   activeTab === tab.id
@@ -234,14 +238,14 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                       ? 'bg-cyan-400/20 text-cyan-400 border border-cyan-400/50'
                       : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                     : variant === 'cyber'
-                      ? 'text-cyan-300/70 hover:text-cyan-400 hover:bg-cyan-400/10'
-                      : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ? 'text-cyan-300/70 hover:text-cyan-400 hover:bg-cyan-400/10'
+                    : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
               >
                 {tab.label}
               </button>
             ))}
-        </div>
+        </nav>
 
         {/* Content */}
         <AnimatePresence mode='wait'>
@@ -347,8 +351,8 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                       defaultMetrics.cpu > 80
                         ? 'red'
                         : defaultMetrics.cpu > 60
-                          ? 'yellow'
-                          : 'green',
+                        ? 'yellow'
+                        : 'green',
                   },
                   {
                     label: 'Memory Usage',
@@ -358,8 +362,8 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                       defaultMetrics.memory > 80
                         ? 'red'
                         : defaultMetrics.memory > 60
-                          ? 'yellow'
-                          : 'green',
+                        ? 'yellow'
+                        : 'green',
                   },
                   {
                     label: 'Disk Usage',
@@ -369,8 +373,8 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                       defaultMetrics.disk > 80
                         ? 'red'
                         : defaultMetrics.disk > 60
-                          ? 'yellow'
-                          : 'green',
+                        ? 'yellow'
+                        : 'green',
                   },
                   {
                     label: 'Active Connections',
@@ -430,12 +434,12 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                             metric.color === 'red'
                               ? 'bg-red-500'
                               : metric.color === 'yellow'
-                                ? 'bg-yellow-500'
-                                : metric.color === 'green'
-                                  ? 'bg-green-500'
-                                  : variant === 'cyber'
-                                    ? 'bg-cyan-400'
-                                    : 'bg-blue-500'
+                              ? 'bg-yellow-500'
+                              : metric.color === 'green'
+                              ? 'bg-green-500'
+                              : variant === 'cyber'
+                              ? 'bg-cyan-400'
+                              : 'bg-blue-500'
                           }`}
                           style={{ width: `${Math.min(metric.value, 100)}%` }}
                         />
@@ -498,10 +502,10 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                           log.level === 'ERROR'
                             ? 'text-red-500'
                             : log.level === 'WARN'
-                              ? 'text-yellow-500'
-                              : variant === 'cyber'
-                                ? 'text-cyan-400'
-                                : 'text-blue-600'
+                            ? 'text-yellow-500'
+                            : variant === 'cyber'
+                            ? 'text-cyan-400'
+                            : 'text-blue-600'
                         }`}
                       >
                         {log.level}
@@ -543,8 +547,8 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                             ? 'bg-red-500/20 text-red-400 border border-red-500/50 hover:bg-red-500/30'
                             : 'bg-red-100 text-red-700 border border-red-200 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400'
                           : variant === 'cyber'
-                            ? 'bg-cyan-400/10 text-cyan-400 border border-cyan-400/30 hover:bg-cyan-400/20'
-                            : 'bg-blue-100 text-blue-700 border border-blue-200 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400'
+                          ? 'bg-cyan-400/10 text-cyan-400 border border-cyan-400/30 hover:bg-cyan-400/20'
+                          : 'bg-blue-100 text-blue-700 border border-blue-200 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400'
                       }`}
                     >
                       {control.label}
@@ -564,6 +568,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                   <div className='space-y-3'>
                     <div>
                       <label
+                        htmlFor='max-connections-input'
                         className={`block text-sm font-medium mb-1 ${
                           variant === 'cyber' ? 'text-cyan-400' : 'text-gray-700 dark:text-gray-300'
                         }`}
@@ -571,6 +576,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                         Max Connections
                       </label>
                       <input
+                        id='max-connections-input'
                         type='number'
                         defaultValue='1000'
                         className={`w-full p-2 rounded border ${
@@ -583,6 +589,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
 
                     <div>
                       <label
+                        htmlFor='cache-ttl-input'
                         className={`block text-sm font-medium mb-1 ${
                           variant === 'cyber' ? 'text-cyan-400' : 'text-gray-700 dark:text-gray-300'
                         }`}
@@ -590,6 +597,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                         Cache TTL (seconds)
                       </label>
                       <input
+                        id='cache-ttl-input'
                         type='number'
                         defaultValue='3600'
                         className={`w-full p-2 rounded border ${
@@ -601,32 +609,36 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                     </div>
 
                     <div>
+                      <input
+                        id='enable-autoscaling-checkbox'
+                        type='checkbox'
+                        defaultChecked
+                        className={variant === 'cyber' ? 'accent-cyan-400' : ''}
+                      />
                       <label
-                        className={`flex items-center space-x-2 ${
+                        htmlFor='enable-autoscaling-checkbox'
+                        className={`ml-2 text-sm font-medium ${
                           variant === 'cyber' ? 'text-cyan-400' : 'text-gray-700 dark:text-gray-300'
                         }`}
                       >
-                        <input
-                          type='checkbox'
-                          defaultChecked
-                          className={variant === 'cyber' ? 'accent-cyan-400' : ''}
-                        />
-                        <span>Enable Auto-scaling</span>
+                        Enable Auto-scaling
                       </label>
                     </div>
 
                     <div>
+                      <input
+                        id='debug-mode-checkbox'
+                        type='checkbox'
+                        defaultChecked
+                        className={variant === 'cyber' ? 'accent-cyan-400' : ''}
+                      />
                       <label
-                        className={`flex items-center space-x-2 ${
+                        htmlFor='debug-mode-checkbox'
+                        className={`ml-2 text-sm font-medium ${
                           variant === 'cyber' ? 'text-cyan-400' : 'text-gray-700 dark:text-gray-300'
                         }`}
                       >
-                        <input
-                          type='checkbox'
-                          defaultChecked
-                          className={variant === 'cyber' ? 'accent-cyan-400' : ''}
-                        />
-                        <span>Debug Mode</span>
+                        Debug Mode
                       </label>
                     </div>
                   </div>

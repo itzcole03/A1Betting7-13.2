@@ -1,4 +1,4 @@
-﻿import { refereeService, RefereeStats } from '@/RefereeService';
+﻿import { refereeService, RefereeStats } from '../../RefereeService';
 
 global.fetch = jest.fn();
 

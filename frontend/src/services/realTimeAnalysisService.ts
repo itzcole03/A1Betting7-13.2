@@ -113,6 +113,10 @@ class RealTimeAnalysisService {
       return response;
     } catch (error) {
       clearTimeout(timeoutId);
+      // Convert network errors to a more descriptive error
+      if (error instanceof Error && error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('API_UNAVAILABLE');
+      }
       throw error;
     }
   }
@@ -264,7 +268,8 @@ class RealTimeAnalysisService {
       const status: SystemStatus = await response.json();
       return status;
     } catch (error) {
-      console.error('❌ Failed to get system status:', error);
+      // Silently handle API unavailability - this is expected in development
+      console.debug('Real-time analysis API unavailable, using fallback data');
       // Return fallback status
       return {
         status: 'operational',

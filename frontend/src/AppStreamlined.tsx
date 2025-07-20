@@ -1,18 +1,19 @@
-import React, { Suspense, useState, useEffect } from 'react';
-import { ErrorBoundary } from './components/core/ErrorBoundary';
-import { Toaster } from './components/common/notifications/Toaster';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+console.log('AppStreamlinedContent loaded');
 import {
   Crown,
+  PlayCircle,
   Settings,
-  User,
+  Target,
   ToggleLeft,
   ToggleRight,
-  Target,
-  PlayCircle,
+  User,
   Zap,
 } from 'lucide-react';
+import React, { Suspense, useEffect, useState } from 'react';
 import HealthBanner from './components/common/HealthBanner';
+import { Toaster } from './components/common/notifications/Toaster';
+import { ErrorBoundary } from './components/core/ErrorBoundary';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 // Import the admin wrapper component
 const AdminWrapper = React.lazy(() => import('./components/comprehensive/AdminWrapper'));
@@ -235,6 +236,14 @@ const Navigation = ({
 };
 
 const AppStreamlinedContent: React.FC = () => {
+  // Add a visible error boundary for debugging
+  const ErrorFallback = ({ error }: { error: any }) => (
+    <div style={{ color: 'red', padding: 32 }}>
+      <h2>AppStreamlined Error</h2>
+      <pre>{error?.message || String(error)}</pre>
+      <pre>{error?.stack}</pre>
+    </div>
+  );
   const [currentPage, setCurrentPage] = useState('locked-bets');
   const [isLoading, setIsLoading] = useState(false); // Start with false for faster loading
   const [settingsPageError, setSettingsPageError] = useState(false);
@@ -336,7 +345,7 @@ const AppStreamlinedContent: React.FC = () => {
   }
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary fallback={<ErrorFallback error={null} />}>
       <div className='min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 text-white'>
         <Navigation
           currentPage={currentPage}

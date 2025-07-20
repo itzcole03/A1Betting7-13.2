@@ -1,43 +1,36 @@
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Brain,
-  TrendingUp,
   Activity,
-  Cpu,
-  BarChart3,
-  Eye,
-  Target,
-  Zap,
   AlertTriangle,
-  RefreshCw,
-  Settings,
+  BarChart3,
+  BookOpen,
+  Brain,
   ChevronDown,
   ChevronUp,
-  Filter,
-  Download,
-  Heart,
   Clock,
-  User,
-  Search,
-  GitBranch,
-  RotateCcw,
   Cloud,
   CloudRain,
+  Cpu,
   Droplets,
+  Eye,
+  GitBranch,
+  Heart,
+  RefreshCw,
+  RotateCcw,
+  Search,
   Snowflake,
   Sun,
+  Target,
   Thermometer,
+  TrendingUp,
+  User,
   Wind,
-  Newspaper,
-  ExternalLink,
-  Star,
-  BookOpen,
+  Zap,
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { Layout } from '../../core/Layout';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
-import { Card } from '../../ui/card';
 
 interface ModelMetrics {
   id: string;
@@ -257,6 +250,8 @@ const Analytics: React.FC = () => {
   const [predictionMetrics, setPredictionMetrics] = useState<PredictionMetrics | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>('all');
   const [timeRange, setTimeRange] = useState<string>('7d');
+  const filterTimeRangeId = 'analytics-filter-time-range';
+  const filterModelId = 'analytics-filter-model';
   const [isLoading, setIsLoading] = useState(false);
   const [showDetails, setShowDetails] = useState<Record<string, boolean>>({});
 
@@ -493,27 +488,27 @@ const Analytics: React.FC = () => {
             severity === 'severe'
               ? '4-6 weeks'
               : severity === 'moderate'
-                ? '1-2 weeks'
-                : '3-5 days',
+              ? '1-2 weeks'
+              : '3-5 days',
           impact: {
             team:
               severity === 'severe'
                 ? 80 + Math.random() * 20
                 : severity === 'moderate'
-                  ? 50 + Math.random() * 30
-                  : 20 + Math.random() * 30,
+                ? 50 + Math.random() * 30
+                : 20 + Math.random() * 30,
             fantasy:
               severity === 'severe'
                 ? 90 + Math.random() * 10
                 : severity === 'moderate'
-                  ? 60 + Math.random() * 30
-                  : 30 + Math.random() * 40,
+                ? 60 + Math.random() * 30
+                : 30 + Math.random() * 40,
             betting:
               severity === 'severe'
                 ? 70 + Math.random() * 30
                 : severity === 'moderate'
-                  ? 40 + Math.random() * 40
-                  : 15 + Math.random() * 35,
+                ? 40 + Math.random() * 40
+                : 15 + Math.random() * 35,
           },
           timeline: `${Math.floor(Math.random() * 12) + 1}h ago`,
           reportedDate: `${Math.floor(Math.random() * 7) + 1} days ago`,
@@ -659,7 +654,9 @@ const Analytics: React.FC = () => {
         id: `qpred-${index}`,
         game: g.game,
         sport: g.sport,
-        prediction: `${Math.random() > 0.5 ? 'Over' : 'Under'} ${(Math.random() * 10 + 20).toFixed(1)}`,
+        prediction: `${Math.random() > 0.5 ? 'Over' : 'Under'} ${(Math.random() * 10 + 20).toFixed(
+          1
+        )}`,
         confidence: 75 + Math.random() * 20,
         quantumStates: Math.floor(Math.random() * 512) + 256,
         superpositions: Math.floor(Math.random() * 32) + 16,
@@ -787,8 +784,8 @@ const Analytics: React.FC = () => {
               windSpeed > 15 || humidity > 80
                 ? 'high'
                 : windSpeed > 10 || humidity > 60
-                  ? 'medium'
-                  : 'low',
+                ? 'medium'
+                : 'low',
             passing: Math.max(0, Math.min(100, 90 - windSpeed * 2)),
             kicking: Math.max(0, Math.min(100, 95 - windSpeed * 3)),
             visibility: Math.max(0, Math.min(100, humidity < 80 ? 95 : 70)),
@@ -1273,30 +1270,40 @@ const Analytics: React.FC = () => {
       subtitle='47+ Machine Learning Models • Advanced Performance Analytics'
       headerActions={
         <div className='flex items-center space-x-3'>
-          <select
-            value={timeRange}
-            onChange={e => setTimeRange(e.target.value)}
-            className='px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
-          >
-            <option value='1d'>Last 24 Hours</option>
-            <option value='7d'>Last 7 Days</option>
-            <option value='30d'>Last 30 Days</option>
-            <option value='90d'>Last 90 Days</option>
-          </select>
-
-          <select
-            value={selectedModel}
-            onChange={e => setSelectedModel(e.target.value)}
-            className='px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
-          >
-            <option value='all'>All Models</option>
-            {models.map(model => (
-              <option key={model.id} value={model.id}>
-                {model.name}
-              </option>
-            ))}
-          </select>
-
+          <div className='flex flex-col'>
+            <label htmlFor={filterTimeRangeId} className='text-xs text-gray-400 mb-1'>
+              Time Range
+            </label>
+            <select
+              id={filterTimeRangeId}
+              value={timeRange}
+              onChange={e => setTimeRange(e.target.value)}
+              className='px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
+            >
+              <option value='1d'>Last 24 Hours</option>
+              <option value='7d'>Last 7 Days</option>
+              <option value='30d'>Last 30 Days</option>
+              <option value='90d'>Last 90 Days</option>
+            </select>
+          </div>
+          <div className='flex flex-col'>
+            <label htmlFor={filterModelId} className='text-xs text-gray-400 mb-1'>
+              Model
+            </label>
+            <select
+              id={filterModelId}
+              value={selectedModel}
+              onChange={e => setSelectedModel(e.target.value)}
+              className='px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
+            >
+              <option value='all'>All Models</option>
+              {models.map(model => (
+                <option key={model.id} value={model.id}>
+                  {model.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <button
             onClick={loadAnalyticsData}
             disabled={isLoading}
@@ -1410,6 +1417,14 @@ const Analytics: React.FC = () => {
               <div
                 className='p-4 cursor-pointer hover:bg-slate-800/30 transition-colors'
                 onClick={() => toggleDetails(model.id)}
+                tabIndex={0}
+                role='button'
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleDetails(model.id);
+                  }
+                }}
               >
                 <div className='flex items-center justify-between'>
                   <div className='flex items-center space-x-4'>
@@ -1443,7 +1458,9 @@ const Analytics: React.FC = () => {
                     </div>
 
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(model.status)}`}
+                      className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                        model.status
+                      )}`}
                     >
                       {model.status.toUpperCase()}
                     </span>
@@ -1621,8 +1638,8 @@ const Analytics: React.FC = () => {
                         metric.status === 'up'
                           ? 'text-green-400'
                           : metric.status === 'down'
-                            ? 'text-red-400'
-                            : 'text-yellow-400'
+                          ? 'text-red-400'
+                          : 'text-yellow-400'
                       }`}
                     >
                       {metric.value}
@@ -1632,8 +1649,8 @@ const Analytics: React.FC = () => {
                         metric.status === 'up'
                           ? 'text-green-300'
                           : metric.status === 'down'
-                            ? 'text-red-300'
-                            : 'text-yellow-300'
+                          ? 'text-red-300'
+                          : 'text-yellow-300'
                       }`}
                     >
                       {metric.status === 'up' ? '↗' : metric.status === 'down' ? '↘' : '→'}
@@ -1661,8 +1678,8 @@ const Analytics: React.FC = () => {
                         model.health >= 95
                           ? 'text-green-400'
                           : model.health >= 85
-                            ? 'text-yellow-400'
-                            : 'text-red-400'
+                          ? 'text-yellow-400'
+                          : 'text-red-400'
                       }`}
                     >
                       {model.health}%
@@ -1675,8 +1692,8 @@ const Analytics: React.FC = () => {
                           model.health >= 95
                             ? 'bg-green-400'
                             : model.health >= 85
-                              ? 'bg-yellow-400'
-                              : 'bg-red-400'
+                            ? 'bg-yellow-400'
+                            : 'bg-red-400'
                         }`}
                         style={{ width: `${model.health}%` }}
                       />
@@ -1761,8 +1778,8 @@ const Analytics: React.FC = () => {
                         stage.color === 'green'
                           ? 'bg-green-400'
                           : stage.color === 'yellow'
-                            ? 'bg-yellow-400'
-                            : 'bg-blue-400'
+                          ? 'bg-yellow-400'
+                          : 'bg-blue-400'
                       }`}
                     ></div>
                     <span
@@ -1770,8 +1787,8 @@ const Analytics: React.FC = () => {
                         stage.color === 'green'
                           ? 'text-green-400'
                           : stage.color === 'yellow'
-                            ? 'text-yellow-400'
-                            : 'text-blue-400'
+                          ? 'text-yellow-400'
+                          : 'text-blue-400'
                       }`}
                     >
                       {stage.status}
@@ -2074,8 +2091,8 @@ const Analytics: React.FC = () => {
                         risk.level === 'LOW'
                           ? 'bg-green-500/20 text-green-400'
                           : risk.level === 'MEDIUM'
-                            ? 'bg-yellow-500/20 text-yellow-400'
-                            : 'bg-red-500/20 text-red-400'
+                          ? 'bg-yellow-500/20 text-yellow-400'
+                          : 'bg-red-500/20 text-red-400'
                       }`}
                     >
                       {risk.level}
@@ -2178,8 +2195,8 @@ const Analytics: React.FC = () => {
                         item.opportunities === 'Very High' || item.opportunities === 'High'
                           ? 'text-green-400'
                           : item.opportunities === 'Medium'
-                            ? 'text-yellow-400'
-                            : 'text-red-400'
+                          ? 'text-yellow-400'
+                          : 'text-red-400'
                       }`}
                     >
                       {item.opportunities}
@@ -2314,8 +2331,8 @@ const Analytics: React.FC = () => {
                         opt.risk === 'Low'
                           ? 'bg-green-500/20 text-green-400'
                           : opt.risk === 'Medium'
-                            ? 'bg-yellow-500/20 text-yellow-400'
-                            : 'bg-red-500/20 text-red-400'
+                          ? 'bg-yellow-500/20 text-yellow-400'
+                          : 'bg-red-500/20 text-red-400'
                       }`}
                     >
                       {opt.risk} Risk
@@ -2728,8 +2745,16 @@ const Analytics: React.FC = () => {
             <h4 className='text-sm font-medium text-gray-400 mb-3'>Visualization Controls</h4>
             <div className='space-y-3'>
               <div className='bg-slate-800/50 rounded-lg p-3'>
-                <label className='text-white text-sm font-medium mb-2 block'>View Mode</label>
-                <select className='w-full px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white text-sm'>
+                <label
+                  htmlFor='analytics-view-mode'
+                  className='text-white text-sm font-medium mb-2 block'
+                >
+                  View Mode
+                </label>
+                <select
+                  id='analytics-view-mode'
+                  className='w-full px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white text-sm'
+                >
                   <option value='waterfall'>Waterfall Plot</option>
                   <option value='force'>Force Plot</option>
                   <option value='summary'>Summary View</option>
@@ -2737,23 +2762,46 @@ const Analytics: React.FC = () => {
               </div>
 
               <div className='bg-slate-800/50 rounded-lg p-3'>
-                <label className='text-white text-sm font-medium mb-2 block'>
+                <label
+                  htmlFor='analytics-confidence-threshold'
+                  className='text-white text-sm font-medium mb-2 block'
+                >
                   Confidence Threshold: 75%
                 </label>
-                <input type='range' min='0' max='100' defaultValue='75' className='w-full' />
+                <input
+                  id='analytics-confidence-threshold'
+                  type='range'
+                  min='0'
+                  max='100'
+                  defaultValue='75'
+                  className='w-full'
+                />
               </div>
 
               <div className='bg-slate-800/50 rounded-lg p-3'>
                 <div className='flex items-center space-x-2'>
-                  <input type='checkbox' className='text-green-400' />
-                  <label className='text-white text-sm'>Show Positive Only</label>
+                  <input
+                    id='analytics-show-positive-only'
+                    type='checkbox'
+                    className='text-green-400'
+                  />
+                  <label htmlFor='analytics-show-positive-only' className='text-white text-sm'>
+                    Show Positive Only
+                  </label>
                 </div>
               </div>
 
               <div className='bg-slate-800/50 rounded-lg p-3'>
                 <div className='flex items-center space-x-2'>
-                  <input type='checkbox' className='text-cyan-400' defaultChecked />
-                  <label className='text-white text-sm'>Real-time Updates</label>
+                  <input
+                    id='analytics-real-time-updates'
+                    type='checkbox'
+                    className='text-cyan-400'
+                    defaultChecked
+                  />
+                  <label htmlFor='analytics-real-time-updates' className='text-white text-sm'>
+                    Real-time Updates
+                  </label>
                 </div>
               </div>
 
@@ -3162,8 +3210,11 @@ const Analytics: React.FC = () => {
         <div className='bg-slate-900/50 rounded-lg p-4 mb-6'>
           <div className='grid grid-cols-1 lg:grid-cols-4 gap-4'>
             <div>
-              <label className='block text-sm text-gray-400 mb-2'>Sport</label>
+              <label htmlFor='injury-sport' className='block text-sm text-gray-400 mb-2'>
+                Sport
+              </label>
               <select
+                id='injury-sport'
                 value={selectedSport}
                 onChange={e => setSelectedSport(e.target.value)}
                 className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm'
@@ -3177,8 +3228,11 @@ const Analytics: React.FC = () => {
             </div>
 
             <div>
-              <label className='block text-sm text-gray-400 mb-2'>Severity</label>
+              <label htmlFor='injury-severity' className='block text-sm text-gray-400 mb-2'>
+                Severity
+              </label>
               <select
+                id='injury-severity'
                 value={selectedSeverity}
                 onChange={e => setSelectedSeverity(e.target.value)}
                 className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm'
@@ -3192,10 +3246,13 @@ const Analytics: React.FC = () => {
             </div>
 
             <div>
-              <label className='block text-sm text-gray-400 mb-2'>Search</label>
+              <label htmlFor='injury-search' className='block text-sm text-gray-400 mb-2'>
+                Search
+              </label>
               <div className='relative'>
                 <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
                 <input
+                  id='injury-search'
                   type='text'
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
@@ -3390,10 +3447,14 @@ const Analytics: React.FC = () => {
           </div>
           <div className='flex items-center space-x-2'>
             <div
-              className={`w-3 h-3 rounded-full ${isQuantumActive ? 'bg-purple-400 animate-pulse' : 'bg-gray-400'}`}
+              className={`w-3 h-3 rounded-full ${
+                isQuantumActive ? 'bg-purple-400 animate-pulse' : 'bg-gray-400'
+              }`}
             ></div>
             <span
-              className={`text-sm font-medium ${isQuantumActive ? 'text-purple-400' : 'text-gray-400'}`}
+              className={`text-sm font-medium ${
+                isQuantumActive ? 'text-purple-400' : 'text-gray-400'
+              }`}
             >
               {isQuantumActive ? 'Quantum Active' : 'Classical Mode'}
             </span>
@@ -3404,8 +3465,11 @@ const Analytics: React.FC = () => {
         <div className='bg-slate-900/50 rounded-lg p-4 mb-6'>
           <div className='grid grid-cols-1 lg:grid-cols-4 gap-4'>
             <div>
-              <label className='block text-sm text-gray-400 mb-2'>Quantum Algorithm</label>
+              <label htmlFor='quantum-algorithm' className='block text-sm text-gray-400 mb-2'>
+                Quantum Algorithm
+              </label>
               <select
+                id='quantum-algorithm'
                 value={selectedAlgorithm}
                 onChange={e => setSelectedAlgorithm(e.target.value as any)}
                 className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm'
@@ -3421,10 +3485,11 @@ const Analytics: React.FC = () => {
             </div>
 
             <div>
-              <label className='block text-sm text-gray-400 mb-2'>
+              <label htmlFor='quantum-depth' className='block text-sm text-gray-400 mb-2'>
                 Quantum Depth: {quantumDepth}
               </label>
               <input
+                id='quantum-depth'
                 type='range'
                 min='4'
                 max='16'
@@ -3435,10 +3500,14 @@ const Analytics: React.FC = () => {
             </div>
 
             <div>
-              <label className='block text-sm text-gray-400 mb-2'>
+              <label
+                htmlFor='quantum-simulation-speed'
+                className='block text-sm text-gray-400 mb-2'
+              >
                 Simulation Speed: {simulationSpeed}x
               </label>
               <input
+                id='quantum-simulation-speed'
                 type='range'
                 min='0.5'
                 max='4'
@@ -3723,6 +3792,14 @@ const Analytics: React.FC = () => {
                       : 'border-gray-700/50 hover:border-cyan-500/30'
                   }`}
                   onClick={() => setSelectedWeatherGame(weather)}
+                  tabIndex={0}
+                  role='button'
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedWeatherGame(weather);
+                    }
+                  }}
                 >
                   <div className='flex items-start justify-between mb-2'>
                     <div>
@@ -3918,8 +3995,8 @@ const Analytics: React.FC = () => {
                       {selectedWeatherGame.impact.overall === 'high'
                         ? 'Significant weather impact expected. Consider under bets and reduced scoring.'
                         : selectedWeatherGame.impact.overall === 'medium'
-                          ? 'Moderate weather impact. Monitor conditions closely.'
-                          : 'Minimal weather impact expected. Normal betting conditions.'}
+                        ? 'Moderate weather impact. Monitor conditions closely.'
+                        : 'Minimal weather impact expected. Normal betting conditions.'}
                     </p>
                   </div>
                 </div>

@@ -17,14 +17,14 @@ const SettingsTab: React.FC = (): JSX.Element => (
         <div className='glass-card' style={{ marginBottom: 20 }}>
           <h4 style={{ color: 'var(--cyber-accent)', padding: '10px 0' }}>Preferences</h4>
           <form style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <label>
-              <input type='checkbox' defaultChecked /> Enable Dark Mode
+            <label htmlFor='dark-mode-checkbox'>
+              <input id='dark-mode-checkbox' type='checkbox' defaultChecked /> Enable Dark Mode
             </label>
-            <label>
-              <input type='checkbox' /> Show Advanced Analytics
+            <label htmlFor='analytics-checkbox'>
+              <input id='analytics-checkbox' type='checkbox' /> Show Advanced Analytics
             </label>
-            <label>
-              <input type='checkbox' /> Enable Notifications
+            <label htmlFor='notifications-checkbox'>
+              <input id='notifications-checkbox' type='checkbox' /> Enable Notifications
             </label>
             <button className='cyber-btn' type='submit' style={{ marginTop: 16 }}>
               Save Settings

@@ -1,16 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  Send,
-  MessageCircle,
-  Bot,
-  User,
-  TrendingUp,
-  Target,
-  Zap,
-  X,
-  Minimize2,
-  Maximize2,
-} from 'lucide-react';
+import { Bot, Maximize2, MessageCircle, Minimize2, Send, Target, User, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
 interface PropOllamaMessage {
@@ -94,16 +83,18 @@ Welcome! I'm your AI sports betting expert. I can help with:
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
+      // Only send allowed fields: message and context
+      const payload: any = { message: currentInput };
+      // Optionally add context if needed
+      payload.context = 'sports_betting_analysis';
+      console.log('[PropOllamaChatBox] Sending payload:', payload);
+
       const response = await fetch(`http://localhost:8000/api/propollama/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          message: currentInput,
-          context: 'sports_betting_analysis',
-          enhanced: true,
-        }),
+        body: JSON.stringify(payload),
         signal: controller.signal,
       });
 
@@ -258,7 +249,9 @@ I'm currently offline, but here's some general advice:`;
 
       {/* Chat Messages */}
       <div
-        className={`${isExpanded ? 'h-96' : 'h-64'} overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-transparent to-gray-900/20`}
+        className={`${
+          isExpanded ? 'h-96' : 'h-64'
+        } overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-transparent to-gray-900/20`}
       >
         {messages.map(message => (
           <div

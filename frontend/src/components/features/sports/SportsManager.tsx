@@ -1,48 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Globe,
-  Calendar,
-  TrendingUp,
-  BarChart3,
-  Clock,
-  Star,
-  Filter,
-  Search,
-  RefreshCw,
-  Settings,
-  Play,
-  Pause,
-  Target,
-  Trophy,
   Activity,
-  Users,
-  DollarSign,
-  Zap,
-  Eye,
-  ChevronDown,
-  ChevronRight,
   AlertCircle,
-  CheckCircle,
-  Plus,
-  Minus,
+  BarChart3,
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+  Globe,
+  RefreshCw,
+  Search,
+  Star,
+  Target,
+  TrendingUp,
+  Users,
+  Zap,
 } from 'lucide-react';
-import { Layout } from '../../core/Layout';
+import React, { useEffect, useState } from 'react';
 import {
+  SEASON_FILTERS,
   SPORTS_CONFIG,
   SPORT_CATEGORIES,
-  SEASON_FILTERS,
-  SPORT_COMBINATIONS,
-  getSportById,
-  getSportDisplayName,
-  getSportColor,
-  getSportEmoji,
-  getSportsByCategory,
-  getActiveSports,
   getFantasySports,
   getLiveBettingSports,
-  getSportMarkets,
+  getSportDisplayName,
+  getSportEmoji,
+  getSportsByCategory,
 } from '../../../constants/sports';
+import { Layout } from '../../core/Layout';
 
 interface SportPerformance {
   sportId: string;
@@ -86,7 +70,7 @@ const SportsManager: React.FC = () => {
   const [sortBy, setSortBy] = useState<'alphabetical' | 'performance' | 'activity' | 'profit'>(
     'performance'
   );
-  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'detailed'>('grid');
+  // Removed unused viewMode state
   const [performanceData, setPerformanceData] = useState<SportPerformance[]>([]);
   const [alerts, setAlerts] = useState<SportAlert[]>([]);
   const [selectedSports, setSelectedSports] = useState<Set<string>>(new Set());
@@ -144,7 +128,7 @@ const SportsManager: React.FC = () => {
           Math.floor(Math.random() * 5)
         ] as any,
         title: generateAlertTitle(sport.id),
-        message: generateAlertMessage(sport.id),
+        message: generateAlertMessage(),
         severity: ['low', 'medium', 'high', 'critical'][Math.floor(Math.random() * 4)] as any,
         timestamp: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000),
         actionRequired: Math.random() > 0.7,
@@ -238,7 +222,7 @@ const SportsManager: React.FC = () => {
     return titles[Math.floor(Math.random() * titles.length)];
   };
 
-  const generateAlertMessage = (sport: string): string => {
+  const generateAlertMessage = (): string => {
     const messages = [
       'Multiple arbitrage opportunities detected with 15%+ ROI',
       'Win rate dropped below 70% threshold in last 48 hours',
@@ -352,9 +336,14 @@ const SportsManager: React.FC = () => {
       subtitle='Comprehensive Sports Portfolio Management • Performance Analytics'
       headerActions={
         <div className='flex items-center space-x-3'>
+          {/* Visually hidden label for search input */}
+          <label htmlFor='sportsmanager-search-input' className='sr-only'>
+            Search sports
+          </label>
           <div className='relative'>
             <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
             <input
+              id='sportsmanager-search-input'
               type='text'
               placeholder='Search sports...'
               value={searchQuery}
@@ -363,7 +352,12 @@ const SportsManager: React.FC = () => {
             />
           </div>
 
+          {/* Visually hidden label for sort select */}
+          <label htmlFor='sportsmanager-sort-select' className='sr-only'>
+            Sort sports by
+          </label>
           <select
+            id='sportsmanager-sort-select'
             value={sortBy}
             onChange={e => setSortBy(e.target.value as any)}
             className='px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
@@ -374,7 +368,12 @@ const SportsManager: React.FC = () => {
             <option value='profit'>Profit</option>
           </select>
 
+          {/* Visually hidden label for refresh button */}
+          <label htmlFor='sportsmanager-refresh-btn' className='sr-only'>
+            Refresh sports data
+          </label>
           <button
+            id='sportsmanager-refresh-btn'
             onClick={loadSportsData}
             disabled={isLoading}
             className='flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 rounded-lg text-white font-medium transition-all disabled:opacity-50'
@@ -531,7 +530,9 @@ const SportsManager: React.FC = () => {
                     <Star className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
                   </button>
                   <div
-                    className={`w-3 h-3 rounded-full ${sport.season.active ? 'bg-green-400' : 'bg-gray-400'}`}
+                    className={`w-3 h-3 rounded-full ${
+                      sport.season.active ? 'bg-green-400' : 'bg-gray-400'
+                    }`}
                   />
                 </div>
               </div>
@@ -561,7 +562,9 @@ const SportsManager: React.FC = () => {
                   <div>
                     <div className='text-xs text-gray-400'>Profit</div>
                     <div
-                      className={`text-lg font-bold ${performance.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                      className={`text-lg font-bold ${
+                        performance.profit >= 0 ? 'text-green-400' : 'text-red-400'
+                      }`}
                     >
                       ${Math.abs(performance.profit).toFixed(0)}
                     </div>
@@ -576,8 +579,8 @@ const SportsManager: React.FC = () => {
                     sport.category === 'major'
                       ? 'bg-purple-500/20 text-purple-400'
                       : sport.category === 'emerging'
-                        ? 'bg-cyan-500/20 text-cyan-400'
-                        : 'bg-green-500/20 text-green-400'
+                      ? 'bg-cyan-500/20 text-cyan-400'
+                      : 'bg-green-500/20 text-green-400'
                   }`}
                 >
                   {sport.category.toUpperCase()}
@@ -649,13 +652,17 @@ const SportsManager: React.FC = () => {
                     <div className='flex items-center justify-between text-xs'>
                       <div className='flex items-center space-x-3'>
                         <span
-                          className={`flex items-center space-x-1 ${sport.fantasyAvailable ? 'text-green-400' : 'text-gray-500'}`}
+                          className={`flex items-center space-x-1 ${
+                            sport.fantasyAvailable ? 'text-green-400' : 'text-gray-500'
+                          }`}
                         >
                           <Users className='w-3 h-3' />
                           <span>Fantasy</span>
                         </span>
                         <span
-                          className={`flex items-center space-x-1 ${sport.liveBettingAvailable ? 'text-blue-400' : 'text-gray-500'}`}
+                          className={`flex items-center space-x-1 ${
+                            sport.liveBettingAvailable ? 'text-blue-400' : 'text-gray-500'
+                          }`}
                         >
                           <Zap className='w-3 h-3' />
                           <span>Live</span>

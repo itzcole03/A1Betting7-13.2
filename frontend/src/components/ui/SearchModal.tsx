@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { cn } from '@/lib/utils';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 // Types for search modal
 interface SearchResult {
@@ -242,7 +242,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
         selectedElement.scrollIntoView({ block: 'nearest' });
       }
     }
-  }, [selectedIndex]);
+  }, [selectedIndex, resultsRef, results]);
 
   const handleSearch = async (searchQuery: string) => {
     setLoading(true);
@@ -310,17 +310,14 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   const groupedResults = useMemo(() => {
     if (!showCategories) return { All: results };
 
-    return results.reduce(
-      (groups, result) => {
-        const category = result.category || 'Other';
-        if (!groups[category]) {
-          groups[category] = [];
-        }
-        groups[category].push(result);
-        return groups;
-      },
-      {} as Record<string, SearchResult[]>
-    );
+    return results.reduce((groups, result) => {
+      const category = result.category || 'Other';
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(result);
+      return groups;
+    }, {} as Record<string, SearchResult[]>);
   }, [results, showCategories]);
 
   if (!isOpen) return null;
@@ -343,7 +340,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   return (
     <div className='fixed inset-0 z-50 flex items-start justify-center'>
       {/* Backdrop */}
-      <div className='absolute inset-0 bg-black/50 backdrop-blur-sm' onClick={onClose} />
+      <div
+        className='absolute inset-0 bg-black/50 backdrop-blur-sm'
+        onClick={onClose}
+        role='button'
+        tabIndex={0}
+      />
 
       {/* Modal */}
       <div

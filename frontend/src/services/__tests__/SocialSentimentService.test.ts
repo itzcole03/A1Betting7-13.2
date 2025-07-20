@@ -1,5 +1,4 @@
-﻿import { SocialSentimentService } from '@/SocialSentimentService';
-import { UnifiedConfig } from '@/unified/UnifiedConfig';
+﻿import { UnifiedConfig } from '../../unified/UnifiedConfig';
 
 describe('SocialSentimentService', () => {
   beforeEach(() => {

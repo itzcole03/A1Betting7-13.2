@@ -1,4 +1,4 @@
-﻿import { affiliateService, AffiliateLink, AffiliateOffer } from '@/AffiliateService';
+﻿import { AffiliateLink, AffiliateOffer, affiliateService } from '../AffiliateService';
 
 global.fetch = jest.fn();
 

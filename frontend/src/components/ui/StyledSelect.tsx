@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import React, { useEffect, useRef, useState } from 'react';
 
 // Types for styled select
 interface SelectOption {
@@ -374,7 +374,11 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
         )}
       >
         {showImages && option.image && (
-          <img src={option.image} alt='' className='w-6 h-6 rounded object-cover flex-shrink-0' />
+          <img
+            src={option.image}
+            alt={option.label || 'Option image'}
+            className='w-6 h-6 rounded object-cover flex-shrink-0'
+          />
         )}
 
         {showIcons && option.icon && !option.image && (

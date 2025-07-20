@@ -11,7 +11,12 @@ const SimpleSettingsPage: React.FC = () => {
 
           <div className='space-y-4'>
             <div>
-              <label htmlFor='risk-tolerance' className='block text-sm font-medium text-gray-700 mb-2'>Risk Tolerance</label>
+              <label
+                htmlFor='risk-tolerance'
+                className='block text-sm font-medium text-gray-700 mb-2'
+              >
+                Risk Tolerance
+              </label>
               <select id='risk-tolerance' className='w-full p-2 border border-gray-300 rounded-md'>
                 <option>Conservative</option>
                 <option>Moderate</option>
@@ -20,7 +25,10 @@ const SimpleSettingsPage: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor='portfolio-size' className='block text-sm font-medium text-gray-700 mb-2'>
+              <label
+                htmlFor='portfolio-size'
+                className='block text-sm font-medium text-gray-700 mb-2'
+              >
                 Portfolio Size ($)
               </label>
               <input
@@ -33,12 +41,16 @@ const SimpleSettingsPage: React.FC = () => {
 
             <div className='flex items-center'>
               <input id='enable-notifications' type='checkbox' className='mr-2' />
-              <label htmlFor='enable-notifications' className='text-sm text-gray-700'>Enable notifications</label>
+              <label htmlFor='enable-notifications' className='text-sm text-gray-700'>
+                Enable notifications
+              </label>
             </div>
 
             <div className='flex items-center'>
               <input id='auto-refresh' type='checkbox' className='mr-2' />
-              <label htmlFor='auto-refresh' className='text-sm text-gray-700'>Auto-refresh data</label>
+              <label htmlFor='auto-refresh' className='text-sm text-gray-700'>
+                Auto-refresh data
+              </label>
             </div>
           </div>
 

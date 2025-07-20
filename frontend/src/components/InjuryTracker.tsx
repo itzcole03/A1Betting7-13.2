@@ -46,150 +46,73 @@ interface TeamImpact {
 }
 
 export const InjuryTracker: React.FC = () => {
+  // State for injury data, team impacts, filters, and UI feedback
   const [injuries, setInjuries] = useState<InjuryReport[]>([]);
   const [teamImpacts, setTeamImpacts] = useState<TeamImpact[]>([]);
   const [selectedSport, setSelectedSport] = useState<string>('all');
   const [selectedSeverity, setSelectedSeverity] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false); // Loading state for API fetch
+  const [error, setError] = useState<string | null>(null); // Error state for API fetch
 
-  useEffect(() => {
-    const generateInjuryReports = (): InjuryReport[] => {
-      const sports = ['NBA', 'NFL', 'MLB', 'NHL'];
-      const teams: { [key: string]: string[] } = {
-        NBA: ['Lakers', 'Warriors', 'Celtics', 'Heat', 'Nets', 'Knicks'],
-        NFL: ['Chiefs', 'Bills', 'Cowboys', 'Patriots', 'Packers', 'Ravens'],
-        MLB: ['Yankees', 'Red Sox', 'Dodgers', 'Astros', 'Giants', 'Mets'],
-        NHL: ['Rangers', 'Lightning', 'Bruins', 'Kings', 'Penguins', 'Capitals'],
-      };
+  // Fetch injury data from API
+  const fetchInjuryData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Replace this URL with your real backend endpoint
+      const response = await fetch('/api/injuries');
+      if (!response.ok) throw new Error('Failed to fetch injury data');
+      const data: InjuryReport[] = await response.json();
+      setInjuries(data);
+      setTeamImpacts(generateTeamImpacts(data));
+    } catch (err: any) {
+      setError(err.message || 'Unknown error occurred');
+      setInjuries([]);
+      setTeamImpacts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      const positions: { [key: string]: string[] } = {
-        NBA: ['PG', 'SG', 'SF', 'PF', 'C'],
-        NFL: ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'CB', 'S', 'K'],
-        MLB: ['P', 'C', '1B', '2B', '3B', 'SS', 'OF'],
-        NHL: ['C', 'LW', 'RW', 'D', 'G'],
-      };
-
-      const injuries = [
-        'Ankle Sprain',
-        'Knee Injury',
-        'Hamstring Strain',
-        'Shoulder Injury',
-        'Concussion',
-        'Back Spasms',
-        'Groin Strain',
-        'Wrist Injury',
-        'Hip Injury',
-        'Calf Strain',
-        'Neck Injury',
-        'Foot Injury',
-      ];
-
-      const bodyParts = [
-        'Ankle',
-        'Knee',
-        'Hamstring',
-        'Shoulder',
-        'Head',
-        'Back',
-        'Groin',
-        'Wrist',
-        'Hip',
-        'Calf',
-        'Neck',
-        'Foot',
-      ];
-
-      return Array.from({ length: 20 }, (_, index) => {
-        const sport = sports[Math.floor(Math.random() * sports.length)];
-        const team = teams[sport][Math.floor(Math.random() * teams[sport].length)];
-        const severity =
-          Math.random() > 0.7 ? 'severe' : Math.random() > 0.4 ? 'moderate' : 'minor';
-
+  // Generate team impact analysis from injury data
+  const generateTeamImpacts = (injuryData: InjuryReport[]): TeamImpact[] => {
+    const teamMap = new Map<string, InjuryReport[]>();
+    injuryData.forEach(injury => {
+      const key = `${injury.team}-${injury.sport}`;
+      if (!teamMap.has(key)) {
+        teamMap.set(key, []);
+      }
+      teamMap.get(key)!.push(injury);
+    });
+    return Array.from(teamMap.entries())
+      .map(([key, teamInjuries]) => {
+        const [team, sport] = key.split('-');
+        const keyPlayerInjuries = teamInjuries.filter(
+          i => i.severity === 'severe' || i.severity === 'moderate'
+        ).length;
         return {
-          id: `injury-${index}`,
-          player: `Player ${Math.floor(Math.random() * 100) + 1}`,
           team,
           sport,
-          position: positions[sport][Math.floor(Math.random() * positions[sport].length)],
-          injury: injuries[Math.floor(Math.random() * injuries.length)],
-          bodyPart: bodyParts[Math.floor(Math.random() * bodyParts.length)],
-          severity,
-          status: severity === 'severe' ? 'out' : Math.random() > 0.5 ? 'questionable' : 'doubtful',
-          expectedReturn:
-            severity === 'severe'
-              ? '4-6 weeks'
-              : severity === 'moderate'
-                ? '1-2 weeks'
-                : '3-5 days',
-          impact: {
-            team:
-              severity === 'severe'
-                ? 80 + Math.random() * 20
-                : severity === 'moderate'
-                  ? 50 + Math.random() * 30
-                  : 20 + Math.random() * 30,
-            fantasy:
-              severity === 'severe'
-                ? 90 + Math.random() * 10
-                : severity === 'moderate'
-                  ? 60 + Math.random() * 30
-                  : 30 + Math.random() * 40,
-            betting:
-              severity === 'severe'
-                ? 70 + Math.random() * 30
-                : severity === 'moderate'
-                  ? 40 + Math.random() * 40
-                  : 15 + Math.random() * 35,
-          },
-          timeline: `${Math.floor(Math.random() * 12) + 1}h ago`,
-          reportedDate: `${Math.floor(Math.random() * 7) + 1} days ago`,
-          source: ['Team Report', 'Beat Reporter', 'Medical Staff', 'Player Statement'][
-            Math.floor(Math.random() * 4)
-          ],
-          reliability: 70 + Math.random() * 30,
+          totalInjuries: teamInjuries.length,
+          keyPlayerInjuries,
+          projectedImpact: Math.min(
+            100,
+            teamInjuries.reduce((sum, i) => sum + i.impact.team, 0) / 3
+          ),
+          affectedPositions: [...new Set(teamInjuries.map(i => i.position))],
         };
-      });
-    };
+      })
+      .sort((a, b) => b.projectedImpact - a.projectedImpact);
+  };
 
-    const generateTeamImpacts = (injuryData: InjuryReport[]): TeamImpact[] => {
-      const teamMap = new Map<string, InjuryReport[]>();
-
-      injuryData.forEach(injury => {
-        const key = `${injury.team}-${injury.sport}`;
-        if (!teamMap.has(key)) {
-          teamMap.set(key, []);
-        }
-        teamMap.get(key)!.push(injury);
-      });
-
-      return Array.from(teamMap.entries())
-        .map(([key, teamInjuries]) => {
-          const [team, sport] = key.split('-');
-          const keyPlayerInjuries = teamInjuries.filter(
-            i => i.severity === 'severe' || i.severity === 'moderate'
-          ).length;
-
-          return {
-            team,
-            sport,
-            totalInjuries: teamInjuries.length,
-            keyPlayerInjuries,
-            projectedImpact: Math.min(
-              100,
-              teamInjuries.reduce((sum, i) => sum + i.impact.team, 0) / 3
-            ),
-            affectedPositions: [...new Set(teamInjuries.map(i => i.position))],
-          };
-        })
-        .sort((a, b) => b.projectedImpact - a.projectedImpact);
-    };
-
-    const injuryData = generateInjuryReports();
-    setInjuries(injuryData);
-    setTeamImpacts(generateTeamImpacts(injuryData));
+  // Fetch data on mount
+  useEffect(() => {
+    fetchInjuryData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Filter injuries
+  // Filter injuries based on user selection
   const filteredInjuries = injuries.filter(injury => {
     if (selectedSport !== 'all' && injury.sport !== selectedSport) return false;
     if (selectedSeverity !== 'all' && injury.severity !== selectedSeverity) return false;
@@ -350,8 +273,13 @@ export const InjuryTracker: React.FC = () => {
           </div>
 
           <div className='flex items-end'>
-            <Button className='w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700'>
-              Refresh Data
+            <Button
+              className='w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700'
+              onClick={fetchInjuryData}
+              disabled={loading}
+              aria-busy={loading}
+            >
+              {loading ? 'Refreshing...' : 'Refresh Data'}
             </Button>
           </div>
         </div>
@@ -364,133 +292,156 @@ export const InjuryTracker: React.FC = () => {
           <div className='space-y-6'>
             <h3 className='text-xl font-bold text-white'>Active Injury Reports</h3>
 
-            <div className='space-y-4'>
-              {filteredInjuries.map((injury, index) => (
-                <motion.div
-                  key={injury.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Card className='p-6 hover:border-orange-500/30 transition-all'>
-                    <div className='flex items-start justify-between mb-4'>
-                      <div className='flex items-center gap-3'>
-                        <div className='w-12 h-12 bg-gradient-to-r from-orange-400 to-red-500 rounded-full flex items-center justify-center'>
-                          <User className='w-6 h-6 text-white' />
+            {/* Show loading, error, or empty state as appropriate */}
+            {loading && (
+              // Use role="status" and aria-live="polite" for screen reader announcement of loading state
+              <div className='flex justify-center items-center h-32' role='status' aria-live='polite'>
+                <span className='text-orange-400 font-bold'>Loading injury data...</span>
+              </div>
+            )}
+            {error && (
+              // Use role="alert" for immediate screen reader announcement of errors
+              <div className='flex justify-center items-center h-32' role='alert'>
+                <span className='text-red-400 font-bold'>Error: {error}</span>
+              </div>
+            )}
+            {!loading && !error && filteredInjuries.length === 0 && (
+              // Use role="status" and aria-live="polite" for empty state feedback
+              <div className='flex justify-center items-center h-32' role='status' aria-live='polite'>
+                <span className='text-gray-400'>No injuries found for the selected filters.</span>
+              </div>
+            )}
+
+            {/* Injury list */}
+            {!loading && !error && filteredInjuries.length > 0 && (
+              <div className='space-y-4'>
+                {filteredInjuries.map((injury, index) => (
+                  <motion.div
+                    key={injury.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Card className='p-6 hover:border-orange-500/30 transition-all'>
+                      <div className='flex items-start justify-between mb-4'>
+                        <div className='flex items-center gap-3'>
+                          <div className='w-12 h-12 bg-gradient-to-r from-orange-400 to-red-500 rounded-full flex items-center justify-center'>
+                            <User className='w-6 h-6 text-white' />
+                          </div>
+                          <div>
+                            <h4 className='text-lg font-bold text-white'>{injury.player}</h4>
+                            <p className='text-gray-400 text-sm'>
+                              {injury.team} • {injury.position}
+                            </p>
+                          </div>
                         </div>
+
+                        <div className='flex items-center gap-2'>
+                          <Badge variant='outline' className={getSeverityColor(injury.severity)}>
+                            {getSeverityIcon(injury.severity)}
+                            {injury.severity}
+                          </Badge>
+                          <Badge variant='outline' className={getStatusColor(injury.status)}>
+                            {injury.status.toUpperCase()}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4'>
                         <div>
-                          <h4 className='text-lg font-bold text-white'>{injury.player}</h4>
-                          <p className='text-gray-400 text-sm'>
-                            {injury.team} • {injury.position}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className='flex items-center gap-2'>
-                        <Badge variant='outline' className={getSeverityColor(injury.severity)}>
-                          {getSeverityIcon(injury.severity)}
-                          {injury.severity}
-                        </Badge>
-                        <Badge variant='outline' className={getStatusColor(injury.status)}>
-                          {injury.status.toUpperCase()}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4'>
-                      <div>
-                        <h5 className='font-bold text-white mb-2'>Injury Details</h5>
-                        <div className='space-y-1 text-sm'>
-                          <div className='flex justify-between'>
-                            <span className='text-gray-400'>Injury:</span>
-                            <span className='text-white'>{injury.injury}</span>
-                          </div>
-                          <div className='flex justify-between'>
-                            <span className='text-gray-400'>Body Part:</span>
-                            <span className='text-white'>{injury.bodyPart}</span>
-                          </div>
-                          <div className='flex justify-between'>
-                            <span className='text-gray-400'>Expected Return:</span>
-                            <span className='text-white'>{injury.expectedReturn}</span>
-                          </div>
-                          <div className='flex justify-between'>
-                            <span className='text-gray-400'>Reported:</span>
-                            <span className='text-white'>{injury.reportedDate}</span>
+                          <h5 className='font-bold text-white mb-2'>Injury Details</h5>
+                          <div className='space-y-1 text-sm'>
+                            <div className='flex justify-between'>
+                              <span className='text-gray-400'>Injury:</span>
+                              <span className='text-white'>{injury.injury}</span>
+                            </div>
+                            <div className='flex justify-between'>
+                              <span className='text-gray-400'>Body Part:</span>
+                              <span className='text-white'>{injury.bodyPart}</span>
+                            </div>
+                            <div className='flex justify-between'>
+                              <span className='text-gray-400'>Expected Return:</span>
+                              <span className='text-white'>{injury.expectedReturn}</span>
+                            </div>
+                            <div className='flex justify-between'>
+                              <span className='text-gray-400'>Reported:</span>
+                              <span className='text-white'>{injury.reportedDate}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div>
-                        <h5 className='font-bold text-white mb-2'>Impact Analysis</h5>
-                        <div className='space-y-2'>
-                          <div>
-                            <div className='flex justify-between text-sm mb-1'>
-                              <span className='text-gray-400'>Team Impact</span>
-                              <span className='text-orange-400 font-bold'>
-                                {injury.impact.team.toFixed(0)}%
-                              </span>
+                        <div>
+                          <h5 className='font-bold text-white mb-2'>Impact Analysis</h5>
+                          <div className='space-y-2'>
+                            <div>
+                              <div className='flex justify-between text-sm mb-1'>
+                                <span className='text-gray-400'>Team Impact</span>
+                                <span className='text-orange-400 font-bold'>
+                                  {injury.impact.team.toFixed(0)}%
+                                </span>
+                              </div>
+                              <div className='w-full bg-gray-700 rounded-full h-2'>
+                                <motion.div
+                                  className='bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full'
+                                  animate={{ width: `${injury.impact.team}%` }}
+                                  transition={{ duration: 1 }}
+                                />
+                              </div>
                             </div>
-                            <div className='w-full bg-gray-700 rounded-full h-2'>
-                              <motion.div
-                                className='bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full'
-                                animate={{ width: `${injury.impact.team}%` }}
-                                transition={{ duration: 1 }}
-                              />
-                            </div>
-                          </div>
 
-                          <div>
-                            <div className='flex justify-between text-sm mb-1'>
-                              <span className='text-gray-400'>Fantasy Impact</span>
-                              <span className='text-purple-400 font-bold'>
-                                {injury.impact.fantasy.toFixed(0)}%
-                              </span>
+                            <div>
+                              <div className='flex justify-between text-sm mb-1'>
+                                <span className='text-gray-400'>Fantasy Impact</span>
+                                <span className='text-purple-400 font-bold'>
+                                  {injury.impact.fantasy.toFixed(0)}%
+                                </span>
+                              </div>
+                              <div className='w-full bg-gray-700 rounded-full h-2'>
+                                <motion.div
+                                  className='bg-gradient-to-r from-purple-400 to-purple-500 h-2 rounded-full'
+                                  animate={{ width: `${injury.impact.fantasy}%` }}
+                                  transition={{ duration: 1 }}
+                                />
+                              </div>
                             </div>
-                            <div className='w-full bg-gray-700 rounded-full h-2'>
-                              <motion.div
-                                className='bg-gradient-to-r from-purple-400 to-purple-500 h-2 rounded-full'
-                                animate={{ width: `${injury.impact.fantasy}%` }}
-                                transition={{ duration: 1 }}
-                              />
-                            </div>
-                          </div>
 
-                          <div>
-                            <div className='flex justify-between text-sm mb-1'>
-                              <span className='text-gray-400'>Betting Impact</span>
-                              <span className='text-blue-400 font-bold'>
-                                {injury.impact.betting.toFixed(0)}%
-                              </span>
-                            </div>
-                            <div className='w-full bg-gray-700 rounded-full h-2'>
-                              <motion.div
-                                className='bg-gradient-to-r from-blue-400 to-blue-500 h-2 rounded-full'
-                                animate={{ width: `${injury.impact.betting}%` }}
-                                transition={{ duration: 1 }}
-                              />
+                            <div>
+                              <div className='flex justify-between text-sm mb-1'>
+                                <span className='text-gray-400'>Betting Impact</span>
+                                <span className='text-blue-400 font-bold'>
+                                  {injury.impact.betting.toFixed(0)}%
+                                </span>
+                              </div>
+                              <div className='w-full bg-gray-700 rounded-full h-2'>
+                                <motion.div
+                                  className='bg-gradient-to-r from-blue-400 to-blue-500 h-2 rounded-full'
+                                  animate={{ width: `${injury.impact.betting}%` }}
+                                  transition={{ duration: 1 }}
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className='flex items-center justify-between text-xs text-gray-400 pt-4 border-t border-gray-700'>
-                      <div className='flex items-center gap-4'>
-                        <span>Source: {injury.source}</span>
+                      <div className='flex items-center justify-between text-xs text-gray-400 pt-4 border-t border-gray-700'>
+                        <div className='flex items-center gap-4'>
+                          <span>Source: {injury.source}</span>
+                          <div className='flex items-center gap-1'>
+                            <Target className='w-3 h-3' />
+                            <span>Reliability: {injury.reliability.toFixed(0)}%</span>
+                          </div>
+                        </div>
                         <div className='flex items-center gap-1'>
-                          <Target className='w-3 h-3' />
-                          <span>Reliability: {injury.reliability.toFixed(0)}%</span>
+                          <Clock className='w-3 h-3' />
+                          <span>Updated {injury.timeline}</span>
                         </div>
                       </div>
-                      <div className='flex items-center gap-1'>
-                        <Clock className='w-3 h-3' />
-                        <span>Updated {injury.timeline}</span>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

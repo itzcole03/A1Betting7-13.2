@@ -1,6 +1,6 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, Target, Zap, Shield, Activity } from 'lucide-react';
+import { Activity, Shield, Target, TrendingDown, TrendingUp, Zap } from 'lucide-react';
+import React from 'react';
 
 export interface WinProbabilityData {
   homeTeam: {
@@ -96,7 +96,7 @@ export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
       scaleX: 1,
       transition: {
         duration: animate ? 1.5 : 0,
-        ease: 'easeOut',
+        ease: 'easeOut' as const,
       },
     },
   };
@@ -108,7 +108,7 @@ export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
       y: 0,
       transition: {
         duration: 0.3,
-        ease: 'easeOut',
+        ease: 'easeOut' as const,
       },
     },
   };
@@ -214,7 +214,11 @@ export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
           <motion.div
             className={`
               flex items-center justify-between p-4 rounded-lg 
-              ${homePercent > awayPercent ? 'bg-blue-500/20 border border-blue-500/30' : 'bg-slate-800/50'}
+              ${
+                homePercent > awayPercent
+                  ? 'bg-blue-500/20 border border-blue-500/30'
+                  : 'bg-slate-800/50'
+              }
               ${onTeamClick ? 'cursor-pointer hover:bg-blue-500/30' : ''}
               transition-colors
             `}
@@ -222,7 +226,9 @@ export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
             whileHover={onTeamClick ? { scale: 1.02 } : undefined}
           >
             <div className='flex items-center space-x-3'>
-              {homeTeam.logo && <img src={homeTeam.logo} alt={homeTeam.name} className='w-8 h-8' />}
+              {homeTeam.logo && (
+                <img src={homeTeam.logo} alt={`Logo for ${homeTeam.name}`} className='w-8 h-8' />
+              )}
               <span className={`font-medium text-white ${sizeConfig[size].teamText}`}>
                 {homeTeam.name}
               </span>
@@ -236,7 +242,11 @@ export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
           <motion.div
             className={`
               flex items-center justify-between p-4 rounded-lg 
-              ${awayPercent > homePercent ? 'bg-red-500/20 border border-red-500/30' : 'bg-slate-800/50'}
+              ${
+                awayPercent > homePercent
+                  ? 'bg-red-500/20 border border-red-500/30'
+                  : 'bg-slate-800/50'
+              }
               ${onTeamClick ? 'cursor-pointer hover:bg-red-500/30' : ''}
               transition-colors
             `}
@@ -244,7 +254,9 @@ export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
             whileHover={onTeamClick ? { scale: 1.02 } : undefined}
           >
             <div className='flex items-center space-x-3'>
-              {awayTeam.logo && <img src={awayTeam.logo} alt={awayTeam.name} className='w-8 h-8' />}
+              {awayTeam.logo && (
+                <img src={awayTeam.logo} alt={`Logo for ${awayTeam.name}`} className='w-8 h-8' />
+              )}
               <span className={`font-medium text-white ${sizeConfig[size].teamText}`}>
                 {awayTeam.name}
               </span>

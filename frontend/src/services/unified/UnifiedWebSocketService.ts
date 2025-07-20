@@ -33,7 +33,8 @@ export class UnifiedWebSocketService extends BaseService {
   private subscriptionCounter = 0;
 
   protected constructor() {
-    super('UnifiedWebSocketService');
+    // Pass a dummy object for serviceRegistry since it's not used
+    super('UnifiedWebSocketService', {} as any);
   }
 
   static getInstance(): UnifiedWebSocketService {
@@ -332,9 +333,11 @@ export class UnifiedWebSocketService extends BaseService {
   }
 
   private getWebSocketUrl(): string {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = import.meta.env.VITE_WS_HOST || window.location.host;
-    return `${protocol}//${host}/ws`;
+    // Always use backend port, never frontend's own port
+    // Build WebSocket URL from environment variables for best practice
+    const host = import.meta.env.VITE_API_HOST || 'localhost';
+    const port = import.meta.env.VITE_API_PORT || '8000';
+    return import.meta.env.VITE_WS_URL || `ws://${host}:${port}/ws`;
   }
 
   // Utility methods for common message types

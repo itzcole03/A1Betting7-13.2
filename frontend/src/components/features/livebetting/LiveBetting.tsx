@@ -1,22 +1,6 @@
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Radio,
-  Clock,
-  TrendingUp,
-  Zap,
-  Target,
-  Activity,
-  Play,
-  Pause,
-  BarChart3,
-  DollarSign,
-  RefreshCw,
-  AlertTriangle,
-  CheckCircle,
-  Timer,
-  Volume2,
-} from 'lucide-react';
+import { AlertTriangle, Pause, Play, Radio, RefreshCw, Volume2, Zap } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { Layout } from '../../core/Layout';
 
 interface LiveGame {
@@ -299,7 +283,12 @@ const LiveBetting: React.FC = () => {
       subtitle='Real-Time In-Game Opportunities • AI-Powered Analysis'
       headerActions={
         <div className='flex items-center space-x-3'>
+          {/* Visually hidden label for sound toggle button */}
+          <label htmlFor='livebetting-sound-btn' className='sr-only'>
+            Toggle sound notifications
+          </label>
           <button
+            id='livebetting-sound-btn'
             onClick={() => setSoundEnabled(!soundEnabled)}
             className={`p-2 rounded-lg transition-colors ${
               soundEnabled ? 'bg-green-500/20 text-green-400' : 'bg-slate-700 text-gray-400'
@@ -308,7 +297,12 @@ const LiveBetting: React.FC = () => {
             <Volume2 className='w-4 h-4' />
           </button>
 
+          {/* Visually hidden label for auto-refresh button */}
+          <label htmlFor='livebetting-autorefresh-btn' className='sr-only'>
+            Toggle auto-refresh
+          </label>
           <button
+            id='livebetting-autorefresh-btn'
             onClick={() => setIsAutoRefresh(!isAutoRefresh)}
             className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
               isAutoRefresh ? 'bg-green-500/20 text-green-400' : 'bg-slate-700 text-gray-400'
@@ -318,7 +312,12 @@ const LiveBetting: React.FC = () => {
             <span>Auto</span>
           </button>
 
+          {/* Visually hidden label for refresh button */}
+          <label htmlFor='livebetting-refresh-btn' className='sr-only'>
+            Refresh live betting data
+          </label>
           <button
+            id='livebetting-refresh-btn'
             onClick={loadLiveData}
             className='flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 rounded-lg text-white font-medium transition-all'
           >
@@ -344,7 +343,9 @@ const LiveBetting: React.FC = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`flex items-center justify-between p-4 rounded-lg border ${getAlertColor(alert.urgency)}`}
+                  className={`flex items-center justify-between p-4 rounded-lg border ${getAlertColor(
+                    alert.urgency
+                  )}`}
                 >
                   <div className='flex items-center space-x-3'>
                     <AlertTriangle className='w-5 h-5' />
@@ -375,8 +376,11 @@ const LiveBetting: React.FC = () => {
       >
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           <div>
-            <label className='text-sm text-gray-400 mb-1 block'>Sport</label>
+            <label htmlFor='livebetting-sport-select' className='text-sm text-gray-400 mb-1 block'>
+              Sport
+            </label>
             <select
+              id='livebetting-sport-select'
               value={filters.sport}
               onChange={e => setFilters({ ...filters, sport: e.target.value })}
               className='w-full px-3 py-2 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
@@ -390,8 +394,14 @@ const LiveBetting: React.FC = () => {
           </div>
 
           <div>
-            <label className='text-sm text-gray-400 mb-1 block'>Min Confidence (%)</label>
+            <label
+              htmlFor='livebetting-confidence-range'
+              className='text-sm text-gray-400 mb-1 block'
+            >
+              Min Confidence (%)
+            </label>
             <input
+              id='livebetting-confidence-range'
               type='range'
               min='50'
               max='95'

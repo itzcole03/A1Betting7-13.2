@@ -1,43 +1,36 @@
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-  User,
-  Settings,
-  Bell,
-  Shield,
-  CreditCard,
   Activity,
-  TrendingUp,
-  Target,
-  Award,
-  Calendar,
-  MapPin,
-  Mail,
-  Phone,
-  Edit,
-  Save,
-  X,
-  Eye,
-  EyeOff,
-  Download,
-  Upload,
-  RefreshCw,
-  CheckCircle,
   AlertTriangle,
-  DollarSign,
-  Percent,
   BarChart3,
-  LineChart,
-  PieChart,
-  Zap,
-  Lock,
-  Smartphone,
-  Globe,
+  Calendar,
+  CheckCircle,
   Clock,
-  Star,
-  Trophy,
+  CreditCard,
   Crown,
+  DollarSign,
+  Edit,
+  Eye,
+  LineChart,
+  Lock,
+  Mail,
+  MapPin,
+  Percent,
+  Phone,
+  RefreshCw,
+  Save,
+  Settings,
+  Shield,
+  Smartphone,
+  Star,
+  Target,
+  TrendingUp,
+  Trophy,
+  User,
+  X,
+  Zap,
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { Layout } from '../../core/Layout';
 
 interface UserProfile {
@@ -344,7 +337,9 @@ const UserProfile: React.FC = () => {
                   {userProfile?.firstName} {userProfile?.lastName}
                 </h2>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium border ${getPlanColor(userProfile?.subscription.plan || '')}`}
+                  className={`px-3 py-1 rounded-full text-xs font-medium border ${getPlanColor(
+                    userProfile?.subscription.plan || ''
+                  )}`}
                 >
                   {userProfile?.subscription.plan?.toUpperCase()}
                 </span>
@@ -667,7 +662,9 @@ const UserProfile: React.FC = () => {
               </div>
               <div className='text-right'>
                 <p
-                  className={`font-medium ${activity.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                  className={`font-medium ${
+                    activity.profit >= 0 ? 'text-green-400' : 'text-red-400'
+                  }`}
                 >
                   {activity.profit >= 0 ? '+' : ''}${activity.profit.toFixed(2)}
                 </p>
@@ -723,7 +720,10 @@ const UserProfile: React.FC = () => {
                     <div
                       className='h-2 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full'
                       style={{
-                        width: `${Math.min((achievement.progress / achievement.total) * 100, 100)}%`,
+                        width: `${Math.min(
+                          (achievement.progress / achievement.total) * 100,
+                          100
+                        )}%`,
                       }}
                     />
                   </div>
@@ -759,8 +759,14 @@ const UserProfile: React.FC = () => {
 
           <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             <div>
-              <label className='block text-sm font-medium text-gray-300 mb-2'>First Name</label>
+              <label
+                htmlFor='userprofile-first-name'
+                className='block text-sm font-medium text-gray-300 mb-2'
+              >
+                First Name
+              </label>
               <input
+                id='userprofile-first-name'
                 type='text'
                 value={userProfile?.firstName || ''}
                 onChange={e =>
@@ -771,8 +777,14 @@ const UserProfile: React.FC = () => {
             </div>
 
             <div>
-              <label className='block text-sm font-medium text-gray-300 mb-2'>Last Name</label>
+              <label
+                htmlFor='userprofile-last-name'
+                className='block text-sm font-medium text-gray-300 mb-2'
+              >
+                Last Name
+              </label>
               <input
+                id='userprofile-last-name'
                 type='text'
                 value={userProfile?.lastName || ''}
                 onChange={e =>
@@ -783,8 +795,14 @@ const UserProfile: React.FC = () => {
             </div>
 
             <div>
-              <label className='block text-sm font-medium text-gray-300 mb-2'>Email</label>
+              <label
+                htmlFor='userprofile-email'
+                className='block text-sm font-medium text-gray-300 mb-2'
+              >
+                Email
+              </label>
               <input
+                id='userprofile-email'
                 type='email'
                 value={userProfile?.email || ''}
                 onChange={e =>
@@ -795,8 +813,14 @@ const UserProfile: React.FC = () => {
             </div>
 
             <div>
-              <label className='block text-sm font-medium text-gray-300 mb-2'>Phone</label>
+              <label
+                htmlFor='userprofile-phone'
+                className='block text-sm font-medium text-gray-300 mb-2'
+              >
+                Phone
+              </label>
               <input
+                id='userprofile-phone'
                 type='tel'
                 value={userProfile?.phone || ''}
                 onChange={e =>
@@ -807,8 +831,14 @@ const UserProfile: React.FC = () => {
             </div>
 
             <div className='md:col-span-2'>
-              <label className='block text-sm font-medium text-gray-300 mb-2'>Bio</label>
+              <label
+                htmlFor='userprofile-bio'
+                className='block text-sm font-medium text-gray-300 mb-2'
+              >
+                Bio
+              </label>
               <textarea
+                id='userprofile-bio'
                 value={userProfile?.bio || ''}
                 onChange={e =>
                   setUserProfile(prev => (prev ? { ...prev, bio: e.target.value } : null))
@@ -921,7 +951,9 @@ const UserProfile: React.FC = () => {
                   .replace('/10', '/20')}`}
               >
                 <Crown
-                  className={`w-6 h-6 ${getPlanColor(userProfile?.subscription.plan || '').split(' ')[0]}`}
+                  className={`w-6 h-6 ${
+                    getPlanColor(userProfile?.subscription.plan || '').split(' ')[0]
+                  }`}
                 />
               </div>
               <div>

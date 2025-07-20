@@ -2,6 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import AppStreamlined from './AppStreamlined';
 import { logger } from './utils/logger';
+import './utils/tracing';
+
+// Import Builder.io registry to register components
+import '../builder-registry';
 
 // import styles exactly like the prototype
 import './index.css';
@@ -41,6 +45,17 @@ window.addEventListener('error', event => {
     return;
   }
 
+  // Suppress fetch errors from API services (expected in development)
+  if (
+    event.error?.message?.includes('Failed to fetch') ||
+    event.error?.message?.includes('TypeError: fetch') ||
+    event.error?.message?.includes('API_UNAVAILABLE')
+  ) {
+    logger.debug('API connectivity issue (non-critical)', event.error, 'Bootstrap');
+    event.preventDefault();
+    return;
+  }
+
   // Log all other errors for production monitoring;
   logger.error(
     'Global error caught',
@@ -64,6 +79,22 @@ window.addEventListener('unhandledrejection', event => {
     (event.reason instanceof Error && event.reason.message.includes('WebSocket'))
   ) {
     logger.warn('Vite WebSocket error suppressed', { message: event.reason?.message }, 'Bootstrap');
+    event.preventDefault();
+    return;
+  }
+
+  // Suppress fetch errors from API services (expected in development)
+  if (
+    event.reason?.message?.includes('Failed to fetch') ||
+    event.reason?.message?.includes('TypeError: fetch') ||
+    event.reason?.message?.includes('API_UNAVAILABLE') ||
+    (event.reason instanceof TypeError && event.reason.message.includes('fetch'))
+  ) {
+    logger.debug(
+      'API connectivity issue (non-critical)',
+      { message: event.reason?.message },
+      'Bootstrap'
+    );
     event.preventDefault();
     return;
   }
@@ -104,3 +135,9 @@ root.render(
     <AppStreamlined />
   </React.StrictMode>
 );
+
+// Sentry.init({
+//   dsn: 'https://examplePublicKey@o0.ingest.sentry.io/0', // Replace with your Sentry DSN
+//   integrations: [new BrowserTracing()],
+//   tracesSampleRate: 1.0,
+// });

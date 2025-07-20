@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Filter, X, ChevronDown } from 'lucide-react';
+import { ChevronDown, Filter, X } from 'lucide-react';
+import React, { useState } from 'react';
 
 export interface FilterOption {
   value: string;
@@ -158,8 +158,11 @@ export const BettingFilters: React.FC<BettingFiltersProps> = ({
       <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
         {/* Sport Filter */}
         <div>
-          <label className='block text-sm font-medium text-gray-300 mb-2'>Sport</label>
+          <label htmlFor='filter-sport' className='block text-sm font-medium text-gray-300 mb-2'>
+            Sport
+          </label>
           <select
+            id='filter-sport'
             value={filters.sport}
             onChange={e => handleFilterChange('sport', e.target.value)}
             className='w-full px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:border-cyan-400'
@@ -174,8 +177,11 @@ export const BettingFilters: React.FC<BettingFiltersProps> = ({
 
         {/* Market Filter */}
         <div>
-          <label className='block text-sm font-medium text-gray-300 mb-2'>Market</label>
+          <label htmlFor='filter-market' className='block text-sm font-medium text-gray-300 mb-2'>
+            Market
+          </label>
           <select
+            id='filter-market'
             value={filters.market}
             onChange={e => handleFilterChange('market', e.target.value)}
             className='w-full px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:border-cyan-400'
@@ -190,8 +196,14 @@ export const BettingFilters: React.FC<BettingFiltersProps> = ({
 
         {/* Time Range Filter */}
         <div>
-          <label className='block text-sm font-medium text-gray-300 mb-2'>Time Range</label>
+          <label
+            htmlFor='filter-time-range'
+            className='block text-sm font-medium text-gray-300 mb-2'
+          >
+            Time Range
+          </label>
           <select
+            id='filter-time-range'
             value={filters.timeRange}
             onChange={e => handleFilterChange('timeRange', e.target.value)}
             className='w-full px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:border-cyan-400'
@@ -219,8 +231,14 @@ export const BettingFilters: React.FC<BettingFiltersProps> = ({
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
             {/* Odds Range */}
             <div>
-              <label className='block text-sm font-medium text-gray-300 mb-2'>Min Odds</label>
+              <label
+                htmlFor='filter-min-odds'
+                className='block text-sm font-medium text-gray-300 mb-2'
+              >
+                Min Odds
+              </label>
               <input
+                id='filter-min-odds'
                 type='number'
                 step='0.01'
                 placeholder='1.50'
@@ -236,8 +254,14 @@ export const BettingFilters: React.FC<BettingFiltersProps> = ({
             </div>
 
             <div>
-              <label className='block text-sm font-medium text-gray-300 mb-2'>Max Odds</label>
+              <label
+                htmlFor='filter-max-odds'
+                className='block text-sm font-medium text-gray-300 mb-2'
+              >
+                Max Odds
+              </label>
               <input
+                id='filter-max-odds'
                 type='number'
                 step='0.01'
                 placeholder='5.00'
@@ -254,10 +278,14 @@ export const BettingFilters: React.FC<BettingFiltersProps> = ({
 
             {/* Confidence */}
             <div>
-              <label className='block text-sm font-medium text-gray-300 mb-2'>
+              <label
+                htmlFor='filter-min-confidence'
+                className='block text-sm font-medium text-gray-300 mb-2'
+              >
                 Min Confidence ({filters.minConfidence}%)
               </label>
               <input
+                id='filter-min-confidence'
                 type='range'
                 min='0'
                 max='100'
@@ -269,8 +297,14 @@ export const BettingFilters: React.FC<BettingFiltersProps> = ({
 
             {/* Status */}
             <div>
-              <label className='block text-sm font-medium text-gray-300 mb-2'>Status</label>
+              <label
+                htmlFor='filter-status'
+                className='block text-sm font-medium text-gray-300 mb-2'
+              >
+                Status
+              </label>
               <select
+                id='filter-status'
                 value={filters.status || 'all'}
                 onChange={e => handleFilterChange('status', e.target.value)}
                 className='w-full px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:border-cyan-400'

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { backendDiscovery } from '../services/backendDiscovery';
+import { discoverBackend } from '../services/backendDiscovery';
 import {
   LineupEntry,
   OptimizedLineup,
@@ -89,7 +89,8 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
     setLoadingAiExplanation(true);
     try {
       // Use sophisticated PropOllama AI explanation endpoint
-      const backendUrl = await backendDiscovery.getBackendUrl();
+      const backendUrl = await discoverBackend();
+      if (!backendUrl) throw new Error('No backend discovered');
       const aiApiUrl = `${backendUrl}/api/propollama/chat`;
       console.log('🤖 [DEBUG] Fetching AI explanation from sophisticated PropOllama:', aiApiUrl);
 

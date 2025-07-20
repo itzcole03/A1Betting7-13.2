@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
-import { backendDiscovery } from '../services/backendDiscovery';
+import { discoverBackend } from '../services/backendDiscovery';
 
 console.log('[DEBUG] PropOllamaUnified.tsx loaded at', new Date().toISOString());
 
@@ -24,46 +24,6 @@ interface BestBet {
   reasoning: string;
   expected_value: number;
 }
-
-// Mock data for demo mode when backend is unavailable
-const getMockBestBets = (): BestBet[] => [
-  {
-    id: 'mock-1',
-    player_name: 'LeBron James',
-    sport: 'Basketball',
-    stat_type: 'Points',
-    line: 25.5,
-    recommendation: 'OVER',
-    confidence: 87,
-    reasoning:
-      'LeBron has scored over 25.5 points in 8 of his last 10 games. Lakers playing at home against a defensively weak opponent.',
-    expected_value: 1.45,
-  },
-  {
-    id: 'mock-2',
-    player_name: 'Connor McDavid',
-    sport: 'Hockey',
-    stat_type: 'Points',
-    line: 1.5,
-    recommendation: 'OVER',
-    confidence: 82,
-    reasoning:
-      'McDavid has recorded multiple points in 7 of last 8 games. Oilers power play has been excellent this season.',
-    expected_value: 1.32,
-  },
-  {
-    id: 'mock-3',
-    player_name: 'Lamar Jackson',
-    sport: 'Football',
-    stat_type: 'Passing Yards',
-    line: 245.5,
-    recommendation: 'OVER',
-    confidence: 79,
-    reasoning:
-      'Ravens facing a secondary that allows 270+ passing yards per game. Jackson has exceeded this line in 6 of last 8 games.',
-    expected_value: 1.28,
-  },
-];
 
 interface PropOllamaUnifiedProps {
   variant?: 'standard' | 'cyber';
@@ -101,7 +61,7 @@ const PropOllamaUnified: React.FC<PropOllamaUnifiedProps> = ({
     const fetchHealth = async () => {
       try {
         const backendUrl = (await Promise.race([
-          backendDiscovery.getBackendUrl(),
+          discoverBackend(),
           new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Discovery timeout')), 3000)
           ),
@@ -138,7 +98,7 @@ const PropOllamaUnified: React.FC<PropOllamaUnifiedProps> = ({
     setIsRefreshing(true);
     try {
       const backendUrl = (await Promise.race([
-        backendDiscovery.getBackendUrl(),
+        discoverBackend(),
         new Promise((_, reject) => setTimeout(() => reject(new Error('Discovery timeout')), 3000)),
       ])) as string;
 
@@ -154,15 +114,13 @@ const PropOllamaUnified: React.FC<PropOllamaUnifiedProps> = ({
         setBestBets(sortedBets);
         setLastRefresh(new Date());
       } else {
-        console.log('Failed to fetch best bets (expected in demo mode):', response.status);
-        // Load mock data in demo mode
-        setBestBets(getMockBestBets());
+        console.log('Failed to fetch best bets:', response.status);
+        setBestBets([]);
         setLastRefresh(new Date());
       }
     } catch (error) {
-      console.log('Error fetching best bets (expected in demo mode):', error);
-      // Load mock data in demo mode
-      setBestBets(getMockBestBets());
+      console.log('Error fetching best bets:', error);
+      setBestBets([]);
       setLastRefresh(new Date());
     } finally {
       setIsRefreshing(false);
@@ -170,12 +128,13 @@ const PropOllamaUnified: React.FC<PropOllamaUnifiedProps> = ({
   };
 
   const handleSendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+    const trimmed = typeof input === 'string' ? input.trim() : '';
+    if (!trimmed || isLoading) return;
 
     const userMessage: PropOllamaMessage = {
       id: Date.now().toString(),
       type: 'user',
-      content: input,
+      content: trimmed,
       timestamp: new Date(),
     };
 
@@ -184,18 +143,21 @@ const PropOllamaUnified: React.FC<PropOllamaUnifiedProps> = ({
     setIsLoading(true);
 
     try {
-      const backendUrl = await backendDiscovery.getBackendUrl();
-      const response = await fetch(`${backendUrl}/api/propollama/chat`, {
+      const backendUrl = await discoverBackend();
+      if (!backendUrl) throw new Error('No backend discovered');
+      const aiApiUrl = `${backendUrl}/api/propollama/chat`;
+      const payload = {
+        message: trimmed,
+        analysisType: 'comprehensive',
+        includeWebResearch: true,
+        requestBestBets:
+          trimmed.toLowerCase().includes('best bets') ||
+          trimmed.toLowerCase().includes('recommendations'),
+      };
+      const response = await fetch(`${aiApiUrl}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: input,
-          analysisType: 'comprehensive',
-          includeWebResearch: true,
-          requestBestBets:
-            input.toLowerCase().includes('best bets') ||
-            input.toLowerCase().includes('recommendations'),
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -272,8 +234,8 @@ const PropOllamaUnified: React.FC<PropOllamaUnifiedProps> = ({
               scraperHealth.is_healthy
                 ? 'bg-green-900/90 text-green-200 border-green-400/30'
                 : scraperHealth.is_stale
-                  ? 'bg-yellow-900/90 text-yellow-200 border-yellow-400/30'
-                  : 'bg-red-900/90 text-red-200 border-red-400/30'
+                ? 'bg-yellow-900/90 text-yellow-200 border-yellow-400/30'
+                : 'bg-red-900/90 text-red-200 border-red-400/30'
             }`}
             style={{ minHeight: '36px' }}
           >
@@ -390,8 +352,8 @@ const PropOllamaUnified: React.FC<PropOllamaUnifiedProps> = ({
                               message.confidence >= 80
                                 ? 'bg-green-400/20 text-green-400'
                                 : message.confidence >= 65
-                                  ? 'bg-yellow-400/20 text-yellow-400'
-                                  : 'bg-red-400/20 text-red-400'
+                                ? 'bg-yellow-400/20 text-yellow-400'
+                                : 'bg-red-400/20 text-red-400'
                             }`}
                           >
                             {message.confidence}%
@@ -462,7 +424,7 @@ const PropOllamaUnified: React.FC<PropOllamaUnifiedProps> = ({
             />
             <button
               onClick={handleSendMessage}
-              disabled={!input.trim() || isLoading}
+              disabled={isLoading || typeof input !== 'string' || !input.trim()}
               className='px-6 py-3 rounded-lg font-medium bg-gradient-to-r from-cyan-400 to-blue-500 text-black hover:from-cyan-300 hover:to-blue-400 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed'
             >
               {isLoading ? 'Analyzing...' : 'Send'}
@@ -534,8 +496,8 @@ const BestBetCard: React.FC<BestBetCardProps> = ({ bet, index }) => {
     bet.confidence >= 80
       ? 'bg-green-400 text-green-900'
       : bet.confidence >= 65
-        ? 'bg-yellow-400 text-yellow-900'
-        : 'bg-red-400 text-red-100';
+      ? 'bg-yellow-400 text-yellow-900'
+      : 'bg-red-400 text-red-100';
   const barColor =
     bet.confidence >= 80 ? 'bg-green-400' : bet.confidence >= 65 ? 'bg-yellow-400' : 'bg-red-400';
   return (
@@ -561,7 +523,11 @@ const BestBetCard: React.FC<BestBetCardProps> = ({ bet, index }) => {
         <span className='text-sm text-cyan-300 mr-2'>{bet.stat_type}:</span>
         <span className='text-cyan-100 font-semibold mr-2'>{bet.line}</span>
         <span
-          className={`px-2 py-0.5 rounded text-xs font-semibold ${bet.recommendation === 'OVER' ? 'bg-green-400/20 text-green-400' : 'bg-red-400/20 text-red-400'}`}
+          className={`px-2 py-0.5 rounded text-xs font-semibold ${
+            bet.recommendation === 'OVER'
+              ? 'bg-green-400/20 text-green-400'
+              : 'bg-red-400/20 text-red-400'
+          }`}
           aria-label={`Recommendation: ${bet.recommendation}`}
         >
           {bet.recommendation}

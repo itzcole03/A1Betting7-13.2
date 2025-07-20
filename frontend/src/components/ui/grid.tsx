@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import React, { ReactNode } from 'react';
 
 export interface GridProps {
   children: ReactNode;
@@ -430,7 +430,7 @@ export const GridItem: React.FC<GridItemProps> = ({
   }
 
   return (
-    <div className={baseClasses} style={itemStyle} onClick={onClick}>
+    <div className={baseClasses} style={itemStyle} onClick={onClick} role='button' tabIndex={0}>
       {/* Cyber grid overlay for cyber variant */}
       {variant === 'cyber' && (
         <div className='absolute inset-0 opacity-10 pointer-events-none'>
