@@ -55,16 +55,21 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className={`w-full ${className}`}>
       {(label || showPercentage) && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex justify-between items-center mb-2'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {label && <span className='text-sm font-medium text-gray-300'>{label}</span>}
           {showPercentage && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span className='text-sm text-gray-400'>{Math.round(percentage)}%</span>
           )}
         </div>
       )}
 
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className={`w-full rounded-full overflow-hidden ${sizeClasses[size]}`}
         style={{ backgroundColor }}
@@ -74,6 +79,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
         aria-valuemax={max}
         aria-label={label || `Progress: ${Math.round(percentage)}%`}
       >
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.div
           className='h-full rounded-full'
           style={{ backgroundColor: color }}

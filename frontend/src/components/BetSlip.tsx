@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+// @ts-expect-error TS(6142): Module './Button' was resolved to 'C:/Users/bcmad/... Remove this comment to see the full error message
 import { Button } from './Button';
+// @ts-expect-error TS(6142): Module './Card' was resolved to 'C:/Users/bcmad/Do... Remove this comment to see the full error message
 import { Card, CardContent, CardFooter, CardHeader } from './Card';
 
 interface BetSlipProps {
@@ -41,16 +43,24 @@ export const BetSlip: React.FC<BetSlipProps> = ({ onSubmit, className = '' }) =>
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <Card className={`max-w-md mx-auto ${className}`}>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <CardHeader>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <h2 className='text-lg font-bold text-white'>Bet Slip</h2>
       </CardHeader>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <form onSubmit={handleSubmit}>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <CardContent className='space-y-4'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <label htmlFor='bet-selection' className='block text-sm font-medium text-gray-300 mb-1'>
               Selection
             </label>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               id='bet-selection'
               type='text'
@@ -61,10 +71,13 @@ export const BetSlip: React.FC<BetSlipProps> = ({ onSubmit, className = '' }) =>
               required
             />
           </div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <label htmlFor='bet-amount' className='block text-sm font-medium text-gray-300 mb-1'>
               Amount ($)
             </label>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               id='bet-amount'
               type='number'
@@ -75,9 +88,12 @@ export const BetSlip: React.FC<BetSlipProps> = ({ onSubmit, className = '' }) =>
               required
             />
           </div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {error && <div className='text-red-500 text-sm'>{error}</div>}
         </CardContent>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <CardFooter>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <Button type='submit' variant='primary' isLoading={isSubmitting} className='w-full'>
             Place Bet
           </Button>

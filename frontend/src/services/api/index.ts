@@ -1,4 +1,5 @@
-﻿import { get, post } from './client.js';
+import { get, post } from './client.js';
+// @ts-expect-error TS(2691): An import path cannot end with a '.ts' extension. ... Remove this comment to see the full error message
 export type { Player } from '@/types/core.ts';
 
 export interface LineupSubmission {

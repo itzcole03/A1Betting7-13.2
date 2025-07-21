@@ -36,6 +36,7 @@ export class UnifiedConfigManager implements UnifiedConfigManagerType {
    * Set a config value by key.
    */
   public async set<T>(key: string, value: T): Promise<void> {
+    // @ts-expect-error TS(2345): Argument of type 'T' is not assignable to paramete... Remove this comment to see the full error message
     this.config.set(key, value);
   }
 

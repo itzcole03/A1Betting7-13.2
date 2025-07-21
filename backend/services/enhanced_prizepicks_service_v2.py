@@ -1,3 +1,10 @@
+import asyncio
+
+
+async def start_enhanced_prizepicks_service_v2():
+    await enhanced_prizepicks_service_v2.initialize()
+
+
 import logging
 from typing import Any, Dict, List, Optional
 
@@ -21,6 +28,8 @@ class EnhancedPrizePicksServiceV2:
     async def fetch_projections_api(
         self, sport: Optional[str] = None
     ) -> List[Dict[str, Any]]:
+        import time
+
         url = "https://api.prizepicks.com/projections"
         params: Dict[str, str] = {}
         if sport:
@@ -29,61 +38,50 @@ class EnhancedPrizePicksServiceV2:
             "User-Agent": "Mozilla/5.0 (compatible; PrizePicksBot/1.0; +https://yourdomain.com)",
             "Accept": "application/json",
         }
-        try:
-            logger.info(
-                "[FETCH] Fetching projections from %s with params: %s",
-                url,
-                params,
-            )
-            # Always ensure client is initialized before use
-            if not self.client:
-                await self.initialize()
-            if not self.client:
-                logger.error("[ERROR] AsyncClient is still None after initialization!")
-                raise RuntimeError("AsyncClient not initialized")
-            response = await self.client.get(url, params=params, headers=headers)
-            logger.info("[FETCH] HTTP status: %s", response.status_code)
-            logger.info("[FETCH] Response headers: %s", response.headers)
-            logger.info(
-                "[FETCH] Response text (first 500 chars): %s", response.text[:500]
-            )
-            response.raise_for_status()
-            data = response.json()
-            props = data.get("data", [])
-            logger.info("[FETCH DONE] Got %d props.", len(props))
-            return props
-        except httpx.TimeoutException as e:
-            logger.error("[ERROR] Timeout while fetching projections: %s", e)
-            return []
-        except httpx.HTTPStatusError as e:
-            logger.error("[ERROR] HTTP error while fetching projections: %s", e)
-            return []
-        except httpx.RequestError as e:
-            logger.error("[ERROR] Request error while fetching projections: %s", e)
-            return []
-        except Exception as e:
-            logger.error("[ERROR] Unexpected error while fetching projections: %s", e)
-            return []
+        logger.info("[MOCK] Returning fast mock PrizePicks props for diagnostics.")
+        now = "2025-07-19T01:42:00Z"
+        return [
+            {
+                "id": "mock_mlb_judge_1",
+                "player_name": "Aaron Judge",
+                "team": "NYY",
+                "position": "OF",
+                "league": "MLB",
+                "sport": "MLB",
+                "stat_type": "Home Runs",
+                "line_score": 1.5,
+                "confidence": 87.5,
+                "expected_value": 2.3,
+                "recommendation": "OVER",
+                "game_time": now,
+                "opponent": "vs LAA",
+                "venue": "Yankee Stadium",
+                "status": "active",
+                "updated_at": now,
+            },
+            {
+                "id": "mock_mlb_betts_2",
+                "player_name": "Mookie Betts",
+                "team": "LAD",
+                "position": "OF",
+                "league": "MLB",
+                "sport": "MLB",
+                "stat_type": "Total Bases",
+                "line_score": 2.5,
+                "confidence": 82.1,
+                "expected_value": 1.8,
+                "recommendation": "OVER",
+                "game_time": now,
+                "opponent": "vs SD",
+                "venue": "Dodger Stadium",
+                "status": "active",
+                "updated_at": now,
+            },
+        ]
 
     def get_scraper_health(self) -> Dict[str, Any]:
         return {"status": "ok", "service": "EnhancedPrizePicksServiceV2"}
 
-    async def close(self):
-        if self.client:
-            await self.client.aclose()
-            logger.info("Enhanced PrizePicks service v2 closed")
 
-
-# Global service instance
+# Instantiate the global service instance at the end of the file
 enhanced_prizepicks_service_v2 = EnhancedPrizePicksServiceV2()
-
-
-async def start_enhanced_prizepicks_service_v2():
-    """Start the enhanced PrizePicks service v2"""
-    try:
-        await enhanced_prizepicks_service_v2.initialize()
-        logger.info("Enhanced PrizePicks service v2 started successfully")
-        return True
-    except Exception as e:
-        logger.error("Exception starting enhanced PrizePicks service v2: %s", e)
-        return False

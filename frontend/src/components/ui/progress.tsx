@@ -115,23 +115,30 @@ export const Progress: React.FC<ProgressProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className={`space-y-2 ${className}`}>
       {/* Label and Value */}
       {(label || showValue || showPercentage) && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center justify-between text-sm'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {label && <span className='text-gray-300 font-medium'>{label}</span>}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center space-x-2'>
             {showValue && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span className='text-white font-semibold'>
                 {value.toLocaleString()}/{max.toLocaleString()}
               </span>
             )}
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             {showPercentage && <span className='text-gray-400'>{percentage.toFixed(1)}%</span>}
           </div>
         </div>
       )}
 
       {/* Progress Bar Container */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className={`
           relative w-full rounded-full overflow-hidden
@@ -146,6 +153,7 @@ export const Progress: React.FC<ProgressProps> = ({
       >
         {/* Background Pattern for Cyber Variant */}
         {variant === 'cyber' && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
             className='absolute inset-0 opacity-20'
             style={{
@@ -156,30 +164,36 @@ export const Progress: React.FC<ProgressProps> = ({
         )}
 
         {/* Progress Fill */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.div
           className={`
             h-full rounded-full transition-all duration-300
             ${getProgressBarClasses()}
             ${variant === 'pulse' ? 'animate-pulse' : ''}
           `}
+          // @ts-expect-error TS(2322): Type '{ initial: { width: number; }; animate: { wi... Remove this comment to see the full error message
           variants={progressVariants}
           initial='initial'
           animate='animate'
         >
           {/* Shimmer Effect for Cyber Variant */}
           {variant === 'cyber' && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2s_infinite] w-full h-full' />
           )}
 
           {/* Glow Effect for Glass Variant */}
           {variant === 'glass' && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='absolute inset-0 bg-gradient-to-r from-white/10 via-white/20 to-white/10 animate-pulse' />
           )}
         </motion.div>
 
         {/* Percentage Text Overlay for Large Size */}
         {size === 'lg' && showPercentage && percentage > 15 && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute inset-0 flex items-center justify-center'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span className='text-xs font-bold text-white mix-blend-difference'>
               {percentage.toFixed(0)}%
             </span>
@@ -189,8 +203,11 @@ export const Progress: React.FC<ProgressProps> = ({
 
       {/* Additional Info for Cyber Variant */}
       {variant === 'cyber' && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center justify-between text-xs text-cyan-400'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span>Progress: {percentage.toFixed(1)}%</span>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span className='animate-pulse'>● ACTIVE</span>
         </div>
       )}

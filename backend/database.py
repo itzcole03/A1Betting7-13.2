@@ -14,8 +14,9 @@ engine = create_engine(DATABASE_URL)
 # Create session
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base class for models
-Base = declarative_base()
+
+from backend.models.base import Base
+from backend.models.user import User  # Ensure User model is registered for Alembic
 
 
 # Dependency to get database session

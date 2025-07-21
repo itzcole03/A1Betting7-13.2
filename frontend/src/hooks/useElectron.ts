@@ -32,6 +32,7 @@ export const useElectron = () => {
   }, []);
 
   const showSaveDialog = useCallback(
+    // @ts-expect-error TS(2503): Cannot find namespace 'Electron'.
     async (options: Electron.SaveDialogOptions) => {
       if (!isElectron) return null;
       return await window.electronAPI.showSaveDialog(options);
@@ -40,6 +41,7 @@ export const useElectron = () => {
   );
 
   const showOpenDialog = useCallback(
+    // @ts-expect-error TS(2503): Cannot find namespace 'Electron'.
     async (options: Electron.OpenDialogOptions) => {
       if (!isElectron) return null;
       return await window.electronAPI.showOpenDialog(options);
@@ -48,6 +50,7 @@ export const useElectron = () => {
   );
 
   const showMessageBox = useCallback(
+    // @ts-expect-error TS(2503): Cannot find namespace 'Electron'.
     async (options: Electron.MessageBoxOptions) => {
       if (!isElectron) return null;
       return await window.electronAPI.showMessageBox(options);

@@ -29,6 +29,7 @@ const ResetPasswordPage: React.FC = () => {
     }
     setLoading(true);
     try {
+      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
       const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -49,28 +50,38 @@ const ResetPasswordPage: React.FC = () => {
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='max-w-md w-full space-y-8'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900'>
             Reset Your Password
           </h2>
         </div>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
           {error && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded'>
               {error}
             </div>
           )}
           {success && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded'>
               {success}
             </div>
           )}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <label htmlFor='new-password' className='block text-sm font-medium text-gray-700'>
               New Password
             </label>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               id='new-password'
               name='new-password'
@@ -83,10 +94,13 @@ const ResetPasswordPage: React.FC = () => {
               disabled={loading}
             />
           </div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <label htmlFor='confirm-password' className='block text-sm font-medium text-gray-700'>
               Confirm Password
             </label>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               id='confirm-password'
               name='confirm-password'
@@ -99,7 +113,9 @@ const ResetPasswordPage: React.FC = () => {
               disabled={loading}
             />
           </div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <button
               type='submit'
               disabled={loading}

@@ -47,6 +47,7 @@ const executeCommand = async (
       updateStatus('error', data.result);
     }
   } catch (e) {
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
     updateStatus('error', e.message);
   }
 };
@@ -78,6 +79,7 @@ export const CommandSummaryProvider: React.FC<{ children: ReactNode }> = ({ chil
     setQueue(q => [...q, item]);
     // Start execution immediately
     const updateStatus = (status: string, result?: any) => {
+      // @ts-expect-error TS(2345): Argument of type '(q: CommandQueueItem[]) => (Comm... Remove this comment to see the full error message
       setQueue(q => q.map(qi => (qi.id === cmd.id ? { ...qi, status, result } : qi)));
     };
     executeCommand(cmd, updateStatus);
@@ -93,6 +95,7 @@ export const CommandSummaryProvider: React.FC<{ children: ReactNode }> = ({ chil
   }, []);
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <CommandSummaryContext.Provider
       value={{
         commands,

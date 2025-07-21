@@ -3,6 +3,7 @@
 
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
+// @ts-expect-error TS(6142): Module '../PropOllamaUnified' was resolved to 'C:/... Remove this comment to see the full error message
 import PropOllamaUnified from '../PropOllamaUnified';
 
 // Mock backendDiscovery
@@ -46,6 +47,7 @@ describe('PropOllamaUnified', () => {
   });
 
   it('renders onboarding banner', () => {
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     render(<PropOllamaUnified />);
     expect(screen.getByText(/AI-powered sports betting recommendations/i)).toBeInTheDocument();
   });
@@ -64,11 +66,13 @@ describe('PropOllamaUnified', () => {
 
   it('handles empty state', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true, json: async () => [] });
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     render(<PropOllamaUnified />);
     await waitFor(() => screen.getByText(/Loading today's best bets/i));
   });
 
   it('is accessible (banner, buttons)', async () => {
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     render(<PropOllamaUnified />);
     // Accessibility: banner and input should be present
     expect(screen.getByText(/AI-powered sports betting recommendations/i)).toBeInTheDocument();

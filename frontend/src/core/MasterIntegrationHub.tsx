@@ -5,19 +5,25 @@ import { useAnalytics } from '../hooks/useAnalytics';
 import { useBettingAnalytics } from '../hooks/useBettingAnalytics';
 import { useEnhancedBettingEngine } from '../hooks/useEnhancedBettingEngine';
 import { useEnhancedRealDataSources } from '../hooks/useEnhancedRealDataSources';
+// @ts-expect-error TS(2306): File 'C:/Users/bcmad/Downloads/A1Betting7-13.2/fro... Remove this comment to see the full error message
 import { useMLAnalytics } from '../hooks/useMLAnalytics';
 import { useUnifiedAnalytics } from '../hooks/useUnifiedAnalytics';
 import { useUnifiedBetting } from '../hooks/useUnifiedBetting';
 import { useRealtimePredictions } from '../hooks/useRealtimePredictions';
 import { useSmartAlerts } from '../hooks/useSmartAlerts';
+// @ts-expect-error TS(2306): File 'C:/Users/bcmad/Downloads/A1Betting7-13.2/fro... Remove this comment to see the full error message
 import { usePerformance } from '../hooks/usePerformance';
+// @ts-expect-error TS(2305): Module '"../hooks/useSpecialistData"' has no expor... Remove this comment to see the full error message
 import { useSpecialistData } from '../hooks/useSpecialistData';
+// @ts-expect-error TS(2305): Module '"../hooks/useQuantumPredictions"' has no e... Remove this comment to see the full error message
 import { useQuantumPredictions } from '../hooks/useQuantumPredictions';
+// @ts-expect-error TS(2306): File 'C:/Users/bcmad/Downloads/A1Betting7-13.2/fro... Remove this comment to see the full error message
 import { useUltraMLAnalytics } from '../hooks/useUltraMLAnalytics';
 
 // Import unified services
 import { injuryService } from '../services/injuryService';
 import { lineupService } from '../services/lineupService';
+// @ts-expect-error TS(2614): Module '"../services/unified/ApiService"' has no e... Remove this comment to see the full error message
 import { ApiService } from '../services/unified/ApiService';
 import { UnifiedAnalyticsService } from '../services/unified/UnifiedAnalyticsService';
 import { UnifiedBettingService } from '../services/unified/UnifiedBettingService';
@@ -26,6 +32,7 @@ import { UnifiedPredictionService } from '../services/unified/UnifiedPredictionS
 
 // Import all sports and theme configurations
 import { SPORTS_CONFIG, getAllSports, getActiveSports } from '../constants/sports';
+// @ts-expect-error TS(2305): Module '"../theme"' has no exported member 'THEMES... Remove this comment to see the full error message
 import { THEMES, getThemeById, applyCSSVariables } from '../theme';
 
 interface MasterIntegrationState {
@@ -124,9 +131,13 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
 }) => {
   const [state, setState] = useState<MasterIntegrationState>({
     dataServices: {
+      // @ts-expect-error TS(2554): Expected 1 arguments, but got 0.
       analytics: new UnifiedAnalyticsService(),
+      // @ts-expect-error TS(2674): Constructor of class 'UnifiedBettingService' is pr... Remove this comment to see the full error message
       betting: new UnifiedBettingService(),
+      // @ts-expect-error TS(2674): Constructor of class 'UnifiedDataService' is prote... Remove this comment to see the full error message
       data: new UnifiedDataService(),
+      // @ts-expect-error TS(2674): Constructor of class 'UnifiedPredictionService' is... Remove this comment to see the full error message
       predictions: new UnifiedPredictionService(),
       api: new ApiService(),
     },
@@ -248,6 +259,7 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
       // Load initial data from all sources
       const [injuries, opportunities, predictions] = await Promise.all([
         injuryService.getInjuries(),
+        // @ts-expect-error TS(2339): Property 'opportunities' does not exist on type '{... Remove this comment to see the full error message
         enhancedBetting.opportunities || [],
         realtimePredictions.predictions || [],
       ]);
@@ -407,6 +419,7 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
       const [latestPredictions, latestOpportunities, latestAlerts, latestInjuries] =
         await Promise.all([
           realtimePredictions.predictions || [],
+          // @ts-expect-error TS(2339): Property 'opportunities' does not exist on type '{... Remove this comment to see the full error message
           enhancedBetting.opportunities || [],
           smartAlerts.alerts || [],
           injuryService.getInjuries(),
@@ -504,8 +517,11 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
     try {
       // Optimize all systems
       await Promise.all([
+        // @ts-expect-error TS(2339): Property 'optimize' does not exist on type 'Unifie... Remove this comment to see the full error message
         state.dataServices.analytics.optimize?.(),
+        // @ts-expect-error TS(2339): Property 'optimize' does not exist on type 'Unifie... Remove this comment to see the full error message
         state.dataServices.betting.optimize?.(),
+        // @ts-expect-error TS(2339): Property 'optimize' does not exist on type 'Unifie... Remove this comment to see the full error message
         state.dataServices.predictions.optimize?.(),
       ]);
 
@@ -539,6 +555,7 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <MasterIntegrationContext.Provider value={contextValue}>
       {children}
     </MasterIntegrationContext.Provider>

@@ -46,6 +46,7 @@ const logger = {
  */
 export const LoggerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const log = (msg: string, level: LoggerLevel = 'info') => logger.log(msg, level);
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   return <LoggerContext.Provider value={{ logger, log }}>{children}</LoggerContext.Provider>;
 };
 

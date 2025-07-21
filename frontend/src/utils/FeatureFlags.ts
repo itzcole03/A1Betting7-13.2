@@ -1,5 +1,8 @@
-﻿import { UnifiedConfigManager } from '@/core/UnifiedConfigManager';
+// @ts-expect-error TS(2307): Cannot find module '@/core/UnifiedConfigManager' o... Remove this comment to see the full error message
+import { UnifiedConfigManager } from '@/core/UnifiedConfigManager';
+// @ts-expect-error TS(2307): Cannot find module '@/core/UnifiedMonitor' or its ... Remove this comment to see the full error message
 import { UnifiedMonitor } from '@/core/UnifiedMonitor';
+// @ts-expect-error TS(2307): Cannot find module '@/unified/EventBus' or its cor... Remove this comment to see the full error message
 import { EventBus } from '@/unified/EventBus';
 
 export interface Feature {

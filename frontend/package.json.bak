@@ -1,0 +1,177 @@
+{
+  "name": "frontend",
+  "description": "A1Betting - Real-Time Sports Intelligence Platform",
+  "author": "A1Betting",
+  "private": true,
+  "version": "1.0.0",
+  "main": "public/main.js",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 8173",
+    "dev:safe": "cross-env DISABLE_CONSOLE_NINJA=true vite --host 0.0.0.0 --port 8173",
+    "dev:minimal": "vite --config vite.config.minimal.ts --host 0.0.0.0 --port 8173",
+    "dev:streamlined": "vite --config vite.config.streamlined.ts --host 0.0.0.0 --port 8173",
+    "build": "vite build --mode production",
+    "build:no-ts": "vite build --config vite.config.minimal.ts --mode production",
+    "build:electron": "npm run build && npm run electron:build",
+    "electron": "cross-env NODE_ENV=development electron .",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:8173 && electron .\"",
+    "electron:build": "electron-builder && node ./scripts/postbuild-copy-package-json.js",
+    "electron:pack": "electron-builder --dir",
+    "electron:dist": "npm run build && electron-builder",
+    "postinstall": "electron-builder install-app-deps",
+    "lint": "eslint --ext .ts,.tsx,.js,.jsx src/",
+    "type-check": "tsc --noEmit",
+    "preview": "vite preview --host 0.0.0.0 --port 8173",
+    "test": "jest --coverage --silent",
+    "test:watch": "jest --watch",
+    "test:debug": "jest --no-coverage --verbose",
+    "test:ci": "jest --coverage --ci --watchAll=false",
+    "test:optimization": "jest --testPathPattern=optimization.test"
+  },
+  "dependencies": {
+    "@builder.io/react": "^8.2.6",
+    "@chakra-ui/react": "^3.21.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mantine/core": "^8.1.3",
+    "@mantine/hooks": "^8.1.3",
+    "@mui/material": "^7.1.1",
+    "@opentelemetry/api": "^1.8.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.203.0",
+    "@opentelemetry/instrumentation": "^0.203.0",
+    "@opentelemetry/instrumentation-fetch": "^0.41.2",
+    "@opentelemetry/sdk-trace-web": "^2.0.1",
+    "@tanstack/react-query": "^5.0.0",
+    "@tensorflow/tfjs-node": "^4.22.0",
+    "@types/chart.js": "^2.9.41",
+    "@types/reflect-metadata": "^0.1.0",
+    "@vitejs/plugin-react": "^4.6.0",
+    "@vitest/ui": "^3.2.4",
+    "a1betting-app": "file:..",
+    "axios": "^1.10.0",
+    "bottleneck": "^2.19.5",
+    "chart.js": "^4.4.9",
+    "clsx": "^2.1.1",
+    "concurrently": "^9.2.0",
+    "cross-env": "^7.0.3",
+    "date-fns": "^4.1.0",
+    "eventemitter3": "^5.0.1",
+    "framer-motion": "^12.23.6",
+    "lucide-react": "^0.515.0",
+    "onnxruntime-node": "^1.22.0-rev",
+    "rate-limiter-flexible": "^7.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-error-boundary": "^6.0.0",
+    "react-hot-toast": "^2.5.2",
+    "react-router-dom": "^6.30.1",
+    "react-toastify": "^11.0.5",
+    "reflect-metadata": "^0.2.2",
+    "tailwind-merge": "^3.3.1",
+    "vitest": "^3.2.4",
+    "zod": "^3.25.61",
+    "zustand": "^5.0.5",
+    
+    "appId": "com.a1betting.app",
+    "productName": "A1Betting",
+    "directories": {
+      "output": "electron-dist"
+    },
+    "files": [
+      "dist/**/*",
+      "public/main.js",
+      "public/preload.js",
+      "public/icon.png",
+      "main-sportsbook-api.cjs",
+      "index.js",
+      "knexfile.js",
+      "utils/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/**/*.node"
+    ],
+    "compression": "store",
+    "extraResources": [
+      {
+        "from": "dist",
+        "to": "dist"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.sports",
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Office"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "engines": {},
+  "devDependencies": {
+    "@babel/preset-env": "^7.27.2",
+    "@babel/preset-typescript": "^7.27.1",
+    "@eslint/js": "^9.25.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/axios": "^0.9.36",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.3",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@types/react-router-dom": "^5.3.3",
+    "@typescript-eslint/parser": "^8.34.0",
+    "axios-mock-adapter": "^2.1.0",
+    "babel-jest": "^30.0.4",
+    "electron": "^32.3.3",
+    "electron-builder": "25.0.3",
+    "electron-reload": "^2.0.0-alpha.1",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "glob": "^11.0.3",
+    "globals": "^16.0.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^30.0.4",
+    "jest-canvas-mock": "^2.5.2",
+    "jest-transformer-svg": "^2.1.0",
+    "jsdom": "^26.1.0",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.30.1",
+    "vite": "^6.3.5",
+    "vite-tsconfig-paths": "^5.1.4",
+    "wait-on": "^8.0.3"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest",
+      "^.+\\.jsx?$": "babel-jest"
+    },
+    "moduleNameMapper": {
+      "\\.(css|less|sass|scss)$": "identity-obj-proxy",
+      "^.+\\.svg$": "jest-transformer-svg",
+      "^@/(.*)$": "<rootDir>/src/$1"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "\\.d\\.ts$"
+    ]
+  }
+}

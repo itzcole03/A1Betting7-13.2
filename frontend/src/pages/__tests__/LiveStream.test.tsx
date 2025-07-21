@@ -1,9 +1,8 @@
 // LiveStream.test.tsx
 // Automated tests for live stream page (LiveStream)
 
-import React from 'react';
-import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { render, screen } from '@testing-library/react';
 import LiveStream from '../LiveStream';
 
 describe('LiveStream', () => {

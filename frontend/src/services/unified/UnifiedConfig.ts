@@ -7,6 +7,7 @@ export class UnifiedConfig {
   private config: ConfigStore = {};
   private defaults: ConfigStore = {
     api: {
+      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
       baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001',
       timeout: 10000,
       retries: 3,

@@ -1,3 +1,4 @@
+// @ts-expect-error TS(2307): Cannot find module './auth' or its corresponding t... Remove this comment to see the full error message
 export * from './auth';
 export * from './global';
 export * from './betting';

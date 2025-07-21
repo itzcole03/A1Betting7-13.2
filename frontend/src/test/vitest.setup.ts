@@ -1,5 +1,7 @@
 // Polyfill TextEncoder and TextDecoder for Vitest
+// @ts-expect-error TS(1378): Top-level 'await' expressions are only allowed whe... Remove this comment to see the full error message
 globalThis.TextEncoder = globalThis.TextEncoder || (await import('util')).TextEncoder;
+// @ts-expect-error TS(1378): Top-level 'await' expressions are only allowed whe... Remove this comment to see the full error message
 globalThis.TextDecoder = globalThis.TextDecoder || (await import('util')).TextDecoder;
 
 // Mock localStorage if not present

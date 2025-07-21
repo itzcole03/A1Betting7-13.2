@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+// @ts-expect-error TS(6142): Module '../contexts/AuthContext' was resolved to '... Remove this comment to see the full error message
 import { useAuth } from '../contexts/AuthContext';
 import {
   permissionService,

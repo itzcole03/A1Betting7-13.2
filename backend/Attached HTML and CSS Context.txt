@@ -1,0 +1,970 @@
+Attached HTML and CSS Context
+
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 text-white"><div class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-gradient-to-r from-slate-900/95 via-gray-900/95 to-slate-900/95 border-b border-cyan-500/20 shadow-xl shadow-black/20"><div class="max-w-[1600px] mx-auto px-6 py-4"><div class="flex items-center justify-between"><div class="flex items-center space-x-6"><div class="group flex items-center space-x-3"><div class="relative"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 flex items-center justify-center shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap w-6 h-6 text-white" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg></div><div class="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 opacity-30 blur-md group-hover:opacity-50 transition-opacity duration-300"></div></div><div><h1 class="text-xl font-bold bg-gradient-to-r from-white via-cyan-200 to-blue-200 bg-clip-text text-transparent">A1Betting</h1><p class="text-xs text-slate-400 font-medium">Ultra-Enhanced Platform</p></div></div><div class="hidden md:flex items-center space-x-3"><div class="flex items-center space-x-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-xs font-semibold"><div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div><span>Live</span></div></div></div><div class="flex items-center space-x-2"><button class="group relative flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-cyan-500/20 via-blue-500/15 to-purple-500/20 text-white shadow-lg shadow-cyan-500/25 border border-cyan-400/40"><div class="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/10 to-purple-500/10 animate-pulse"></div><div class="relative flex items-center space-x-3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-target w-5 h-5 transition-colors text-cyan-400" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg><div class="hidden lg:block"><div class="text-sm font-semibold text-white">Locked Bets</div><div class="text-xs text-slate-500 group-hover:text-slate-400">AI-Enhanced Predictions</div></div></div></button><button class="group relative flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 text-slate-300 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-600/50"><div class="relative flex items-center space-x-3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-play w-5 h-5 transition-colors text-slate-400 group-hover:text-slate-300" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg><div class="hidden lg:block"><div class="text-sm font-semibold text-slate-300 group-hover:text-white">Live Stream</div><div class="text-xs text-slate-500 group-hover:text-slate-400">Real-time Data</div></div></div></button><button class="group relative flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 text-slate-300 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-600/50"><div class="relative flex items-center space-x-3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings w-5 h-5 transition-colors text-slate-400 group-hover:text-slate-300" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg><div class="hidden lg:block"><div class="text-sm font-semibold text-slate-300 group-hover:text-white">Settings</div><div class="text-xs text-slate-500 group-hover:text-slate-400">User Preferences</div></div></div></button></div></div></div></div><main class="relative"><div class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5 pointer-events-none"></div><div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.1),transparent_50%)] pointer-events-none"></div><div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(14,165,233,0.1),transparent_50%)] pointer-events-none"></div><div class="relative z-10 min-h-[calc(100vh-80px)] pt-20"><div class="w-full z-50"><div class="bg-emerald-900 text-emerald-200 py-1 px-4 text-sm flex items-center flex-wrap"><span class="mr-2">🟢 Backend Healthy</span></div><div class="bg-gray-900 text-gray-200 py-1 px-4 text-xs flex flex-wrap items-center gap-4"><div class="flex items-center mr-4"><span class="mr-1">🟢</span><span class="font-semibold mr-1">Prizepicks</span><span class="text-emerald-400">Healthy</span><span class="ml-2 text-gray-400">Last updated: 10:40:29 PM</span></div><div class="flex items-center mr-4"><span class="mr-1">🟢</span><span class="font-semibold mr-1">Sportradar</span><span class="text-emerald-400">Healthy</span><span class="ml-2 text-gray-400">Last updated: 10:40:29 PM</span></div><div class="flex items-center mr-4"><span class="mr-1">🟢</span><span class="font-semibold mr-1">Theoddsapi</span><span class="text-emerald-400">Healthy</span><span class="ml-2 text-gray-400">Last updated: 10:40:29 PM</span></div></div></div><div class="enhanced-locked-bets-page"><div class="main-content"></div></div></div></main><div id="_rht_toaster" style="position: fixed; z-index: 9999; inset: 16px; pointer-events: none;"></div></div>
+
+
+/* Matched Rule from user-agent */
+div {
+  display: block;
+}
+
+/* Matched Rule from user-agent */
+address, blockquote, center, div, figure, figcaption, footer, form, header, hr, legend, listing, main, p, plaintext, pre, summary, xmp, article, aside, h1, h2, h3, h4, h5, h6, hgroup, nav, section, search, table, caption, colgroup, col, thead, tbody, tfoot, tr, td, th, dir, dd, dl, dt, menu, ol, ul, li, bdi, output, [dir="ltr" i], [dir="rtl" i], [dir="auto" i] {
+  unicode-bidi: isolate;
+}
+
+/* Matched Rule from regular */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  box-sizing: border-box;
+}
+
+/* Matched Rule from regular */
+* {
+  font-family: var(--font-secondary), system-ui, sans-serif;
+  font-family: var(--font-secondary), system-ui, sans-serif;
+}
+
+/* Matched Rule from regular */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+}
+
+/* Matched Rule from regular */
+* {
+  box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* Matched Rule from regular */
+* {
+  box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* Matched Rule from regular */
+.cyber-text, .mega-text, .universal-text, h1, h2, h3, h4, h5, h6, p, span, div {
+  color: var(--cyber-text-primary);
+  color: var(--cyber-text-primary);
+}
+
+/* Matched Rule from regular */
+div, span, p, h1, h2, h3, h4, h5, h6 {
+  color: inherit !important;
+  color: inherit !important;
+}
+
+/* Matched Rule from regular */
+.text-white {
+  color: #ffffff;
+  color: rgb(255, 255, 255);
+}
+
+/* Matched Rule from regular */
+.min-h-screen {
+  min-height: 100vh;
+  min-height: 100vh;
+}
+
+/* Matched Rule from regular */
+.min-h-screen {
+  min-height: 100vh !important;
+  min-height: 100vh !important;
+}
+
+/* Matched Rule from regular */
+.text-white {
+  color: white !important;
+  color: white !important;
+}
+
+/* Matched Rule from regular */
+.bg-gradient-to-br {
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  background-image: linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(124, 58, 237) 50%, rgb(15, 23, 42) 100%) !important;
+  background-position-x: initial !important;
+  background-position-y: initial !important;
+  background-size: initial !important;
+  background-repeat: initial !important;
+  background-attachment: initial !important;
+  background-origin: initial !important;
+  background-clip: initial !important;
+  background-color: initial !important;
+}
+
+/* Matched Rule from regular */
+.from-slate-900 {
+  --tw-gradient-from: #0f172a !important;
+  --tw-gradient-from: #0f172a !important;
+}
+
+/* Matched Rule from regular */
+.to-slate-900 {
+  --tw-gradient-to: #0f172a !important;
+  --tw-gradient-to: #0f172a !important;
+}
+
+/* Matched Rule from regular */
+.text-white {
+  color: white !important;
+  color: white !important;
+}
+
+/* Inherited from ancestor level 1 (user-agent) */
+div {
+  display: block;
+}
+
+/* Inherited from ancestor level 1 (user-agent) */
+address, blockquote, center, div, figure, figcaption, footer, form, header, hr, legend, listing, main, p, plaintext, pre, summary, xmp, article, aside, h1, h2, h3, h4, h5, h6, hgroup, nav, section, search, table, caption, colgroup, col, thead, tbody, tfoot, tr, td, th, dir, dd, dl, dt, menu, ol, ul, li, bdi, output, [dir="ltr" i], [dir="rtl" i], [dir="auto" i] {
+  unicode-bidi: isolate;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+* {
+  font-family: var(--font-secondary), system-ui, sans-serif;
+  font-family: var(--font-secondary), system-ui, sans-serif;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+* {
+  box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+* {
+  box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+.cyber-text, .mega-text, .universal-text, h1, h2, h3, h4, h5, h6, p, span, div {
+  color: var(--cyber-text-primary);
+  color: var(--cyber-text-primary);
+}
+
+/* Inherited from ancestor level 1 (regular) */
+div, span, p, h1, h2, h3, h4, h5, h6 {
+  color: inherit !important;
+  color: inherit !important;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+#root {
+  min-height: 100vh;
+  width: 100%;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+#root {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+  min-height: 100vh;
+  background-image: linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(124, 58, 237) 50%, rgb(15, 23, 42) 100%) !important;
+  background-position-x: initial !important;
+  background-position-y: initial !important;
+  background-size: initial !important;
+  background-repeat: initial !important;
+  background-attachment: initial !important;
+  background-origin: initial !important;
+  background-clip: initial !important;
+  background-color: initial !important;
+  color: white !important;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+#root {
+  min-height: 100vh;
+  color: #ffffff;
+  min-height: 100vh;
+  color: rgb(255, 255, 255);
+}
+
+/* Inherited from ancestor level 1 (regular) */
+html, body, #root {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  margin-top: 0px !important;
+  margin-right: 0px !important;
+  margin-bottom: 0px !important;
+  margin-left: 0px !important;
+  padding-top: 0px !important;
+  padding-right: 0px !important;
+  padding-bottom: 0px !important;
+  padding-left: 0px !important;
+  min-height: 100vh !important;
+  background-image: linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(124, 58, 237) 50%, rgb(15, 23, 42) 100%) !important;
+  background-position-x: initial !important;
+  background-position-y: initial !important;
+  background-size: initial !important;
+  background-repeat: initial !important;
+  background-attachment: initial !important;
+  background-origin: initial !important;
+  background-clip: initial !important;
+  background-color: initial !important;
+  color: white !important;
+  font-family: Inter, system-ui, sans-serif !important;
+}
+
+/* Inherited from ancestor level 1 (regular) */
+#root {
+  min-height: 100vh;
+  background: var(--cyber-bg-gradient);
+  color: var(--cyber-text-primary);
+  min-height: 100vh;
+  color: var(--cyber-text-primary);
+}
+
+/* Inherited from ancestor level 1 (regular) */
+#root {
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+  min-height: 100vh !important;
+  background-image: linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(124, 58, 237) 50%, rgb(15, 23, 42) 100%) !important;
+  background-position-x: initial !important;
+  background-position-y: initial !important;
+  background-size: initial !important;
+  background-repeat: initial !important;
+  background-attachment: initial !important;
+  background-origin: initial !important;
+  background-clip: initial !important;
+  background-color: initial !important;
+  color: white !important;
+}
+
+/* Inherited from ancestor level 2 (user-agent) */
+body {
+  display: block;
+  margin-top: 8px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  margin-left: 8px;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+* {
+  font-family: var(--font-secondary), system-ui, sans-serif;
+  font-family: var(--font-secondary), system-ui, sans-serif;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+* {
+  box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+* {
+  box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #111827;
+  color: #ffffff;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: Inter, system-ui, sans-serif;
+  background-color: rgb(17, 24, 39);
+  color: rgb(255, 255, 255);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+body {
+  height: 100%;
+  background: var(--bg-cyber);
+  color: #ffffff;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  height: 100%;
+  color: rgb(255, 255, 255);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  min-height: 100vh;
+  background-image: linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(124, 58, 237) 50%, rgb(15, 23, 42) 100%) !important;
+  background-position-x: initial !important;
+  background-position-y: initial !important;
+  background-size: initial !important;
+  background-repeat: initial !important;
+  background-attachment: initial !important;
+  background-origin: initial !important;
+  background-clip: initial !important;
+  background-color: initial !important;
+  color: white !important;
+  font-family: Inter, system-ui, sans-serif !important;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Inter', system-ui, 'Avenir', 'Helvetica', 'Arial', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  height: 100%;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: #ffffff;
+  font-family: Inter, system-ui, sans-serif;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: rgb(255, 255, 255);
+}
+
+/* Inherited from ancestor level 2 (regular) */
+html, body, #root {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  margin-top: 0px !important;
+  margin-right: 0px !important;
+  margin-bottom: 0px !important;
+  margin-left: 0px !important;
+  padding-top: 0px !important;
+  padding-right: 0px !important;
+  padding-bottom: 0px !important;
+  padding-left: 0px !important;
+  min-height: 100vh !important;
+  background-image: linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(124, 58, 237) 50%, rgb(15, 23, 42) 100%) !important;
+  background-position-x: initial !important;
+  background-position-y: initial !important;
+  background-size: initial !important;
+  background-repeat: initial !important;
+  background-attachment: initial !important;
+  background-origin: initial !important;
+  background-clip: initial !important;
+  background-color: initial !important;
+  color: white !important;
+  font-family: Inter, system-ui, sans-serif !important;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: var(--cyber-bg-gradient);
+  color: var(--cyber-text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  min-height: 100vh;
+  color: var(--cyber-text-primary);
+  font-family: Inter, system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Inherited from ancestor level 2 (regular) */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  margin-top: 0px !important;
+  margin-right: 0px !important;
+  margin-bottom: 0px !important;
+  margin-left: 0px !important;
+  padding-top: 0px !important;
+  padding-right: 0px !important;
+  padding-bottom: 0px !important;
+  padding-left: 0px !important;
+  min-height: 100vh !important;
+  background-image: linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(124, 58, 237) 50%, rgb(15, 23, 42) 100%) !important;
+  background-position-x: initial !important;
+  background-position-y: initial !important;
+  background-size: initial !important;
+  background-repeat: initial !important;
+  background-attachment: initial !important;
+  background-origin: initial !important;
+  background-clip: initial !important;
+  background-color: initial !important;
+  color: white !important;
+  font-family: Inter, system-ui, sans-serif !important;
+}
+
+/* Inherited from ancestor level 3 (user-agent) */
+html {
+  display: block;
+}
+
+/* Inherited from ancestor level 3 (user-agent) */
+:root {
+  view-transition-name: root;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+* {
+  font-family: var(--font-secondary), system-ui, sans-serif;
+  font-family: var(--font-secondary), system-ui, sans-serif;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+* {
+  box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+* {
+  box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  min-height: 100vh;
+  background-image: linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(124, 58, 237) 50%, rgb(15, 23, 42) 100%) !important;
+  background-position-x: initial !important;
+  background-position-y: initial !important;
+  background-size: initial !important;
+  background-repeat: initial !important;
+  background-attachment: initial !important;
+  background-origin: initial !important;
+  background-clip: initial !important;
+  background-color: initial !important;
+  color: white !important;
+  font-family: Inter, system-ui, sans-serif !important;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Inter', system-ui, 'Avenir', 'Helvetica', 'Arial', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  height: 100%;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+html, body, #root {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  margin-top: 0px !important;
+  margin-right: 0px !important;
+  margin-bottom: 0px !important;
+  margin-left: 0px !important;
+  padding-top: 0px !important;
+  padding-right: 0px !important;
+  padding-bottom: 0px !important;
+  padding-left: 0px !important;
+  min-height: 100vh !important;
+  background-image: linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(124, 58, 237) 50%, rgb(15, 23, 42) 100%) !important;
+  background-position-x: initial !important;
+  background-position-y: initial !important;
+  background-size: initial !important;
+  background-repeat: initial !important;
+  background-attachment: initial !important;
+  background-origin: initial !important;
+  background-clip: initial !important;
+  background-color: initial !important;
+  color: white !important;
+  font-family: Inter, system-ui, sans-serif !important;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: var(--cyber-bg-gradient);
+  color: var(--cyber-text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  min-height: 100vh;
+  color: var(--cyber-text-primary);
+  font-family: Inter, system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #0f172a 0%, #7c3aed 50%, #0f172a 100%) !important;
+  color: white !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  margin-top: 0px !important;
+  margin-right: 0px !important;
+  margin-bottom: 0px !important;
+  margin-left: 0px !important;
+  padding-top: 0px !important;
+  padding-right: 0px !important;
+  padding-bottom: 0px !important;
+  padding-left: 0px !important;
+  min-height: 100vh !important;
+  background-image: linear-gradient(135deg, rgb(15, 23, 42) 0%, rgb(124, 58, 237) 50%, rgb(15, 23, 42) 100%) !important;
+  background-position-x: initial !important;
+  background-position-y: initial !important;
+  background-size: initial !important;
+  background-repeat: initial !important;
+  background-attachment: initial !important;
+  background-origin: initial !important;
+  background-clip: initial !important;
+  background-color: initial !important;
+  color: white !important;
+  font-family: Inter, system-ui, sans-serif !important;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+:host, :root {
+  --fa-style-family-brands: "Font Awesome 6 Brands";
+  --fa-font-brands: normal 400 1em/1 "Font Awesome 6 Brands";
+  --fa-style-family-brands: "Font Awesome 6 Brands";
+  --fa-font-brands: normal 400 1em/1 "Font Awesome 6 Brands";
+}
+
+/* Inherited from ancestor level 3 (regular) */
+:host, :root {
+  --fa-font-regular: normal 400 1em/1 "Font Awesome 6 Free";
+  --fa-font-regular: normal 400 1em/1 "Font Awesome 6 Free";
+}
+
+/* Inherited from ancestor level 3 (regular) */
+:host, :root {
+  --fa-style-family-classic: "Font Awesome 6 Free";
+  --fa-font-solid: normal 900 1em/1 "Font Awesome 6 Free";
+  --fa-style-family-classic: "Font Awesome 6 Free";
+  --fa-font-solid: normal 900 1em/1 "Font Awesome 6 Free";
+}
+
+/* Inherited from ancestor level 3 (regular) */
+:root {
+  --cyber-primary: #06ffa5;
+  --cyber-secondary: #3a86ff;
+  --cyber-accent: #8338ec;
+  --cyber-warning: #ffbe0b;
+  --cyber-danger: #ff006e;
+  --quantum-primary: #8338ec;
+  --quantum-secondary: #3a86ff;
+  --quantum-accent: #ff006e;
+  --quantum-glow: rgba(131, 56, 236, 0.5);
+  --neon-primary: #06ffa5;
+  --neon-secondary: #00f5ff;
+  --neon-accent: #ff073a;
+  --neon-glow: rgba(6, 255, 165, 0.6);
+  --bg-cyber: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  --bg-quantum: linear-gradient(135deg, #1a0033 0%, #2d1b69 50%, #1a0033 100%);
+  --bg-neon: linear-gradient(135deg, #001a1a 0%, #003333 50%, #001a1a 100%);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(10px);
+  --shadow-cyber: 0 8px 32px rgba(6, 255, 165, 0.2);
+  --shadow-quantum: 0 8px 32px rgba(131, 56, 236, 0.2);
+  --shadow-neon: 0 8px 32px rgba(0, 245, 255, 0.2);
+  --font-primary: 'Orbitron', monospace;
+  --font-secondary: 'Rajdhani', sans-serif;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --transition-fast: 0.15s ease-out;
+  --transition-normal: 0.3s ease-out;
+  --transition-slow: 0.6s ease-out;
+  --cyber-primary: #06ffa5;
+  --cyber-secondary: #3a86ff;
+  --cyber-accent: #8338ec;
+  --cyber-warning: #ffbe0b;
+  --cyber-danger: #ff006e;
+  --quantum-primary: #8338ec;
+  --quantum-secondary: #3a86ff;
+  --quantum-accent: #ff006e;
+  --quantum-glow: rgba(131, 56, 236, 0.5);
+  --neon-primary: #06ffa5;
+  --neon-secondary: #00f5ff;
+  --neon-accent: #ff073a;
+  --neon-glow: rgba(6, 255, 165, 0.6);
+  --bg-cyber: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  --bg-quantum: linear-gradient(135deg, #1a0033 0%, #2d1b69 50%, #1a0033 100%);
+  --bg-neon: linear-gradient(135deg, #001a1a 0%, #003333 50%, #001a1a 100%);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(10px);
+  --shadow-cyber: 0 8px 32px rgba(6, 255, 165, 0.2);
+  --shadow-quantum: 0 8px 32px rgba(131, 56, 236, 0.2);
+  --shadow-neon: 0 8px 32px rgba(0, 245, 255, 0.2);
+  --font-primary: 'Orbitron', monospace;
+  --font-secondary: 'Rajdhani', sans-serif;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --transition-fast: 0.15s ease-out;
+  --transition-normal: 0.3s ease-out;
+  --transition-slow: 0.6s ease-out;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+:root {
+  --primary-50: #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-200: #bfdbfe;
+  --primary-300: #93c5fd;
+  --primary-400: #60a5fa;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-700: #1d4ed8;
+  --primary-800: #1e40af;
+  --primary-900: #1e3a8a;
+  --primary-950: #172554;
+  --electric-400: #06ffa5;
+  --electric-500: #00ff88;
+  --electric-600: #00e676;
+  --neon-pink: #ff10f0;
+  --neon-purple: #7c3aed;
+  --neon-blue: #00d4ff;
+  --neon-green: #39ff14;
+  --neon-orange: #ff6b35;
+  --neon-cyan: #00fff9;
+  --quantum-100: #f0f9ff;
+  --quantum-200: #e0f2fe;
+  --quantum-300: #7dd3fc;
+  --quantum-400: #38bdf8;
+  --quantum-500: #0ea5e9;
+  --quantum-600: #0284c7;
+  --quantum-700: #0369a1;
+  --quantum-800: #075985;
+  --quantum-900: #0c4a6e;
+  --primary-50: #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-200: #bfdbfe;
+  --primary-300: #93c5fd;
+  --primary-400: #60a5fa;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-700: #1d4ed8;
+  --primary-800: #1e40af;
+  --primary-900: #1e3a8a;
+  --primary-950: #172554;
+  --electric-400: #06ffa5;
+  --electric-500: #00ff88;
+  --electric-600: #00e676;
+  --neon-pink: #ff10f0;
+  --neon-purple: #7c3aed;
+  --neon-blue: #00d4ff;
+  --neon-green: #39ff14;
+  --neon-orange: #ff6b35;
+  --neon-cyan: #00fff9;
+  --quantum-100: #f0f9ff;
+  --quantum-200: #e0f2fe;
+  --quantum-300: #7dd3fc;
+  --quantum-400: #38bdf8;
+  --quantum-500: #0ea5e9;
+  --quantum-600: #0284c7;
+  --quantum-700: #0369a1;
+  --quantum-800: #075985;
+  --quantum-900: #0c4a6e;
+}
+
+/* Inherited from ancestor level 3 (regular) */
+:root {
+  --cyber-primary: #06ffa5;
+  --cyber-secondary: #00ff88;
+  --cyber-accent: #00d4ff;
+  --cyber-purple: #7c3aed;
+  --cyber-dark: #0f172a;
+  --cyber-glass: rgba(255, 255, 255, 0.02);
+  --cyber-border: rgba(255, 255, 255, 0.1);
+  --cyber-text-primary: rgb(255, 255, 255);
+  --cyber-text-secondary: rgb(209, 213, 219);
+  --cyber-text-muted: rgb(156, 163, 175);
+  --cyber-bg-gradient: linear-gradient(
+    135deg,
+    rgb(15, 23, 42) 0%,
+    rgb(124, 58, 237) 50%,
+    rgb(15, 23, 42) 100%
+  );
+  --cyber-button-gradient: linear-gradient(135deg, rgba(6, 255, 165, 0.8), rgba(0, 255, 136, 0.6));
+  --cyber-card-gradient: linear-gradient(45deg, #00ff88, #00d4ff);
+  --cyber-glass-panel: blur(40px) saturate(2);
+  --cyber-glass-card: blur(20px) saturate(1.8);
+  --cyber-glass-button: blur(10px);
+  --cyber-shadow-main: 0 8px 32px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+  --cyber-shadow-card: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --cyber-shadow-glow: 0 4px 20px rgba(6, 255, 165, 0.4), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+  --cyber-transition: all 0.3s ease;
+  --cyber-transition-fast: all 0.15s ease;
+  --cyber-primary: #06ffa5;
+  --cyber-secondary: #00ff88;
+  --cyber-accent: #00d4ff;
+  --cyber-purple: #7c3aed;
+  --cyber-dark: #0f172a;
+  --cyber-glass: rgba(255, 255, 255, 0.02);
+  --cyber-border: rgba(255, 255, 255, 0.1);
+  --cyber-text-primary: rgb(255, 255, 255);
+  --cyber-text-secondary: rgb(209, 213, 219);
+  --cyber-text-muted: rgb(156, 163, 175);
+  --cyber-bg-gradient: linear-gradient(
+    135deg,
+    rgb(15, 23, 42) 0%,
+    rgb(124, 58, 237) 50%,
+    rgb(15, 23, 42) 100%
+  );
+  --cyber-button-gradient: linear-gradient(135deg, rgba(6, 255, 165, 0.8), rgba(0, 255, 136, 0.6));
+  --cyber-card-gradient: linear-gradient(45deg, #00ff88, #00d4ff);
+  --cyber-glass-panel: blur(40px) saturate(2);
+  --cyber-glass-card: blur(20px) saturate(1.8);
+  --cyber-glass-button: blur(10px);
+  --cyber-shadow-main: 0 8px 32px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+  --cyber-shadow-card: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --cyber-shadow-glow: 0 4px 20px rgba(6, 255, 165, 0.4), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+  --cyber-transition: all 0.3s ease;
+  --cyber-transition-fast: all 0.15s ease;
+}

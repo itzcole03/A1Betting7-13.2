@@ -93,9 +93,11 @@ export const HolographicText: React.FC<HolographicTextProps> = ({
 
   if (animate) {
     return (
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <motion.span
         className={baseClasses}
         style={styles}
+        // @ts-expect-error TS(2322): Type '{ hidden: { opacity: number; scale: number; ... Remove this comment to see the full error message
         variants={textVariants}
         initial='hidden'
         animate={glow ? 'glow' : 'visible'}
@@ -106,6 +108,7 @@ export const HolographicText: React.FC<HolographicTextProps> = ({
   }
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <span className={baseClasses} style={styles}>
       {children}
     </span>

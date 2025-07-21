@@ -4,13 +4,16 @@ const EnhancedLockedBetsPage: React.FC = () => {
   const [selectedBets] = useState(new Set());
   const [cardsToShow] = useState(9);
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='enhanced-locked-bets-page'>
       {/* Main content grid and all JSX goes here, including the .map() block */}
       {/* Example: */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='main-content'>
         {enhancedPredictions.slice(0, cardsToShow).map((bet: any) => {
           // Card class and other variables can be inlined or removed if not used in JSX
           return (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               key={bet.id}
               className={`group relative transition-all duration-300 transform ${
@@ -19,6 +22,7 @@ const EnhancedLockedBetsPage: React.FC = () => {
                   : 'hover:scale-[1.02] hover:shadow-xl'
               }`}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`relative h-full min-h-[320px] rounded-2xl border overflow-hidden backdrop-blur-xl shadow-xl transition-all duration-300 ${
                   selectedBets.has(bet.id)

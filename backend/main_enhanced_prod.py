@@ -45,12 +45,20 @@ from specialist_apis import (
 app_config = get_config()
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler()],
-)
+
+# Patch: Use UTF-8 encoding for console logging
 logger = logging.getLogger(__name__)
+console_handler = logging.StreamHandler()
+try:
+    console_handler.setStream(open(1, "w", encoding="utf-8", closefd=False))
+except Exception:
+    pass  # fallback if encoding not supported
+console_handler.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+console_handler.setFormatter(formatter)
+if not logger.hasHandlers():
+    logger.addHandler(console_handler)
+logger.setLevel(logging.INFO)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -816,18 +824,18 @@ from contextlib import asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan context manager"""
     # Startup
-    logger.info("🚀 A1Betting Production Backend starting up...")
-    logger.info("✅ Caches initialized")
-    logger.info("✅ Rate limiting enabled")
-    logger.info("✅ External API integration ready")
-    logger.info("✅ Specialist APIs initialized")
-    logger.info("🎯 Ready to serve predictions!")
+    logger.info("A1Betting Production Backend starting up...")
+    logger.info("Caches initialized")
+    logger.info("Rate limiting enabled")
+    logger.info("External API integration ready")
+    logger.info("Specialist APIs initialized")
+    logger.info("Ready to serve predictions!")
 
     yield
 
     # Shutdown
-    logger.info("🛑 A1Betting Production Backend shutting down...")
-    logger.info("✅ Cleanup complete")
+    logger.info("A1Betting Production Backend shutting down...")
+    logger.info("Cleanup complete")
 
 
 # Apply lifespan to app

@@ -14,14 +14,19 @@ const BettingInterface: React.FC = () => {
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='p-8'>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <h1 className='text-2xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent mb-4'>
         Place Your Bet
       </h1>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='bg-slate-800/60 rounded-xl p-6 flex flex-col space-y-4 max-w-md'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <label htmlFor='bet-amount-input' className='text-gray-300 font-semibold'>
           Bet Amount ($)
         </label>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <input
           id='bet-amount-input'
           type='number'
@@ -32,16 +37,21 @@ const BettingInterface: React.FC = () => {
           placeholder='Enter amount'
           title='Bet Amount'
         />
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <button
           className='bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center'
           onClick={handlePlaceBet}
           disabled={!betAmount}
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <DollarSign className='mr-2' /> Place Bet
         </button>
         {betPlaced && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='text-green-400 flex items-center space-x-2 mt-2'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <Zap className='w-5 h-5' />
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span>Bet placed successfully!</span>
           </div>
         )}

@@ -1,3 +1,10 @@
+###############################################################
+# CONFIGURATION BEST PRACTICES:
+# - All secrets, API keys, and sensitive settings MUST be set via environment variables.
+# - NEVER hardcode secrets or keys in code.
+# - Use `.env.example` as a template for onboarding and secure configuration.
+# - See documentation for required environment variables and onboarding steps.
+###############################################################
 """Production Configuration Management for A1Betting Backend
 
 This module handles all configuration settings for the A1Betting platform,
@@ -87,12 +94,19 @@ class SecurityConfig:
 
     def __post_init__(self):
         if self.cors_origins is None:
-            self.cors_origins = ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://127.0.0.1:5173"]
+            self.cors_origins = [
+                "http://localhost:3000",
+                "http://localhost:3001",
+                "http://localhost:3002",
+                "http://localhost:3003",
+                "http://127.0.0.1:5173",
+            ]
 
     @classmethod
     def from_env(cls) -> "SecurityConfig":
         cors_origins_str = os.getenv(
-            "CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003,http://127.0.0.1:5173"
+            "CORS_ORIGINS",
+            "http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003,http://127.0.0.1:5173",
         )
         cors_origins = [origin.strip() for origin in cors_origins_str.split(",")]
 

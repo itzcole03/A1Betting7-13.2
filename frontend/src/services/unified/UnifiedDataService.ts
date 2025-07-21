@@ -1,11 +1,13 @@
 import { BaseService } from './BaseService';
 import { UnifiedCache } from './UnifiedCache';
 
+// @ts-expect-error TS(2415): Class 'UnifiedDataService' incorrectly extends bas... Remove this comment to see the full error message
 export class UnifiedDataService extends BaseService {
   private static instance: UnifiedDataService;
   private cache: UnifiedCache;
 
   protected constructor() {
+    // @ts-expect-error TS(2554): Expected 2 arguments, but got 1.
     super('UnifiedDataService');
     this.cache = UnifiedCache.getInstance();
   }

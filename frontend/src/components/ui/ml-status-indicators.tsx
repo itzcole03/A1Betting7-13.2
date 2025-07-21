@@ -140,7 +140,9 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
     switch (type) {
       case 'prediction':
         return (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <path
               strokeLinecap='round'
               strokeLinejoin='round'
@@ -151,7 +153,9 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
         );
       case 'classification':
         return (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <path
               strokeLinecap='round'
               strokeLinejoin='round'
@@ -162,7 +166,9 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
         );
       case 'regression':
         return (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <path
               strokeLinecap='round'
               strokeLinejoin='round'
@@ -173,7 +179,9 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
         );
       case 'clustering':
         return (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <path
               strokeLinecap='round'
               strokeLinejoin='round'
@@ -184,7 +192,9 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
         );
       default:
         return (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <path
               strokeLinecap='round'
               strokeLinejoin='round'
@@ -222,13 +232,16 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
   `;
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className={baseClasses}>
       {/* Header */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className={`flex items-center justify-between mb-4 ${
           variant === 'grid' ? 'col-span-full' : ''
         }`}
       >
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <h2
           className={`text-xl font-bold ${
             variant === 'cyber' ? 'text-cyan-400' : 'text-gray-900 dark:text-white'
@@ -238,6 +251,7 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
         </h2>
 
         {realTimeUpdates && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
             className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
               variant === 'cyber'
@@ -245,11 +259,13 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
                 : 'bg-green-100 dark:bg-green-900/30'
             }`}
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`w-2 h-2 rounded-full animate-pulse ${
                 variant === 'cyber' ? 'bg-cyan-400' : 'bg-green-500'
               }`}
             />
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span
               className={`text-xs font-medium ${
                 variant === 'cyber' ? 'text-cyan-400' : 'text-green-700 dark:text-green-400'
@@ -262,8 +278,10 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
       </div>
 
       {/* Model Cards */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <AnimatePresence>
         {defaultModels.map((model, index) => (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             key={model.id}
             initial={{ opacity: 0, y: 20 }}
@@ -275,24 +293,32 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
           >
             {/* Cyber grid overlay */}
             {variant === 'cyber' && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='absolute inset-0 opacity-10 pointer-events-none'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='grid grid-cols-6 grid-rows-4 h-full w-full'>
                   {Array.from({ length: 24 }).map((_, i) => (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div key={i} className='border border-cyan-400/20' />
                   ))}
                 </div>
               </div>
             )}
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='relative z-10'>
               {/* Header */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-start justify-between mb-3'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center space-x-3'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div
                     className={`p-2 rounded ${
                       variant === 'cyber' ? 'bg-cyan-400/20' : 'bg-gray-100 dark:bg-gray-700'
                     }`}
                   >
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={
                         variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600 dark:text-gray-400'
@@ -301,7 +327,9 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
                       {getTypeIcon(model.type)}
                     </div>
                   </div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h3
                       className={`font-semibold ${
                         variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -309,6 +337,7 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
                     >
                       {model.name}
                     </h3>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <p
                       className={`text-sm capitalize ${
                         variant === 'cyber'
@@ -321,11 +350,14 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
                   </div>
                 </div>
 
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center space-x-2'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div
                     className='w-3 h-3 rounded-full'
                     style={{ backgroundColor: getStatusColor(model.status) }}
                   />
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`text-sm font-medium capitalize ${
                       variant === 'cyber' ? 'text-cyan-400' : 'text-gray-700 dark:text-gray-300'
@@ -338,8 +370,11 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
 
               {/* Metrics */}
               {showMetrics && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='grid grid-cols-2 gap-3 mb-3'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span
                       className={`text-xs font-medium ${
                         variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600 dark:text-gray-400'
@@ -347,6 +382,7 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
                     >
                       Accuracy
                     </span>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={`text-lg font-bold ${
                         variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -356,7 +392,9 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
                     </div>
                   </div>
 
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span
                       className={`text-xs font-medium ${
                         variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600 dark:text-gray-400'
@@ -364,6 +402,7 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
                     >
                       Confidence
                     </span>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={`text-lg font-bold ${
                         variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -373,7 +412,9 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
                     </div>
                   </div>
 
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span
                       className={`text-xs font-medium ${
                         variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600 dark:text-gray-400'
@@ -381,6 +422,7 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
                     >
                       Predictions
                     </span>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={`text-lg font-bold ${
                         variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -390,7 +432,9 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
                     </div>
                   </div>
 
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span
                       className={`text-xs font-medium ${
                         variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600 dark:text-gray-400'
@@ -398,6 +442,7 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
                     >
                       Error Rate
                     </span>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={`text-lg font-bold ${
                         model.errorRate > 0.05 ? 'text-red-500' : 'text-green-500'
@@ -411,11 +456,15 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
 
               {/* Details */}
               {showDetails && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='mb-3 pt-3 border-t border-gray-200 dark:border-gray-700'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='flex justify-between text-sm'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className={variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500'}>
                       Last Trained:
                     </span>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span
                       className={
                         variant === 'cyber' ? 'text-cyan-300' : 'text-gray-700 dark:text-gray-300'
@@ -429,6 +478,7 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
 
               {/* Actions */}
               {(model.status === 'error' || model.status === 'offline') && onRetrain && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button
                   onClick={e => {
                     e.stopPropagation();
@@ -446,12 +496,15 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
 
               {/* Loading animation for training/updating */}
               {(model.status === 'training' || model.status === 'updating') && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='mt-3'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div
                     className={`w-full rounded-full h-2 ${
                       variant === 'cyber' ? 'bg-gray-800' : 'bg-gray-200 dark:bg-gray-700'
                     }`}
                   >
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <motion.div
                       className={`h-2 rounded-full ${
                         model.status === 'training' ? 'bg-blue-500' : 'bg-yellow-500'
@@ -461,6 +514,7 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
                       transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
                     />
                   </div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <p
                     className={`text-xs mt-1 ${
                       variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500'
@@ -476,8 +530,10 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
       </AnimatePresence>
 
       {/* Refresh indicator */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <AnimatePresence>
         {isRefreshing && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -488,6 +544,7 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
                 : 'bg-blue-100 border border-blue-200'
             }`}
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`animate-spin rounded-full h-4 w-4 border-2 border-transparent ${
                 variant === 'cyber' ? 'border-t-cyan-400' : 'border-t-blue-500'

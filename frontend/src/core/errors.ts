@@ -1,4 +1,5 @@
-﻿import { ErrorCategory, ErrorSeverity, ErrorContext } from './UnifiedError';
+// @ts-expect-error TS(2305): Module '"./UnifiedError"' has no exported member '... Remove this comment to see the full error message
+import { ErrorCategory, ErrorSeverity, ErrorContext } from './UnifiedError';
 
 export class SystemError extends Error {
   public readonly context: ErrorContext;

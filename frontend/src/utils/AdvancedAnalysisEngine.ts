@@ -1,5 +1,8 @@
-﻿import { UnifiedMonitor } from '@/core/UnifiedMonitor';
+// @ts-expect-error TS(2307): Cannot find module '@/core/UnifiedMonitor' or its ... Remove this comment to see the full error message
+import { UnifiedMonitor } from '@/core/UnifiedMonitor';
+// @ts-expect-error TS(2307): Cannot find module '@/unified/EventBus' or its cor... Remove this comment to see the full error message
 import { EventBus } from '@/unified/EventBus';
+// @ts-expect-error TS(2305): Module '"./DataIntegrationHub"' has no exported me... Remove this comment to see the full error message
 import { DataIntegrationHub, IntegratedData } from './DataIntegrationHub';
 import { FeatureFlags } from './FeatureFlags';
 
@@ -179,6 +182,7 @@ export class AdvancedAnalysisEngine {
       }
 
       predictions[metric] = {
+        // @ts-expect-error TS(2322): Type 'unknown' is not assignable to type 'number'.
         value,
         confidence: Math.min(1, Math.max(0, confidence)),
         factors,
@@ -361,6 +365,7 @@ export class AdvancedAnalysisEngine {
 
   private calculateSentimentQuality(sentiment: IntegratedData['sentiment'][string]): number {
     const volumeScore = Math.min(1, sentiment.sentiment.volume / 1000);
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
     const sourceScore = Object.values(sentiment.sentiment.sources).reduce((a, b) => a + b, 0) / 3;
     return (volumeScore + sourceScore) / 2;
   }
@@ -417,7 +422,9 @@ export class AdvancedAnalysisEngine {
 
     // Check price movement consistency
     Object.values(data.odds).forEach(odds => {
+      // @ts-expect-error TS(2571): Object is of type 'unknown'.
       if (odds.movement.magnitude > 0) {
+        // @ts-expect-error TS(2571): Object is of type 'unknown'.
         const efficiency = 1 - Math.min(1, Math.abs(odds.movement.magnitude));
         marketMetrics.push(efficiency);
       }

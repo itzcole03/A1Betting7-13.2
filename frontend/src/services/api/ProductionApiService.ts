@@ -30,6 +30,7 @@ export class ProductionApiService {
 
   constructor(config: Partial<ApiConfig> = {}) {
     this.config = {
+      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
       baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
       timeout: 30000,
       retries: 3,

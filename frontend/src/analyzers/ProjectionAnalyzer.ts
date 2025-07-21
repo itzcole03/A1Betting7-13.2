@@ -1,4 +1,4 @@
-﻿import { DailyFantasyData } from '@/adapters/DailyFantasyAdapter';
+import { DailyFantasyData } from '@/adapters/DailyFantasyAdapter';
 import { Analyzer } from '@/core/Analyzer';
 import { EventBus } from '@/unified/EventBus';
 import { PerformanceMonitor } from '@/utils/PerformanceMonitor';
@@ -85,7 +85,7 @@ export class ProjectionAnalyzer implements Analyzer<DailyFantasyData, Projection
 
   public async confidence(data: DailyFantasyData): Promise<number> {
     if (!data.projections.length) return 0;
-    const validProjections = data.projections.filter(p => this.isValidProjection(p));
+    const validProjections = data.projections.filter((p: any) => this.isValidProjection(p));
     return validProjections.length / data.projections.length;
   }
 

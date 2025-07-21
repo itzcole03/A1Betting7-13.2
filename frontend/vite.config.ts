@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react';
-import path from 'path';
 import { defineConfig } from 'vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 // Disable Console Ninja to prevent startup issues
 process.env.DISABLE_CONSOLE_NINJA = 'true';
@@ -33,25 +33,14 @@ export default defineConfig({
       },
     },
   },
-  resolve: {
-    alias: {
-      '@stores': path.resolve(__dirname, 'src/stores'),
-      '@/hooks': path.resolve(__dirname, 'src/hooks'),
-      '@/components': path.resolve(__dirname, 'src/components'),
-      '@/lib': path.resolve(__dirname, 'src/lib'),
-      '@/types': path.resolve(__dirname, 'src/types'),
-      '@/utils': path.resolve(__dirname, 'src/utils'),
-      '@/services': path.resolve(__dirname, 'src/services'),
-      '@': path.resolve(__dirname, 'src'),
-    },
-  },
-  plugins: [react()],
+  plugins: [react(), tsconfigPaths()],
+  // plugins moved above
   server: {
-    port: 8173,
+    port: parseInt(process.env.VITE_PORT || '8173', 10),
     host: true,
     hmr: {
       overlay: false, // Disable overlay to prevent WebSocket errors;
-      clientPort: 8173,
+      clientPort: parseInt(process.env.VITE_PORT || '8173', 10),
       port: 24878, // Use different port for HMR WebSocket (24678 + 200);
     },
     strictPort: false, // Allow fallback ports;

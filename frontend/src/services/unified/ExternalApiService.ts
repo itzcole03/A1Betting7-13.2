@@ -1,4 +1,4 @@
-﻿import { EventEmitter } from 'events';
+import { EventEmitter } from 'events';
 
 export interface SportsNewsArticle {
   id: string;
@@ -61,6 +61,7 @@ export class ExternalApiService extends EventEmitter {
   public async getSchedule(): Promise<any[]> {
     try {
       const response = await fetch(`${this.config.baseURL}/schedule`, {
+        // @ts-expect-error TS(2339): Property 'timeout' does not exist on type '{ new (... Remove this comment to see the full error message
         signal: AbortSignal.timeout(this.config.timeout || 5000),
       });
       if (!response.ok) {
@@ -75,6 +76,7 @@ export class ExternalApiService extends EventEmitter {
 }
 
 export const externalApiService = new ExternalApiService({
+  // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
   baseURL: import.meta.env.VITE_EXTERNAL_API_URL || 'https://api.sportsdata.io/v3/news',
   timeout: 10000,
 });

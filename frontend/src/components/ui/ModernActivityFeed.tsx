@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+// @ts-expect-error TS(2307): Cannot find module '@/lib/utils' or its correspond... Remove this comment to see the full error message
 import { cn } from '@/lib/utils';
 
 // Types for activity feed
@@ -328,15 +329,19 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
       : { 'All Activities': filteredActivities };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className={cn('relative', variantClasses[variant], className)}>
       {/* Header */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className={cn(
           'flex items-center justify-between p-4 border-b',
           variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
         )}
       >
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center space-x-3'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <h3
             className={cn(
               'text-lg font-semibold',
@@ -346,6 +351,7 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
             Activity Feed
           </h3>
           {newActivitiesCount > 0 && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span
               className={cn(
                 'px-2 py-1 text-xs rounded-full animate-pulse',
@@ -357,18 +363,23 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
           )}
         </div>
 
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center space-x-2'>
           {autoRefresh && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={cn(
                 'flex items-center space-x-1 text-xs',
                 variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500'
               )}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='w-2 h-2 bg-green-500 rounded-full animate-pulse' />
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span>Live</span>
             </div>
           )}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <button
             onClick={handleRefresh}
             disabled={isLoading}
@@ -386,6 +397,7 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
 
       {/* Search and Filters */}
       {(showSearch || showFilters) && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className={cn(
             'p-4 border-b space-y-3',
@@ -393,6 +405,7 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
           )}
         >
           {showSearch && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               type='text'
               placeholder='Search activities...'
@@ -408,7 +421,9 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
           )}
 
           {showFilters && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex flex-wrap gap-2'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <select
                 onChange={e =>
                   handleFilterChange({
@@ -422,15 +437,23 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
                     : 'bg-white border-gray-300'
                 )}
               >
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <option value=''>All Categories</option>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <option value='betting'>Betting</option>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <option value='financial'>Financial</option>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <option value='account'>Account</option>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <option value='system'>System</option>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <option value='social'>Social</option>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <option value='achievement'>Achievement</option>
               </select>
 
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <select
                 onChange={e =>
                   handleFilterChange({
@@ -444,10 +467,15 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
                     : 'bg-white border-gray-300'
                 )}
               >
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <option value=''>All Priorities</option>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <option value='urgent'>Urgent</option>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <option value='high'>High</option>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <option value='medium'>Medium</option>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <option value='low'>Low</option>
               </select>
             </div>
@@ -456,11 +484,14 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
       )}
 
       {/* Activity Feed */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div ref={feedRef} className='max-h-96 overflow-y-auto'>
         {Object.entries(displayActivities).map(([groupKey, groupActivities]) => (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div key={groupKey}>
             {/* Group Header */}
             {showGrouping && groupBy !== 'none' && Object.keys(displayActivities).length > 1 && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={cn(
                   'sticky top-0 px-4 py-2 border-b text-sm font-medium',
@@ -474,8 +505,10 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
             )}
 
             {/* Activities */}
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='space-y-1'>
               {groupActivities.map(activity => (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <ActivityItemComponent
                   key={activity.id}
                   activity={activity}
@@ -490,13 +523,16 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
         ))}
 
         {filteredActivities.length === 0 && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
             className={cn(
               'p-8 text-center',
               variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500'
             )}
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='text-4xl mb-2'>📭</div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='text-sm'>No activities found</div>
           </div>
         )}
@@ -504,12 +540,14 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
 
       {/* Load More */}
       {showInfiniteScroll && filteredActivities.length >= maxItems && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className={cn(
             'p-4 border-t text-center',
             variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
           )}
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <button
             onClick={onLoadMore}
             className={cn(
@@ -526,8 +564,11 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
 
       {/* Cyber Effects */}
       {variant === 'cyber' && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 rounded-lg pointer-events-none' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute inset-0 bg-grid-white/[0.02] rounded-lg pointer-events-none' />
         </>
       )}
@@ -552,6 +593,7 @@ const ActivityItemComponent: React.FC<ActivityItemComponentProps> = ({
   onUserClick,
 }) => {
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div
       className={cn(
         'p-4 border-b transition-all duration-200',
@@ -563,8 +605,10 @@ const ActivityItemComponent: React.FC<ActivityItemComponentProps> = ({
       )}
       onClick={() => onClick?.(activity)}
     >
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='flex items-start space-x-3'>
         {/* Priority Indicator */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className={cn(
             'w-2 h-2 rounded-full mt-2 flex-shrink-0',
@@ -573,6 +617,7 @@ const ActivityItemComponent: React.FC<ActivityItemComponentProps> = ({
         />
 
         {/* Activity Icon */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className={cn(
             'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm',
@@ -583,10 +628,14 @@ const ActivityItemComponent: React.FC<ActivityItemComponentProps> = ({
         </div>
 
         {/* Content */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex-1 min-w-0'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center justify-between'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex items-center space-x-2'>
               {/* User */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <button
                 onClick={e => {
                   e.stopPropagation();
@@ -602,6 +651,7 @@ const ActivityItemComponent: React.FC<ActivityItemComponentProps> = ({
 
               {/* User Role Badge */}
               {activity.user.role && activity.user.role !== 'user' && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span
                   className={cn(
                     'px-1.5 py-0.5 text-xs rounded uppercase',
@@ -615,10 +665,12 @@ const ActivityItemComponent: React.FC<ActivityItemComponentProps> = ({
               )}
 
               {/* Verified Badge */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               {activity.user.verified && <span className='text-blue-500'>✓</span>}
             </div>
 
             {/* Timestamp */}
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span
               className={cn('text-xs', variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500')}
             >
@@ -627,18 +679,22 @@ const ActivityItemComponent: React.FC<ActivityItemComponentProps> = ({
           </div>
 
           {/* Action & Description */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
             className={cn(
               'text-sm mt-1',
               variant === 'cyber' ? 'text-cyan-400/80' : 'text-gray-700'
             )}
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span className='font-medium'>{activity.action}</span>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             {activity.description && <span className='ml-1'>{activity.description}</span>}
           </div>
 
           {/* Data Values */}
           {activity.data?.value && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={cn(
                 'text-sm mt-1 font-medium',
@@ -652,6 +708,7 @@ const ActivityItemComponent: React.FC<ActivityItemComponentProps> = ({
 
           {/* Status */}
           {activity.status && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span
               className={cn(
                 'inline-block px-2 py-1 text-xs rounded mt-2 capitalize',
@@ -670,8 +727,10 @@ const ActivityItemComponent: React.FC<ActivityItemComponentProps> = ({
 
           {/* Tags */}
           {activity.tags && activity.tags.length > 0 && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex flex-wrap gap-1 mt-2'>
               {activity.tags.slice(0, 3).map(tag => (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span
                   key={tag}
                   className={cn(
@@ -683,6 +742,7 @@ const ActivityItemComponent: React.FC<ActivityItemComponentProps> = ({
                 </span>
               ))}
               {activity.tags.length > 3 && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span
                   className={cn(
                     'text-xs',
@@ -697,6 +757,7 @@ const ActivityItemComponent: React.FC<ActivityItemComponentProps> = ({
 
           {/* Location & Device */}
           {(activity.location || activity.device) && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={cn(
                 'text-xs mt-2 opacity-70',

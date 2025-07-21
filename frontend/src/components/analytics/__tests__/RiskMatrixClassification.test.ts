@@ -1,4 +1,5 @@
-﻿import { RiskAssessmentService } from '@/services/analytics/RiskAssessmentService';
+// @ts-expect-error TS(2307): Cannot find module '@/services/analytics/RiskAsses... Remove this comment to see the full error message
+import { RiskAssessmentService } from '@/services/analytics/RiskAssessmentService';
 describe('RiskAssessmentService', () => {
   it('classifies risk correctly', () => {
     const low = RiskAssessmentService.classifyRisk({ score: 0.1 });

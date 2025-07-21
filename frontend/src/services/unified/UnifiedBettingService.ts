@@ -12,6 +12,7 @@ interface BettingConfig {
 export class UnifiedBettingService extends BaseService {
   private static instance: UnifiedBettingService;
   private readonly wsService: UnifiedWebSocketService;
+  // @ts-expect-error TS(2416): Property 'config' in type 'UnifiedBettingService' ... Remove this comment to see the full error message
   private config: BettingConfig = {
     minConfidence: 0.6,
     maxStakePercentage: 0.05,
@@ -22,6 +23,7 @@ export class UnifiedBettingService extends BaseService {
   private readonly apiUrl = '/api/betting';
 
   protected constructor() {
+    // @ts-expect-error TS(2554): Expected 2 arguments, but got 1.
     super('UnifiedBettingService');
     this.wsService = UnifiedWebSocketService.getInstance();
     this.initializeWebSocketHandlers();

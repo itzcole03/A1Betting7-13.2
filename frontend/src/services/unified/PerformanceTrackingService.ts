@@ -1,4 +1,5 @@
-﻿import EventEmitter from 'eventemitter3';
+import EventEmitter from 'eventemitter3';
+// @ts-expect-error TS(2614): Module '"./UnifiedPredictionService"' has no expor... Remove this comment to see the full error message
 import { PredictionResult } from './UnifiedPredictionService';
 
 export interface BetResult {

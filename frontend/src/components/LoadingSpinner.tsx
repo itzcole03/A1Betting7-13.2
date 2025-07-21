@@ -32,12 +32,14 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div
       className={`flex items-center justify-center ${className}`}
       role='status'
       aria-label={label}
       aria-live='polite'
     >
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <motion.div
         className={`${sizeClasses[size]} border-2 border-transparent rounded-full`}
         style={{
@@ -51,6 +53,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
           ease: 'linear',
         }}
       />
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <span className='sr-only'>{label}</span>
     </div>
   );

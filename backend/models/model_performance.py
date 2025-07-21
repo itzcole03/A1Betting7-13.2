@@ -5,7 +5,7 @@ ModelPerformance Model - Database model for tracking model performance metrics
 from sqlalchemy import Column, DateTime, Float, Integer, String
 from sqlalchemy.sql import func
 
-from backend.database import Base
+from backend.models.base import Base
 
 
 class ModelPerformance(Base):

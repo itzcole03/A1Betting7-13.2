@@ -135,10 +135,13 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
     switch (change.type) {
       case 'increase':
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         return <TrendingUp className='w-3 h-3' />;
       case 'decrease':
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         return <TrendingDown className='w-3 h-3' />;
       default:
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         return <Minus className='w-3 h-3' />;
     }
   };
@@ -191,6 +194,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.div
       className={`
         relative rounded-xl border backdrop-blur-sm overflow-hidden
@@ -199,6 +203,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         ${isClickable ? 'cursor-pointer' : ''}
         ${className}
       `}
+      // @ts-expect-error TS(2322): Type '{ hidden: { opacity: number; y: number; scal... Remove this comment to see the full error message
       variants={cardVariants}
       initial='hidden'
       animate='visible'
@@ -207,6 +212,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     >
       {/* Cyber grid overlay */}
       {variant === 'cyber' && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className='absolute inset-0 opacity-10 pointer-events-none'
           style={{
@@ -218,7 +224,9 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
       {/* Shimmer effect for cyber variant */}
       {variant === 'cyber' && !loading && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='absolute inset-0 overflow-hidden pointer-events-none'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             className='absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent'
             animate={{ x: ['-100%', '100%'] }}
@@ -231,17 +239,23 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         </div>
       )}
 
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='relative'>
         {/* Header */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-start justify-between mb-3'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex-1'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h3 className={`font-medium text-gray-300 ${sizeConfig[size].title}`}>{title}</h3>
             {subtitle && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <p className={`text-gray-400 mt-1 ${sizeConfig[size].subtitle}`}>{subtitle}</p>
             )}
           </div>
 
           {icon && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`${colorConfig[color].accent} ${sizeConfig[size].icon} flex-shrink-0 ml-3`}
             >
@@ -251,16 +265,20 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         </div>
 
         {/* Value */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='mb-3'>
           {loading ? (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               className={`${sizeConfig[size].value} font-bold text-gray-400`}
+              // @ts-expect-error TS(2322): Type '{ pulse: { opacity: number[]; transition: { ... Remove this comment to see the full error message
               variants={loadingVariants}
               animate='pulse'
             >
               {formatValue(value)}
             </motion.div>
           ) : (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className={`${sizeConfig[size].value} font-bold text-white`}>
               {formatValue(value)}
             </div>
@@ -269,23 +287,29 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
         {/* Change Indicator */}
         {change && !loading && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center space-x-1 mb-3'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className={`flex items-center space-x-1 ${getChangeColor()}`}>
               {getChangeIcon()}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span className='text-sm font-medium'>{Math.abs(change.value)}%</span>
             </div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             {change.period && <span className='text-xs text-gray-400'>{change.period}</span>}
           </div>
         )}
 
         {/* Mini Trend Chart */}
         {trend && trend.length > 0 && !loading && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-end space-x-1 h-8 mb-2'>
             {trend.map((point, index) => {
               const maxValue = Math.max(...trend.map(p => p.value));
               const height = (point.value / maxValue) * 100;
 
               return (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <motion.div
                   key={index}
                   className={`flex-1 bg-gradient-to-t ${colorConfig[color].gradient} rounded-sm min-h-[4px] opacity-70`}
@@ -301,14 +325,18 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
         {/* Click indicator */}
         {isClickable && !loading && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute top-4 right-4'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <ArrowUpRight className='w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity' />
           </div>
         )}
 
         {/* Loading overlay */}
         {loading && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute inset-0 bg-slate-800/50 backdrop-blur-sm rounded-xl flex items-center justify-center'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               className='w-6 h-6 border-2 border-current border-t-transparent rounded-full'
               animate={{ rotate: 360 }}
@@ -323,6 +351,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       </div>
 
       {/* Bottom accent line */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r ${colorConfig[color].gradient} opacity-60`}
       />

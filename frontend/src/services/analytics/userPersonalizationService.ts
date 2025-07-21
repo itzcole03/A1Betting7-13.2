@@ -1,5 +1,8 @@
+// @ts-expect-error TS(2307): Cannot find module '@/models/User' or its correspo... Remove this comment to see the full error message
 import { User } from '@/models/User';
+// @ts-expect-error TS(2307): Cannot find module '@/models/Bet' or its correspon... Remove this comment to see the full error message
 import { Bet } from '@/models/Bet';
+// @ts-expect-error TS(2307): Cannot find module '@/models/Prediction' or its co... Remove this comment to see the full error message
 import { Prediction } from '@/models/Prediction';
 import { EventEmitter } from 'events';
 

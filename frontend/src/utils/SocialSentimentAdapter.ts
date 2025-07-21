@@ -1,4 +1,4 @@
-﻿import { EventBus } from '../core/EventBus';
+import { EventBus } from '../core/EventBus';
 import { DataSource } from './DataSource';
 import { PerformanceMonitor } from './PerformanceMonitor';
 // Mock player list for demonstration

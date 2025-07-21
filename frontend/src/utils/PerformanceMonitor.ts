@@ -1,4 +1,4 @@
-﻿// Performance monitoring utility for Jest/RTL;
+// Performance monitoring utility for Jest/RTL;
 
 export class PerformanceMonitor {
   private static instance: PerformanceMonitor;

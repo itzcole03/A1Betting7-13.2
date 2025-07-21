@@ -1,0 +1,314 @@
+{
+  "timestamp": "2025-07-20T11:15:54.113970",
+  "summary": {
+    "total_tests": 15,
+    "successful": 0,
+    "failed": 15,
+    "success_rate": 0.0,
+    "average_response_time": 2.30364720026652
+  },
+  "test_results": [
+    {
+      "endpoint": "/api/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3108952045440674,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/health/status",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.298027276992798,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/health/comprehensive",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3089568614959717,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/props",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.310271978378296,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/props?sport=NBA",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3215696811676025,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/props?min_confidence=80",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.309872627258301,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/comprehensive-projections",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.2899012565612793,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/recommendations",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.307436466217041,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3034186363220215,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/lineup/optimize",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.2932889461517334,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/features",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3048489093780518,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/predict",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.2792937755584717,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/autonomous/status",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.308882236480713,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/autonomous/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3007233142852783,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/autonomous/capabilities",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3073208332061768,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    }
+  ],
+  "failed_tests": [
+    {
+      "endpoint": "/api/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3108952045440674,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/health/status",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.298027276992798,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/health/comprehensive",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3089568614959717,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/props",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.310271978378296,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/props?sport=NBA",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3215696811676025,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/props?min_confidence=80",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.309872627258301,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/comprehensive-projections",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.2899012565612793,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/recommendations",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.307436466217041,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3034186363220215,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/lineup/optimize",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.2932889461517334,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/features",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3048489093780518,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/predict",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.2792937755584717,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/autonomous/status",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.308882236480713,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/autonomous/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3007233142852783,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/autonomous/capabilities",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": null,
+      "response_time": 2.3073208332061768,
+      "success": false,
+      "error": "Cannot connect to host localhost:8000 ssl:default [The remote computer refused the network connection]",
+      "response_data": null
+    }
+  ]
+}

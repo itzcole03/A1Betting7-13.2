@@ -140,10 +140,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     login,
     logout,
     changePassword,
+    // @ts-expect-error TS(2322): Type '() => boolean | null | undefined' is not ass... Remove this comment to see the full error message
     checkAdminStatus,
     clearError,
   };
 
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };
 

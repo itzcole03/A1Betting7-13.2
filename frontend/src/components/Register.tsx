@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// @ts-expect-error TS(6142): Module '../auth/AuthContext' was resolved to 'C:/U... Remove this comment to see the full error message
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,17 +15,18 @@ const Register = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // @ts-expect-error TS(2339): Property 'register' does not exist on type 'unknow... Remove this comment to see the full error message
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const handleChange = e => {
+  const handleChange = (e: any) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -53,25 +55,35 @@ const Register = () => {
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='max-w-md w-full space-y-8'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900'>
             Create your A1Betting account
           </h2>
         </div>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
           {error && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded'>
               {error}
             </div>
           )}
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='grid grid-cols-2 gap-4'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <label htmlFor='first_name' className='sr-only'>
                 First Name
               </label>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <input
                 id='first_name'
                 name='first_name'
@@ -82,10 +94,13 @@ const Register = () => {
                 onChange={handleChange}
               />
             </div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <label htmlFor='last_name' className='sr-only'>
                 Last Name
               </label>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <input
                 id='last_name'
                 name='last_name'
@@ -98,10 +113,13 @@ const Register = () => {
             </div>
           </div>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <label htmlFor='username' className='sr-only'>
               Username
             </label>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               id='username'
               name='username'
@@ -114,10 +132,13 @@ const Register = () => {
             />
           </div>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <label htmlFor='email' className='sr-only'>
               Email
             </label>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               id='email'
               name='email'
@@ -130,10 +151,13 @@ const Register = () => {
             />
           </div>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <label htmlFor='password' className='sr-only'>
               Password
             </label>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               id='password'
               name='password'
@@ -146,10 +170,13 @@ const Register = () => {
             />
           </div>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <label htmlFor='confirmPassword' className='sr-only'>
               Confirm Password
             </label>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               id='confirmPassword'
               name='confirmPassword'
@@ -162,7 +189,9 @@ const Register = () => {
             />
           </div>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <button
               type='submit'
               disabled={loading}
@@ -172,9 +201,12 @@ const Register = () => {
             </button>
           </div>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='text-center'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span className='text-sm text-gray-600'>
               Already have an account?{' '}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <button
                 type='button'
                 className='font-medium text-indigo-600 hover:text-indigo-500'

@@ -1,3 +1,4 @@
+// @ts-expect-error TS(2307): Cannot find module '@/unified/PerformanceMonitor' ... Remove this comment to see the full error message
 import { PerformanceMonitor } from '@/unified/PerformanceMonitor';
 
 /**

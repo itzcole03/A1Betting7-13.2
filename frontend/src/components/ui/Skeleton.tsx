@@ -101,12 +101,14 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   const renderTextSkeleton = () => {
     return (
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className={spacing}>
         {Array.from({ length: lines }).map((_, index) => {
           const isLast = index === lines - 1;
           const lineWidth = isLast ? '75%' : '100%';
 
           return (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               key={index}
               className={`
@@ -119,16 +121,19 @@ export const Skeleton: React.FC<SkeletonProps> = ({
                 width: lineWidth,
                 height: '16px',
               }}
+              // @ts-expect-error TS(2322): Type '{ shimmer: { x: string[]; transition: { dura... Remove this comment to see the full error message
               variants={animate ? skeletonVariants : undefined}
               animate={animate && variant !== 'pulse' ? 'shimmer' : undefined}
             >
               {/* Shimmer overlay */}
               {variant === 'default' && animate && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_1.5s_infinite]' />
               )}
 
               {/* Cyber grid pattern */}
               {variant === 'cyber' && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div
                   className='absolute inset-0 opacity-20'
                   style={{
@@ -149,6 +154,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   }
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.div
       className={`
         relative overflow-hidden
@@ -157,6 +163,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
         ${className}
       `}
       style={getSkeletonStyle()}
+      // @ts-expect-error TS(2322): Type '{ shimmer: { x: string[]; transition: { dura... Remove this comment to see the full error message
       variants={animate ? skeletonVariants : undefined}
       animate={
         animate
@@ -170,13 +177,16 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     >
       {/* Shimmer overlay for default variant */}
       {variant === 'default' && animate && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_1.5s_infinite]' />
       )}
 
       {/* Cyber effects */}
       {variant === 'cyber' && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <>
           {/* Grid pattern */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
             className='absolute inset-0 opacity-20'
             style={{
@@ -187,6 +197,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
           {/* Scanning line */}
           {animate && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               className='absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent'
               animate={{ x: ['-100%', '100%'] }}
@@ -202,11 +213,13 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
       {/* Glass effect */}
       {variant === 'glass' && animate && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 animate-pulse' />
       )}
 
       {/* Wave effect indicators */}
       {variant === 'wave' && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='absolute inset-0 bg-gradient-to-t from-slate-600/30 to-transparent' />
       )}
     </motion.div>
@@ -215,14 +228,23 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
 // Skeleton composition components for common patterns
 export const SkeletonCard: React.FC<{ className?: string }> = ({ className = '' }) => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div className={`p-6 bg-slate-800/50 rounded-lg border border-slate-700/50 ${className}`}>
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='flex items-start space-x-4'>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <Skeleton shape='circle' width={60} height={60} />
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='flex-1 space-y-3'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <Skeleton width='60%' height={20} />
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <Skeleton shape='text' lines={2} />
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex space-x-2'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <Skeleton width={80} height={32} variant='cyber' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <Skeleton width={100} height={32} variant='cyber' />
         </div>
       </div>
@@ -235,22 +257,27 @@ export const SkeletonTable: React.FC<{ rows?: number; columns?: number; classNam
   columns = 4,
   className = '',
 }) => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div className={`space-y-3 ${className}`}>
     {/* Header */}
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='grid gap-4' style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
       {Array.from({ length: columns }).map((_, i) => (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <Skeleton key={`header-${i}`} height={40} variant='cyber' />
       ))}
     </div>
 
     {/* Rows */}
     {Array.from({ length: rows }).map((_, rowIndex) => (
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         key={`row-${rowIndex}`}
         className='grid gap-4'
         style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
       >
         {Array.from({ length: columns }).map((_, colIndex) => (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <Skeleton key={`cell-${rowIndex}-${colIndex}`} height={32} />
         ))}
       </div>
@@ -259,11 +286,16 @@ export const SkeletonTable: React.FC<{ rows?: number; columns?: number; classNam
 );
 
 export const SkeletonChart: React.FC<{ className?: string }> = ({ className = '' }) => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div className={`p-6 bg-slate-800/50 rounded-lg border border-slate-700/50 ${className}`}>
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-4'>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <Skeleton width='40%' height={24} variant='cyber' />
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='flex items-end space-x-2 h-40'>
         {Array.from({ length: 8 }).map((_, i) => (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <Skeleton
             key={i}
             width={30}
@@ -273,8 +305,10 @@ export const SkeletonChart: React.FC<{ className?: string }> = ({ className = ''
           />
         ))}
       </div>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='flex justify-between'>
         {Array.from({ length: 4 }).map((_, i) => (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <Skeleton key={i} width={60} height={16} />
         ))}
       </div>

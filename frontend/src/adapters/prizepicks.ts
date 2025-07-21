@@ -1,4 +1,4 @@
-﻿// Ported from Newfolder: PrizePicks adapter for external API integration;
+// Ported from Newfolder: PrizePicks adapter for external API integration;
 
 export interface PrizePicksConfig {
   apiKey?: string;

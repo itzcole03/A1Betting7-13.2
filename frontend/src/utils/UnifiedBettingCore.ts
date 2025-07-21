@@ -1,4 +1,4 @@
-﻿import EventEmitter from 'eventemitter3';
+import EventEmitter from 'eventemitter3';
 
 // Use local stubs for types if imports are missing
 type BetRecord = any;

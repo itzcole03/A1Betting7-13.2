@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, RefObject } from 'react';
+import { useEffect, useRef, RefObject } from 'react';
 
 type Event = MouseEvent | TouchEvent;
 
@@ -9,6 +9,7 @@ export const useClickOutside = <T extends HTMLElement = HTMLElement>(
   useEffect(() => {
     const listener = (event: Event) => {
       // Do nothing if clicking ref's element or descendent elements;
+      // @ts-expect-error TS(2304): Cannot find name 'el'.
       if (!el || el.contains(target)) {
         return;
       }
@@ -25,6 +26,7 @@ export const useClickOutside = <T extends HTMLElement = HTMLElement>(
     };
   }, [handler, mouseEvent]);
 
+  // @ts-expect-error TS(2304): Cannot find name 'ref'.
   return ref;
 };
 

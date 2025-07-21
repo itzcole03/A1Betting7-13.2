@@ -1,4 +1,4 @@
-﻿const mockProps = [{ id: 1, name: 'Prop 1' }];
+const mockProps = [{ id: 1, name: 'Prop 1' }];
 const mockArbs = [{ id: 1, name: 'Arb 1' }];
 const mockEntries = [{ id: 1, name: 'Entry 1' }];
 

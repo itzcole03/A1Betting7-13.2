@@ -1,4 +1,4 @@
-﻿import { useMediaQuery } from '@mui/material';
+import { useMediaQuery } from '@mui/material';
 import { createTheme as createMuiTheme, Theme } from '@mui/material/styles';
 
 // Define the theme type;

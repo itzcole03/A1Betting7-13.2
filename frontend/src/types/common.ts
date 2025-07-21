@@ -1,4 +1,4 @@
-﻿export type Sport =
+export type Sport =
   | 'NBA'
   | 'WNBA'
   | 'MLB'

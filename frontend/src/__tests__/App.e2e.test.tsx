@@ -1,9 +1,10 @@
 // App.e2e.test.tsx
 // E2E-style tests for critical user journeys: navigation, betting, streaming, settings
 
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+// Use global Jest expect, describe, it, beforeEach, jest
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import '@testing-library/jest-dom';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import App from '../App';
 
 // Mock backendDiscovery for betting page
@@ -31,7 +32,7 @@ beforeEach(() => {
         expected_value: 0.18,
       },
     ],
-  }) as any;
+  }) as unknown;
 });
 
 describe('App E2E', () => {

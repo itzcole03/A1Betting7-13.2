@@ -1,5 +1,6 @@
-﻿import { BetRecord, BettingContext, PredictionResult } from '@/types/core';
-import { UnifiedBettingCore } from './UnifiedBettingCore.ts';
+import { BetRecord, BettingContext, PredictionResult } from '@/types/core';
+import { describe, expect, it } from '@jest/globals';
+import { UnifiedBettingCore } from './UnifiedBettingCore';
 
 describe('UnifiedBettingCore', () => {
   let bettingCore: UnifiedBettingCore;

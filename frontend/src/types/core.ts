@@ -1,4 +1,4 @@
-﻿import { AlertSeverity, AlertType, EntryStatus, LineupType, PropType, Sport } from './common';
+import { AlertSeverity, AlertType, EntryStatus, LineupType, PropType, Sport } from './common';
 
 /**
  * SHAP (SHapley Additive exPlanations) value vector for model explainability;

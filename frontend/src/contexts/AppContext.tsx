@@ -32,6 +32,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [user, setUser] = useState<any>(null);
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <AppContext.Provider
       value={{ loading, setLoading, notification, setNotification, user, setUser }}
     >

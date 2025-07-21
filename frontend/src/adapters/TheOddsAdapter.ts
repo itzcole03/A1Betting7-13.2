@@ -1,4 +1,4 @@
-﻿import { UnifiedMonitor } from '@/core/UnifiedMonitor';
+import { UnifiedMonitor } from '@/core/UnifiedMonitor';
 import { DataSource } from '@/unified/DataSource';
 import { EventBus } from '@/unified/EventBus';
 

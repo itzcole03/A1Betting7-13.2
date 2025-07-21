@@ -1,4 +1,4 @@
-﻿import { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -36,6 +36,7 @@ class ViteErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           style={{
             padding: '20px',
@@ -47,6 +48,7 @@ class ViteErrorBoundary extends Component<Props, State> {
             fontFamily: "'Inter', system-ui, sans-serif",
           }}
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <h2
             style={{
               margin: '0 0 16px 0',
@@ -56,10 +58,13 @@ class ViteErrorBoundary extends Component<Props, State> {
           >
             Something went wrong
           </h2>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <p style={{ margin: '0 0 16px 0' }}>
             An error occurred in the application. Please refresh the page to continue.
           </p>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <details style={{ marginTop: '16px' }}>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <summary
               style={{
                 cursor: 'pointer',
@@ -69,6 +74,7 @@ class ViteErrorBoundary extends Component<Props, State> {
             >
               Error details (click to expand)
             </summary>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <pre
               style={{
                 backgroundColor: 'rgba(0, 0, 0, 0.2)',
@@ -84,6 +90,7 @@ class ViteErrorBoundary extends Component<Props, State> {
               {this.state.errorInfo && this.state.errorInfo.componentStack}
             </pre>
           </details>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <button
             onClick={() => window.location.reload()}
             style={{

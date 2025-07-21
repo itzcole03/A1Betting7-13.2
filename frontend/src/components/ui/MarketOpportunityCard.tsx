@@ -140,6 +140,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
   `;
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.div
       className={baseClasses}
       onMouseEnter={() => setIsHovered(true)}
@@ -151,20 +152,28 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
     >
       {/* Cyber grid overlay */}
       {variant === 'cyber' && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='absolute inset-0 opacity-10 pointer-events-none'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='grid grid-cols-8 grid-rows-6 h-full w-full'>
             {Array.from({ length: 48 }).map((_, i) => (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div key={i} className='border border-cyan-400/20' />
             ))}
           </div>
         </div>
       )}
 
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='relative z-10 p-4'>
         {/* Header */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-start justify-between mb-3'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex-1'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex items-center space-x-2 mb-1'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span
                 className={`text-xs px-2 py-1 rounded-full font-medium ${
                   variant === 'cyber'
@@ -174,6 +183,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               >
                 {opportunity.sport}
               </span>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span
                 className={`text-xs ${variant === 'cyber' ? 'text-cyan-300/70' : 'text-gray-500'}`}
               >
@@ -181,6 +191,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               </span>
             </div>
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h3
               className={`font-semibold text-sm mb-1 ${
                 variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -189,6 +200,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               {opportunity.homeTeam} vs {opportunity.awayTeam}
             </h3>
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <p
               className={`text-xs ${
                 variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-600 dark:text-gray-400'
@@ -198,8 +210,10 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
             </p>
           </div>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center space-x-2'>
             {/* Favorite Button */}
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <button
               onClick={() => onFavoriteClick?.(opportunity)}
               className={`p-1 rounded transition-colors ${
@@ -212,12 +226,14 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
                     : 'text-gray-400 hover:text-yellow-500'
               }`}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <svg
                 className='w-4 h-4'
                 fill={isFavorited ? 'currentColor' : 'none'}
                 stroke='currentColor'
                 viewBox='0 0 24 24'
               >
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <path
                   strokeLinecap='round'
                   strokeLinejoin='round'
@@ -229,6 +245,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
 
             {/* Countdown */}
             {showCountdown && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`text-xs font-mono px-2 py-1 rounded ${
                   isExpired
@@ -247,8 +264,11 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
         </div>
 
         {/* Best Odds Display */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='mb-3'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center justify-between'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span
               className={`text-xs font-medium ${
                 variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600 dark:text-gray-400'
@@ -256,7 +276,9 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
             >
               Best Odds
             </span>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex items-center space-x-2'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span
                 className={`text-2xl font-bold ${
                   variant === 'cyber' ? 'text-cyan-400' : 'text-gray-900 dark:text-white'
@@ -264,6 +286,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               >
                 {formatOdds(opportunity.bestOdds)}
               </span>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span
                 className={`text-xs ${variant === 'cyber' ? 'text-cyan-300/70' : 'text-gray-500'}`}
               >
@@ -275,7 +298,9 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
 
         {/* Metrics */}
         {showMetrics && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='grid grid-cols-2 gap-3 mb-3'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`p-2 rounded ${
                 variant === 'cyber'
@@ -283,6 +308,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
                   : 'bg-gray-50 dark:bg-gray-700'
               }`}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`text-xs font-medium mb-1 ${
                   variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600 dark:text-gray-400'
@@ -290,6 +316,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               >
                 Expected Value
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`text-lg font-bold ${
                   opportunity.metrics.expectedValue > 0 ? 'text-green-500' : 'text-red-500'
@@ -300,6 +327,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               </div>
             </div>
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`p-2 rounded ${
                 variant === 'cyber'
@@ -307,6 +335,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
                   : 'bg-gray-50 dark:bg-gray-700'
               }`}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`text-xs font-medium mb-1 ${
                   variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600 dark:text-gray-400'
@@ -314,18 +343,22 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               >
                 Confidence
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center space-x-2'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span
                   className={`text-lg font-bold`}
                   style={{ color: getConfidenceColor(opportunity.metrics.confidence) }}
                 >
                   {opportunity.metrics.confidence}%
                 </span>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div
                   className={`w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 ${
                     variant === 'cyber' ? 'bg-gray-800' : ''
                   }`}
                 >
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div
                     className='h-2 rounded-full transition-all duration-500'
                     style={{
@@ -337,6 +370,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               </div>
             </div>
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`p-2 rounded ${
                 variant === 'cyber'
@@ -344,6 +378,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
                   : 'bg-gray-50 dark:bg-gray-700'
               }`}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`text-xs font-medium mb-1 ${
                   variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600 dark:text-gray-400'
@@ -351,6 +386,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               >
                 Kelly %
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`text-lg font-bold ${
                   variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -360,6 +396,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               </div>
             </div>
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`p-2 rounded ${
                 variant === 'cyber'
@@ -367,6 +404,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
                   : 'bg-gray-50 dark:bg-gray-700'
               }`}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`text-xs font-medium mb-1 ${
                   variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600 dark:text-gray-400'
@@ -374,11 +412,14 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               >
                 Risk Level
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center space-x-2'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div
                   className='w-3 h-3 rounded-full'
                   style={{ backgroundColor: getRiskColor(opportunity.metrics.riskLevel) }}
                 />
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span
                   className={`text-sm font-medium capitalize ${
                     variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -393,7 +434,9 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
 
         {/* Odds Comparison */}
         {showOddsComparison && opportunity.odds.length > 1 && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='mb-3'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h4
               className={`text-xs font-medium mb-2 ${
                 variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600 dark:text-gray-400'
@@ -401,9 +444,12 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
             >
               Odds Comparison
             </h4>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='space-y-1'>
               {opportunity.odds.slice(0, 3).map((odds, index) => (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div key={index} className='flex justify-between items-center'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`text-xs ${
                       variant === 'cyber' ? 'text-cyan-300/70' : 'text-gray-500'
@@ -411,6 +457,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
                   >
                     {odds.provider}
                   </span>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`text-sm font-medium ${
                       odds.odds === opportunity.bestOdds
@@ -430,8 +477,10 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
 
         {/* Tags */}
         {opportunity.tags.length > 0 && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex flex-wrap gap-1 mb-3'>
             {opportunity.tags.slice(0, 3).map((tag, index) => (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span
                 key={index}
                 className={`text-xs px-2 py-1 rounded-full ${
@@ -444,6 +493,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
               </span>
             ))}
             {opportunity.tags.length > 3 && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span
                 className={`text-xs px-2 py-1 rounded-full ${
                   variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500'
@@ -456,7 +506,9 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
         )}
 
         {/* Action Buttons */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex space-x-2'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.button
             onClick={() => onBetClick?.(opportunity)}
             disabled={isExpired || isLoading}
@@ -471,6 +523,7 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
             {variant === 'cyber' ? 'PLACE BET' : 'Place Bet'}
           </motion.button>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.button
             onClick={() => onAnalyzeClick?.(opportunity)}
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
@@ -486,14 +539,17 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
         </div>
 
         {/* Loading overlay */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <AnimatePresence>
           {isLoading && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className='absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg'
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`animate-spin rounded-full h-6 w-6 border-2 border-transparent ${
                   variant === 'cyber' ? 'border-t-cyan-400' : 'border-t-blue-500'

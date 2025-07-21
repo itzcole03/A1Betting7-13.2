@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
 import { Activity, Cpu, GitBranch, RotateCcw, Settings, Target } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+// @ts-expect-error TS(6142): Module '../components/ui/badge' was resolved to 'C... Remove this comment to see the full error message
 import { Badge } from '../components/ui/badge';
+// @ts-expect-error TS(6142): Module '../components/ui/button' was resolved to '... Remove this comment to see the full error message
 import { Button } from '../components/ui/button';
+// @ts-expect-error TS(6142): Module '../components/ui/card' was resolved to 'C:... Remove this comment to see the full error message
 import { Card } from '../components/ui/card';
 
 interface QuantumNode {
@@ -277,20 +280,27 @@ export const QuantumAI: React.FC = () => {
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-8'>
       {/* Header */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className='text-center'
       >
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <Card className='p-12 bg-gradient-to-r from-purple-900/20 to-blue-900/20 border-purple-500/30'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <h1 className='text-5xl font-black bg-gradient-to-r from-purple-400 to-cyan-500 bg-clip-text text-transparent mb-4'>
             QUANTUM AI
           </h1>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <p className='text-xl text-gray-300 mb-8'>Quantum Computing & Neural Networks</p>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center justify-center gap-8'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               animate={{
                 rotate: [0, 120, 240, 360],
@@ -299,32 +309,46 @@ export const QuantumAI: React.FC = () => {
               transition={{ duration: 6, repeat: Infinity }}
               className='text-purple-500'
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <Cpu className='w-12 h-12' />
             </motion.div>
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='grid grid-cols-4 gap-8 text-center'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='text-3xl font-bold text-purple-400'>
                   {metrics ? Math.floor(metrics.quantumVolume) : 0}
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='text-gray-400'>Quantum Volume</div>
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='text-3xl font-bold text-cyan-400'>
                   {predictions.reduce((sum, p) => sum + p.quantumStates, 0).toLocaleString()}
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='text-gray-400'>Quantum States</div>
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='text-3xl font-bold text-blue-400'>
                   {predictions.reduce((sum, p) => sum + p.superpositions, 0)}
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='text-gray-400'>Superpositions</div>
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='text-3xl font-bold text-pink-400'>
                   {predictions.reduce((sum, p) => sum + p.entanglements, 0)}
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='text-gray-400'>Entanglements</div>
               </div>
             </div>
@@ -333,10 +357,15 @@ export const QuantumAI: React.FC = () => {
       </motion.div>
 
       {/* Controls */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <Card className='p-6'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='grid grid-cols-1 lg:grid-cols-4 gap-6'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <label className='block text-sm text-gray-400 mb-2' htmlFor='quantum-algorithm'>Quantum Algorithm</label>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <select
               id='quantum-algorithm'
               value={selectedAlgorithm}
@@ -344,20 +373,28 @@ export const QuantumAI: React.FC = () => {
               className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg'
               aria-label='Quantum algorithm'
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <option value='qaoa'>QAOA</option>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <option value='grover'>Grover's Search</option>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <option value='shor'>Shor's Algorithm</option>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <option value='vqe'>VQE</option>
             </select>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <p className='text-xs text-gray-500 mt-1'>
               {getAlgorithmDescription(selectedAlgorithm)}
             </p>
           </div>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <label className='block text-sm text-gray-400 mb-2' htmlFor='quantum-depth'>
               Quantum Depth: {quantumDepth}
             </label>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               id='quantum-depth'
               type='range'
@@ -370,10 +407,13 @@ export const QuantumAI: React.FC = () => {
             />
           </div>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <label className='block text-sm text-gray-400 mb-2' htmlFor='quantum-simulation-speed'>
               Simulation Speed: {simulationSpeed}x
             </label>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               id='quantum-simulation-speed'
               type='range'
@@ -387,7 +427,9 @@ export const QuantumAI: React.FC = () => {
             />
           </div>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-end gap-2'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <Button
               onClick={() => setIsQuantumActive(!isQuantumActive)}
               className={`flex-1 ${
@@ -398,6 +440,7 @@ export const QuantumAI: React.FC = () => {
             >
               {isQuantumActive ? 'Active' : 'Inactive'}
             </Button>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <Button
               onClick={() => {
                 const { nodes: newNodes, connections: newConnections } = generateQuantumNetwork();
@@ -406,6 +449,7 @@ export const QuantumAI: React.FC = () => {
               }}
               variant='outline'
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <RotateCcw className='w-4 h-4' />
             </Button>
           </div>
@@ -413,19 +457,26 @@ export const QuantumAI: React.FC = () => {
       </Card>
 
       {/* Main Content */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='grid grid-cols-1 xl:grid-cols-3 gap-8'>
         {/* Quantum Network Visualization */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='xl:col-span-2'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <Card className='p-6'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h3 className='text-xl font-bold text-white mb-4 flex items-center gap-2'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <GitBranch className='w-5 h-5 text-purple-400' />
               Quantum Neural Network
             </h3>
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className='relative bg-slate-800/50 rounded-lg p-4 overflow-hidden'
               style={{ height: '500px' }}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <svg width='100%' height='100%' className='absolute inset-0'>
                 {/* Render connections */}
                 {connections.map((connection, index) => {
@@ -435,6 +486,7 @@ export const QuantumAI: React.FC = () => {
                   if (!fromNode || !toNode) return null;
 
                   return (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <motion.line
                       key={`connection-${index}`}
                       x1={fromNode.position.x}
@@ -454,7 +506,9 @@ export const QuantumAI: React.FC = () => {
 
                 {/* Render nodes */}
                 {nodes.map((node, index) => (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <motion.g key={node.id}>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <motion.circle
                       cx={node.position.x}
                       cy={node.position.y}
@@ -477,6 +531,7 @@ export const QuantumAI: React.FC = () => {
 
                     {/* Quantum indicators */}
                     {node.type === 'quantum' && node.qubits && (
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <text
                         x={node.position.x}
                         y={node.position.y - 15}
@@ -492,21 +547,34 @@ export const QuantumAI: React.FC = () => {
               </svg>
 
               {/* Legend */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='absolute bottom-4 left-4 space-y-2 text-xs'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center gap-2'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='w-3 h-3 bg-blue-500 rounded-full'></div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span className='text-gray-300'>Input Layer</span>
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center gap-2'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='w-3 h-3 bg-purple-500 rounded-full border-2 border-pink-400'></div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span className='text-gray-300'>Quantum (Entangled)</span>
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center gap-2'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='w-3 h-3 bg-green-500 rounded-full'></div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span className='text-gray-300'>Neural Processing</span>
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center gap-2'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='w-3 h-3 bg-amber-500 rounded-full'></div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span className='text-gray-300'>Output Layer</span>
                 </div>
               </div>
@@ -515,22 +583,33 @@ export const QuantumAI: React.FC = () => {
         </div>
 
         {/* Quantum Metrics & Predictions */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='space-y-6'>
           {/* Quantum Metrics */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <Card className='p-6'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h4 className='text-lg font-bold text-white mb-4 flex items-center gap-2'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <Activity className='w-5 h-5 text-cyan-400' />
               Quantum Metrics
             </h4>
 
             {metrics && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='space-y-4'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='flex justify-between text-sm mb-1'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className='text-gray-400'>Coherence Time</span>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className='text-cyan-400'>{metrics.coherenceTime.toFixed(1)}μs</span>
                   </div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='w-full bg-gray-700 rounded-full h-2'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <motion.div
                       className='bg-gradient-to-r from-cyan-400 to-cyan-500 h-2 rounded-full'
                       animate={{ width: `${metrics.coherenceTime}%` }}
@@ -539,12 +618,18 @@ export const QuantumAI: React.FC = () => {
                   </div>
                 </div>
 
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='flex justify-between text-sm mb-1'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className='text-gray-400'>Fidelity</span>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className='text-green-400'>{(metrics.fidelity * 100).toFixed(2)}%</span>
                   </div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='w-full bg-gray-700 rounded-full h-2'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <motion.div
                       className='bg-gradient-to-r from-green-400 to-green-500 h-2 rounded-full'
                       animate={{ width: `${metrics.fidelity * 100}%` }}
@@ -553,14 +638,20 @@ export const QuantumAI: React.FC = () => {
                   </div>
                 </div>
 
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='flex justify-between text-sm mb-1'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className='text-gray-400'>Entanglement</span>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className='text-pink-400'>
                       {(metrics.entanglementDegree * 100).toFixed(1)}%
                     </span>
                   </div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='w-full bg-gray-700 rounded-full h-2'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <motion.div
                       className='bg-gradient-to-r from-pink-400 to-pink-500 h-2 rounded-full'
                       animate={{ width: `${metrics.entanglementDegree * 100}%` }}
@@ -569,12 +660,18 @@ export const QuantumAI: React.FC = () => {
                   </div>
                 </div>
 
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='flex justify-between text-sm mb-1'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className='text-gray-400'>Error Rate</span>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className='text-red-400'>{(metrics.errorRate * 100).toFixed(3)}%</span>
                   </div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='w-full bg-gray-700 rounded-full h-2'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <motion.div
                       className='bg-gradient-to-r from-red-400 to-red-500 h-2 rounded-full'
                       animate={{ width: `${metrics.errorRate * 100 * 50}%` }}
@@ -587,14 +684,19 @@ export const QuantumAI: React.FC = () => {
           </Card>
 
           {/* Quantum Predictions */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <Card className='p-6'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h4 className='text-lg font-bold text-white mb-4 flex items-center gap-2'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <Target className='w-5 h-5 text-purple-400' />
               Quantum Predictions
             </h4>
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='space-y-3'>
               {predictions.slice(0, 3).map((prediction, index) => (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <motion.div
                   key={prediction.id}
                   initial={{ opacity: 0, x: -20 }}
@@ -602,43 +704,62 @@ export const QuantumAI: React.FC = () => {
                   transition={{ delay: index * 0.1 }}
                   className='p-4 bg-slate-800/50 rounded-lg border border-slate-700/50'
                 >
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='flex items-start justify-between mb-2'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <h5 className='font-bold text-white text-sm'>{prediction.game}</h5>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-purple-400 text-sm'>{prediction.prediction}</p>
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <Badge variant='outline' className='text-gray-400 border-gray-600'>
                       {prediction.sport}
                     </Badge>
                   </div>
 
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='grid grid-cols-2 gap-2 text-xs'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='text-gray-400'>Quantum Advantage:</span>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='text-purple-400 font-bold ml-1'>
                         +{(prediction.quantumAdvantage * 100).toFixed(1)}%
                       </span>
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='text-gray-400'>Confidence:</span>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='text-green-400 font-bold ml-1'>
                         {prediction.confidence.toFixed(1)}%
                       </span>
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='text-gray-400'>States:</span>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='text-cyan-400 font-bold ml-1'>
                         {prediction.quantumStates.toLocaleString()}
                       </span>
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='text-gray-400'>Entangled:</span>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='text-pink-400 font-bold ml-1'>
                         {prediction.entanglements}
                       </span>
                     </div>
                   </div>
 
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='mt-2 text-xs text-gray-400'>
                     Classical: {(prediction.classicalProbability * 100).toFixed(1)}% → Quantum:{' '}
                     {(
@@ -653,15 +774,22 @@ export const QuantumAI: React.FC = () => {
           </Card>
 
           {/* Quantum Status */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <Card className='p-6'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h4 className='text-lg font-bold text-white mb-4 flex items-center gap-2'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <Settings className='w-5 h-5 text-blue-400' />
               System Status
             </h4>
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='space-y-3 text-sm'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center justify-between'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-gray-400'>Quantum Computer</span>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <Badge
                   variant='outline'
                   className={
@@ -673,24 +801,36 @@ export const QuantumAI: React.FC = () => {
                   {isQuantumActive ? 'Online' : 'Offline'}
                 </Badge>
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center justify-between'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-gray-400'>Algorithm</span>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-purple-400 font-bold'>{selectedAlgorithm.toUpperCase()}</span>
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center justify-between'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-gray-400'>Circuit Depth</span>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-blue-400 font-bold'>{quantumDepth}</span>
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center justify-between'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-gray-400'>Qubits Active</span>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-cyan-400 font-bold'>
                   {nodes
                     .filter(n => n.type === 'quantum')
                     .reduce((sum, n) => sum + (n.qubits || 0), 0)}
                 </span>
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center justify-between'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-gray-400'>Entangled Pairs</span>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-pink-400 font-bold'>
                   {connections.filter(c => c.entanglement).length}
                 </span>

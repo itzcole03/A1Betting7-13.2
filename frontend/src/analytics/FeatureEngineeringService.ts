@@ -1,6 +1,7 @@
-﻿// This file contains the migrated and refactored FeatureEngineeringService from the legacy workspace.
+// This file contains the migrated and refactored FeatureEngineeringService from the legacy workspace.
 // Implements feature engineering, selection, validation, transformation, monitoring, caching, and registry logic for the frontend analytics pipeline.
 
+//
 import type { EngineeredFeatures, FeatureConfig, RawPlayerData } from '@/types';
 import { FeatureSelector } from './FeatureSelector';
 // ...other imports for transformer, validator, store, registry, cache, monitor, logger...

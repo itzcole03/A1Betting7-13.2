@@ -1,4 +1,4 @@
-﻿import { EventBus } from '../core/EventBus';
+import { EventBus } from '../core/EventBus';
 import { PerformanceMonitor } from './PerformanceMonitor';
 
 export interface StrategyContext {

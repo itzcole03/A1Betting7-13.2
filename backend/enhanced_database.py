@@ -18,9 +18,16 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, AsyncGenerator, Dict, Optional
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.pool import QueuePool
 from sqlalchemy import text  # Ensure this import is present for 'text' usage
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+
+# Removed unused import QueuePool
 
 logger = logging.getLogger(__name__)
 
@@ -76,14 +83,14 @@ class DatabaseConnectionManager:
         )
 
         # Engines
-        self.primary_engine = None
-        self.fallback_engine = None
-        self.current_engine = None
+        self.primary_engine: Optional[AsyncEngine] = None
+        self.fallback_engine: Optional[AsyncEngine] = None
+        self.current_engine: Optional[AsyncEngine] = None
 
         # Session makers
-        self.primary_session_maker = None
-        self.fallback_session_maker = None
-        self.current_session_maker = None
+        self.primary_session_maker: Optional[async_sessionmaker[AsyncSession]] = None
+        self.fallback_session_maker: Optional[async_sessionmaker[AsyncSession]] = None
+        self.current_session_maker: Optional[async_sessionmaker[AsyncSession]] = None
 
         # Connection pools
         self.primary_pool = None
@@ -93,29 +100,29 @@ class DatabaseConnectionManager:
         self.connection_attempts = 0
         self.successful_connections = 0
         self.failed_connections = 0
-        self.last_error_time = None
+        self.last_error_time: Optional[datetime] = None
         self.consecutive_failures = 0
 
     async def initialize(self) -> bool:
         """Initialize database connections with retry logic"""
-        logger.info("🔄 Initializing Enhanced Database Connection Manager...")
+        logger.info("Initializing Enhanced Database Connection Manager...")
 
         # Try primary database first
         if await self._initialize_primary():
-            logger.info("✅ Primary database connected successfully")
+            logger.info("Primary database connected successfully")
             self.using_fallback = False
             self.is_initialized = True
             return True
 
         # Fall back to SQLite
-        logger.warning("⚠️ Primary database unavailable, falling back to SQLite")
+        logger.warning("WARNING: Primary database unavailable, falling back to SQLite")
         if await self._initialize_fallback():
-            logger.info("✅ Fallback database connected successfully")
+            logger.info("Fallback database connected successfully")
             self.using_fallback = True
             self.is_initialized = True
             return True
 
-        logger.error("❌ Both primary and fallback databases failed to initialize")
+        logger.error("ERROR: Both primary and fallback databases failed to initialize")
         return False
 
     async def _initialize_primary(self) -> bool:
@@ -123,17 +130,14 @@ class DatabaseConnectionManager:
         for attempt in range(self.config.max_retries):
             try:
                 logger.info(
-                    f"Attempting primary database connection (attempt {attempt + 1}/{self.config.max_retries})"
+                    "Attempting primary database connection (attempt %d/%d)",
+                    attempt + 1,
+                    self.config.max_retries,
                 )
 
-                # Create async engine with connection pooling
+                # Create async engine (no poolclass for async engines)
                 self.primary_engine = create_async_engine(
                     self.config.primary_url,
-                    poolclass=QueuePool,
-                    pool_size=self.config.pool_size,
-                    max_overflow=self.config.max_overflow,
-                    pool_timeout=self.config.pool_timeout,
-                    pool_recycle=self.config.pool_recycle,
                     connect_args=(
                         {
                             "command_timeout": self.config.connection_timeout,
@@ -150,7 +154,7 @@ class DatabaseConnectionManager:
                 # Test connection
                 async with self.primary_engine.begin() as conn:
                     result = await conn.execute(text("SELECT 1"))
-                    await result.fetchone()
+                    result.fetchone()  # Do not await, not async
 
                 # Create session maker
                 self.primary_session_maker = async_sessionmaker(
@@ -165,14 +169,16 @@ class DatabaseConnectionManager:
 
                 return True
 
-            except Exception as e:
+            except (OSError, ConnectionError, SQLAlchemyError) as e:
                 self.failed_connections += 1
                 self.consecutive_failures += 1
                 self.last_error_time = datetime.now()
                 self.health_status.last_error = str(e)
 
                 logger.warning(
-                    f"Primary database connection attempt {attempt + 1} failed: {e}"
+                    "Primary database connection attempt %d failed: %s",
+                    attempt + 1,
+                    str(e),
                 )
 
                 if attempt < self.config.max_retries - 1:
@@ -180,7 +186,7 @@ class DatabaseConnectionManager:
                         self.config.retry_delay * (2**attempt),
                         self.config.max_retry_delay,
                     )
-                    logger.info(f"Retrying in {retry_delay:.1f} seconds...")
+                    logger.info("Retrying in %.1f seconds...", retry_delay)
                     await asyncio.sleep(retry_delay)
 
         self.health_status.primary_available = False
@@ -191,21 +197,16 @@ class DatabaseConnectionManager:
         try:
             logger.info("Initializing fallback SQLite database...")
 
-            # Create async SQLite engine
+            # Create async SQLite engine (no poolclass for async engines)
             self.fallback_engine = create_async_engine(
                 self.config.fallback_url,
-                poolclass=QueuePool,
-                pool_size=5,  # Smaller pool for SQLite
-                max_overflow=10,
-                pool_timeout=10.0,
-                pool_recycle=3600,
                 connect_args={"check_same_thread": False},
             )
 
             # Test connection
             async with self.fallback_engine.begin() as conn:
                 result = await conn.execute(text("SELECT 1"))
-                _ = await result.scalar()  # Correct async usage for SQLAlchemy async
+                result.scalar()  # Do not await, not async
 
             # Create session maker
             self.fallback_session_maker = async_sessionmaker(
@@ -218,8 +219,8 @@ class DatabaseConnectionManager:
 
             return True
 
-        except Exception as e:
-            logger.error(f"Fallback database initialization failed: {e}")
+        except (OSError, ConnectionError, SQLAlchemyError) as e:
+            logger.error("Fallback database initialization failed: %s", str(e))
             self.health_status.fallback_available = False
             self.health_status.last_error = str(e)
             return False
@@ -236,7 +237,7 @@ class DatabaseConnectionManager:
         for attempt in range(max_attempts):
             try:
                 if not self.current_session_maker:
-                    raise Exception("No database session maker available")
+                    raise RuntimeError("No database session maker available")
 
                 session = self.current_session_maker()
 
@@ -253,7 +254,7 @@ class DatabaseConnectionManager:
                 await session.commit()
                 return
 
-            except Exception as e:
+            except (OSError, ConnectionError, SQLAlchemyError) as e:
                 self.failed_connections += 1
                 self.consecutive_failures += 1
                 self.last_error_time = datetime.now()
@@ -262,7 +263,9 @@ class DatabaseConnectionManager:
                 if session:
                     await session.rollback()
 
-                logger.warning(f"Database session error (attempt {attempt + 1}): {e}")
+                logger.warning(
+                    "Database session error (attempt %d): %s", attempt + 1, str(e)
+                )
 
                 # Try to recover by switching to fallback
                 if not self.using_fallback and self.health_status.fallback_available:
@@ -294,7 +297,7 @@ class DatabaseConnectionManager:
                     async with self.primary_engine.begin() as conn:
                         await conn.execute(text("SELECT 1"))
                     self.health_status.primary_available = True
-                except:
+                except (OSError, ConnectionError, SQLAlchemyError):
                     self.health_status.primary_available = False
 
             # Check fallback database
@@ -303,7 +306,7 @@ class DatabaseConnectionManager:
                     async with self.fallback_engine.begin() as conn:
                         await conn.execute(text("SELECT 1"))
                     self.health_status.fallback_available = True
-                except:
+                except (OSError, ConnectionError, SQLAlchemyError):
                     self.health_status.fallback_available = False
 
             # Update health status
@@ -312,11 +315,9 @@ class DatabaseConnectionManager:
                 or self.health_status.fallback_available
             )
 
-            # Get connection pool stats
-            if self.current_engine and hasattr(self.current_engine.pool, "size"):
-                pool = self.current_engine.pool
-                self.health_status.active_connections = pool.checkedout()
-                self.health_status.total_connections = pool.size()
+            # Remove pool stats for async engine (not available)
+            self.health_status.active_connections = 0
+            self.health_status.total_connections = 0
 
             response_time = time.time() - start_time
             self.health_status.response_time = response_time
@@ -326,21 +327,21 @@ class DatabaseConnectionManager:
 
             return self.health_status
 
-        except Exception as e:
-            logger.error(f"Health check failed: {e}")
+        except (OSError, ConnectionError, SQLAlchemyError) as e:
+            logger.error("Health check failed: %s", str(e))
             self.health_status.is_healthy = False
             self.health_status.last_error = str(e)
             return self.health_status
 
     async def attempt_recovery(self) -> bool:
         """Attempt to recover from database connection issues"""
-        logger.info("🔄 Attempting database connection recovery...")
+        logger.info("Attempting database connection recovery...")
 
         try:
             # If using fallback, try to reconnect to primary
             if self.using_fallback and not self.health_status.primary_available:
                 if await self._initialize_primary():
-                    logger.info("✅ Recovered connection to primary database")
+                    logger.info("Recovered connection to primary database")
                     self.using_fallback = False
                     self.current_engine = self.primary_engine
                     self.current_session_maker = self.primary_session_maker
@@ -350,7 +351,7 @@ class DatabaseConnectionManager:
             if not self.health_status.primary_available:
                 if not self.health_status.fallback_available:
                     if await self._initialize_fallback():
-                        logger.info("✅ Recovered connection to fallback database")
+                        logger.info("Recovered connection to fallback database")
                         self.using_fallback = True
                         self.current_engine = self.fallback_engine
                         self.current_session_maker = self.fallback_session_maker
@@ -358,13 +359,13 @@ class DatabaseConnectionManager:
 
             return False
 
-        except Exception as e:
-            logger.error(f"Database recovery failed: {e}")
+        except (OSError, ConnectionError, SQLAlchemyError) as e:
+            logger.error("Database recovery failed: %s", str(e))
             return False
 
     async def close(self):
         """Close all database connections"""
-        logger.info("🔄 Closing database connections...")
+        logger.info("Closing database connections...")
 
         try:
             if self.primary_engine:
@@ -372,10 +373,10 @@ class DatabaseConnectionManager:
             if self.fallback_engine:
                 await self.fallback_engine.dispose()
 
-            logger.info("✅ Database connections closed")
+            logger.info("Database connections closed")
 
-        except Exception as e:
-            logger.error(f"Error closing database connections: {e}")
+        except (OSError, ConnectionError, SQLAlchemyError) as e:
+            logger.error("Error closing database connections: %s", str(e))
 
     def get_stats(self) -> Dict[str, Any]:
         """Get connection statistics"""

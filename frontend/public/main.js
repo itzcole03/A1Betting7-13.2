@@ -104,10 +104,24 @@ function createMainWindow() {
   });
 
   // Load the app
-  const startUrl = isDev
-    ? 'http://localhost:8173'
-    : `file://${path.join(__dirname, '../dist/index.html')}`;
-
+  // Robustly detect production: packaged app should always load local file
+  let startUrl;
+  if (isDev) {
+    startUrl = 'http://localhost:8173';
+  } else {
+    // If running from asar, always use local file
+    startUrl = `file://${path.join(__dirname, '../dist/index.html')}`;
+    // Fallback: if local file doesn't exist, show error
+    const fs = require('fs');
+    if (!fs.existsSync(path.join(__dirname, '../dist/index.html'))) {
+      dialog.showErrorBox(
+        'Missing Build',
+        'dist/index.html not found. Please build the frontend before packaging.'
+      );
+      app.quit();
+      return;
+    }
+  }
   mainWindow.loadURL(startUrl);
 
   // Show window when ready to prevent visual flash
@@ -116,11 +130,29 @@ function createMainWindow() {
       splashWindow.close();
     }
     mainWindow.show();
-
-    // Focus on window (important on macOS)
     if (isDev) {
       mainWindow.webContents.openDevTools();
     }
+  });
+
+  // Handle renderer process crashes and failed loads
+  mainWindow.webContents.on('crashed', () => {
+    dialog.showErrorBox(
+      'Renderer Process Crashed',
+      'The renderer process has crashed. Please check logs and restart the app.'
+    );
+    console.error('Renderer process crashed');
+  });
+  mainWindow.webContents.on('unresponsive', () => {
+    dialog.showErrorBox('Renderer Unresponsive', 'The renderer process is not responding.');
+    console.error('Renderer process unresponsive');
+  });
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+    dialog.showErrorBox(
+      'Failed to Load',
+      `Error ${errorCode}: ${errorDescription}\nURL: ${validatedURL}`
+    );
+    console.error(`Failed to load: ${errorCode} - ${errorDescription} - ${validatedURL}`);
   });
 
   // Handle window closed

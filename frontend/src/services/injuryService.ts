@@ -92,6 +92,7 @@ export interface InjurySearchFilters {
 }
 
 class InjuryService {
+  // @ts-expect-error TS(2749): 'ApiService' refers to a value, but is being used ... Remove this comment to see the full error message
   private apiService: ApiService;
   private cache: Map<string, { data: any; timestamp: number }> = new Map();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes

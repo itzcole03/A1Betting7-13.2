@@ -1,4 +1,4 @@
-﻿// Placeholder file to fix TypeScript compilation errors;
+// Placeholder file to fix TypeScript compilation errors;
 // This file was causing syntax errors and preventing the app from loading;
 
 export interface Recommendation {

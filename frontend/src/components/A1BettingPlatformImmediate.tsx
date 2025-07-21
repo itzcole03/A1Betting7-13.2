@@ -1,4 +1,4 @@
-﻿import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   Activity,
   ArrowUp,
@@ -19,10 +19,14 @@ import {
 import React, { useCallback, useMemo, useState } from 'react';
 
 // Import components directly (no lazy loading for testing)
+// @ts-expect-error TS(6142): Module '../contexts/CommandSummaryContext' was res... Remove this comment to see the full error message
 import { CommandSummaryProvider, useCommandSummary } from '../contexts/CommandSummaryContext';
+// @ts-expect-error TS(6142): Module './BettingInterface' was resolved to 'C:/Us... Remove this comment to see the full error message
 import BettingInterface from './BettingInterface'; // Changed to default import
 import Dashboard from './Dashboard'; // Assuming default export
+// @ts-expect-error TS(6142): Module './PredictionDisplay' was resolved to 'C:/U... Remove this comment to see the full error message
 import PredictionDisplay from './PredictionDisplay'; // Changed to default import
+// @ts-expect-error TS(6142): Module './UserProfile' was resolved to 'C:/Users/b... Remove this comment to see the full error message
 import UserProfile from './UserProfile'; // Changed to default import
 
 /**
@@ -58,6 +62,7 @@ interface PlatformStats {
 const CommandSummarySidebar: React.FC = () => {
   const { commands, loading, error } = useCommandSummary();
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <aside
       style={{
         width: 320,
@@ -73,13 +78,20 @@ const CommandSummarySidebar: React.FC = () => {
         zIndex: 100,
       }}
     >
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>Live Command Summary</h2>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       {loading && <div>Loading commands...</div>}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       {error && <div style={{ color: 'red' }}>{error}</div>}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {commands.map(cmd => (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <li key={cmd.id} style={{ marginBottom: 16 }}>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div style={{ fontWeight: 600 }}>{cmd.name}</div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div style={{ fontSize: 14, color: '#aaa' }}>{cmd.description}</div>
           </li>
         ))}
@@ -114,6 +126,7 @@ const A1BettingPlatformImmediate: React.FC = () => {
       {
         id: 'dashboard',
         label: 'Command Center',
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         icon: <Home className='w-5 h-5' />,
         component: Dashboard,
         description: 'Live performance metrics and system overview',
@@ -121,6 +134,7 @@ const A1BettingPlatformImmediate: React.FC = () => {
       {
         id: 'opportunities',
         label: 'Live Opportunities',
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         icon: <Target className='w-5 h-5' />,
         component: Dashboard,
         badge: '23',
@@ -129,6 +143,7 @@ const A1BettingPlatformImmediate: React.FC = () => {
       {
         id: 'betting',
         label: 'Betting Interface',
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         icon: <DollarSign className='w-5 h-5' />,
         component: BettingInterface,
         badge: 'Live',
@@ -137,6 +152,7 @@ const A1BettingPlatformImmediate: React.FC = () => {
       {
         id: 'predictions',
         label: 'AI Predictions',
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         icon: <Brain className='w-5 h-5' />,
         component: PredictionDisplay,
         badge: '85%',
@@ -145,6 +161,7 @@ const A1BettingPlatformImmediate: React.FC = () => {
       {
         id: 'arbitrage',
         label: 'Arbitrage Hunter',
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         icon: <Zap className='w-5 h-5' />,
         component: Dashboard,
         badge: 'Auto',
@@ -154,6 +171,7 @@ const A1BettingPlatformImmediate: React.FC = () => {
       {
         id: 'analytics',
         label: 'Performance Analytics',
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         icon: <BarChart3 className='w-5 h-5' />,
         component: Dashboard,
         description: 'Advanced performance tracking and insights',
@@ -161,6 +179,7 @@ const A1BettingPlatformImmediate: React.FC = () => {
       {
         id: 'portfolio',
         label: 'Portfolio Manager',
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         icon: <PieChart className='w-5 h-5' />,
         component: Dashboard,
         badge: '18.5%',
@@ -169,6 +188,7 @@ const A1BettingPlatformImmediate: React.FC = () => {
       {
         id: 'models',
         label: 'ML Model Center',
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         icon: <Cpu className='w-5 h-5' />,
         component: Dashboard,
         badge: '47+',
@@ -178,6 +198,7 @@ const A1BettingPlatformImmediate: React.FC = () => {
       {
         id: 'live-data',
         label: 'Live Data Feeds',
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         icon: <Activity className='w-5 h-5' />,
         component: Dashboard,
         badge: 'Real-time',
@@ -186,6 +207,7 @@ const A1BettingPlatformImmediate: React.FC = () => {
       {
         id: 'profile',
         label: 'User Profile',
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         icon: <User className='w-5 h-5' />,
         component: UserProfile,
         description: 'Account management and preferences',
@@ -204,77 +226,117 @@ const A1BettingPlatformImmediate: React.FC = () => {
   const activeItem = navigationItems.find(item => item.id === activeView);
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white'>
       {/* Mobile Header */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='lg:hidden bg-black/20 backdrop-blur-lg border-b border-white/10 p-4'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center justify-between'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center space-x-3'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h1 className='text-xl font-bold text-yellow-400'>A1 Betting</h1>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span className='text-xs px-2 py-1 rounded-full bg-green-500/20 border-green-500/30 text-green-400'>
               Live
             </span>
           </div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className='text-white hover:text-yellow-400 transition-colors'
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             {isMobileMenuOpen ? <X className='w-6 h-6' /> : <Menu className='w-6 h-6' />}
           </button>
         </div>
       </div>
 
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='flex'>
         {/* Enhanced Sidebar */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <AnimatePresence>
           {(isMobileMenuOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               initial={{ x: -300 }}
               animate={{ x: 0 }}
               exit={{ x: -300 }}
               className='fixed lg:relative z-50 lg:z-auto w-80 h-full lg:h-screen bg-black/40 backdrop-blur-xl border-r border-white/10'
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='p-6'>
                 {/* Logo & Platform Stats */}
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='hidden lg:block mb-8'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h1 className='text-2xl font-bold text-yellow-400 mb-2'>A1 Betting Platform</h1>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <p className='text-gray-400 text-sm mb-4'>Enterprise Sports Intelligence</p>
 
                   {/* Live Stats Summary */}
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='grid grid-cols-2 gap-3 mb-6'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='bg-white/10 rounded-lg p-3 border border-white/20'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-xs text-gray-400'>Win Rate</p>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-lg font-bold text-green-400'>{stats.winRate}%</p>
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='bg-white/10 rounded-lg p-3 border border-white/20'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-xs text-gray-400'>AI Accuracy</p>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-lg font-bold text-blue-400'>{stats.accuracy}%</p>
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='bg-white/10 rounded-lg p-3 border border-white/20'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-xs text-gray-400'>Total Profit</p>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-lg font-bold text-yellow-400'>
                         ${stats.totalProfit.toLocaleString()}
                       </p>
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='bg-white/10 rounded-lg p-3 border border-white/20'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-xs text-gray-400'>ML Models</p>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-lg font-bold text-purple-400'>{stats.mlModelsActive}+</p>
                     </div>
                   </div>
 
                   {/* Advanced Performance Metrics */}
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='bg-white/5 rounded-lg p-4 mb-6 border border-white/10'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h4 className='text-sm font-semibold text-white mb-3'>Advanced Metrics</h4>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='space-y-2 text-xs'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='flex justify-between'>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <span className='text-gray-400'>Sharpe Ratio</span>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <span className='text-green-400 font-semibold'>{stats.sharpeRatio}</span>
                       </div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='flex justify-between'>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <span className='text-gray-400'>Max Drawdown</span>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <span className='text-yellow-400 font-semibold'>{stats.maxDrawdown}%</span>
                       </div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='flex justify-between'>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <span className='text-gray-400'>Opportunities</span>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <span className='text-purple-400 font-semibold'>
                           {stats.opportunitiesFound}
                         </span>
@@ -284,11 +346,14 @@ const A1BettingPlatformImmediate: React.FC = () => {
                 </div>
 
                 {/* Navigation */}
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <nav className='space-y-2'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h3 className='text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3'>
                     Platform Modules
                   </h3>
                   {navigationItems.map(item => (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <motion.button
                       key={item.id}
                       onClick={() => handleTabChange(item.id)}
@@ -300,9 +365,11 @@ const A1BettingPlatformImmediate: React.FC = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='relative'>
                         {item.icon}
                         {item.badge && (
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <span
                             className={`absolute -top-2 -right-2 text-xs rounded-full w-5 h-5 flex items-center justify-center ${
                               item.badge === 'Live' || item.badge === 'Auto'
@@ -314,11 +381,16 @@ const A1BettingPlatformImmediate: React.FC = () => {
                           </span>
                         )}
                       </div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='flex-1'>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div className='flex items-center space-x-2'>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <p className='font-medium'>{item.label}</p>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           {item.premium && <Star className='w-3 h-3 text-yellow-400' />}
                         </div>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <p className='text-xs text-gray-400 mt-1'>{item.description}</p>
                       </div>
                     </motion.button>
@@ -326,32 +398,52 @@ const A1BettingPlatformImmediate: React.FC = () => {
                 </nav>
 
                 {/* System Status */}
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='mt-8 p-4 bg-white/5 rounded-lg border border-white/10'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h4 className='text-sm font-semibold text-white mb-3 flex items-center'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <Activity className='w-4 h-4 mr-2' />
                     System Status
                   </h4>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='space-y-2'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='flex items-center justify-between'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='text-xs text-gray-400'>SportsRadar API</span>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='flex items-center space-x-2'>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <span className='text-xs text-gray-400'>75%</span>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <span className='w-2 h-2 rounded-full bg-green-400'></span>
                       </div>
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='flex items-center justify-between'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='text-xs text-gray-400'>TheOdds API</span>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='flex items-center space-x-2'>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <span className='text-xs text-gray-400'>45%</span>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <span className='w-2 h-2 rounded-full bg-green-400'></span>
                       </div>
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='flex items-center justify-between'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='text-xs text-gray-400'>ML Models</span>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='w-2 h-2 bg-green-400 rounded-full animate-pulse'></span>
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='flex items-center justify-between'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='text-xs text-gray-400'>Real-time Data</span>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='w-2 h-2 bg-green-400 rounded-full animate-pulse'></span>
                     </div>
                   </div>
@@ -362,40 +454,59 @@ const A1BettingPlatformImmediate: React.FC = () => {
         </AnimatePresence>
 
         {/* Main Content Area */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex-1 lg:ml-0'>
           {/* Enhanced Top Bar */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='hidden lg:flex items-center justify-between p-6 border-b border-white/10 bg-black/20 backdrop-blur-lg'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <h2 className='text-2xl font-bold text-white flex items-center space-x-3'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span>{activeItem?.label || 'Dashboard'}</span>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 {activeItem?.premium && <Star className='w-5 h-5 text-yellow-400' />}
               </h2>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <p className='text-gray-400 text-sm'>
                 {activeItem?.description || 'Platform overview'}
               </p>
             </div>
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex items-center space-x-6'>
               {/* Today's P&L */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='text-right'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <p className='text-xs text-gray-400'>Today's P&L</p>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center space-x-2'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <p className='font-semibold text-green-400'>
                     +${stats.safeNumber?.(stats.todayPnL, 2) || stats.todayPnL.toFixed(2)}
                   </p>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <ArrowUp className='w-4 h-4 text-green-400' />
                 </div>
               </div>
 
               {/* System Health Indicator */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center space-x-2 px-3 py-2 rounded-lg bg-green-500/20 border-green-500/30'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <CheckCircle className='w-4 h-4 text-green-400' />
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-sm font-medium text-green-400'>All Systems Live</span>
               </div>
 
               {/* Live Opportunities Counter */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center space-x-2'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <Target className='w-4 h-4 text-purple-400' />
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-sm text-purple-400 font-medium'>
                   {stats.opportunitiesFound} Live Opportunities
                 </span>
@@ -404,6 +515,7 @@ const A1BettingPlatformImmediate: React.FC = () => {
           </div>
 
           {/* Component Content */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             key={activeView}
             initial={{ opacity: 0, y: 20 }}
@@ -412,6 +524,7 @@ const A1BettingPlatformImmediate: React.FC = () => {
             transition={{ duration: 0.3 }}
             className='min-h-screen'
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <ActiveComponent />
           </motion.div>
         </div>
@@ -419,6 +532,7 @@ const A1BettingPlatformImmediate: React.FC = () => {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -429,25 +543,31 @@ const A1BettingPlatformImmediate: React.FC = () => {
       )}
 
       {/* Floating Action Button for Mobile */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='lg:hidden fixed bottom-6 right-6 z-30'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.button
           className='w-14 h-14 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center shadow-lg'
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setActiveView('opportunities')}
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <Target className='w-6 h-6 text-black' />
         </motion.button>
       </div>
 
       {/* Inject live command summary sidebar */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <CommandSummarySidebar />
     </div>
   );
 };
 
 export default (props: any) => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <CommandSummaryProvider>
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <A1BettingPlatformImmediate {...props} />
   </CommandSummaryProvider>
 );

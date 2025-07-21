@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// @ts-expect-error TS(2307): Cannot find module '@/lib/utils' or its correspond... Remove this comment to see the full error message
 import { cn } from '@/lib/utils';
 
 // Types for unified UI system
@@ -297,6 +298,7 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div
       className={cn(
         getVariantClasses(variant, uiState.theme),
@@ -306,10 +308,15 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
     >
       {/* Global Loading Overlay */}
       {uiState.loading && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className={cn('p-6 rounded-lg', uiState.theme.surface, uiState.theme.shadow)}>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex items-center space-x-3'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='animate-spin w-6 h-6 border-2 border-current border-t-transparent rounded-full' />
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span>Loading...</span>
             </div>
           </div>
@@ -318,8 +325,10 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
 
       {/* Notifications */}
       {uiState.notifications.length > 0 && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='fixed top-4 right-4 z-40 space-y-2 max-w-sm'>
           {uiState.notifications.map(notification => (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               key={notification.id}
               className={cn(
@@ -334,11 +343,16 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
                 }
               )}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex justify-between items-start'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex-1'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h4 className='font-medium'>{notification.title}</h4>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <p className='text-sm opacity-80 mt-1'>{notification.message}</p>
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button
                   onClick={() => removeNotification(notification.id)}
                   className='ml-2 text-sm opacity-60 hover:opacity-100'
@@ -348,8 +362,10 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
               </div>
 
               {notification.actions && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex space-x-2 mt-3'>
                   {notification.actions.map((action, index) => (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <button
                       key={index}
                       onClick={() => handleNotificationAction(notification.id, index)}
@@ -372,15 +388,20 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
 
       {/* Error Display */}
       {uiState.error && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='fixed top-4 left-1/2 transform -translate-x-1/2 z-40'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
             className={cn(
               'p-4 rounded-lg border border-red-500 bg-red-50 text-red-700 shadow-lg',
               'flex items-center space-x-3'
             )}
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span>❌</span>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span>{uiState.error}</span>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <button
               onClick={() => updateUIState({ error: null })}
               className='ml-2 text-red-500 hover:text-red-700'
@@ -393,6 +414,7 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
 
       {/* Header */}
       {showHeader && !uiState.focusMode && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <header
           className={cn(
             'border-b backdrop-blur-sm z-30',
@@ -401,9 +423,12 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
           )}
         >
           {header || (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex items-center justify-between p-4'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center space-x-4'>
                 {showSidebar && (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <button
                     onClick={toggleSidebar}
                     className='p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -412,11 +437,14 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
                     ☰
                   </button>
                 )}
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <h1 className='text-lg font-semibold'>A1 Betting Platform</h1>
               </div>
 
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center space-x-2'>
                 {enableThemeToggle && (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <button
                     onClick={cycleTheme}
                     className='p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -426,6 +454,7 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
                   </button>
                 )}
                 {enableFocusMode && (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <button
                     onClick={toggleFocusMode}
                     className='p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -435,6 +464,7 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
                   </button>
                 )}
                 {enableFullscreen && (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <button
                     onClick={toggleFullscreen}
                     className='p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -451,12 +481,16 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
 
       {/* Controls Bar */}
       {showControls && !uiState.focusMode && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className={cn('border-b z-20', uiState.theme.surface, uiState.theme.border)}>
           {controls || (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='p-2 flex items-center justify-between'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='text-sm opacity-70'>
                 {uiState.theme.name} Theme • {uiState.layout.density} Density
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='text-xs opacity-50'>
                 Shortcuts: Ctrl+B (sidebar), Ctrl+F (fullscreen), Ctrl+. (focus)
               </div>
@@ -466,9 +500,11 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
       )}
 
       {/* Main Layout */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='flex flex-1 relative'>
         {/* Sidebar */}
         {showSidebar && !uiState.focusMode && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <aside
             className={cn(
               'border-r transition-all duration-300 z-10',
@@ -478,7 +514,9 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
             )}
           >
             {sidebar || (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='p-4'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div
                   className={cn('text-sm opacity-70', uiState.sidebarCollapsed && 'text-center')}
                 >
@@ -490,15 +528,18 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
         )}
 
         {/* Main Content */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <main className='flex-1 overflow-auto'>{children}</main>
       </div>
 
       {/* Footer */}
       {showFooter && !uiState.focusMode && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <footer
           className={cn('border-t mt-auto z-10', uiState.theme.surface, uiState.theme.border)}
         >
           {footer || (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='p-4 text-center text-sm opacity-70'>A1 Betting Platform © 2024</div>
           )}
         </footer>
@@ -506,20 +547,29 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
 
       {/* Cyber Effects */}
       {variant === 'cyber' && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='fixed inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 pointer-events-none' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='fixed inset-0 bg-grid-white/[0.02] pointer-events-none' />
           {/* Animated corners */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='fixed top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-cyan-500/50 pointer-events-none' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='fixed top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-cyan-500/50 pointer-events-none' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='fixed bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-cyan-500/50 pointer-events-none' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='fixed bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-cyan-500/50 pointer-events-none' />
         </>
       )}
 
       {/* Focus Mode Indicator */}
       {uiState.focusMode && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='fixed top-4 left-4 z-40'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className={cn('px-3 py-1 rounded text-sm', uiState.theme.accent)}>🎯 Focus Mode</div>
         </div>
       )}

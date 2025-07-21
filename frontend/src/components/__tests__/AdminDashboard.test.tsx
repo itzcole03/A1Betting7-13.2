@@ -1,6 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+// @ts-expect-error TS(6142): Module '../../contexts/AuthContext' was resolved t... Remove this comment to see the full error message
 import { useAuth } from '../../contexts/AuthContext';
+// @ts-expect-error TS(6142): Module '../AdminDashboard' was resolved to 'C:/Use... Remove this comment to see the full error message
 import AdminDashboard from '../AdminDashboard';
 
 // Mock the AuthContext
@@ -29,6 +31,7 @@ describe('AdminDashboard', () => {
 
   it('renders access denied for non-admin users', () => {
     mockUseAuth.mockReturnValue({
+      // @ts-expect-error TS(2741): Property 'id' is missing in type '{ email: string;... Remove this comment to see the full error message
       user: { email: 'user@example.com', role: 'user' },
       isAdmin: false,
       checkAdminStatus: () => false,
@@ -40,6 +43,7 @@ describe('AdminDashboard', () => {
       error: null,
     });
 
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     render(<AdminDashboard />);
 
     expect(screen.getByText('Access Denied')).toBeInTheDocument();
@@ -50,6 +54,7 @@ describe('AdminDashboard', () => {
 
   it('renders loading state initially for admin users', () => {
     mockUseAuth.mockReturnValue({
+      // @ts-expect-error TS(2741): Property 'id' is missing in type '{ email: string;... Remove this comment to see the full error message
       user: { email: 'admin@example.com', role: 'admin' },
       isAdmin: true,
       checkAdminStatus: () => true,
@@ -61,6 +66,7 @@ describe('AdminDashboard', () => {
       error: null,
     });
 
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     render(<AdminDashboard />);
 
     expect(screen.getByText('Loading Admin Dashboard...')).toBeInTheDocument();
@@ -68,6 +74,7 @@ describe('AdminDashboard', () => {
 
   it('renders admin dashboard for admin users after loading', async () => {
     mockUseAuth.mockReturnValue({
+      // @ts-expect-error TS(2741): Property 'id' is missing in type '{ email: string;... Remove this comment to see the full error message
       user: { email: 'admin@example.com', role: 'admin' },
       isAdmin: true,
       checkAdminStatus: () => true,
@@ -79,6 +86,7 @@ describe('AdminDashboard', () => {
       error: null,
     });
 
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     render(<AdminDashboard />);
 
     await waitFor(() => {
@@ -90,6 +98,7 @@ describe('AdminDashboard', () => {
 
   it('handles exit admin mode button click', async () => {
     mockUseAuth.mockReturnValue({
+      // @ts-expect-error TS(2741): Property 'id' is missing in type '{ email: string;... Remove this comment to see the full error message
       user: { email: 'admin@example.com', role: 'admin' },
       isAdmin: true,
       checkAdminStatus: () => true,
@@ -102,6 +111,7 @@ describe('AdminDashboard', () => {
     });
 
     const user = userEvent.setup();
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     render(<AdminDashboard />);
 
     await waitFor(() => {
@@ -116,6 +126,7 @@ describe('AdminDashboard', () => {
 
   it('handles back to dashboard button in access denied state', async () => {
     mockUseAuth.mockReturnValue({
+      // @ts-expect-error TS(2741): Property 'id' is missing in type '{ email: string;... Remove this comment to see the full error message
       user: { email: 'user@example.com', role: 'user' },
       isAdmin: false,
       checkAdminStatus: () => false,
@@ -128,6 +139,7 @@ describe('AdminDashboard', () => {
     });
 
     const user = userEvent.setup();
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     render(<AdminDashboard />);
 
     const backButton = screen.getByText('Back to Dashboard');
@@ -140,6 +152,7 @@ describe('AdminDashboard', () => {
     const adminUser = { email: 'cole@example.com', role: 'admin' };
 
     mockUseAuth.mockReturnValue({
+      // @ts-expect-error TS(2741): Property 'id' is missing in type '{ email: string;... Remove this comment to see the full error message
       user: adminUser,
       isAdmin: true,
       checkAdminStatus: () => true,
@@ -151,6 +164,7 @@ describe('AdminDashboard', () => {
       error: null,
     });
 
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     render(<AdminDashboard />);
 
     await waitFor(() => {

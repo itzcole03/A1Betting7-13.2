@@ -9,6 +9,7 @@ interface LogEntry {
 }
 
 class Logger {
+  // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
   private isDevelopment = import.meta.env.DEV;
 
   private formatMessage(level: LogLevel, message: string, data?: any, context?: string): LogEntry {

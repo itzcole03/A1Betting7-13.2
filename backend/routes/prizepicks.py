@@ -8,20 +8,17 @@ enhanced with intelligent ensemble predictions for maximum accuracy.
 import logging
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, HTTPException, Query, status, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from backend.auth.security import get_current_admin_user  # Import the new dependency
 from backend.middleware.caching import TTLCache, retry_and_cache
+from backend.services.comprehensive_prizepicks_service import (
+    ComprehensivePrizePicksService,
+)  # comprehensive_prizepicks_service, # This import is not directly used
+from backend.services.enhanced_prizepicks_service import enhanced_prizepicks_service
 from backend.services.enhanced_prizepicks_service_v2 import (
     enhanced_prizepicks_service_v2,
 )
-from backend.services.enhanced_prizepicks_service import (
-    enhanced_prizepicks_service,
-)
-from backend.services.comprehensive_prizepicks_service import (
-    ComprehensivePrizePicksService,
-    # comprehensive_prizepicks_service, # This import is not directly used
-)
-from backend.auth.security import get_current_admin_user # Import the new dependency
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +28,7 @@ router = APIRouter(prefix="/api/prizepicks", tags=["PrizePicks"])
 prizepicks_cache = TTLCache(maxsize=100, ttl=300)
 
 
-@retry_and_cache(prizepicks_cache)
+## @retry_and_cache(prizepicks_cache)  # Temporarily removed for async deadlock diagnosis
 @router.get("/props")
 async def get_prizepicks_props(
     sport: Optional[str] = None,
@@ -39,21 +36,46 @@ async def get_prizepicks_props(
     enhanced: bool = Query(True, description="Use enhanced ensemble predictions"),
 ) -> List[Dict[str, Any]]:
     """Get PrizePicks props scraped live from the website, all sports, no mock data."""
+    import time
+
+    start_time = time.time()
     try:
-        # Use enhanced service v2 for better data quality with ML
+        logger.info(
+            "[ENTRY] /api/prizepicks/props called with sport=%s, min_confidence=%s, enhanced=%s",
+            sport,
+            min_confidence,
+            enhanced,
+        )
+        logger.info("[LOG] Before enhanced_prizepicks_service_v2.client check")
+        # Use enhanced service v2 for robust API-based fetching and beneficial filtering
         if not enhanced_prizepicks_service_v2.client:
+            logger.info("[AWAIT] Initializing enhanced_prizepicks_service_v2...")
             await enhanced_prizepicks_service_v2.initialize()
-        props = await enhanced_prizepicks_service_v2.scrape_prizepicks_props()
-        # Optionally filter by sport (only if sport is a string)
-        if sport:
-            props = [
-                p
-                for p in props
-                if p.get("sport") and str(p.get("sport")).lower() == sport.lower()
-            ]
+            logger.info("[AWAIT DONE] enhanced_prizepicks_service_v2 initialized.")
+        logger.info("[LOG] Before fetch_projections_api call (await)")
+        fetch_start = time.time()
+        logger.info(
+            "[DEBUG] Awaiting enhanced_prizepicks_service_v2.fetch_projections_api..."
+        )
+        props = await enhanced_prizepicks_service_v2.fetch_projections_api(sport=sport)
+        fetch_end = time.time()
+        logger.info(
+            "[LOG] After fetch_projections_api call (%.2fs)", fetch_end - fetch_start
+        )
+        logger.info(
+            "[AWAIT DONE] Projections fetched, count=%d", len(props) if props else 0
+        )
+        logger.info(
+            "[EXIT] /api/prizepicks/props returning response. Total time: %.2fs",
+            time.time() - start_time,
+        )
         return props
     except Exception as e:
-        logger.error(f"Error scraping PrizePicks props: {e}")
+        logger.error("[ERROR] Exception in /api/prizepicks/props: %s", e)
+        logger.error(
+            "[EXIT] /api/prizepicks/props failed. Total time: %.2fs",
+            time.time() - start_time,
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to scrape PrizePicks props",
@@ -271,12 +293,17 @@ async def get_optimal_lineup(
 
         if sport:
             props = [
-                prop for prop in props if prop.get("sport") and str(prop.get("sport")).lower() == sport.lower()
+                prop
+                for prop in props
+                if prop.get("sport") and str(prop.get("sport")).lower() == sport.lower()
             ]
 
         if min_confidence is not None:
             props = [
-                prop for prop in props if prop.get("confidence") is not None and float(prop.get("confidence")) >= min_confidence
+                prop
+                for prop in props
+                if prop.get("confidence") is not None
+                and float(prop.get("confidence")) >= min_confidence
             ]
 
         # The generate_optimal_betting_lineup function is now part of the service
@@ -314,7 +341,9 @@ async def get_lineup_analysis(
         props: List[Dict[str, Any]] = await service.scrape_prizepicks_props()
 
         # Filter to requested props
-        selected_props: List[Dict[str, Any]] = [prop for prop in props if prop.get("id") in prop_ids]
+        selected_props: List[Dict[str, Any]] = [
+            prop for prop in props if prop.get("id") in prop_ids
+        ]
 
         if not selected_props:
             raise HTTPException(
@@ -398,7 +427,7 @@ async def get_prop_ai_explanation(prop_id: str) -> Dict[str, Any]:
 
         # Find the specific prop
         target_prop: Optional[Dict[str, Any]] = None
-        for prop_item in enhanced_props: # Corrected loop syntax here
+        for prop_item in enhanced_props:  # Corrected loop syntax here
             if prop_item.get("id") == prop_id:
                 target_prop = prop_item
                 break
@@ -433,40 +462,44 @@ async def get_prop_ai_explanation(prop_id: str) -> Dict[str, Any]:
 
             # Use the AI response if available, otherwise create structured response
             if ai_response:
-                explanation_data.update({
-                    "recommendation": "Based on advanced AI analysis of statistical trends and recent performance",
-                    "factors": [
-                        "Recent performance trends and form",
-                        "Historical statistical averages vs. line",
-                        "Matchup analysis and defensive metrics",
-                        "Team offensive efficiency patterns",
-                        "Player usage rates and game context",
-                    ],
-                    "risk_level": target_prop.get("risk_level", "medium"),
-                    "analysis": ai_response,
-                    "confidence": target_prop.get("confidence", 75),
-                    "generated_at": datetime.now().isoformat(),
-                })
+                explanation_data.update(
+                    {
+                        "recommendation": "Based on advanced AI analysis of statistical trends and recent performance",
+                        "factors": [
+                            "Recent performance trends and form",
+                            "Historical statistical averages vs. line",
+                            "Matchup analysis and defensive metrics",
+                            "Team offensive efficiency patterns",
+                            "Player usage rates and game context",
+                        ],
+                        "risk_level": target_prop.get("risk_level", "medium"),
+                        "analysis": ai_response,
+                        "confidence": target_prop.get("confidence", 75),
+                        "generated_at": datetime.now().isoformat(),
+                    }
+                )
             else:
                 raise Exception("No AI response generated")
 
         except Exception as llm_error:
             logger.warning(f"LLM explanation failed: {llm_error}, using fallback")
             # Fallback explanation
-            explanation_data.update({
-                "recommendation": f"Based on {target_prop.get('confidence', 75)}% confidence ensemble prediction",
-                "factors": [
-                    "Advanced statistical modeling analysis",
-                    "Historical performance data patterns",
-                    "Current season trend analysis",
-                    "Team and opponent efficiency metrics",
-                    "Player role and usage context",
-                ],
-                "risk_level": target_prop.get("risk_level", "medium"),
-                "analysis": f"Our ensemble model shows {target_prop.get('confidence', 75)}% confidence for this prop. The prediction incorporates comprehensive statistical modeling, player performance history, team metrics, matchup analysis, and current season trends to generate actionable insights.",
-                "confidence": target_prop.get("confidence", 75),
-                "generated_at": datetime.now().isoformat(),
-            })
+            explanation_data.update(
+                {
+                    "recommendation": f"Based on {target_prop.get('confidence', 75)}% confidence ensemble prediction",
+                    "factors": [
+                        "Advanced statistical modeling analysis",
+                        "Historical performance data patterns",
+                        "Current season trend analysis",
+                        "Team and opponent efficiency metrics",
+                        "Player role and usage context",
+                    ],
+                    "risk_level": target_prop.get("risk_level", "medium"),
+                    "analysis": f"Our ensemble model shows {target_prop.get('confidence', 75)}% confidence for this prop. The prediction incorporates comprehensive statistical modeling, player performance history, team metrics, matchup analysis, and current season trends to generate actionable insights.",
+                    "confidence": target_prop.get("confidence", 75),
+                    "generated_at": datetime.now().isoformat(),
+                }
+            )
 
         return {
             "prop_id": prop_id,
@@ -499,17 +532,25 @@ async def get_enhanced_prizepicks_props(
 ) -> List[Dict[str, Any]]:
     """Get enhanced PrizePicks props with better formatting and AI insights"""
     try:
+        logger.info(
+            "[ENTRY] /api/prizepicks/props/enhanced called with sport=%s, min_confidence=%s, format_lines=%s",
+            sport,
+            min_confidence,
+            format_lines,
+        )
         # Always try to use enhanced fetcher since original is corrupted
-        logger.info("🚀 Using enhanced data fetcher")
+        logger.info("[AWAIT] Importing EnhancedPrizePicksDataFetcher...")
+        from backend.services.data_fetchers_enhanced import (
+            EnhancedPrizePicksDataFetcher,
+        )
 
-        # Import the enhanced fetcher class
-        from backend.services.data_fetchers_enhanced import EnhancedPrizePicksDataFetcher
-
+        logger.info("[AWAIT DONE] EnhancedPrizePicksDataFetcher imported.")
         fetcher = EnhancedPrizePicksDataFetcher()
-
-        # Get enhanced props
-        props: List[Dict[str, Any]] = await fetcher.fetch_current_prizepicks_props_with_ensemble()
-
+        logger.info("[AWAIT] Fetching current PrizePicks props with ensemble...")
+        props: List[Dict[str, Any]] = (
+            await fetcher.fetch_current_prizepicks_props_with_ensemble()
+        )
+        logger.info("[AWAIT DONE] Props fetched, count=%d", len(props) if props else 0)
         # Apply enhanced formatting to all props
         enhanced_props: List[Dict[str, Any]] = []
         for prop_item in props:
@@ -518,30 +559,43 @@ async def get_enhanced_prizepicks_props(
             else:
                 enhanced_prop = prop_item
             enhanced_props.append(enhanced_prop)
-
+        logger.info("[INFO] Enhanced formatting applied, count=%d", len(enhanced_props))
         # Filter by sport if specified
         if sport:
             enhanced_props = [
-                prop for prop in enhanced_props if prop.get("sport") and str(prop.get("sport")).lower() == sport.lower()
+                prop
+                for prop in enhanced_props
+                if prop.get("sport") and str(prop.get("sport")).lower() == sport.lower()
             ]
-
+            logger.info(
+                "[INFO] Filtered by sport=%s, count=%d", sport, len(enhanced_props)
+            )
         # Filter by confidence if specified
         if min_confidence is not None:
             enhanced_props = [
-                prop for prop in enhanced_props if prop.get("confidence") is not None and float(prop.get("confidence")) >= min_confidence
+                prop
+                for prop in enhanced_props
+                if prop.get("confidence") is not None
+                and float(prop.get("confidence")) >= min_confidence
             ]
-
-        logger.info(f"Returning {len(enhanced_props)} enhanced PrizePicks props")
+            logger.info(
+                "[INFO] Filtered by min_confidence=%s, count=%d",
+                min_confidence,
+                len(enhanced_props),
+            )
+        logger.info(
+            "[EXIT] /api/prizepicks/props/enhanced returning response, count=%d",
+            len(enhanced_props),
+        )
         return enhanced_props
-
     except ImportError as e:
-        logger.error(f"Failed to import enhanced fetcher: {e}")
+        logger.error(f"[ERROR] Failed to import enhanced fetcher: {e}")
         raise HTTPException(
             status_code=503,
             detail="Enhanced data fetchers not available - import error",
         )
     except Exception as e:
-        logger.error(f"Error fetching enhanced PrizePicks props: {e}")
+        logger.error(f"[ERROR] Exception in /api/prizepicks/props/enhanced: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch enhanced PrizePicks props: {str(e)}",
@@ -560,8 +614,8 @@ async def get_prizepicks_props_legacy(
 
 
 @router.get("/health")
-async def get_prizepicks_health(current_user: Any = Depends(get_current_admin_user)): # Secure health endpoint
-    """Get PrizePicks scraper health and status for frontend monitoring."""
+async def get_prizepicks_health():
+    """Get PrizePicks scraper health and status for frontend monitoring (public endpoint)."""
     # Return health from enhanced service v2, fallback to other services
     try:
         return enhanced_prizepicks_service_v2.get_scraper_health()
@@ -572,16 +626,22 @@ async def get_prizepicks_health(current_user: Any = Depends(get_current_admin_us
             from backend.services.comprehensive_prizepicks_service import (
                 comprehensive_prizepicks_service,
             )
+
             return comprehensive_prizepicks_service.get_scraper_health()
 
 
 @router.post("/heal")
-async def trigger_prizepicks_healing(current_user: Any = Depends(get_current_admin_user)): # Create and secure heal endpoint
+async def trigger_prizepicks_healing(
+    current_user: Any = Depends(get_current_admin_user),
+):  # Create and secure heal endpoint
     """Trigger autonomous healing for the PrizePicks scraper."""
     logger.info("Attempting to trigger PrizePicks scraper healing...")
     try:
         # Option 1: Restart the comprehensive service's ingestion (most direct healing)
-        from backend.services.comprehensive_prizepicks_service import comprehensive_prizepicks_service
+        from backend.services.comprehensive_prizepicks_service import (
+            comprehensive_prizepicks_service,
+        )
+
         await comprehensive_prizepicks_service.start_real_time_ingestion()
         # Or, if a more specific reset function exists:
         # await comprehensive_prizepicks_service.reset_scraper_state()

@@ -13,6 +13,7 @@ const typeColors: Record<string, string> = {
 };
 
 const Alert: React.FC<AlertProps> = ({ type = 'info', message }) => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div
     style={{
       background: typeColors[type],

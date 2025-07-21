@@ -1,4 +1,4 @@
-﻿// This is a temporary file to help identify the JSX structure issue;
+// This is a temporary file to help identify the JSX structure issue;
 // The problem appears to be around the refresh controls section;
 
 // Expected structure should be:

@@ -1,10 +1,29 @@
-Directory structure:
-└── octocat-hello-world/
-    └── README
+============================= test session starts =============================
+platform win32 -- Python 3.12.0, pytest-8.4.1, pluggy-1.6.0
+rootdir: C:\Users\bcmad\Downloads\A1Betting7-13.2
+plugins: anyio-4.9.0, asyncio-1.1.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 134 items
 
-================================================
-FILE: README
-================================================
-Hello World!
-
-
+backend\simple_ollama_test.py F                                          [  0%]
+backend\test_api_endpoint.py .                                           [  1%]
+backend\test_edge_cases.py .                                             [  2%]
+backend\test_enhanced_propollama.py .                                    [  2%]
+backend\test_ensemble_simple.py .E..E.                                   [  7%]
+backend\test_main_endpoints.py ...FFF.F..........                        [ 20%]
+backend\test_match_model.py ......                                       [ 25%]
+backend\test_phase_2_complete.py F                                       [ 26%]
+backend\test_phase_3.py F                                                [ 26%]
+backend\test_prizepicks_api.py F                                         [ 27%]
+backend\test_seasonal_filtering.py .                                     [ 28%]
+backend\test_unified_interface.py FF                                     [ 29%]
+backend\test_user_model.py EEEEEE                                        [ 34%]
+backend\tests\test_api_key_auth.py ...                                   [ 36%]
+backend\tests\test_api_v1.py .FFFFFFFFFFFFFFFFFF                         [ 50%]
+backend\tests\test_endpoints.py .F...                                    [ 54%]
+backend\tests\test_error_handling.py ..                                  [ 55%]
+backend\tests\test_health_endpoints.py F....                             [ 59%]
+backend\tests\test_meta_learning.py .............                        [ 69%]
+backend\tests\test_nas_implementation.py .........                       [ 76%]
+backend\tests\test_prizepicks_endpoints.py .....                         [ 79%]
+backend\tests\test_propollama_api.py .

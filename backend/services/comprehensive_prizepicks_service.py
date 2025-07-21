@@ -8,12 +8,13 @@ from typing import Any, Dict, List, Optional
 import httpx
 import numpy as np
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 # Stub unresolved models
 PrizePicksProjection = None
-ProjectionHistory = None
+from backend.models.projection_history import ProjectionHistory
+
 PlayerPerformance = None
 ProjectionAnalysis = None
 
@@ -73,7 +74,7 @@ class ComprehensivePrizePicksService:
             },
         ]
 
-    def __init__(self, database_url: str = "sqlite:///prizepicks_data.db"):
+    def __init__(self, database_url: str = "sqlite:///backend/a1betting.db"):
         self.base_url = "https://api.prizepicks.com"
         self.database_url = database_url
         self.engine = create_engine(self.database_url, future=True)
@@ -124,13 +125,15 @@ class ComprehensivePrizePicksService:
         - Extracts props data, caches, and returns
         - Adds robust error handling and logging
         """
-        import os
         import json
+        import os
         import random
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
+
         import undetected_chromedriver as uc  # type: ignore
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support import expected_conditions as EC
+        from selenium.webdriver.support.ui import WebDriverWait
+
         props: list[dict[str, str]] = []
         user_agents: list[str] = [
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -162,7 +165,9 @@ class ComprehensivePrizePicksService:
             options.add_argument(f"--proxy-server={selected_proxy}")
         # Headless mode (optional, but some sites block headless)
         # options.headless = True
-        cookies_path = os.path.join(os.path.dirname(__file__), "../../prizepicks_cookies.json")
+        cookies_path = os.path.join(
+            os.path.dirname(__file__), "../../prizepicks_cookies.json"
+        )
         cookies_path = os.path.abspath(cookies_path)
         try:
             with uc.Chrome(options=options) as driver:  # type: ignore
@@ -179,19 +184,27 @@ class ComprehensivePrizePicksService:
                         try:
                             driver.add_cookie(cookie)  # type: ignore
                         except Exception as e:
-                            logger.warning(f"[COOKIES] Failed to add cookie: {cookie.get('name', '')} - {e}")
+                            logger.warning(
+                                f"[COOKIES] Failed to add cookie: {cookie.get('name', '')} - {e}"
+                            )
                     driver.refresh()
                     logger.info("[COOKIES] Cookies injected and page refreshed.")
                 else:
-                    logger.warning(f"[COOKIES] No cookies file found at {cookies_path}. You must export cookies after solving the captcha manually.")
+                    logger.warning(
+                        f"[COOKIES] No cookies file found at {cookies_path}. You must export cookies after solving the captcha manually."
+                    )
                 # Wait for props data to load (update selector as needed)
                 try:
                     WebDriverWait(driver, 30).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, "[data-testid='props-list']"))
+                        EC.presence_of_element_located(
+                            (By.CSS_SELECTOR, "[data-testid='props-list']")
+                        )
                     )
                     logger.info("[SCRAPER] Props list loaded.")
                     # Extract props data (update selector/logic as needed)
-                    props_elements = driver.find_elements(By.CSS_SELECTOR, "[data-testid='props-list']")
+                    props_elements = driver.find_elements(
+                        By.CSS_SELECTOR, "[data-testid='props-list']"
+                    )
                     for elem in props_elements:
                         try:
                             props.append({"raw": elem.text})
@@ -208,35 +221,35 @@ class ComprehensivePrizePicksService:
         try:
             Base.metadata.create_all(self.engine)
             self.session = self.SessionLocal()
-            logger.info("✅ PrizePicks database initialized successfully")
+            logger.info("PrizePicks database initialized successfully")
         except OperationalError as e:
             logger.error("❌ Database operational error: %s", e)
             # Potentially raise a custom exception or trigger a fallback
         except SQLAlchemyError as e:
             logger.error("❌ Database SQLAlchemy error: %s", e)
             # General SQLAlchemy error
-        except Exception as e: # Keep this as a fallback for truly unexpected issues for now
-            logger.error("❌ Database initialization failed with an unexpected error: %s", e)
-
+        except (
+            Exception
+        ) as e:  # Keep this as a fallback for truly unexpected issues for now
+            logger.error(
+                "❌ Database initialization failed with an unexpected error: %s", e
+            )
 
     async def initialize(self):
-        """Initialize the HTTP client and prepare the service for use"""
+        logger.info("PrizePicks database initialized successfully")
         import os
 
         user_agent_path = os.path.join(os.path.dirname(__file__), "../user_agent.txt")
-        user_agent_path = os.path.abspath(user_agent_path)
         user_agent = None
         if os.path.exists(user_agent_path):
             with open(user_agent_path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-                for line in lines:
-                    if line.strip().lower().startswith("mozilla"):
-                        user_agent = line.strip()
-                        break
+                for line in f:
+                    user_agent = line.strip()
+                    break
         if not user_agent:
             user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
         if not self.http_client:
-            logger.info("🔧 Initializing PrizePicks HTTP client...")
+            logger.info("Initializing PrizePicks HTTP client...")
             headers = {
                 "User-Agent": user_agent,
                 "Accept": "application/json, text/plain, */*",
@@ -276,11 +289,12 @@ class ComprehensivePrizePicksService:
         Load recent projections from the database (last 24 hours, active/pre_game/open/live).
         """
         from datetime import datetime, timedelta
+
         if not self.session:
-            logger.warning("⚠️ Database session not available")
+            logger.warning("Database session not available")
             return
         try:
-            logger.info("📊 Loading existing projections from database...")
+            logger.info("Loading existing projections from database...")
             recent_cutoff = datetime.now() - timedelta(hours=24)
             # type: ignore for SQLAlchemy query chaining
             recent_projections = (
@@ -291,10 +305,12 @@ class ComprehensivePrizePicksService:
                 .all()  # type: ignore
             )
             recent_projections = list(recent_projections)  # type: ignore
-            logger.info(f"✅ Loaded {len(recent_projections)} existing projections from database")
+            logger.info(
+                f"Loaded {len(recent_projections)} existing projections from database"
+            )
             # Optionally cache or process projections here
         except Exception as e:
-            logger.error(f"❌ Error loading existing projections: {e}")
+            logger.error(f"Error loading existing projections: {e}")
 
     async def scrape_prizepicks_props(self) -> List[Dict[str, Any]]:
         loop = asyncio.get_event_loop()
@@ -351,7 +367,7 @@ class ComprehensivePrizePicksService:
 
         if cache_key in self.data_cache:
             if current_time < self.cache_expiry.get(cache_key, 0):
-                logger.info(f"📋 Using cached data for {url}")
+                logger.info(f"Using cached data for {url}")
                 return self.data_cache[cache_key]
             else:
                 # Cache expired, remove it
@@ -401,14 +417,14 @@ class ComprehensivePrizePicksService:
         #     headers["Authorization"] = f"Bearer {self.api_key}"
         #     logger.debug("🔑 Using API key authentication")
         # else:
-        logger.info("ℹ️ PrizePicks API is public; no API key required.")
+        logger.info("PrizePicks API is public; no API key required.")
 
         # Implement rate limiting - ensure minimum time between requests
         current_time = time.time()
         time_since_last_request = current_time - self.last_request_time
         if time_since_last_request < self.min_request_interval:
             wait_time = self.min_request_interval - time_since_last_request
-            logger.info(f"⏳ Rate limiting: waiting {wait_time:.1f}s before request")
+            logger.info(f"Rate limiting: waiting {wait_time:.1f}s before request")
             await asyncio.sleep(wait_time)
 
         # Retry logic with exponential backoff
@@ -465,7 +481,7 @@ class ComprehensivePrizePicksService:
                     await asyncio.sleep(wait_time)
                     continue
                 return None
-            except httpx.RequestError as e: # Catch network errors, DNS errors, etc.
+            except httpx.RequestError as e:  # Catch network errors, DNS errors, etc.
                 logger.error(f"❌ HTTP request error for URL {url}: {e}")
                 if attempt < self.max_retries - 1:
                     wait_time = self.base_backoff_delay * (2**attempt)
@@ -1184,38 +1200,16 @@ class ComprehensivePrizePicksService:
             del self.analysis_cache[key]
 
     async def get_current_projections(self) -> List[Any]:
-        """Return fast mock PrizePicks projections for development/testing."""
-        now = datetime.now(timezone.utc)
-        return [
-            {
-                "id": "mock_mlb_judge_1",
-                "player_name": "Aaron Judge",
-                "team": "NYY",
-                "league": "MLB",
-                "sport": "MLB",
-                "stat_type": "Home Runs",
-                "line_score": 1.5,
-                "confidence": 87.5,
-                "value_score": 0.12,
-                "status": "active",
-                "start_time": now.isoformat(),
-                "updated_at": now.isoformat(),
-            },
-            {
-                "id": "mock_mlb_betts_2",
-                "player_name": "Mookie Betts",
-                "team": "LAD",
-                "league": "MLB",
-                "sport": "MLB",
-                "stat_type": "Total Bases",
-                "line_score": 2.5,
-                "confidence": 82.1,
-                "value_score": 0.08,
-                "status": "active",
-                "start_time": now.isoformat(),
-                "updated_at": now.isoformat(),
-            },
-        ]
+        """Fetch and return real PrizePicks API projections with ML predictions."""
+        try:
+            # Fetch all real projections from PrizePicks API
+            projections = await self.fetch_all_projections()
+            # Optionally, run ML ensemble analysis here if needed
+            # For now, just return the raw projections
+            return projections
+        except Exception as e:
+            logger.error(f"Error fetching real PrizePicks projections: {e}")
+            return []
 
     async def get_projections_by_league(self, league: str) -> List[Any]:
         """Get projections for a specific league"""

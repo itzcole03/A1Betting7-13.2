@@ -18,7 +18,11 @@ from sqlalchemy.orm import Session
 
 # Security
 security = HTTPBearer()
-SECRET_KEY = os.getenv("SECRET_KEY", "a1betting-secret-key-change-in-production")
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY environment variable must be set for secure operation."
+    )
 
 
 class AuthService:

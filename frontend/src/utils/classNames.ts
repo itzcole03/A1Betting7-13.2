@@ -1,4 +1,4 @@
-﻿// Utility function for conditional CSS class names
+// Utility function for conditional CSS class names
 
 export function classNames(...classes: (string | undefined | null | false)[]): string {
   return classes.filter(Boolean).join(' ');

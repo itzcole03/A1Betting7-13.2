@@ -40,6 +40,7 @@ class PropOllamaService {
    * Get backend URL with auto-discovery
    */
   private async getBackendUrl(): Promise<string> {
+    // @ts-expect-error TS(2304): Cannot find name 'backendDiscovery'.
     return await backendDiscovery.getBackendUrl();
   }
 

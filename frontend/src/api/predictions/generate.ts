@@ -1,6 +1,9 @@
-﻿import { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
+// @ts-expect-error TS(2305): Module '"./../../core/logging/logger"' has no expo... Remove this comment to see the full error message
 import { getLogger } from './../../core/logging/logger';
+// @ts-expect-error TS(2305): Module '"./../../core/metrics/metrics"' has no exp... Remove this comment to see the full error message
 import { getMetrics } from './../../core/metrics/metrics';
+// @ts-expect-error TS(2305): Module '"./../../services/prediction/PredictionInt... Remove this comment to see the full error message
 import { PredictionIntegrationService } from './../../services/prediction/PredictionIntegrationService';
 
 interface GeneratePredictionsRequest {

@@ -1,4 +1,5 @@
-﻿import { EventBus } from '@/core/EventBus';
+// @ts-expect-error TS(2307): Cannot find module '@/core/EventBus' or its corres... Remove this comment to see the full error message
+import { EventBus } from '@/core/EventBus';
 import { PerformanceMonitor } from './PerformanceMonitor';
 import { DataSource } from './PredictionEngine';
 
@@ -158,6 +159,7 @@ export class StreamingDataPipeline<T, U> {
           transformed = await stage.transform(transformed);
           this.performanceMonitor.endTrace(stageTraceId);
         } catch (error) {
+          // @ts-expect-error TS(2304): Cannot find name 'stageTraceId'.
           this.performanceMonitor.endTrace(stageTraceId, error as Error);
           throw error;
         }

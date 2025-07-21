@@ -123,7 +123,9 @@ class MasterServiceRegistry {
   private async initializeUnifiedServices(): Promise<void> {
     console.log(
       '[DEBUG] MasterServiceRegistry.initializeUnifiedServices this.config:',
+      // @ts-expect-error TS(2339): Property 'config' does not exist on type 'MasterSe... Remove this comment to see the full error message
       this.config,
+      // @ts-expect-error TS(2339): Property 'config' does not exist on type 'MasterSe... Remove this comment to see the full error message
       typeof this.config?.getApiUrl
     );
     const unifiedServices = [
@@ -132,6 +134,7 @@ class MasterServiceRegistry {
       { name: 'betting', service: UnifiedBettingService.getInstance() },
       { name: 'data', service: UnifiedDataService.getInstance() },
       { name: 'predictions', service: UnifiedPredictionService.getInstance() },
+      // @ts-expect-error TS(2339): Property 'getInstance' does not exist on type 'typ... Remove this comment to see the full error message
       { name: 'notifications', service: UnifiedNotificationService.getInstance() },
       { name: 'state', service: UnifiedStateService.getInstance() },
       { name: 'cache', service: UnifiedCache.getInstance() },
@@ -162,7 +165,9 @@ class MasterServiceRegistry {
 
     for (const { name, service } of featureServices) {
       try {
+        // @ts-expect-error TS(2339): Property 'initialize' does not exist on type 'Inju... Remove this comment to see the full error message
         if (service.initialize) {
+          // @ts-expect-error TS(2339): Property 'initialize' does not exist on type 'Inju... Remove this comment to see the full error message
           await service.initialize();
         }
         this.registerService(name, service);
@@ -176,9 +181,13 @@ class MasterServiceRegistry {
 
   private async initializePrototypeServices(): Promise<void> {
     const prototypeServices = [
+      // @ts-expect-error TS(2304): Cannot find name 'enhancedDataSources'.
       { name: 'enhancedDataSources', service: enhancedDataSources },
+      // @ts-expect-error TS(2304): Cannot find name 'realDataService'.
       { name: 'realDataService', service: realDataService },
+      // @ts-expect-error TS(2304): Cannot find name 'predictionEngine'.
       { name: 'predictionEngine', service: predictionEngine },
+      // @ts-expect-error TS(2304): Cannot find name 'realTimeDataAggregator'.
       { name: 'realTimeAggregator', service: realTimeDataAggregator },
     ];
 
@@ -198,12 +207,19 @@ class MasterServiceRegistry {
 
   private async initializeSpecializedServices(): Promise<void> {
     const specializedServices = [
+      // @ts-expect-error TS(2304): Cannot find name 'AnalyticsService'.
       { name: 'analyticsSpecialized', service: new AnalyticsService() },
+      // @ts-expect-error TS(2304): Cannot find name 'BettingService'.
       { name: 'bettingSpecialized', service: new BettingService() },
+      // @ts-expect-error TS(2304): Cannot find name 'CacheService'.
       { name: 'cacheSpecialized', service: new CacheService() },
+      // @ts-expect-error TS(2304): Cannot find name 'PredictionService'.
       { name: 'predictionSpecialized', service: new PredictionService() },
+      // @ts-expect-error TS(2304): Cannot find name 'NotificationService'.
       { name: 'notificationSpecialized', service: new NotificationService() },
+      // @ts-expect-error TS(2304): Cannot find name 'PerformanceTrackingService'.
       { name: 'performance', service: new PerformanceTrackingService() },
+      // @ts-expect-error TS(2304): Cannot find name 'SecurityService'.
       { name: 'security', service: new SecurityService() },
     ];
 
@@ -322,47 +338,58 @@ class MasterServiceRegistry {
   }
 
   // Convenience methods for common services
+  // @ts-expect-error TS(2749): 'ApiService' refers to a value, but is being used ... Remove this comment to see the full error message
   get api(): ApiService {
     return this.getService('api');
   }
 
   get analytics(): UnifiedAnalyticsService {
+    // @ts-expect-error TS(2322): Type 'UnifiedAnalyticsService | null' is not assig... Remove this comment to see the full error message
     return this.getService('analytics');
   }
 
   get betting(): UnifiedBettingService {
+    // @ts-expect-error TS(2322): Type 'UnifiedBettingService | null' is not assigna... Remove this comment to see the full error message
     return this.getService('betting');
   }
 
   get data(): UnifiedDataService {
+    // @ts-expect-error TS(2322): Type 'UnifiedDataService | null' is not assignable... Remove this comment to see the full error message
     return this.getService('data');
   }
 
   get predictions(): UnifiedPredictionService {
+    // @ts-expect-error TS(2322): Type 'UnifiedPredictionService | null' is not assi... Remove this comment to see the full error message
     return this.getService('predictions');
   }
 
   get injuries(): typeof injuryService {
+    // @ts-expect-error TS(2322): Type 'InjuryService | null' is not assignable to t... Remove this comment to see the full error message
     return this.getService('injuries');
   }
 
   get lineups(): typeof lineupService {
+    // @ts-expect-error TS(2322): Type 'LineupService | null' is not assignable to t... Remove this comment to see the full error message
     return this.getService('lineups');
   }
 
+  // @ts-expect-error TS(2304): Cannot find name 'UnifiedCacheService'.
   get cache(): UnifiedCacheService {
     return this.getService('cache');
   }
 
   get logger(): UnifiedLogger {
+    // @ts-expect-error TS(2322): Type 'UnifiedLogger | null' is not assignable to t... Remove this comment to see the full error message
     return this.getService('logger');
   }
 
   get notifications(): UnifiedNotificationService {
+    // @ts-expect-error TS(2322): Type 'UnifiedNotificationService | null' is not as... Remove this comment to see the full error message
     return this.getService('notifications');
   }
 
   get websocket(): UnifiedWebSocketService {
+    // @ts-expect-error TS(2322): Type 'UnifiedWebSocketService | null' is not assig... Remove this comment to see the full error message
     return this.getService('websocket');
   }
 
@@ -376,6 +403,7 @@ class MasterServiceRegistry {
           const result = await service[methodName](...args);
           results.set(name, { success: true, data: result });
         } catch (error) {
+          // @ts-expect-error TS(2571): Object is of type 'unknown'.
           results.set(name, { success: false, error: error.message });
           this.log('error', `Service ${name} failed to execute ${methodName}`, error);
         }
@@ -459,6 +487,7 @@ class MasterServiceRegistry {
       if (logger && logger[level]) {
         logger[level](message, data);
       } else {
+        // @ts-expect-error TS(2349): This expression is not callable.
         console[level as keyof Console](`[MasterServiceRegistry] ${message}`, data || '');
       }
     }

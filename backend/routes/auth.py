@@ -8,7 +8,7 @@ import logging
 from datetime import timedelta
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from backend.auth.security import (
@@ -25,6 +25,7 @@ from backend.models.api_models import (
     UserProfileResponse,
     UserRegistration,
 )
+from services.email_service import send_verification_email, generate_verification_token
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ async def get_current_user(
 
 
 @router.post("/register", response_model=TokenResponse)
-async def register_user(user_data: Dict[str, Any]) -> Dict[str, Any]:
+async def register_user(user_data: UserRegistration):
     """Register a new user"""
     try:
         # Create user in database
@@ -86,6 +87,10 @@ async def register_user(user_data: Dict[str, Any]) -> Dict[str, Any]:
         }
 
         logger.info(f"User registered successfully: {user_data.username}")
+
+        # Send verification email
+        token = generate_verification_token(user_profile.id)
+        send_verification_email(user_profile.email, token)
 
         return TokenResponse(
             access_token=access_token,
@@ -347,3 +352,68 @@ async def logout_user(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Logout failed"
         )
+
+
+@router.post("/api/auth/forgot-password")
+async def forgot_password(request: Dict[str, str], background_tasks: BackgroundTasks):
+    """
+    Request a password reset. Always return success for security.
+    """
+    email = request.get('email')
+    logger = logging.getLogger(__name__)
+    if not email:
+        return {"success": False, "message": "Email is required."}
+    try:
+        user = user_service.get_user_by_email(email)
+        if user:
+            # Generate reset token
+            token = security_manager.generate_password_reset_token(user.user_id)
+            # Send email in background (replace with real email logic)
+            background_tasks.add_task(
+                print, f"[DEBUG] Send password reset link: /reset-password?token={token} to {email}"
+            )
+            logger.info(f"Password reset requested for user: {email}")
+        else:
+            logger.info(f"Password reset requested for non-existent user: {email}")
+        # Always return success
+        return {"success": True, "message": "If this email is registered, a password reset link has been sent."}
+    except Exception as e:
+        logger.error(f"Error in forgot_password: {e}")
+        return {"success": True, "message": "If this email is registered, a password reset link has been sent."}
+
+@router.post("/api/auth/reset-password")
+async def reset_password(request: Dict[str, str]):
+    """
+    Reset password using a valid reset token.
+    """
+    token = request.get('token')
+    new_password = request.get('new_password')
+    logger = logging.getLogger(__name__)
+    if not token or not new_password:
+        return {"success": False, "message": "Token and new password are required."}
+    try:
+        user_id = security_manager.verify_password_reset_token(token)
+        user = user_service.get_user_by_id(user_id)
+        if not user:
+            logger.warning(f"Password reset: user not found for token {token}")
+            return {"success": False, "message": "Invalid or expired token."}
+        # Hash new password and update
+        hashed = security_manager.hash_password(new_password)
+        user_service.update_user_password(user_id, hashed)
+        logger.info(f"Password reset successful for user: {user.email}")
+        return {"success": True, "message": "Password has been reset successfully."}
+    except Exception as e:
+        logger.error(f"Error in reset_password: {e}")
+        return {"success": False, "message": "Invalid or expired token."}
+
+@router.post("/verify-email/")
+async def verify_email(token: str):
+    try:
+        # Logic to verify the token and update user status
+        user = verify_token(token)  # Implement or use existing token verification
+        if user:
+            user.is_verified = True  # Update user model
+            return {"message": "Email verified successfully"}
+        raise HTTPException(status_code=400, detail="Invalid token")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

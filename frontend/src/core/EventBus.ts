@@ -1,4 +1,4 @@
-﻿import EventEmitter from 'eventemitter3';
+import EventEmitter from 'eventemitter3';
 
 // Minimal EventTypes for EventBus;
 export interface EventTypes {

@@ -1,3 +1,4 @@
+// @ts-expect-error TS(2307): Cannot find module '@/lib/utils' or its correspond... Remove this comment to see the full error message
 import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
 
@@ -222,8 +223,10 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
   const topFactors = explanation.factors.sort((a, b) => b.importance - a.importance).slice(0, 5);
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='fixed inset-0 z-50 flex items-center justify-center'>
       {/* Backdrop */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className='absolute inset-0 bg-black/50 backdrop-blur-sm'
         onClick={onClose}
@@ -232,6 +235,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
       />
 
       {/* Overlay Content */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className={cn(
           'relative max-w-4xl max-h-[90vh] overflow-hidden',
@@ -244,13 +248,16 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
         )}
       >
         {/* Header */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className={cn(
             'flex items-center justify-between p-6 border-b',
             variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
           )}
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h2
               className={cn(
                 'text-xl font-bold',
@@ -259,6 +266,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
             >
               Prediction Explanation
             </h2>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={cn(
                 'text-sm mt-1',
@@ -270,8 +278,10 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
             </div>
           </div>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center space-x-2'>
             {onExportExplanation && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <button
                 onClick={onExportExplanation}
                 className={cn(
@@ -284,6 +294,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                 Export
               </button>
             )}
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <button
               onClick={onClose}
               className={cn(
@@ -299,13 +310,16 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
         </div>
 
         {/* Prediction Summary */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className={cn(
             'p-6 border-b',
             variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
           )}
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={cn(
                 'p-4 rounded-lg border',
@@ -314,6 +328,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                   : 'bg-gray-50 border-gray-200'
               )}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={cn(
                   'text-sm opacity-70',
@@ -322,6 +337,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
               >
                 Prediction
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={cn(
                   'text-lg font-bold',
@@ -332,6 +348,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
               </div>
             </div>
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={cn(
                 'p-4 rounded-lg border',
@@ -340,6 +357,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                   : 'bg-gray-50 border-gray-200'
               )}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={cn(
                   'text-sm opacity-70',
@@ -348,6 +366,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
               >
                 Confidence
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={cn(
                   'text-lg font-bold',
@@ -358,6 +377,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
               </div>
             </div>
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={cn(
                 'p-4 rounded-lg border',
@@ -366,6 +386,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                   : 'bg-gray-50 border-gray-200'
               )}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={cn(
                   'text-sm opacity-70',
@@ -374,6 +395,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
               >
                 Reliability
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={cn(
                   'text-lg font-bold capitalize',
@@ -391,6 +413,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
         </div>
 
         {/* Tabs */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className={cn(
             'flex border-b',
@@ -398,6 +421,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
           )}
         >
           {['factors', 'model', 'alternatives', 'reasoning'].map(tab => (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
@@ -418,10 +442,13 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
         </div>
 
         {/* Tab Content */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex-1 overflow-y-auto'>
           {/* Factors Tab */}
           {activeTab === 'factors' && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='p-6'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <h3
                 className={cn(
                   'font-semibold mb-4',
@@ -430,8 +457,10 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
               >
                 Key Factors ({explanation.factors.length})
               </h3>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='space-y-3'>
                 {topFactors.map(factor => (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div
                     key={factor.id}
                     className={cn(
@@ -448,11 +477,17 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                       }
                     }}
                   >
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='p-4'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='flex items-center justify-between'>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div className='flex items-center space-x-3'>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <span className='text-lg'>{getFactorIcon(factor.category)}</span>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <div
                               className={cn(
                                 'font-medium',
@@ -461,6 +496,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                             >
                               {factor.name}
                             </div>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <div
                               className={cn(
                                 'text-sm',
@@ -472,8 +508,11 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                           </div>
                         </div>
 
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div className='flex items-center space-x-3'>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div className='text-right'>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <div
                               className={cn(
                                 'text-sm font-medium',
@@ -483,6 +522,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                               Impact: {factor.impact > 0 ? '+' : ''}
                               {(factor.impact * 100).toFixed(1)}%
                             </div>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <div
                               className={cn(
                                 'text-xs mt-1',
@@ -494,6 +534,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                           </div>
 
                           {enableInteraction && (
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <span
                               className={cn(
                                 'text-sm transition-transform',
@@ -508,14 +549,18 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
 
                       {/* Factor Details */}
                       {showFactorDetails && expandedFactors.has(factor.id) && (
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div
                           className={cn(
                             'mt-4 pt-4 border-t',
                             variant === 'cyber' ? 'border-cyan-500/20' : 'border-gray-200'
                           )}
                         >
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <div>
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <div
                                 className={cn(
                                   'text-sm font-medium mb-2',
@@ -524,6 +569,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                               >
                                 Description
                               </div>
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <p
                                 className={cn(
                                   'text-sm',
@@ -534,7 +580,9 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                               </p>
                             </div>
 
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <div>
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <div
                                 className={cn(
                                   'text-sm font-medium mb-2',
@@ -543,6 +591,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                               >
                                 Current Value
                               </div>
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <p
                                 className={cn(
                                   'text-sm',
@@ -564,7 +613,9 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
 
           {/* Model Tab */}
           {activeTab === 'model' && showModelInfo && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='p-6'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <h3
                 className={cn(
                   'font-semibold mb-4',
@@ -574,6 +625,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                 Model Information
               </h3>
 
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={cn(
                   'p-4 rounded-lg border',
@@ -582,9 +634,13 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                     : 'bg-gray-50 border-gray-200'
                 )}
               >
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center space-x-3 mb-4'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span className='text-2xl'>{getModelIcon(explanation.model.type)}</span>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h4
                       className={cn(
                         'font-medium text-lg',
@@ -593,6 +649,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                     >
                       {explanation.model.name}
                     </h4>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <p
                       className={cn(
                         'text-sm',
@@ -605,8 +662,11 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                   </div>
                 </div>
 
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={cn(
                         'text-sm opacity-70',
@@ -615,6 +675,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                     >
                       Accuracy
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={cn(
                         'text-lg font-bold',
@@ -625,7 +686,9 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                     </div>
                   </div>
 
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={cn(
                         'text-sm opacity-70',
@@ -634,6 +697,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                     >
                       Features
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={cn(
                         'text-lg font-bold',
@@ -644,7 +708,9 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                     </div>
                   </div>
 
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={cn(
                         'text-sm opacity-70',
@@ -653,6 +719,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                     >
                       Data Points
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={cn(
                         'text-lg font-bold',
@@ -663,7 +730,9 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                     </div>
                   </div>
 
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={cn(
                         'text-sm opacity-70',
@@ -672,6 +741,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                     >
                       Last Trained
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={cn(
                         'text-sm font-bold',
@@ -688,7 +758,9 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
 
           {/* Alternatives Tab */}
           {activeTab === 'alternatives' && showAlternatives && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='p-6'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <h3
                 className={cn(
                   'font-semibold mb-4',
@@ -698,8 +770,10 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                 Alternative Outcomes
               </h3>
 
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='space-y-3'>
                 {explanation.alternatives.map((alt, index) => (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div
                     key={index}
                     className={cn(
@@ -709,8 +783,11 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                         : 'bg-gray-50 border-gray-200'
                     )}
                   >
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='flex justify-between items-start'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div
                           className={cn(
                             'font-medium',
@@ -719,6 +796,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                         >
                           {alt.value}
                         </div>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div
                           className={cn(
                             'text-sm mt-1',
@@ -728,6 +806,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                           {alt.reasoning}
                         </div>
                       </div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div
                         className={cn(
                           'text-sm font-medium px-2 py-1 rounded',
@@ -747,7 +826,9 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
 
           {/* Reasoning Tab */}
           {activeTab === 'reasoning' && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='p-6'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <h3
                 className={cn(
                   'font-semibold mb-4',
@@ -757,9 +838,12 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                 AI Reasoning
               </h3>
 
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='space-y-6'>
                 {/* Summary */}
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h4
                     className={cn(
                       'font-medium mb-2',
@@ -768,6 +852,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                   >
                     Summary
                   </h4>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <p
                     className={cn(
                       'text-sm',
@@ -780,7 +865,9 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
 
                 {/* Key Insights */}
                 {explanation.reasoning.keyInsights.length > 0 && (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h4
                       className={cn(
                         'font-medium mb-2',
@@ -789,8 +876,10 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                     >
                       Key Insights
                     </h4>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <ul className='space-y-2'>
                       {explanation.reasoning.keyInsights.map((insight, index) => (
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <li
                           key={index}
                           className={cn(
@@ -798,7 +887,9 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                             variant === 'cyber' ? 'text-cyan-400/80' : 'text-gray-700'
                           )}
                         >
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <span className='text-green-500 mt-0.5'>💡</span>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <span>{insight}</span>
                         </li>
                       ))}
@@ -808,7 +899,9 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
 
                 {/* Warnings */}
                 {explanation.reasoning.warnings.length > 0 && (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h4
                       className={cn(
                         'font-medium mb-2',
@@ -817,8 +910,10 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                     >
                       Warnings
                     </h4>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <ul className='space-y-2'>
                       {explanation.reasoning.warnings.map((warning, index) => (
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <li
                           key={index}
                           className={cn(
@@ -826,7 +921,9 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                             variant === 'cyber' ? 'text-yellow-300' : 'text-yellow-700'
                           )}
                         >
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <span className='text-yellow-500 mt-0.5'>⚠️</span>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <span>{warning}</span>
                         </li>
                       ))}
@@ -836,7 +933,9 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
 
                 {/* Recommendations */}
                 {showRecommendations && explanation.reasoning.recommendations.length > 0 && (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h4
                       className={cn(
                         'font-medium mb-2',
@@ -845,8 +944,10 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                     >
                       Recommendations
                     </h4>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <ul className='space-y-2'>
                       {explanation.reasoning.recommendations.map((rec, index) => (
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <li
                           key={index}
                           className={cn(
@@ -854,7 +955,9 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
                             variant === 'cyber' ? 'text-cyan-400/80' : 'text-gray-700'
                           )}
                         >
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <span className='text-blue-500 mt-0.5'>💡</span>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <span>{rec}</span>
                         </li>
                       ))}
@@ -867,12 +970,14 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
         </div>
 
         {/* Footer */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className={cn(
             'p-4 border-t text-center',
             variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
           )}
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
             className={cn('text-xs', variant === 'cyber' ? 'text-cyan-400/50' : 'text-gray-500')}
           >
@@ -883,8 +988,11 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
 
         {/* Cyber Effects */}
         {variant === 'cyber' && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 rounded-lg pointer-events-none' />
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='absolute inset-0 bg-grid-white/[0.02] rounded-lg pointer-events-none' />
           </>
         )}

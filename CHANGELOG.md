@@ -1,4 +1,91 @@
+### [v4.0.2] - 2025-07-15
+
+- Refactored endpoint and helper function docstrings for clarity and parsing correctness
+- Consolidated fallback logic for service initialization
+- Removed unreachable except blocks and stray comments
+- Improved error handling and response consistency across endpoints
+- Enhanced modular router registration and background initialization for responsiveness
+
+# 2025-07-15
+
+- Health endpoints (`/api/health/status`, `/api/health/comprehensive`, `/api/health/database`) now report fallback/degraded state using the global `FALLBACK_SERVICES` flag.
+- All health endpoint responses now include a `fallback_services` field for automation and monitoring.
+- Response models removed from health endpoints to allow extra fields in responses.
+- Inline comments added to clarify fallback logic and endpoint return types.
+
+# 2025-07-14
+
+- Refactored background initialization and helper functions for clarity and atomicity
+- Improved error handling and logging for all service initializations
+- Removed duplicate/conflicting function definitions for maintainability
+- Ensured all helper functions return values on all code paths
+- Added inline comments for clarity and maintainability
+- Updated README.md to clarify instructions and dependencies for maintainers
+
+## [4.0.1] - 2025-07-14
+
+### Removed
+
+- Legacy endpoints `/api/v1/unified-data`, `/api/v1/sr/games`, `/api/v1/odds/{event_id}`, `/api/v4/predict/ultra-accuracy` (GET/POST) have been removed from the backend for modernization and reduced technical debt.
+- Associated legacy models and warnings removed from `main.py`.
+
+### Added
+
+- Documentation and inline comments clarifying supported API endpoints and migration plan.
+
+### Notes
+
+- Only production-ready, supported APIs are now exposed. See README for details.
+
+### Changed
+
+- Standardized backend logging (logger.info everywhere, no print statements)
+- Log message style unified (no emojis, concise informative text)
+- Fixed indentation errors and restored code structure
+- Backend API endpoints and router registration improved for clarity and cohesion
+
+# v4.0.0 (2025-07-14)
+
+- Legacy endpoints cataloged in backend/main.py with clear inline documentation.
+- Per-endpoint deprecation warnings added for all legacy endpoints.
+- Migration instructions and technical debt notes updated in README.md.
+- No new dependencies; developers should audit and migrate legacy endpoint usage.
+
+# [2025-07-14] - Backend Logging & Import Refactor
+
+# [2025-07-14] - Documentation Visual & Endpoint Audit Improvements
+
+### 🖼️ Minor: Visual and Endpoint Audit Section Enhancements
+
+- **IMPROVED**: README visual clarity and scan-ability with better spacing, bolding, and section separation.
+- **UPDATED**: Endpoint Audit section for easier reading and quick reference.
+- **STYLE**: Consistent indentation and whitespace in blockquotes and code blocks.
+
+### 🛠️ Minor: Logging and Mock Method Improvements
+
+- **REFACTORED**: All logger calls in backend now use lazy `%` formatting for performance and safety. Avoid f-strings in logger calls.
+- **CLEANED UP**: Mock methods (e.g., `authenticate`) no longer include unused arguments, preventing warnings and improving clarity for maintainers and automation.
+- **DOCS**: Updated README with backend logging best practices and mock method signature guidance.
+
 # A1Betting Platform Changelog
+
+## [2025-07-14] - Backend Refactor & Real Sportsbook API Integration
+
+### � TECHNICAL DEBT AUDIT
+
+- **ADDED**: Inline comments to legacy backend endpoints in `main.py` documenting deprecated status and migration recommendations.
+- **UPDATED**: README Endpoint Audit section to clarify technical debt status and guidance for legacy endpoints.
+- **GUIDANCE**: Legacy endpoints are for backward compatibility only; audit usage before removal to avoid breaking integrations.
+
+### �🚀 MAJOR: Real Sportsbook & Odds API Integration
+
+### 🧪 TEST COVERAGE & ERROR HANDLING
+
+- **ADDED**: Atomic, robust tests for `/api/v1/sr/games` and `/api/v1/odds/{event_id}` endpoints in `backend/tests/test_api_v1.py`.
+- **COVERS**: Success, missing API key, malformed response, API errors, network timeouts, unexpected/missing keys.
+- **IMPROVED**: Defensive parsing and error handling for all critical endpoints.
+- **DEPENDENCIES**: Added requirements for pytest, pandas, scikit-learn, xgboost, lightgbm for backend testing and ML integrations.
+- **INSTRUCTIONS**: See README for test setup and running instructions.
 
 ## [Latest] - 2024-12-19
 

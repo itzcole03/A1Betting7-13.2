@@ -152,6 +152,10 @@ def create_sample_props() -> List[Dict[str, Any]]:
     return mlb_props + wnba_props
 
 
+import pytest
+
+
+@pytest.mark.anyio
 async def test_ensemble_prediction_simulation():
     """Test ensemble prediction simulation without actual engines"""
 
@@ -256,6 +260,7 @@ async def test_ensemble_prediction_simulation():
     return enhanced_props
 
 
+@pytest.mark.anyio
 async def test_optimal_lineup_generation(props):
     """Test optimal lineup generation simulation"""
 
@@ -345,6 +350,7 @@ async def test_optimal_lineup_generation(props):
     }
 
 
+@pytest.mark.anyio
 async def test_in_season_filtering():
     """Test in-season sports filtering"""
 

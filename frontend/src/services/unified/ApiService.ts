@@ -36,6 +36,7 @@ class ApiService {
 
   constructor() {
     this.config = {
+      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
       baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001',
       timeout: 30000,
       retryAttempts: 3,
@@ -95,6 +96,7 @@ class ApiService {
         'Content-Type': 'application/json',
         ...finalConfig.headers,
       },
+      // @ts-expect-error TS(2339): Property 'timeout' does not exist on type '{ new (... Remove this comment to see the full error message
       signal: AbortSignal.timeout(finalConfig.timeout || this.config.timeout),
     };
 

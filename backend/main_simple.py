@@ -10,10 +10,30 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 
+
+# Patch: Use UTF-8 StreamHandler for logging
+class UTF8StreamHandler(logging.StreamHandler):
+    def __init__(self, stream=None):
+        super().__init__(stream)
+        self.setFormatter(
+            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        )
+
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            stream = self.stream
+            if hasattr(stream, "buffer"):
+                stream.buffer.write((msg + "\n").encode("utf-8", errors="replace"))
+            else:
+                stream.write(msg + "\n")
+            self.flush()
+        except Exception:
+            self.handleError(record)
+
+
+logging.basicConfig(level=logging.INFO, handlers=[UTF8StreamHandler()])
 logger = logging.getLogger(__name__)
 
 # Create FastAPI app
@@ -72,5 +92,5 @@ async def root():
 
 
 if __name__ == "__main__":
-    logger.info("🚀 Starting A1Betting Backend - Phase 1 Quick Fix")
+    logger.info("Starting A1Betting Backend - Phase 1 Quick Fix")
     uvicorn.run(app, host="0.0.0.0", port=8001)

@@ -16,6 +16,9 @@ coverage/
 .env
 .env.*
 !.env.example
+# Ignore other secret config files
+backend/.env
+backend/.env.*
 
 # IDEs & Editors
 .vscode/

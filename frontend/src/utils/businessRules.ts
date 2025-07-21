@@ -1,4 +1,4 @@
-﻿// [TEMPORARY] Local type definitions for missing types
+// [TEMPORARY] Local type definitions for missing types
 interface PlayerProp {
   confidence: number;
   teamId: string;

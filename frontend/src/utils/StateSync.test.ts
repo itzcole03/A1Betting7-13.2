@@ -1,4 +1,4 @@
-﻿test('should test state sync, context integration, etc.', () => {
+test('should test state sync, context integration, etc.', () => {
   expect(true).toBe(true);
 });
 

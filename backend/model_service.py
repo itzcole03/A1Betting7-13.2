@@ -51,6 +51,7 @@ class ModelServiceConfig(BaseSettings):
 
     class Config:
         env_file = ".env"
+        extra = "allow"
 
 
 try:

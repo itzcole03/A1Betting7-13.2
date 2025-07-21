@@ -1,8 +1,6 @@
-// @vitest-environment jsdom
-import '@testing-library/jest-dom';
+import { describe, expect, it } from '@jest/globals';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, it } from 'vitest';
-import { A1BettingPreview } from './A1BettingPreview';
+import A1BettingPreview from './A1BettingPreview';
 
 describe('A1BettingPreview', () => {
   it('renders without crashing and shows Dashboard tab by default', () => {

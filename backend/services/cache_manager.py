@@ -29,7 +29,7 @@ class APICache:
             "lineups": 5,  # Generated lineups expire in 5 minutes
         }
 
-        logger.info(f"🗄️ Cache initialized at: {self.cache_dir}")
+        logger.info(f"Cache initialized at: {self.cache_dir}")
 
     def _get_cache_file(self, cache_key: str) -> Path:
         """Get cache file path for a given key"""
@@ -50,7 +50,7 @@ class APICache:
 
             if is_valid:
                 logger.debug(
-                    f"✅ Cache hit: {cache_file.name} (expires in {(expire_time - datetime.now(timezone.utc)).total_seconds():.0f}s)"
+                    f"Cache hit: {cache_file.name} (expires in {(expire_time - datetime.now(timezone.utc)).total_seconds():.0f}s)"
                 )
             else:
                 logger.debug(f"⏰ Cache expired: {cache_file.name}")
@@ -98,7 +98,7 @@ class APICache:
                 json.dump(cache_data, f, indent=2, ensure_ascii=False)
 
             logger.info(
-                f"💾 Cached: {cache_key} ({cache_type}) - TTL: {cache_data['ttl_minutes']}min"
+                f"Cached: {cache_key} ({cache_type}) - TTL: {cache_data['ttl_minutes']}min"
             )
             return True
         except Exception as e:
@@ -138,7 +138,7 @@ class APICache:
                     logger.warning(f"❌ Error clearing cache file {cache_file}: {e}")
 
             if cleared_count > 0:
-                logger.info(f"🧹 Cleared {cleared_count} expired cache entries")
+                logger.info(f"Cleared {cleared_count} expired cache entries")
 
             return cleared_count
         except Exception as e:

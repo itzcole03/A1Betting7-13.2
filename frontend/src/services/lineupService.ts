@@ -228,6 +228,7 @@ class LineupService {
         params: filters,
       });
 
+      // @ts-expect-error TS(2571): Object is of type 'unknown'.
       const players = response.data.map((player: any) => ({
         ...player,
         gameTime: new Date(player.gameTime),
@@ -292,6 +293,7 @@ class LineupService {
         },
       });
 
+      // @ts-expect-error TS(2571): Object is of type 'unknown'.
       return response.data.map((optimization: any) => ({
         ...optimization,
         lineup: optimization.lineup.map((player: any) => ({
@@ -461,6 +463,7 @@ class LineupService {
         contestId,
       });
 
+      // @ts-expect-error TS(2571): Object is of type 'unknown'.
       return response.data.map((player: any) => ({
         ...player,
         gameTime: new Date(player.gameTime),

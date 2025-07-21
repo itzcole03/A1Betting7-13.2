@@ -44,6 +44,7 @@ const ElectronIntegration: React.FC<ElectronIntegrationProps> = ({
       },
 
       onSettings: () => {
+        // @ts-expect-error TS(2339): Property 'info' does not exist on type '{ (message... Remove this comment to see the full error message
         toast.info('Opening settings...');
         onSettings?.();
       },
@@ -54,21 +55,25 @@ const ElectronIntegration: React.FC<ElectronIntegrationProps> = ({
       },
 
       onRefreshPredictions: () => {
+        // @ts-expect-error TS(2339): Property 'info' does not exist on type '{ (message... Remove this comment to see the full error message
         toast.info('Refreshing predictions...');
         onRefreshPredictions?.();
       },
 
       onPortfolioOptimizer: () => {
+        // @ts-expect-error TS(2339): Property 'info' does not exist on type '{ (message... Remove this comment to see the full error message
         toast.info('Opening portfolio optimizer...');
         onPortfolioOptimizer?.();
       },
 
       onSmartStacking: () => {
+        // @ts-expect-error TS(2339): Property 'info' does not exist on type '{ (message... Remove this comment to see the full error message
         toast.info('Opening smart stacking panel...');
         onSmartStacking?.();
       },
 
       onFeedback: () => {
+        // @ts-expect-error TS(2339): Property 'info' does not exist on type '{ (message... Remove this comment to see the full error message
         toast.info('Opening feedback dialog...');
         onFeedback?.();
       },
@@ -108,12 +113,19 @@ const ElectronIntegration: React.FC<ElectronIntegrationProps> = ({
   }
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='fixed top-4 right-4 z-50'>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='bg-gray-800/90 backdrop-blur-sm border border-gray-600 rounded-lg px-3 py-2 text-xs text-gray-300'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center gap-2'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='w-2 h-2 bg-green-400 rounded-full animate-pulse'></div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span>Desktop v{appVersion}</span>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span className='text-gray-500'>|</span>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span className='text-gray-400'>{platform}</span>
         </div>
       </div>

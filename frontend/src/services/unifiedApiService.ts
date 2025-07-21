@@ -16,6 +16,7 @@ import {
   CorrelationMatrix,
 } from '../types/enhancedBetting';
 
+// @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 class UnifiedApiService {
@@ -207,6 +208,7 @@ class UnifiedApiService {
 
     return {
       success: true,
+      // @ts-expect-error TS(2322): Type '({ id: string; player_name: string; team: st... Remove this comment to see the full error message
       enhanced_bets: mockPredictions,
       predictions: mockPredictions, // Keep both for compatibility
       total_predictions: mockPredictions.length,
@@ -217,10 +219,12 @@ class UnifiedApiService {
         kelly_optimization: 0.041,
         sharpe_ratio: 2.1,
         max_drawdown: -0.082,
+        // @ts-expect-error TS(2322): Type '{ total_expected_value: number; total_risk_s... Remove this comment to see the full error message
         confidence_weighted_return: 0.198,
       },
       ai_insights: [
         {
+          // @ts-expect-error TS(2322): Type '{ bet_id: string; player_name: string; sport... Remove this comment to see the full error message
           bet_id: 'fallback_1',
           player_name: 'Aaron Judge',
           sport: 'MLB',
@@ -247,6 +251,7 @@ class UnifiedApiService {
           ],
         },
         {
+          // @ts-expect-error TS(2322): Type '{ bet_id: string; player_name: string; sport... Remove this comment to see the full error message
           bet_id: 'fallback_2',
           player_name: 'Mookie Betts',
           sport: 'MLB',
@@ -318,6 +323,7 @@ class UnifiedApiService {
 
       // Return fallback data
       return {
+        // @ts-expect-error TS(2352): Conversion of type '{ total_expected_value: number... Remove this comment to see the full error message
         portfolio_metrics: {
           total_expected_value: 0.156,
           total_risk_score: 0.34,
@@ -452,6 +458,7 @@ class UnifiedApiService {
 
       // Return fallback mock data
       return {
+        // @ts-expect-error TS(2352): Conversion of type '{ game_id: string; status: "in... Remove this comment to see the full error message
         live_context: {
           game_id: gameId,
           status: 'in_progress',

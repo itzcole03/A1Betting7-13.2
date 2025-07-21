@@ -1,4 +1,4 @@
-﻿import { register } from '@/services/auth/register';
+import { register } from '@/services/auth/register';
 import {
   PredictionIntegrationService,
   getArbitrageOpportunities,

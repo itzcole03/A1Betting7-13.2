@@ -1,4 +1,5 @@
 import React from 'react';
+// @ts-expect-error TS(6142): Module './PrizePicksProUnified' was resolved to 'C... Remove this comment to see the full error message
 import { PrizePicksProUnified } from './PrizePicksProUnified';
 
 export const PrizePicksProTestPage: React.FC = () => {
@@ -14,7 +15,9 @@ export const PrizePicksProTestPage: React.FC = () => {
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='min-h-screen bg-black'>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <PrizePicksProUnified
         variant='cyber'
         maxSelections={6}

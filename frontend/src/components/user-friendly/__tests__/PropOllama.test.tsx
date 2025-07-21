@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+// @ts-expect-error TS(6142): Module '../PropOllama' was resolved to 'C:/Users/b... Remove this comment to see the full error message
 import PropOllama from '../PropOllama';
 
 // Mock fetch for health and chat endpoints
@@ -45,6 +46,7 @@ afterEach(() => {
 });
 
 test('displays health check status', async () => {
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   render(<PropOllama />);
   const healthBtn = screen.getByRole('button', { name: /check api health/i });
   fireEvent.click(healthBtn);
@@ -54,9 +56,11 @@ test('displays health check status', async () => {
 });
 
 test('displays backend error message', async () => {
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   render(<PropOllama />);
   const input = screen.getByLabelText(/type your message/i);
   fireEvent.change(input, { target: { value: 'error' } });
+  // @ts-expect-error TS(2339): Property 'form' does not exist on type 'HTMLElemen... Remove this comment to see the full error message
   fireEvent.submit(input.form!);
   await waitFor(() => {
     expect(screen.getByRole('alert')).toHaveTextContent(/internal server error/i);
@@ -66,9 +70,11 @@ test('displays backend error message', async () => {
 });
 
 test('displays AI response for valid message', async () => {
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   render(<PropOllama />);
   const input = screen.getByLabelText(/type your message/i);
   fireEvent.change(input, { target: { value: 'hello' } });
+  // @ts-expect-error TS(2339): Property 'form' does not exist on type 'HTMLElemen... Remove this comment to see the full error message
   fireEvent.submit(input.form!);
   await waitFor(() => {
     expect(screen.getByText(/AI response/)).toBeInTheDocument();

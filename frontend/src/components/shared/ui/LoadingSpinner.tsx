@@ -18,7 +18,9 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className={`flex items-center justify-center ${className}`}>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className={`animate-spin rounded-full border-2 border-gray-600 border-t-current ${sizeClasses[size]} ${color}`}
       ></div>

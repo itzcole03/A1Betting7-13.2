@@ -1,6 +1,8 @@
-﻿import { promises as fs } from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
+// @ts-expect-error TS(2307): Cannot find module '@/core/UnifiedLogger' or its c... Remove this comment to see the full error message
 import { UnifiedLogger } from '@/core/UnifiedLogger';
+// @ts-expect-error TS(2307): Cannot find module '@/unified/UnifiedServiceRegist... Remove this comment to see the full error message
 import { UnifiedServiceRegistry } from '@/unified/UnifiedServiceRegistry';
 
 export class UnifiedSettingsService {
@@ -25,6 +27,7 @@ export class UnifiedSettingsService {
 
   private async loadSettings(): Promise<void> {
     try {
+      // @ts-expect-error TS(2663): Cannot find name 'settings'. Did you mean the inst... Remove this comment to see the full error message
       Object.entries(settings).forEach(([key, value]) => {
         this.settings.set(key, value);
       });
@@ -61,6 +64,7 @@ export class UnifiedSettingsService {
   }
 
   public get<T>(key: string, defaultValue: T): T {
+    // @ts-expect-error TS(2304): Cannot find name 'value'.
     return value !== undefined ? (value as T) : defaultValue;
   }
 
@@ -72,6 +76,7 @@ export class UnifiedSettingsService {
   private async saveSettings(): Promise<void> {
     try {
       await fs.mkdir(path.dirname(this.settingsFile), { recursive: true });
+      // @ts-expect-error TS(2663): Cannot find name 'settings'. Did you mean the inst... Remove this comment to see the full error message
       await fs.writeFile(this.settingsFile, JSON.stringify(settings, null, 2));
       this.logger.info('Settings saved successfully', 'settings');
     } catch (error) {

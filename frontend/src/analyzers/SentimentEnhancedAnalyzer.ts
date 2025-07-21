@@ -1,4 +1,4 @@
-﻿import { SocialSentimentData } from '@/adapters/SocialSentimentAdapter';
+import { SocialSentimentData } from '@/adapters/SocialSentimentAdapter';
 import { SportsRadarData } from '@/adapters/SportsRadarAdapter';
 import { TheOddsData } from '@/adapters/TheOddsAdapter';
 import { EventBus } from '@/unified/EventBus';
@@ -142,10 +142,10 @@ export class SentimentEnhancedAnalyzer implements Analyzer<AnalysisInput, Enhanc
   ): Array<{ player: string; status: string; type: string }> {
     const injuries: Array<{ player: string; status: string; type: string }> = [];
 
-    sportsData.games.forEach(game => {
-      game.players.forEach(p => {
+    sportsData.games.forEach((game: any) => {
+      game.players.forEach((p: any) => {
         if (p.name === player) {
-          p.injuries.forEach(injury => {
+          p.injuries.forEach((injury: any) => {
             injuries.push({
               player: p.name,
               status: injury.status,

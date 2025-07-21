@@ -9,9 +9,9 @@ from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
+import requests
 from feature_engineering import FeatureEngineering
 from feature_flags import FeatureFlags
-import requests
 from utils.circuit_breaker import CircuitBreaker  # <-- Add this import
 
 # Global circuit breaker for Ollama API
@@ -101,7 +101,6 @@ class BettingOpportunityService:
         """Hook for automated feedback/active learning. Flags uncertain, novel, or problematic data for review or retraining.
         Extend this for future LLM/AI/feedback integration and automated retraining.
         """
-        
 
     """Advanced betting opportunity detection and analysis service"""
 
@@ -263,7 +262,7 @@ class BettingOpportunityService:
         try:
             self._log_training_data("market_data", [m.__dict__ for m in processed_data])
         except Exception as ex:  # pylint: disable=broad-exception-caught
-            
+            pass
         if data_quality_issues > 0:
             logger.info(
                 f"[DATA QUALITY][trace_id={trace_id}] Issues detected in {data_quality_issues} market entries."
@@ -361,7 +360,7 @@ class BettingOpportunityService:
             try:
                 self._log_training_data("features", features)
             except Exception as ex:  # pylint: disable=broad-exception-caught
-                
+                pass
             # Model versioning
             # Model version is not a float, so do not include in float-typed dict
             # If needed, store in a separate metadata dict or as a string elsewhere
@@ -407,17 +406,17 @@ class BettingOpportunityService:
         """Emit a Prometheus metric or log for observability. Automated for extensibility."""
         try:
             # Integrate with Prometheus or other monitoring system here
-            
+            pass
         except Exception as ex:  # pylint: disable=broad-exception-caught
-            
+            pass
 
     def _audit_log(self, event: str, details: Any) -> None:
         """Emit an audit log for compliance, traceability, and feedback/active learning. Automated for extensibility."""
         try:
             # Integrate with audit logging system here
-            
+            pass
         except Exception as ex:  # pylint: disable=broad-exception-caught
-            
+            pass
 
     async def _detect_arbitrage_opportunities(
         self, market_data: List[MarketData]
@@ -978,12 +977,16 @@ class SportsExpertAgent:
         If requested is provided and available, use it. Otherwise, auto-pick from Ollama or fallback.
         """
         try:
-            ollama_url = "${process.env.REACT_APP_API_URL || \"http://localhost:8000\"}/api/tags"
+            ollama_url = (
+                '${process.env.REACT_APP_API_URL || "http://localhost:8000"}/api/tags'
+            )
+
             # Use the global ollama_circuit_breaker instance
             def ollama_api_call():
                 resp = requests.get(ollama_url, timeout=2)
                 resp.raise_for_status()
                 return resp
+
             try:
                 resp = ollama_circuit_breaker.call(ollama_api_call)
             except RuntimeError as cb_err:
@@ -1067,7 +1070,6 @@ class SportsExpertAgent:
     def register_plugin(self, name: str, func: Callable[..., Any]) -> None:
         """Register a plugin/tool callable by name."""
         self.plugins[name] = func
-        
 
     def set_session_context(self, user_id: str, context: dict) -> None:
         """Set or update session/user context for personalized responses."""
@@ -1131,15 +1133,15 @@ def get_llm_engine() -> Any:
 
     def _emit_metric(self, metric_name: str, value: float) -> None:
         try:
-            
+            pass
         except Exception as ex:  # pylint: disable=broad-exception-caught
-            
+            pass
 
     def _audit_log(self, event: str, details: Any) -> None:
         try:
-            
+            pass
         except Exception as ex:  # pylint: disable=broad-exception-caught
-            
+            pass
 
     # ...existing code for async methods (discuss_lineup, analyze_prop_bet, answer_question, explain_recommendation, compliance_check, stream_conversation, retrain_agent, log_user_feedback)...
     # In each public method, add calls to self._emit_metric and self._audit_log, and wrap LLM outputs with self._compliance_filter.
@@ -1388,7 +1390,7 @@ def get_llm_engine() -> Any:
         try:
             self._persist_feedback(entry)
         except Exception as ex:  # pylint: disable=broad-exception-caught
-            
+            pass
 
     def _persist_feedback(self, entry: Dict[str, Any]) -> None:
         """Persist feedback to disk for automated retraining and audit. This is called automatically."""
@@ -1410,7 +1412,7 @@ def get_llm_engine() -> Any:
                 context = await self._retrieve_context_for_prompt(kwargs)
                 prompt["retrieved_context"] = context
             except Exception as ex:  # pylint: disable=broad-exception-caught
-                
+                pass
         # Chain-of-thought
         prompt["chain_of_thought"] = True
         # Force rationale and citations

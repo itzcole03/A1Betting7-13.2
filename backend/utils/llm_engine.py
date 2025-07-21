@@ -7,7 +7,7 @@ import json
 import logging
 import time
 from dataclasses import dataclass, field
-from typing import Any, Awaitable, Callable, Dict, List, Optional, TypeVar, TypedDict
+from typing import Any, Awaitable, Callable, Dict, List, Optional, TypedDict, TypeVar
 
 import httpx
 from pydantic import Field
@@ -66,6 +66,7 @@ class ModelStateType(TypedDict):
     request_queue_size: int
     model_health: Dict[str, Dict[str, Any]]
 
+
 # Enhanced logging for model states
 MODEL_STATE: ModelStateType = {
     "initialized": False,
@@ -93,7 +94,7 @@ def log_model_state(state_update: Dict[str, Any]) -> None:
     # Create a new dictionary to ensure TypedDict compatibility on update
     temp_state = MODEL_STATE.copy()
     temp_state.update(state_update)
-    MODEL_STATE = ModelStateType(**temp_state) # Reconstruct with explicit type
+    MODEL_STATE = ModelStateType(**temp_state)  # Reconstruct with explicit type
     logger.info(f"LLM State Update: {json.dumps(MODEL_STATE, default=str)}")
 
 
@@ -150,7 +151,7 @@ async def queue_request(
 # Modern config using Pydantic BaseSettings
 class EnhancedConfig(BaseSettings):
     llm_provider: str = "ollama"
-    llm_endpoint: str = "http://localhost:11434"
+    llm_endpoint: str = "http://127.0.0.1:11434"
     llm_timeout: int = 60
     llm_batch_size: int = 5
     llm_models_cache_ttl: int = 300
@@ -169,8 +170,11 @@ class EnhancedConfig(BaseSettings):
             "conversation": ["llama3:8b"],
         }
     )
+    odds_api_key: Optional[str] = None
+    sportradar_api_key: Optional[str] = None
+    database_url: Optional[str] = None  # Added to support .env DATABASE_URL
 
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
 
 # Singleton config instance
@@ -322,13 +326,16 @@ class OllamaClient(BaseLLMClient):
                 await asyncio.sleep(5)  # Short delay on error
 
     async def check_model_health(self, model_name: str) -> ModelHealth:
-        """Check health of a specific model"""
+        """Check health of a specific model, always refresh model list, log request/response, and set status to 'ready' on any 200 response"""
         start_time = time.time()
+        # Always refresh model list before health check
+        await self.list_models()
         try:
-            # Send a minimal request to verify model is responsive
-            resp = await self.client.post(
-                f"{self.base}/api/generate",
-                json={
+            import json as pyjson
+            import subprocess
+
+            payload = pyjson.dumps(
+                {
                     "model": model_name,
                     "prompt": "test",
                     "stream": False,
@@ -336,45 +343,93 @@ class OllamaClient(BaseLLMClient):
                         "num_predict": 1,
                         "temperature": 0.0,
                     },
-                },
-                timeout=5.0,  # Short timeout for health checks
+                }
             )
-            resp.raise_for_status()
-
-            response_time = time.time() - start_time
-            health = ModelHealth(
-                name=model_name,
-                status="ready",
-                last_check=time.time(),
-                response_time=response_time,
-                error_count=self.model_health.get(
-                    model_name,
-                    ModelHealth(
-                        name=model_name,
-                        status="unknown",
-                        last_check=0,
-                        response_time=0,
-                        error_count=0,
-                        success_count=0,
-                        last_error=None,
-                    ),
-                ).error_count,
-                success_count=self.model_health.get(
-                    model_name,
-                    ModelHealth(
-                        name=model_name,
-                        status="unknown",
-                        last_check=0,
-                        response_time=0,
-                        error_count=0,
-                        success_count=0,
-                        last_error=None,
-                    ),
-                ).success_count
-                + 1,
-                last_error=None,
-            )
+            curl_cmd = [
+                "curl",
+                "-s",
+                "-o",
+                "-",
+                "-w",
+                "%{http_code}",
+                "-X",
+                "POST",
+                f"{self.base}/api/generate",
+                "-H",
+                "Content-Type: application/json",
+                "-H",
+                "Accept: application/json",
+                "-d",
+                payload,
+                "--max-time",
+                "5",
+            ]
+            logger.info(f"[HealthCheck] Running curl command: {' '.join(curl_cmd)}")
+            start = time.time()
+            result = subprocess.run(curl_cmd, capture_output=True, text=True)
+            response_time = time.time() - start
+            output = result.stdout
+            http_code = output[-3:]
+            logger.info(f"[HealthCheck] curl output: {output}")
+            if http_code == "200":
+                health = ModelHealth(
+                    name=model_name,
+                    status="ready",
+                    last_check=time.time(),
+                    response_time=response_time,
+                    error_count=0,
+                    success_count=self.model_health.get(
+                        model_name,
+                        ModelHealth(
+                            name=model_name,
+                            status="unknown",
+                            last_check=0,
+                            response_time=0,
+                            error_count=0,
+                            success_count=0,
+                            last_error=None,
+                        ),
+                    ).success_count
+                    + 1,
+                    last_error=None,
+                )
+            else:
+                health = ModelHealth(
+                    name=model_name,
+                    status="error",
+                    last_check=time.time(),
+                    response_time=response_time,
+                    error_count=self.model_health.get(
+                        model_name,
+                        ModelHealth(
+                            name=model_name,
+                            status="unknown",
+                            last_check=0,
+                            response_time=0,
+                            error_count=0,
+                            success_count=0,
+                            last_error=None,
+                        ),
+                    ).error_count
+                    + 1,
+                    success_count=self.model_health.get(
+                        model_name,
+                        ModelHealth(
+                            name=model_name,
+                            status="unknown",
+                            last_check=0,
+                            response_time=0,
+                            error_count=0,
+                            success_count=0,
+                            last_error=None,
+                        ),
+                    ).success_count,
+                    last_error=f"curl http_code={http_code} output={output}",
+                )
         except Exception as e:
+            import traceback
+
+            tb = traceback.format_exc()
             health = ModelHealth(
                 name=model_name,
                 status="error",
@@ -405,9 +460,11 @@ class OllamaClient(BaseLLMClient):
                         last_error=None,
                     ),
                 ).success_count,
-                last_error=str(e),
+                last_error=f"{e}\n{tb}",
             )
-            logger.warning(f"Model {model_name} health check failed: {e}")
+            logger.warning(
+                f"[HealthCheck] Model {model_name} health check failed: {e}\n{tb}"
+            )
 
         self.model_health[model_name] = health
         MODEL_STATE["model_health"][model_name] = {

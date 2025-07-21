@@ -65,6 +65,7 @@ class PrizePicksService {
       const response = await ApiService.get<any[]>(`/api/prizepicks/props`, { cache: false });
       // Transform backend data to PlayerProp[]
       return response.data.map((prop, index) => {
+        // @ts-expect-error TS(2352): Conversion of type '{ id: any; playerId: any; play... Remove this comment to see the full error message
         return {
           id: prop.id,
           playerId: (prop.player_name || '').toLowerCase().replace(/\s+/g, '-'),
@@ -123,6 +124,7 @@ class PrizePicksService {
       // Extract team from sport context or use default
       const team = this.extractTeamFromSport(pred.sport) || 'TBD';
 
+      // @ts-expect-error TS(2352): Conversion of type '{ id: string; playerId: string... Remove this comment to see the full error message
       return {
         id: pred.id,
         playerId: playerName.toLowerCase().replace(/\s+/g, '-'),
@@ -256,7 +258,9 @@ class PrizePicksService {
         backendStatus: {
           health,
           training,
+          // @ts-expect-error TS(2571): Object is of type 'unknown'.
           modelsReady: training?.models_ready || 0,
+          // @ts-expect-error TS(2571): Object is of type 'unknown'.
           ensembleAccuracy: training?.ensemble_accuracy || null,
         },
       };

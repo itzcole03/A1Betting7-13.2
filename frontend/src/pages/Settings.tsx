@@ -3,6 +3,7 @@
 // Integrates with ThemeProvider/useTheme for global theme switching
 
 import React, { useState } from 'react';
+// @ts-expect-error TS(6142): Module '../components/common/theme/ThemeProvider' ... Remove this comment to see the full error message
 import { useTheme } from '../components/common/theme/ThemeProvider';
 import { Settings as SettingsIcon, Users, Database, Activity, Shield, Bell, Palette, Code, Server } from 'lucide-react';
 
@@ -16,14 +17,22 @@ const themes = [
 ];
 
 const settingSections = [
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   { id: 'appearance', label: 'Appearance', icon: <Palette className="w-5 h-5" /> },
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   { id: 'notifications', label: 'Notifications', icon: <Bell className="w-5 h-5" /> },
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   { id: 'monitoring', label: 'Monitoring', icon: <Activity className="w-5 h-5" /> },
   ...(isAdmin ? [
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     { id: 'users', label: 'User Management', icon: <Users className="w-5 h-5" /> },
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     { id: 'database', label: 'Database', icon: <Database className="w-5 h-5" /> },
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     { id: 'security', label: 'Security', icon: <Shield className="w-5 h-5" /> },
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     { id: 'api', label: 'API Settings', icon: <Server className="w-5 h-5" /> },
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     { id: 'advanced', label: 'Advanced', icon: <Code className="w-5 h-5" /> },
   ] : [])
 ];
@@ -36,13 +45,18 @@ export default function Settings() {
     switch (activeSection) {
       case 'appearance':
         return (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <section>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h3 className='text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200'>Theme</h3>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex flex-col space-y-3'>
               {themes.map(t => {
                 const inputId = `theme-radio-${t.value}`;
                 return (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <label key={t.value} className='flex items-center cursor-pointer' htmlFor={inputId}>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <input
                       type='radio'
                       name='theme'
@@ -52,8 +66,10 @@ export default function Settings() {
                       onChange={() => setTheme(t.value as any)}
                       className='form-radio h-5 w-5 text-blue-600 dark:text-blue-400'
                     />
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className='ml-3 text-slate-800 dark:text-slate-100'>{t.label}</span>
                     {theme === t.value && (
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='ml-2 px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-medium'>
                         Selected
                       </span>
@@ -67,19 +83,31 @@ export default function Settings() {
       
       case 'notifications':
         return (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <section>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h3 className='text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200'>Notifications</h3>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='space-y-4'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center justify-between'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-slate-800 dark:text-slate-100'>Email Notifications</span>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <input type='checkbox' className='form-checkbox h-5 w-5 text-blue-600' aria-label='Email Notifications' />
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center justify-between'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-slate-800 dark:text-slate-100'>Push Notifications</span>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <input type='checkbox' className='form-checkbox h-5 w-5 text-blue-600' aria-label='Push Notifications' />
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center justify-between'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className='text-slate-800 dark:text-slate-100'>Betting Alerts</span>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <input type='checkbox' className='form-checkbox h-5 w-5 text-blue-600' defaultChecked aria-label='Betting Alerts' />
               </div>
             </div>
@@ -88,21 +116,34 @@ export default function Settings() {
       
       case 'monitoring':
         return (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <section>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h3 className='text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200'>System Monitoring</h3>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='space-y-4'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='p-4 bg-green-50 dark:bg-green-900/20 rounded-lg'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center mb-2'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='w-3 h-3 bg-green-500 rounded-full mr-2'></div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span className='font-medium text-green-800 dark:text-green-300'>Backend Health</span>
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <p className='text-sm text-green-700 dark:text-green-400'>All services operational</p>
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center mb-2'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='w-3 h-3 bg-blue-500 rounded-full mr-2'></div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span className='font-medium text-blue-800 dark:text-blue-300'>PrizePicks Scraper</span>
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <p className='text-sm text-blue-700 dark:text-blue-400'>Health monitoring active</p>
               </div>
             </div>
@@ -114,11 +155,17 @@ export default function Settings() {
           switch (activeSection) {
             case 'users':
               return (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <section>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h3 className='text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200'>User Management</h3>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='space-y-4'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='p-4 bg-slate-50 dark:bg-slate-800 rounded-lg'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-slate-700 dark:text-slate-300'>Admin-only section for user management</p>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <button className='mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors'>
                         Manage Users
                       </button>
@@ -129,11 +176,17 @@ export default function Settings() {
             
             case 'database':
               return (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <section>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h3 className='text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200'>Database Settings</h3>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='space-y-4'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='p-4 bg-slate-50 dark:bg-slate-800 rounded-lg'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-slate-700 dark:text-slate-300'>Database configuration and maintenance</p>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <button className='mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors'>
                         View Database Health
                       </button>
@@ -144,11 +197,17 @@ export default function Settings() {
             
             case 'security':
               return (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <section>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h3 className='text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200'>Security Settings</h3>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='space-y-4'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='p-4 bg-red-50 dark:bg-red-900/20 rounded-lg'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-red-700 dark:text-red-300'>Security configuration and audit logs</p>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <button className='mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors'>
                         Security Audit
                       </button>
@@ -159,11 +218,17 @@ export default function Settings() {
             
             case 'api':
               return (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <section>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h3 className='text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200'>API Settings</h3>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='space-y-4'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='p-4 bg-slate-50 dark:bg-slate-800 rounded-lg'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-slate-700 dark:text-slate-300'>API keys and external service configuration</p>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <button className='mt-2 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors'>
                         Manage API Keys
                       </button>
@@ -174,11 +239,17 @@ export default function Settings() {
             
             case 'advanced':
               return (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <section>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h3 className='text-lg font-semibold mb-4 text-slate-700 dark:text-slate-200'>Advanced Settings</h3>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='space-y-4'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='p-4 bg-slate-50 dark:bg-slate-800 rounded-lg'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='text-slate-700 dark:text-slate-300'>Advanced configuration and developer tools</p>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <button className='mt-2 px-4 py-2 bg-slate-600 text-white rounded hover:bg-slate-700 transition-colors'>
                         Developer Console
                       </button>
@@ -193,18 +264,27 @@ export default function Settings() {
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='flex min-h-screen bg-gradient-to-br from-slate-100 to-slate-300 dark:from-slate-900 dark:to-slate-800'>
       {/* Sidebar */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <aside className='w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-6'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center mb-6'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <SettingsIcon className='w-6 h-6 mr-2 text-slate-700 dark:text-slate-200' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <h2 className='text-xl font-bold text-slate-800 dark:text-slate-100'>Settings</h2>
         </div>
         
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <nav>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <ul className='space-y-2'>
             {settingSections.map(section => (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <li key={section.id}>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button
                   onClick={() => setActiveSection(section.id)}
                   className={`w-full flex items-center px-3 py-2 rounded-lg text-left transition-colors ${
@@ -214,8 +294,10 @@ export default function Settings() {
                   }`}
                 >
                   {section.icon}
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span className='ml-3'>{section.label}</span>
                   {isAdmin && ['users', 'database', 'security', 'api', 'advanced'].includes(section.id) && (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className='ml-auto px-2 py-0.5 text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded'>
                       Admin
                     </span>
@@ -228,6 +310,7 @@ export default function Settings() {
       </aside>
 
       {/* Main Content */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <main className='flex-1 p-10'>
         {renderSection()}
       </main>

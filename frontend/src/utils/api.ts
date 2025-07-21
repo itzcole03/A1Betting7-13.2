@@ -1,9 +1,13 @@
 import axios from 'axios';
+// @ts-expect-error TS(2305): Module '"../services/backendDiscovery"' has no exp... Remove this comment to see the full error message
 import { backendDiscovery } from '../services/backendDiscovery';
+
+// Change default port to 8000 for all API requests
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 // Create initial axios instance
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8001',
+  baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },

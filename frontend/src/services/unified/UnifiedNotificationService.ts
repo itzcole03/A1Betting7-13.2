@@ -1,5 +1,6 @@
-﻿import { BaseService } from './BaseService';
+import { BaseService } from './BaseService';
 import { UnifiedErrorService } from './UnifiedErrorService';
+// @ts-expect-error TS(2305): Module '"./UnifiedServiceRegistry"' has no exporte... Remove this comment to see the full error message
 import { UnifiedServiceRegistry } from './UnifiedServiceRegistry';
 import { UnifiedStateService } from './UnifiedStateService';
 
@@ -73,6 +74,7 @@ export class UnifiedNotificationService extends BaseService {
         }, options.duration || this.defaultDuration);
       }
     } catch (error) {
+      // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
       this.errorService.handleError(error, {
         code: 'NOTIFICATION_ERROR',
         source: 'UnifiedNotificationService',
@@ -89,6 +91,7 @@ export class UnifiedNotificationService extends BaseService {
       );
       this.stateService.setState({ notifications: updatedNotifications });
     } catch (error) {
+      // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
       this.errorService.handleError(error, {
         code: 'NOTIFICATION_ERROR',
         source: 'UnifiedNotificationService',
@@ -105,6 +108,7 @@ export class UnifiedNotificationService extends BaseService {
       );
       this.stateService.setState({ notifications: updatedNotifications });
     } catch (error) {
+      // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
       this.errorService.handleError(error, {
         code: 'NOTIFICATION_ERROR',
         source: 'UnifiedNotificationService',
@@ -117,6 +121,7 @@ export class UnifiedNotificationService extends BaseService {
     try {
       this.stateService.setState({ notifications: [] });
     } catch (error) {
+      // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
       this.errorService.handleError(error, {
         code: 'NOTIFICATION_ERROR',
         source: 'UnifiedNotificationService',
@@ -127,9 +132,10 @@ export class UnifiedNotificationService extends BaseService {
 
   getUnreadCount(): number {
     try {
-      return this.stateService.getState().notifications.filter(notification => !notification.read)
+      return this.stateService.getState().notifications.filter((notification: any) => !notification.read)
         .length;
     } catch (error) {
+      // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
       this.errorService.handleError(error, {
         code: 'NOTIFICATION_ERROR',
         source: 'UnifiedNotificationService',
@@ -160,6 +166,7 @@ export class UnifiedNotificationService extends BaseService {
           audio.src = '/sounds/info.mp3';
       }
       audio.play().catch((error: any) => {
+        // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
         this.errorService.handleError(error, {
           code: 'NOTIFICATION_ERROR',
           source: 'UnifiedNotificationService',
@@ -167,6 +174,7 @@ export class UnifiedNotificationService extends BaseService {
         });
       });
     } catch (error) {
+      // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
       this.errorService.handleError(error, {
         code: 'NOTIFICATION_ERROR',
         source: 'UnifiedNotificationService',

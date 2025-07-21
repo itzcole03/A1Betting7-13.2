@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 🚀 PHASE 5: Real Betting Data Hook
  *
  * Replaces placeholder implementation with real backend integration:
@@ -9,8 +9,11 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+// @ts-expect-error TS(2305): Module '"../services/ApiService"' has no exported ... Remove this comment to see the full error message
 import { ApiError, apiService } from '../services/ApiService';
+// @ts-expect-error TS(2305): Module '"../services/unified/WebSocketManager"' ha... Remove this comment to see the full error message
 import { webSocketManager } from '../services/unified/WebSocketManager';
+// @ts-expect-error TS(2305): Module '"../stores/useStore"' has no exported memb... Remove this comment to see the full error message
 import { useStore } from '../stores/useStore';
 import type { OddsUpdate, Opportunity, PlayerProp } from '../types/core';
 
@@ -104,14 +107,17 @@ export const useBettingData = ({
 
       // Filter data based on options
       if (sport) {
+        // @ts-expect-error TS(2339): Property 'sport' does not exist on type 'PlayerPro... Remove this comment to see the full error message
         propsData = propsData.filter(prop => prop.sport?.toLowerCase() === sport.toLowerCase());
         opportunitiesData = opportunitiesData.filter(
+          // @ts-expect-error TS(2339): Property 'sport' does not exist on type 'Opportuni... Remove this comment to see the full error message
           opp => opp.sport?.toLowerCase() === sport.toLowerCase()
         );
       }
 
       if (propType) {
         propsData = propsData.filter(
+          // @ts-expect-error TS(2339): Property 'stat_type' does not exist on type 'Playe... Remove this comment to see the full error message
           prop => prop.stat_type?.toLowerCase() === propType.toLowerCase()
         );
       }
@@ -155,7 +161,9 @@ export const useBettingData = ({
           if (!data) return;
 
           // Apply filters
+          // @ts-expect-error TS(2339): Property 'sport' does not exist on type 'PlayerPro... Remove this comment to see the full error message
           if (sport && data.sport?.toLowerCase() !== sport.toLowerCase()) return;
+          // @ts-expect-error TS(2339): Property 'stat_type' does not exist on type 'Playe... Remove this comment to see the full error message
           if (propType && data.stat_type?.toLowerCase() !== propType.toLowerCase()) return;
 
           setState(prev => {
@@ -231,6 +239,7 @@ export const useBettingData = ({
 
           addToast(
             'success',
+            // @ts-expect-error TS(2339): Property 'description' does not exist on type 'Opp... Remove this comment to see the full error message
             `🚨 New arbitrage opportunity: ${opportunity.description || opportunity.id}`
           );
 

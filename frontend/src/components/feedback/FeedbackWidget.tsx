@@ -90,8 +90,8 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
 
   if (trigger === 'beta') {
     return (
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='inline-flex items-center gap-2 text-sm text-gray-600'>
-        <span>This feature is in beta.</span>
         <button
           onClick={() => setIsOpen(true)}
           className='text-blue-600 hover:text-blue-800 underline font-medium'
@@ -99,6 +99,7 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
           Send feedback
         </button>
         {isOpen && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <FeedbackModal
             isSubmitted={isSubmitted}
             isSubmitting={isSubmitting}
@@ -114,24 +115,33 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
   }
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <>
       {/* Floating Feedback Button */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div className={`fixed ${positionClasses[position]} z-50`}>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <label htmlFor='feedbackwidget-float-btn' className='sr-only'>
           Send Feedback
         </label>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <button
           id='feedbackwidget-float-btn'
           onClick={() => setIsOpen(true)}
           className='bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105'
           title='Send Feedback'
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <MessageSquare size={20} />
         </button>
       </div>
-
       {/* Feedback Modal */}
       {isOpen && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <FeedbackModal
           isSubmitted={isSubmitted}
           isSubmitting={isSubmitting}
@@ -167,15 +177,24 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
 }) => {
   if (isSubmitted) {
     return (
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className='bg-white rounded-lg p-6 max-w-md w-full mx-4 text-center'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <svg
               className='w-6 h-6 text-green-600'
               fill='none'
               stroke='currentColor'
               viewBox='0 0 24 24'
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <path
                 strokeLinecap='round'
                 strokeLinejoin='round'
@@ -184,7 +203,11 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
               />
             </svg>
           </div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <h3 className='text-lg font-semibold text-gray-900 mb-2'>Thank you!</h3>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <p className='text-gray-600'>Your feedback has been sent successfully.</p>
         </div>
       </div>
@@ -192,25 +215,43 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
   }
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div className='bg-white rounded-lg p-6 max-w-md w-full mx-4'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className='flex items-center justify-between mb-4'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <h3 className='text-lg font-semibold text-gray-900'>Send Feedback</h3>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <button
             onClick={onClose}
             className='text-gray-400 hover:text-gray-600'
             aria-label='Close'
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <X size={20} />
           </button>
         </div>
-
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <form onSubmit={onSubmit} className='space-y-4'>
           {/* Feedback Type */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <label className='block text-sm font-medium text-gray-700 mb-2' htmlFor='feedback-type'>
               Feedback Type
             </label>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <select
               id='feedback-type'
               value={feedback.type}
@@ -219,23 +260,45 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
               }
               className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <option value='improvement'>Improvement</option>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <option value='bug'>Bug Report</option>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <option value='feature'>Feature Request</option>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <option value='other'>Other</option>
             </select>
           </div>
-
           {/* Rating */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <label
               className='block text-sm font-medium text-gray-700 mb-2'
-              id='feedback-rating-label'
+              htmlFor='feedback-rating'
             >
               How would you rate this feature?
             </label>
+            <input
+              id='feedback-rating'
+              name='feedback-rating'
+              type='number'
+              min='1'
+              max='5'
+              className='ml-2'
+            />
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div className='flex gap-1' aria-labelledby='feedback-rating-label' role='radiogroup'>
               {[1, 2, 3, 4, 5].map(star => (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button
                   key={star}
                   type='button'
@@ -247,20 +310,27 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
                   } hover:text-yellow-400 transition-colors`}
                   aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
                 >
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <Star size={20} fill='currentColor' />
                 </button>
               ))}
             </div>
           </div>
-
           {/* Message */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <label
               className='block text-sm font-medium text-gray-700 mb-2'
               htmlFor='feedback-message'
             >
               Your feedback *
             </label>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <textarea
               id='feedback-message'
               value={feedback.message}
@@ -271,9 +341,12 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
               className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none'
             />
           </div>
-
           {/* Submit Button */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='flex gap-3 pt-2'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <button
               type='button'
               onClick={onClose}
@@ -281,18 +354,26 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
             >
               Cancel
             </button>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <button
               type='submit'
               disabled={isSubmitting || !feedback.message?.trim()}
               className='flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2'
             >
               {isSubmitting ? (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin' />
                   Sending...
                 </>
               ) : (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <Send size={16} />
                   Send Feedback
                 </>

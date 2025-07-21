@@ -13,6 +13,7 @@ export const testCoreFunctionality = (): FunctionalityTestResult[] => {
 
   // Test 1: Check if React is working
   try {
+    // @ts-expect-error TS(2686): 'React' refers to a UMD global, but the current fi... Remove this comment to see the full error message
     if (typeof React !== 'undefined' || typeof window !== 'undefined') {
       results.push({
         test: 'React Environment',

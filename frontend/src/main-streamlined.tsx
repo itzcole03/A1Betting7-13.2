@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+// @ts-expect-error TS(6142): Module './AppStreamlined' was resolved to 'C:/User... Remove this comment to see the full error message
 import AppStreamlined from './AppStreamlined';
 import { logger } from './utils/logger';
 
@@ -14,6 +15,7 @@ import './styles/quantum-styles.css';
 logger.info(
   '🚀 A1Betting Ultra-Enhanced Platform (Streamlined) Loading',
   {
+    // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
     environment: import.meta.env.MODE,
     timestamp: new Date().toISOString(),
     userAgent: navigator.userAgent,
@@ -97,7 +99,9 @@ if (!rootElement) throw new Error('Failed to find the root element');
 
 const root = ReactDOM.createRoot(rootElement);
 root.render(
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <React.StrictMode>
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <AppStreamlined />
   </React.StrictMode>
 );

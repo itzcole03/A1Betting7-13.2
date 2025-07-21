@@ -1,12 +1,16 @@
+// @ts-expect-error TS(2307): Cannot find module '@/types/prizePicksUnified.js' ... Remove this comment to see the full error message
 import type { PrizePicksPlayer, PrizePicksProjection } from '@/types/prizePicksUnified.js';
 import type { AxiosInstance } from 'axios';
 import axios from 'axios';
+// @ts-expect-error TS(2614): Module '"./ApiService.js"' has no exported member ... Remove this comment to see the full error message
 import { ApiResponse, BaseApiService } from './ApiService.js';
 
 export class PrizePicksApiService extends BaseApiService {
   protected initializeClient(): AxiosInstance {
     return axios.create({
+      // @ts-expect-error TS(2339): Property 'config' does not exist on type 'PrizePic... Remove this comment to see the full error message
       baseURL: this.config.baseURL,
+      // @ts-expect-error TS(2339): Property 'config' does not exist on type 'PrizePic... Remove this comment to see the full error message
       timeout: this.config.timeout || 10000,
       headers: {
         'Content-Type': 'application/json',
@@ -15,16 +19,19 @@ export class PrizePicksApiService extends BaseApiService {
   }
 
   protected handleError(error: Error): void {
+    // @ts-expect-error TS(2339): Property 'emit' does not exist on type 'PrizePicks... Remove this comment to see the full error message
     this.emit('error', error);
     // console statement removed
   }
 
   protected handleResponse<T>(response: ApiResponse<T>): void {
+    // @ts-expect-error TS(2339): Property 'emit' does not exist on type 'PrizePicks... Remove this comment to see the full error message
     this.emit('response', response);
   }
 
   public async get<T>(endpoint: string, params?: Record<string, unknown>): Promise<T> {
     try {
+      // @ts-expect-error TS(2339): Property 'emit' does not exist on type 'PrizePicks... Remove this comment to see the full error message
       this.emit('request', endpoint);
       const client = this.initializeClient();
       const response = await client.get<T>(endpoint, { params });
@@ -43,6 +50,7 @@ export class PrizePicksApiService extends BaseApiService {
 
   public async post<T>(endpoint: string, data: unknown): Promise<T> {
     try {
+      // @ts-expect-error TS(2339): Property 'emit' does not exist on type 'PrizePicks... Remove this comment to see the full error message
       this.emit('request', endpoint);
       const client = this.initializeClient();
       const response = await client.post<T>(endpoint, data);

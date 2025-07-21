@@ -1,5 +1,7 @@
-﻿// SHAP Explainer Service for model explainability;
+// SHAP Explainer Service for model explainability;
+// @ts-expect-error TS(2307): Cannot find module '@/ml/models/BaseModel' or its ... Remove this comment to see the full error message
 import { BaseModel } from '@/ml/models/BaseModel';
+// @ts-expect-error TS(2307): Cannot find module '@/integrations/liveDataLogger'... Remove this comment to see the full error message
 import { logError, logInfo } from '@/integrations/liveDataLogger';
 
 export class ShapExplainerService {
@@ -14,6 +16,7 @@ export class ShapExplainerService {
           { feature: 'recent_form', value: 0.22 },
           { feature: 'injuries', value: -0.18 },
         ],
+        // @ts-expect-error TS(2693): 'Record' only refers to a type, but is being used ... Remove this comment to see the full error message
         raw: Record<string, any>,
       };
     } catch (err) {

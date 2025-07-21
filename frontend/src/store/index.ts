@@ -1,4 +1,4 @@
-﻿// import { Bet, Headline, PerformanceData, Prop, User, UserStats } from '@/types';
+// import { Bet, Headline, PerformanceData, Prop, User, UserStats } from '@/types';
 import { create } from 'zustand';
 
 interface AppState {

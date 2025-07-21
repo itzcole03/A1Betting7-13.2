@@ -219,10 +219,12 @@ class MLService {
     for (const model of this.models.values()) {
       try {
         const response = await ApiService.get(`/ml/models/${model.id}/validate`);
+        // @ts-expect-error TS(2571): Object is of type 'unknown'.
         if (response.data.valid) {
           results.valid++;
         } else {
           results.invalid++;
+          // @ts-expect-error TS(2571): Object is of type 'unknown'.
           results.errors.push(`${model.name}: ${response.data.error}`);
         }
       } catch (error) {

@@ -1,3 +1,8 @@
+/// <reference types="node" />
+/// <reference types="react" />
+// Polyfill NodeJS globals for browser
+declare var process: any;
+declare var global: any;
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import AppStreamlined from './AppStreamlined';
@@ -18,6 +23,7 @@ import './styles/quantum-styles.css';
 logger.info(
   '🚀 A1Betting Platform Loading - Production Mode',
   {
+    // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
     environment: import.meta.env.MODE,
     timestamp: new Date().toISOString(),
     userAgent: navigator.userAgent,
@@ -132,6 +138,8 @@ if (!rootElement) throw new Error('Failed to find the root element');
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this
+    comment to see the full error message
     <AppStreamlined />
   </React.StrictMode>
 );

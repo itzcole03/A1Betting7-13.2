@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 try:
     from services.intelligent_ensemble_system import intelligent_ensemble
     ENSEMBLE_AVAILABLE = True
-    logger.info("✅ Intelligent ensemble system loaded successfully")
+    logger.info("Intelligent ensemble system loaded successfully")
 except ImportError as e:
     ENSEMBLE_AVAILABLE = False
     logger.warning(f"Intelligent ensemble system not available: {e}")
@@ -33,7 +33,7 @@ try:
     from services.real_data_service import real_data_service
 
     REAL_DATA_AVAILABLE = True
-    logger.info("✅ Real data service loaded successfully")
+    logger.info("Real data service loaded successfully")
 except ImportError as e:
     REAL_DATA_AVAILABLE = False
     logger.warning(f"Real data service not available: {e}")
@@ -45,7 +45,7 @@ async def enhance_with_sportradar(
     """Enhance props with real SportRadar data"""
     try:
         print(f"DEBUG: enhance_with_sportradar called with {len(props)} props")
-        logger.info("🔄 Calling SportRadar API for MLB player stats...")
+        logger.info("Calling SportRadar API for MLB player stats...")
 
         # SportRadar MLB Daily Schedule API (2025 season)
         mlb_url = f"https://api.sportradar.us/mlb/trial/v7/en/games/2025/07/08/schedule.json?api_key={api_key}"
@@ -58,7 +58,7 @@ async def enhance_with_sportradar(
             sportradar_data = response.json()
             games = sportradar_data.get("games", [])
 
-            logger.info(f"� SportRadar: Found {len(games)} MLB games")
+            logger.info(f"SportRadar: Found {len(games)} MLB games")
             print(f"DEBUG: SportRadar found {len(games)} games")
 
             # Enhance existing props with SportRadar data
@@ -81,7 +81,7 @@ async def enhance_with_sportradar(
                         prop["expected_value"] = prop.get("expected_value", 5) + 3
 
             print(f"DEBUG: SportRadar enhanced {enhanced_count} props")
-            logger.info("✅ SportRadar enhancement complete")
+            logger.info("SportRadar enhancement complete")
 
     except Exception as e:
         logger.warning(f"SportRadar API error: {e}")
@@ -93,7 +93,7 @@ async def enhance_with_theodds(
     """Enhance props with real TheOdds API data"""
     try:
         print(f"DEBUG: enhance_with_theodds called with {len(props)} props")
-        logger.info("🔄 Calling TheOdds API for real betting odds...")
+        logger.info("Calling TheOdds API for real betting odds...")
 
         # TheOdds API for MLB odds
         odds_url = f"https://api.the-odds-api.com/v4/sports/baseball_mlb/odds?apiKey={api_key}&regions=us&markets=h2h,spreads,totals"
@@ -105,7 +105,7 @@ async def enhance_with_theodds(
         if response.status_code == 200:
             odds_data = response.json()
 
-            logger.info(f"� TheOdds: Found {len(odds_data)} MLB games with odds")
+            logger.info(f"TheOdds: Found {len(odds_data)} MLB games with odds")
             print(f"DEBUG: TheOdds found {len(odds_data)} games with odds")
 
             # Enhance props with real odds data
@@ -125,7 +125,7 @@ async def enhance_with_theodds(
                     prop["confidence"] = min(92.0, prop.get("confidence", 75) + 5)
 
             print(f"DEBUG: TheOdds enhanced {enhanced_count} props")
-            logger.info("✅ TheOdds enhancement complete")
+            logger.info("TheOdds enhancement complete")
 
     except Exception as e:
         logger.warning(f"TheOdds API error: {e}")
@@ -136,7 +136,7 @@ async def enhance_with_dailyfantasy(
 ):
     """Enhance props with DailyFantasy API data (if available)"""
     try:
-        logger.info("🔄 Calling DailyFantasy API for DFS projections...")
+        logger.info("Calling DailyFantasy API for DFS projections...")
 
         # Note: DailyFantasy API implementation would go here
         # For now, just mark as enhanced since we don't have the real key
@@ -144,7 +144,7 @@ async def enhance_with_dailyfantasy(
             prop["dailyfantasy_enhanced"] = True
             prop["source"] = prop.get("source", "") + " + DailyFantasy"
 
-        logger.info("✅ DailyFantasy enhancement complete")
+        logger.info("DailyFantasy enhancement complete")
 
     except Exception as e:
         logger.warning(f"DailyFantasy API error: {e}")
@@ -154,7 +154,7 @@ try:
     from services.real_data_service import real_data_service
 
     REAL_DATA_AVAILABLE = True
-    logger.info("✅ Real data service loaded successfully")
+    logger.info("Real data service loaded successfully")
 except ImportError as e:
     REAL_DATA_AVAILABLE = False
     logger.warning(f"Real data service not available: {e}")
@@ -304,13 +304,13 @@ async def fetch_prizepicks_props_internal() -> List[Dict[str, Any]]:
     except Exception as e:
         logger.error(f"❌ Error fetching real PrizePicks data: {e}")
         # Provide current realistic data instead of empty array
-        logger.info("🔄 Providing current realistic PrizePicks data")
+    logger.info("Providing current realistic PrizePicks data")
         return await fetch_current_prizepicks_props()
 
 
 async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
     """Fetch props for IN-SEASON sports only (July 2025)"""
-    logger.info("🔄 Fetching props for IN-SEASON sports only (July 2025)")
+    logger.info("Fetching props for IN-SEASON sports only (July 2025)")
     
     # Import seasonal utilities
     try:
@@ -342,19 +342,19 @@ async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
     # ✅ Use dynamic seasonal filtering instead of hardcoded July logic
     in_season_sports = get_in_season_sports(current_month)
     
-    logger.info(f"📅 IN-SEASON sports for month {current_month}: {in_season_sports}")
+    logger.info(f"IN-SEASON sports for month {current_month}: {in_season_sports}")
     
     # Determine off-season sports for logging
     all_major_sports = ["NFL", "NBA", "NHL", "MLB", "WNBA", "MLS"]
     off_season_sports = [sport for sport in all_major_sports if sport not in in_season_sports]
     if off_season_sports:
-        logger.info(f"❌ Skipping off-season sports: {off_season_sports}")
+        logger.info(f"Skipping off-season sports: {off_season_sports}")
     
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             # MLB (IN SEASON)
             if 'MLB' in in_season_sports:
-                logger.info("🔄 Fetching MLB games (IN SEASON)")
+                logger.info("Fetching MLB games (IN SEASON)")
                 
                 # Create sample MLB props for current games
                 mlb_players = [
@@ -391,7 +391,7 @@ async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
             
             # WNBA (IN SEASON)
             if 'WNBA' in in_season_sports:
-                logger.info("🔄 Fetching WNBA games (IN SEASON)")
+                logger.info("Fetching WNBA games (IN SEASON)")
                 
                 wnba_players = [
                     {"name": "A'ja Wilson", "team": "LAS", "position": "F"},
@@ -425,7 +425,7 @@ async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
 
             # MLS (IN SEASON)
             if 'MLS' in in_season_sports:
-                logger.info("🔄 Fetching MLS games (IN SEASON)")
+                logger.info("Fetching MLS games (IN SEASON)")
                 
                 props.append({
                     "id": "mls_lafc_1",
@@ -475,8 +475,8 @@ async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
                     "updated_at": current_time.isoformat(),
                 })
 
-            logger.info(f"✅ Generated {len(props)} props for IN-SEASON sports only")
-            logger.info("❌ NO props for NBA, NHL, NFL (off-season)")
+            logger.info(f"Generated {len(props)} props for IN-SEASON sports only")
+            logger.info("NO props for NBA, NHL, NFL (off-season)")
             
     except Exception as e:
         logger.error(f"❌ Error fetching sports data: {e}")
@@ -539,8 +539,8 @@ async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
     if 2 <= current_month <= 11:
         in_season_sports.append('NASCAR')
     
-    logger.info(f"📅 Current date: {current_date} - IN-SEASON sports: {in_season_sports}")
-    logger.info("❌ Skipping NBA, NHL, and NFL (off-season)")
+    logger.info(f"Current date: {current_date} - IN-SEASON sports: {in_season_sports}")
+    logger.info("Skipping NBA, NHL, and NFL (off-season)")
 
     # Real player databases for common teams with correct positions
     MLB_PLAYERS = {
@@ -770,7 +770,7 @@ async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
         async with httpx.AsyncClient(timeout=30.0) as client:
             # Only fetch MLB if it's in season
             if 'MLB' in in_season_sports:
-                logger.info("🔄 Fetching real MLB games from ESPN API...")
+                logger.info("Fetching real MLB games from ESPN API...")
                 mlb_response = await client.get(
                     "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"
                 )
@@ -778,7 +778,7 @@ async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
                 if mlb_response.status_code == 200:
                     mlb_data = mlb_response.json()
                     events = mlb_data.get("events", [])
-                    logger.info(f"📊 Found {len(events)} live MLB games from ESPN")
+                    logger.info(f"Found {len(events)} live MLB games from ESPN")
 
                     for event in events[:4]:  # Top 4 games
                         try:
@@ -858,14 +858,14 @@ async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
                             logger.warning(f"Error processing MLB game: {e}")
                             continue
             else:
-                logger.info("❌ Skipping MLB (off-season)")
+                logger.info("Skipping MLB (off-season)")
 
             # Skip NBA - Off season in July (October-June season)  
-            logger.info("❌ Skipping NBA (off-season)")
+            logger.info("Skipping NBA (off-season)")
 
             # Only fetch WNBA if it's in season
             if 'WNBA' in in_season_sports:
-                logger.info("🔄 Fetching real WNBA games from ESPN API...")
+                logger.info("Fetching real WNBA games from ESPN API...")
                 wnba_response = await client.get(
                     "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard"
                 )
@@ -873,7 +873,7 @@ async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
                 if wnba_response.status_code == 200:
                     wnba_data = wnba_response.json()
                     events = wnba_data.get("events", [])
-                    logger.info(f"📊 Found {len(events)} live WNBA games from ESPN")
+                    logger.info(f"Found {len(events)} live WNBA games from ESPN")
 
                     wnba_stars = ["A'ja Wilson", "Breanna Stewart", "Diana Taurasi", "Candace Parker"]
 
@@ -910,14 +910,14 @@ async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
                             logger.warning(f"Error processing WNBA game: {e}")
                             continue
             else:
-                logger.info("❌ Skipping WNBA (off-season)")
+                logger.info("Skipping WNBA (off-season)")
 
             # Skip NHL - Off season in July (October-June season)  
-            logger.info("❌ Skipping NHL (off-season)")
+            logger.info("Skipping NHL (off-season)")
 
             # Only fetch MLS if it's in season
             if 'MLS' in in_season_sports:
-                logger.info("🔄 Fetching real MLS games from ESPN API...")
+                logger.info("Fetching real MLS games from ESPN API...")
                 mls_response = await client.get(
                     "https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard"
                 )
@@ -925,7 +925,7 @@ async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
                 if mls_response.status_code == 200:
                     mls_data = mls_response.json()
                     events = mls_data.get("events", [])
-                    logger.info(f"📊 Found {len(events)} live MLS games from ESPN")
+                    logger.info(f"Found {len(events)} live MLS games from ESPN")
 
                     mls_stars = ["Lorenzo Insigne", "Carlos Vela", "Giorgio Chiellini", "Gareth Bale"]
 
@@ -962,11 +962,11 @@ async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
                             logger.warning(f"Error processing MLS game: {e}")
                             continue
             else:
-                logger.info("❌ Skipping MLS (off-season)")
+                logger.info("Skipping MLS (off-season)")
 
             # Year-round sports - Tennis (always in season)
             if 'Tennis' in in_season_sports:
-                logger.info("🔄 Adding Tennis props (year-round sport)")
+                logger.info("Adding Tennis props (year-round sport)")
                 tennis_players = ["Novak Djokovic", "Carlos Alcaraz", "Jannik Sinner", "Daniil Medvedev"]
                 
                 for i in range(3):
@@ -995,7 +995,7 @@ async def fetch_current_prizepicks_props() -> List[Dict[str, Any]]:
 
             # Year-round sports - Golf (always in season)
             if 'Golf' in in_season_sports:
-                logger.info("🔄 Adding Golf props (year-round sport)")
+                logger.info("Adding Golf props (year-round sport)")
                 golf_players = ["Scottie Scheffler", "Jon Rahm", "Viktor Hovland", "Xander Schauffele"]
                 
                 for i in range(2):

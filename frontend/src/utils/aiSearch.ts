@@ -1,4 +1,4 @@
-﻿import toast from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 export const handleAISearch = async (query?: string) => {
   // Show AI-powered search with PropOllama integration;

@@ -12,6 +12,7 @@ module.exports = {
   },
 
   files: [
+    'dist/index.html', // Explicitly include renderer entry
     'dist/**/*',
     'public/main.js',
     'public/preload.js',
@@ -147,7 +148,7 @@ module.exports = {
   },
 
   // Compression and optimization
-  compression: 'maximum',
+  compression: 'store', // Disable compression for debugging asar corruption
 
   // Code signing (for production)
   // win: {

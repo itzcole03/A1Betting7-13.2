@@ -5,6 +5,7 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 
 // Define base URL from environment variables
+// @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 // Create axios instance with default configuration
@@ -26,6 +27,7 @@ apiClient.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
+    // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
     if (import.meta.env.DEV) {
       // console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, config.data || '');
     }
@@ -40,6 +42,7 @@ apiClient.interceptors.request.use(
 // --- Response Interceptor ---
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
+    // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
     if (import.meta.env.DEV) {
       // console.log(`[API Response] ${response.config.method?.toUpperCase()} ${response.config.url}`, response.status, response.data);
     }

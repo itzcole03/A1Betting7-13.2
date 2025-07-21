@@ -1,4 +1,5 @@
 import React from 'react';
+// @ts-expect-error TS(2307): Cannot find module '@/lib/utils' or its correspond... Remove this comment to see the full error message
 import { cn } from '@/lib/utils';
 
 // Types for empty state
@@ -133,8 +134,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   const renderIcon = () => {
     if (illustration) {
       return (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className={cn('mb-6', animated && 'animate-fade-in')}>
           {typeof illustration === 'string' ? (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <img
               src={illustration}
               alt='Empty state illustration'
@@ -150,6 +153,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
     if (icon) {
       return (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className={cn(sizeClasses.icon, 'opacity-60', animated && 'animate-bounce')}>
           {typeof icon === 'string' ? icon : icon}
         </div>
@@ -157,6 +161,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     }
 
     return (
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className={cn(sizeClasses.icon, 'opacity-40', animated && 'animate-pulse')}>
         {getEmptyStateIcon('default')}
       </div>
@@ -167,8 +172,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     if (actions.length === 0) return null;
 
     return (
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className={cn('flex flex-wrap gap-2 justify-center mt-6', sizeClasses.actions)}>
         {actions.map((action, index) => (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <button
             key={index}
             onClick={action.onClick}
@@ -206,8 +213,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             )}
           >
             {action.loading && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2' />
             )}
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             {action.icon && !action.loading && <span className='mr-2'>{action.icon}</span>}
             {action.label}
           </button>
@@ -217,6 +226,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div
       className={cn(
         'flex flex-col items-center justify-center text-center relative',
@@ -228,24 +238,30 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     >
       {/* Background Pattern for Cyber Variant */}
       {variant === 'cyber' && showBackground && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 rounded-lg' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute inset-0 bg-grid-white/[0.02] rounded-lg' />
         </>
       )}
 
       {/* Content */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='relative z-10'>
         {/* Icon/Illustration */}
         {renderIcon()}
 
         {/* Title */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <h3 className={cn('font-semibold mb-2', sizeClasses.title, currentTextClasses.title)}>
           {title}
         </h3>
 
         {/* Description */}
         {description && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <p
             className={cn(
               'max-w-md mx-auto leading-relaxed',
@@ -258,6 +274,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         )}
 
         {/* Custom Children */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         {children && <div className='mt-4'>{children}</div>}
 
         {/* Actions */}
@@ -266,10 +283,15 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
       {/* Decorative Elements for Cyber Variant */}
       {variant === 'cyber' && animated && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute top-4 right-4 w-2 h-2 bg-cyan-400 rounded-full animate-pulse opacity-60' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute bottom-4 left-4 w-1 h-1 bg-cyan-400 rounded-full animate-ping opacity-40' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute top-1/3 left-4 w-1 h-8 bg-gradient-to-b from-cyan-500/30 to-transparent' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute bottom-1/3 right-4 w-1 h-6 bg-gradient-to-t from-cyan-500/20 to-transparent' />
         </>
       )}
@@ -281,6 +303,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 export const NoDataEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'> & { dataType?: string }
 > = ({ dataType = 'data', ...props }) => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <EmptyState
     title={`No ${dataType} available`}
     description={`There's no ${dataType} to display right now. Try adjusting your filters or check back later.`}
@@ -292,6 +315,7 @@ export const NoDataEmptyState: React.FC<
 export const NoSearchResultsEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'> & { query?: string }
 > = ({ query, ...props }) => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <EmptyState
     title='No results found'
     description={
@@ -307,6 +331,7 @@ export const NoSearchResultsEmptyState: React.FC<
 export const ErrorEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'> & { error?: string }
 > = ({ error, ...props }) => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <EmptyState
     title='Something went wrong'
     description={error || 'We encountered an error while loading this content. Please try again.'}
@@ -318,10 +343,12 @@ export const ErrorEmptyState: React.FC<
 export const LoadingEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'>
 > = props => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <EmptyState
     title='Loading...'
     description='Please wait while we load your content.'
     icon={
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='animate-spin w-12 h-12 border-4 border-current border-t-transparent rounded-full' />
     }
     animated={false}
@@ -332,6 +359,7 @@ export const LoadingEmptyState: React.FC<
 export const NoNotificationsEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'>
 > = props => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <EmptyState
     title='No notifications'
     description="You're all caught up! No new notifications to show."
@@ -343,6 +371,7 @@ export const NoNotificationsEmptyState: React.FC<
 export const NoBetsEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'>
 > = props => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <EmptyState
     title='No bets yet'
     description="You haven't placed any bets yet. Start exploring opportunities and place your first bet!"
@@ -362,6 +391,7 @@ export const NoBetsEmptyState: React.FC<
 export const NoHistoryEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'>
 > = props => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <EmptyState
     title='No history available'
     description='Your activity history will appear here once you start using the platform.'

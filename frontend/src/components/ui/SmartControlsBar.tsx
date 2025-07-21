@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// @ts-expect-error TS(2307): Cannot find module '@/lib/utils' or its correspond... Remove this comment to see the full error message
 import { cn } from '@/lib/utils';
 
 // Types for smart controls
@@ -236,6 +237,7 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
   const categories = Array.from(new Set(smartControls.map(control => control.category)));
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div
       className={cn(
         'relative z-40',
@@ -247,7 +249,9 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
     >
       {/* Category Tabs */}
       {showCategories && categories.length > 1 && !compactMode && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex space-x-1 mb-3'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <button
             onClick={() => setActiveCategory('all')}
             className={cn(
@@ -264,6 +268,7 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
             All
           </button>
           {categories.map(category => (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
@@ -287,10 +292,13 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
       {/* Controls */}
       {groups ? (
         // Grouped layout
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='space-y-4'>
           {groups.map(group => (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div key={group.id}>
               {group.label && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button
                   onClick={() => toggleGroup(group.id)}
                   className={cn(
@@ -298,8 +306,10 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
                     variant === 'cyber' ? 'text-cyan-300' : 'text-gray-700'
                   )}
                 >
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span>{group.label}</span>
                   {group.collapsible && (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span
                       className={cn(
                         'transition-transform',
@@ -313,8 +323,10 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
               )}
 
               {(!group.collapsible || !collapsedGroups.has(group.id)) && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className={layoutClasses[layout]}>
                   {group.controls.map(control => (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <SmartControlComponent
                       key={control.id}
                       control={control}
@@ -332,8 +344,10 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
         </div>
       ) : (
         // Flat layout
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className={layoutClasses[layout]}>
           {filteredControls.map(control => (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <SmartControlComponent
               key={control.id}
               control={control}
@@ -349,6 +363,7 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
 
       {/* AI Suggestions */}
       {smartMode && context.aiRecommendations.automationSuggestions.length > 0 && !compactMode && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className={cn(
             'mt-4 p-3 rounded border',
@@ -357,9 +372,13 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
               : 'bg-purple-50 border-purple-200 text-purple-700'
           )}
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center space-x-2 text-sm'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span>🤖</span>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span className='font-medium'>AI Suggestion:</span>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span>{context.aiRecommendations.automationSuggestions[0]}</span>
           </div>
         </div>
@@ -367,8 +386,11 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
 
       {/* Cyber Effects */}
       {variant === 'cyber' && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-purple-500/5 pointer-events-none' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute inset-0 bg-grid-white/[0.02] pointer-events-none' />
         </>
       )}
@@ -419,15 +441,19 @@ const SmartControlComponent: React.FC<SmartControlComponentProps> = ({
   switch (control.type) {
     case 'button':
       return (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <button
           onClick={() => onClick(control)}
           disabled={control.disabled}
           className={buttonClasses}
           title={control.tooltip}
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {control.icon && <span>{control.icon}</span>}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span>{control.label}</span>
           {control.notification && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span
               className={cn(
                 'px-1.5 py-0.5 text-xs rounded-full bg-red-500 text-white',
@@ -438,15 +464,19 @@ const SmartControlComponent: React.FC<SmartControlComponentProps> = ({
             </span>
           )}
           {showShortcuts && control.shortcut && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span className='text-xs opacity-70'>{control.shortcut}</span>
           )}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {control.loading && <span className='animate-spin'>⟳</span>}
         </button>
       );
 
     case 'toggle':
       return (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <label className={cn(baseClasses, 'cursor-pointer')} title={control.tooltip}>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <input
             type='checkbox'
             checked={localValue}
@@ -454,12 +484,14 @@ const SmartControlComponent: React.FC<SmartControlComponentProps> = ({
             disabled={control.disabled}
             className='sr-only'
           />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
             className={cn(
               'w-8 h-4 rounded-full transition-colors',
               localValue ? getCategoryColor(control.category, variant) : 'bg-gray-300'
             )}
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={cn(
                 'w-3 h-3 rounded-full bg-white transition-transform transform',
@@ -468,15 +500,20 @@ const SmartControlComponent: React.FC<SmartControlComponentProps> = ({
               )}
             />
           </div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span>{control.label}</span>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {control.aiSuggested && <span>🤖</span>}
         </label>
       );
 
     case 'dropdown':
       return (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className={baseClasses} title={control.tooltip}>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {control.icon && <span>{control.icon}</span>}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <select
             value={localValue}
             onChange={e => handleChange(e.target.value)}
@@ -489,6 +526,7 @@ const SmartControlComponent: React.FC<SmartControlComponentProps> = ({
             )}
           >
             {control.options?.map(option => (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -499,9 +537,13 @@ const SmartControlComponent: React.FC<SmartControlComponentProps> = ({
 
     case 'slider':
       return (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className={baseClasses} title={control.tooltip}>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {control.icon && <span>{control.icon}</span>}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span className='whitespace-nowrap'>{control.label}:</span>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <input
             type='range'
             min={control.options?.[0]?.value || 0}
@@ -511,14 +553,18 @@ const SmartControlComponent: React.FC<SmartControlComponentProps> = ({
             disabled={control.disabled}
             className='flex-1'
           />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span className='text-xs w-8 text-right'>{localValue}</span>
         </div>
       );
 
     case 'input':
       return (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className={baseClasses} title={control.tooltip}>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {control.icon && <span>{control.icon}</span>}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <input
             type='text'
             value={localValue}
@@ -537,6 +583,7 @@ const SmartControlComponent: React.FC<SmartControlComponentProps> = ({
 
     case 'badge':
       return (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className={cn(
             baseClasses,
@@ -545,8 +592,11 @@ const SmartControlComponent: React.FC<SmartControlComponentProps> = ({
           )}
           title={control.tooltip}
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {control.icon && <span>{control.icon}</span>}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span>{control.label}</span>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {control.value && <span className='font-bold'>{control.value}</span>}
         </div>
       );

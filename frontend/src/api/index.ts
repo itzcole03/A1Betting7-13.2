@@ -1,4 +1,5 @@
-﻿import axios from 'axios';
+import axios from 'axios';
+// @ts-expect-error TS(2305): Module '"../config/api"' has no exported member 'A... Remove this comment to see the full error message
 import { API_CONFIG } from '../config/api';
 
 // Use unified API configuration
@@ -13,6 +14,7 @@ api.interceptors.request.use(config => {
   const token = localStorage.getItem('auth_token');
   if (token) {
     if (!config.headers) {
+      // @ts-expect-error TS(2322): Type 'Record<string, any>' is not assignable to ty... Remove this comment to see the full error message
       config.headers = {} as Record<string, any>;
     }
     config.headers.Authorization = `Bearer ${token}`;

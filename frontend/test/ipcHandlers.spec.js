@@ -1,31 +1,31 @@
 // test/ipcHandlers.spec.js
-const { expect } = require('chai');
+describe('IPC Handlers', function () {
 const { ipcRenderer } = require('electron');
 
-describe('IPC Handlers', function () {
-  it('should fetch ESPN data successfully', async function () {
+describe('IPC Handlers', () => {
+  test('should fetch ESPN data successfully', async () => {
     const result = await ipcRenderer.invoke('fetchESPNData', {
       userId: 'testuser',
       sport: 'football',
       league: 'nfl',
       eventId: '12345',
     });
-    expect(result).to.have.property('success', true);
-    expect(result.data).to.exist;
+    expect(result.success).toBe(true);
+    expect(result.data).toBeDefined();
   });
 
-  it('should fetch SportsRadar data successfully', async function () {
+  test('should fetch SportsRadar data successfully', async () => {
     const result = await ipcRenderer.invoke('fetchSportsRadarData', {
       userId: 'testuser',
       endpoint: 'nfl/events',
       params: {},
       apiKey: 'fakekey',
     });
-    expect(result).to.have.property('success', true);
-    expect(result.data).to.exist;
+    expect(result.success).toBe(true);
+    expect(result.data).toBeDefined();
   });
 
-  it('should fetch Odds data successfully', async function () {
+  test('should fetch Odds data successfully', async () => {
     const result = await ipcRenderer.invoke('fetchOdds', {
       userId: 'testuser',
       userSecret: 'secret',
@@ -33,20 +33,20 @@ describe('IPC Handlers', function () {
       region: 'us',
       market: 'h2h',
     });
-    expect(result).to.have.property('success', true);
-    expect(result.data).to.exist;
+    expect(result.success).toBe(true);
+    expect(result.data).toBeDefined();
   });
 
-  it('should fetch OpticOdds data successfully', async function () {
+  test('should fetch OpticOdds data successfully', async () => {
     const result = await ipcRenderer.invoke('fetchOpticOdds', {
       userId: 'testuser',
       params: {},
     });
-    expect(result).to.have.property('success', true);
-    expect(result.data).to.exist;
+    expect(result.success).toBe(true);
+    expect(result.data).toBeDefined();
   });
 
-  it('should fetch SportsDataIO data successfully', async function () {
+  test('should fetch SportsDataIO data successfully', async () => {
     const result = await ipcRenderer.invoke('fetchSportsDataIO', {
       userId: 'testuser',
       params: {},

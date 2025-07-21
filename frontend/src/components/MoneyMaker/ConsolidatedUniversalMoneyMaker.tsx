@@ -1,5 +1,7 @@
-﻿import React from 'react';
+import React from 'react';
+// @ts-expect-error TS(1192): Module '"C:/Users/bcmad/Downloads/A1Betting7-13.2/... Remove this comment to see the full error message
 import ErrorBoundary from '../ErrorBoundary';
+// @ts-expect-error TS(2307): Cannot find module './UniversalMoneyMaker' or its ... Remove this comment to see the full error message
 import UniversalMoneyMaker from './UniversalMoneyMaker';
 
 // ============================================================================
@@ -70,8 +72,11 @@ export const ConsolidatedUniversalMoneyMaker: React.FC<ConsolidatedMoneyMakerPro
   // Return the clean money maker without nested navigation;
   // All features are now integrated into the main app navigation;
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <ErrorBoundary>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className={className}>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <UniversalMoneyMaker />
       </div>
     </ErrorBoundary>

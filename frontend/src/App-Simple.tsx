@@ -63,7 +63,7 @@ const App: React.FC = () => {
             className='bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded-lg transition-colors'
             onClick={() =>
               window.open(
-                '${process.env.REACT_APP_API_URL || "http://localhost:8000"}/docs',
+                `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/docs`,
                 '_blank'
               )
             }

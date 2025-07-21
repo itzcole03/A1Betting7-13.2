@@ -1,0 +1,339 @@
+{
+  "timestamp": "2025-07-20T12:01:02.097289",
+  "summary": {
+    "total_tests": 15,
+    "successful": 6,
+    "failed": 9,
+    "success_rate": 40.0,
+    "average_response_time": 5.111798365910848
+  },
+  "test_results": [
+    {
+      "endpoint": "/api/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.2639310359954834,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/health/status",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/health/comprehensive",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/props",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 15.233042240142822,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "data": [
+          {
+            "id": "fallback_1",
+            "player": "Fallback Player",
+            "stat": "points",
+            "line": 20.5,
+            "overOdds": -110,
+            "underOdds": -110,
+            "confidence": 70,
+            "sport": "NBA",
+            "gameTime": "2025-07-19T19:00:00Z",
+            "pickType": "normal"
+          }
+        ],
+        "status": "success",
+        "message": null,
+        "timestamp": "2025-07-20T17:00:00.914402+00:00"
+      }
+    },
+    {
+      "endpoint": "/api/prizepicks/props?sport=NBA",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 15.219967365264893,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "data": [
+          {
+            "id": "fallback_1",
+            "player": "Fallback Player",
+            "stat": "points",
+            "line": 20.5,
+            "overOdds": -110,
+            "underOdds": -110,
+            "confidence": 70,
+            "sport": "NBA",
+            "gameTime": "2025-07-19T19:00:00Z",
+            "pickType": "normal"
+          }
+        ],
+        "status": "success",
+        "message": null,
+        "timestamp": "2025-07-20T17:00:16.134365+00:00"
+      }
+    },
+    {
+      "endpoint": "/api/prizepicks/props?min_confidence=80",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 15.073854207992554,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "data": [],
+        "status": "success",
+        "message": null,
+        "timestamp": "2025-07-20T17:00:31.208222+00:00"
+      }
+    },
+    {
+      "endpoint": "/api/prizepicks/comprehensive-projections",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 15.19915223121643,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "data": [
+          {
+            "id": "fallback_1",
+            "player": "Fallback Player",
+            "stat": "points",
+            "line": 20.5,
+            "overOdds": -110,
+            "underOdds": -110,
+            "confidence": 70,
+            "sport": "NBA",
+            "gameTime": "2025-07-19T19:00:00Z",
+            "pickType": "normal"
+          }
+        ],
+        "status": "success",
+        "message": null,
+        "timestamp": "2025-07-20T17:00:46.407366+00:00"
+      }
+    },
+    {
+      "endpoint": "/api/prizepicks/recommendations",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 15.161122798919678,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "data": [
+          {
+            "id": "fallback_1",
+            "player": "Fallback Player",
+            "stat": "points",
+            "line": 20.5,
+            "overOdds": -110,
+            "underOdds": -110,
+            "confidence": 70,
+            "sport": "NBA",
+            "gameTime": "2025-07-19T19:00:00Z",
+            "pickType": "normal"
+          }
+        ],
+        "status": "success",
+        "message": null,
+        "timestamp": "2025-07-20T17:01:01.569392+00:00"
+      }
+    },
+    {
+      "endpoint": "/api/prizepicks/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "data": {
+          "status": "healthy",
+          "service": "PrizePicks"
+        },
+        "status": "success",
+        "message": null,
+        "timestamp": "2025-07-20T17:01:01.570382+00:00"
+      }
+    },
+    {
+      "endpoint": "/api/prizepicks/lineup/optimize",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": 403,
+      "response_time": 0.0010266304016113281,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/features",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0009958744049072266,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/predict",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.26316118240356445,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/autonomous/status",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0019986629486083984,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/autonomous/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.00099945068359375,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/autonomous/capabilities",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.2577238082885742,
+      "success": false,
+      "error": null,
+      "response_data": null
+    }
+  ],
+  "failed_tests": [
+    {
+      "endpoint": "/api/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.2639310359954834,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/health/status",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/health/comprehensive",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/lineup/optimize",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": 403,
+      "response_time": 0.0010266304016113281,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/features",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0009958744049072266,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/predict",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.26316118240356445,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/autonomous/status",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0019986629486083984,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/autonomous/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.00099945068359375,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/autonomous/capabilities",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.2577238082885742,
+      "success": false,
+      "error": null,
+      "response_data": null
+    }
+  ]
+}

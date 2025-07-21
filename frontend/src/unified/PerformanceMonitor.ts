@@ -1,4 +1,5 @@
-﻿import { ComponentMetrics, PerformanceMetrics } from '@/types/core.js';
+// @ts-expect-error TS(2307): Cannot find module '@/types/core.js' or its corres... Remove this comment to see the full error message
+import { ComponentMetrics, PerformanceMetrics } from '@/types/core.js';
 import { ErrorHandler } from './ErrorHandler.js';
 
 interface MetricData {
@@ -190,16 +191,21 @@ export class PerformanceMonitor {
       metrics.cpu.usage = (end - start) / 1000;
     }
     // Collect memory metrics;
+    // @ts-expect-error TS(2339): Property 'memory' does not exist on type 'Performa... Remove this comment to see the full error message
     if (performance.memory) {
       metrics.memory = {
+        // @ts-expect-error TS(2339): Property 'memory' does not exist on type 'Performa... Remove this comment to see the full error message
         total: performance.memory.totalJSHeapSize,
+        // @ts-expect-error TS(2339): Property 'memory' does not exist on type 'Performa... Remove this comment to see the full error message
         used: performance.memory.usedJSHeapSize,
+        // @ts-expect-error TS(2339): Property 'memory' does not exist on type 'Performa... Remove this comment to see the full error message
         free: performance.memory.totalJSHeapSize - performance.memory.usedJSHeapSize,
         swap: 0,
       };
     }
     // Collect network metrics;
     if (navigator.connection) {
+      // @ts-expect-error TS(2339): Property 'rtt' does not exist on type 'NetworkInfo... Remove this comment to see the full error message
       metrics.network.latency = navigator.connection.rtt || 0;
     }
     return metrics;

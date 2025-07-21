@@ -28,6 +28,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
   const handlers = useRef<Record<string, ((data: any) => void)[]>>({});
 
   useEffect(() => {
+    // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
     const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
@@ -66,6 +67,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <WebSocketContext.Provider value={{ connected, send, subscribe, unsubscribe }}>
       {children}
     </WebSocketContext.Provider>

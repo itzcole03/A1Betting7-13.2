@@ -27,11 +27,32 @@ from services.async_performance_optimizer import AsyncPerformanceOptimizer
 from services.comprehensive_prizepicks_service import ComprehensivePrizePicksService
 
 # Configure logging with more detail
-logging.basicConfig(
-    level=logging.DEBUG,  # Temporarily increase to DEBUG for investigation
-    format="%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s",
-    handlers=[logging.StreamHandler()],
-)
+
+
+# Patch: Use UTF-8 StreamHandler for logging
+class UTF8StreamHandler(logging.StreamHandler):
+    def __init__(self, stream=None):
+        super().__init__(stream)
+        self.setFormatter(
+            logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s"
+            )
+        )
+
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            stream = self.stream
+            if hasattr(stream, "buffer"):
+                stream.buffer.write((msg + "\n").encode("utf-8", errors="replace"))
+            else:
+                stream.write(msg + "\n")
+            self.flush()
+        except Exception:
+            self.handleError(record)
+
+
+logging.basicConfig(level=logging.DEBUG, handlers=[UTF8StreamHandler()])
 logger = logging.getLogger(__name__)
 
 
@@ -65,11 +86,11 @@ def is_season_active(sport: str) -> bool:
     if sport in season_dates:
         for league, dates in season_dates[sport].items():
             if dates["start"] <= current_date <= dates["end"]:
-                logger.info(f"✅ {sport.upper()} ({league.upper()}) season is active")
+                logger.info(f"{sport.upper()} ({league.upper()}) season is active")
                 return True
             else:
                 logger.warning(
-                    f"⚠️ {sport.upper()} ({league.upper()}) season is NOT active. Current date: {current_date}, Season: {dates['start']} to {dates['end']}"
+                    f"{sport.upper()} ({league.upper()}) season is NOT active. Current date: {current_date}, Season: {dates['start']} to {dates['end']}"
                 )
 
     return False
@@ -89,7 +110,7 @@ def check_prizepicks_api_status() -> Dict[str, Any]:
         }
 
         if not api_status["connected"]:
-            logger.error(f"❌ PrizePicks API not connected: {api_status['error']}")
+            logger.error(f"PrizePicks API not connected: {api_status['error']}")
 
         return api_status
     except Exception as e:
@@ -149,7 +170,7 @@ class ModelManager:
 
         # Check API and season status on initialization
         self.api_status = check_prizepicks_api_status()
-        logger.info(f"🔌 PrizePicks API Status: {self.api_status}")
+        logger.info(f"PrizePicks API Status: {self.api_status}")
 
     def get_current_time(self) -> datetime:
         """Get current UTC time for dynamic date/time detection"""
@@ -163,7 +184,7 @@ class ModelManager:
     async def _train_models(self):
         """Train all ML models in background"""
         try:
-            logger.info("🚀 Starting background ML model training...")
+            logger.info("Starting background ML model training...")
 
             models_to_train = [
                 ("XGBoost-Primary", 0.964, 2),
@@ -174,7 +195,7 @@ class ModelManager:
             ]
 
             for i, (model_name, accuracy, train_time) in enumerate(models_to_train):
-                logger.info(f"🧠 Training {model_name}...")
+                logger.info(f"Training {model_name}...")
                 self.training_progress[model_name] = {
                     "status": "training",
                     "progress": 0,
@@ -194,13 +215,13 @@ class ModelManager:
                     "status": "complete",
                     "progress": 100,
                 }
-                logger.info(f"✅ {model_name} trained with accuracy: {accuracy:.3f}")
+                logger.info(f"{model_name} trained with accuracy: {accuracy:.3f}")
 
             self.status = ModelStatus.READY
-            logger.info("🎯 All ML models trained successfully! 96.4% ensemble ready.")
+            logger.info("All ML models trained successfully! 96.4% ensemble ready.")
 
         except Exception as e:
-            logger.error(f"❌ Model training failed: {e}")
+            logger.error(f"Model training failed: {e}")
             self.status = ModelStatus.ERROR
 
     def get_status(self):
@@ -253,7 +274,7 @@ class ModelManager:
             # If we have cached projections, use them
             if cached_projections:
                 logger.info(
-                    f"🎯 Using {len(cached_projections)} cached PrizePicks projections from database"
+                    f"Using {len(cached_projections)} cached PrizePicks projections from database"
                 )
 
                 real_props = []
@@ -278,23 +299,23 @@ class ModelManager:
 
                 # Log some sample props for verification
                 logger.info(
-                    f"✅ Sample cached props: {[f'{p['player']} - {p['stat_type']}: {p['line']}' for p in real_props[:3]]}"
+                    f"Sample cached props: {[f'{p['player']} - {p['stat_type']}: {p['line']}' for p in real_props[:3]]}"
                 )
 
                 return real_props
 
             # If no cached data, try to get from API (slower, may be rate limited)
-            logger.info("📡 No cached data available, trying to fetch from API...")
+            logger.info("No cached data available, trying to fetch from API...")
             projections = await self.prizepicks_service.get_current_projections()
 
             logger.info(
-                f"🎯 Retrieved {len(projections)} REAL PrizePicks projections from https://app.prizepicks.com/"
+                f"Retrieved {len(projections)} REAL PrizePicks projections from https://app.prizepicks.com/"
             )
 
             # If we have real projections, use them
             if projections:
                 logger.info(
-                    f"✅ Using REAL data from api.prizepicks.com/projections (not fake/mock data)"
+                    f"Using REAL data from api.prizepicks.com/projections (not fake/mock data)"
                 )
 
                 real_props = []
@@ -320,21 +341,21 @@ class ModelManager:
 
                 # Log some sample props for verification
                 sample_props = real_props[:3]  # Show first 3 as examples
-                logger.info("📊 Sample REAL PrizePicks props:")
+                logger.info("Sample REAL PrizePicks props:")
                 for prop in sample_props:
                     logger.info(
-                        f"  ✅ {prop['player']} ({prop['team']}) - {prop['stat_type']} O/U {prop['line']} [{prop['league']}]"
+                        f"  {prop['player']} ({prop['team']}) - {prop['stat_type']} O/U {prop['line']} [{prop['league']}]"
                     )
 
                 return real_props
             else:
                 # No real projections available (likely due to rate limiting)
-                logger.warning("⚠️ No real projections available, using fallback data")
+                logger.warning("No real projections available, using fallback data")
                 return self._load_fallback_projections()
 
         except Exception as e:
-            logger.error(f"❌ Error fetching real PrizePicks props: {e}")
-            logger.info("🔄 Using fallback data due to API error")
+            logger.error(f"Error fetching real PrizePicks props: {e}")
+            logger.info("Using fallback data due to API error")
             return self._load_fallback_projections()
 
     def _load_fallback_projections(self) -> List[Dict[str, Any]]:
@@ -371,83 +392,83 @@ class ModelManager:
                     }
                     fallback_props.append(prop)
 
-                logger.info(f"📋 Loaded {len(fallback_props)} fallback projections")
+                logger.info(f"Loaded {len(fallback_props)} fallback projections")
                 return fallback_props
             else:
                 logger.warning("❌ Mock projections file not found")
                 return []
 
         except Exception as e:
-            logger.error(f"❌ Error loading fallback projections: {e}")
+            logger.error(f"Error loading fallback projections: {e}")
             return []
 
     def _get_current_and_upcoming_events(self) -> List[Dict[str, Any]]:
         """Generate current and upcoming real sports events - DEPRECATED: Use real PrizePicks data"""
         logger.warning(
-            "⚠️ Using deprecated method - should use real PrizePicks data instead"
+            "Using deprecated method - should use real PrizePicks data instead"
         )
         return []
 
     def _generate_nba_props(self) -> List[Dict[str, Any]]:
         """DEPRECATED: Use real PrizePicks data instead of generating fake NBA props"""
         logger.warning(
-            "⚠️ DEPRECATED: _generate_nba_props should not be used - use real PrizePicks data from API"
+            "DEPRECATED: _generate_nba_props should not be used - use real PrizePicks data from API"
         )
         return []
 
     def _generate_nfl_props(self) -> List[Dict[str, Any]]:
         """DEPRECATED: Use real PrizePicks data instead of generating fake NFL props"""
         logger.warning(
-            "⚠️ DEPRECATED: _generate_nfl_props should not be used - use real PrizePicks data from API"
+            "DEPRECATED: _generate_nfl_props should not be used - use real PrizePicks data from API"
         )
         return []
 
     def _generate_mlb_props(self) -> List[Dict[str, Any]]:
         """DEPRECATED: Use real PrizePicks data instead of generating fake MLB props"""
         logger.warning(
-            "⚠️ DEPRECATED: _generate_mlb_props should not be used - use real PrizePicks data from API"
+            "DEPRECATED: _generate_mlb_props should not be used - use real PrizePicks data from API"
         )
         return []
 
     def _generate_tennis_props(self) -> List[Dict[str, Any]]:
         """DEPRECATED: Use real PrizePicks data instead of generating fake tennis props"""
         logger.warning(
-            "⚠️ DEPRECATED: _generate_tennis_props should not be used - use real PrizePicks data from API"
+            "DEPRECATED: _generate_tennis_props should not be used - use real PrizePicks data from API"
         )
         return []
 
     def _generate_hockey_props(self) -> List[Dict[str, Any]]:
         """DEPRECATED: Use real PrizePicks data instead of generating fake hockey props"""
         logger.warning(
-            "⚠️ DEPRECATED: _generate_hockey_props should not be used - use real PrizePicks data from API"
+            "DEPRECATED: _generate_hockey_props should not be used - use real PrizePicks data from API"
         )
         return []
 
     def _generate_soccer_props(self) -> List[Dict[str, Any]]:
         """DEPRECATED: Use real PrizePicks data instead of generating fake soccer props"""
         logger.warning(
-            "⚠️ DEPRECATED: _generate_soccer_props should not be used - use real PrizePicks data from API"
+            "DEPRECATED: _generate_soccer_props should not be used - use real PrizePicks data from API"
         )
         return []
 
     def _generate_golf_props(self) -> List[Dict[str, Any]]:
         """DEPRECATED: Use real PrizePicks data instead of generating fake golf props"""
         logger.warning(
-            "⚠️ DEPRECATED: _generate_golf_props should not be used - use real PrizePicks data from API"
+            "DEPRECATED: _generate_golf_props should not be used - use real PrizePicks data from API"
         )
         return []
 
     def _generate_mma_props(self) -> List[Dict[str, Any]]:
         """DEPRECATED: Use real PrizePicks data instead of generating fake MMA props"""
         logger.warning(
-            "⚠️ DEPRECATED: _generate_mma_props should not be used - use real PrizePicks data from API"
+            "DEPRECATED: _generate_mma_props should not be used - use real PrizePicks data from API"
         )
         return []
 
     def _generate_esports_props(self) -> List[Dict[str, Any]]:
         """DEPRECATED: Use real PrizePicks data instead of generating fake esports props"""
         logger.warning(
-            "⚠️ DEPRECATED: _generate_esports_props should not be used - use real PrizePicks data from API"
+            "DEPRECATED: _generate_esports_props should not be used - use real PrizePicks data from API"
         )
         return []
 
@@ -458,7 +479,7 @@ class ModelManager:
 
         if not all_props:
             logger.warning(
-                "⚠️ No real PrizePicks props available, predictions will be limited"
+                "No real PrizePicks props available, predictions will be limited"
             )
             return []
 
@@ -466,7 +487,7 @@ class ModelManager:
         current_time = self.get_current_time()
 
         logger.info(
-            f"🎯 Creating ensemble predictions from {len(all_props)} REAL PrizePicks props"
+            f"Creating ensemble predictions from {len(all_props)} REAL PrizePicks props"
         )
 
         # Select top props and create predictions
@@ -528,7 +549,7 @@ class ModelManager:
             predictions.append(prediction)
 
         logger.info(
-            f"✅ Generated {len(predictions)} ensemble predictions from REAL PrizePicks data"
+            f"Generated {len(predictions)} ensemble predictions from REAL PrizePicks data"
         )
         return predictions
 
@@ -546,7 +567,7 @@ class ModelManager:
 
         if not all_props:
             logger.warning(
-                "⚠️ No real PrizePicks props available for lightweight predictions"
+                "No real PrizePicks props available for lightweight predictions"
             )
             return []
 
@@ -556,7 +577,7 @@ class ModelManager:
         # Use fewer props during training
         limited_props = all_props[:8]  # Top 8 props during training
         logger.info(
-            f"🧠 Creating lightweight predictions from {len(limited_props)} REAL PrizePicks props"
+            f"Creating lightweight predictions from {len(limited_props)} REAL PrizePicks props"
         )
 
         for i, prop in enumerate(limited_props):
@@ -601,7 +622,7 @@ class ModelManager:
             predictions.append(prediction)
 
         logger.info(
-            f"✅ Generated {len(predictions)} lightweight predictions from REAL PrizePicks data"
+            f"Generated {len(predictions)} lightweight predictions from REAL PrizePicks data"
         )
         return predictions
 
@@ -611,7 +632,7 @@ class ModelManager:
         all_props = await self.get_real_prizepicks_props()
 
         if not all_props:
-            logger.warning("⚠️ No real PrizePicks props available for basic predictions")
+            logger.warning("No real PrizePicks props available for basic predictions")
             return []
 
         predictions = []
@@ -620,7 +641,7 @@ class ModelManager:
         # Use just 3 props during initialization
         basic_props = all_props[:3]
         logger.info(
-            f"📊 Creating basic predictions from {len(basic_props)} REAL PrizePicks props"
+            f"Creating basic predictions from {len(basic_props)} REAL PrizePicks props"
         )
 
         for i, prop in enumerate(basic_props):
@@ -652,7 +673,7 @@ class ModelManager:
             predictions.append(prediction)
 
         logger.info(
-            f"✅ Generated {len(predictions)} basic predictions from REAL PrizePicks data"
+            f"Generated {len(predictions)} basic predictions from REAL PrizePicks data"
         )
         return predictions
 
@@ -671,30 +692,30 @@ async def lifespan(app: FastAPI):
     global model_manager, enhanced_propollama_engine
 
     # Initialize performance optimizer
-    logger.info("🚀 Initializing performance optimizer...")
+    logger.info("Initializing performance optimizer...")
     app.state.performance_optimizer = AsyncPerformanceOptimizer()
     await app.state.performance_optimizer.initialize_async_resources()
 
     # Start PrizePicks service with optimized async client
-    logger.info("🚀 Starting PrizePicks service...")
+    logger.info("Starting PrizePicks service...")
     app.state.prizepicks_service = ComprehensivePrizePicksService()
 
     # Initialize HTTP client for PrizePicks service
-    logger.info("🔧 Initializing PrizePicks HTTP client...")
+    logger.info("Initializing PrizePicks HTTP client...")
     await app.state.prizepicks_service.initialize()
 
     # Initialize model manager with PrizePicks service for REAL data access
-    logger.info("🧠 Initializing ModelManager with REAL PrizePicks service...")
+    logger.info("Initializing ModelManager with REAL PrizePicks service...")
     model_manager = ModelManager(prizepicks_service=app.state.prizepicks_service)
     app.state.model_manager = model_manager
 
     # Initialize enhanced PropOllama engine with real model manager
-    logger.info("🤖 Initializing Enhanced PropOllama engine...")
+    logger.info("Initializing Enhanced PropOllama engine...")
     enhanced_propollama_engine = EnhancedPropOllamaEngine(model_manager)
     app.state.enhanced_propollama_engine = enhanced_propollama_engine
 
     # 🔧 CRITICAL FIX: Start services in background without blocking server startup
-    logger.info("🔧 Starting background services (non-blocking)...")
+    logger.info("Starting background services (non-blocking)...")
     app.state.background_tasks = asyncio.gather(
         app.state.prizepicks_service.start_real_time_ingestion(),
         model_manager.start_training(),
@@ -702,20 +723,18 @@ async def lifespan(app: FastAPI):
     )
 
     # Server can now start immediately while background services initialize
+    logger.info("Server startup ready - HTTP server will start accepting connections")
     logger.info(
-        "✅ Server startup ready - HTTP server will start accepting connections"
+        "Background services are initializing and will provide data as they become available"
     )
     logger.info(
-        "📊 Background services are initializing and will provide data as they become available"
-    )
-    logger.info(
-        "🎯 ModelManager configured to use REAL PrizePicks data from https://app.prizepicks.com/"
+        "ModelManager configured to use REAL PrizePicks data from https://app.prizepicks.com/"
     )
 
     yield
 
     # Cleanup
-    logger.info("🔄 Cleaning up resources...")
+    logger.info("Cleaning up resources...")
 
     # Cancel background tasks first
     if hasattr(app.state, "background_tasks"):
@@ -723,7 +742,7 @@ async def lifespan(app: FastAPI):
         try:
             await app.state.background_tasks
         except asyncio.CancelledError:
-            logger.info("🔄 Background tasks cancelled successfully")
+            logger.info("Background tasks cancelled successfully")
 
     # Cleanup resources
     cleanup_tasks = []
@@ -778,14 +797,14 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 @app.middleware("http")
 async def log_requests(request, call_next):
     start_time = time.time()
-    logger.info(f"🔍 DIAGNOSTIC: Incoming request - {request.method} {request.url}")
-    logger.info(f"🔍 DIAGNOSTIC: Request headers: {dict(request.headers)}")
+    logger.info(f"DIAGNOSTIC: Incoming request - {request.method} {request.url}")
+    logger.info(f"DIAGNOSTIC: Request headers: {dict(request.headers)}")
 
     response = await call_next(request)
     process_time = time.time() - start_time
 
     logger.info(
-        f"🔍 DIAGNOSTIC: Request completed - {request.method} {request.url} - Status: {response.status_code} - Time: {process_time:.4f}s"
+        f"DIAGNOSTIC: Request completed - {request.method} {request.url} - Status: {response.status_code} - Time: {process_time:.4f}s"
     )
     return response
 
@@ -859,7 +878,7 @@ class AIExplainabilityEngine:
         prediction = prediction_data.get("prediction", "unknown")
         shap_values = prediction_data.get("shap_values", {})
 
-        explanation = f"🎯 **{sport.upper()} PREDICTION ANALYSIS**\n\n"
+        explanation = f"{sport.upper()} PREDICTION ANALYSIS\n\n"
         explanation += f"**Prediction**: {prediction}\n"
         explanation += f"**Confidence**: {int(confidence * 100)}%\n\n"
 
@@ -892,14 +911,18 @@ class AIExplainabilityEngine:
 
         # Add confidence assessment
         if confidence >= 0.8:
-            explanation += "🟢 **High Confidence**: Strong statistical evidence supports this prediction\n"
+            explanation += "High Confidence: Strong statistical evidence supports this prediction\n"
         elif confidence >= 0.7:
-            explanation += "🟡 **Medium Confidence**: Good statistical support with some uncertainty\n"
+            explanation += (
+                "Medium Confidence: Good statistical support with some uncertainty\n"
+            )
         else:
-            explanation += "🟠 **Lower Confidence**: Limited statistical evidence, proceed with caution\n"
+            explanation += (
+                "Lower Confidence: Limited statistical evidence, proceed with caution\n"
+            )
 
         explanation += (
-            "\n⚠️ *Remember: No prediction is guaranteed. Always bet responsibly.*"
+            "\n*Remember: No prediction is guaranteed. Always bet responsibly.*"
         )
 
         return explanation
@@ -1029,7 +1052,7 @@ class PropOllamaEngine:
     async def analyze_player_props(self, request: PropOllamaRequest) -> Dict[str, Any]:
         """Analyze player prop bets with AI explainability using real predictions"""
         # Get real predictions from model manager
-        real_predictions = self.model_manager.get_predictions()
+        real_predictions = await self.model_manager.get_predictions()
         model_status = self.model_manager.get_status()
 
         if real_predictions:
@@ -1051,20 +1074,15 @@ class PropOllamaEngine:
                 else "training"
             )
 
-            content = f"""� **LIVE ML PROP ANALYSIS** - {accuracy_str} Accuracy
-
-**Current Prediction from {pred.get('model_version', 'ML Ensemble')}:**
-
-📊 **{pred.get('event', 'Live Game')} - {pred.get('prediction', 'Analysis')}**
-- Confidence: {confidence_pct}%
-- Expected Value: {pred.get('expected_value', 0):.3f}
-- Risk Assessment: {pred.get('risk_assessment', 'Medium')}
-- Recommendation: {pred.get('recommendation', 'ANALYZE')}
-
-**SHAP Explainability:**
-{pred.get('explanation', 'Live ML analysis with progressive model training.')}
-
-**Model Status:** {model_status.get('status', 'training')} - {model_status.get('models_ready', 0)}/5 models ready"""
+            content = f"LIVE ML PROP ANALYSIS - {accuracy_str} Accuracy\n\n"
+            content += f"Current Prediction from {pred.get('model_version', 'ML Ensemble')}:\n\n"
+            content += f"{pred.get('event', 'Live Game')} - {pred.get('prediction', 'Analysis')}\n"
+            content += f"- Confidence: {confidence_pct}%\n"
+            content += f"- Expected Value: {pred.get('expected_value', 0):.3f}\n"
+            content += f"- Risk Assessment: {pred.get('risk_assessment', 'Medium')}\n"
+            content += f"- Recommendation: {pred.get('recommendation', 'ANALYZE')}\n\n"
+            content += f"SHAP Explainability:\n{pred.get('explanation', 'Live ML analysis with progressive model training.')}\n\n"
+            content += f"Model Status: {model_status.get('status', 'training')} - {model_status.get('models_ready', 0)}/5 models ready"
 
             shap_vals = pred.get("shap_values", {})
             if not isinstance(shap_vals, dict):
@@ -1075,11 +1093,7 @@ class PropOllamaEngine:
                     "team_motivation": 0.20,
                 }
         else:
-            content = """🎯 **PROP ANALYSIS** - Initializing Models
-
-**System Status:** ML models are initializing. Real predictions will be available shortly.
-
-Please check back in a few moments for live analysis."""
+            content = "PROP ANALYSIS - Initializing Models\n\nSystem Status: ML models are initializing. Real predictions will be available shortly.\n\nPlease check back in a few moments for live analysis."
             confidence_pct = 0
             shap_vals = {}
 
@@ -1099,7 +1113,7 @@ Please check back in a few moments for live analysis."""
     async def explain_predictions(self, request: PropOllamaRequest) -> Dict[str, Any]:
         """Provide detailed SHAP explanations for predictions using real data"""
         # Get real prediction from model manager
-        real_predictions = self.model_manager.get_predictions()
+        real_predictions = await self.model_manager.get_predictions()
         if real_predictions:
             prediction = real_predictions[0]  # Use first prediction
         else:
@@ -1146,31 +1160,7 @@ Please check back in a few moments for live analysis."""
     async def analyze_spreads(self, request: PropOllamaRequest) -> Dict[str, Any]:
         """Analyze point spreads with AI insights"""
         return {
-            "content": """📊 **SPREAD ANALYSIS**
-
-**Lakers -6.5 vs Warriors**
-- AI Recommendation: ❌ AVOID
-- Confidence: 65% (Below threshold)
-- Predicted Margin: Lakers by 4.2 points
-
-**Key Factors:**
-🔴 **Against the Spread:**
-- Lakers are 3-7 ATS in last 10 home games
-- Warriors cover 68% on the road this season
-- Line movement suggests sharp money on Warriors
-
-🟢 **Supporting Lakers:**
-- Rest advantage (1 day vs 0 for Warriors)
-- LeBron expected to play (was questionable)
-
-**AI Model Explanation:**
-The ensemble model combines:
-- Statistical regression (40% weight)
-- Machine learning prediction (35% weight)
-- Market efficiency analysis (25% weight)
-
-**Better Alternative:**
-Consider the UNDER 225.5 total points (73% confidence)""",
+            "content": "SPREAD ANALYSIS\n\nLakers -6.5 vs Warriors\n- AI Recommendation: AVOID\n- Confidence: 65% (Below threshold)\n- Predicted Margin: Lakers by 4.2 points\n\nKey Factors:\nAgainst the Spread:\n- Lakers are 3-7 ATS in last 10 home games\n- Warriors cover 68% on the road this season\n- Line movement suggests sharp money on Warriors\n\nSupporting Lakers:\n- Rest advantage (1 day vs 0 for Warriors)\n- LeBron expected to play (was questionable)\n\nAI Model Explanation:\nThe ensemble model combines:\n- Statistical regression (40% weight)\n- Machine learning prediction (35% weight)\n- Market efficiency analysis (25% weight)\n\nBetter Alternative:\nConsider the UNDER 225.5 total points (73% confidence)",
             "confidence": 65,
             "suggestions": [
                 "Analyze totals instead",
@@ -1185,37 +1175,7 @@ Consider the UNDER 225.5 total points (73% confidence)""",
     ) -> Dict[str, Any]:
         """Provide betting strategy and bankroll management advice"""
         return {
-            "content": """🧠 **BETTING STRATEGY ANALYSIS**
-
-**Kelly Criterion Recommendations:**
-
-**Current Bankroll Management:**
-- Recommended bet sizing: 2-4% of bankroll per play
-- Maximum exposure: 15% of bankroll on any single day
-- Minimum confidence threshold: 65% for any bet
-
-**Today's Optimal Portfolio:**
-1. **LeBron Points O25.5** - 3.2% of bankroll
-   - Kelly fraction: 0.048
-   - Expected ROI: +12.4%
-
-2. **Total Points U225.5** - 2.8% of bankroll
-   - Kelly fraction: 0.041
-   - Expected ROI: +8.7%
-
-**Risk Assessment:**
-- Portfolio volatility: Low-Medium
-- Correlation risk: Minimal (different bet types)
-- Maximum drawdown scenario: -6.8%
-
-**Advanced Strategy Tips:**
-- Use betting exchanges for better odds when possible
-- Track closing line value (CLV) to measure bet quality
-- Diversify across sports and bet types
-- Never chase losses with increased bet sizes
-
-**Performance Metrics to Track:**
-- ROI, CLV, Win Rate, Sharpe Ratio, Maximum Drawdown""",
+            "content": "BETTING STRATEGY ANALYSIS\n\nKelly Criterion Recommendations:\n\nCurrent Bankroll Management:\n- Recommended bet sizing: 2-4% of bankroll per play\n- Maximum exposure: 15% of bankroll on any single day\n- Minimum confidence threshold: 65% for any bet\n\nToday's Optimal Portfolio:\n1. LeBron Points O25.5 - 3.2% of bankroll\n   - Kelly fraction: 0.048\n   - Expected ROI: +12.4%\n\n2. Total Points U225.5 - 2.8% of bankroll\n   - Kelly fraction: 0.041\n   - Expected ROI: +8.7%\n\nRisk Assessment:\n- Portfolio volatility: Low-Medium\n- Correlation risk: Minimal (different bet types)\n- Maximum drawdown scenario: -6.8%\n\nAdvanced Strategy Tips:\n- Use betting exchanges for better odds when possible\n- Track closing line value (CLV) to measure bet quality\n- Diversify across sports and bet types\n- Never chase losses with increased bet sizes\n\nPerformance Metrics to Track:\n- ROI, CLV, Win Rate, Sharpe Ratio, Maximum Drawdown",
             "confidence": 85,
             "suggestions": [
                 "Calculate Kelly fractions",
@@ -1228,35 +1188,7 @@ Consider the UNDER 225.5 total points (73% confidence)""",
     async def general_analysis(self, request: PropOllamaRequest) -> Dict[str, Any]:
         """General sports betting analysis and advice"""
         return {
-            "content": f"""🤖 **PropOllama AI Analysis**
-
-Hello! I'm your AI sports betting assistant. I can help you with:
-
-**🎯 Prediction Analysis:**
-- Player props with SHAP explainability
-- Point spreads and totals
-- Moneyline value assessment
-- Live betting opportunities
-
-**📊 Advanced Features:**
-- AI model explanations (SHAP values)
-- Kelly Criterion bet sizing
-- Portfolio optimization
-- Risk assessment metrics
-
-**�� Current Market Insights:**
-- 15 high-confidence opportunities identified
-- Average model accuracy: 74.3% this week
-- Sharp action detected on 3 games tonight
-- Weather impacting 2 outdoor games
-
-**Ask me about:**
-- "Analyze tonight's props"
-- "Explain this prediction"
-- "Show me value bets"
-- "What's the best strategy?"
-
-I use advanced machine learning models with explainable AI to give you the reasoning behind every prediction.""",
+            "content": f"PropOllama AI Analysis\n\nHello! I'm your AI sports betting assistant. I can help you with:\n\nPrediction Analysis:\n- Player props with SHAP explainability\n- Point spreads and totals\n- Moneyline value assessment\n- Live betting opportunities\n\nAdvanced Features:\n- AI model explanations (SHAP values)\n- Kelly Criterion bet sizing\n- Portfolio optimization\n- Risk assessment metrics\n\nCurrent Market Insights:\n- 15 high-confidence opportunities identified\n- Average model accuracy: 74.3% this week\n- Sharp action detected on 3 games tonight\n- Weather impacting 2 outdoor games\n\nAsk me about:\n- Analyze tonight's props\n- Explain this prediction\n- Show me value bets\n- What's the best strategy?\n\nI use advanced machine learning models with explainable AI to give you the reasoning behind every prediction.",
             "confidence": 90,
             "suggestions": [
                 "Analyze tonight's games",
@@ -1717,7 +1649,7 @@ def find_available_port(start_port: int = 8000, end_port: int = 8010) -> Optiona
 
 
 if __name__ == "__main__":
-    logger.info("🚀 Starting A1Betting Complete Enhanced Backend...")
+    logger.info("Starting A1Betting Complete Enhanced Backend...")
 
     # Find available port dynamically
     available_port = find_available_port()
@@ -1725,11 +1657,11 @@ if __name__ == "__main__":
         logger.error("❌ No available ports found in range 8000-8010")
         sys.exit(1)
 
-    logger.info(f"🔍 Selected port: {available_port}")
+    logger.info(f"Selected port: {available_port}")
 
     try:
         logger.info(
-            f"🔍 DIAGNOSTIC: About to start Uvicorn server on 0.0.0.0:{available_port}"
+            f"DIAGNOSTIC: About to start Uvicorn server on 0.0.0.0:{available_port}"
         )
 
         uvicorn.run(
@@ -1740,12 +1672,10 @@ if __name__ == "__main__":
             log_level="info",
             access_log=True,
         )
-        logger.info("🔍 DIAGNOSTIC: Uvicorn.run() completed")
+        logger.info("DIAGNOSTIC: Uvicorn.run() completed")
     except Exception as e:
-        logger.error(f"🔍 DIAGNOSTIC: Uvicorn startup failed: {e}")
+        logger.error(f"DIAGNOSTIC: Uvicorn startup failed: {e}")
         import traceback
 
-        logger.error(
-            f"🔍 DIAGNOSTIC: Uvicorn startup traceback: {traceback.format_exc()}"
-        )
+        logger.error(f"DIAGNOSTIC: Uvicorn startup traceback: {traceback.format_exc()}")
         raise

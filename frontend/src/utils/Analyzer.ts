@@ -1,4 +1,4 @@
-﻿export interface Analyzer<T = unknown, U = unknown> {
+export interface Analyzer<T = unknown, U = unknown> {
   id: string;
   name: string;
   description: string;

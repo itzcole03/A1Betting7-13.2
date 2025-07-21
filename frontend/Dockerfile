@@ -34,8 +34,10 @@ COPY . .
 RUN chown -R frontend:nodejs /app
 USER frontend
 
-# Expose port
-EXPOSE 5173
+
+# Expose port from environment variable (default 8173)
+ARG VITE_PORT=8173
+EXPOSE ${VITE_PORT}
 
 # Development command
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

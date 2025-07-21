@@ -1,4 +1,4 @@
-﻿/**
+/**
  * User Settings Utilities;
  * Provides easy access to user settings throughout the application;
  */

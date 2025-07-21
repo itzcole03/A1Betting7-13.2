@@ -46,19 +46,26 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center justify-center h-64' role='alert' aria-live='assertive'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='text-center'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h2 className='text-xl font-semibold text-red-600 mb-2'>Oops! Something went wrong.</h2>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <p className='text-gray-600 mb-2'>
               {this.state.error?.message || 'An unexpected error occurred.'}
             </p>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <p className='text-gray-500 text-sm mb-4'>
               You can try again, refresh the page, or{' '}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <a href='mailto:support@a1betting.com' className='underline text-blue-500'>
                 report this issue
               </a>
               .
             </p>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <button
               onClick={() => this.setState({ hasError: false, error: undefined })}
               className='mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600'
@@ -66,6 +73,7 @@ export class ErrorBoundary extends Component<Props, State> {
             >
               Try again
             </button>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <button
               onClick={() => window.location.reload()}
               className='mt-2 ml-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600'

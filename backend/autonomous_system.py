@@ -39,7 +39,10 @@ import psutil
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("autonomous_system.log"), logging.StreamHandler()],
+    handlers=[
+        logging.FileHandler("autonomous_system.log", encoding="utf-8"),
+        logging.StreamHandler(),
+    ],
 )
 logger = logging.getLogger("autonomous_system")
 
@@ -98,7 +101,7 @@ class AutonomousSystem:
 
     async def start(self):
         """Start the autonomous system"""
-        logger.info("🤖 Starting A1Betting Autonomous System...")
+        logger.info("Starting A1Betting Autonomous System...")
         self.is_running = True
 
         # Start monitoring tasks
@@ -112,7 +115,7 @@ class AutonomousSystem:
             asyncio.create_task(self.predictive_analyzer()),
         ]
 
-        logger.info("✅ Autonomous System activated with 7 monitoring tasks")
+        logger.info("Autonomous System activated with 7 monitoring tasks")
 
         # Run all tasks concurrently
         try:
@@ -123,7 +126,7 @@ class AutonomousSystem:
 
     async def stop(self):
         """Stop the autonomous system"""
-        logger.info("🔄 Stopping Autonomous System...")
+        logger.info("Stopping Autonomous System...")
         self.is_running = False
 
     async def collect_metrics(self) -> SystemMetrics:
@@ -312,7 +315,7 @@ class AutonomousSystem:
                     logger.warning(f"⚠️ System DEGRADED: {health.warnings}")
                     await self.trigger_optimization(health)
                 else:
-                    logger.info("✅ System HEALTHY")
+                    logger.info("System HEALTHY")
 
                 # Log recommendations
                 if health.recommendations:
@@ -434,7 +437,7 @@ class AutonomousSystem:
             # Reload configurations
             await self.reload_configurations()
 
-            logger.info("✅ Self-healing completed")
+            logger.info("Self-healing completed")
 
         except Exception as e:
             logger.error(f"❌ Self-healing failed: {e}")
@@ -458,7 +461,7 @@ class AutonomousSystem:
 
     async def trigger_optimization(self, health: HealthStatus):
         """Trigger optimization for degraded performance"""
-        logger.info("🔧 OPTIMIZATION TRIGGERED")
+        logger.info("OPTIMIZATION TRIGGERED")
 
         # Performance optimizations
         if "CPU usage high" in health.warnings:
@@ -474,7 +477,7 @@ class AutonomousSystem:
     async def check_database_connections(self):
         """Check database connection health with real testing"""
         try:
-            logger.info("🔍 Checking database connections...")
+            logger.info("Checking database connections...")
 
             # Test SQLite connection
             sqlite_status = await self._test_sqlite_connection()
@@ -650,7 +653,7 @@ class AutonomousSystem:
     async def check_api_endpoints(self):
         """Check API endpoint availability with real HTTP requests"""
         try:
-            logger.info("🔍 Checking API endpoints...")
+            logger.info("Checking API endpoints...")
 
             # Define critical endpoints to test
             endpoints = [
@@ -793,7 +796,7 @@ class AutonomousSystem:
     async def heal_api_endpoints(self, failed_endpoints: List[Dict[str, Any]]):
         """Heal failed API endpoints"""
         try:
-            logger.info("🔧 Healing API endpoints...")
+            logger.info("Healing API endpoints...")
 
             # Restart services that might be causing issues
             await self.restart_failed_services()
@@ -815,7 +818,7 @@ class AutonomousSystem:
                             f"http://localhost:8000{endpoint['path']}"
                         )
                         if response.status_code == 200:
-                            logger.info(f"✅ Healed: {endpoint['path']}")
+                            logger.info(f"Healed: {endpoint['path']}")
                         else:
                             logger.warning(f"⚠️ Still failing: {endpoint['path']}")
                 except Exception as e:
@@ -832,10 +835,10 @@ class AutonomousSystem:
         """Analyze performance trends using real statistical analysis"""
         try:
             if len(self.metrics_history) < 10:
-                logger.info("📊 Not enough metrics for trend analysis")
+                logger.info("Not enough metrics for trend analysis")
                 return
 
-            logger.info("📈 Analyzing performance trends...")
+            logger.info("Analyzing performance trends...")
 
             # Extract metrics for analysis
             recent_metrics = self.metrics_history[-50:]  # Last 50 data points
@@ -871,8 +874,8 @@ class AutonomousSystem:
             response_anomalies = self._detect_anomalies(response_times)
 
             # Log analysis results
-            logger.info(f"📊 CPU Trend: {cpu_trend:.4f} (MA: {cpu_ma:.2f}%)")
-            logger.info(f"📊 Memory Trend: {memory_trend:.4f} (MA: {memory_ma:.2f}%)")
+            logger.info(f"CPU Trend: {cpu_trend:.4f} (MA: {cpu_ma:.2f}%)")
+            logger.info(f"Memory Trend: {memory_trend:.4f} (MA: {memory_ma:.2f}%)")
             logger.info(
                 f"📊 Response Time Trend: {response_trend:.4f} (MA: {response_ma:.3f}s)"
             )

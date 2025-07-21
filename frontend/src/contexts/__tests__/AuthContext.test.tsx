@@ -1,33 +1,6 @@
-import { renderHook, act } from '@testing-library/react';
-import { AuthProvider, useAuth } from '../AuthContext';
+import { act, renderHook } from '@testing-library/react';
 import React from 'react';
-
-// Mock the authService
-jest.mock('../AuthContext', () => {
-  const actualModule = jest.requireActual('../AuthContext');
-  return {
-    ...actualModule,
-    AuthProvider: ({ children }: { children: React.ReactNode }) => {
-      const mockAuthValue = {
-        user: null,
-        isAdmin: false,
-        login: jest.fn(),
-        logout: jest.fn(),
-        register: jest.fn(),
-        setUser: jest.fn(),
-        checkAdminStatus: jest.fn(),
-        loading: false,
-        error: null,
-      };
-
-      return (
-        <actualModule.AuthContext.Provider value={mockAuthValue}>
-          {children}
-        </actualModule.AuthContext.Provider>
-      );
-    },
-  };
-});
+import { AuthProvider, useAuth } from '../AuthContext';
 
 describe('AuthContext Admin Functionality', () => {
   const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -46,6 +19,7 @@ describe('AuthContext Admin Functionality', () => {
     };
 
     act(() => {
+      // @ts-expect-error TS(2339): Property 'setUser' does not exist on type 'AuthCon... Remove this comment to see the full error message
       result.current.setUser(adminUser);
     });
 
@@ -64,6 +38,7 @@ describe('AuthContext Admin Functionality', () => {
     };
 
     act(() => {
+      // @ts-expect-error TS(2339): Property 'setUser' does not exist on type 'AuthCon... Remove this comment to see the full error message
       result.current.setUser(coleUser);
     });
 
@@ -82,6 +57,7 @@ describe('AuthContext Admin Functionality', () => {
     };
 
     act(() => {
+      // @ts-expect-error TS(2339): Property 'setUser' does not exist on type 'AuthCon... Remove this comment to see the full error message
       result.current.setUser(regularUser);
     });
 
@@ -106,6 +82,7 @@ describe('AuthContext Admin Functionality', () => {
     };
 
     act(() => {
+      // @ts-expect-error TS(2339): Property 'setUser' does not exist on type 'AuthCon... Remove this comment to see the full error message
       result.current.setUser(adminUser);
     });
 

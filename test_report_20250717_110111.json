@@ -1,0 +1,545 @@
+{
+  "timestamp": "2025-07-17T11:01:11.156638",
+  "summary": {
+    "total_tests": 16,
+    "successful": 15,
+    "failed": 1,
+    "success_rate": 93.75,
+    "average_response_time": 0.474853053689003
+  },
+  "test_results": [
+    {
+      "endpoint": "/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.25908732414245605,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0022101402282714844,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "status": "healthy",
+        "timestamp": "2025-07-17T11:01:03.819272",
+        "uptime": 13.918872117996216,
+        "performance": {
+          "memory_usage": "normal",
+          "cpu_usage": "normal",
+          "response_time": "fast"
+        },
+        "models": {
+          "prediction_engine": "initialized",
+          "ultra_accuracy_engine": "initialized",
+          "quantum_ensemble": "ready"
+        },
+        "api_metrics": {
+          "total_requests": 0,
+          "success_rate": 100.0,
+          "average_response_time": 0.1
+        }
+      }
+    },
+    {
+      "endpoint": "/api/health/status",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0010106563568115234,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "status": "healthy",
+        "timestamp": "2025-07-17T11:01:03.820899",
+        "uptime": 13.920498847961426,
+        "performance": {
+          "memory_usage": "normal",
+          "cpu_usage": "normal",
+          "response_time": "fast"
+        },
+        "models": {
+          "prediction_engine": "initialized",
+          "ultra_accuracy_engine": "initialized",
+          "quantum_ensemble": "ready"
+        },
+        "api_metrics": {
+          "total_requests": 0,
+          "success_rate": 100.0,
+          "average_response_time": 0.1
+        }
+      }
+    },
+    {
+      "endpoint": "/api/health/comprehensive",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0009999275207519531,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "status": "degraded",
+        "timestamp": "2025-07-17T11:01:03.822111",
+        "uptime": 13.921709775924683,
+        "version": "4.0.0",
+        "fallback_services": {
+          "database": true
+        },
+        "performance": {
+          "memory_usage": "normal",
+          "cpu_usage": "normal",
+          "response_time": "fast"
+        },
+        "models": {
+          "prediction_engine": "initialized",
+          "ultra_accuracy_engine": "initialized",
+          "quantum_ensemble": "ready"
+        },
+        "api_metrics": {
+          "total_requests": 0,
+          "success_rate": 100.0,
+          "average_response_time": 0.1
+        },
+        "autonomous": {
+          "enabled": false,
+          "running": false,
+          "health": "unknown",
+          "capabilities": 0
+        },
+        "detailed_health": null,
+        "system_metrics": null
+      }
+    },
+    {
+      "endpoint": "/api/prizepicks/props",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.5788872241973877,
+      "success": true,
+      "error": null,
+      "response_data": []
+    },
+    {
+      "endpoint": "/api/prizepicks/props?sport=NBA",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 3.278250217437744,
+      "success": true,
+      "error": null,
+      "response_data": []
+    },
+    {
+      "endpoint": "/api/prizepicks/props?min_confidence=80",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 2.449925422668457,
+      "success": true,
+      "error": null,
+      "response_data": []
+    },
+    {
+      "endpoint": "/api/prizepicks/comprehensive-projections",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0010004043579101562,
+      "success": true,
+      "error": null,
+      "response_data": [
+        {
+          "id": "pp_mlb_judge_hr",
+          "player_name": "Aaron Judge",
+          "team": "NYY",
+          "position": "OF",
+          "league": "MLB",
+          "sport": "MLB",
+          "stat_type": "Home Runs",
+          "line_score": 1.5,
+          "over_odds": -125,
+          "under_odds": -105,
+          "confidence": 87.5,
+          "expected_value": 2.3,
+          "kelly_fraction": 0.045,
+          "recommendation": "OVER",
+          "game_time": "2025-07-17T16:00:52.836292+00:00",
+          "opponent": "vs LAA",
+          "venue": "Yankee Stadium",
+          "source": "PrizePicks Mock",
+          "status": "active",
+          "updated_at": "2025-07-17T16:00:52.836292+00:00",
+          "ensemble_prediction": 0.62,
+          "ensemble_confidence": 87.5,
+          "win_probability": 0.575,
+          "risk_score": 22.8
+        },
+        {
+          "id": "pp_mlb_betts_tb",
+          "player_name": "Mookie Betts",
+          "team": "LAD",
+          "position": "OF",
+          "league": "MLB",
+          "sport": "MLB",
+          "stat_type": "Total Bases",
+          "line_score": 2.5,
+          "over_odds": -110,
+          "under_odds": -120,
+          "confidence": 82.1,
+          "expected_value": 1.8,
+          "kelly_fraction": 0.038,
+          "recommendation": "OVER",
+          "game_time": "2025-07-17T16:00:52.836292+00:00",
+          "opponent": "vs SD",
+          "venue": "Dodger Stadium",
+          "source": "PrizePicks Mock",
+          "status": "active",
+          "updated_at": "2025-07-17T16:00:52.836292+00:00",
+          "ensemble_prediction": 0.58,
+          "ensemble_confidence": 82.1,
+          "win_probability": 0.541,
+          "risk_score": 26.3
+        },
+        {
+          "id": "pp_nba_james_pts",
+          "player_name": "LeBron James",
+          "team": "LAL",
+          "position": "F",
+          "league": "NBA",
+          "sport": "NBA",
+          "stat_type": "Points",
+          "line_score": 24.5,
+          "over_odds": -115,
+          "under_odds": -115,
+          "confidence": 79.8,
+          "expected_value": 1.9,
+          "kelly_fraction": 0.042,
+          "recommendation": "OVER",
+          "game_time": "2025-07-17T16:00:52.836292+00:00",
+          "opponent": "vs GSW",
+          "venue": "Crypto.com Arena",
+          "source": "PrizePicks Mock",
+          "status": "active",
+          "updated_at": "2025-07-17T16:00:52.836292+00:00",
+          "ensemble_prediction": 0.55,
+          "ensemble_confidence": 79.8,
+          "win_probability": 0.532,
+          "risk_score": 28.5
+        },
+        {
+          "id": "pp_nfl_mahomes_pass_yds",
+          "player_name": "Patrick Mahomes",
+          "team": "KC",
+          "position": "QB",
+          "league": "NFL",
+          "sport": "NFL",
+          "stat_type": "Passing Yards",
+          "line_score": 287.5,
+          "over_odds": -120,
+          "under_odds": -110,
+          "confidence": 85.2,
+          "expected_value": 2.1,
+          "kelly_fraction": 0.051,
+          "recommendation": "OVER",
+          "game_time": "2025-07-17T16:00:52.836292+00:00",
+          "opponent": "vs BUF",
+          "venue": "Arrowhead Stadium",
+          "source": "PrizePicks Mock",
+          "status": "active",
+          "updated_at": "2025-07-17T16:00:52.836292+00:00",
+          "ensemble_prediction": 0.64,
+          "ensemble_confidence": 85.2,
+          "win_probability": 0.588,
+          "risk_score": 21.3
+        },
+        {
+          "id": "pp_wnba_wilson_pts",
+          "player_name": "A'ja Wilson",
+          "team": "LAS",
+          "position": "F",
+          "league": "WNBA",
+          "sport": "WNBA",
+          "stat_type": "Points",
+          "line_score": 24.5,
+          "over_odds": -115,
+          "under_odds": -115,
+          "confidence": 79.3,
+          "expected_value": 1.5,
+          "kelly_fraction": 0.032,
+          "recommendation": "OVER",
+          "game_time": "2025-07-17T16:00:52.836292+00:00",
+          "opponent": "vs NY",
+          "venue": "Michelob Ultra Arena",
+          "source": "PrizePicks Mock",
+          "status": "active",
+          "updated_at": "2025-07-17T16:00:52.836292+00:00",
+          "ensemble_prediction": 0.55,
+          "ensemble_confidence": 79.3,
+          "win_probability": 0.528,
+          "risk_score": 29.1
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/prizepicks/recommendations",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0020012855529785156,
+      "success": true,
+      "error": null,
+      "response_data": [
+        {
+          "id": "rec_1",
+          "player": "LeBron James",
+          "sport": "NBA",
+          "prop_type": "Points",
+          "line": 25.5,
+          "recommendation": "over",
+          "confidence": 85,
+          "reasoning": "Strong recent form, favorable matchup",
+          "expected_value": 0.12,
+          "stake_recommendation": "medium"
+        },
+        {
+          "id": "rec_2",
+          "player": "Stephen Curry",
+          "sport": "NBA",
+          "prop_type": "Assists",
+          "line": 6.5,
+          "recommendation": "under",
+          "confidence": 78,
+          "reasoning": "Defensive focus, injury concerns",
+          "expected_value": 0.08,
+          "stake_recommendation": "small"
+        },
+        {
+          "id": "rec_3",
+          "player": "Nikola Jokic",
+          "sport": "NBA",
+          "prop_type": "Rebounds",
+          "line": 12.5,
+          "recommendation": "over",
+          "confidence": 92,
+          "reasoning": "Dominant rebounder, weak opponent",
+          "expected_value": 0.18,
+          "stake_recommendation": "large"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/prizepicks/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0009996891021728516,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "status": "healthy",
+        "last_update": "2025-07-17T16:01:10.133275+00:00",
+        "cache_status": "empty",
+        "client_status": "initialized",
+        "ml_ensemble_status": "available",
+        "cached_props": 0,
+        "service_type": "enhanced_v2"
+      }
+    },
+    {
+      "endpoint": "/api/prizepicks/lineup/optimize",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0009989738464355469,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "total_confidence": 81.5,
+        "expected_payout": 3.7,
+        "kelly_optimization": 16.3,
+        "risk_score": 35.0,
+        "value_score": 11.5,
+        "correlation_matrix": [
+          [
+            1.0,
+            0.1
+          ],
+          [
+            0.1,
+            1.0
+          ]
+        ],
+        "optimization_notes": [
+          "Optimized for 2 selections",
+          "Average confidence: 81.5%",
+          "Risk level: Medium",
+          "Correlations analyzed for optimal selection"
+        ]
+      }
+    },
+    {
+      "endpoint": "/features",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0009996891021728516,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "features": {
+          "points": 25.0,
+          "rebounds": 45.0,
+          "assists": 8.0,
+          "points_per_game": 110.0,
+          "rebounds_per_game": 45.0
+        }
+      }
+    },
+    {
+      "endpoint": "/predict",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0015034675598144531,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "prediction": 138.5
+      }
+    },
+    {
+      "endpoint": "/api/autonomous/status",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0010042190551757812,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "autonomous_mode": false,
+        "system_status": {
+          "is_running": false,
+          "uptime": 22.058810234069824,
+          "capabilities": {
+            "self_healing": true,
+            "performance_optimization": true,
+            "code_analysis": true,
+            "error_recovery": true,
+            "model_retraining": true,
+            "database_optimization": true,
+            "api_monitoring": true,
+            "security_scanning": true,
+            "resource_management": true,
+            "predictive_scaling": true
+          },
+          "metrics_collected": 1,
+          "health_assessments": 1,
+          "optimizations_performed": 0,
+          "current_health": {
+            "overall": "degraded",
+            "services": {
+              "cpu": "healthy",
+              "memory": "warning",
+              "disk": "healthy",
+              "api": "healthy",
+              "performance": "healthy",
+              "ml_models": "healthy"
+            },
+            "errors": [],
+            "warnings": [
+              "Memory usage high"
+            ],
+            "recommendations": [
+              "Consider increasing memory allocation"
+            ],
+            "critical_issues": []
+          },
+          "latest_metrics": {
+            "timestamp": "2025-07-17T11:00:52.099781",
+            "cpu_usage": 16.9,
+            "memory_usage": 81.4,
+            "disk_usage": 63.5,
+            "network_io": {
+              "bytes_sent": 961083289,
+              "bytes_recv": 4167132572
+            },
+            "process_count": 375,
+            "uptime": 4.020730495452881,
+            "error_rate": 0.01,
+            "response_time": 0.15,
+            "database_connections": 10,
+            "cache_hit_rate": 0.85,
+            "ml_model_accuracy": 0.964
+          }
+        },
+        "timestamp": "2025-07-17T11:01:10.137861"
+      }
+    },
+    {
+      "endpoint": "/api/autonomous/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 1.0172662734985352,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "health_status": {
+          "overall": "degraded",
+          "services": {
+            "cpu": "healthy",
+            "memory": "warning",
+            "disk": "healthy",
+            "api": "healthy",
+            "performance": "healthy",
+            "ml_models": "healthy"
+          },
+          "errors": [],
+          "warnings": [
+            "Memory usage high"
+          ],
+          "recommendations": [
+            "Consider increasing memory allocation"
+          ],
+          "critical_issues": []
+        },
+        "timestamp": "2025-07-17T11:01:11.154471"
+      }
+    },
+    {
+      "endpoint": "/api/autonomous/capabilities",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0015039443969726562,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "capabilities": [],
+        "autonomous_mode": false,
+        "autonomous_interval": 60,
+        "timestamp": "2025-07-17T11:01:11.156228"
+      }
+    }
+  ],
+  "failed_tests": [
+    {
+      "endpoint": "/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.25908732414245605,
+      "success": false,
+      "error": null,
+      "response_data": null
+    }
+  ]
+}

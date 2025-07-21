@@ -1,5 +1,8 @@
-﻿import { DailyFantasyData } from '@/adapters/DailyFantasyAdapter';
+// @ts-expect-error TS(2307): Cannot find module '@/adapters/DailyFantasyAdapter... Remove this comment to see the full error message
+import { DailyFantasyData } from '@/adapters/DailyFantasyAdapter';
+// @ts-expect-error TS(2307): Cannot find module '@/core/Analyzer' or its corres... Remove this comment to see the full error message
 import { Analyzer } from '@/core/Analyzer';
+// @ts-expect-error TS(2307): Cannot find module '@/core/EventBus' or its corres... Remove this comment to see the full error message
 import { EventBus } from '@/core/EventBus';
 
 export interface ProjectionAnalysis {
@@ -87,7 +90,7 @@ export class ProjectionAnalyzer implements Analyzer<DailyFantasyData, Projection
   public async confidence(data: DailyFantasyData): Promise<number> {
     if (!data.projections.length) return 0;
 
-    const validProjections = data.projections.filter(p => this.isValidProjection(p));
+    const validProjections = data.projections.filter((p: any) => this.isValidProjection(p));
 
     return validProjections.length / data.projections.length;
   }

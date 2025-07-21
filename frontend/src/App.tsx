@@ -1,3 +1,5 @@
+/// <reference types="node" />
+/// <reference types="electron" />
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
@@ -68,6 +70,7 @@ function App() {
   const [backendHealthy, setBackendHealthy] = useState(true);
   // Remove backendVersion, only warn if version mismatch
   const expectedVersion = '1.0.0'; // Update as needed
+  /// <reference types="node" />
 
   useEffect(() => {
     async function checkBackend() {
@@ -112,7 +115,7 @@ function App() {
       setBackendHealthy(healthy);
     }
     checkBackend();
-  }, []);
+  }, [apiUrl]);
 
   if (!backendHealthy) {
     return (

@@ -21,11 +21,27 @@ from typing import Any, Awaitable, Callable, Dict, List, Optional
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Configure logging early
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler()],
-)
+
+# Patch: Use UTF-8 StreamHandler for logging
+class UTF8StreamHandler(logging.StreamHandler):
+    def __init__(self, stream=None):
+        super().__init__(stream)
+        self.setFormatter(logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        ))
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            stream = self.stream
+            if hasattr(stream, 'buffer'):
+                stream.buffer.write((msg + '\n').encode('utf-8', errors='replace'))
+            else:
+                stream.write(msg + '\n')
+            self.flush()
+        except Exception:
+            self.handleError(record)
+
+logging.basicConfig(level=logging.INFO, handlers=[UTF8StreamHandler()])
 logger = logging.getLogger(__name__)
 
 # Import from refactored modules

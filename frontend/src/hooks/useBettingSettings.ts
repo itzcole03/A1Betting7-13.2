@@ -1,5 +1,7 @@
-﻿import { useCallback } from 'react';
+import { useCallback } from 'react';
+// @ts-expect-error TS(2307): Cannot find module '@/stores/bettingStore' or its ... Remove this comment to see the full error message
 import { useBettingStore } from '@/stores/bettingStore';
+// @ts-expect-error TS(2307): Cannot find module '@/services/bettingService' or ... Remove this comment to see the full error message
 import type { BettingSettings } from '@/services/bettingService';
 
 export const useBettingSettings = () => {

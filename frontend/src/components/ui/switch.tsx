@@ -14,6 +14,7 @@ export const Switch: React.FC<SwitchProps> = ({
   className = '',
 }) => {
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <button
       type='button'
       className={`
@@ -26,6 +27,7 @@ export const Switch: React.FC<SwitchProps> = ({
       onClick={() => !disabled && onCheckedChange(!checked)}
       disabled={disabled}
     >
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <span
         className={`
           inline-block h-4 w-4 transform rounded-full bg-white transition

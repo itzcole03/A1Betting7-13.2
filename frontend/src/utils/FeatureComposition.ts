@@ -1,4 +1,5 @@
-﻿import { EventBus } from '@/core/EventBus';
+// @ts-expect-error TS(2307): Cannot find module '@/core/EventBus' or its corres... Remove this comment to see the full error message
+import { EventBus } from '@/core/EventBus';
 import { PerformanceMonitor } from './PerformanceMonitor';
 
 export interface FeatureMetadata {
@@ -176,4 +177,5 @@ export class FeatureRegistry {
   }
 }
 
+// @ts-expect-error TS(2484): Export declaration conflicts with exported declara... Remove this comment to see the full error message
 export type { FeatureComponent };

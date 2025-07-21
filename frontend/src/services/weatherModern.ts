@@ -1,4 +1,6 @@
-﻿import { EventBus } from '@/unified/EventBus.js';
+// @ts-expect-error TS(2307): Cannot find module '@/unified/EventBus.js' or its ... Remove this comment to see the full error message
+import { EventBus } from '@/unified/EventBus.js';
+// @ts-expect-error TS(2307): Cannot find module '@/types/core.js' or its corres... Remove this comment to see the full error message
 import type { WeatherData } from '@/types/core.js';
 
 export class WeatherService {

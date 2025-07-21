@@ -1,4 +1,5 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+// @ts-expect-error TS(2307): Cannot find module '@/services/MLSimulationService... Remove this comment to see the full error message
 import { MLSimulationService } from '@/services/MLSimulationService';
 import {
   Team,
@@ -8,6 +9,7 @@ import {
   PlayerStats,
   PlayerForm,
   //   InjuryStatus
+// @ts-expect-error TS(2307): Cannot find module '@/types/betting' or its corres... Remove this comment to see the full error message
 } from '@/types/betting';
 
 export const useMLSimulation = () => {
@@ -75,6 +77,7 @@ export const useMLSimulation = () => {
   );
 
   const updateInjuryStatus = useCallback(
+    // @ts-expect-error TS(2304): Cannot find name 'InjuryStatus'.
     (playerId: string, status: InjuryStatus) => {
       if (!isInitialized) {
         throw new Error('Simulation not initialized');

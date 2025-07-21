@@ -1,4 +1,4 @@
-﻿// betaTest4/src/utils/helpers.ts;
+// betaTest4/src/utils/helpers.ts;
 
 export const sleep = (ms: number): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, ms));

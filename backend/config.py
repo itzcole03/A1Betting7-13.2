@@ -1,8 +1,16 @@
+###############################################################
+# CONFIGURATION BEST PRACTICES:
+# - All secrets, API keys, and sensitive settings MUST be set via environment variables.
+# - NEVER hardcode secrets or keys in code.
+# - Use `.env.example` as a template for onboarding and secure configuration.
+# - See documentation for required environment variables and onboarding steps.
+###############################################################
 """Backend Configuration Management
 Centralized configuration for all backend services with environment variable support
 """
 
 import logging
+import os
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
 
@@ -51,7 +59,7 @@ class BackendConfig(BaseSettings):
 
     # LLM Settings for Enhanced PropOllama
     llm_provider: str = "ollama"  # ollama or lmstudio
-    llm_endpoint: str = "http://localhost:11434"
+    llm_endpoint: str = "http://127.0.0.1:11434"
     llm_timeout: int = 30
     llm_batch_size: int = 5
     llm_models_cache_ttl: int = 300  # 5 minutes
@@ -85,17 +93,6 @@ class BackendConfig(BaseSettings):
         "random_forest": 0.2,
         "neural_net": 0.2,
     }
-
-    # Local LLM Settings (Ollama or LM Studio)
-    llm_provider: str = "ollama"  # 'ollama' or 'lmstudio'
-    llm_endpoint: str = "http://127.0.0.1:11434"  # Ollama default
-    llm_default_model: Optional[str] = None  # model name to force; auto-select if None
-    # Advanced LLM Settings
-    llm_timeout: int = 60  # HTTP request timeout in seconds
-    llm_batch_size: int = 16  # batch size for embedding requests
-    llm_models_cache_ttl: int = 300  # cache TTL for model list (seconds)
-    # Feature toggle for LLM endpoints
-    enable_llm: bool = True  # turn off LLM routes if False
 
     # Additional Feature Toggles
     enable_comprehensive_testing: bool = False
@@ -161,7 +158,7 @@ class BackendConfig(BaseSettings):
     class Config:
         env_file = ".env"
         env_prefix = "A1BETTING_"
-        extra = "allow"
+        extra = "allow"  # Accept extra fields for robust .env loading
 
 
 @dataclass

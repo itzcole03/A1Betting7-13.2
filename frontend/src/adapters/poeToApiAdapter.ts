@@ -1,9 +1,9 @@
 import { unifiedMonitor } from '@/core/UnifiedMonitor';
 import {
-  PrizePicksProps,
   PoeApiResponse,
   PoeDataBlock,
   PoePropCardContent,
+  PrizePicksProps,
 } from '@/types/prizePicksUnified';
 
 /**
@@ -38,8 +38,8 @@ export class PoeToApiAdapter {
             league: content.statType?.includes('NBA')
               ? 'NBA'
               : content.statType?.includes('NFL')
-                ? 'NFL'
-                : 'Unknown', // Crude league detection
+              ? 'NFL'
+              : 'Unknown', // Crude league detection
             player_name: content.playerName || content.player || 'Unknown Player',
             stat_type: content.statType || content.stat || 'Unknown Stat',
             line: content.line,

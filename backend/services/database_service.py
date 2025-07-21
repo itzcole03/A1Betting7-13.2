@@ -5,12 +5,23 @@ This module provides a unified database service with properly configured models.
 """
 
 import logging
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
-from datetime import datetime
+from datetime import datetime, timezone
 
 from config_manager import get_database_url
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    create_engine,
+)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, sessionmaker
+
+from backend.models.match import Match
 
 logger = logging.getLogger(__name__)
 
@@ -24,8 +35,9 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 class User(Base):
     """User model for the database service"""
+
     __tablename__ = "users"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
@@ -34,40 +46,18 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
-    
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
     # Relationships
     bets = relationship("Bet", back_populates="user")
 
 
-class Match(Base):
-    """Match model for sports matches"""
-    __tablename__ = "matches"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    home_team = Column(String, nullable=False)
-    away_team = Column(String, nullable=False)
-    sport = Column(String, nullable=False)
-    league = Column(String, nullable=False)
-    start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime, nullable=True)
-    status = Column(String, default="scheduled")
-    home_score = Column(Integer, nullable=True)
-    away_score = Column(Integer, nullable=True)
-    external_id = Column(String, nullable=True)
-    has_live_odds = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    bets = relationship("Bet", back_populates="match")
-
-
 class Bet(Base):
     """Bet model for tracking user bets"""
+
     __tablename__ = "bets"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     match_id = Column(Integer, ForeignKey("matches.id"), nullable=False)
@@ -77,15 +67,15 @@ class Bet(Base):
     selection = Column(String, nullable=False)
     potential_winnings = Column(Float, nullable=False)
     status = Column(String, default="pending")
-    placed_at = Column(DateTime, default=datetime.utcnow)
+    placed_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     settled_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
-    
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
     # Relationships
     user = relationship("User", back_populates="bets")
     match = relationship("Match", back_populates="bets")
-    
+
     @property
     def profit_loss(self):
         """Calculate profit/loss for settled bets"""
@@ -99,7 +89,7 @@ class Bet(Base):
 
 class DatabaseService:
     """Database service class"""
-    
+
     def __init__(self):
         self.Base = Base
         self.User = User
@@ -107,16 +97,16 @@ class DatabaseService:
         self.Bet = Bet
         self.engine = engine
         self.SessionLocal = SessionLocal
-    
+
     def create_tables(self):
         """Create all database tables"""
         try:
             Base.metadata.create_all(bind=engine)
-            logger.info("✅ Database tables created successfully")
+            logger.info("Database tables created successfully")
         except Exception as e:
-            logger.error(f"❌ Error creating database tables: {e}")
+            logger.error(f"Error creating database tables: {e}")
             raise
-    
+
     def get_session(self):
         """Get database session"""
         return SessionLocal()
@@ -126,9 +116,9 @@ def create_tables():
     """Create all database tables"""
     try:
         Base.metadata.create_all(bind=engine)
-        logger.info("✅ Database tables created successfully")
+        logger.info("Database tables created successfully")
     except Exception as e:
-        logger.error(f"❌ Error creating database tables: {e}")
+        logger.error(f"Error creating database tables: {e}")
         raise
 
 
@@ -148,6 +138,7 @@ try:
     logger.info("Database service initialized successfully")
 except Exception as e:
     logger.error(f"Database service initialization failed: {e}")
+
     # Create a minimal fallback service
     class FallbackDatabaseService:
         def __init__(self):
@@ -155,5 +146,5 @@ except Exception as e:
             self.User = User
             self.Match = Match
             self.Bet = Bet
-    
-    database_service = FallbackDatabaseService() 
+
+    database_service = FallbackDatabaseService()

@@ -1,16 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { AuthContext } from './authUtils';
 
-const AuthContext = createContext();
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
-export const AuthProvider = ({ children }) => {
+const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
@@ -35,7 +26,7 @@ export const AuthProvider = ({ children }) => {
           setUser(userData);
         })
         .catch(error => {
-//           console.error('Auth verification failed:', error);
+          //           console.error('Auth verification failed:', error);
           logout();
         })
         .finally(() => {
@@ -46,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  const login = async (username, password) => {
+  const login = async (username: string, password: string) => {
     try {
       const response = await fetch('/auth/login', {
         method: 'POST',
@@ -71,7 +62,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async userData => {
+  const register = async (userData: Record<string, unknown>) => {
     try {
       const response = await fetch('/auth/register', {
         method: 'POST',
@@ -114,3 +105,5 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+export default AuthProvider;

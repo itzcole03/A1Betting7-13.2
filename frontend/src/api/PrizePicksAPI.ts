@@ -1,11 +1,11 @@
 import { EventBus } from '@/core/EventBus';
 import {
-  RawPrizePicksProjection,
-  RawPrizePicksIncludedPlayer,
-  RawPrizePicksIncludedLeague,
-  RawPrizePicksIncludedStatType,
-  PrizePicksIncludedResource,
   PrizePicksAPIResponse,
+  PrizePicksIncludedResource,
+  RawPrizePicksIncludedLeague,
+  RawPrizePicksIncludedPlayer,
+  RawPrizePicksIncludedStatType,
+  RawPrizePicksProjection,
 } from '@/types/prizePicksUnified';
 
 const API_BASE_URL = 'https://api.prizepicks.com';
@@ -18,12 +18,12 @@ export interface PrizePicksAPIConfig {
 
 // Re-export types for convenience
 export {
-  RawPrizePicksProjection,
-  RawPrizePicksIncludedPlayer,
-  RawPrizePicksIncludedLeague,
-  RawPrizePicksIncludedStatType,
-  PrizePicksIncludedResource,
   PrizePicksAPIResponse,
+  PrizePicksIncludedResource,
+  RawPrizePicksIncludedLeague,
+  RawPrizePicksIncludedPlayer,
+  RawPrizePicksIncludedStatType,
+  RawPrizePicksProjection,
 };
 
 export class PrizePicksAPI {

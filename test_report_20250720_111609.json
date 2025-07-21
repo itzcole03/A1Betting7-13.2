@@ -1,0 +1,321 @@
+{
+  "timestamp": "2025-07-20T11:16:09.157840",
+  "summary": {
+    "total_tests": 15,
+    "successful": 7,
+    "failed": 8,
+    "success_rate": 46.666666666666664,
+    "average_response_time": 0.0366787592569987
+  },
+  "test_results": [
+    {
+      "endpoint": "/api/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.2679011821746826,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/health/status",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0029997825622558594,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "status": "ok",
+        "performance": {
+          "latency_ms": 42,
+          "uptime": "99.99%"
+        },
+        "models": {
+          "count": 47,
+          "ensemble": true
+        },
+        "api_metrics": {
+          "requests": 1000,
+          "errors": 0,
+          "avg_response_ms": 42
+        },
+        "timestamp": "2025-07-20T11:16:08.872026"
+      }
+    },
+    {
+      "endpoint": "/api/health/comprehensive",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0015063285827636719,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "status": "ok",
+        "details": {
+          "db": "ok",
+          "cache": "ok"
+        },
+        "performance": {
+          "latency_ms": 42,
+          "uptime": "99.99%"
+        },
+        "models": {
+          "count": 47,
+          "ensemble": true
+        },
+        "api_metrics": {
+          "requests": 1000,
+          "errors": 0,
+          "avg_response_ms": 42
+        },
+        "autonomous": {
+          "status": "active",
+          "uptime": "99.99%"
+        },
+        "timestamp": "2025-07-20T11:16:08.874026"
+      }
+    },
+    {
+      "endpoint": "/api/prizepicks/props",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0017635822296142578,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/props?sport=NBA",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.002009153366088867,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/props?min_confidence=80",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.263965368270874,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/comprehensive-projections",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/recommendations",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0015075206756591797,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/lineup/optimize",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0020101070404052734,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/features",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.002001047134399414,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "game_id": 12345,
+        "team_stats": {
+          "points": 110,
+          "rebounds": 45
+        },
+        "player_stats": {
+          "points": 25,
+          "assists": 8
+        },
+        "features": {
+          "points_per_game": 110,
+          "rebounds_per_game": 45
+        }
+      }
+    },
+    {
+      "endpoint": "/predict",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0009965896606445312,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "game_id": 12345,
+        "prediction": 155.0,
+        "status": "ok"
+      }
+    },
+    {
+      "endpoint": "/api/autonomous/status",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.0010030269622802734,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "autonomous_mode": "active",
+        "system_status": "operational",
+        "status": "active",
+        "timestamp": "2025-07-20T11:16:09.154305"
+      }
+    },
+    {
+      "endpoint": "/api/autonomous/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.001508474349975586,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "health_status": "healthy",
+        "status": "healthy",
+        "timestamp": "2025-07-20T11:16:09.155813"
+      }
+    },
+    {
+      "endpoint": "/api/autonomous/capabilities",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 200,
+      "response_time": 0.001009225845336914,
+      "success": true,
+      "error": null,
+      "response_data": {
+        "capabilities": [
+          "self-healing",
+          "autonomous-mode",
+          "metrics-reporting",
+          "health-checks"
+        ],
+        "autonomous_mode": "active",
+        "autonomous_interval": 60,
+        "timestamp": "2025-07-20T11:16:09.156831"
+      }
+    }
+  ],
+  "failed_tests": [
+    {
+      "endpoint": "/api/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.2679011821746826,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/props",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0017635822296142578,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/props?sport=NBA",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.002009153366088867,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/props?min_confidence=80",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.263965368270874,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/comprehensive-projections",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/recommendations",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/health",
+      "method": "GET",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0015075206756591797,
+      "success": false,
+      "error": null,
+      "response_data": null
+    },
+    {
+      "endpoint": "/api/prizepicks/lineup/optimize",
+      "method": "POST",
+      "expected_status": 200,
+      "actual_status": 404,
+      "response_time": 0.0020101070404052734,
+      "success": false,
+      "error": null,
+      "response_data": null
+    }
+  ]
+}

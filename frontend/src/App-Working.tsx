@@ -1,5 +1,13 @@
+// Utility to safely format numbers
+function safeNumber(val: number | undefined, digits: number = 2): string {
+  if (typeof val !== 'number' || isNaN(val)) return '';
+  return val.toFixed(digits);
+}
+// Removed stray type references
 import React, { useEffect, useState } from 'react';
 import './App.css';
+
+//
 
 interface BackendStatus {
   status: string;
@@ -208,13 +216,16 @@ const App: React.FC = () => {
     <div className='min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white'>
       <div className='container mx-auto px-4 py-8'>
         {/* Header */}
+
         <header className='text-center mb-8'>
           <h1 className='text-5xl font-bold text-yellow-400 mb-4'>🎯 A1Betting Platform</h1>
+
           <p className='text-xl text-gray-300 mb-6'>
             Enterprise Sports Intelligence & Prediction Platform
           </p>
 
           {/* Backend Status */}
+
           <div
             className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${getStatusColor()}`}
           >
@@ -233,6 +244,7 @@ const App: React.FC = () => {
         </header>
 
         {/* Main Content Grid */}
+
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8'>
           {/* System Status */}
           <div className='bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg p-6'>
@@ -262,8 +274,10 @@ const App: React.FC = () => {
                       {healthData.services.api ? '✅ Active' : '❌ Down'}
                     </span>
                   </div>
+                  provided... Remove this comment to see the full error message
                   <div>
-                    Predictions:{' '}
+                    Predictions: flag is provided... Remove this comment to see the full error
+                    message
                     <span
                       className={
                         healthData.services.predictions ? 'text-green-400' : 'text-red-400'
@@ -273,32 +287,44 @@ const App: React.FC = () => {
                     </span>
                   </div>
                 </div>
+                Remove this comment to see the full error message
                 <div className='border-t border-gray-600 pt-3 text-sm'>
+                  provided... Remove this comment to see the full error message
                   <div>
-                    Total Predictions:{' '}
+                    Total Predictions: '--jsx' flag is provided... Remove this comment to see the
+                    full error message
                     <span className='text-blue-400'>{healthData.metrics.total_predictions}</span>
                   </div>
+                  provided... Remove this comment to see the full error message
                   <div>
-                    Model Accuracy:{' '}
+                    Model Accuracy: flag is provided... Remove this comment to see the full error
+                    message
                     <span className='text-green-400'>
                       {(healthData.metrics.model_accuracy * 100).toFixed(1)}%
                     </span>
                   </div>
+                  provided... Remove this comment to see the full error message
                   <div>
-                    Uptime: <span className='text-gray-300'>{healthData.metrics.uptime}</span>
+                    provided... Remove this comment to see the full error message Uptime:{' '}
+                    <span className='text-gray-300'>{healthData.metrics.uptime}</span>
                   </div>
                 </div>
               </div>
             ) : backendStatus ? (
               <div className='space-y-2 text-sm'>
+                Remove this comment to see the full error message
                 <div>
-                  Status: <span className='text-green-400'>{backendStatus.status}</span>
+                  provided... Remove this comment to see the full error message Status:{' '}
+                  <span className='text-green-400'>{backendStatus.status}</span>
                 </div>
+                Remove this comment to see the full error message
                 <div>
-                  Timestamp: <span className='text-gray-300'>{backendStatus.timestamp}</span>
+                  provided... Remove this comment to see the full error message Timestamp:{' '}
+                  <span className='text-gray-300'>{backendStatus.timestamp}</span>
                 </div>
+                Remove this comment to see the full error message
                 <div>
-                  Predictions:{' '}
+                  Predictions: is provided... Remove this comment to see the full error message
                   <span className='text-blue-400'>
                     {backendStatus.predictions_available ? 'Available' : 'Loading...'}
                   </span>
@@ -308,7 +334,6 @@ const App: React.FC = () => {
               <div className='text-red-400'>Connecting to backend...</div>
             )}
           </div>
-
           {/* Live Predictions */}
           <div className='bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg p-6'>
             <h3 className='text-xl font-semibold text-yellow-400 mb-4'>📊 Live Predictions</h3>
@@ -318,14 +343,18 @@ const App: React.FC = () => {
               <div className='space-y-3'>
                 {predictions.slice(0, 3).map((pred, idx) => (
                   <div key={pred.id || idx} className='bg-gray-700/50 p-3 rounded'>
+                    provided... Remove this comment to see the full error message
                     <div className='font-medium text-blue-400'>{pred.game}</div>
+                    provided... Remove this comment to see the full error message
                     <div className='text-sm text-gray-300'>{pred.prediction}</div>
+                    provided... Remove this comment to see the full error message
                     <div className='text-xs text-green-400'>
                       Confidence: {(pred.confidence * 100).toFixed(1)}%
                     </div>
                     {pred.expected_value && (
                       <div className='text-xs text-purple-400'>
-                        EV: {pred.safeNumber(expected_value, 3)}
+                        'Pred... Remove this comment to see the full error message EV:{' '}
+                        {safeNumber(pred.expected_value, 3)}
                       </div>
                     )}
                   </div>
@@ -335,17 +364,20 @@ const App: React.FC = () => {
               <div className='text-gray-400'>No predictions available</div>
             )}
           </div>
-
           {/* Quick Actions */}
+          Remove this comment to see the full error message
           <div className='bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg p-6'>
             <h3 className='text-xl font-semibold text-yellow-400 mb-4'>⚡ Quick Actions</h3>
+
             <div className='space-y-3'>
+              Remove this comment to see the full error message
               <button
                 onClick={() => testBackendEndpoint('/health', 'Health Check')}
                 className='w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition-colors'
               >
                 Test Health Check
               </button>
+              Remove this comment to see the full error message
               <button
                 onClick={() => window.open('/docs', '_blank')}
                 className='w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded transition-colors'
@@ -406,6 +438,7 @@ const App: React.FC = () => {
           <div className='bg-red-600/20 border border-red-600 rounded-lg p-4 mb-8'>
             <h4 className='font-semibold text-red-400 mb-2'>Connection Error</h4>
             <p className='text-red-300'>{error}</p>
+            Remove this comment to see the full error message
             <button
               onClick={checkBackendConnection}
               className='mt-3 bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm transition-colors'

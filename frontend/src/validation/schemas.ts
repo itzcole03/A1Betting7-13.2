@@ -1,4 +1,5 @@
-﻿// Real zod-based validation schemas for production;
+// Real zod-based validation schemas for production;
+//
 import { z } from '@/zod';
 
 // Bet Validation Schema;
@@ -50,7 +51,7 @@ export const eventSchema = z.object({
 });
 
 // Validation Middleware;
-import type { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import type { ZodSchema, ZodTypeAny } from 'zod';
 export const validateRequest = (schema: ZodSchema<unknown> | ZodTypeAny) => {
   return async (req: Request, res: Response, next: NextFunction) => {

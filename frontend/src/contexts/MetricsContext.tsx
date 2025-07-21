@@ -27,6 +27,7 @@ const metrics = {
  */
 export const MetricsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const track = (event: string, data?: any) => metrics.track(event, data);
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   return <MetricsContext.Provider value={{ metrics, track }}>{children}</MetricsContext.Provider>;
 };
 

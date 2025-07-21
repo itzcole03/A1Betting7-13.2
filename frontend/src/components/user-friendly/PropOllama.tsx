@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
+// @ts-expect-error TS(6142): Module './Message' was resolved to 'C:/Users/bcmad... Remove this comment to see the full error message
 import Message from './Message';
 
 // Props interface for PropOllama
@@ -170,23 +171,30 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
   }, [messages]);
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div
       className={`${baseClasses} ${className}`}
       role='main'
       aria-label='PropOllama chat interface'
     >
       {/* Header */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className={`p-6 border-b ${
           variant === 'cyber' ? 'border-cyan-400/30' : 'border-gray-200 dark:border-gray-700'
         }`}
       >
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center justify-between'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center space-x-4'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className={`text-2xl ${variant === 'cyber' ? 'text-cyan-400' : 'text-blue-600'}`}>
               🤖
             </div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <h1
                 className={`text-2xl font-bold ${
                   variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -194,6 +202,7 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
               >
                 PropOllama AI
               </h1>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <p
                 className={`text-sm ${
                   variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-600 dark:text-gray-400'
@@ -201,8 +210,10 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
               >
                 Powered by 96.4% Accuracy ML Ensemble
               </p>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <button
                 type='button'
+                // @ts-expect-error TS(2304): Cannot find name 'checkHealth'.
                 onClick={checkHealth}
                 className={`mt-2 px-3 py-1 rounded text-xs font-medium border ${
                   variant === 'cyber'
@@ -214,10 +225,13 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
                 Check API Health
               </button>
               {/* Model selection dropdown and health */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='mt-2 flex items-center gap-2'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <label htmlFor='model-select' className='font-semibold'>
                   Model:
                 </label>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <select
                   id='model-select'
                   value={selectedModel}
@@ -225,6 +239,7 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
                   className='bg-gray-800 text-cyan-100 border border-cyan-400 rounded px-2 py-1'
                 >
                   {models.map(m => (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <option key={m} value={m}>
                       {m}
                     </option>
@@ -232,6 +247,7 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
                 </select>
                 {/* Model health status */}
                 {selectedModel && modelHealth[selectedModel] && (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`ml-2 px-2 py-1 rounded text-xs ${
                       modelHealth[selectedModel].status === 'ready'
@@ -249,7 +265,9 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
             </div>
           </div>
           {/* Status Indicators */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex space-x-2'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`px-3 py-1 rounded-full text-xs font-medium ${
                 variant === 'cyber'
@@ -259,6 +277,7 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
             >
               🎯 96.4% Accuracy
             </div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`px-3 py-1 rounded-full text-xs font-medium ${
                 variant === 'cyber'
@@ -272,6 +291,7 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
         </div>
       </div>
       {/* Messages */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className='flex-1 overflow-y-auto p-6 space-y-4'
         aria-live='polite'
@@ -279,8 +299,10 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
         role='list'
         aria-label='Chat message history'
       >
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <AnimatePresence>
           {messages.map((message, index) => (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               key={message.id}
               initial={{ opacity: 0, y: 20 }}
@@ -288,6 +310,7 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <Message
                 message={message}
                 variant={variant}
@@ -298,6 +321,7 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
         </AnimatePresence>
         {/* Loading Indicator */}
         {isLoading && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -305,6 +329,7 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
             aria-live='assertive'
             aria-busy='true'
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`max-w-md rounded-lg p-4 flex items-center space-x-3 ${
                 variant === 'cyber'
@@ -314,7 +339,9 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
               role='status'
               aria-label='Loading AI response'
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span className='sr-only'>Loading AI response...</span>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <svg
                 className={`animate-spin h-6 w-6 ${
                   variant === 'cyber' ? 'text-cyan-400' : 'text-blue-600'
@@ -324,6 +351,7 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
                 viewBox='0 0 24 24'
                 aria-hidden='true'
               >
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <circle
                   className='opacity-25'
                   cx='12'
@@ -332,8 +360,10 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
                   stroke='currentColor'
                   strokeWidth='4'
                 ></circle>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <path className='opacity-75' fill='currentColor' d='M4 12a8 8 0 018-8v8z'></path>
               </svg>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span
                 className={`text-sm ${variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600'}`}
               >
@@ -344,18 +374,23 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
         )}
         {/* Error Message */}
         {error && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='mt-2 text-red-500 text-sm' role='alert' aria-live='assertive'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <strong>Error:</strong> {error}
           </div>
         )}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div ref={messagesEndRef} />
       </div>
       {/* Input */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className={`p-6 border-t ${
           variant === 'cyber' ? 'border-cyan-400/30' : 'border-gray-200 dark:border-gray-700'
         }`}
       >
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <form
           className='flex space-x-4'
           onSubmit={e => {
@@ -364,6 +399,7 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
           }}
           aria-label='Send message form'
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <input
             id='propollama-input'
             type='text'
@@ -385,9 +421,11 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
             aria-invalid={!!error}
             aria-describedby='propollama-input-desc'
           />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span id='propollama-input-desc' className='sr-only'>
             Enter your message and press Send or Enter to chat with PropOllama AI.
           </span>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <button
             type='submit'
             disabled={!input.trim() || isLoading}

@@ -73,8 +73,10 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <AnimatePresence>
       {isOpen && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.div
           className='fixed inset-0 z-50 flex items-center justify-center p-4'
           initial={{ opacity: 0 }}
@@ -83,6 +85,7 @@ export const Modal: React.FC<ModalProps> = ({
           onClick={handleOverlayClick}
         >
           {/* Backdrop */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             className='absolute inset-0 bg-black/50 backdrop-blur-sm'
             initial={{ opacity: 0 }}
@@ -91,6 +94,7 @@ export const Modal: React.FC<ModalProps> = ({
           />
 
           {/* Modal */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             ref={modalRef}
             className={`relative bg-gray-900 rounded-lg shadow-xl border border-gray-700 ${sizeClasses[size]} w-full ${className}`}
@@ -105,18 +109,22 @@ export const Modal: React.FC<ModalProps> = ({
           >
             {/* Header */}
             {(title || showCloseButton) && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center justify-between p-6 border-b border-gray-700'>
                 {title && (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h2 id='modal-title' className='text-xl font-semibold text-white'>
                     {title}
                   </h2>
                 )}
                 {showCloseButton && (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <button
                     onClick={onClose}
                     className='text-gray-400 hover:text-white transition-colors p-1 rounded-md hover:bg-gray-800'
                     aria-label='Close modal'
                   >
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <X className='w-5 h-5' />
                   </button>
                 )}
@@ -124,6 +132,7 @@ export const Modal: React.FC<ModalProps> = ({
             )}
 
             {/* Content */}
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='p-6'>{children}</div>
           </motion.div>
         </motion.div>

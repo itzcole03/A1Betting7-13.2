@@ -77,6 +77,7 @@ const PrizePicksPro: React.FC = () => {
     const picks = Array.from(selectedProps.values()).map(pick => {
       const prop = allProps.find(p => p.id === pick.propId)!;
       return {
+        // @ts-expect-error TS(2551): Property 'playerId' does not exist on type 'PrizeP... Remove this comment to see the full error message
         player: prop.player?.name || prop.playerId,
         stat: prop.statType,
         line: prop.line,
@@ -87,6 +88,7 @@ const PrizePicksPro: React.FC = () => {
     const lineup: SavedLineup = {
       id: `lineup_${Date.now()}`,
       name: lineupName,
+      // @ts-expect-error TS(2322): Type '{ player: any; stat: string | undefined; lin... Remove this comment to see the full error message
       picks,
       entryAmount,
       projectedPayout: calculatePayout(),
@@ -98,15 +100,22 @@ const PrizePicksPro: React.FC = () => {
     setTimeout(() => setShowSuccess(false), 2000);
   };
 
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   if (loading) return <div className='ppro-loading'>Loading PrizePicks props...</div>;
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   if (error) return <div className='ppro-error'>Error: {error}</div>;
   if (!allProps || allProps.length === 0)
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     return <div className='ppro-empty'>No PrizePicks props available.</div>;
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='ppro-container'>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <h2>PrizePicks Props</h2>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='ppro-controls'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <input
           type='number'
           min={5}
@@ -115,12 +124,15 @@ const PrizePicksPro: React.FC = () => {
           onChange={e => setEntryAmount(Number(e.target.value))}
           placeholder='Entry Amount ($)'
         />
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <button onClick={() => setShowSaveModal(true)} disabled={selectedProps.size < 2}>
           Save Lineup
         </button>
         {validationErrors.length > 0 && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='ppro-validation-errors'>
             {validationErrors.map((err, i) => (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div key={i} className='ppro-error-message'>
                 {err}
               </div>
@@ -128,54 +140,83 @@ const PrizePicksPro: React.FC = () => {
           </div>
         )}
       </div>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <table className='ppro-table'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <thead>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <tr>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <th>Player</th>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <th>Stat Type</th>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <th>Line</th>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <th>Description</th>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <th>Start Time</th>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <th>Pick</th>
           </tr>
         </thead>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <tbody>
           {allProps.map((prop: PrizePicksProjection) => (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <tr key={prop.id}>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <td>{prop.player?.name || prop.playerId}</td>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <td>{prop.statType}</td>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <td>{prop.line}</td>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <td>{prop.description || '-'}</td>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <td>{prop.startTime ? new Date(prop.startTime).toLocaleString() : '-'}</td>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <td>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button onClick={() => selectProp(prop.id, 'over')}>Over</button>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button onClick={() => selectProp(prop.id, 'under')}>Under</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='ppro-summary'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div>
           Selected: {selectedProps.size} | {getPickRequirements()}
         </div>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div>Potential Payout: ${calculatePayout().toFixed(2)}</div>
       </div>
       {showSaveModal && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='ppro-modal'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='ppro-modal-content'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h3>Save Lineup</h3>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               type='text'
               value={lineupName}
               onChange={e => setLineupName(e.target.value)}
               placeholder='Lineup Name'
             />
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <button onClick={saveLineup}>Save</button>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <button onClick={() => setShowSaveModal(false)}>Cancel</button>
           </div>
         </div>
       )}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       {showSuccess && <div className='ppro-success'>Lineup saved!</div>}
     </div>
   );

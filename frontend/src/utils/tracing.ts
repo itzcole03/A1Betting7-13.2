@@ -1,12 +1,13 @@
 // OpenTelemetry tracing setup for React + SigNoz (2025 best practice)
 // Tracing is disabled unless VITE_OTEL_ENABLED is set to 'true'.
 
+//
 const otelEnabled = import.meta.env.VITE_OTEL_ENABLED === 'true';
 
 let provider: any = null;
 if (otelEnabled) {
   // Only import and initialize tracing if enabled
-  // @ts-ignore
+
   import('@opentelemetry/exporter-trace-otlp-http').then(({ OTLPTraceExporter }) => {
     import('@opentelemetry/instrumentation').then(({ registerInstrumentations }) => {
       import('@opentelemetry/instrumentation-fetch').then(({ FetchInstrumentation }) => {

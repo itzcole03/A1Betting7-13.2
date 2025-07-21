@@ -59,6 +59,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? 'span' : 'button';
 
     return (
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <motion.button
         ref={ref}
         className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${
@@ -70,6 +71,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {isLoading && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             className='w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2'
             animate={{ rotate: 360 }}

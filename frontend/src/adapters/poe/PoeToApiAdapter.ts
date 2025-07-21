@@ -1,4 +1,4 @@
-﻿/**
+/**
  * PoeToApiAdapter;
  * Adapter for integrating Poe API with the UltimateSportsBettingApp data pipeline.
  *

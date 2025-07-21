@@ -1,4 +1,5 @@
-﻿import { PerformanceMetrics, RiskProfile } from '@/types/core';
+// @ts-expect-error TS(2307): Cannot find module '@/types/core' or its correspon... Remove this comment to see the full error message
+import { PerformanceMetrics, RiskProfile } from '@/types/core';
 // TrendDelta type for analytics trend API
 export interface TrendDelta {
   trend: number;

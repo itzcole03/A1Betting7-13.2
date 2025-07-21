@@ -137,12 +137,14 @@ class BettingService {
       if (filters.league) opportunities = opportunities.filter(o => o.league === filters.league);
       if (filters.market) opportunities = opportunities.filter(o => o.market === filters.market);
       if (filters.minConfidence)
+        // @ts-expect-error TS(2532): Object is possibly 'undefined'.
         opportunities = opportunities.filter(o => o.confidence >= filters.minConfidence);
       if (filters.maxRisk) {
         const riskLevels = { low: 1, medium: 2, high: 3 };
         const maxLevel = riskLevels[filters.maxRisk as keyof typeof riskLevels];
         opportunities = opportunities.filter(o => riskLevels[o.risk] <= maxLevel);
       }
+      // @ts-expect-error TS(2532): Object is possibly 'undefined'.
       if (filters.minValue) opportunities = opportunities.filter(o => o.value >= filters.minValue);
     }
 
@@ -208,6 +210,7 @@ class BettingService {
         riskProfile: this.riskProfile,
       });
 
+      // @ts-expect-error TS(2322): Type 'unknown' is not assignable to type '{ select... Remove this comment to see the full error message
       return response.data;
     } catch (error) {
       console.error('Failed to optimize portfolio:', error);

@@ -1,4 +1,4 @@
-﻿// Minimal EventTypes for EventBus;
+// Minimal EventTypes for EventBus;
 export interface EventTypes {
   [event: string]: any;
 }

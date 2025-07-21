@@ -1,6 +1,10 @@
+// @ts-expect-error TS(2691): An import path cannot end with a '.ts' extension. ... Remove this comment to see the full error message
 import { AnalysisPlugin } from './AnalysisFramework.ts';
+// @ts-expect-error TS(2691): An import path cannot end with a '.ts' extension. ... Remove this comment to see the full error message
 import { PipelineStage } from './DataPipeline.ts';
+// @ts-expect-error TS(2691): An import path cannot end with a '.ts' extension. ... Remove this comment to see the full error message
 import { FeatureComponent } from './FeatureComposition.ts';
+// @ts-expect-error TS(2691): An import path cannot end with a '.ts' extension. ... Remove this comment to see the full error message
 import { StrategyComponent, StrategyResult } from './StrategyComposition.ts';
 
 export interface PredictionData {
@@ -174,7 +178,8 @@ export class PredictionEngine {
   }
   async predict(input: any, modelNames: string[] = ['model1', 'model2']): Promise<PredictionData> {
     // Use IPC to request ensemble prediction from main process
-    const { ipcRenderer } = window.require ? window.require('electron') : require('electron');
+    // @ts-ignore
+    import { ipcRenderer } from 'electron';
     const response = await ipcRenderer.invoke('predict-ensemble', input, modelNames);
     if (response.success && response.result) {
       // Map aggregated result to PredictionData

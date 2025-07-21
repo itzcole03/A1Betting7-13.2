@@ -102,6 +102,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div
       ref={triggerRef}
       className='relative inline-block'
@@ -112,8 +113,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
     >
       {children}
 
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <AnimatePresence>
         {isVisible && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             className={`absolute z-50 px-3 py-2 text-sm text-white bg-gray-800 rounded-md shadow-lg whitespace-nowrap ${getPositionClasses()} ${className}`}
             initial={{ opacity: 0, scale: 0.95 }}
@@ -126,6 +129,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             {content}
 
             {/* Arrow */}
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`absolute w-0 h-0 border-4 ${getArrowClasses()}`}
               style={{ borderWidth: '4px' }}

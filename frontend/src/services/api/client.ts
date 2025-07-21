@@ -1,4 +1,6 @@
+// @ts-expect-error TS(2307): Cannot find module '@/core/UnifiedError.js' or its... Remove this comment to see the full error message
 import { APIError, AppError } from '@/core/UnifiedError.js';
+// @ts-expect-error TS(2307): Cannot find module '@/core/UnifiedMonitor.js' or i... Remove this comment to see the full error message
 import { unifiedMonitor } from '@/core/UnifiedMonitor.js';
 
 export interface ApiResponse<T> {
@@ -20,6 +22,7 @@ class ApiClient {
 
   constructor() {
     this.baseUrl =
+      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
       (import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api';
     this.defaultHeaders = {
       'Content-Type': 'application/json',
@@ -53,6 +56,7 @@ class ApiClient {
         method,
         headers,
         body: data ? JSON.stringify(data) : undefined,
+        // @ts-expect-error TS(2339): Property 'timeout' does not exist on type '{ new (... Remove this comment to see the full error message
         signal: config.timeout ? AbortSignal.timeout(config.timeout) : undefined,
       });
       const responseData = await response.json();

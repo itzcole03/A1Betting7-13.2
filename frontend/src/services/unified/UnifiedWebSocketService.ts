@@ -1,3 +1,4 @@
+import { ErrorHandler } from '../../unified/ErrorHandler';
 import { BaseService } from './BaseService';
 
 export enum WebSocketConnectionState {
@@ -6,8 +7,12 @@ export enum WebSocketConnectionState {
   CONNECTED = 'connected',
   RECONNECTING = 'reconnecting',
   ERROR = 'error',
-}
+import { ErrorHandler } from '../../unified/ErrorHandler';
+import { BaseService } from './BaseService';
 
+/**
+ * Enum for WebSocket connection states.
+ */
 interface WebSocketMessage {
   type: string;
   data: any;
@@ -15,17 +20,30 @@ interface WebSocketMessage {
   id?: string;
 }
 
+
+/**
+ * Interface for WebSocket messages.
+ */
 interface SubscriptionHandler {
   id: string;
   type: string;
   callback: (data: any) => void;
 }
 
+
+/**
+ * Interface for subscription handlers.
+ */
 export class UnifiedWebSocketService extends BaseService {
   private static instance: UnifiedWebSocketService;
   private ws: WebSocket | null = null;
   private connectionState: WebSocketConnectionState = WebSocketConnectionState.DISCONNECTED;
   private subscriptions: Map<string, SubscriptionHandler> = new Map();
+
+/**
+ * Singleton WebSocket service for unified real-time communication.
+ * Handles connection, reconnection, subscriptions, and message queueing.
+ */
   private messageQueue: WebSocketMessage[] = [];
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
@@ -107,7 +125,6 @@ export class UnifiedWebSocketService extends BaseService {
 
           // Use enhanced error handling for WebSocket errors
           try {
-            const { ErrorHandler } = require('../../unified/ErrorHandler');
             const errorHandler = ErrorHandler.getInstance();
             errorHandler.handleWebSocketError(
               new Error('WebSocket connection failed'),
@@ -139,7 +156,6 @@ export class UnifiedWebSocketService extends BaseService {
 
             // Use enhanced error handling for timeout
             try {
-              const { ErrorHandler } = require('../../unified/ErrorHandler');
               const errorHandler = ErrorHandler.getInstance();
               errorHandler.handleWebSocketError(
                 new Error('WebSocket connection timeout'),

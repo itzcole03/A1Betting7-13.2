@@ -1,4 +1,3 @@
-import { builder } from '@builder.io/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { Suspense } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
@@ -12,7 +11,6 @@ import './App.css';
 import './index.css';
 
 // Initialize Builder.io
-builder.init('YOUR_BUILDER_API_KEY'); // Replace with your actual API key
 
 // Optimized query client for high-performance data management
 const queryClient = new QueryClient({
@@ -63,17 +61,20 @@ const App: React.FC = () => {
                     <p className='text-xl text-gray-400 mb-4'>Enterprise Sports Intelligence</p>
                     <div className='flex items-center justify-center space-x-4 text-sm text-gray-500'>
                       <span>• 73.8% Win Rate</span>
+                      provided... Remove this comment to see the full error message
                       <span>• 47+ ML Models</span>
+                      provided... Remove this comment to see the full error message
                       <span>• Builder.io Enhanced</span>
                     </div>
                   </div>
                 </div>
               }
             >
+              Remove this comment to see the full error message
               <Routes>
                 {/* Builder.io content route */}
+                Remove this comment to see the full error message
                 <Route path='/builder/*' element={<BuilderIntegration />} />
-
                 {/* Default A1Betting platform */}
                 <Route path='/*' element={<BuilderIntegration />} />
               </Routes>

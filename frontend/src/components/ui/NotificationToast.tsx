@@ -102,12 +102,14 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ toast, onD
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.div
       className={`
         relative max-w-sm w-full backdrop-blur-lg border rounded-xl p-4
         bg-gradient-to-br ${config.bg} ${config.border} ${config.glow}
         shadow-lg
       `}
+      // @ts-expect-error TS(2322): Type '{ hidden: { opacity: number; y: number; scal... Remove this comment to see the full error message
       variants={toastVariants}
       initial='hidden'
       animate='visible'
@@ -115,7 +117,9 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ toast, onD
       layout
     >
       {/* Cyber grid overlay */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='absolute inset-0 rounded-xl opacity-5'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className='w-full h-full rounded-xl'
           style={{
@@ -128,26 +132,34 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ toast, onD
         />
       </div>
 
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='relative flex items-start space-x-3'>
         {/* Icon */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className={`
           flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center
           bg-gradient-to-r ${config.gradient}
         `}
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <IconComponent className='w-4 h-4 text-white' />
         </div>
 
         {/* Content */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex-1 min-w-0'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <h4 className='text-sm font-semibold text-white mb-1'>{title}</h4>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {message && <p className='text-sm text-gray-300 mb-3'>{message}</p>}
 
           {/* Actions */}
           {actions.length > 0 && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex space-x-2'>
               {actions.map((action, index) => (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button
                   key={index}
                   onClick={action.action}
@@ -168,16 +180,19 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ toast, onD
         </div>
 
         {/* Close button */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <button
           onClick={() => onDismiss(id)}
           className='flex-shrink-0 text-gray-400 hover:text-white transition-colors'
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <X className='w-4 h-4' />
         </button>
       </div>
 
       {/* Progress bar */}
       {duration > 0 && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.div
           className='absolute bottom-0 left-0 h-1 bg-gradient-to-r from-white/30 to-white/60 rounded-b-xl'
           initial={{ width: '100%' }}
@@ -187,7 +202,9 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ toast, onD
       )}
 
       {/* Animated border */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='absolute inset-0 rounded-xl overflow-hidden pointer-events-none'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full animate-[shimmer_2s_infinite]' />
       </div>
     </motion.div>
@@ -213,9 +230,12 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className={`fixed ${positionClasses[position]} z-50 space-y-3`}>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <AnimatePresence>
         {toasts.map(toast => (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <NotificationToast key={toast.id} toast={toast} onDismiss={onDismiss} />
         ))}
       </AnimatePresence>

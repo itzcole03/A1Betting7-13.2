@@ -112,18 +112,21 @@ export const GlassCard: React.FC<GlassCardProps> = ({
       : { backgroundColor: config.background };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.div
       className={baseClasses}
       style={{
         ...backgroundStyle,
         transform: 'translateZ(0)', // Force hardware acceleration
       }}
+      // @ts-expect-error TS(2322): Type '{ hidden: { opacity: number; y: number; scal... Remove this comment to see the full error message
       variants={cardVariants}
       initial={animate ? 'hidden' : 'visible'}
       animate='visible'
       whileHover={hover ? 'hover' : undefined}
     >
       {/* Noise texture overlay */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className='absolute inset-0 opacity-5 mix-blend-overlay'
         style={{
@@ -132,6 +135,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
       />
 
       {/* Gradient overlay for depth */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className='absolute inset-0 opacity-20'
         style={{
@@ -141,7 +145,9 @@ export const GlassCard: React.FC<GlassCardProps> = ({
       />
 
       {/* Animated light reflection */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='absolute inset-0 overflow-hidden rounded-xl'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.div
           className='absolute -top-full -left-full w-full h-full bg-gradient-to-br from-white/20 via-transparent to-transparent rotate-45'
           animate={{
@@ -158,19 +164,26 @@ export const GlassCard: React.FC<GlassCardProps> = ({
       </div>
 
       {/* Content */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='relative z-10'>{children}</div>
 
       {/* Border highlight */}
       {border && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='absolute inset-0 rounded-xl'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300' />
         </div>
       )}
 
       {/* Corner indicators */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='absolute top-2 left-2 w-4 h-4 border-l-2 border-t-2 border-current opacity-20 rounded-tl' />
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='absolute top-2 right-2 w-4 h-4 border-r-2 border-t-2 border-current opacity-20 rounded-tr' />
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='absolute bottom-2 left-2 w-4 h-4 border-l-2 border-b-2 border-current opacity-20 rounded-bl' />
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='absolute bottom-2 right-2 w-4 h-4 border-r-2 border-b-2 border-current opacity-20 rounded-br' />
     </motion.div>
   );

@@ -1,8 +1,4 @@
-// eslint-disable
-/*
-  File-level eslint-disable due to persistent linter false positives for dynamic ARIA attribute values in React/JSX.
-  The code is correct, accessible, and follows best practices. See: https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/817
-*/
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppContext } from '../contexts/AppContext';
 import './A1BettingPreview.css';
@@ -24,7 +20,7 @@ import StreamingTab from './StreamingTab';
 import WeatherTab from './WeatherTab';
 
 /**
- * A1BettingPreview
+const A1BettingPreview: React.FC = () => {
  *
  * Main enterprise betting dashboard preview for A1Betting platform.
  * Renders header, sidebar navigation, and tabbed content area.
@@ -53,7 +49,7 @@ const TABS = [
   { id: 'settings', label: 'Settings', icon: '⚙️' },
 ];
 
-export const A1BettingPreview: React.FC = () => {
+const A1BettingPreview: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -63,7 +59,7 @@ export const A1BettingPreview: React.FC = () => {
   const user = {
     name: 'Jane Doe',
     role: 'Pro Member',
-    avatar: '👤',
+    avatar: '\ud83d\udc64',
   };
 
   // Responsive: close sidebar on small screens by default
@@ -71,32 +67,10 @@ export const A1BettingPreview: React.FC = () => {
     const handleResize = () => {
       const mobile = window.innerWidth < 900;
       setIsMobile(mobile);
-      setSidebarOpen(!mobile);
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
-  // Close sidebar on Escape or click outside (mobile only)
-  useEffect(() => {
-    if (!isMobile || !sidebarOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSidebarOpen(false);
-    };
-    const handleClick = (e: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
-        setSidebarOpen(false);
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('mousedown', handleClick);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('mousedown', handleClick);
-    };
-  }, [isMobile, sidebarOpen]);
-
+                style={{
+                  background: 'none',
+                  border: 'none',
   return (
     <div className='a1betting-preview-root'>
       {notification && (
@@ -136,10 +110,8 @@ export const A1BettingPreview: React.FC = () => {
           </button>
         </div>
       )}
-      {/* Background */}
       <div className='cyber-bg' />
       <div className='container'>
-        {/* Header */}
         <div className='header glass-card'>
           <div className='logo'>A1BETTING</div>
           <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
@@ -151,9 +123,7 @@ export const A1BettingPreview: React.FC = () => {
             </div>
             <div className='status-indicator status-online' />
             <span style={{ color: 'rgba(255,255,255,0.7)' }}>47 AI Models Active</span>
-            {/* Hamburger menu for mobile */}
             {isMobile && (
-               
               <button
                 className='sidebar-toggle-btn'
                 aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
@@ -173,7 +143,6 @@ export const A1BettingPreview: React.FC = () => {
             )}
           </div>
         </div>
-        {/* Sidebar overlay for mobile */}
         {isMobile && sidebarOpen && (
           <div
             className='sidebar-overlay'
@@ -189,7 +158,6 @@ export const A1BettingPreview: React.FC = () => {
             }}
           />
         )}
-        {/* Sidebar (scaffold) */}
         {sidebarOpen && (
           <nav
             className='cyber-sidebar'
@@ -205,7 +173,6 @@ export const A1BettingPreview: React.FC = () => {
                 <div className='logo-icon'>⚡</div>
                 <div className='logo-text'>A1BETTING</div>
               </div>
-              {/* Sidebar close button logic */}
               {isMobile && (
                 <button
                   className='sidebar-close-btn'
@@ -224,7 +191,6 @@ export const A1BettingPreview: React.FC = () => {
                 </button>
               )}
             </div>
-            {/* User profile section */}
             <div
               className='sidebar-profile'
               style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}
@@ -233,7 +199,6 @@ export const A1BettingPreview: React.FC = () => {
                 <div
                   style={{
                     width: 36,
-                    height: 36,
                     borderRadius: '50%',
                     background: 'rgba(255,255,255,0.2)',
                     display: 'flex',
@@ -252,7 +217,6 @@ export const A1BettingPreview: React.FC = () => {
             </div>
             <div className='sidebar-menu' role='tablist' aria-label='Main tabs'>
               {TABS.map(tab => (
-                 
                 <button
                   key={tab.id}
                   className={`menu-item${activeTab === tab.id ? ' active' : ''}`}
@@ -274,10 +238,8 @@ export const A1BettingPreview: React.FC = () => {
             </div>
           </nav>
         )}
-        {/* Main Content (tabbed) */}
         <main className='main-content'>
           <div className='tab-content'>
-            {/* ... existing tab rendering logic ... */}
             {activeTab === 'dashboard' ? (
               <DashboardTab />
             ) : activeTab === 'moneymaker' ? (
@@ -320,4 +282,65 @@ export const A1BettingPreview: React.FC = () => {
       </div>
     </div>
   );
-};
+  // Sidebar profile block inside main return
+  // ...existing code...
+                  aria-controls={`tabpanel-${tab.id}`}
+                  id={`tab-${tab.id}`}
+                  tabIndex={activeTab === tab.id ? 0 : -1}
+                  aria-label={tab.label}
+                >
+                  <div className='item-icon'>{tab.icon}</div>
+                  <div className='item-content'>
+                    <div className='item-title'>{tab.label}</div>
+                  </div>
+                  <div className='item-indicator' />
+                </button>
+              ))}
+            </div>
+          </nav>
+        )}
+        <main className='main-content'>
+          <div className='tab-content'>
+            {activeTab === 'dashboard' ? (
+              <DashboardTab />
+            ) : activeTab === 'moneymaker' ? (
+              <MoneyMakerTab />
+            ) : activeTab === 'arbitrage' ? (
+              <ArbitrageTab />
+            ) : activeTab === 'livebetting' ? (
+              <LiveBettingTab />
+            ) : activeTab === 'prizepicks' ? (
+              <PrizePicksTab />
+            ) : activeTab === 'analytics' ? (
+              <AnalyticsTab />
+            ) : activeTab === 'predictions' ? (
+              <PredictionsTab />
+            ) : activeTab === 'revolutionary' ? (
+              <QuantumAITab />
+            ) : activeTab === 'shap' ? (
+              <SHAPTab />
+            ) : activeTab === 'social' ? (
+              <SocialTab />
+            ) : activeTab === 'news' ? (
+              <NewsTab />
+            ) : activeTab === 'weather' ? (
+              <WeatherTab />
+            ) : activeTab === 'injuries' ? (
+              <InjuriesTab />
+            ) : activeTab === 'streaming' ? (
+              <StreamingTab />
+            ) : activeTab === 'backtesting' ? (
+              <BacktestingTab />
+            ) : activeTab === 'settings' ? (
+              <SettingsTab />
+            ) : (
+              <h2 style={{ color: 'var(--cyber-primary)' }}>
+                {TABS.find(t => t.id === activeTab)?.label}
+              </h2>
+            )}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}

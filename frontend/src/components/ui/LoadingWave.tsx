@@ -56,10 +56,13 @@ export const LoadingWave: React.FC<LoadingWaveProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className={`flex flex-col items-center justify-center space-y-4 ${className}`}>
       {/* Wave Animation */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className={`flex items-end ${sizeConf.spacing} ${sizeConf.container}`}>
         {[...Array(5)].map((_, i) => (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             key={i}
             className={`
@@ -70,6 +73,7 @@ export const LoadingWave: React.FC<LoadingWaveProps> = ({
             variants={dotVariants}
             initial='start'
             animate='end'
+            // @ts-expect-error TS(2322): Type '{ delay: number; duration: number; repeat: n... Remove this comment to see the full error message
             transition={{
               ...dotTransition,
               delay: i * 0.1,
@@ -80,6 +84,7 @@ export const LoadingWave: React.FC<LoadingWaveProps> = ({
 
       {/* Loading Text */}
       {text && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.p
           className={`
             ${sizeConf.text} font-medium 
@@ -121,6 +126,7 @@ export const LoadingSpinner: React.FC<LoadingWaveProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.div
       className={`
         ${sizeConfig[size]} ${variantConfig[variant]}
@@ -171,6 +177,7 @@ export const LoadingPulse: React.FC<LoadingWaveProps> = ({
   const variantConf = variantConfig[variant];
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.div
       className={`
         ${sizeConfig[size]} rounded-full

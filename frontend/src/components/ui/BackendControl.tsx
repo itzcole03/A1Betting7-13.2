@@ -158,9 +158,12 @@ export const BackendControl: React.FC<BackendControlProps> = ({
 
   const cyberGrid =
     variant === 'cyber' ? (
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='absolute inset-0 opacity-10 pointer-events-none'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='grid grid-cols-12 grid-rows-8 h-full w-full'>
           {Array.from({ length: 96 }).map((_, i) => (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div key={i} className='border border-cyan-400/30' />
           ))}
         </div>
@@ -168,13 +171,18 @@ export const BackendControl: React.FC<BackendControlProps> = ({
     ) : null;
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className={baseClasses}>
       {cyberGrid}
 
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='relative z-10 p-6'>
         {/* Header */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center justify-between mb-6'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h2
               className={`text-2xl font-bold ${
                 variant === 'cyber' ? 'text-cyan-400' : 'text-gray-900 dark:text-white'
@@ -182,6 +190,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
             >
               Backend Control Center
             </h2>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <p
               className={`text-sm ${
                 variant === 'cyber' ? 'text-cyan-300/70' : 'text-gray-600 dark:text-gray-400'
@@ -192,6 +201,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
           </div>
 
           {realTimeUpdates && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
                 variant === 'cyber'
@@ -199,11 +209,13 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                   : 'bg-green-100 dark:bg-green-900/30'
               }`}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`w-2 h-2 rounded-full animate-pulse ${
                   variant === 'cyber' ? 'bg-cyan-400' : 'bg-green-500'
                 }`}
               />
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span
                 className={`text-xs font-medium ${
                   variant === 'cyber' ? 'text-cyan-400' : 'text-green-700 dark:text-green-400'
@@ -216,6 +228,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
         </div>
 
         {/* Navigation Tabs */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <nav className='flex space-x-1 mb-6' role='tablist' aria-label='Backend Control Tabs'>
           {[
             { id: 'services', label: 'Services', show: showServices },
@@ -225,6 +238,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
           ]
             .filter(tab => tab.show)
             .map(tab => (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <button
                 key={tab.id}
                 role='tab'
@@ -248,7 +262,9 @@ export const BackendControl: React.FC<BackendControlProps> = ({
         </nav>
 
         {/* Content */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <AnimatePresence mode='wait'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 20 }}
@@ -258,8 +274,10 @@ export const BackendControl: React.FC<BackendControlProps> = ({
           >
             {/* Services Tab */}
             {activeTab === 'services' && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='space-y-4'>
                 {defaultServices.map(service => (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <motion.div
                     key={service.id}
                     initial={{ opacity: 0, x: -20 }}
@@ -270,13 +288,18 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                         : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                     }`}
                   >
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='flex items-center justify-between'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='flex items-center space-x-3'>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div
                           className='w-3 h-3 rounded-full'
                           style={{ backgroundColor: getStatusColor(service.status) }}
                         />
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <h3
                             className={`font-semibold ${
                               variant === 'cyber'
@@ -286,6 +309,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                           >
                             {service.name}
                           </h3>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <p
                             className={`text-sm ${
                               variant === 'cyber'
@@ -298,7 +322,9 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                         </div>
                       </div>
 
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='flex space-x-2'>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <button
                           onClick={() => handleServiceAction(service.id, 'restart')}
                           disabled={isLoading}
@@ -310,6 +336,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                         >
                           Restart
                         </button>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <button
                           onClick={() => setSelectedService(service.id)}
                           className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
@@ -324,7 +351,9 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                     </div>
 
                     {service.dependencies && (
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='mt-3 pt-3 border-t border-gray-200 dark:border-gray-700'>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <p
                           className={`text-xs ${
                             variant === 'cyber' ? 'text-cyan-400/50' : 'text-gray-500'
@@ -341,6 +370,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
 
             {/* Metrics Tab */}
             {activeTab === 'metrics' && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                 {[
                   {
@@ -395,6 +425,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                     color: defaultMetrics.errorRate > 0.05 ? 'red' : 'green',
                   },
                 ].map((metric, index) => (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <motion.div
                     key={metric.label}
                     initial={{ opacity: 0, scale: 0.95 }}
@@ -406,6 +437,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                         : 'bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
                     }`}
                   >
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h3
                       className={`text-sm font-medium ${
                         variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600 dark:text-gray-400'
@@ -413,6 +445,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                     >
                       {metric.label}
                     </h3>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <p
                       className={`text-2xl font-bold mt-1 ${
                         variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -421,14 +454,17 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                       {typeof metric.value === 'number'
                         ? metric.value.toLocaleString()
                         : metric.value}
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='text-sm'>{metric.unit}</span>
                     </p>
                     {metric.unit === '%' && (
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div
                         className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-2 ${
                           variant === 'cyber' ? 'bg-gray-800' : ''
                         }`}
                       >
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div
                           className={`h-2 rounded-full transition-all duration-500 ${
                             metric.color === 'red'
@@ -452,6 +488,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
 
             {/* Logs Tab */}
             {activeTab === 'logs' && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`h-96 overflow-y-auto rounded-lg border ${
                   variant === 'cyber'
@@ -459,6 +496,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                     : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                 }`}
               >
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='p-4 font-mono text-sm space-y-1'>
                   {[
                     {
@@ -488,15 +526,18 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                       message: 'Auto-scaling triggered: +2 instances',
                     },
                   ].map((log, index) => (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       key={index}
                       className={`flex space-x-3 ${
                         variant === 'cyber' ? 'text-cyan-300' : 'text-gray-700 dark:text-gray-300'
                       }`}
                     >
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className={variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500'}>
                         {log.time}
                       </span>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span
                         className={`font-semibold ${
                           log.level === 'ERROR'
@@ -510,6 +551,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                       >
                         {log.level}
                       </span>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span>{log.message}</span>
                     </div>
                   ))}
@@ -519,8 +561,11 @@ export const BackendControl: React.FC<BackendControlProps> = ({
 
             {/* Controls Tab */}
             {activeTab === 'controls' && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='space-y-4'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h3
                     className={`text-lg font-semibold ${
                       variant === 'cyber' ? 'text-cyan-400' : 'text-gray-900 dark:text-white'
@@ -537,6 +582,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                     { label: 'Scale Up', action: 'scale-up', danger: false },
                     { label: 'Emergency Shutdown', action: 'emergency-shutdown', danger: true },
                   ].map(control => (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <button
                       key={control.action}
                       onClick={() => handleSystemAction(control.action)}
@@ -556,7 +602,9 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                   ))}
                 </div>
 
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='space-y-4'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h3
                     className={`text-lg font-semibold ${
                       variant === 'cyber' ? 'text-cyan-400' : 'text-gray-900 dark:text-white'
@@ -565,8 +613,11 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                     Configuration
                   </h3>
 
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='space-y-3'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <label
                         htmlFor='max-connections-input'
                         className={`block text-sm font-medium mb-1 ${
@@ -575,6 +626,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                       >
                         Max Connections
                       </label>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <input
                         id='max-connections-input'
                         type='number'
@@ -587,7 +639,9 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                       />
                     </div>
 
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <label
                         htmlFor='cache-ttl-input'
                         className={`block text-sm font-medium mb-1 ${
@@ -596,6 +650,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                       >
                         Cache TTL (seconds)
                       </label>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <input
                         id='cache-ttl-input'
                         type='number'
@@ -608,13 +663,16 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                       />
                     </div>
 
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <input
                         id='enable-autoscaling-checkbox'
                         type='checkbox'
                         defaultChecked
                         className={variant === 'cyber' ? 'accent-cyan-400' : ''}
                       />
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <label
                         htmlFor='enable-autoscaling-checkbox'
                         className={`ml-2 text-sm font-medium ${
@@ -625,13 +683,16 @@ export const BackendControl: React.FC<BackendControlProps> = ({
                       </label>
                     </div>
 
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <input
                         id='debug-mode-checkbox'
                         type='checkbox'
                         defaultChecked
                         className={variant === 'cyber' ? 'accent-cyan-400' : ''}
                       />
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <label
                         htmlFor='debug-mode-checkbox'
                         className={`ml-2 text-sm font-medium ${
@@ -649,14 +710,17 @@ export const BackendControl: React.FC<BackendControlProps> = ({
         </AnimatePresence>
 
         {/* Loading Overlay */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <AnimatePresence>
           {isLoading && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className='absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg'
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`animate-spin rounded-full h-8 w-8 border-2 border-transparent ${
                   variant === 'cyber' ? 'border-t-cyan-400' : 'border-t-blue-500'

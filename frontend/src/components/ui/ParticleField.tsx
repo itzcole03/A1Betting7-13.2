@@ -245,6 +245,7 @@ export const ParticleField: React.FC<ParticleFieldProps> = ({
   }, [variant, density, speed, interactive]);
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <canvas
       ref={canvasRef}
       className={`absolute inset-0 pointer-events-none ${className}`}

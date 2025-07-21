@@ -86,7 +86,7 @@ export class PrizePicksAdapter {
     const includedLeaguesMap = new Map<string, PrizePicksLeague>();
 
     if (apiResponse.included) {
-      apiResponse.included.forEach(item => {
+      apiResponse.included.forEach((item: any) => {
         if (item.type === 'new_player') {
           const rawPlayer = item as RawPrizePicksIncludedPlayer;
           includedPlayersMap.set(rawPlayer.id, {
@@ -107,7 +107,7 @@ export class PrizePicksAdapter {
       });
     }
 
-    const projections: PrizePicksProjection[] = apiResponse.data.map(rawProj => {
+    const projections: PrizePicksProjection[] = apiResponse.data.map((rawProj: any) => {
       const playerId = rawProj.relationships?.new_player?.data?.id || '';
       const playerDetail = includedPlayersMap.get(playerId);
 

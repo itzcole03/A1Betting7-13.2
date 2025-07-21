@@ -32,6 +32,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
       : '';
 
     return (
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <motion.div
         ref={ref}
         className={`${baseClasses} ${variantClasses[variant]} ${hoverClasses} ${className || ''}`}
@@ -49,18 +50,21 @@ Card.displayName = 'Card';
 // Card Subcomponents for better structure
 const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div ref={ref} className={`p-6 border-b border-gray-700 ${className}`} {...props} />
   )
 );
 CardHeader.displayName = 'CardHeader';
 
 const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   ({ className, ...props }, ref) => <div ref={ref} className={`p-6 ${className}`} {...props} />
 );
 CardContent.displayName = 'CardContent';
 
 const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div ref={ref} className={`p-6 border-t border-gray-700 ${className}`} {...props} />
   )
 );

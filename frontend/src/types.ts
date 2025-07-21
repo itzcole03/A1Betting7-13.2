@@ -1,4 +1,4 @@
-﻿// Type definitions for feature engineering analytics;
+// Type definitions for feature engineering analytics;
 export type FeatureConfig = object;
 
 export type EngineeredFeatures = object;

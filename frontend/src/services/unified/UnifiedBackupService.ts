@@ -146,6 +146,7 @@ export class UnifiedBackupService {
 
       await execAsync(
         `pg_dump -h ${host} -p ${port} -U ${username} -d ${database} -F c -f ${dumpFile}`,
+        // @ts-expect-error TS(2769): No overload matches this call.
         { env }
       );
     }
@@ -154,6 +155,7 @@ export class UnifiedBackupService {
     if (dbConfig.redis) {
       const { host, port, password } = dbConfig.redis;
 
+      // @ts-expect-error TS(2769): No overload matches this call.
       await execAsync(`redis-cli -h ${host} -p ${port} SAVE`, { env });
       await fs.copyFile('/var/lib/redis/dump.rdb', dumpFile);
     }

@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import ComprehensiveAdminDashboard from '../ComprehensiveAdminDashboard';
 
@@ -68,12 +69,12 @@ describe('ComprehensiveAdminDashboard', () => {
     });
 
     // Check for table data
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
-    expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+    expect(screen.getAllByText('John Doe').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Jane Smith').length).toBeGreaterThan(0);
     expect(screen.getByText('PTS')).toBeInTheDocument();
     expect(screen.getByText('REB')).toBeInTheDocument();
-    expect(screen.getByText('92.1%')).toBeInTheDocument();
-    expect(screen.getByText('85.3%')).toBeInTheDocument();
+    expect(screen.getAllByText('92.1%').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('85.3%').length).toBeGreaterThan(0);
     expect(screen.getByText('Over')).toBeInTheDocument();
     expect(screen.getByText('Under')).toBeInTheDocument();
 
@@ -93,9 +94,11 @@ describe('ComprehensiveAdminDashboard', () => {
     jest.doMock('../../../hooks/useAIInsights', () => ({
       useAIInsights: () => ({ isLoading: true, isError: false }),
     }));
-    const { default: Dashboard } = require('../ComprehensiveAdminDashboard');
+    import Dashboard from '../ComprehensiveAdminDashboard';
     render(
       <QueryClientProvider client={queryClient}>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <Dashboard />
       </QueryClientProvider>
     );

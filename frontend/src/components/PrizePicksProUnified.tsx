@@ -476,13 +476,19 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   `;
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className={baseClasses}>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='p-8'>
         {/* Sophisticated AI Header */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='mb-8'>
           {/* Main Title with AI Accuracy Badge */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center justify-between mb-4'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex items-center space-x-4'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <h1
                 className={`text-3xl font-bold ${
                   variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -491,6 +497,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                 🎯 PrizePicks Pro AI - Highest Odds Winners
               </h1>
               {/* 96.4% Accuracy Badge */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`px-4 py-2 rounded-full text-sm font-bold ${
                   variant === 'cyber'
@@ -503,8 +510,10 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
             </div>
 
             {/* System Status Indicators */}
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex space-x-2'>
               {/* Manual Refresh Button */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <button
                 onClick={handleManualRefresh}
                 disabled={isManualRefreshing || isLoading}
@@ -515,13 +524,16 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                 } ${isManualRefreshing ? 'animate-pulse' : ''}`}
               >
                 {isManualRefreshing ? (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span className='flex items-center'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <svg
                       className='animate-spin -ml-1 mr-2 h-4 w-4'
                       xmlns='http://www.w3.org/2000/svg'
                       fill='none'
                       viewBox='0 0 24 24'
                     >
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <circle
                         className='opacity-25'
                         cx='12'
@@ -530,6 +542,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                         stroke='currentColor'
                         strokeWidth='4'
                       ></circle>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <path
                         className='opacity-75'
                         fill='currentColor'
@@ -539,10 +552,12 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                     Refreshing...
                   </span>
                 ) : (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span className='flex items-center'>🔄 Refresh Now</span>
                 )}
               </button>
 
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`px-3 py-1 rounded-full text-xs font-medium ${
                   variant === 'cyber'
@@ -552,6 +567,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
               >
                 🧠 Neural Networks
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`px-3 py-1 rounded-full text-xs font-medium ${
                   variant === 'cyber'
@@ -561,6 +577,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
               >
                 🎯 SHAP Analysis
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`px-3 py-1 rounded-full text-xs font-medium ${
                   variant === 'cyber'
@@ -574,7 +591,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
           </div>
 
           {/* Auto-refresh indicator */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='text-center mb-4'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <p className={`text-sm ${variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500'}`}>
               🎯 Highest Odds of Winning Bets • Sorted by AI confidence • Auto-refresh every 5
               minutes • {filteredProjections.length} props available
@@ -582,6 +601,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
           </div>
 
           {/* Sophisticated Feature Showcase */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
             className={`grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-lg ${
               variant === 'cyber'
@@ -589,7 +609,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                 : 'bg-gray-50 border border-gray-200 dark:bg-gray-800 dark:border-gray-700'
             }`}
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='text-center'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`text-2xl font-bold ${
                   variant === 'cyber' ? 'text-green-400' : 'text-green-600'
@@ -597,11 +619,14 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
               >
                 96.4%
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className={`text-xs ${variant === 'cyber' ? 'text-gray-400' : 'text-gray-600'}`}>
                 XGBoost Accuracy
               </div>
             </div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='text-center'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`text-2xl font-bold ${
                   variant === 'cyber' ? 'text-cyan-400' : 'text-blue-600'
@@ -609,11 +634,14 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
               >
                 96.2%
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className={`text-xs ${variant === 'cyber' ? 'text-gray-400' : 'text-gray-600'}`}>
                 Neural Network
               </div>
             </div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='text-center'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`text-2xl font-bold ${
                   variant === 'cyber' ? 'text-purple-400' : 'text-purple-600'
@@ -621,11 +649,14 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
               >
                 500+
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className={`text-xs ${variant === 'cyber' ? 'text-gray-400' : 'text-gray-600'}`}>
                 ML Features
               </div>
             </div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='text-center'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`text-2xl font-bold ${
                   variant === 'cyber' ? 'text-yellow-400' : 'text-yellow-600'
@@ -633,6 +664,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
               >
                 Real-time
               </div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className={`text-xs ${variant === 'cyber' ? 'text-gray-400' : 'text-gray-600'}`}>
                 Analysis
               </div>
@@ -640,7 +672,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
           </div>
 
           {/* Title and Description */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='mt-4'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h2
               className={`text-xl font-semibold mb-2 ${
                 variant === 'cyber' ? 'text-cyan-300' : 'text-gray-800 dark:text-gray-200'
@@ -648,6 +682,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
             >
               {variant === 'cyber' ? 'PRIZEPICKS PRO NEURAL INTERFACE' : 'PrizePicks Pro Analytics'}
             </h2>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <p
               className={`${
                 variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-600 dark:text-gray-400'
@@ -660,6 +695,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
 
         {/* Error Display */}
         {error && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
             className={`mb-6 p-4 rounded-lg border ${
               variant === 'cyber'
@@ -672,6 +708,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
         )}
 
         {/* Cache Health Status Panel */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div
           className={`mb-6 p-4 rounded-lg border ${
             variant === 'cyber'
@@ -679,8 +716,11 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
               : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700'
           }`}
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center justify-between'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex items-center space-x-4'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <h3
                 className={`text-sm font-medium ${
                   variant === 'cyber' ? 'text-cyan-400' : 'text-gray-700 dark:text-gray-300'
@@ -688,7 +728,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
               >
                 Cache Status
               </h3>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center space-x-2'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div
                   className={`w-2 h-2 rounded-full ${
                     cacheHealth.freshnesScore >= 85
@@ -704,6 +746,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                           : 'bg-red-500'
                   }`}
                 ></div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span
                   className={`text-xs ${
                     variant === 'cyber' ? 'text-cyan-300' : 'text-gray-600 dark:text-gray-400'
@@ -713,7 +756,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                 </span>
               </div>
             </div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex items-center space-x-4 text-xs'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span
                 className={`${
                   variant === 'cyber' ? 'text-cyan-300' : 'text-gray-600 dark:text-gray-400'
@@ -722,10 +767,12 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                 Total: {cacheHealth.totalCached}
               </span>
               {cacheHealth.significantChanges > 0 && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span className={`${variant === 'cyber' ? 'text-purple-400' : 'text-purple-600'}`}>
                   {cacheHealth.significantChanges} changes
                 </span>
               )}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span
                 className={`${
                   variant === 'cyber' ? 'text-cyan-300' : 'text-gray-600 dark:text-gray-400'
@@ -733,6 +780,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
               >
                 Updated: {cacheHealth.lastUpdate.toLocaleTimeString()}
               </span>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <button
                 onClick={() => setShowCacheStatus(!showCacheStatus)}
                 className={`text-xs px-2 py-1 rounded transition-colors ${
@@ -747,13 +795,17 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
           </div>
 
           {showCacheStatus && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`mt-3 pt-3 border-t ${
                 variant === 'cyber' ? 'border-cyan-400/20' : 'border-gray-200 dark:border-gray-700'
               }`}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='grid grid-cols-2 md:grid-cols-4 gap-4 text-xs'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`block font-medium ${
                       variant === 'cyber' ? 'text-cyan-400' : 'text-gray-700 dark:text-gray-300'
@@ -761,6 +813,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                   >
                     Stale Predictions
                   </span>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`${
                       variant === 'cyber' ? 'text-cyan-300' : 'text-gray-600 dark:text-gray-400'
@@ -769,7 +822,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                     {cacheHealth.stalePredictions}
                   </span>
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`block font-medium ${
                       variant === 'cyber' ? 'text-cyan-400' : 'text-gray-700 dark:text-gray-300'
@@ -777,6 +832,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                   >
                     Accuracy
                   </span>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`${
                       variant === 'cyber' ? 'text-cyan-300' : 'text-gray-600 dark:text-gray-400'
@@ -785,7 +841,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                     {cacheHealth.freshnesScore.toFixed(1)}%
                   </span>
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`block font-medium ${
                       variant === 'cyber' ? 'text-cyan-400' : 'text-gray-700 dark:text-gray-300'
@@ -793,6 +851,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                   >
                     Hit Rate
                   </span>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`${
                       variant === 'cyber' ? 'text-cyan-300' : 'text-gray-600 dark:text-gray-400'
@@ -801,7 +860,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                     {cacheHealth.freshnesScore.toFixed(1)}%
                   </span>
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`block font-medium ${
                       variant === 'cyber' ? 'text-cyan-400' : 'text-gray-700 dark:text-gray-300'
@@ -809,6 +870,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                   >
                     Storage
                   </span>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`${
                       variant === 'cyber' ? 'text-cyan-300' : 'text-gray-600 dark:text-gray-400'
@@ -820,11 +882,13 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
               </div>
 
               {projections.length > 0 && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div
                   className={`mt-2 p-2 rounded ${
                     variant === 'cyber' ? 'bg-green-500/10' : 'bg-green-50 dark:bg-green-900/20'
                   }`}
                 >
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`text-xs font-medium ${
                       variant === 'cyber' ? 'text-green-400' : 'text-green-700 dark:text-green-400'
@@ -839,7 +903,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
         </div>
 
         {/* Filters */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='grid grid-cols-1 md:grid-cols-4 gap-4 mb-6'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <input
             type='text'
             placeholder='Search players...'
@@ -852,6 +918,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
             }`}
           />
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <select
             value={activeFilters.sport}
             onChange={e => setActiveFilters(prev => ({ ...prev, sport: e.target.value }))}
@@ -861,14 +928,21 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                 : 'bg-white border-gray-300 text-gray-900'
             }`}
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <option value='All'>All Sports</option>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <option value='NBA'>NBA</option>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <option value='MLB'>MLB</option>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <option value='NHL'>NHL</option>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <option value='WNBA'>WNBA</option>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <option value='MLS'>MLS</option>
           </select>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <input
             type='range'
             min='50'
@@ -879,23 +953,32 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
             }
             className='p-3'
           />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span className={`text-sm ${variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600'}`}>
             Min Confidence: {activeFilters.minConfidence}%
           </span>
         </div>
 
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
           {/* Projections Grid */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='lg:col-span-2'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='text-center mb-4'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <p className='text-sm text-gray-600'>
                 Debug: {projections.length} total projections, {filteredProjections.length} filtered
               </p>
             </div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='grid grid-cols-1 xl:grid-cols-2 gap-6 max-h-[800px] overflow-y-auto'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <AnimatePresence>
                 {isLoading ? (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='col-span-full flex items-center justify-center h-64'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={`animate-spin rounded-full h-12 w-12 border-4 border-transparent ${
                         variant === 'cyber' ? 'border-t-cyan-400' : 'border-t-blue-500'
@@ -903,14 +986,21 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                     />
                   </div>
                 ) : error ? (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='col-span-full flex justify-center items-center h-64 bg-red-500/10 rounded-lg'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='text-center'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='text-4xl mb-4'>🚨</div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <h3 className='text-2xl font-bold text-red-400'>Backend Connection Error</h3>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='mt-2 text-red-400/80'>
                         Could not fetch real-time predictions. Please ensure the backend is running.
                       </p>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p className='mt-1 text-xs text-red-400/60'>Details: {error}</p>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <button
                         onClick={() => {
                           fetchProjections();
@@ -928,6 +1018,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                   </div>
                 ) : filteredProjections.length > 0 ? (
                   filteredProjections.map(projection => (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <motion.div
                       key={projection.id}
                       layout
@@ -942,10 +1033,14 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                       }`}
                     >
                       {/* Projection Card Content */}
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='flex flex-col h-full'>
                         {/* Header */}
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div className='flex justify-between items-start mb-3'>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <p
                               className={`text-sm font-bold ${
                                 variant === 'cyber'
@@ -955,6 +1050,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                             >
                               {projection.player_name}
                             </p>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <p
                               className={`text-xs ${
                                 variant === 'cyber'
@@ -965,6 +1061,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                               {projection.team} • {projection.league}
                             </p>
                           </div>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div
                             className={`px-2 py-1 rounded text-xs font-semibold ${
                               variant === 'cyber'
@@ -977,7 +1074,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                         </div>
 
                         {/* Line Score and Odds */}
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div className='flex items-center justify-center my-4'>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <span
                             className={`text-4xl font-bold ${
                               variant === 'cyber'
@@ -990,8 +1089,11 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                         </div>
 
                         {/* Confidence and Value */}
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div className='grid grid-cols-2 gap-3 text-center mb-4'>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <p
                               className={`text-xs ${
                                 variant === 'cyber'
@@ -1001,6 +1103,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                             >
                               Confidence
                             </p>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <p
                               className={`font-bold text-lg ${
                                 projection.confidence >= 80
@@ -1013,7 +1116,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                               {projection.confidence}%
                             </p>
                           </div>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <p
                               className={`text-xs ${
                                 variant === 'cyber'
@@ -1023,6 +1128,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                             >
                               Kelly %
                             </p>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <p
                               className={`font-bold text-lg ${
                                 variant === 'cyber' ? 'text-purple-400' : 'text-purple-600'
@@ -1036,6 +1142,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                         {/* AI Explanation Section - Inline within card */}
                         {aiExplanations[projection.id] &&
                           inlineExplanationVisible[projection.id] && (
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <motion.div
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
@@ -1046,8 +1153,11 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                                   : 'bg-blue-50 border-blue-400 text-gray-700 dark:bg-blue-900/20 dark:text-gray-300'
                               }`}
                             >
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <div className='flex items-center space-x-2 mb-2'>
+                                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <span className='text-sm font-semibold'>🤖 AI Analysis</span>
+                                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <span
                                   className={`text-xs px-2 py-1 rounded ${
                                     variant === 'cyber'
@@ -1060,16 +1170,19 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                                   % Confidence
                                 </span>
                               </div>
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <div className='text-xs leading-relaxed'>
                                 {aiExplanations[projection.id].content ||
                                   aiExplanations[projection.id].explanation ||
                                   'AI analysis completed'}
                               </div>
                               {aiExplanations[projection.id].suggestions && (
+                                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <div className='mt-2 flex flex-wrap gap-1'>
                                   {aiExplanations[projection.id].suggestions
                                     .slice(0, 2)
                                     .map((suggestion: string, idx: number) => (
+                                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                       <span
                                         key={idx}
                                         className={`text-xs px-2 py-1 rounded ${
@@ -1083,6 +1196,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                                     ))}
                                 </div>
                               )}
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <button
                                 onClick={() => {
                                   setSelectedPropForAi(projection);
@@ -1100,7 +1214,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                           )}
 
                         {/* Action Buttons */}
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div className='mt-auto grid grid-cols-2 gap-2'>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <button
                             onClick={() => handleProjectionSelect(projection, 'over')}
                             className={`w-full py-2 rounded-md text-sm font-semibold transition-all hover:scale-105 ${
@@ -1116,6 +1232,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                           >
                             Over
                           </button>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <button
                             onClick={() => handleProjectionSelect(projection, 'under')}
                             className={`w-full py-2 rounded-md text-sm font-semibold transition-all hover:scale-105 ${
@@ -1132,6 +1249,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                             Under
                           </button>
                         </div>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <button
                           onClick={() => fetchAiExplanation(projection)}
                           disabled={loadingAiExplanation && selectedPropForAi?.id === projection.id}
@@ -1142,17 +1260,23 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                           }`}
                         >
                           {loadingAiExplanation && selectedPropForAi?.id === projection.id ? (
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <>
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <div className='w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin'></div>
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <span>Analyzing...</span>
                             </>
                           ) : aiExplanations[projection.id] ? (
                             inlineExplanationVisible[projection.id] ? (
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <span>🤖 Hide AI Analysis</span>
                             ) : (
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <span>🤖 Show AI Analysis</span>
                             )
                           ) : (
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <span>🤖 Get AI Explanation</span>
                           )}
                         </button>
@@ -1160,9 +1284,13 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                     </motion.div>
                   ))
                 ) : (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='col-span-full flex justify-center items-center h-64'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='text-center'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='text-2xl mb-2'>🧐</div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <h3
                         className={`text-xl font-semibold ${
                           variant === 'cyber' ? 'text-cyan-300' : 'text-gray-800 dark:text-white'
@@ -1170,6 +1298,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                       >
                         No Projections Found
                       </h3>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p
                         className={`mt-2 text-sm ${
                           variant === 'cyber'
@@ -1187,7 +1316,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
           </div>
 
           {/* Lineup Builder */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='lg:col-span-1'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`p-6 rounded-xl border sticky top-0 ${
                 variant === 'cyber'
@@ -1195,6 +1326,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                   : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
               }`}
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <h3
                 className={`text-xl font-bold mb-4 ${
                   variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -1203,8 +1335,10 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                 Lineup Builder ({selectedEntries.length}/{maxSelections})
               </h3>
 
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='space-y-3 mb-6 max-h-64 overflow-y-auto'>
                 {selectedEntries.length === 0 ? (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <p
                     className={`text-center py-8 ${
                       variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-600 dark:text-gray-400'
@@ -1214,6 +1348,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                   </p>
                 ) : (
                   selectedEntries.map(entry => (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <motion.div
                       key={entry.id}
                       initial={{ opacity: 0, x: 20 }}
@@ -1224,8 +1359,11 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                           : 'bg-gray-50 dark:bg-gray-700 border-gray-300'
                       }`}
                     >
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='flex items-center justify-between'>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div className='flex-1'>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div
                             className={`font-medium ${
                               variant === 'cyber'
@@ -1235,6 +1373,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                           >
                             {entry.projection.player_name}
                           </div>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div
                             className={`text-xs ${
                               variant === 'cyber'
@@ -1245,6 +1384,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                             {entry.selection.toUpperCase()}{' '}
                             {Number(entry.projection.line_score) || 0} {entry.projection.stat_type}
                           </div>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div
                             className={`text-xs mt-1 ${
                               variant === 'cyber' ? 'text-cyan-300/70' : 'text-gray-500'
@@ -1253,6 +1393,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                             Confidence: {Number(entry.confidence || 0).toFixed(1)}%
                           </div>
                         </div>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <button
                           onClick={() =>
                             setSelectedEntries(prev => prev.filter(e => e.id !== entry.id))
@@ -1272,6 +1413,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
               </div>
 
               {/* Optimize Button */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <button
                 onClick={optimizeLineup}
                 disabled={selectedEntries.length < 2 || isOptimizing}
@@ -1284,8 +1426,11 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                 }`}
               >
                 {isOptimizing ? (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='flex items-center justify-center space-x-3'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='animate-spin rounded-full h-5 w-5 border-2 border-transparent border-t-current' />
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span>Optimizing...</span>
                   </div>
                 ) : variant === 'cyber' ? (
@@ -1297,6 +1442,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
 
               {/* Optimized Lineup Display */}
               {optimizedLineup && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1306,6 +1452,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                       : 'bg-green-100 border-green-500 dark:bg-green-900/30'
                   }`}
                 >
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h4
                     className={`font-bold text-lg mb-4 ${
                       variant === 'cyber' ? 'text-green-400' : 'text-green-800 dark:text-green-400'
@@ -1313,21 +1460,31 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                   >
                     Optimized Lineup
                   </h4>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='space-y-3 text-sm'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='flex justify-between'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span>Total Confidence:</span>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='font-bold'>
                         {optimizedLineup.total_confidence.toFixed(1)}%
                       </span>
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='flex justify-between'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span>Expected Payout:</span>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='font-bold'>
                         {optimizedLineup.expected_payout.toFixed(2)}x
                       </span>
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='flex justify-between'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span>Value Score:</span>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <span className='font-bold'>{optimizedLineup.value_score.toFixed(1)}</span>
                     </div>
                   </div>
@@ -1339,8 +1496,10 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
       </div>
 
       {/* AI Explanation Modal */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <AnimatePresence>
         {showAiModal && selectedPropForAi && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1348,6 +1507,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
             className='fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4'
             onClick={() => setShowAiModal(false)}
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -1360,6 +1520,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
               onClick={e => e.stopPropagation()}
             >
               {/* Modal Header */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`p-6 border-b ${
                   variant === 'cyber'
@@ -1367,8 +1528,11 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                     : 'border-gray-200 dark:border-gray-700'
                 }`}
               >
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center justify-between'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h3
                       className={`text-xl font-bold ${
                         variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -1376,6 +1540,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                     >
                       🤖 AI Analysis
                     </h3>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <p
                       className={`text-sm ${
                         variant === 'cyber'
@@ -1387,6 +1552,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                       {Number(selectedPropForAi.line_score) || 0}
                     </p>
                   </div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <button
                     onClick={() => setShowAiModal(false)}
                     className={`p-2 rounded-lg ${
@@ -1401,10 +1567,13 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
               </div>
 
               {/* Modal Content */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='p-6'>
                 {aiExplanations[selectedPropForAi.id] ? (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='space-y-6'>
                     {/* AI Recommendation */}
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={`p-4 rounded-lg ${
                         variant === 'cyber'
@@ -1412,6 +1581,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                           : 'bg-blue-50 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800'
                       }`}
                     >
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <h4
                         className={`font-bold mb-2 ${
                           variant === 'cyber' ? 'text-cyan-300' : 'text-blue-800 dark:text-blue-400'
@@ -1419,6 +1589,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                       >
                         📊 AI Recommendation
                       </h4>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <p
                         className={`${
                           variant === 'cyber' ? 'text-cyan-100' : 'text-gray-700 dark:text-gray-300'
@@ -1430,7 +1601,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                     </div>
 
                     {/* Key Factors */}
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <h4
                         className={`font-bold mb-3 ${
                           variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -1438,9 +1611,11 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                       >
                         🔍 Key Analysis Factors
                       </h4>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='space-y-2'>
                         {aiExplanations[selectedPropForAi.id].factors?.map(
                           (factor: string, index: number) => (
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <div
                               key={index}
                               className={`p-3 rounded ${
@@ -1449,6 +1624,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                                   : 'bg-gray-50 border-l-2 border-blue-400 dark:bg-gray-700'
                               }`}
                             >
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <p
                                 className={`${
                                   variant === 'cyber'
@@ -1461,6 +1637,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                             </div>
                           )
                         ) || (
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <p
                             className={`${
                               variant === 'cyber'
@@ -1475,7 +1652,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                     </div>
 
                     {/* Confidence Breakdown */}
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <h4
                         className={`font-bold mb-3 ${
                           variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -1483,12 +1662,15 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                       >
                         📈 Confidence Breakdown
                       </h4>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='grid grid-cols-2 gap-4'>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div
                           className={`p-3 rounded ${
                             variant === 'cyber' ? 'bg-gray-800/50' : 'bg-gray-50 dark:bg-gray-700'
                           }`}
                         >
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div
                             className={`text-sm ${
                               variant === 'cyber'
@@ -1498,6 +1680,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                           >
                             Overall Confidence
                           </div>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div
                             className={`text-xl font-bold ${
                               variant === 'cyber'
@@ -1513,11 +1696,13 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                             %
                           </div>
                         </div>
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div
                           className={`p-3 rounded ${
                             variant === 'cyber' ? 'bg-gray-800/50' : 'bg-gray-50 dark:bg-gray-700'
                           }`}
                         >
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div
                             className={`text-sm ${
                               variant === 'cyber'
@@ -1527,6 +1712,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                           >
                             Risk Level
                           </div>
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div
                             className={`text-xl font-bold ${
                               aiExplanations[selectedPropForAi.id].risk_level === 'low'
@@ -1544,7 +1730,9 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                     </div>
 
                     {/* Full AI Analysis */}
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <h4
                         className={`font-bold mb-3 ${
                           variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900 dark:text-white'
@@ -1552,6 +1740,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                       >
                         🧠 Detailed AI Analysis
                       </h4>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div
                         className={`p-4 rounded-lg ${
                           variant === 'cyber'
@@ -1559,6 +1748,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                             : 'bg-gray-50 border border-gray-200 dark:bg-gray-700 dark:border-gray-600'
                         }`}
                       >
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <p
                           className={`whitespace-pre-wrap ${
                             variant === 'cyber'
@@ -1573,12 +1763,15 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                     </div>
                   </div>
                 ) : (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='flex items-center justify-center py-12'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={`animate-spin rounded-full h-8 w-8 border-2 border-transparent ${
                         variant === 'cyber' ? 'border-t-cyan-400' : 'border-t-blue-500'
                       }`}
                     />
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span
                       className={`ml-3 ${
                         variant === 'cyber' ? 'text-cyan-300' : 'text-gray-600 dark:text-gray-400'

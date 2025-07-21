@@ -1,4 +1,4 @@
-﻿export interface DataSource<T> {
+export interface DataSource<T> {
   id: string;
   fetch(): Promise<T>;
   connect(): Promise<void>;

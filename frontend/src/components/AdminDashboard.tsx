@@ -1,6 +1,7 @@
+// import React from 'react';
+import { AlertTriangle, ArrowLeft, Shield } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, Shield, AlertTriangle } from 'lucide-react';
 import { AdminRoute } from './auth/RouteGuard';
 
 const AdminDashboardContent: React.FC = () => {
@@ -33,12 +34,17 @@ const AdminDashboardContent: React.FC = () => {
             <button
               onClick={() => (window.location.href = '/')}
               className='flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-white transition-colors text-sm'
+              tabIndex={0}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  window.location.href = '/';
+                }
+              }}
             >
               <ArrowLeft className='w-4 h-4' />
               <span className='hidden sm:inline'>Exit Admin Mode</span>
               <span className='sm:hidden'>Exit</span>
             </button>
-
             <div className='flex items-center space-x-2'>
               <Shield className='w-4 h-4 sm:w-5 sm:h-5 text-purple-400' />
               <span className='text-white font-medium text-sm sm:text-base hidden sm:inline'>
@@ -61,7 +67,6 @@ const AdminDashboardContent: React.FC = () => {
           </div>
         </div>
       </div>
-
       {/* Admin Dashboard Content */}
       <div className='relative'>
         <iframe
@@ -82,7 +87,6 @@ const AdminDashboardContent: React.FC = () => {
           }}
           loading='eager'
         />
-
         {/* Loading overlay */}
         {isLoading && (
           <div className='absolute inset-0 bg-slate-900/90 backdrop-blur-sm flex items-center justify-center z-10'>
@@ -93,7 +97,6 @@ const AdminDashboardContent: React.FC = () => {
             </div>
           </div>
         )}
-
         {/* Enhanced fallback content */}
         <div className='absolute inset-0 pointer-events-none opacity-0 hover:opacity-100 transition-opacity duration-300'>
           <div className='flex items-center justify-center h-full'>
@@ -104,15 +107,29 @@ const AdminDashboardContent: React.FC = () => {
                 Dashboard management and troubleshooting options
               </p>
               <div className='space-y-2'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+                Remove this comment to see the full error message
                 <button
                   onClick={() => window.location.reload()}
                   className='w-full px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 rounded-lg text-white font-medium transition-all'
+                  tabIndex={0}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      window.location.reload();
+                    }
+                  }}
                 >
                   Refresh Dashboard
                 </button>
                 <button
                   onClick={() => setIsLoading(true)}
                   className='w-full px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-white transition-all'
+                  tabIndex={0}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      setIsLoading(true);
+                    }
+                  }}
                 >
                   Reset Loading State
                 </button>

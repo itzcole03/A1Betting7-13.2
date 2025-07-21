@@ -3,6 +3,7 @@ import { toast, Toaster as HotToaster } from 'react-hot-toast';
 
 export const Toaster: React.FC = () => {
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <HotToaster
       position='bottom-right'
       toastOptions={{

@@ -1,4 +1,4 @@
-﻿export interface ShapValue {
+export interface ShapValue {
   feature: string;
   value: number;
   impact: 'positive' | 'negative';

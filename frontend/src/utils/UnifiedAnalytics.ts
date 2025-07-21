@@ -1,4 +1,5 @@
-﻿import { EventBus } from '@/core/EventBus.js';
+// @ts-expect-error TS(2307): Cannot find module '@/core/EventBus.js' or its cor... Remove this comment to see the full error message
+import { EventBus } from '@/core/EventBus.js';
 // Attempt to import unifiedMonitor, fallback to stub if not found
 // Fallback stub for unifiedMonitor (analytics monitoring)
 const unifiedMonitor = { captureException: () => {} };

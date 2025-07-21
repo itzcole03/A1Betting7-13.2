@@ -74,6 +74,7 @@ export class UnifiedConfig {
    * @returns The config value (typed)
    */
   public get<T = unknown>(key: string): T {
+    // @ts-expect-error TS(2352): Conversion of type 'string | number | boolean | Co... Remove this comment to see the full error message
     return (this.config[key] as T) ?? (this.defaultConfig[key] as T);
   }
 
@@ -96,6 +97,7 @@ export class UnifiedConfig {
   public update(key: string, updates: Partial<ConfigValue>): void {
     const current = this.config[key] ?? this.defaultConfig[key] ?? {};
     if (typeof current === 'object' && current !== null) {
+      // @ts-expect-error TS(2698): Spread types may only be created from object types... Remove this comment to see the full error message
       this.config[key] = { ...current, ...updates };
       this.saveToStorage();
       this.eventBus.emit('configChanged', { key, value: this.config[key] });

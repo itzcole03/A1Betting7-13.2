@@ -127,16 +127,20 @@ export const Alert: React.FC<AlertProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <AnimatePresence>
       {isVisible && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.div
           className={`
             relative rounded-lg border backdrop-blur-sm overflow-hidden
             ${sizeClasses[size]}
             ${config.container}
+            // @ts-expect-error TS(2339): Property 'glow' does not exist on type '{ containe... Remove this comment to see the full error message
             ${config.glow || ''}
             ${className}
           `}
+          // @ts-expect-error TS(2322): Type '{ hidden: { opacity: number; scale: number; ... Remove this comment to see the full error message
           variants={alertVariants}
           initial={animate ? 'hidden' : 'visible'}
           animate='visible'
@@ -146,6 +150,7 @@ export const Alert: React.FC<AlertProps> = ({
         >
           {/* Cyber grid overlay for cyber variant */}
           {variant === 'cyber' && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className='absolute inset-0 opacity-10 pointer-events-none'
               style={{
@@ -157,38 +162,49 @@ export const Alert: React.FC<AlertProps> = ({
 
           {/* Shimmer effect for cyber variant */}
           {variant === 'cyber' && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='absolute inset-0 overflow-hidden pointer-events-none'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <motion.div
                 className='absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/10 to-transparent'
+                // @ts-expect-error TS(2322): Type '{ animate: { x: string[]; transition: { dura... Remove this comment to see the full error message
                 variants={shimmerVariants}
                 animate='animate'
               />
             </div>
           )}
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='relative flex items-start space-x-3'>
             {/* Icon */}
             {IconComponent && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className={`flex-shrink-0 ${config.iconColor}`}>
                 {React.isValidElement(IconComponent) ? (
                   IconComponent
                 ) : (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <IconComponent className='w-5 h-5' />
                 )}
               </div>
             )}
 
             {/* Content */}
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex-1 min-w-0'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               {title && <h4 className={`font-semibold mb-1 ${config.titleColor}`}>{title}</h4>}
 
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               {description && <p className='text-sm opacity-90 mb-2'>{description}</p>}
 
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               {children && <div className='text-sm opacity-90'>{children}</div>}
             </div>
 
             {/* Dismiss Button */}
             {dismissible && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <button
                 onClick={handleDismiss}
                 className={`
@@ -198,6 +214,7 @@ export const Alert: React.FC<AlertProps> = ({
                 `}
                 aria-label='Dismiss alert'
               >
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <X className='w-4 h-4' />
               </button>
             )}
@@ -205,10 +222,12 @@ export const Alert: React.FC<AlertProps> = ({
 
           {/* Pulsing border for cyber variant */}
           {variant === 'cyber' && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='absolute inset-0 rounded-lg border border-cyan-400/50 animate-pulse pointer-events-none' />
           )}
 
           {/* Bottom accent line */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
             className={`absolute bottom-0 left-0 right-0 h-0.5 ${config.iconColor.replace('text-', 'bg-')} opacity-50`}
           />
@@ -222,11 +241,13 @@ export const Alert: React.FC<AlertProps> = ({
 export const AlertTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({
   children,
   className = '',
+// @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
 }) => <h4 className={`font-semibold mb-1 ${className}`}>{children}</h4>;
 
 export const AlertDescription: React.FC<{ children: React.ReactNode; className?: string }> = ({
   children,
   className = '',
+// @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
 }) => <div className={`text-sm opacity-90 ${className}`}>{children}</div>;
 
 export default Alert;

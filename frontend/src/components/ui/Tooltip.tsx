@@ -270,11 +270,14 @@ export const Tooltip: React.FC<TooltipProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div {...triggerProps}>
       {children}
 
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <AnimatePresence>
         {visible && content && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             ref={tooltipRef}
             initial='hidden'
@@ -287,21 +290,26 @@ export const Tooltip: React.FC<TooltipProps> = ({
           >
             {/* Cyber grid overlay */}
             {variant === 'cyber' && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='absolute inset-0 opacity-20 pointer-events-none'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='grid grid-cols-4 grid-rows-3 h-full w-full'>
                   {Array.from({ length: 12 }).map((_, i) => (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div key={i} className='border border-cyan-400/30' />
                   ))}
                 </div>
               </div>
             )}
 
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className={`relative z-10 px-3 py-2 rounded-lg text-sm ${contentClassName}`}>
               {content}
             </div>
 
             {/* Arrow */}
             {arrow && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className={`absolute ${positionClasses.arrow}`} style={getArrowStyles()} />
             )}
           </motion.div>

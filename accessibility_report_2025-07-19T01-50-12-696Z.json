@@ -1,0 +1,158 @@
+{
+  "timestamp": "2025-07-19T01:50:12.694Z",
+  "summary": {
+    "pagesAudited": 3,
+    "totalViolations": 6,
+    "criticalViolations": 6,
+    "seriousViolations": 0,
+    "overallScore": 40
+  },
+  "results": [
+    {
+      "page": "Home/Locked Bets",
+      "url": "http://localhost:8173",
+      "timestamp": "2025-07-19T01:50:10.696Z",
+      "violations": [
+        {
+          "id": "image-alt",
+          "impact": "critical",
+          "description": "Images must have alternate text",
+          "nodes": [
+            {
+              "target": [
+                "img:nth-child(1)"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "image-alt",
+          "impact": "critical",
+          "description": "Images must have alternate text",
+          "nodes": [
+            {
+              "target": [
+                "img:nth-child(2)"
+              ]
+            }
+          ]
+        }
+      ],
+      "manualChecks": {
+        "hasMainLandmark": false,
+        "hasProperTitle": true,
+        "hasSkipLinks": false,
+        "hasLangAttribute": true,
+        "focusManagement": true,
+        "hasAriaLandmarks": false
+      },
+      "summary": {
+        "violationCount": 2,
+        "criticalCount": 2,
+        "seriousCount": 0,
+        "moderateCount": 0,
+        "minorCount": 0
+      }
+    },
+    {
+      "page": "Live Stream",
+      "url": "http://localhost:8173?page=live-stream",
+      "timestamp": "2025-07-19T01:50:11.645Z",
+      "violations": [
+        {
+          "id": "image-alt",
+          "impact": "critical",
+          "description": "Images must have alternate text",
+          "nodes": [
+            {
+              "target": [
+                "img:nth-child(1)"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "image-alt",
+          "impact": "critical",
+          "description": "Images must have alternate text",
+          "nodes": [
+            {
+              "target": [
+                "img:nth-child(2)"
+              ]
+            }
+          ]
+        }
+      ],
+      "manualChecks": {
+        "hasMainLandmark": false,
+        "hasProperTitle": true,
+        "hasSkipLinks": false,
+        "hasLangAttribute": true,
+        "focusManagement": true,
+        "hasAriaLandmarks": false
+      },
+      "summary": {
+        "violationCount": 2,
+        "criticalCount": 2,
+        "seriousCount": 0,
+        "moderateCount": 0,
+        "minorCount": 0
+      }
+    },
+    {
+      "page": "Settings",
+      "url": "http://localhost:8173?page=settings",
+      "timestamp": "2025-07-19T01:50:12.693Z",
+      "violations": [
+        {
+          "id": "image-alt",
+          "impact": "critical",
+          "description": "Images must have alternate text",
+          "nodes": [
+            {
+              "target": [
+                "img:nth-child(1)"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "image-alt",
+          "impact": "critical",
+          "description": "Images must have alternate text",
+          "nodes": [
+            {
+              "target": [
+                "img:nth-child(2)"
+              ]
+            }
+          ]
+        }
+      ],
+      "manualChecks": {
+        "hasMainLandmark": false,
+        "hasProperTitle": true,
+        "hasSkipLinks": false,
+        "hasLangAttribute": true,
+        "focusManagement": true,
+        "hasAriaLandmarks": false
+      },
+      "summary": {
+        "violationCount": 2,
+        "criticalCount": 2,
+        "seriousCount": 0,
+        "moderateCount": 0,
+        "minorCount": 0
+      }
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "image-alt",
+      "description": "Images must have alternate text",
+      "impact": "critical",
+      "howToFix": "Add meaningful alt text to all images. Use alt=\"\" for decorative images."
+    }
+  ]
+}

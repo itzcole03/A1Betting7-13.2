@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
+// @ts-expect-error TS(6142): Module './BetSlip' was resolved to 'C:/Users/bcmad... Remove this comment to see the full error message
 import BetSlip from './BetSlip';
+// @ts-expect-error TS(6142): Module './BettingDashboard' was resolved to 'C:/Us... Remove this comment to see the full error message
 import BettingDashboard from './BettingDashboard';
+// @ts-expect-error TS(6142): Module './BettingHistory' was resolved to 'C:/User... Remove this comment to see the full error message
 import BettingHistory from './BettingHistory';
+// @ts-expect-error TS(6142): Module './Button' was resolved to 'C:/Users/bcmad/... Remove this comment to see the full error message
 import { Button } from './Button';
+// @ts-expect-error TS(6142): Module './Card' was resolved to 'C:/Users/bcmad/Do... Remove this comment to see the full error message
 import { Card, CardContent, CardHeader } from './Card';
 
 /**
@@ -31,20 +36,31 @@ export const UnifiedBettingInterface: React.FC = () => {
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <Card className='max-w-4xl mx-auto'>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <CardHeader>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <h2 className='text-xl font-bold text-white'>Unified Betting Interface</h2>
       </CardHeader>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <CardContent>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex flex-col md:flex-row gap-8'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex-1'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <BetSlip onSubmit={handleBetSubmit} />
           </div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex-1'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <BettingDashboard />
           </div>
         </div>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex justify-center mt-8'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <Button
             variant={showHistory ? 'primary' : 'outline'}
             onClick={() => setShowHistory(h => !h)}
@@ -53,7 +69,9 @@ export const UnifiedBettingInterface: React.FC = () => {
           </Button>
         </div>
         {showHistory && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='mt-8'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <BettingHistory bets={bets} />
           </div>
         )}

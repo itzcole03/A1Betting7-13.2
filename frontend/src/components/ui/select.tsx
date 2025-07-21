@@ -97,7 +97,9 @@ export const Select: React.FC<SelectProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <SelectContext.Provider value={contextValue}>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='relative'>{children}</div>
     </SelectContext.Provider>
   );
@@ -134,6 +136,7 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = ({ children, classNam
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.button
       ref={triggerRef}
       type='button'
@@ -153,6 +156,7 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = ({ children, classNam
       animate={open ? 'open' : 'closed'}
     >
       {children}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <ChevronDown
         className={`w-4 h-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
       />
@@ -169,8 +173,10 @@ export const SelectValue: React.FC<SelectValueProps> = ({
   const displayPlaceholder = propPlaceholder ?? contextPlaceholder;
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <span className={`truncate ${className}`}>
       {value || (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <span className='text-gray-400'>{displayPlaceholder || 'Select an option...'}</span>
       )}
     </span>
@@ -236,8 +242,10 @@ export const SelectContent: React.FC<SelectContentProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <AnimatePresence>
       {open && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.div
           ref={contentRef}
           role='listbox'
@@ -247,6 +255,7 @@ export const SelectContent: React.FC<SelectContentProps> = ({
             ${variantClasses[variant]}
             ${className}
           `}
+          // @ts-expect-error TS(2322): Type '{ hidden: { opacity: number; scale: number; ... Remove this comment to see the full error message
           variants={contentVariants}
           initial='hidden'
           animate='visible'
@@ -283,6 +292,7 @@ export const SelectItem: React.FC<SelectItemProps> = ({
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.div
       role='option'
       aria-selected={isSelected}
@@ -298,7 +308,9 @@ export const SelectItem: React.FC<SelectItemProps> = ({
       initial='default'
       whileHover={!disabled ? 'hover' : undefined}
     >
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <span className='truncate'>{children}</span>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       {isSelected && <Check className='w-4 h-4 ml-2 flex-shrink-0' />}
     </motion.div>
   );

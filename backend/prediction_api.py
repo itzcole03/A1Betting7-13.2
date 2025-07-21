@@ -10,7 +10,7 @@ import asyncio
 import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import json
@@ -148,22 +148,22 @@ async def health_check():
 @app.post("/api/predictions/prizepicks/live", response_model=List[PredictionResponse])
 async def get_live_predictions(
     request: PredictionRequest,
-    engine = Depends(get_initialized_engine)
+    engine = Depends(get_initialized_engine),
+    user_id: Optional[str] = Header(None)  # Accept user_id from header (or adapt to JWT/session as needed)
 ) -> List[PredictionResponse]:
     """
-    Get real-time predictions for current props
-    
-    CRITICAL: All predictions generated from real trained models using real data.
+    Get real-time predictions for current props, personalized if user_id is provided
     """
     try:
         start_time = datetime.now(timezone.utc)
         
-        logger.info(f"🎯 API request for live predictions: sport={request.sport}, limit={request.limit}")
+        logger.info(f"🎯 API request for live predictions: sport={request.sport}, limit={request.limit}, user_id={user_id}")
         
-        # Generate predictions using the real-time engine
+        # Generate predictions using the real-time engine, passing user_id for personalization
         predictions = await engine.generate_real_time_predictions(
             sport=request.sport,
-            limit=request.limit
+            limit=request.limit,
+            user_id=user_id
         )
         
         # Calculate API latency
@@ -203,7 +203,7 @@ async def get_live_predictions(
             )
             response_predictions.append(response_pred)
         
-        logger.info(f"✅ API response: {len(response_predictions)} predictions in {api_latency:.2f}s")
+        logger.info(f"✅ API response: {len(response_predictions)} predictions in {api_latency:.2f}s (user_id={user_id})")
         
         return response_predictions
         

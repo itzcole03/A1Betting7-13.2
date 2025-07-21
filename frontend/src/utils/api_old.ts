@@ -1,8 +1,10 @@
 import axios from 'axios';
+// @ts-expect-error TS(2305): Module '"../services/backendDiscovery"' has no exp... Remove this comment to see the full error message
 import { backendDiscovery } from '../services/backendDiscovery';
 
 // Create initial axios instance
 export const api = axios.create({
+  // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
   headers: {
     'Content-Type': 'application/json',

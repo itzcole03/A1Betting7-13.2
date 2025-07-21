@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// @ts-expect-error TS(2307): Cannot find module '@/lib/utils' or its correspond... Remove this comment to see the full error message
 import { cn } from '@/lib/utils';
 
 // Types for service monitoring
@@ -186,21 +187,27 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
   };
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className={cn('relative', variantClasses[variant], className)}>
       {/* Header */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className={cn(
           'flex items-center justify-between p-4 border-b',
           variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
         )}
       >
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center space-x-3'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className={cn('w-3 h-3 rounded-full', getStatusColor(overallStatus, variant))} />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <h3
             className={cn('font-semibold', variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900')}
           >
             Service Status
           </h3>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span
             className={cn(
               'text-sm px-2 py-1 rounded-full',
@@ -211,14 +218,17 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
           </span>
         </div>
 
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center space-x-2'>
           {autoRefresh && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span
               className={cn('text-xs', variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500')}
             >
               Last updated: {formatTimeAgo(lastRefresh)}
             </span>
           )}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <button
             onClick={handleRefresh}
             className={cn(
@@ -234,10 +244,13 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
       </div>
 
       {/* Services */}
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='p-4'>
         {layout === 'grid' ? (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
             {services.map(service => (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <ServiceCard
                 key={service.id}
                 service={service}
@@ -248,9 +261,12 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
             ))}
           </div>
         ) : showCategories && groupedServices ? (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='space-y-4'>
             {Object.entries(groupedServices).map(([category, categoryServices]) => (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div key={category} className='space-y-2'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button
                   onClick={() => toggleGroup(category)}
                   className={cn(
@@ -260,9 +276,13 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
                       : 'hover:bg-gray-50 text-gray-700'
                   )}
                 >
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='flex items-center space-x-2'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span>{getCategoryIcon(category)}</span>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className='font-medium capitalize'>{category}</span>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span
                       className={cn(
                         'text-xs px-2 py-1 rounded-full',
@@ -272,6 +292,7 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
                       {categoryServices.length}
                     </span>
                   </div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={cn(
                       'text-sm',
@@ -283,8 +304,10 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
                 </button>
 
                 {!collapsedGroups.has(category) && (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='space-y-2 ml-4'>
                     {categoryServices.map(service => (
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <ServiceItem
                         key={service.id}
                         service={service}
@@ -299,8 +322,10 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
             ))}
           </div>
         ) : (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='space-y-2'>
             {services.map(service => (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <ServiceItem
                 key={service.id}
                 service={service}
@@ -315,8 +340,11 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
 
       {/* Cyber Effects */}
       {variant === 'cyber' && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 rounded-lg pointer-events-none' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute inset-0 bg-grid-white/[0.02] rounded-lg pointer-events-none' />
         </>
       )}
@@ -334,6 +362,7 @@ interface ServiceItemProps {
 
 const ServiceItem: React.FC<ServiceItemProps> = ({ service, variant, showMetrics, onClick }) => {
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div
       className={cn(
         'flex items-center justify-between p-3 rounded border transition-all duration-200',
@@ -342,15 +371,21 @@ const ServiceItem: React.FC<ServiceItemProps> = ({ service, variant, showMetrics
       )}
       onClick={() => onClick?.(service)}
     >
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='flex items-center space-x-3'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className={cn('w-2 h-2 rounded-full', service.status === 'online' && 'animate-pulse')}>
           {getStatusIcon(service.status)}
         </div>
 
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center space-x-2'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span className='font-medium'>{service.name}</span>
             {service.priority === 'critical' && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span
                 className={cn(
                   'text-xs px-1 py-0.5 rounded',
@@ -361,13 +396,17 @@ const ServiceItem: React.FC<ServiceItemProps> = ({ service, variant, showMetrics
               </span>
             )}
           </div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {service.description && <p className='text-xs opacity-70 mt-1'>{service.description}</p>}
         </div>
       </div>
 
       {showMetrics && service.metrics && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='text-xs space-y-1 text-right'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>Uptime: {formatUptime(service.metrics.uptime)}</div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>Response: {formatResponseTime(service.metrics.responseTime)}</div>
         </div>
       )}
@@ -385,6 +424,7 @@ interface ServiceCardProps {
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ service, variant, showMetrics, onClick }) => {
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div
       className={cn(
         'p-4 rounded-lg border transition-all duration-200',
@@ -393,21 +433,32 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, variant, showMetrics
       )}
       onClick={() => onClick?.(service)}
     >
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='flex items-center justify-between mb-2'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <span className='font-medium'>{service.name}</span>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <span className='text-lg'>{getStatusIcon(service.status)}</span>
       </div>
 
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       {service.description && <p className='text-xs opacity-70 mb-3'>{service.description}</p>}
 
       {showMetrics && service.metrics && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='grid grid-cols-2 gap-2 text-xs'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='opacity-70'>Uptime</div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='font-medium'>{formatUptime(service.metrics.uptime)}</div>
           </div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='opacity-70'>Response</div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='font-medium'>{formatResponseTime(service.metrics.responseTime)}</div>
           </div>
         </div>

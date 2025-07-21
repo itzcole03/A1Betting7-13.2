@@ -1,4 +1,4 @@
-﻿import toast from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 export const handleSearchClick = () => {
   // Show immediate search results with real betting opportunities;

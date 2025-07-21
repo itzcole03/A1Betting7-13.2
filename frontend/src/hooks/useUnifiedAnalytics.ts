@@ -202,8 +202,10 @@ export const useUnifiedAnalytics = () => {
       const recent = data.slice(-7); // Last 7 periods
       const older = data.slice(-14, -7); // Previous 7 periods
 
-      const recentAvg = recent.reduce((sum, item) => sum + item.profit, 0) / recent.length;
-      const olderAvg = older.reduce((sum, item) => sum + item.profit, 0) / older.length || 1;
+      // @ts-expect-error TS(2349): This expression is not callable.
+      const recentAvg = recent.reduce((sum: any, item: any) => sum + item.profit, 0) / recent.length;
+      // @ts-expect-error TS(2349): This expression is not callable.
+      const olderAvg = older.reduce((sum: any, item: any) => sum + item.profit, 0) / older.length || 1;
 
       const change = ((recentAvg - olderAvg) / Math.abs(olderAvg)) * 100;
       const trend = change > 5 ? 'up' : change < -5 ? 'down' : 'flat';

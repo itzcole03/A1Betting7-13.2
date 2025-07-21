@@ -91,7 +91,9 @@ export class ChartErrorBoundary extends Component<
     const headers = Object.keys(fallbackData[0] || {});
 
     return (
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='mt-4 max-w-full overflow-x-auto'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <table
           className={`min-w-full text-xs ${
             variant === 'cyber'
@@ -99,9 +101,12 @@ export class ChartErrorBoundary extends Component<
               : 'bg-gray-50 border border-gray-200 dark:bg-gray-800 dark:border-gray-700'
           }`}
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <thead>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <tr className={variant === 'cyber' ? 'bg-cyan-400/10' : 'bg-gray-100 dark:bg-gray-700'}>
               {headers.map((header, index) => (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <th
                   key={index}
                   className={`px-3 py-2 text-left font-medium ${
@@ -113,8 +118,10 @@ export class ChartErrorBoundary extends Component<
               ))}
             </tr>
           </thead>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <tbody>
             {fallbackData.slice(0, 5).map((row, rowIndex) => (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <tr
                 key={rowIndex}
                 className={
@@ -124,6 +131,7 @@ export class ChartErrorBoundary extends Component<
                 }
               >
                 {headers.map((header, colIndex) => (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <td
                     key={colIndex}
                     className={`px-3 py-2 ${
@@ -138,7 +146,9 @@ export class ChartErrorBoundary extends Component<
               </tr>
             ))}
             {fallbackData.length > 5 && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <tr>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <td
                   colSpan={headers.length}
                   className={`px-3 py-2 text-center italic ${
@@ -189,6 +199,7 @@ export class ChartErrorBoundary extends Component<
       const canRetry = enableRetry && this.state.retryCount < maxRetries;
 
       return (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -196,17 +207,22 @@ export class ChartErrorBoundary extends Component<
         >
           {/* Cyber grid overlay */}
           {variant === 'cyber' && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='absolute inset-0 opacity-10 pointer-events-none'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='grid grid-cols-6 grid-rows-4 h-full w-full'>
                 {Array.from({ length: 24 }).map((_, i) => (
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div key={i} className='border border-red-500/30' />
                 ))}
               </div>
             </div>
           )}
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='relative z-10 text-center max-w-md w-full'>
             {/* Chart Error Icon */}
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -214,13 +230,16 @@ export class ChartErrorBoundary extends Component<
               className='mb-4'
             >
               {variant === 'cyber' ? (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='w-12 h-12 mx-auto border border-red-500 rounded flex items-center justify-center'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <svg
                     className='w-6 h-6 text-red-500'
                     fill='none'
                     stroke='currentColor'
                     viewBox='0 0 24 24'
                   >
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <path
                       strokeLinecap='round'
                       strokeLinejoin='round'
@@ -230,17 +249,21 @@ export class ChartErrorBoundary extends Component<
                   </svg>
                 </div>
               ) : (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div
                   className={`w-12 h-12 mx-auto rounded-full flex items-center justify-center ${
+                    // @ts-expect-error TS(2367): This condition will always return 'false' since th... Remove this comment to see the full error message
                     variant === 'cyber' ? 'bg-red-500/20' : 'bg-red-100 dark:bg-red-900/30'
                   }`}
                 >
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <svg
                     className='w-6 h-6 text-red-500'
                     fill='none'
                     stroke='currentColor'
                     viewBox='0 0 24 24'
                   >
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <path
                       strokeLinecap='round'
                       strokeLinejoin='round'
@@ -253,12 +276,14 @@ export class ChartErrorBoundary extends Component<
             </motion.div>
 
             {/* Error Message */}
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
               className='mb-4'
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <h3
                 className={`text-lg font-bold mb-2 ${
                   variant === 'cyber' ? 'text-red-400' : 'text-red-800 dark:text-red-400'
@@ -267,6 +292,7 @@ export class ChartErrorBoundary extends Component<
                 {variant === 'cyber' ? 'CHART RENDER FAILURE' : 'Chart Unavailable'}
               </h3>
 
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <p
                 className={`text-sm mb-1 ${
                   variant === 'cyber' ? 'text-red-300/70' : 'text-red-600 dark:text-red-300'
@@ -279,7 +305,9 @@ export class ChartErrorBoundary extends Component<
               </p>
 
               {showErrorDetails && this.state.error && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <details className='mt-3 text-left'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <summary
                     className={`cursor-pointer text-xs font-medium ${
                       variant === 'cyber' ? 'text-red-400' : 'text-red-700 dark:text-red-400'
@@ -287,6 +315,7 @@ export class ChartErrorBoundary extends Component<
                   >
                     Error Details
                   </summary>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div
                     className={`mt-2 p-2 rounded text-xs font-mono ${
                       variant === 'cyber'
@@ -294,10 +323,14 @@ export class ChartErrorBoundary extends Component<
                         : 'bg-red-100 border border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-300'
                     }`}
                   >
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='mb-1'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <strong>ID:</strong> {this.state.errorId}
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <strong>Message:</strong> {this.state.error.message}
                     </div>
                   </div>
@@ -306,6 +339,7 @@ export class ChartErrorBoundary extends Component<
             </motion.div>
 
             {/* Action Buttons */}
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -313,6 +347,7 @@ export class ChartErrorBoundary extends Component<
               className='flex flex-col sm:flex-row gap-2 justify-center mb-4'
             >
               {canRetry && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button
                   onClick={this.handleRetry}
                   className={`px-4 py-2 rounded font-medium text-sm transition-all ${
@@ -323,6 +358,7 @@ export class ChartErrorBoundary extends Component<
                 >
                   {variant === 'cyber' ? 'RETRY RENDER' : 'Retry Chart'}
                   {this.state.retryCount > 0 && (
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className='ml-1 text-xs opacity-70'>
                       ({this.state.retryCount}/{maxRetries})
                     </span>
@@ -331,6 +367,7 @@ export class ChartErrorBoundary extends Component<
               )}
 
               {showDataTable && this.props.fallbackData && (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button
                   onClick={() => {
                     const tableElement = document.querySelector('.fallback-data-table');
@@ -349,6 +386,7 @@ export class ChartErrorBoundary extends Component<
 
             {/* Retry exhausted message */}
             {enableRetry && this.state.retryCount >= maxRetries && (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -363,12 +401,14 @@ export class ChartErrorBoundary extends Component<
 
           {/* Fallback Data Table */}
           {showDataTable && this.props.fallbackData && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
               className='fallback-data-table w-full mt-6'
             >
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <h4
                 className={`text-sm font-medium mb-2 ${
                   variant === 'cyber' ? 'text-cyan-400' : 'text-gray-700 dark:text-gray-300'

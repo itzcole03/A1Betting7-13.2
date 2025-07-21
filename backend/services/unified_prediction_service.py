@@ -21,6 +21,7 @@ from dataclasses import dataclass, asdict
 
 from .comprehensive_prizepicks_service import ComprehensivePrizePicksService
 from .enhanced_prizepicks_service_v2 import enhanced_prizepicks_service_v2
+from backend.auth.user_service import UserService
 
 # Import advanced services
 try:
@@ -137,20 +138,27 @@ class UnifiedPredictionService:
         sport: Optional[str] = None,
         min_confidence: int = 70,
         include_portfolio_optimization: bool = True,
-        include_ai_insights: bool = True
+        include_ai_insights: bool = True,
+        user_id: Optional[str] = None  # NEW: user context
     ) -> List[EnhancedPrediction]:
         """
-        Get enhanced predictions combining all systems
+        Get enhanced predictions combining all systems, personalized for user if user_id is provided
         """
         try:
+            # Fetch user profile if user_id is provided
+            user_profile = None
+            if user_id:
+                user_service = UserService()
+                user_profile = user_service.get_user_by_id(user_id)
+
             # Get base PrizePicks data
             base_props = await self._get_base_prizepicks_data(sport, min_confidence)
             
-            # Enhance each prediction with all features
+            # Enhance each prediction with all features, passing user_profile
             enhanced_predictions = []
             for prop in base_props:
                 enhanced_pred = await self._enhance_prediction(
-                    prop, include_ai_insights
+                    prop, include_ai_insights, user_profile
                 )
                 enhanced_predictions.append(enhanced_pred)
             
@@ -161,7 +169,7 @@ class UnifiedPredictionService:
             self.current_predictions = enhanced_predictions
             self.last_update = datetime.now(timezone.utc)
             
-            logger.info(f"Generated {len(enhanced_predictions)} enhanced predictions")
+            logger.info(f"Generated {len(enhanced_predictions)} enhanced predictions (user_id={user_id})")
             return enhanced_predictions
             
         except Exception as e:
@@ -196,14 +204,27 @@ class UnifiedPredictionService:
             return await self.prizepicks_service.get_current_props()
     
     async def _enhance_prediction(
-        self, base_prop: Dict[str, Any], include_ai_insights: bool = True
+        self, base_prop: Dict[str, Any], include_ai_insights: bool = True, user_profile: Optional[Any] = None
     ) -> EnhancedPrediction:
-        """Enhance a single prediction with all features"""
-        
+        """
+        Enhance a single prediction with all features, personalized for user if user_profile is provided
+        """
         # Extract base data
         confidence = base_prop.get("confidence", 75.0)
         line_score = float(base_prop.get("line_score", base_prop.get("line", 0)))
         
+        # Personalization: adjust confidence and line_score based on user profile
+        if user_profile:
+            # Example: adjust confidence for risk tolerance
+            if hasattr(user_profile, 'risk_tolerance'):
+                if user_profile.risk_tolerance == 'aggressive':
+                    confidence += 5
+                elif user_profile.risk_tolerance == 'conservative':
+                    confidence -= 5
+            # Example: adjust line_score for preferred stake
+            if hasattr(user_profile, 'preferred_stake') and user_profile.preferred_stake > 100:
+                line_score += 0.1
+
         # Calculate MoneyMaker AI features
         kelly_fraction = self._calculate_kelly_criterion(confidence, line_score)
         expected_value = self._calculate_expected_value(confidence, kelly_fraction)
@@ -227,6 +248,14 @@ class UnifiedPredictionService:
         portfolio_impact = self._calculate_portfolio_impact(base_prop)
         variance_contribution = self._calculate_variance_contribution(base_prop)
         
+        # Personalization: adjust recommendation based on user profile
+        recommendation = base_prop.get("recommendation", "OVER")
+        if user_profile and hasattr(user_profile, 'risk_tolerance'):
+            if user_profile.risk_tolerance == 'conservative' and confidence < 70:
+                recommendation = "AVOID"
+            elif user_profile.risk_tolerance == 'aggressive' and confidence > 80:
+                recommendation = "STRONG OVER"
+
         return EnhancedPrediction(
             id=base_prop.get("id", f"enhanced_{hash(str(base_prop))}"),
             player_name=base_prop.get("player_name", "Unknown"),
@@ -234,7 +263,7 @@ class UnifiedPredictionService:
             sport=base_prop.get("sport", "Unknown"),
             stat_type=base_prop.get("stat_type", "Unknown"),
             line_score=line_score,
-            recommendation=base_prop.get("recommendation", "OVER"),
+            recommendation=recommendation,
             confidence=confidence,
             kelly_fraction=kelly_fraction,
             expected_value=expected_value,

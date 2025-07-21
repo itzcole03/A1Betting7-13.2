@@ -30,6 +30,7 @@ class AccessRequestService {
 
   constructor() {
     // In production, this would come from environment variables
+    // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
     this.baseUrl = import.meta.env.VITE_API_URL || '/api';
   }
 
@@ -62,6 +63,7 @@ class AccessRequestService {
       console.error('Failed to submit access request:', error);
 
       // For demo purposes, simulate success
+      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
       if (import.meta.env.DEV) {
         return this.simulateAccessRequest(data);
       }
@@ -98,6 +100,7 @@ class AccessRequestService {
       console.error('Failed to check existing request:', error);
 
       // For demo purposes, return null (no existing request)
+      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
       if (import.meta.env.DEV) {
         return null;
       }
@@ -128,6 +131,7 @@ class AccessRequestService {
       console.error('Failed to fetch access requests:', error);
 
       // For demo purposes, return mock data
+      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
       if (import.meta.env.DEV) {
         return this.getMockAccessRequests();
       }
@@ -166,6 +170,7 @@ class AccessRequestService {
       console.error('Failed to approve access request:', error);
 
       // For demo purposes, simulate success
+      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
       if (import.meta.env.DEV) {
         return {
           success: true,
@@ -210,6 +215,7 @@ class AccessRequestService {
       console.error('Failed to deny access request:', error);
 
       // For demo purposes, simulate success
+      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
       if (import.meta.env.DEV) {
         return {
           success: true,

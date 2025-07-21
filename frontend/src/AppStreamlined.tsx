@@ -10,18 +10,25 @@ import {
   Zap,
 } from 'lucide-react';
 import React, { Suspense, useEffect, useState } from 'react';
+//
 import HealthBanner from './components/common/HealthBanner';
+//
 import { Toaster } from './components/common/notifications/Toaster';
+//
 import { ErrorBoundary } from './components/core/ErrorBoundary';
+//
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 // Import the admin wrapper component
+//
 const AdminWrapper = React.lazy(() => import('./components/comprehensive/AdminWrapper'));
 
 // Import the three main pages with fallbacks
 const LockedBetsPage = React.lazy(() =>
+  //
   import('./components/pages/EnhancedLockedBetsPage').catch(() => ({
     default: () => (
+      //
       <div className='p-8 text-center'>
         <h2 className='text-2xl font-bold text-white mb-4'>🎯 Locked Bets</h2>
         <p className='text-gray-400'>Loading enhanced betting predictions...</p>
@@ -30,8 +37,10 @@ const LockedBetsPage = React.lazy(() =>
   }))
 );
 const LiveStreamPage = React.lazy(() =>
+  //
   import('./components/pages/EnhancedLiveStreamPage').catch(() => ({
     default: () => (
+      //
       <div className='p-8 text-center'>
         <h2 className='text-2xl font-bold text-white mb-4'>📺 Live Stream</h2>
         <p className='text-gray-400'>Live streaming functionality coming soon...</p>
@@ -39,20 +48,25 @@ const LiveStreamPage = React.lazy(() =>
     ),
   }))
 );
+// Correct fallback logic for SettingsAdminPage
 const SettingsAdminPage = React.lazy(() =>
-  import('./components/pages/UnifiedSettingsAdminPage').catch(() =>
-    import('./components/pages/SimpleSettingsPage').catch(() => ({
-      default: () => (
-        <div className='p-8 text-center'>
-          <h2 className='text-2xl font-bold text-white mb-4'>⚙️ Settings</h2>
-          <p className='text-gray-400'>Settings panel loading...</p>
-        </div>
-      ),
-    }))
-  )
+  import('./components/pages/UnifiedSettingsAdminPage')
+    .then(module => ({ default: () => <module.default /> }))
+    .catch(() =>
+      import('./components/pages/SimpleSettingsPage')
+        .then(module => ({ default: () => <module.default /> }))
+        .catch(() => ({
+          default: () => (
+            <div className='p-8 text-center'>
+              <h2 className='text-2xl font-bold text-white mb-4'>⚙️ Settings</h2>
+              <p className='text-gray-400'>Settings panel loading...</p>
+            </div>
+          ),
+        }))
+    )
 );
 
-// Modern, clean navigation component
+//
 const Navigation = ({
   currentPage,
   setCurrentPage,
@@ -89,17 +103,26 @@ const Navigation = ({
   ];
 
   return (
+    //
     <div className='fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-gradient-to-r from-slate-900/95 via-gray-900/95 to-slate-900/95 border-b border-cyan-500/20 shadow-xl shadow-black/20'>
       {/* Enhanced Header */}
+      //
       <div className='max-w-[1600px] mx-auto px-6 py-4'>
+        //
         <div className='flex items-center justify-between'>
           {/* Brand Section */}
+          //
           <div className='flex items-center space-x-6'>
+            //
             <div className='group flex items-center space-x-3'>
+              //
               <div className='relative'>
+                //
                 <div className='w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 flex items-center justify-center shadow-lg'>
+                  //
                   <Zap className='w-6 h-6 text-white' fill='currentColor' />
                 </div>
+                //
                 <div className='absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 opacity-30 blur-md group-hover:opacity-50 transition-opacity duration-300' />
               </div>
               <div>
@@ -109,14 +132,12 @@ const Navigation = ({
                 <p className='text-xs text-slate-400 font-medium'>Ultra-Enhanced Platform</p>
               </div>
             </div>
-
             {/* Status Indicators */}
             <div className='hidden md:flex items-center space-x-3'>
               <div className='flex items-center space-x-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-xs font-semibold'>
                 <div className='w-2 h-2 bg-emerald-400 rounded-full animate-pulse' />
                 <span>Live</span>
               </div>
-
               {isAdmin && (
                 <div className='relative group'>
                   <div className='absolute inset-0 bg-gradient-to-r from-purple-600 to-cyan-500 opacity-20 blur-sm rounded-full animate-pulse' />
@@ -130,7 +151,6 @@ const Navigation = ({
               )}
             </div>
           </div>
-
           {/* Navigation Pills */}
           <div className='flex items-center space-x-2'>
             {navItems.map(item => {
@@ -150,7 +170,6 @@ const Navigation = ({
                   {isActive && (
                     <div className='absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/10 to-purple-500/10 animate-pulse' />
                   )}
-
                   <div className='relative flex items-center space-x-3'>
                     <Icon
                       className={`w-5 h-5 transition-colors ${
@@ -174,7 +193,6 @@ const Navigation = ({
               );
             })}
           </div>
-
           {/* User Section */}
           {isAuthenticated && (
             <div className='flex items-center space-x-4'>
@@ -192,7 +210,6 @@ const Navigation = ({
                   {showAdminMode && (
                     <div className='absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600/20 to-cyan-500/20 animate-pulse' />
                   )}
-
                   <div className='relative flex items-center space-x-2'>
                     {showAdminMode ? (
                       <>
@@ -212,7 +229,6 @@ const Navigation = ({
                   </div>
                 </button>
               )}
-
               {/* User Avatar */}
               <div className='flex items-center space-x-3 px-3 py-2 bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 hover:border-slate-600/70 transition-colors'>
                 <div className='w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 flex items-center justify-center shadow-lg'>
@@ -239,8 +255,14 @@ const AppStreamlinedContent: React.FC = () => {
   // Add a visible error boundary for debugging
   const ErrorFallback = ({ error }: { error: any }) => (
     <div style={{ color: 'red', padding: 32 }}>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <h2>AppStreamlined Error</h2>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <pre>{error?.message || String(error)}</pre>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <pre>{error?.stack}</pre>
     </div>
   );
@@ -272,9 +294,17 @@ const AppStreamlinedContent: React.FC = () => {
       console.error('Error rendering page:', error);
       return (
         <div className='flex items-center justify-center h-64 text-white'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='text-center'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div className='text-red-400 mb-2'>⚠️ Component Error</div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div className='text-gray-400'>Unable to load {currentPage} page</div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <button
               onClick={() => setCurrentPage('locked-bets')}
               className='mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700'
@@ -290,18 +320,32 @@ const AppStreamlinedContent: React.FC = () => {
   if (isLoading) {
     return (
       <div className='min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 flex items-center justify-center'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className='text-center space-y-6'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='relative'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div className='w-20 h-20 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mx-auto'></div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div
               className='absolute inset-0 w-20 h-20 border-4 border-transparent border-t-purple-500 rounded-full animate-spin mx-auto'
               style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}
             ></div>
           </div>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='space-y-2'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <h2 className='text-2xl font-bold bg-gradient-to-r from-white via-cyan-200 to-blue-200 bg-clip-text text-transparent'>
               A1Betting Platform
             </h2>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <p className='text-slate-400'>Initializing ultra-enhanced experience...</p>
           </div>
         </div>
@@ -313,31 +357,51 @@ const AppStreamlinedContent: React.FC = () => {
   if (showAdminMode) {
     return (
       <ErrorBoundary>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <Suspense
           fallback={
             <div className='min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 flex items-center justify-center'>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <div className='text-center space-y-6'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+                Remove this comment to see the full error message
                 <div className='relative'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <div className='w-20 h-20 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto'></div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <div
                     className='absolute inset-0 w-20 h-20 border-4 border-transparent border-t-cyan-500 rounded-full animate-spin mx-auto'
                     style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}
                   ></div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <Crown
                     className='w-8 h-8 text-yellow-300 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'
                     fill='currentColor'
                   />
                 </div>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+                Remove this comment to see the full error message
                 <div className='space-y-2'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <h2 className='text-xl font-bold bg-gradient-to-r from-purple-200 via-cyan-200 to-yellow-200 bg-clip-text text-transparent'>
                     Admin Mode Loading
                   </h2>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <p className='text-slate-400'>Initializing administrative controls...</p>
                 </div>
               </div>
             </div>
           }
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <AdminWrapper onToggleUserMode={() => setShowAdminMode(false)} />
         </Suspense>
       </ErrorBoundary>
@@ -346,35 +410,63 @@ const AppStreamlinedContent: React.FC = () => {
 
   return (
     <ErrorBoundary fallback={<ErrorFallback error={null} />}>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div className='min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 text-white'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <Navigation
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
           showAdminMode={showAdminMode}
           setShowAdminMode={setShowAdminMode}
         />
-
         {/* Main Content Area */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <main className='relative'>
           {/* Background Enhancement */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5 pointer-events-none' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.1),transparent_50%)] pointer-events-none' />
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(14,165,233,0.1),transparent_50%)] pointer-events-none' />
-
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='relative z-10 min-h-[calc(100vh-80px)] pt-20'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <ErrorBoundary>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <Suspense
                 fallback={
                   <div className='flex flex-col items-center justify-center h-[50vh] space-y-6'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                    provided... Remove this comment to see the full error message
                     <div className='relative'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                      provided... Remove this comment to see the full error message
                       <div className='w-16 h-16 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin'></div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                      provided... Remove this comment to see the full error message
                       <div
                         className='absolute inset-0 w-16 h-16 border-4 border-transparent border-t-purple-500 rounded-full animate-spin'
                         style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}
                       ></div>
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                    provided... Remove this comment to see the full error message
                     <div className='text-center space-y-2'>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                      provided... Remove this comment to see the full error message
                       <div className='text-xl font-semibold text-white'>Loading Component</div>
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                      provided... Remove this comment to see the full error message
                       <div className='text-sm text-slate-400'>
                         Initializing enhanced experience...
                       </div>
@@ -382,14 +474,17 @@ const AppStreamlinedContent: React.FC = () => {
                   </div>
                 }
               >
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+                Remove this comment to see the full error message
                 <HealthBanner />
                 {renderCurrentPage()}
               </Suspense>
             </ErrorBoundary>
           </div>
         </main>
-
         {/* Enhanced Toast Container */}
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <Toaster />
       </div>
     </ErrorBoundary>
@@ -399,6 +494,8 @@ const AppStreamlinedContent: React.FC = () => {
 const AppStreamlined: React.FC = () => {
   return (
     <AuthProvider>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <AppStreamlinedContent />
     </AuthProvider>
   );

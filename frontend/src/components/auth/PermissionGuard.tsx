@@ -73,6 +73,7 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
 
   // If user has access, render children
   if (hasAccess()) {
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     return <>{children}</>;
   }
 
@@ -83,25 +84,33 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
 
   // Show custom fallback if provided
   if (fallback) {
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     return <>{fallback}</>;
   }
 
   // Default access denied UI
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='flex items-center justify-center min-h-32 p-6'>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='text-center max-w-md'>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='w-16 h-16 mx-auto mb-4 bg-red-500/10 rounded-full flex items-center justify-center'>
           {!isAuthenticated ? (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <Lock className='w-8 h-8 text-red-400' />
           ) : (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <Shield className='w-8 h-8 text-red-400' />
           )}
         </div>
 
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <h3 className='text-lg font-semibold text-white mb-2'>
           {!isAuthenticated ? 'Authentication Required' : 'Access Denied'}
         </h3>
 
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <p className='text-gray-400 text-sm'>
           {errorMessage ||
             (!isAuthenticated
@@ -110,6 +119,7 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
         </p>
 
         {!isAuthenticated && (
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <button
             onClick={() => (window.location.href = '/auth')}
             className='mt-4 px-4 py-2 bg-cyber-primary hover:bg-cyber-secondary rounded-lg text-slate-900 font-medium transition-colors'
@@ -130,7 +140,9 @@ export const withPermissions = <P extends object>(
   guardProps: Omit<PermissionGuardProps, 'children'>
 ) => {
   return (props: P) => (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <PermissionGuard {...guardProps}>
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <Component {...props} />
     </PermissionGuard>
   );
@@ -143,6 +155,7 @@ export const AdminOnly: React.FC<{ children: React.ReactNode; fallback?: React.R
   children,
   fallback,
 }) => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <PermissionGuard permissions={['admin.full_access', 'admin.user_management']} fallback={fallback}>
     {children}
   </PermissionGuard>
@@ -155,6 +168,7 @@ export const SuperAdminOnly: React.FC<{
   children: React.ReactNode;
   fallback?: React.ReactNode;
 }> = ({ children, fallback }) => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <PermissionGuard permissions={['admin.full_access']} fallback={fallback}>
     {children}
   </PermissionGuard>
@@ -167,6 +181,7 @@ export const AuthenticatedOnly: React.FC<{
   children: React.ReactNode;
   fallback?: React.ReactNode;
 }> = ({ children, fallback }) => (
+  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <PermissionGuard
     accessCheck={() => true} // Just need to be authenticated
     fallback={fallback}

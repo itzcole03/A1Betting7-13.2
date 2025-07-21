@@ -4,6 +4,7 @@ jest.mock('ky', () => ({
 import { MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react';
+// @ts-expect-error TS(6142): Module '../LockedBetsPageWorking' was resolved to ... Remove this comment to see the full error message
 import LockedBetsPageWorking from '../LockedBetsPageWorking';
 
 const queryClient = new QueryClient();
@@ -11,8 +12,11 @@ const queryClient = new QueryClient();
 describe('LockedBetsPageWorking', () => {
   it('renders empty state when no locked bets', () => {
     render(
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <MantineProvider>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <QueryClientProvider client={queryClient}>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <LockedBetsPageWorking />
         </QueryClientProvider>
       </MantineProvider>
@@ -29,8 +33,11 @@ describe('LockedBetsPageWorking', () => {
 
   it('renders refresh button and handles click', () => {
     render(
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <MantineProvider>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <QueryClientProvider client={queryClient}>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <LockedBetsPageWorking />
         </QueryClientProvider>
       </MantineProvider>
@@ -43,8 +50,11 @@ describe('LockedBetsPageWorking', () => {
 
   it('shows loading state when loading', () => {
     render(
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <MantineProvider>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <QueryClientProvider client={queryClient}>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <LockedBetsPageWorking />
         </QueryClientProvider>
       </MantineProvider>
@@ -63,8 +73,11 @@ describe('LockedBetsPageWorking', () => {
       }),
     }));
     render(
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <MantineProvider>
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <QueryClientProvider client={queryClient}>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <LockedBetsPageWorking />
         </QueryClientProvider>
       </MantineProvider>

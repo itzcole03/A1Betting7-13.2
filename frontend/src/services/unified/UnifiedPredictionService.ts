@@ -18,12 +18,14 @@ interface PredictionResult {
   timestamp: Date;
 }
 
+// @ts-expect-error TS(2415): Class 'UnifiedPredictionService' incorrectly exten... Remove this comment to see the full error message
 export class UnifiedPredictionService extends BaseService {
   private static instance: UnifiedPredictionService;
   private cache: UnifiedCache;
   private dataService: UnifiedDataService;
 
   protected constructor() {
+    // @ts-expect-error TS(2554): Expected 2 arguments, but got 1.
     super('UnifiedPredictionService');
     this.cache = UnifiedCache.getInstance();
     this.dataService = UnifiedDataService.getInstance();

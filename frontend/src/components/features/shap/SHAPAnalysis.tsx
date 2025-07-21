@@ -18,6 +18,7 @@ import {
   AlertTriangle,
   CheckCircle,
 } from 'lucide-react';
+// @ts-expect-error TS(6142): Module '../../core/Layout' was resolved to 'C:/Use... Remove this comment to see the full error message
 import { Layout } from '../../core/Layout';
 
 interface SHAPValue {
@@ -331,54 +332,73 @@ const SHAPAnalysis: React.FC = () => {
   const selectedPredictionData = predictions.find(p => p.id === selectedPrediction);
 
   return (
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <Layout
       title='SHAP Analysis'
       subtitle='Model Explainability & Feature Impact Analysis'
       headerActions={
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center space-x-3'>
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <select
             value={viewMode}
             onChange={e => setViewMode(e.target.value as any)}
             className='px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <option value='prediction'>Prediction Analysis</option>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <option value='global'>Global Importance</option>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <option value='interactions'>Feature Interactions</option>
           </select>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <select
             value={selectedModel}
             onChange={e => setSelectedModel(e.target.value)}
             className='px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <option value='all'>All Models</option>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <option value='xgb-ensemble'>XGBoost Ensemble</option>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <option value='lstm-model'>LSTM Model</option>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <option value='rf-model'>Random Forest</option>
           </select>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <button
             onClick={loadSHAPData}
             disabled={isAnalyzing}
             className='flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 rounded-lg text-white font-medium transition-all disabled:opacity-50'
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <RefreshCw className={`w-4 h-4 ${isAnalyzing ? 'animate-spin' : ''}`} />
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span>Analyze</span>
           </button>
         </div>
       }
     >
       {viewMode === 'prediction' && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <>
           {/* Prediction Selection */}
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className='bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-6 mb-8'
           >
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h3 className='text-lg font-bold text-white mb-4'>Recent Predictions</h3>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               {predictions.map(prediction => (
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button
                   key={prediction.id}
                   onClick={() => setSelectedPrediction(prediction.id)}
@@ -388,13 +408,18 @@ const SHAPAnalysis: React.FC = () => {
                       : 'border-slate-700/50 bg-slate-900/50 hover:border-slate-600/50'
                   }`}
                 >
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='flex items-center justify-between mb-2'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h4 className='font-bold text-white'>{prediction.gameId}</h4>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span className='text-green-400 font-medium'>
                       {prediction.confidence.toFixed(1)}%
                     </span>
                   </div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='text-sm text-gray-400 mb-1'>{prediction.market}</div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='text-sm text-gray-400'>
                     Model: {prediction.modelId} • {prediction.timestamp.toLocaleTimeString()}
                   </div>
@@ -405,6 +430,7 @@ const SHAPAnalysis: React.FC = () => {
 
           {/* SHAP Analysis Details */}
           {selectedPredictionData && (
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -412,33 +438,49 @@ const SHAPAnalysis: React.FC = () => {
               className='space-y-8'
             >
               {/* Prediction Summary */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-6'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center justify-between mb-6'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h3 className='text-xl font-bold text-white'>
                       {selectedPredictionData.gameId}
                     </h3>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <p className='text-gray-400'>{selectedPredictionData.market}</p>
                   </div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='text-right'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='text-3xl font-bold text-green-400'>
                       {(selectedPredictionData.prediction * 100).toFixed(1)}%
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='text-sm text-gray-400'>Prediction Confidence</div>
                   </div>
                 </div>
 
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='p-4 bg-slate-900/50 rounded-lg'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h4 className='font-medium text-white mb-2'>Base Value</h4>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='text-2xl font-bold text-gray-400'>
                       {(selectedPredictionData.localExplanation.baseValue * 100).toFixed(1)}%
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='text-xs text-gray-500'>Model's default prediction</div>
                   </div>
 
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='p-4 bg-slate-900/50 rounded-lg'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h4 className='font-medium text-white mb-2'>Feature Impact</h4>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='text-2xl font-bold text-purple-400'>
                       +
                       {(
@@ -448,35 +490,48 @@ const SHAPAnalysis: React.FC = () => {
                       ).toFixed(1)}
                       %
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='text-xs text-gray-500'>Total feature contribution</div>
                   </div>
 
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='p-4 bg-slate-900/50 rounded-lg'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h4 className='font-medium text-white mb-2'>Model Quality</h4>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='text-2xl font-bold text-cyan-400'>
                       {selectedPredictionData.confidence.toFixed(1)}%
                     </div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='text-xs text-gray-500'>Prediction confidence</div>
                   </div>
                 </div>
               </div>
 
               {/* Feature Contributions */}
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-6'>
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center justify-between mb-6'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h3 className='text-xl font-bold text-white'>Feature Contributions</h3>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <p className='text-gray-400 text-sm'>
                       SHAP values showing feature impact on prediction
                     </p>
                   </div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <Eye className='w-5 h-5 text-purple-400' />
                 </div>
 
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='space-y-4'>
                   {selectedPredictionData.shapValues
                     .sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
                     .map((shap, index) => (
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <motion.div
                         key={shap.feature}
                         initial={{ opacity: 0, x: -20 }}
@@ -484,30 +539,42 @@ const SHAPAnalysis: React.FC = () => {
                         transition={{ delay: 0.3 + index * 0.1 }}
                         className='border border-slate-700/50 rounded-lg overflow-hidden'
                       >
+                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div
                           className='p-4 cursor-pointer hover:bg-slate-800/30 transition-colors'
                           onClick={() => toggleFeatureExpansion(shap.feature)}
                         >
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div className='flex items-center justify-between mb-3'>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <div className='flex items-center space-x-3'>
                               {expandedFeatures.has(shap.feature) ? (
+                                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <ChevronDown className='w-4 h-4 text-gray-400' />
                               ) : (
+                                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <ChevronRight className='w-4 h-4 text-gray-400' />
                               )}
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <div>
+                                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <h4 className='font-bold text-white'>{shap.feature}</h4>
+                                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <div className='text-xs text-gray-400'>{shap.category}</div>
                               </div>
                             </div>
 
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <div className='flex items-center space-x-4'>
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <span
                                 className={`px-3 py-1 rounded-full text-xs font-medium ${getImpactColor(shap.impact)}`}
                               >
                                 {shap.impact.toUpperCase()}
                               </span>
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <div className='text-right'>
+                                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <div
                                   className={`text-lg font-bold ${
                                     shap.contribution > 0 ? 'text-green-400' : 'text-red-400'
@@ -516,14 +583,18 @@ const SHAPAnalysis: React.FC = () => {
                                   {shap.contribution > 0 ? '+' : ''}
                                   {(shap.contribution * 100).toFixed(1)}%
                                 </div>
+                                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <div className='text-xs text-gray-400'>contribution</div>
                               </div>
                             </div>
                           </div>
 
                           {/* Contribution Bar */}
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div className='relative w-full bg-slate-700 rounded-full h-3 mb-2'>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <div className='absolute left-1/2 w-px h-3 bg-gray-400'></div>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <div
                               className={`h-3 rounded-full transition-all duration-500 ${getContributionBarColor(shap.contribution)}`}
                               style={{
@@ -536,27 +607,40 @@ const SHAPAnalysis: React.FC = () => {
                             />
                           </div>
 
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <div className='flex justify-between text-xs text-gray-400'>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <span>Value: {shap.value}</span>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <span>Base: {shap.baseValue}</span>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <span>Importance: {(shap.importance * 100).toFixed(1)}%</span>
                           </div>
                         </div>
 
                         {expandedFeatures.has(shap.feature) && (
+                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                           <motion.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}
                             className='border-t border-slate-700/50 p-4 bg-slate-900/30'
                           >
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <p className='text-gray-300 text-sm mb-3'>{shap.description}</p>
+                            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                             <div className='grid grid-cols-2 gap-4 text-sm'>
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <div>
+                                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <span className='text-gray-400'>Current Value:</span>
+                                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <span className='text-white ml-2'>{shap.value}</span>
                               </div>
+                              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                               <div>
+                                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <span className='text-gray-400'>Expected Value:</span>
+                                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <span className='text-white ml-2'>{shap.baseValue}</span>
                               </div>
                             </div>
@@ -572,21 +656,29 @@ const SHAPAnalysis: React.FC = () => {
       )}
 
       {viewMode === 'global' && modelInterpretability.length > 0 && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className='bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-6'
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center justify-between mb-6'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <h3 className='text-xl font-bold text-white'>Global Feature Importance</h3>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <p className='text-gray-400 text-sm'>Average feature impact across all predictions</p>
             </div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <BarChart3 className='w-5 h-5 text-green-400' />
           </div>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='space-y-4'>
             {modelInterpretability[0].globalImportance.map((feature, index) => (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <motion.div
                 key={feature.feature}
                 initial={{ opacity: 0, x: -20 }}
@@ -594,18 +686,25 @@ const SHAPAnalysis: React.FC = () => {
                 transition={{ delay: index * 0.1 }}
                 className='flex items-center justify-between p-3 bg-slate-900/50 rounded-lg'
               >
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='font-medium text-white'>{feature.feature}</div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='text-xs text-gray-400'>{feature.category}</div>
                 </div>
 
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center space-x-4'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='w-32 bg-slate-700 rounded-full h-2'>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className='bg-gradient-to-r from-purple-400 to-cyan-400 h-2 rounded-full transition-all duration-500'
                       style={{ width: `${(feature.importance / 0.2) * 100}%` }}
                     />
                   </div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span className='text-white font-medium w-12 text-right'>
                     {(feature.importance * 100).toFixed(1)}%
                   </span>
@@ -617,21 +716,29 @@ const SHAPAnalysis: React.FC = () => {
       )}
 
       {viewMode === 'interactions' && modelInterpretability.length > 0 && (
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className='bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-6'
         >
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center justify-between mb-6'>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <h3 className='text-xl font-bold text-white'>Feature Interactions</h3>
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <p className='text-gray-400 text-sm'>How features interact with each other</p>
             </div>
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <Cpu className='w-5 h-5 text-purple-400' />
           </div>
 
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='space-y-4'>
             {modelInterpretability[0].featureInteractions.map((interaction, index) => (
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <motion.div
                 key={`${interaction.feature1}-${interaction.feature2}`}
                 initial={{ opacity: 0, y: 10 }}
@@ -639,13 +746,18 @@ const SHAPAnalysis: React.FC = () => {
                 transition={{ delay: index * 0.1 }}
                 className='p-4 bg-slate-900/50 rounded-lg border border-slate-700/50'
               >
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-start justify-between mb-3'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <h4 className='font-medium text-white'>
                       {interaction.feature1} ↔ {interaction.feature2}
                     </h4>
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <p className='text-sm text-gray-300 mt-1'>{interaction.explanation}</p>
                   </div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${getInteractionStrength(interaction.strength)}`}
                   >
@@ -653,8 +765,11 @@ const SHAPAnalysis: React.FC = () => {
                   </span>
                 </div>
 
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center justify-between'>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='text-sm text-gray-400'>Interaction Value</div>
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div
                     className={`text-lg font-bold ${
                       interaction.interactionValue > 0 ? 'text-green-400' : 'text-red-400'
