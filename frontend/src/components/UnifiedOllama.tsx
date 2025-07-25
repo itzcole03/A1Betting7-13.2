@@ -200,27 +200,34 @@ const UnifiedOllama: React.FC = () => {
                   return bets
                     .concat(Array(6 - bets.length).fill(null))
                     .map((bet, idx) => bet ? (
-                      <div key={idx} className='p-4 rounded-lg bg-gray-800/50 border border-cyan-400/20 shadow-md relative'>
+                      <div key={idx} className='p-3 rounded-lg bg-gray-800/50 border border-cyan-400/20 shadow-md relative'>
                         {bet.trending && (
-                          <div className='absolute top-2 right-2'>
-                            <span className='bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse'>
-                              🔥 HOT
+                          <div className='absolute top-1 right-1 z-10'>
+                            <span className='bg-red-500 text-white text-xs px-1.5 py-0.5 rounded text-xs font-medium animate-pulse'>
+                              🔥
                             </span>
                           </div>
                         )}
-                        <div className='text-lg font-bold text-cyan-200'>{bet.player}</div>
-                        <div className='text-cyan-100'>
-                          {bet.prop}: <span className='text-green-400 font-semibold'>{bet.value}</span>
+                        <div className={`text-sm font-bold text-cyan-200 leading-tight ${bet.trending ? 'pr-8' : ''}`}>
+                          {bet.player}
                         </div>
-                        <div className='mt-2 flex justify-between items-center text-xs'>
-                          <span className='text-green-400'>Confidence: {bet.confidence}</span>
-                          <span className={`px-2 py-1 rounded ${
-                            bet.volume === 'Very High' ? 'bg-red-500/20 text-red-400' :
-                            bet.volume === 'High' ? 'bg-orange-500/20 text-orange-400' :
-                            'bg-blue-500/20 text-blue-400'
-                          }`}>
-                            {bet.volume} Vol
-                          </span>
+                        <div className='text-sm text-cyan-100 mt-1 leading-tight'>
+                          <div className='text-xs text-gray-400'>{bet.prop}</div>
+                          <span className='text-green-400 font-semibold'>{bet.value}</span>
+                        </div>
+                        <div className='mt-2 space-y-1'>
+                          <div className='flex justify-between items-center text-xs'>
+                            <span className='text-green-400'>Confidence: {bet.confidence}</span>
+                          </div>
+                          <div className='flex justify-end'>
+                            <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                              bet.volume === 'Very High' ? 'bg-red-500/20 text-red-400' :
+                              bet.volume === 'High' ? 'bg-orange-500/20 text-orange-400' :
+                              'bg-blue-500/20 text-blue-400'
+                            }`}>
+                              {bet.volume} Vol
+                            </span>
+                          </div>
                         </div>
                       </div>
                     ) : (
