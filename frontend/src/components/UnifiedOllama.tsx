@@ -202,9 +202,9 @@ const UnifiedOllama: React.FC = () => {
                     .map((bet, idx) => bet ? (
                       <div key={idx} className='p-3 rounded-lg bg-gray-800/50 border border-cyan-400/20 shadow-md relative'>
                         {bet.trending && (
-                          <div className='absolute top-1 right-1 z-10'>
-                            <span className='bg-red-500 text-white text-xs px-1.5 py-0.5 rounded text-xs font-medium animate-pulse'>
-                              🔥
+                          <div className='absolute top-2 right-2 z-10'>
+                            <span className='bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg'>
+                              HOT
                             </span>
                           </div>
                         )}
