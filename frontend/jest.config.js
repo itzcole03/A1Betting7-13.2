@@ -1,74 +1,112 @@
-// jest.config.js -- must be valid CommonJS, no BOM, no trailing commas
+// Unified Jest Configuration - consolidates all test setups
 module.exports = {
-  testEnvironment: 'jest-fixed-jsdom',
-  setupFiles: [
-    '<rootDir>/jest.setup.onboarding.js',
-    '<rootDir>/../test/jest.polyfill.js',
-    '<rootDir>/../test/jest.setup.e2e.empty-flag.js',
-    '<rootDir>/../jest.localstorage.js',
-    '<rootDir>/../jest.matchmedia.js',
-  ],
+  testEnvironment: 'jsdom',
+  
+  // Unified setup files
   setupFilesAfterEnv: [
-    '<rootDir>/jest.setup.js',
-    '<rootDir>/jest.setup.e2e.js',
-    '<rootDir>/../test/jest.setup.msw.js',
+    '<rootDir>/jest.setup.ts',
   ],
-  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx'],
+  
+  // File extensions
+  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'],
+  
+  // Transform configuration
   transform: {
-    '^.+\\.[jt]sx?$': 'babel-jest',
+    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.(js|jsx)$': 'babel-jest',
   },
+  
+  // Test file patterns
   testMatch: [
-    '**/__tests__/*.[jt]s?(x)',
-    '**/__tests__/**/*.[jt]s?(x)',
-    '**/__tests__/**/*.(test|spec).[jt]s?(x)',
+    '<rootDir>/src/**/__tests__/**/*.(test|spec).(ts|tsx|js|jsx)',
+    '<rootDir>/src/**/?(*.)(test|spec).(ts|tsx|js|jsx)',
   ],
+  
+  // Module name mapping
   moduleNameMapper: {
-    // Map absolute imports for hooks
-    'src/hooks/useEnhancedBets': '<rootDir>/src/hooks/useEnhancedBets',
-    'src/hooks/usePortfolioOptimization': '<rootDir>/src/hooks/__mocks__/usePortfolioOptimization',
-    'src/hooks/useAIInsights': '<rootDir>/src/hooks/__mocks__/useAIInsights',
-    // Also map with .ts extension for TypeScript imports
-    '^../hooks/usePortfolioOptimization.ts$':
-      '<rootDir>/src/hooks/__mocks__/usePortfolioOptimization',
-    '^./hooks/usePortfolioOptimization.ts$':
-      '<rootDir>/src/hooks/__mocks__/usePortfolioOptimization',
-    '^src/hooks/usePortfolioOptimization.ts$':
-      '<rootDir>/src/hooks/__mocks__/usePortfolioOptimization',
-    '^hooks/usePortfolioOptimization.ts$': '<rootDir>/src/hooks/__mocks__/usePortfolioOptimization',
-    '^../hooks/useAIInsights.ts$': '<rootDir>/src/hooks/__mocks__/useAIInsights',
-    '^./hooks/useAIInsights.ts$': '<rootDir>/src/hooks/__mocks__/useAIInsights',
-    '^src/hooks/useAIInsights.ts$': '<rootDir>/src/hooks/__mocks__/useAIInsights',
-    '^hooks/useAIInsights.ts$': '<rootDir>/src/hooks/__mocks__/useAIInsights',
+    // Path aliases
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^src/(.*)$': '<rootDir>/src/$1',
+    
+    // Style mocks
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    // Map both relative and absolute imports to the mock
-    '^../services/unifiedApiService$': '<rootDir>/src/services/__mocks__/unifiedApiService',
-    '^./services/unifiedApiService$': '<rootDir>/src/services/__mocks__/unifiedApiService',
-    '^src/services/unifiedApiService$': '<rootDir>/src/services/__mocks__/unifiedApiService',
-    '^services/unifiedApiService$': '<rootDir>/src/services/__mocks__/unifiedApiService',
-    // Map AuthContext imports to the mock
-    '^../contexts/AuthContext$': '<rootDir>/src/contexts/__mocks__/AuthContext',
-    '^./contexts/AuthContext$': '<rootDir>/src/contexts/__mocks__/AuthContext',
-    '^src/contexts/AuthContext$': '<rootDir>/src/contexts/__mocks__/AuthContext',
-    '^contexts/AuthContext$': '<rootDir>/src/contexts/__mocks__/AuthContext',
-    // Map hooks to their __mocks__ implementations
-    '^../hooks/usePortfolioOptimization$': '<rootDir>/src/hooks/__mocks__/usePortfolioOptimization',
-    '^./hooks/usePortfolioOptimization$': '<rootDir>/src/hooks/__mocks__/usePortfolioOptimization',
-    '^src/hooks/usePortfolioOptimization$':
-      '<rootDir>/src/hooks/__mocks__/usePortfolioOptimization',
-    '^hooks/usePortfolioOptimization$': '<rootDir>/src/hooks/__mocks__/usePortfolioOptimization',
-    '^../hooks/useAIInsights$': '<rootDir>/src/hooks/__mocks__/useAIInsights',
-    '^./hooks/useAIInsights$': '<rootDir>/src/hooks/__mocks__/useAIInsights',
-    '^src/hooks/useAIInsights$': '<rootDir>/src/hooks/__mocks__/useAIInsights',
-    '^hooks/useAIInsights$': '<rootDir>/src/hooks/__mocks__/useAIInsights',
+    '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$': 'jest-transform-stub',
+    
+    // Service mocks
+    '^(.*/)?services/(.*)$': '<rootDir>/src/services/__mocks__/$2',
+    
+    // Hook mocks
+    '^(.*/)?hooks/(.*)$': '<rootDir>/src/hooks/__mocks__/$2',
+    
+    // Context mocks
+    '^(.*/)?contexts/(.*)$': '<rootDir>/src/contexts/__mocks__/$2',
   },
+  
+  // Coverage configuration
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/*.stories.{ts,tsx}',
+    '!src/**/__tests__/**/*',
+    '!src/**/test/**/*',
+    '!src/index.tsx',
+    '!src/reportWebVitals.ts',
+  ],
+  
+  coverageReporters: ['json', 'lcov', 'text', 'clover', 'html'],
+  
+  // Test reporting
   reporters: [
     'default',
-    ['jest-junit', { outputDirectory: './reports/junit', outputName: 'js-test-results.xml' }],
+    ['jest-junit', { 
+      outputDirectory: './reports/junit', 
+      outputName: 'js-test-results.xml',
+      classNameTemplate: '{classname}',
+      titleTemplate: '{title}',
+      ancestorSeparator: ' › ',
+      usePathForSuiteName: true,
+    }],
   ],
-  resetMocks: true,
+  
+  // Test environment options
+  testEnvironmentOptions: {
+    url: 'http://localhost',
+  },
+  
+  // Ignore patterns
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/dist/',
+    '/build/',
+    '/coverage/',
+    '\\.d\\.ts$',
+  ],
+  
+  // Module paths
+  modulePaths: ['<rootDir>/src'],
+  
+  // Clear mocks between tests
   clearMocks: true,
+  resetMocks: true,
   restoreMocks: true,
-  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/build/', '\\.d\\.ts$'],
-  coverageReporters: ['json', 'lcov', 'text', 'clover'],
+  
+  // Timeout
+  testTimeout: 10000,
+  
+  // Globals
+  globals: {
+    'ts-jest': {
+      tsconfig: {
+        jsx: 'react-jsx',
+      },
+    },
+  },
+  
+  // Preset
+  preset: 'ts-jest/presets/js-with-ts',
+  
+  // Transform ignore patterns
+  transformIgnorePatterns: [
+    'node_modules/(?!(.*\\.mjs$|@testing-library|@tanstack|zustand|framer-motion))',
+  ],
 };
