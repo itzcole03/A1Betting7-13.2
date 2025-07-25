@@ -21,8 +21,8 @@ export const useTrendingSuggestions = () => {
       const allSuggestions = [...apiSuggestions, ...timeSuggestions];
       const shuffled = allSuggestions.sort(() => Math.random() - 0.5);
       
-      // Take top 6 suggestions
-      setSuggestions(shuffled.slice(0, 6));
+      // Take top 10 suggestions to ensure we have more than 6
+      setSuggestions(shuffled.slice(0, 10));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load suggestions');
     } finally {
