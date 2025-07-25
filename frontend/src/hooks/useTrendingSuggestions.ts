@@ -10,21 +10,24 @@ export const useTrendingSuggestions = () => {
     try {
       setLoading(true);
       setError(null);
-      
-      // Get API suggestions
+
+      // Get API suggestions (with fallback built-in)
       const apiSuggestions = await trendingSuggestionsService.getTrendingSuggestions();
-      
+
       // Get time-based suggestions
       const timeSuggestions = trendingSuggestionsService.getTimeBasedSuggestions();
-      
+
       // Combine and shuffle suggestions
       const allSuggestions = [...apiSuggestions, ...timeSuggestions];
       const shuffled = allSuggestions.sort(() => Math.random() - 0.5);
-      
+
       // Take top 10 suggestions to ensure we have more than 6
       setSuggestions(shuffled.slice(0, 10));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load suggestions');
+      // Even if everything fails, provide basic fallback
+      console.warn('All suggestion loading failed, using emergency fallbacks');
+      setSuggestions(trendingSuggestionsService.getTimeBasedSuggestions());
+      setError(null); // Don't show error to user since we have fallbacks
     } finally {
       setLoading(false);
     }
