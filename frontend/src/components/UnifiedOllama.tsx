@@ -6,6 +6,7 @@ const UnifiedOllama: React.FC = () => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [showHealthTooltip, setShowHealthTooltip] = useState(false);
   const [input, setInput] = useState('');
+  const [showMoreSuggestions, setShowMoreSuggestions] = useState(false);
   const { suggestions, loading: suggestionsLoading } = useTrendingSuggestions();
 
   return (
