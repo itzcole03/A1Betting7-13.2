@@ -29,12 +29,17 @@ class TrendingSuggestionsService {
 
   async getTrendingSuggestions(): Promise<TrendingSuggestion[]> {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
       const response = await fetch(`${this.baseUrl}/api/trending-suggestions`, {
-        timeout: 3000, // 3 second timeout
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
         },
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`API returned ${response.status}`);
