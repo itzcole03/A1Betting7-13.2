@@ -200,16 +200,28 @@ const UnifiedOllama: React.FC = () => {
                   return bets
                     .concat(Array(6 - bets.length).fill(null))
                     .map((bet, idx) => bet ? (
-                      <div key={idx} className='p-3 rounded-lg bg-gray-800/50 border border-cyan-400/20 shadow-md relative'>
-                        {bet.trending && (
-                          <div className='absolute top-2 right-2 z-10'>
-                            <span className='bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg'>
-                              HOT
-                            </span>
-                          </div>
-                        )}
-                        <div className={`text-sm font-bold text-cyan-200 leading-tight ${bet.trending ? 'pr-12' : ''}`}>
-                          {bet.player}
+                      <div key={idx} className='p-3 rounded-lg bg-gray-800/50 border border-cyan-400/20 shadow-md'>
+                        <div className='text-sm font-bold text-cyan-200 leading-tight'>
+                          {(() => {
+                            const playerMatch = bet.player.match(/^(.+?) \((.+)\)$/);
+                            if (playerMatch) {
+                              const [, playerName, sport] = playerMatch;
+                              return (
+                                <>
+                                  <div>{playerName}</div>
+                                  <div className='flex items-center gap-2 text-xs text-gray-400 mt-0.5'>
+                                    <span>({sport})</span>
+                                    {bet.trending && (
+                                      <span className='bg-gradient-to-r from-red-500 to-orange-500 text-white px-1.5 py-0.5 rounded-full font-bold text-xs'>
+                                        HOT
+                                      </span>
+                                    )}
+                                  </div>
+                                </>
+                              );
+                            }
+                            return bet.player;
+                          })()}
                         </div>
                         <div className='text-sm text-cyan-100 mt-1 leading-tight'>
                           <div className='text-xs text-gray-400'>{bet.prop}</div>
