@@ -1,0 +1,14 @@
+/* Quantum Styles */
+
+/* Minimal fallback styles for quantum theming */
+.quantum-effect {
+  /* Placeholder for quantum visual effects */
+}
+
+.quantum-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.quantum-glow {
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+}

@@ -1,0 +1,24 @@
+/* Cyber Theme Styles */
+
+/* Cyber theme variables and styles */
+:root {
+  --cyber-primary: #00ff41;
+  --cyber-secondary: #ff0080;
+  --cyber-background: #0d0d0d;
+  --cyber-surface: #1a1a1a;
+  --cyber-text: #00ff41;
+}
+
+.cyber-theme {
+  background-color: var(--cyber-background);
+  color: var(--cyber-text);
+}
+
+.cyber-glow {
+  text-shadow: 0 0 10px var(--cyber-primary);
+}
+
+.cyber-border {
+  border: 1px solid var(--cyber-primary);
+  box-shadow: 0 0 5px var(--cyber-primary);
+}
