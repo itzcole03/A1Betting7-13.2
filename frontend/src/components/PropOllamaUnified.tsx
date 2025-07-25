@@ -1,17 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  TrendingUp, 
-  Target, 
-  Brain, 
-  Star, 
-  Trophy, 
-  Activity, 
-  RefreshCw,
-  Filter,
-  Search,
-  ChevronDown
-} from 'lucide-react';
+import React from 'react';
+import PrizePicksPro from './user-friendly/PrizePicksPro';
 
 interface PropProjection {
   id: string;
