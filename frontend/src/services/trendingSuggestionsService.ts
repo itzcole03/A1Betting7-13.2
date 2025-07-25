@@ -125,7 +125,7 @@ class TrendingSuggestionsService {
   }
 
   // Get time-based suggestions
-  getTimeBasedSuggestions(): TrendingSuggestion[] {
+  public getTimeBasedSuggestions(): TrendingSuggestion[] {
     const hour = new Date().getHours();
     
     if (hour >= 6 && hour < 12) {
