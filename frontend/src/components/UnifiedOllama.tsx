@@ -105,7 +105,7 @@ const UnifiedOllama: React.FC = () => {
                     )}
                   </div>
                   <div className='grid grid-cols-2 gap-2'>
-                    {suggestions.slice(0, 6).map((suggestion, index) => (
+                    {suggestions.slice(0, showMoreSuggestions ? suggestions.length : 6).map((suggestion, index) => (
                       <motion.button
                         key={index}
                         initial={{ opacity: 0, y: 10 }}
