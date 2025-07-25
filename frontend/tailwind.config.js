@@ -31,6 +31,19 @@ export default {
         cyber: ['Orbitron', 'monospace'],
       },
       colors: {
+        // Override common text colors to use cyan
+        white: '#67e8f9', // cyan-300
+        gray: {
+          100: '#67e8f9',
+          200: '#67e8f9',
+          300: '#67e8f9',
+          400: '#67e8f9',
+          500: '#67e8f9',
+          600: '#67e8f9',
+          700: '#67e8f9',
+          800: '#67e8f9',
+          900: '#67e8f9',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

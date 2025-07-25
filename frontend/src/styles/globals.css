@@ -132,10 +132,60 @@ html {
     --color-warning: 234 179 8;
     --color-danger: 239 68 68;
     --color-info: 59 130 246;
+    --foreground: 103 232 249; /* cyan-300 in HSL format */
   }
 
   body {
-    @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white;
+    @apply bg-gray-50 dark:bg-gray-900 text-cyan-300 dark:text-cyan-300;
+  }
+
+  /* Apply cyan color to all text elements by default */
+  * {
+    color: #67e8f9 !important; /* cyan-300 color with !important */
+  }
+
+  /* Override for specific elements that need different colors */
+  h1, h2, h3, h4, h5, h6 {
+    color: #67e8f9 !important;
+  }
+
+  p, span, div, label, button {
+    color: #67e8f9 !important;
+  }
+
+  /* Force cyan for all text classes */
+  [class*="text-"] {
+    color: #67e8f9 !important;
+  }
+
+  /* Specific overrides for common Tailwind classes */
+  .text-white,
+  .text-gray-100,
+  .text-gray-200,
+  .text-gray-300,
+  .text-gray-400,
+  .text-gray-500,
+  .text-gray-600,
+  .text-gray-700,
+  .text-gray-800,
+  .text-gray-900,
+  .text-yellow-400,
+  .text-green-400,
+  .text-blue-300,
+  .text-purple-400,
+  .text-red-200 {
+    color: #67e8f9 !important;
+  }
+
+  /* Override all text color utilities */
+  [class*="text-white"],
+  [class*="text-gray"],
+  [class*="text-yellow"],
+  [class*="text-green"],
+  [class*="text-blue"],
+  [class*="text-purple"],
+  [class*="text-red"] {
+    color: #67e8f9 !important;
   }
 }
 
@@ -172,14 +222,14 @@ html {
 
   /* Fix select dropdown options visibility */
   select option {
-    @apply bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100;
+    @apply bg-white dark:bg-gray-800 text-cyan-300 dark:text-cyan-300;
   }
 
   /* Ensure all form elements have proper text color */
   input,
   select,
   textarea {
-    @apply text-gray-900 dark:text-gray-100;
+    @apply text-cyan-300 dark:text-cyan-300;
   }
 
   /* Fix placeholder text visibility */

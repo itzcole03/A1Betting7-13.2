@@ -17,8 +17,7 @@ import {
   PlayCircle,
   TrendingDown,
 } from 'lucide-react';
-// @ts-expect-error TS(6142): Module '../core/Layout' was resolved to 'C:/Users/... Remove this comment to see the full error message
-import { Layout } from '../core/Layout';
+import Layout from '../core/Layout';
 
 interface BettingOpportunity {
   id: string;

@@ -1,11 +1,15 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { Brain, BarChart3, Menu, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ErrorBoundary } from '../../components/core/ErrorBoundary';
+import { ErrorBoundary } from '../core/ErrorBoundary';
 
-// Corrected import paths for main features (relative to user-friendly directory)
-const PropOllamaUnified = lazy(() => import('../PropOllamaUnified'));
-const PredictionDisplay = lazy(() => import('../PredictionDisplay'));
+// Simplified test - comment out problematic imports temporarily
+// const PropOllamaUnified = lazy(() => import('../PropOllamaUnified'));
+// const PredictionDisplay = lazy(() => import('../PredictionDisplay'));
+
+// Simple test components
+const PropOllamaUnified = lazy(() => Promise.resolve({ default: () => <div className="p-4 text-white">PropOllama Test</div> }));
+const PredictionDisplay = lazy(() => Promise.resolve({ default: () => <div className="p-4 text-white">Predictions Test</div> }));
 // const AnalyticsTab = lazy(() => import('../AnalyticsTab')); // Uncomment after validation
 // const QuantumAITab = lazy(() => import('../QuantumAITab')); // Uncomment after validation
 

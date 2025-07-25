@@ -1,5 +1,3 @@
-// Export only the single, consolidated MoneyMaker component
-export {
-  _ConsolidatedUniversalMoneyMaker as MoneyMaker,
-  _ConsolidatedUniversalMoneyMaker as default,
-} from './ConsolidatedUniversalMoneyMaker';
+// Export the ultimate MoneyMaker component - the most complete implementation
+export { default as MoneyMaker } from './UltimateMoneyMaker';
+export { default } from './UltimateMoneyMaker';

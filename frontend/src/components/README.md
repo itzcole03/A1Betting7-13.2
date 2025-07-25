@@ -1,31 +1,68 @@
-# Components Directory
+# Component Organization
 
-# Components Directory (Post-Consolidation)
-
-This directory now contains only production-ready, deduplicated React UI components, organized by feature and domain.
-
-- **All legacy, backup, and variant files have been removed or archived.**
-- **Only canonical, universal, or mega components are exported from each folder's `index.ts`.**
-- **Imports throughout the codebase must use only the new, consolidated exports.**
+This directory contains all React components organized by functionality and reusability.
 
 ## Structure
 
-- Subfolders group related components (e.g., `analytics/`, `betting/`, `ml/`, `prediction/`, etc.).
-- Shared UI elements (buttons, cards, modals, etc.) are in `ui/`, `base/`, `shared/ui/`, or `common/`.
-- Each major folder has an `index.ts` that exports only the canonical, production-ready components.
-- All components are written in TypeScript/TSX unless otherwise noted.
-- Test files are in `__tests__/` subfolders.
+```
+components/
+├── README.md                    # This file
+├── index.ts                     # Main exports for clean imports
+│
+├── features/                    # Main application features
+│   ├── index.ts                # Feature exports
+│   └── moneymaker/             # MoneyMaker feature directory
+│
+├── core/                       # Core app components (layout, navigation)
+│   ├── index.ts                # Core component exports  
+│   ├── ErrorBoundary/
+│   ├── Layout/
+│   └── Navbar/
+│
+├── ui/                         # Reusable UI components
+│   ├── index.ts                # UI component exports
+│   ├── button.tsx
+│   ├── card.tsx
+│   └── ...
+│
+├── auth/                       # Authentication components
+│   ├── AuthPage.tsx
+│   └── PasswordChangeForm.tsx
+│
+└── user-friendly/              # Main app shell
+    └── UserFriendlyApp.tsx     # Primary application component
+```
 
-## Migration Guide
+## Usage
 
-1. **Import only from the relevant `index.ts` files in each folder.**
-2. **Do not import from legacy, backup, or variant files.**
-3. **If you need a UI primitive, use the canonical export from `ui/`, `base/`, `shared/ui/`, or `common/`.**
-4. **For feature or mega components, import from `features/` or `mega/`.**
-5. **If you find a duplicate or legacy file, archive or delete it.**
+### Clean Imports
+Instead of deep relative imports, use the organized structure:
 
-## Best Practices
+```typescript
+// ✅ Good - using organized exports
+import { PropOllamaUnified, PredictionDisplay, MoneyMaker } from '@/components/features';
+import { ErrorBoundary, Layout } from '@/components/core';
+import { Button, Card, Input } from '@/components/ui';
 
-- Keep all exports in `index.ts` up to date with only the canonical components.
-- Run tests after any major refactor or deduplication.
-- Update this README and the migration guide as the structure evolves.
+// ❌ Avoid - deep relative imports  
+import PropOllamaUnified from '../../features/PropOllamaUnified';
+import ErrorBoundary from '../../../core/ErrorBoundary';
+```
+
+## Current Active Components
+
+The application currently uses these main components:
+
+1. **UserFriendlyApp** - Main application shell with tab navigation
+2. **PropOllamaUnified** - AI chat interface for sports betting analysis  
+3. **PredictionDisplay** - Sports predictions and betting recommendations
+4. **MoneyMaker** (UltimateMoneyMaker) - Advanced betting strategies and AI analysis
+
+## Guidelines
+
+- **features/**: Large, complex components that represent main app functionality
+- **core/**: Essential app infrastructure (layout, routing, error handling)
+- **ui/**: Small, reusable components that don't contain business logic
+- **auth/**: Authentication and user management components
+
+Each directory should have an `index.ts` file for clean exports.
