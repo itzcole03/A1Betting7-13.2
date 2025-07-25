@@ -94,6 +94,51 @@ const UnifiedOllama: React.FC = () => {
                 <button className='w-full px-6 py-3 rounded-lg font-medium bg-gradient-to-r from-cyan-400 to-blue-500 text-black hover:from-cyan-300 hover:to-blue-400 transition-all hover:scale-105'>
                   Send
                 </button>
+
+                {/* Trending Suggestion Prompts */}
+                <div className='mt-6'>
+                  <div className='flex items-center justify-between mb-3'>
+                    <h3 className='text-sm font-medium text-cyan-400'>Trending Questions</h3>
+                    {suggestionsLoading && (
+                      <div className='w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin'></div>
+                    )}
+                  </div>
+                  <div className='grid grid-cols-2 gap-2'>
+                    {suggestions.slice(0, 6).map((suggestion, index) => (
+                      <motion.button
+                        key={index}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        onClick={() => setInput(suggestion.prompt)}
+                        className='p-3 text-left text-sm bg-gray-800/30 hover:bg-gray-700/50 border border-cyan-400/20 hover:border-cyan-400/40 rounded-lg text-cyan-300 hover:text-cyan-200 transition-all duration-200 group'
+                      >
+                        <div className='flex items-start justify-between'>
+                          <span className='line-clamp-2 group-hover:text-white transition-colors'>
+                            {suggestion.prompt}
+                          </span>
+                          {suggestion.confidence && (
+                            <span className='ml-2 text-xs text-green-400 opacity-70'>
+                              {Math.round(suggestion.confidence * 100)}%
+                            </span>
+                          )}
+                        </div>
+                        {suggestion.category && (
+                          <div className='mt-1'>
+                            <span className='text-xs text-gray-500 bg-gray-700/30 px-2 py-1 rounded'>
+                              {suggestion.category}
+                            </span>
+                          </div>
+                        )}
+                      </motion.button>
+                    ))}
+                  </div>
+                  <div className='mt-3 text-center'>
+                    <button className='text-xs text-cyan-400/70 hover:text-cyan-400 transition-colors'>
+                      More suggestions →
+                    </button>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </AnimatePresence>
