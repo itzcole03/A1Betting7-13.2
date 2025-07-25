@@ -78,6 +78,30 @@ class TrendingSuggestionsService {
         type: 'default',
         category: 'Live Betting',
         confidence: 0.78
+      },
+      {
+        prompt: "Which teams have the best value today?",
+        type: 'default',
+        category: 'Value Bets',
+        confidence: 0.73
+      },
+      {
+        prompt: "Show me player prop arbitrage opportunities",
+        type: 'prop',
+        category: 'Arbitrage',
+        confidence: 0.87
+      },
+      {
+        prompt: "What's the public betting heavily?",
+        type: 'default',
+        category: 'Public Action',
+        confidence: 0.71
+      },
+      {
+        prompt: "Any weather-affected games today?",
+        type: 'default',
+        category: 'Weather',
+        confidence: 0.69
       }
     ];
   }
