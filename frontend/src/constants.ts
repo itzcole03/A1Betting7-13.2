@@ -1,9 +1,9 @@
 // Centralized Vite env access for Jest compatibility
 // Add all VITE_ env variables used in the codebase here
 
-export const VITE_API_URL = process.env.VITE_API_URL || 'http://localhost:8000';
-export const VITE_WS_ENDPOINT = process.env.VITE_WS_ENDPOINT || 'ws://localhost:8000/ws';
-export const VITE_WS_URL = process.env.VITE_WS_URL || 'ws://localhost:8000/ws';
+export const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+export const VITE_WS_ENDPOINT = import.meta.env.VITE_WS_ENDPOINT || 'ws://localhost:8000/ws';
+export const VITE_WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
 export const VITE_THEODDS_API_KEY = import.meta.env.VITE_THEODDS_API_KEY;
 export const VITE_SPORTRADAR_API_KEY = import.meta.env.VITE_SPORTRADAR_API_KEY;
 export const VITE_DAILYFANTASY_API_KEY = import.meta.env.VITE_DAILYFANTASY_API_KEY;
