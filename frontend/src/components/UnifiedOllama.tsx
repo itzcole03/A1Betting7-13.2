@@ -134,11 +134,16 @@ const UnifiedOllama: React.FC = () => {
                       </motion.button>
                     ))}
                   </div>
-                  <div className='mt-3 text-center'>
-                    <button className='text-xs text-cyan-400/70 hover:text-cyan-400 transition-colors'>
-                      More suggestions →
-                    </button>
-                  </div>
+                  {suggestions.length > 6 && (
+                    <div className='mt-3 text-center'>
+                      <button
+                        onClick={() => setShowMoreSuggestions(!showMoreSuggestions)}
+                        className='text-xs text-cyan-400/70 hover:text-cyan-400 transition-colors'
+                      >
+                        {showMoreSuggestions ? '← Show less' : 'More suggestions →'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
