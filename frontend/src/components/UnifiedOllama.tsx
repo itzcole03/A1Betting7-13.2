@@ -153,7 +153,7 @@ const UnifiedOllama: React.FC = () => {
             >
               <div className='mb-6'>
                 <h2 className='text-xl font-bold text-green-300'>🏆 Today's Best Bets</h2>
-                <p className='text-sm text-green-400/70'>Top AI-Powered Recommendations</p>
+                <p className='text-sm text-green-400/70'>Top AI-Powered Recommendations • Live Updates</p>
               </div>
               <div className='flex-1 overflow-y-auto space-y-4'>
                 {(() => {
