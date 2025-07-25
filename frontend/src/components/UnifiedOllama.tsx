@@ -162,13 +162,33 @@ const UnifiedOllama: React.FC = () => {
                       player: 'Aaron Judge (MLB)',
                       prop: 'Home Runs',
                       value: 'OVER 2.3',
-                      confidence: '87.5%'
+                      confidence: '87.5%',
+                      trending: true,
+                      volume: 'High'
                     },
                     {
                       player: 'Mookie Betts (MLB)',
                       prop: 'Total Bases',
                       value: 'OVER 1.8',
-                      confidence: '82.1%'
+                      confidence: '82.1%',
+                      trending: false,
+                      volume: 'Medium'
+                    },
+                    {
+                      player: 'LeBron James (NBA)',
+                      prop: 'Points',
+                      value: 'OVER 25.5',
+                      confidence: '79.3%',
+                      trending: true,
+                      volume: 'Very High'
+                    },
+                    {
+                      player: 'Patrick Mahomes (NFL)',
+                      prop: 'Passing Yards',
+                      value: 'OVER 275.5',
+                      confidence: '84.2%',
+                      trending: false,
+                      volume: 'High'
                     }
                   ];
                   return bets
