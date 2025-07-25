@@ -77,7 +77,11 @@ const UnifiedOllama: React.FC = () => {
               transition={{ duration: 0.4 }}
             >
               <div className='max-w-2xl w-full p-8 rounded-xl bg-gray-950/80 shadow-lg'>
-                <h1 className='text-3xl font-bold text-cyan-300 mb-4'>UnifiedOllama AI</h1>
+                <h1 className='text-3xl font-bold text-cyan-300 mb-4'>
+                  propOllama
+                  <br />
+                  <br />
+                </h1>
                 <input
                   type='text'
                   value={input}
