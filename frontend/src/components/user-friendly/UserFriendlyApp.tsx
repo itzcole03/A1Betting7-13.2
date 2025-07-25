@@ -3,15 +3,9 @@ import { Brain, BarChart3, Menu, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ErrorBoundary } from '../core/ErrorBoundary';
 
-// Simplified test - comment out problematic imports temporarily
-// const PropOllamaUnified = lazy(() => import('../PropOllamaUnified'));
-// const PredictionDisplay = lazy(() => import('../PredictionDisplay'));
-
-// Simple test components
-const PropOllamaUnified = lazy(() => Promise.resolve({ default: () => <div className="p-4 text-white">PropOllama Test</div> }));
-const PredictionDisplay = lazy(() => Promise.resolve({ default: () => <div className="p-4 text-white">Predictions Test</div> }));
-// const AnalyticsTab = lazy(() => import('../AnalyticsTab')); // Uncomment after validation
-// const QuantumAITab = lazy(() => import('../QuantumAITab')); // Uncomment after validation
+// Import actual functional components
+const PropOllamaUnified = lazy(() => import('../PropOllamaUnified'));
+const PredictionDisplay = lazy(() => import('../PredictionDisplay'));
 
 interface NavItem {
   id: string;
