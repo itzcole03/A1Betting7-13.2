@@ -28,8 +28,8 @@ const _ThemeProviderContext = createContext<ThemeProviderState>(initialState);
  * Use the useTheme hook to access and set the current theme anywhere in the app.
  * Intended for use in the settings page and throughout the app for consistent theming.
  */
-export function ThemeProvider(_{
-  children, _defaultTheme = 'system', _storageKey = 'vite-ui-theme', _...props
+export function ThemeProvider({
+  children, defaultTheme = 'system', storageKey = 'vite-ui-theme', ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme

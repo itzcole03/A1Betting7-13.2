@@ -13,12 +13,13 @@ export interface AuthContextValue {
 
 export const _AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+export function useAuth() {
   const context = useContext(_AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}
 
 // Backend login function
 export async function login(username: string, password: string) {
