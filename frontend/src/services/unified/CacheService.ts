@@ -12,7 +12,7 @@ export class CacheService {
     }
   }
 
-  static async set(key: string, value: any) {
+  static async set(key: string, value: unknown) {
     try {
       await apiClient.post('/cache/set', { key, value });
       return true;

@@ -2,7 +2,7 @@ import React from 'react';
 // @ts-expect-error TS(2307): Cannot find module '@/ui/HolographicText' or its c... Remove this comment to see the full error message
 import HolographicText from '@/ui/HolographicText';
 
-const CyberFooter: React.FC = () => {
+const _CyberFooter: React.FC = () => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <footer className='glass-card border-t border-white/10 py-6' key={373584}>

@@ -13,7 +13,7 @@ interface ElectronIntegrationProps {
   onFeedback?: () => void;
 }
 
-const ElectronIntegration: React.FC<ElectronIntegrationProps> = ({
+const _ElectronIntegration: React.FC<ElectronIntegrationProps> = ({
   onNewAnalysis,
   onExportData,
   onSettings,
@@ -32,7 +32,7 @@ const ElectronIntegration: React.FC<ElectronIntegrationProps> = ({
     if (!isElectron) return;
 
     // Register menu handlers
-    const cleanup = registerMenuHandlers({
+    const _cleanup = registerMenuHandlers({
       onNewAnalysis: () => {
         toast.success('Starting new analysis...');
         onNewAnalysis?.();
@@ -96,7 +96,7 @@ const ElectronIntegration: React.FC<ElectronIntegrationProps> = ({
   }, [isElectron, registerMenuHandlers, hasNotificationPermission]);
 
   // Enhanced notification system for betting opportunities
-  const showBettingOpportunityNotification = (opportunity: any) => {
+  const _showBettingOpportunityNotification = (opportunity: unknown) => {
     if (!isElectron || !hasNotificationPermission) return;
 
     showNotification('High-Value Betting Opportunity', {
@@ -134,10 +134,10 @@ const ElectronIntegration: React.FC<ElectronIntegrationProps> = ({
 };
 
 // Hook for components to trigger desktop notifications
-export const useDesktopNotifications = () => {
+export const _useDesktopNotifications = () => {
   const { isElectron, showNotification } = useElectron();
 
-  const notifyBettingOpportunity = (opportunity: {
+  const _notifyBettingOpportunity = (opportunity: {
     player: string;
     stat_type: string;
     confidence: number;
@@ -157,7 +157,7 @@ export const useDesktopNotifications = () => {
     });
   };
 
-  const notifyAnalysisComplete = (results: { opportunities: number; lineups: number }) => {
+  const _notifyAnalysisComplete = (results: { opportunities: number; lineups: number }) => {
     if (!isElectron) return;
 
     showNotification('🧠 Analysis Complete', {
@@ -167,7 +167,7 @@ export const useDesktopNotifications = () => {
     });
   };
 
-  const notifyError = (error: string) => {
+  const _notifyError = (error: string) => {
     if (!isElectron) return;
 
     showNotification('⚠️ A1Betting Error', {

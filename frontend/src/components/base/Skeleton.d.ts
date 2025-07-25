@@ -6,12 +6,12 @@ export interface SkeletonProps {
   width?: number | string;
   animate?: boolean;
 }
-export declare const Skeleton: React.FC<SkeletonProps>;
-export declare const SkeletonText: React.FC<
+export declare const _Skeleton: React.FC<SkeletonProps>;
+export declare const _SkeletonText: React.FC<
   {
     lines?: number;
   } & Omit<SkeletonProps, 'variant'>
 >;
-export declare const SkeletonCard: React.FC<{
+export declare const _SkeletonCard: React.FC<{
   rows?: number;
 }>;

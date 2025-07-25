@@ -38,7 +38,7 @@ export declare class StreamingDataPipeline<T, U> {
   private processInterval;
   constructor(
     source: DataSource,
-    stages: PipelineStage<any, any>[],
+    stages: PipelineStage<unknown, unknown>[],
     sink: DataSink<U>,
     options?: {
       cacheEnabled: boolean;

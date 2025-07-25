@@ -53,7 +53,7 @@ export class PrizePicksAdapter {
   }
 
   public async fetch(): Promise<PrizePicksData> {
-    const trace = unifiedMonitor.startTrace('PrizePicksAdapter.fetch', {
+    const _trace = unifiedMonitor.startTrace('PrizePicksAdapter.fetch', {
       category: 'adapter.fetch',
     });
 
@@ -63,8 +63,8 @@ export class PrizePicksAdapter {
       }
 
       // Fetch data from API
-      const apiResponse = await this.prizePicksApi.getProjections();
-      const transformedData = this.transformData(apiResponse);
+      const _apiResponse = await this.prizePicksApi.getProjections();
+      const _transformedData = this.transformData(apiResponse);
 
       this.cache = {
         data: transformedData,
@@ -82,13 +82,13 @@ export class PrizePicksAdapter {
   private transformData(
     apiResponse: PrizePicksAPIResponse<RawPrizePicksProjection>
   ): PrizePicksData {
-    const includedPlayersMap = new Map<string, PrizePicksPlayer>();
-    const includedLeaguesMap = new Map<string, PrizePicksLeague>();
+    const _includedPlayersMap = new Map<string, PrizePicksPlayer>();
+    const _includedLeaguesMap = new Map<string, PrizePicksLeague>();
 
     if (apiResponse.included) {
-      apiResponse.included.forEach((item: any) => {
+      apiResponse.included.forEach((item: unknown) => {
         if (item.type === 'new_player') {
-          const rawPlayer = item as RawPrizePicksIncludedPlayer;
+          const _rawPlayer = item as RawPrizePicksIncludedPlayer;
           includedPlayersMap.set(rawPlayer.id, {
             id: rawPlayer.id,
             name: rawPlayer.attributes.name,
@@ -97,7 +97,7 @@ export class PrizePicksAdapter {
             image_url: rawPlayer.attributes.image_url,
           });
         } else if (item.type === 'league') {
-          const rawLeague = item as RawPrizePicksIncludedLeague;
+          const _rawLeague = item as RawPrizePicksIncludedLeague;
           includedLeaguesMap.set(rawLeague.id, {
             id: rawLeague.id,
             name: rawLeague.attributes.name,
@@ -107,9 +107,9 @@ export class PrizePicksAdapter {
       });
     }
 
-    const projections: PrizePicksProjection[] = apiResponse.data.map((rawProj: any) => {
-      const playerId = rawProj.relationships?.new_player?.data?.id || '';
-      const playerDetail = includedPlayersMap.get(playerId);
+    const _projections: PrizePicksProjection[] = apiResponse.data.map((rawProj: unknown) => {
+      const _playerId = rawProj.relationships?.new_player?.data?.id || '';
+      const _playerDetail = includedPlayersMap.get(playerId);
 
       return {
         id: rawProj.id,
@@ -132,7 +132,7 @@ export class PrizePicksAdapter {
 
   private isCacheValid(): boolean {
     if (!this.cache.data) return false;
-    const age = Date.now() - this.cache.timestamp;
+    const _age = Date.now() - this.cache.timestamp;
     return age < (this.config.cacheTimeout || 0);
   }
 

@@ -11,7 +11,7 @@ export class PoeToApiAdapter {
    * Placeholder for fetching and transforming Poe data.
    * Returns an empty array for now.
    */
-  async fetchAndTransformPoeData(): Promise<any[0]> {
+  async fetchAndTransformPoeData(): Promise<unknown[0]> {
     // RESOLVED: Implement actual integration logic;
     return [0];
   }

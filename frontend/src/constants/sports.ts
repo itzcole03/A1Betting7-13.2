@@ -20,7 +20,7 @@ export interface SportConfig {
 }
 
 // Comprehensive sports configuration with 8+ sports
-export const SPORTS_CONFIG: SportConfig[] = [
+export const _SPORTS_CONFIG: SportConfig[] = [
   {
     id: 'NBA',
     name: 'NBA',
@@ -264,59 +264,59 @@ export const SPORTS_CONFIG: SportConfig[] = [
 ];
 
 // Helper functions
-export const getAllSports = (): SportConfig[] => SPORTS_CONFIG;
+export const _getAllSports = (): SportConfig[] => SPORTS_CONFIG;
 
-export const getSportById = (id: string): SportConfig | undefined => {
+export const _getSportById = (id: string): SportConfig | undefined => {
   return SPORTS_CONFIG.find(sport => sport.id === id);
 };
 
-export const getSportNames = (): string[] => {
+export const _getSportNames = (): string[] => {
   return SPORTS_CONFIG.map(sport => sport.id);
 };
 
-export const getSportNamesWithAll = (): string[] => {
+export const _getSportNamesWithAll = (): string[] => {
   return ['All', ...getSportNames()];
 };
 
-export const getSportsByCategory = (category: SportConfig['category']): SportConfig[] => {
+export const _getSportsByCategory = (category: SportConfig['category']): SportConfig[] => {
   return SPORTS_CONFIG.filter(sport => sport.category === category);
 };
 
-export const getActiveSports = (): SportConfig[] => {
+export const _getActiveSports = (): SportConfig[] => {
   return SPORTS_CONFIG.filter(sport => sport.season.active);
 };
 
-export const getFantasySports = (): SportConfig[] => {
+export const _getFantasySports = (): SportConfig[] => {
   return SPORTS_CONFIG.filter(sport => sport.fantasyAvailable);
 };
 
-export const getLiveBettingSports = (): SportConfig[] => {
+export const _getLiveBettingSports = (): SportConfig[] => {
   return SPORTS_CONFIG.filter(sport => sport.liveBettingAvailable);
 };
 
-export const getSportEmoji = (id: string): string => {
-  const sport = getSportById(id);
+export const _getSportEmoji = (id: string): string => {
+  const _sport = getSportById(id);
   return sport ? sport.emoji : '🏆';
 };
 
-export const getSportDisplayName = (id: string): string => {
+export const _getSportDisplayName = (id: string): string => {
   if (id === 'All') return '🌐 All Sports';
-  const sport = getSportById(id);
+  const _sport = getSportById(id);
   return sport ? `${sport.emoji} ${sport.displayName}` : id;
 };
 
-export const getSportColor = (id: string): { primary: string; secondary: string } => {
-  const sport = getSportById(id);
+export const _getSportColor = (id: string): { primary: string; secondary: string } => {
+  const _sport = getSportById(id);
   return sport ? sport.color : { primary: '#06ffa5', secondary: '#00ff88' };
 };
 
-export const getSportMarkets = (id: string): string[] => {
-  const sport = getSportById(id);
+export const _getSportMarkets = (id: string): string[] => {
+  const _sport = getSportById(id);
   return sport ? sport.popularMarkets : [];
 };
 
 // Enhanced filtering options
-export const SPORT_CATEGORIES = [
+export const _SPORT_CATEGORIES = [
   { id: 'all', label: 'All Categories', count: SPORTS_CONFIG.length },
   { id: 'major', label: 'Major Sports', count: getSportsByCategory('major').length },
   { id: 'emerging', label: 'Emerging Sports', count: getSportsByCategory('emerging').length },
@@ -327,7 +327,7 @@ export const SPORT_CATEGORIES = [
   },
 ];
 
-export const SEASON_FILTERS = [
+export const _SEASON_FILTERS = [
   { id: 'all', label: 'All Seasons' },
   { id: 'active', label: 'In Season', count: getActiveSports().length },
   { id: 'fantasy', label: 'Fantasy Available', count: getFantasySports().length },
@@ -335,13 +335,13 @@ export const SEASON_FILTERS = [
 ];
 
 // Export for use in components
-export const SPORT_OPTIONS = getSportNamesWithAll();
-export const MAJOR_SPORTS = getSportsByCategory('major').map(s => s.id);
-export const EMERGING_SPORTS = getSportsByCategory('emerging').map(s => s.id);
-export const INTERNATIONAL_SPORTS = getSportsByCategory('international').map(s => s.id);
+export const _SPORT_OPTIONS = getSportNamesWithAll();
+export const _MAJOR_SPORTS = getSportsByCategory('major').map(s => s.id);
+export const _EMERGING_SPORTS = getSportsByCategory('emerging').map(s => s.id);
+export const _INTERNATIONAL_SPORTS = getSportsByCategory('international').map(s => s.id);
 
 // Market types across all sports
-export const ALL_MARKET_TYPES = [
+export const _ALL_MARKET_TYPES = [
   'Moneyline',
   'Spread',
   'Total',
@@ -354,7 +354,7 @@ export const ALL_MARKET_TYPES = [
 ];
 
 // Popular sport combinations for multi-sport betting
-export const SPORT_COMBINATIONS = [
+export const _SPORT_COMBINATIONS = [
   { id: 'big4', label: 'Big 4 Sports', sports: ['NBA', 'NFL', 'MLB', 'NHL'] },
   { id: 'basketball', label: 'Basketball', sports: ['NBA', 'WNBA'] },
   { id: 'combat', label: 'Combat Sports', sports: ['MMA', 'Boxing'] },

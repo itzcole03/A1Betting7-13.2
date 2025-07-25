@@ -1,2 +1,2 @@
 import React from 'react.ts';
-export declare const BankrollStats: React.FC;
+export declare const _BankrollStats: React.FC;

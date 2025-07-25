@@ -1,2 +1,2 @@
-export declare const sleep: (ms: number) => Promise<void>;
-export declare const generateUniqueId: () => string;
+export declare const _sleep: (ms: number) => Promise<void>;
+export declare const _generateUniqueId: () => string;

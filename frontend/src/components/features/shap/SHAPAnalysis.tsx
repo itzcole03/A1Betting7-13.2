@@ -74,7 +74,7 @@ interface ModelInterpretability {
   explanationQuality: number;
 }
 
-const SHAPAnalysis: React.FC = () => {
+const _SHAPAnalysis: React.FC = () => {
   const [predictions, setPredictions] = useState<PredictionAnalysis[]>([]);
   const [modelInterpretability, setModelInterpretability] = useState<ModelInterpretability[]>([]);
   const [selectedPrediction, setSelectedPrediction] = useState<string | null>(null);
@@ -87,12 +87,12 @@ const SHAPAnalysis: React.FC = () => {
     loadSHAPData();
   }, [selectedModel]);
 
-  const loadSHAPData = async () => {
+  const _loadSHAPData = async () => {
     setIsAnalyzing(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      const mockPredictions: PredictionAnalysis[] = [
+      const _mockPredictions: PredictionAnalysis[] = [
         {
           id: 'pred-001',
           gameId: 'Lakers vs Warriors',
@@ -238,7 +238,7 @@ const SHAPAnalysis: React.FC = () => {
         },
       ];
 
-      const mockModels: ModelInterpretability[] = [
+      const _mockModels: ModelInterpretability[] = [
         {
           modelId: 'xgb-ensemble',
           modelName: 'XGBoost Ensemble',
@@ -287,8 +287,8 @@ const SHAPAnalysis: React.FC = () => {
     }
   };
 
-  const toggleFeatureExpansion = (feature: string) => {
-    const newExpanded = new Set(expandedFeatures);
+  const _toggleFeatureExpansion = (feature: string) => {
+    const _newExpanded = new Set(expandedFeatures);
     if (newExpanded.has(feature)) {
       newExpanded.delete(feature);
     } else {
@@ -297,7 +297,7 @@ const SHAPAnalysis: React.FC = () => {
     setExpandedFeatures(newExpanded);
   };
 
-  const getImpactColor = (impact: string) => {
+  const _getImpactColor = (impact: string) => {
     switch (impact) {
       case 'positive':
         return 'text-green-400 bg-green-500/20';
@@ -310,13 +310,13 @@ const SHAPAnalysis: React.FC = () => {
     }
   };
 
-  const getContributionBarColor = (contribution: number) => {
+  const _getContributionBarColor = (contribution: number) => {
     if (contribution > 0) return 'bg-green-400';
     if (contribution < 0) return 'bg-red-400';
     return 'bg-gray-400';
   };
 
-  const getInteractionStrength = (strength: string) => {
+  const _getInteractionStrength = (strength: string) => {
     switch (strength) {
       case 'strong':
         return 'text-red-400 bg-red-500/20';
@@ -329,7 +329,7 @@ const SHAPAnalysis: React.FC = () => {
     }
   };
 
-  const selectedPredictionData = predictions.find(p => p.id === selectedPrediction);
+  const _selectedPredictionData = predictions.find(p => p.id === selectedPrediction);
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -342,7 +342,7 @@ const SHAPAnalysis: React.FC = () => {
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <select
             value={viewMode}
-            onChange={e => setViewMode(e.target.value as any)}
+            onChange={e => setViewMode(e.target.value as unknown)}
             className='px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
           >
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

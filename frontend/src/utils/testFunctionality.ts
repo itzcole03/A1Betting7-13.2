@@ -8,8 +8,8 @@ export interface FunctionalityTestResult {
   message: string;
 }
 
-export const testCoreFunctionality = (): FunctionalityTestResult[] => {
-  const results: FunctionalityTestResult[] = [];
+export const _testCoreFunctionality = (): FunctionalityTestResult[] => {
+  const _results: FunctionalityTestResult[] = [];
 
   // Test 1: Check if React is working
   try {
@@ -31,7 +31,7 @@ export const testCoreFunctionality = (): FunctionalityTestResult[] => {
 
   // Test 2: Check if navigation functions work
   try {
-    const testNavigation = (viewId: string) => {
+    const _testNavigation = (viewId: string) => {
       console.log(`Navigation to ${viewId} works`);
       return true;
     };
@@ -52,11 +52,11 @@ export const testCoreFunctionality = (): FunctionalityTestResult[] => {
 
   // Test 3: Check if button click handlers work
   try {
-    const testButtonClick = () => {
+    const _testButtonClick = () => {
       return 'Button click handled successfully';
     };
 
-    const result = testButtonClick();
+    const _result = testButtonClick();
     results.push({
       test: 'Button Functionality',
       passed: result === 'Button click handled successfully',
@@ -72,7 +72,7 @@ export const testCoreFunctionality = (): FunctionalityTestResult[] => {
 
   // Test 4: Check if services are available
   try {
-    const servicesAvailable = typeof window !== 'undefined';
+    const _servicesAvailable = typeof window !== 'undefined';
     results.push({
       test: 'Services Availability',
       passed: servicesAvailable,
@@ -88,16 +88,16 @@ export const testCoreFunctionality = (): FunctionalityTestResult[] => {
 
   // Test 5: Check CSS animations
   try {
-    const testCSSAnimations = () => {
+    const _testCSSAnimations = () => {
       // Test if CSS variables are available
       if (typeof document !== 'undefined') {
-        const styles = getComputedStyle(document.documentElement);
+        const _styles = getComputedStyle(document.documentElement);
         return styles.getPropertyValue('--primary-500') !== '';
       }
       return true;
     };
 
-    const animationsWork = testCSSAnimations();
+    const _animationsWork = testCSSAnimations();
     results.push({
       test: 'CSS Animations',
       passed: animationsWork,
@@ -116,19 +116,19 @@ export const testCoreFunctionality = (): FunctionalityTestResult[] => {
   return results;
 };
 
-export const logFunctionalityTest = (): void => {
-  const results = testCoreFunctionality();
+export const _logFunctionalityTest = (): void => {
+  const _results = testCoreFunctionality();
 
   console.group('🧪 A1Betting Platform Functionality Test');
   console.log('='.repeat(50));
 
   results.forEach(result => {
-    const icon = result.passed ? '✅' : '❌';
+    const _icon = result.passed ? '✅' : '❌';
     console.log(`${icon} ${result.test}: ${result.message}`);
   });
 
-  const passedTests = results.filter(r => r.passed).length;
-  const totalTests = results.length;
+  const _passedTests = results.filter(r => r.passed).length;
+  const _totalTests = results.length;
 
   console.log('='.repeat(50));
   console.log(`📊 Summary: ${passedTests}/${totalTests} tests passed`);

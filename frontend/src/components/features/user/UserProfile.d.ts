@@ -1,2 +1,2 @@
 import React from 'react.ts';
-export declare const UserProfile: React.FC;
+export declare const _UserProfile: React.FC;

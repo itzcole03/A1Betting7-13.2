@@ -41,7 +41,7 @@ interface QuickBet {
   selection: string;
 }
 
-export const LiveBetting: React.FC = () => {
+export const _LiveBetting: React.FC = () => {
   const [liveGames, setLiveGames] = useState<LiveGame[]>([]);
   const [selectedGame, setSelectedGame] = useState<LiveGame | null>(null);
   const [liveBets, setLiveBets] = useState<LiveBet[]>([]);
@@ -54,9 +54,9 @@ export const LiveBetting: React.FC = () => {
   const [betSlip, setBetSlip] = useState<LiveBet[]>([]);
 
   // Generate mock live games
-  const generateLiveGames = (): LiveGame[] => {
-    const sports = ['NBA', 'NFL', 'NHL', 'MLB', 'Soccer'];
-    const teams = {
+  const _generateLiveGames = (): LiveGame[] => {
+    const _sports = ['NBA', 'NFL', 'NHL', 'MLB', 'Soccer'];
+    const _teams = {
       NBA: ['Lakers', 'Warriors', 'Celtics', 'Heat', 'Bucks', 'Suns', 'Nets', 'Clippers'],
       NFL: ['Chiefs', 'Bills', 'Eagles', 'Cowboys', 'Packers', 'Ravens', '49ers', 'Bengals'],
       NHL: ['Rangers', 'Lightning', 'Avalanche', 'Maple Leafs', 'Oilers', 'Panthers'],
@@ -64,18 +64,18 @@ export const LiveBetting: React.FC = () => {
       Soccer: ['Real Madrid', 'Barcelona', 'Man City', 'Liverpool', 'Bayern', 'PSG'],
     };
 
-    const games: LiveGame[] = [];
+    const _games: LiveGame[] = [];
 
-    for (let i = 0; i < 8; i++) {
-      const sport = sports[Math.floor(Math.random() * sports.length)];
-      const sportTeams = teams[sport as keyof typeof teams];
-      const homeTeam = sportTeams[Math.floor(Math.random() * sportTeams.length)];
-      let awayTeam = sportTeams[Math.floor(Math.random() * sportTeams.length)];
+    for (let _i = 0; i < 8; i++) {
+      const _sport = sports[Math.floor(Math.random() * sports.length)];
+      const _sportTeams = teams[sport as keyof typeof teams];
+      const _homeTeam = sportTeams[Math.floor(Math.random() * sportTeams.length)];
+      let _awayTeam = sportTeams[Math.floor(Math.random() * sportTeams.length)];
       while (awayTeam === homeTeam) {
         awayTeam = sportTeams[Math.floor(Math.random() * sportTeams.length)];
       }
 
-      const period =
+      const _period =
         sport === 'NBA' || sport === 'NFL'
           ? `Q${Math.floor(Math.random() * 4) + 1}`
           : sport === 'NHL' || sport === 'Soccer'
@@ -95,7 +95,7 @@ export const LiveBetting: React.FC = () => {
           .toString()
           .padStart(2, '0')}`,
         status: Math.random() > 0.8 ? 'timeout' : 'live',
-        momentum: ['home', 'away', 'neutral'][Math.floor(Math.random() * 3)] as any,
+        momentum: ['home', 'away', 'neutral'][Math.floor(Math.random() * 3)] as unknown,
         lastPlay: generateLastPlay(sport),
         hasVideo: Math.random() > 0.5,
       });
@@ -104,8 +104,8 @@ export const LiveBetting: React.FC = () => {
     return games;
   };
 
-  const generateLastPlay = (sport: string): string => {
-    const plays = {
+  const _generateLastPlay = (sport: string): string => {
+    const _plays = {
       NBA: ['Three-pointer made', 'Slam dunk', 'Free throw', 'Turnover', 'Timeout called'],
       NFL: ['Touchdown pass', 'Field goal', 'Interception', 'Fumble recovery', 'First down'],
       NHL: ['Goal scored', 'Power play', 'Penalty', 'Save made', 'Icing called'],
@@ -113,14 +113,14 @@ export const LiveBetting: React.FC = () => {
       Soccer: ['Goal scored', 'Yellow card', 'Corner kick', 'Penalty kick', 'Offside'],
     };
 
-    const sportPlays = plays[sport as keyof typeof plays] || plays.NBA;
+    const _sportPlays = plays[sport as keyof typeof plays] || plays.NBA;
     return sportPlays[Math.floor(Math.random() * sportPlays.length)];
   };
 
   // Generate live bets for selected game
-  const generateLiveBets = (game: LiveGame): LiveBet[] => {
-    const betTypes = ['Spread', 'Total', 'Moneyline', 'Next Score', 'Player Props'];
-    const bets: LiveBet[] = [];
+  const _generateLiveBets = (game: LiveGame): LiveBet[] => {
+    const _betTypes = ['Spread', 'Total', 'Moneyline', 'Next Score', 'Player Props'];
+    const _bets: LiveBet[] = [];
 
     betTypes.forEach((type, index) => {
       bets.push({
@@ -129,7 +129,7 @@ export const LiveBetting: React.FC = () => {
         type,
         line: generateBetLine(type, game),
         odds: generateOdds(),
-        movement: ['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as any,
+        movement: ['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as unknown,
         confidence: 80 + Math.random() * 19,
         aiRecommendation: Math.random() > 0.5 ? 'Strong Play' : undefined,
       });
@@ -138,7 +138,7 @@ export const LiveBetting: React.FC = () => {
     return bets;
   };
 
-  const generateBetLine = (type: string, game: LiveGame): string => {
+  const _generateBetLine = (type: string, game: LiveGame): string => {
     switch (type) {
       case 'Spread':
         return `${game.homeTeam} ${Math.random() > 0.5 ? '+' : '-'}${Math.floor(Math.random() * 10 + 1).toFixed(1)}`;
@@ -153,7 +153,7 @@ export const LiveBetting: React.FC = () => {
     }
   };
 
-  const generateOdds = (): string => {
+  const _generateOdds = (): string => {
     return Math.random() > 0.5
       ? `+${Math.floor(Math.random() * 150 + 100)}`
       : `-${Math.floor(Math.random() * 150 + 100)}`;
@@ -164,7 +164,7 @@ export const LiveBetting: React.FC = () => {
     setLiveGames(generateLiveGames());
 
     if (isAutoRefresh) {
-      const interval = setInterval(() => {
+      const _interval = setInterval(() => {
         setLiveGames(prevGames =>
           prevGames.map(game => ({
             ...game,
@@ -174,7 +174,7 @@ export const LiveBetting: React.FC = () => {
             lastPlay: Math.random() > 0.5 ? generateLastPlay(game.sport) : game.lastPlay,
             momentum:
               Math.random() > 0.8
-                ? (['home', 'away', 'neutral'][Math.floor(Math.random() * 3)] as any)
+                ? (['home', 'away', 'neutral'][Math.floor(Math.random() * 3)] as unknown)
                 : game.momentum,
           }))
         );
@@ -187,7 +187,7 @@ export const LiveBetting: React.FC = () => {
               odds: Math.random() > 0.7 ? generateOdds() : bet.odds,
               movement:
                 Math.random() > 0.8
-                  ? (['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as any)
+                  ? (['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as unknown)
                   : bet.movement,
             }))
           );
@@ -198,10 +198,10 @@ export const LiveBetting: React.FC = () => {
     }
   }, [isAutoRefresh, selectedGame]);
 
-  const updateTime = (time: string): string => {
+  const _updateTime = (time: string): string => {
     const [minutes, seconds] = time.split(':').map(Number);
-    let newSeconds = seconds - 5;
-    let newMinutes = minutes;
+    let _newSeconds = seconds - 5;
+    let _newMinutes = minutes;
 
     if (newSeconds < 0) {
       newSeconds = 59;
@@ -211,22 +211,22 @@ export const LiveBetting: React.FC = () => {
     return `${newMinutes}:${newSeconds.toString().padStart(2, '0')}`;
   };
 
-  const selectGame = (game: LiveGame) => {
+  const _selectGame = (game: LiveGame) => {
     setSelectedGame(game);
     setLiveBets(generateLiveBets(game));
   };
 
-  const addToBetSlip = (bet: LiveBet) => {
+  const _addToBetSlip = (bet: LiveBet) => {
     if (!betSlip.find(b => b.id === bet.id)) {
       setBetSlip([...betSlip, bet]);
     }
   };
 
-  const removeFromBetSlip = (betId: string) => {
+  const _removeFromBetSlip = (betId: string) => {
     setBetSlip(betSlip.filter(b => b.id !== betId));
   };
 
-  const placeBets = () => {
+  const _placeBets = () => {
     if (betSlip.length > 0) {
       alert(`Placing ${betSlip.length} bet(s) for $${quickBet.amount * betSlip.length}`);
       setBetSlip([]);

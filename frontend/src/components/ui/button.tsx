@@ -5,7 +5,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   size?: 'default' | 'sm' | 'lg' | 'icon';
 }
 
-const buttonVariants = {
+const _buttonVariants = {
   default: 'bg-primary text-primary-foreground hover:bg-primary/90',
   destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
   outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
@@ -14,14 +14,14 @@ const buttonVariants = {
   link: 'text-primary underline-offset-4 hover:underline',
 };
 
-const sizeVariants = {
+const _sizeVariants = {
   default: 'h-10 px-4 py-2',
   sm: 'h-9 rounded-md px-3',
   lg: 'h-11 rounded-md px-8',
   icon: 'h-10 w-10',
 };
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+export const _Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'default', size = 'default', ...props }, ref) => {
     return (
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

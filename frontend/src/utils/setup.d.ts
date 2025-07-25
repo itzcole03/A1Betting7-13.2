@@ -1,1 +1,1 @@
-import '@testing-library/jest-dom/vitest';
+// Removed Vitest-specific jest-dom import to avoid Jest type conflicts

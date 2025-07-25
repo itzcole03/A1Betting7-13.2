@@ -131,10 +131,8 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
   };
 
   return (
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <ToastContext.Provider value={contextValue}>
       {children}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <ToastContainer toasts={toasts} onDismiss={removeToast} position={position} />
     </ToastContext.Provider>
   );

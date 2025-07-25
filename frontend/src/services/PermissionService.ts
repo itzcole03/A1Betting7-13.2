@@ -91,7 +91,7 @@ class PermissionService {
    * Initialize default role definitions
    */
   private initializeRoles(): void {
-    const roles: RoleDefinition[] = [
+    const _roles: RoleDefinition[] = [
       {
         name: 'super_admin',
         displayName: 'Super Administrator',
@@ -256,7 +256,7 @@ class PermissionService {
       },
     ];
 
-    roles.forEach(role => {
+    _roles.forEach((role: RoleDefinition) => {
       this.roleDefinitions.set(role.name, role);
     });
   }
@@ -424,7 +424,7 @@ class PermissionService {
    * Validate permission string
    */
   isValidPermission(permission: string): permission is Permission {
-    const validPermissions: Permission[] = [
+    const _validPermissions: Permission[] = [
       'read',
       'write',
       'delete',
@@ -463,12 +463,12 @@ class PermissionService {
       'content.moderate',
     ];
 
-    return validPermissions.includes(permission as Permission);
+    return _validPermissions.includes(permission as Permission);
   }
 }
 
 // Export singleton instance
-export const permissionService = new PermissionService();
+export const _permissionService = new PermissionService();
 
 // Export class for testing
 export default PermissionService;

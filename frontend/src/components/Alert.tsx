@@ -5,14 +5,14 @@ interface AlertProps {
   message: string;
 }
 
-const typeColors: Record<string, string> = {
+const _typeColors: Record<string, string> = {
   success: '#06ffa5',
   warning: '#fbbf24',
   error: '#ff4757',
   info: '#3498db',
 };
 
-const Alert: React.FC<AlertProps> = ({ type = 'info', message }) => (
+const _Alert: React.FC<AlertProps> = ({ type = 'info', message }) => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div
     style={{

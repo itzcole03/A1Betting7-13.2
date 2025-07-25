@@ -40,7 +40,7 @@ export interface BetPlacement {
   placedAt: Date;
   settledAt?: Date;
   profit?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface KellyCriterion {
@@ -104,7 +104,7 @@ class BettingService {
 
   async loadOpportunities(): Promise<BettingOpportunity[]> {
     try {
-      const response = await ApiService.get<BettingOpportunity[]>('/betting/opportunities');
+      const _response = await ApiService.get<BettingOpportunity[]>('/betting/opportunities');
 
       this.opportunities.clear();
       response.data.forEach(opportunity => {
@@ -126,10 +126,10 @@ class BettingService {
     maxRisk?: string;
     minValue?: number;
   }): Promise<BettingOpportunity[]> {
-    let opportunities = Array.from(this.opportunities.values());
+    let _opportunities = Array.from(this.opportunities.values());
 
     // Filter expired opportunities
-    const now = new Date();
+    const _now = new Date();
     opportunities = opportunities.filter(opp => opp.expiresAt > now);
 
     if (filters) {
@@ -140,8 +140,8 @@ class BettingService {
         // @ts-expect-error TS(2532): Object is possibly 'undefined'.
         opportunities = opportunities.filter(o => o.confidence >= filters.minConfidence);
       if (filters.maxRisk) {
-        const riskLevels = { low: 1, medium: 2, high: 3 };
-        const maxLevel = riskLevels[filters.maxRisk as keyof typeof riskLevels];
+        const _riskLevels = { low: 1, medium: 2, high: 3 };
+        const _maxLevel = riskLevels[filters.maxRisk as keyof typeof riskLevels];
         opportunities = opportunities.filter(o => riskLevels[o.risk] <= maxLevel);
       }
       // @ts-expect-error TS(2532): Object is possibly 'undefined'.
@@ -157,29 +157,29 @@ class BettingService {
     bankroll: number,
     riskMultiplier: number = 0.25
   ): KellyCriterion {
-    const q = 1 - probability; // Probability of losing
-    const b = odds - 1; // Net odds (profit ratio)
+    const _q = 1 - probability; // Probability of losing
+    const _b = odds - 1; // Net odds (profit ratio)
 
     // Standard Kelly
-    const kellyFraction = (probability * b - q) / b;
+    const _kellyFraction = (probability * b - q) / b;
 
     // Fractional Kelly based on risk tolerance
-    const fractionalKelly = kellyFraction * riskMultiplier;
+    const _fractionalKelly = kellyFraction * riskMultiplier;
 
     // Maximum bet size (based on risk profile)
-    const maxStake = Math.min(
+    const _maxStake = Math.min(
       bankroll * this.riskProfile.maxBankrollPercentage,
       this.riskProfile.maxSingleBet
     );
 
     // Optimal stake
-    const optimalStake = Math.max(0, Math.min(bankroll * fractionalKelly, maxStake));
+    const _optimalStake = Math.max(0, Math.min(bankroll * fractionalKelly, maxStake));
 
     // Risk-adjusted stake
-    const riskAdjustedStake = optimalStake * this.riskProfile.kellyMultiplier;
+    const _riskAdjustedStake = optimalStake * this.riskProfile.kellyMultiplier;
 
     // Expected growth rate
-    const expectedGrowth =
+    const _expectedGrowth =
       probability * Math.log(1 + b * fractionalKelly) + q * Math.log(1 - fractionalKelly);
 
     return {
@@ -204,7 +204,7 @@ class BettingService {
     portfolioRisk: number;
   }> {
     try {
-      const response = await ApiService.post('/betting/optimize-portfolio', {
+      const _response = await ApiService.post('/betting/optimize-portfolio', {
         bankroll,
         opportunities: availableOpportunities,
         riskProfile: this.riskProfile,
@@ -216,13 +216,13 @@ class BettingService {
       console.error('Failed to optimize portfolio:', error);
 
       // Fallback to simple Kelly-based selection
-      const sorted = availableOpportunities
+      const _sorted = availableOpportunities
         .filter(opp => opp.value > 0 && opp.confidence > 0.6)
         .sort((a, b) => b.expectedROI - a.expectedROI)
         .slice(0, 5);
 
-      const selectedBets = sorted.map(opportunity => {
-        const kelly = this.calculateKellyCriterion(
+      const _selectedBets = sorted.map(opportunity => {
+        const _kelly = this.calculateKellyCriterion(
           opportunity.modelProbability,
           opportunity.odds,
           bankroll
@@ -234,8 +234,8 @@ class BettingService {
         };
       });
 
-      const totalStake = selectedBets.reduce((sum, bet) => sum + bet.stake, 0);
-      const expectedReturn = selectedBets.reduce(
+      const _totalStake = selectedBets.reduce((sum, bet) => sum + bet.stake, 0);
+      const _expectedReturn = selectedBets.reduce(
         (sum, bet) => sum + (bet.stake * bet.opportunity.expectedROI) / 100,
         0
       );
@@ -256,7 +256,7 @@ class BettingService {
     bookmaker?: string
   ): Promise<BetPlacement | null> {
     try {
-      const opportunity = this.opportunities.get(opportunityId);
+      const _opportunity = this.opportunities.get(opportunityId);
       if (!opportunity) {
         throw new Error('Opportunity not found');
       }
@@ -266,7 +266,7 @@ class BettingService {
         throw new Error('Stake exceeds maximum bet size');
       }
 
-      const response = await ApiService.post<BetPlacement>('/betting/place-bet', {
+      const _response = await ApiService.post<BetPlacement>('/betting/place-bet', {
         opportunityId,
         stake,
         bookmaker: bookmaker || opportunity.bookmaker,
@@ -282,7 +282,7 @@ class BettingService {
 
   async loadActiveBets(): Promise<BetPlacement[]> {
     try {
-      const response = await ApiService.get<BetPlacement[]>('/betting/active-bets');
+      const _response = await ApiService.get<BetPlacement[]>('/betting/active-bets');
 
       this.activeBets.clear();
       response.data.forEach(bet => {
@@ -298,7 +298,7 @@ class BettingService {
 
   async getPortfolioStats(): Promise<PortfolioStats> {
     try {
-      const response = await ApiService.get<PortfolioStats>('/betting/portfolio-stats');
+      const _response = await ApiService.get<PortfolioStats>('/betting/portfolio-stats');
       return response.data;
     } catch (error) {
       console.error('Failed to get portfolio stats:', error);
@@ -323,7 +323,7 @@ class BettingService {
 
   async loadRiskProfile(): Promise<void> {
     try {
-      const response = await ApiService.get<RiskProfile>('/betting/risk-profile');
+      const _response = await ApiService.get<RiskProfile>('/betting/risk-profile');
       this.riskProfile = { ...this.riskProfile, ...response.data };
     } catch (error) {
       console.error('Failed to load risk profile:', error);
@@ -332,7 +332,7 @@ class BettingService {
 
   async updateRiskProfile(updates: Partial<RiskProfile>): Promise<boolean> {
     try {
-      const updatedProfile = { ...this.riskProfile, ...updates };
+      const _updatedProfile = { ...this.riskProfile, ...updates };
       await ApiService.put('/betting/risk-profile', updatedProfile);
       this.riskProfile = updatedProfile;
       return true;
@@ -351,7 +351,7 @@ class BettingService {
       await ApiService.post(`/betting/bets/${betId}/cash-out`);
 
       // Update local bet status
-      const bet = this.activeBets.get(betId);
+      const _bet = this.activeBets.get(betId);
       if (bet) {
         bet.status = 'cashed_out';
       }
@@ -365,7 +365,7 @@ class BettingService {
 
   async healthCheck(): Promise<boolean> {
     try {
-      const response = await ApiService.get('/betting/health');
+      const _response = await ApiService.get('/betting/health');
       return response.status === 200;
     } catch {
       return false;
@@ -378,8 +378,8 @@ class BettingService {
     avgConfidence: number;
     riskProfile: RiskProfile;
   } {
-    const opportunities = Array.from(this.opportunities.values());
-    const avgConfidence =
+    const _opportunities = Array.from(this.opportunities.values());
+    const _avgConfidence =
       opportunities.reduce((sum, o) => sum + o.confidence, 0) / opportunities.length;
 
     return {

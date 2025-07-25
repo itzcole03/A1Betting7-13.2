@@ -1,1 +1,1 @@
-export declare function logLiveData(message: string): void;
+export declare function logLiveData(_message: string): void;

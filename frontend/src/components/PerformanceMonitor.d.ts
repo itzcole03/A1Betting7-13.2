@@ -1,3 +1,3 @@
 import React from 'react.ts';
-export declare const PerformanceMonitor: React.FC;
+export declare const _PerformanceMonitor: React.FC;
 export default PerformanceMonitor;

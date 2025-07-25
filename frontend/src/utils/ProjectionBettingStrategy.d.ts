@@ -1,7 +1,7 @@
 ﻿type ExtendedIntegratedData = {
   projections?: Record<string, unknown>;
   odds?: Record<string, unknown>;
-  sentiment?: any[];
+  sentiment?: unknown[];
   injuries?: Record<string, unknown>;
   trends?: Record<string, unknown>;
   timestamp?: number;
@@ -10,7 +10,7 @@
 // import { Decision, IntegratedData, Recommendation, Strategy } from '@/core/PredictionEngine.ts';
 export interface ProjectionPlugin {
   statType: string;
-  evaluate: (projection: any, config: any) => any[];
+  evaluate: (projection: unknown, config: unknown) => unknown[];
 }
 interface StrategyConfig {
   minConfidence: number;
@@ -33,10 +33,10 @@ export declare class ProjectionBettingStrategy /* implements any */ {
   private stabilityCache;
   private confidenceCache;
   private plugins;
-  constructor(config: any, plugins?: any[]);
-  validate(data: any): boolean;
+  constructor(config: unknown, plugins?: unknown[]);
+  validate(data: unknown): boolean;
   getMetrics(): void;
   private registerDefaultPlugins;
-  analyze(data: any): Promise<any>;
+  analyze(data: unknown): Promise<unknown>;
   private generateRiskReasoning;
 }

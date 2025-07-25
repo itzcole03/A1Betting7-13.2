@@ -1,3 +1,8 @@
+/**
+ * Metrics context and provider for unified metrics utilities and event tracking.
+ *
+ * @module contexts/MetricsContext
+ */
 import React, { ReactNode, createContext, useContext } from 'react';
 
 /**
@@ -7,36 +12,44 @@ import React, { ReactNode, createContext, useContext } from 'react';
  * @property {(event: string, data?: any) => void} track - Track a metric event
  */
 export interface MetricsContextType {
-  metrics: any;
-  track: (event: string, data?: any) => void;
+  metrics: unknown;
+  track: (event: string, data?: unknown) => void;
 }
 
-const MetricsContext = createContext<MetricsContextType | undefined>(undefined);
+/**
+ * React context for metrics utilities and event tracking.
+ */
+const _MetricsContext = createContext<MetricsContextType | undefined>(undefined);
 
 // Simple metrics implementation (replace with real metrics as needed)
-const metrics = {
-  track: (event: string, data?: any) => {
+const _metrics = {
+  track: (event: string, data?: unknown) => {
     console.log(`[METRIC] ${event}`, data);
   },
 };
 
 /**
- * MetricsProvider
+ * MetricsProvider component.
  * Wrap your app with this provider to enable metrics utilities.
- * @param {ReactNode} children
+ * @param {object} props - React children.
+ * @returns {JSX.Element} The provider component.
  */
-export const MetricsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const track = (event: string, data?: any) => metrics.track(event, data);
-  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-  return <MetricsContext.Provider value={{ metrics, track }}>{children}</MetricsContext.Provider>;
+export const _MetricsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const _track = (event: string, data?: unknown) => _metrics.track(event, data);
+  // Removed unused @ts-expect-error: JSX is supported in this environment
+  return (
+    <_MetricsContext.Provider value={{ metrics: _metrics, track: _track }}>
+      {children}
+    </_MetricsContext.Provider>
+  );
 };
 
 /**
  * useMetrics
  * Access the metrics context in any component.
  */
-export const useMetrics = () => {
-  const ctx = useContext(MetricsContext);
-  if (!ctx) throw new Error('useMetrics must be used within MetricsProvider');
-  return ctx;
+export const _useMetrics = () => {
+  const _ctx = useContext(_MetricsContext);
+  if (!_ctx) throw new Error('useMetrics must be used within MetricsProvider');
+  return _ctx;
 };

@@ -52,7 +52,7 @@ export class ESPNAdapter implements DataSource<ESPNData> {
       return this.cache.data!;
     }
     const [games, headlines] = await Promise.all([this.fetchGames(), this.fetchHeadlines()]);
-    const data: ESPNData = { games, headlines };
+    const _data: ESPNData = { games, headlines };
     this.cache = { data, timestamp: Date.now() };
     // this.eventBus.publish({ type: 'espn-updated', payload: { data } });
     return data;
@@ -71,7 +71,7 @@ export class ESPNAdapter implements DataSource<ESPNData> {
   }
 
   private isCacheValid(): boolean {
-    const cacheTimeout = 5 * 60 * 1000; // 5 minutes
+    const _cacheTimeout = 5 * 60 * 1000; // 5 minutes
     return this.cache.data !== null && Date.now() - this.cache.timestamp < cacheTimeout;
   }
 

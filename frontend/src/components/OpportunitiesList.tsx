@@ -10,7 +10,7 @@ interface Opportunity {
   type: 'value' | 'arbitrage' | 'ai';
 }
 
-const mockOpportunities: Opportunity[] = [
+const _mockOpportunities: Opportunity[] = [
   { id: '1', event: 'Team A vs Team B', market: 'Moneyline', odds: 2.1, type: 'value' },
   { id: '2', event: 'Team C vs Team D', market: 'Spread', odds: 1.95, type: 'ai' },
   { id: '3', event: 'Team E vs Team F', market: 'Total', odds: 2.3, type: 'arbitrage' },
@@ -22,10 +22,10 @@ const mockOpportunities: Opportunity[] = [
  * Modern, accessible display and filtering of betting opportunities.
  * Shows event, market, odds, and type.
  */
-export const OpportunitiesList: React.FC = () => {
+export const _OpportunitiesList: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'value' | 'arbitrage' | 'ai'>('all');
 
-  const filtered =
+  const _filtered =
     filter === 'all' ? mockOpportunities : mockOpportunities.filter(o => o.type === filter);
 
   return (
@@ -40,7 +40,7 @@ export const OpportunitiesList: React.FC = () => {
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <select
             value={filter}
-            onChange={e => setFilter(e.target.value as any)}
+            onChange={e => setFilter(e.target.value as unknown)}
             className='bg-gray-800 border border-gray-600 rounded-lg text-white px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500'
             aria-label='Filter opportunities by type'
           >

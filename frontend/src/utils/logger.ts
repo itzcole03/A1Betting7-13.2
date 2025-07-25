@@ -3,16 +3,20 @@ type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 interface LogEntry {
   level: LogLevel;
   message: string;
-  data?: any;
+  data?: unknown;
   context?: string;
   timestamp: string;
 }
 
 class Logger {
-  // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-  private isDevelopment = import.meta.env.DEV;
+  private isDevelopment = process.env.NODE_ENV === 'development';
 
-  private formatMessage(level: LogLevel, message: string, data?: any, context?: string): LogEntry {
+  private formatMessage(
+    level: LogLevel,
+    message: string,
+    data?: unknown,
+    context?: string
+  ): LogEntry {
     return {
       level,
       message,
@@ -23,6 +27,7 @@ class Logger {
   }
 
   private logToConsole(entry: LogEntry) {
+    // Log to console only in development environment
     if (!this.isDevelopment) return;
 
     const { level, message, data, context, timestamp } = entry;
@@ -45,22 +50,22 @@ class Logger {
     }
   }
 
-  info(message: string, data?: any, context?: string) {
+  info(message: string, data?: unknown, context?: string) {
     const entry = this.formatMessage('info', message, data, context);
     this.logToConsole(entry);
   }
 
-  warn(message: string, data?: any, context?: string) {
+  warn(message: string, data?: unknown, context?: string) {
     const entry = this.formatMessage('warn', message, data, context);
     this.logToConsole(entry);
   }
 
-  error(message: string, data?: any, context?: string) {
+  error(message: string, data?: unknown, context?: string) {
     const entry = this.formatMessage('error', message, data, context);
     this.logToConsole(entry);
   }
 
-  debug(message: string, data?: any, context?: string) {
+  debug(message: string, data?: unknown, context?: string) {
     const entry = this.formatMessage('debug', message, data, context);
     this.logToConsole(entry);
   }

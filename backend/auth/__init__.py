@@ -3,7 +3,7 @@ Authentication Module
 
 This module provides production-ready authentication functionality including:
 - JWT token management
-- Password hashing with bcrypt  
+- Password hashing with bcrypt
 - User management and database operations
 - Secure authentication endpoints
 """
@@ -11,25 +11,19 @@ This module provides production-ready authentication functionality including:
 from .security import (
     SecurityManager,
     TokenData,
-    security_manager,
-    get_password_hash,
-    verify_password,
     create_access_token,
     create_refresh_token,
+    extract_user_from_token,
+    get_password_hash,
+    security_manager,
+    verify_password,
     verify_token,
-    extract_user_from_token
 )
-
-from .user_service import (
-    User,
-    UserProfile,
-    UserService,
-    user_service
-)
+from .user_service import User, UserProfile, UserService
 
 __all__ = [
     "SecurityManager",
-    "TokenData", 
+    "TokenData",
     "security_manager",
     "get_password_hash",
     "verify_password",
@@ -40,5 +34,4 @@ __all__ = [
     "User",
     "UserProfile",
     "UserService",
-    "user_service"
-] 
+]

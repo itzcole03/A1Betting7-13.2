@@ -25,7 +25,7 @@ interface NotificationData {
   change?: number;
   trend?: 'up' | 'down' | 'stable';
   chart?: number[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface ModernNotification {
@@ -109,8 +109,8 @@ interface ModernNotificationCenterProps {
   onFilterChange?: (filter: NotificationFilter) => void;
 }
 
-const getNotificationIcon = (type: string) => {
-  const icons = {
+const _getNotificationIcon = (type: string) => {
+  const _icons = {
     info: 'ℹ️',
     success: '✅',
     warning: '⚠️',
@@ -124,8 +124,8 @@ const getNotificationIcon = (type: string) => {
   return icons[type as keyof typeof icons] || 'ℹ️';
 };
 
-const getNotificationColor = (type: string, variant: string = 'default') => {
-  const colors = {
+const _getNotificationColor = (type: string, variant: string = 'default') => {
+  const _colors = {
     default: {
       info: 'border-blue-200 bg-blue-50 text-blue-800',
       success: 'border-green-200 bg-green-50 text-green-800',
@@ -155,8 +155,8 @@ const getNotificationColor = (type: string, variant: string = 'default') => {
     : colors.default[type as keyof typeof colors.default] || colors.default.info;
 };
 
-const getPriorityIndicator = (priority: string, variant: string = 'default') => {
-  const indicators = {
+const _getPriorityIndicator = (priority: string, variant: string = 'default') => {
+  const _indicators = {
     default: {
       critical: 'bg-red-500 animate-pulse border-2 border-red-300',
       urgent: 'bg-orange-500 animate-pulse',
@@ -178,12 +178,12 @@ const getPriorityIndicator = (priority: string, variant: string = 'default') => 
     : indicators.default[priority as keyof typeof indicators.default] || indicators.default.low;
 };
 
-const formatTimeAgo = (date: Date): string => {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
+const _formatTimeAgo = (date: Date): string => {
+  const _now = new Date();
+  const _diffMs = now.getTime() - date.getTime();
+  const _diffMins = Math.floor(diffMs / 60000);
+  const _diffHours = Math.floor(diffMs / 3600000);
+  const _diffDays = Math.floor(diffMs / 86400000);
 
   if (diffMins < 1) return 'Just now';
   if (diffMins < 60) return `${diffMins}m ago`;
@@ -192,17 +192,17 @@ const formatTimeAgo = (date: Date): string => {
   return date.toLocaleDateString();
 };
 
-const playNotificationSound = (type: string) => {
+const _playNotificationSound = (type: string) => {
   // Create a simple audio feedback
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
+  const _audioContext = new (window.AudioContext || (window as unknown).webkitAudioContext)();
+  const _oscillator = audioContext.createOscillator();
+  const _gainNode = audioContext.createGain();
 
   oscillator.connect(gainNode);
   gainNode.connect(audioContext.destination);
 
   // Different frequencies for different notification types
-  const frequencies = {
+  const _frequencies = {
     success: 800,
     warning: 600,
     error: 400,
@@ -220,7 +220,7 @@ const playNotificationSound = (type: string) => {
   oscillator.stop(audioContext.currentTime + 0.3);
 };
 
-export const ModernNotificationCenter: React.FC<ModernNotificationCenterProps> = ({
+export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> = ({
   notifications,
   isOpen,
   variant = 'default',
@@ -254,12 +254,12 @@ export const ModernNotificationCenter: React.FC<ModernNotificationCenterProps> =
   >({});
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [lastNotificationCount, setLastNotificationCount] = useState(notifications.length);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const _containerRef = useRef<HTMLDivElement>(null);
 
   // Handle new notifications (sound, push, etc.)
   useEffect(() => {
     if (notifications.length > lastNotificationCount && enableRealTime) {
-      const newNotifications = notifications.slice(lastNotificationCount);
+      const _newNotifications = notifications.slice(lastNotificationCount);
 
       // Play sound for new notifications
       if (
@@ -288,7 +288,7 @@ export const ModernNotificationCenter: React.FC<ModernNotificationCenterProps> =
 
   // Filter and group notifications
   useEffect(() => {
-    let filtered = notifications;
+    let _filtered = notifications;
 
     // Apply filters
     if (currentFilter.types?.length) {
@@ -319,7 +319,7 @@ export const ModernNotificationCenter: React.FC<ModernNotificationCenterProps> =
 
     // Apply search
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+      const _query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         n =>
           n.title.toLowerCase().includes(query) ||
@@ -332,9 +332,9 @@ export const ModernNotificationCenter: React.FC<ModernNotificationCenterProps> =
 
     // Sort by priority and timestamp
     filtered = filtered.sort((a, b) => {
-      const priorityOrder = { critical: 5, urgent: 4, high: 3, medium: 2, low: 1 };
-      const aPriority = priorityOrder[a.priority] || 1;
-      const bPriority = priorityOrder[b.priority] || 1;
+      const _priorityOrder = { critical: 5, urgent: 4, high: 3, medium: 2, low: 1 };
+      const _aPriority = priorityOrder[a.priority] || 1;
+      const _bPriority = priorityOrder[b.priority] || 1;
 
       if (aPriority !== bPriority) {
         return bPriority - aPriority;
@@ -350,9 +350,9 @@ export const ModernNotificationCenter: React.FC<ModernNotificationCenterProps> =
 
     // Group notifications
     if (groupByCategory || groupByDate) {
-      const grouped = filtered.reduce(
+      const _grouped = filtered.reduce(
         (groups, notification) => {
-          let key: string;
+          let _key: string;
 
           if (groupByDate) {
             key = notification.timestamp.toDateString();
@@ -382,13 +382,13 @@ export const ModernNotificationCenter: React.FC<ModernNotificationCenterProps> =
     }
   }, [enablePush]);
 
-  const handleFilterChange = (newFilter: Partial<NotificationFilter>) => {
-    const updatedFilter = { ...currentFilter, ...newFilter };
+  const _handleFilterChange = (newFilter: Partial<NotificationFilter>) => {
+    const _updatedFilter = { ...currentFilter, ...newFilter };
     setCurrentFilter(updatedFilter);
     onFilterChange?.(updatedFilter);
   };
 
-  const handleNotificationClick = (notification: ModernNotification) => {
+  const _handleNotificationClick = (notification: ModernNotification) => {
     // Auto mark as read
     if (autoMarkAsRead && !notification.read) {
       onNotificationRead?.(notification.id);
@@ -402,16 +402,16 @@ export const ModernNotificationCenter: React.FC<ModernNotificationCenterProps> =
     }
   };
 
-  const handleMarkAllRead = () => {
+  const _handleMarkAllRead = () => {
     onMarkAllRead?.();
   };
 
-  const handleClearAll = () => {
+  const _handleClearAll = () => {
     onClearAll?.();
   };
 
-  const toggleGroup = (groupId: string) => {
-    const newCollapsed = new Set(collapsedGroups);
+  const _toggleGroup = (groupId: string) => {
+    const _newCollapsed = new Set(collapsedGroups);
     if (newCollapsed.has(groupId)) {
       newCollapsed.delete(groupId);
     } else {
@@ -420,14 +420,14 @@ export const ModernNotificationCenter: React.FC<ModernNotificationCenterProps> =
     setCollapsedGroups(newCollapsed);
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
-  const urgentCount = notifications.filter(
+  const _unreadCount = notifications.filter(n => !n.read).length;
+  const _urgentCount = notifications.filter(
     n => n.priority === 'urgent' || n.priority === 'critical'
   ).length;
 
   if (!isOpen) return null;
 
-  const positionClasses = {
+  const _positionClasses = {
     'top-right': 'top-4 right-4',
     'top-left': 'top-4 left-4',
     'bottom-right': 'bottom-4 right-4',
@@ -435,7 +435,7 @@ export const ModernNotificationCenter: React.FC<ModernNotificationCenterProps> =
     center: 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-xl shadow-2xl',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-xl shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -444,7 +444,7 @@ export const ModernNotificationCenter: React.FC<ModernNotificationCenterProps> =
     overlay: 'bg-white/90 border border-white/20 rounded-xl shadow-2xl backdrop-blur-md',
   };
 
-  const displayNotifications =
+  const _displayNotifications =
     groupByCategory || groupByDate ? groupedNotifications : { All: filteredNotifications };
 
   return (
@@ -759,7 +759,7 @@ interface NotificationItemProps {
   onDismiss?: (notificationId: string) => void;
 }
 
-const NotificationItem: React.FC<NotificationItemProps> = ({
+const _NotificationItem: React.FC<NotificationItemProps> = ({
   notification,
   variant,
   onClick,

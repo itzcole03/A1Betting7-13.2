@@ -1,38 +1,53 @@
-// OpenTelemetry tracing setup for React + SigNoz (2025 best practice)
-// Tracing is disabled unless VITE_OTEL_ENABLED is set to 'true'.
+// Type import for correct assertion
 
-//
-const otelEnabled = import.meta.env.VITE_OTEL_ENABLED === 'true';
+// Robustly disable OpenTelemetry tracing in test environments and avoid import.meta.env
+// Only enable tracing in non-test environments and if VITE_OTEL_ENABLED is 'true'
 
-let provider: any = null;
+let provider: unknown = null;
+const isTest = import.meta.env.MODE === 'test';
+const otelEnabled = !isTest && import.meta.env.VITE_OTEL_ENABLED === 'true';
+
 if (otelEnabled) {
-  // Only import and initialize tracing if enabled
+  (async () => {
+    try {
+      const [
+        { OTLPTraceExporter },
+        { registerInstrumentations },
+        { FetchInstrumentation },
+        { BatchSpanProcessor },
+        { WebTracerProvider },
+      ] = await Promise.all([
+        // @ts-ignore
+        import('@opentelemetry/exporter-trace-otlp-http'),
+        // @ts-ignore
+        import('@opentelemetry/instrumentation'),
+        // @ts-ignore
+        import('@opentelemetry/instrumentation-fetch'),
+        // @ts-ignore
+        import('@opentelemetry/sdk-trace-base'),
+        // @ts-ignore
+        import('@opentelemetry/sdk-trace-web'),
+      ]);
 
-  import('@opentelemetry/exporter-trace-otlp-http').then(({ OTLPTraceExporter }) => {
-    import('@opentelemetry/instrumentation').then(({ registerInstrumentations }) => {
-      import('@opentelemetry/instrumentation-fetch').then(({ FetchInstrumentation }) => {
-        import('@opentelemetry/sdk-trace-base').then(({ BatchSpanProcessor }) => {
-          import('@opentelemetry/sdk-trace-web').then(({ WebTracerProvider }) => {
-            const exporter = new OTLPTraceExporter({
-              url: import.meta.env.VITE_OTEL_ENDPOINT || 'http://localhost:4318/v1/traces',
-            });
-            provider = new WebTracerProvider({
-              spanProcessors: [new BatchSpanProcessor(exporter)],
-            });
-            provider.register();
-            registerInstrumentations({
-              instrumentations: [
-                new FetchInstrumentation({
-                  ignoreUrls: [/localhost:4318/],
-                  propagateTraceHeaderCorsUrls: [/.*/],
-                }),
-              ],
-            });
-          });
-        });
+      const exporter = new OTLPTraceExporter({
+        url: import.meta.env.VITE_OTEL_ENDPOINT || 'http://localhost:4318/v1/traces',
       });
-    });
-  });
+      provider = new WebTracerProvider({
+        spanProcessors: [new BatchSpanProcessor(exporter)],
+      });
+      (provider as any).register();
+      registerInstrumentations({
+        instrumentations: [
+          new FetchInstrumentation({
+            ignoreUrls: [/localhost:4318/],
+            propagateTraceHeaderCorsUrls: [/.*/],
+          }),
+        ],
+      });
+    } catch (error) {
+      console.error('Failed to initialize OpenTelemetry tracing:', error);
+    }
+  })();
 }
 
 export { provider };

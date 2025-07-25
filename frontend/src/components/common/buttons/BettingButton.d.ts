@@ -9,4 +9,4 @@ export interface BettingButtonProps extends Omit<ButtonProps, 'variant'> {
   isConfirmed?: boolean;
   showDetails?: boolean;
 }
-export declare const BettingButton: React.FC<BettingButtonProps>;
+export declare const _BettingButton: React.FC<BettingButtonProps>;

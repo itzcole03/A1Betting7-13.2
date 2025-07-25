@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast';
 
-export const handleAISearch = async (query?: string) => {
+export const _handleAISearch = async (query?: string) => {
   // Show AI-powered search with PropOllama integration;
   toast.loading('🧠 PropOllama is analyzing current opportunities...', {
     id: 'ai-search',
@@ -50,7 +50,7 @@ export const handleAISearch = async (query?: string) => {
   }, 1000);
 };
 
-export const handleSmartSearch = (searchTerm: string) => {
+export const _handleSmartSearch = (searchTerm: string) => {
   // Process search term with AI context;
   if (searchTerm.toLowerCase().includes('nba') || searchTerm.toLowerCase().includes('basketball')) {
     toast.success(

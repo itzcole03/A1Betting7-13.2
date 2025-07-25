@@ -18,19 +18,19 @@ interface ParticleFieldProps {
   className?: string;
 }
 
-export const ParticleField: React.FC<ParticleFieldProps> = ({
+export const _ParticleField: React.FC<ParticleFieldProps> = ({
   variant = 'default',
   density = 'medium',
   speed = 'medium',
   interactive = true,
   className = '',
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particlesRef = useRef<Particle[]>([]);
-  const animationRef = useRef<number>();
-  const mouseRef = useRef({ x: 0, y: 0 });
+  const _canvasRef = useRef<HTMLCanvasElement>(null);
+  const _particlesRef = useRef<Particle[]>([]);
+  const _animationRef = useRef<number>();
+  const _mouseRef = useRef({ x: 0, y: 0 });
 
-  const config = {
+  const _config = {
     default: {
       colors: ['#3b82f6', '#8b5cf6', '#06b6d4'],
       particleCount: { low: 30, medium: 50, high: 80 },
@@ -58,29 +58,29 @@ export const ParticleField: React.FC<ParticleFieldProps> = ({
     },
   };
 
-  const speedConfig = {
+  const _speedConfig = {
     slow: 0.5,
     medium: 1,
     fast: 2,
   };
 
-  const currentConfig = config[variant];
-  const particleCount = currentConfig.particleCount[density];
-  const speedMultiplier = speedConfig[speed];
+  const _currentConfig = config[variant];
+  const _particleCount = currentConfig.particleCount[density];
+  const _speedMultiplier = speedConfig[speed];
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const _canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const _ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const resizeCanvas = () => {
+    const _resizeCanvas = () => {
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
     };
 
-    const createParticle = (): Particle => {
+    const _createParticle = (): Particle => {
       const [minSize, maxSize] = currentConfig.particleSize;
       return {
         x: Math.random() * canvas.width,
@@ -93,23 +93,23 @@ export const ParticleField: React.FC<ParticleFieldProps> = ({
       };
     };
 
-    const initParticles = () => {
+    const _initParticles = () => {
       particlesRef.current = Array.from({ length: particleCount }, createParticle);
     };
 
-    const updateParticles = () => {
+    const _updateParticles = () => {
       particlesRef.current.forEach(particle => {
         particle.x += particle.vx;
         particle.y += particle.vy;
 
         // Interactive mouse effect
         if (interactive) {
-          const dx = mouseRef.current.x - particle.x;
-          const dy = mouseRef.current.y - particle.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+          const _dx = mouseRef.current.x - particle.x;
+          const _dy = mouseRef.current.y - particle.y;
+          const _distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance < 100) {
-            const force = (100 - distance) / 100;
+            const _force = (100 - distance) / 100;
             particle.vx += (dx / distance) * force * 0.01;
             particle.vy += (dy / distance) * force * 0.01;
           }
@@ -128,7 +128,7 @@ export const ParticleField: React.FC<ParticleFieldProps> = ({
         particle.vy *= 0.99;
 
         // Ensure minimum velocity
-        const minVel = speedMultiplier * 0.1;
+        const _minVel = speedMultiplier * 0.1;
         if (Math.abs(particle.vx) < minVel) {
           particle.vx = (Math.random() - 0.5) * speedMultiplier;
         }
@@ -138,7 +138,7 @@ export const ParticleField: React.FC<ParticleFieldProps> = ({
       });
     };
 
-    const drawParticles = () => {
+    const _drawParticles = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Draw connections (for cyber and quantum variants)
@@ -147,16 +147,16 @@ export const ParticleField: React.FC<ParticleFieldProps> = ({
           variant === 'cyber' ? 'rgba(0, 255, 255, 0.1)' : 'rgba(168, 85, 247, 0.1)';
         ctx.lineWidth = 1;
 
-        for (let i = 0; i < particlesRef.current.length; i++) {
-          for (let j = i + 1; j < particlesRef.current.length; j++) {
-            const p1 = particlesRef.current[i];
-            const p2 = particlesRef.current[j];
-            const dx = p1.x - p2.x;
-            const dy = p1.y - p2.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+        for (let _i = 0; i < particlesRef.current.length; i++) {
+          for (let _j = i + 1; j < particlesRef.current.length; j++) {
+            const _p1 = particlesRef.current[i];
+            const _p2 = particlesRef.current[j];
+            const _dx = p1.x - p2.x;
+            const _dy = p1.y - p2.y;
+            const _distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < 100) {
-              const opacity = ((100 - distance) / 100) * 0.2;
+              const _opacity = ((100 - distance) / 100) * 0.2;
               ctx.globalAlpha = opacity;
               ctx.beginPath();
               ctx.moveTo(p1.x, p1.y);
@@ -210,14 +210,14 @@ export const ParticleField: React.FC<ParticleFieldProps> = ({
       ctx.globalAlpha = 1;
     };
 
-    const animate = () => {
+    const _animate = () => {
       updateParticles();
       drawParticles();
       animationRef.current = requestAnimationFrame(animate);
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
+    const _handleMouseMove = (e: MouseEvent) => {
+      const _rect = canvas.getBoundingClientRect();
       mouseRef.current.x = e.clientX - rect.left;
       mouseRef.current.y = e.clientY - rect.top;
     };

@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast';
 
-export const handleSearchClick = () => {
+export const _handleSearchClick = () => {
   // Show immediate search results with real betting opportunities;
   toast.success('🔍 Quick Search Results:', {
     duration: 1000,
@@ -29,7 +29,7 @@ export const handleSearchClick = () => {
   }, 1500);
 };
 
-export const handleNotificationClick = () => {
+export const _handleNotificationClick = () => {
   // Show live system notifications;
   toast.success('🔔 Live Notifications:', {
     duration: 1000,

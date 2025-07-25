@@ -36,15 +36,15 @@ export declare class ProjectionAnalyzer /* implements Analyzer<any, any[]> */ {
   private readonly performanceMonitor;
   private readonly confidenceThreshold;
   constructor(confidenceThreshold?: number);
-  analyze(data: any): Promise<any[]>;
-  confidence(data: any): Promise<number>;
+  analyze(data: unknown): Promise<unknown[]>;
+  confidence(data: unknown): Promise<number>;
   private analyzePlayerProjection;
   private calculateBaseConfidence;
   private calculateMetrics;
   private calculateVariance;
   private getStatTypeConfidence;
   private isValidProjection;
-  validate(data: any): boolean;
+  validate(data: unknown): boolean;
   getMetrics(): {
     accuracy: number;
     latency: number;

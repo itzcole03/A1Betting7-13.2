@@ -1,4 +1,4 @@
 ﻿export declare class RiskAssessmentService {
-  static assessRisk(prediction: any): any;
+  static assessRisk(prediction: unknown): unknown;
 }
 export default RiskAssessmentService;

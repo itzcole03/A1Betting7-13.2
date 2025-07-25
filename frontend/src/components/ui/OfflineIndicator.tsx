@@ -19,7 +19,7 @@ interface OfflineData {
   syncQueue: Array<{
     id: string;
     type: string;
-    data: any;
+    data: unknown;
     timestamp: Date;
   }>;
 }
@@ -47,20 +47,20 @@ interface OfflineIndicatorProps {
   onSyncRequest?: () => void;
 }
 
-const useNetworkStatus = () => {
+const _useNetworkStatus = () => {
   const [networkStatus, setNetworkStatus] = useState<NetworkStatus>({
     isOnline: navigator.onLine,
   });
 
   useEffect(() => {
-    const updateNetworkStatus = () => {
-      const status: NetworkStatus = {
+    const _updateNetworkStatus = () => {
+      const _status: NetworkStatus = {
         isOnline: navigator.onLine,
       };
 
       // Get network information if available
       if ('connection' in navigator) {
-        const connection = (navigator as any).connection;
+        const _connection = (navigator as unknown).connection;
         status.connectionType = connection.type;
         status.effectiveType = connection.effectiveType;
         status.downlink = connection.downlink;
@@ -71,15 +71,15 @@ const useNetworkStatus = () => {
       setNetworkStatus(status);
     };
 
-    const handleOnline = () => updateNetworkStatus();
-    const handleOffline = () => updateNetworkStatus();
+    const _handleOnline = () => updateNetworkStatus();
+    const _handleOffline = () => updateNetworkStatus();
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
     // Listen for connection changes
     if ('connection' in navigator) {
-      (navigator as any).connection.addEventListener('change', updateNetworkStatus);
+      (navigator as unknown).connection.addEventListener('change', updateNetworkStatus);
     }
 
     // Initial check
@@ -89,7 +89,7 @@ const useNetworkStatus = () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       if ('connection' in navigator) {
-        (navigator as any).connection.removeEventListener('change', updateNetworkStatus);
+        (navigator as unknown).connection.removeEventListener('change', updateNetworkStatus);
       }
     };
   }, []);
@@ -97,7 +97,7 @@ const useNetworkStatus = () => {
   return networkStatus;
 };
 
-const formatConnectionSpeed = (downlink?: number, effectiveType?: string) => {
+const _formatConnectionSpeed = (downlink?: number, effectiveType?: string) => {
   if (downlink !== undefined) {
     if (downlink >= 10) return 'Fast';
     if (downlink >= 1.5) return 'Good';
@@ -123,13 +123,13 @@ const formatConnectionSpeed = (downlink?: number, effectiveType?: string) => {
   return 'Unknown';
 };
 
-const formatLastSync = (date?: Date): string => {
+const _formatLastSync = (date?: Date): string => {
   if (!date) return 'Never';
 
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
+  const _now = new Date();
+  const _diffMs = now.getTime() - date.getTime();
+  const _diffMins = Math.floor(diffMs / 60000);
+  const _diffHours = Math.floor(diffMs / 3600000);
 
   if (diffMins < 1) return 'Just now';
   if (diffMins < 60) return `${diffMins}m ago`;
@@ -137,7 +137,7 @@ const formatLastSync = (date?: Date): string => {
   return date.toLocaleDateString();
 };
 
-export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
+export const _OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
   variant = 'default',
   position = 'top-right',
   showWhenOnline = false,
@@ -153,11 +153,11 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
   onOfflineModeToggle,
   onSyncRequest,
 }) => {
-  const networkStatus = useNetworkStatus();
+  const _networkStatus = useNetworkStatus();
   const [isVisible, setIsVisible] = useState(true);
   const [offlineModeEnabled, setOfflineModeEnabled] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const hideTimeoutRef = useRef<NodeJS.Timeout>();
+  const _hideTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Auto-hide functionality
   useEffect(() => {
@@ -188,13 +188,13 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
     return null;
   }
 
-  const handleOfflineModeToggle = () => {
-    const newState = !offlineModeEnabled;
+  const _handleOfflineModeToggle = () => {
+    const _newState = !offlineModeEnabled;
     setOfflineModeEnabled(newState);
     onOfflineModeToggle?.(newState);
   };
 
-  const positionClasses = {
+  const _positionClasses = {
     'top-left': 'top-4 left-4',
     'top-right': 'top-4 right-4',
     'bottom-left': 'bottom-4 left-4',
@@ -203,7 +203,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
     'bottom-center': 'bottom-4 left-1/2 transform -translate-x-1/2',
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-lg shadow-lg',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/20 backdrop-blur-md',

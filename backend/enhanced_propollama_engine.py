@@ -364,153 +364,173 @@ class EnhancedPropOllamaEngine:
     async def generate_best_bets(self, limit: int = 12) -> Dict[str, Any]:
         """Generate top daily best bets using ML ensemble and AI analysis"""
         start_time = time.time()
-        
+
         try:
             logger.info(f"🎯 Generating {limit} best bets using PropOllama AI...")
-            
+
             # Get current predictions from model manager
             predictions = self.model_manager.get_predictions()
-            
+
             if not predictions:
                 # Generate mock predictions for demonstration
                 predictions = await self._generate_mock_predictions()
-            
+
             # Filter and rank predictions
             ranked_predictions = await self._rank_predictions_for_best_bets(predictions)
-            
+
             # Select diverse top picks
             best_bets = await self._select_diverse_best_bets(ranked_predictions, limit)
-            
+
             # Generate AI reasoning for each bet
             for bet in best_bets:
-                bet['reasoning'] = await self._generate_bet_reasoning(bet)
-            
+                bet["reasoning"] = await self._generate_bet_reasoning(bet)
+
             generation_time = time.time() - start_time
-            
+
             result = {
-                'best_bets': best_bets,
-                'total_analyzed': len(predictions),
-                'generation_time': generation_time,
-                'confidence_threshold': 70,
-                'last_updated': datetime.now(timezone.utc).isoformat(),
-                'model_version': 'PropOllama_Enhanced_v6.0',
-                'sports_covered': list(set(bet['sport'] for bet in best_bets))
+                "best_bets": best_bets,
+                "total_analyzed": len(predictions),
+                "generation_time": generation_time,
+                "confidence_threshold": 70,
+                "last_updated": datetime.now(timezone.utc).isoformat(),
+                "model_version": "PropOllama_Enhanced_v6.0",
+                "sports_covered": list(set(bet["sport"] for bet in best_bets)),
             }
-            
-            logger.info(f"✅ Generated {len(best_bets)} best bets in {generation_time:.2f}s")
+
+            logger.info(
+                f"✅ Generated {len(best_bets)} best bets in {generation_time:.2f}s"
+            )
             return result
-            
+
         except Exception as e:
             logger.error(f"❌ Error generating best bets: {e}")
             return {
-                'best_bets': [],
-                'error': str(e),
-                'last_updated': datetime.now(timezone.utc).isoformat()
+                "best_bets": [],
+                "error": str(e),
+                "last_updated": datetime.now(timezone.utc).isoformat(),
             }
 
     async def _generate_mock_predictions(self) -> List[Dict[str, Any]]:
         """Generate mock predictions for demonstration"""
         import random
-        
-        sports = ['NBA', 'NFL', 'MLB', 'NHL', 'WNBA', 'Soccer']
+
+        sports = ["NBA", "NFL", "MLB", "NHL", "WNBA", "Soccer"]
         players = [
-            'LeBron James', 'Stephen Curry', 'Nikola Jokic', 'Luka Doncic',
-            'Josh Allen', 'Patrick Mahomes', 'Aaron Judge', 'Mookie Betts',
-            'Connor McDavid', 'Alexander Ovechkin', 'A\'ja Wilson', 'Breanna Stewart',
-            'Lionel Messi', 'Cristiano Ronaldo'
+            "LeBron James",
+            "Stephen Curry",
+            "Nikola Jokic",
+            "Luka Doncic",
+            "Josh Allen",
+            "Patrick Mahomes",
+            "Aaron Judge",
+            "Mookie Betts",
+            "Connor McDavid",
+            "Alexander Ovechkin",
+            "A'ja Wilson",
+            "Breanna Stewart",
+            "Lionel Messi",
+            "Cristiano Ronaldo",
         ]
-        
+
         stat_types = {
-            'NBA': ['Points', 'Rebounds', 'Assists', 'Three-Pointers'],
-            'NFL': ['Passing Yards', 'Rushing Yards', 'Touchdowns', 'Receptions'],
-            'MLB': ['Hits', 'Home Runs', 'RBIs', 'Strikeouts'],
-            'NHL': ['Goals', 'Assists', 'Shots on Goal', 'Saves'],
-            'WNBA': ['Points', 'Rebounds', 'Assists'],
-            'Soccer': ['Goals', 'Assists', 'Shots on Target']
+            "NBA": ["Points", "Rebounds", "Assists", "Three-Pointers"],
+            "NFL": ["Passing Yards", "Rushing Yards", "Touchdowns", "Receptions"],
+            "MLB": ["Hits", "Home Runs", "RBIs", "Strikeouts"],
+            "NHL": ["Goals", "Assists", "Shots on Goal", "Saves"],
+            "WNBA": ["Points", "Rebounds", "Assists"],
+            "Soccer": ["Goals", "Assists", "Shots on Target"],
         }
-        
+
         predictions = []
         for i in range(50):  # Generate 50 mock predictions
             sport = random.choice(sports)
             player = random.choice(players)
             stat_type = random.choice(stat_types[sport])
-            
+
             prediction = {
-                'id': f'pred_{i}',
-                'player_name': player,
-                'sport': sport,
-                'stat_type': stat_type,
-                'line': round(random.uniform(0.5, 30.5), 1),
-                'confidence': random.randint(60, 95),
-                'expected_value': round(random.uniform(-5, 15), 1),
-                'ml_prediction': {
-                    'recommendation': random.choice(['OVER', 'UNDER']),
-                    'confidence': random.randint(60, 95)
-                }
+                "id": f"pred_{i}",
+                "player_name": player,
+                "sport": sport,
+                "stat_type": stat_type,
+                "line": round(random.uniform(0.5, 30.5), 1),
+                "confidence": random.randint(60, 95),
+                "expected_value": round(random.uniform(-5, 15), 1),
+                "ml_prediction": {
+                    "recommendation": random.choice(["OVER", "UNDER"]),
+                    "confidence": random.randint(60, 95),
+                },
             }
             predictions.append(prediction)
-        
+
         return predictions
 
-    async def _rank_predictions_for_best_bets(self, predictions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _rank_predictions_for_best_bets(
+        self, predictions: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Rank predictions for best bets selection"""
         scored_predictions = []
-        
+
         for pred in predictions:
             # Calculate composite score
-            confidence = pred.get('confidence', 0)
-            expected_value = pred.get('expected_value', 0)
-            
+            confidence = pred.get("confidence", 0)
+            expected_value = pred.get("expected_value", 0)
+
             # Weighted scoring: 60% confidence, 40% expected value
             score = (confidence * 0.6) + (max(0, expected_value) * 4.0)  # Scale EV
-            
+
             scored_pred = {
                 **pred,
-                'composite_score': score,
-                'rank_factors': {
-                    'confidence_weight': confidence * 0.6,
-                    'ev_weight': max(0, expected_value) * 4.0
-                }
+                "composite_score": score,
+                "rank_factors": {
+                    "confidence_weight": confidence * 0.6,
+                    "ev_weight": max(0, expected_value) * 4.0,
+                },
             }
             scored_predictions.append(scored_pred)
-        
-        # Sort by composite score
-        return sorted(scored_predictions, key=lambda x: x['composite_score'], reverse=True)
 
-    async def _select_diverse_best_bets(self, ranked_predictions: List[Dict[str, Any]], limit: int) -> List[Dict[str, Any]]:
+        # Sort by composite score
+        return sorted(
+            scored_predictions, key=lambda x: x["composite_score"], reverse=True
+        )
+
+    async def _select_diverse_best_bets(
+        self, ranked_predictions: List[Dict[str, Any]], limit: int
+    ) -> List[Dict[str, Any]]:
         """Select diverse best bets across sports and bet types"""
         selected_bets = []
         sport_counts = {}
         stat_type_counts = {}
-        
+
         for pred in ranked_predictions:
             if len(selected_bets) >= limit:
                 break
-            
-            sport = pred['sport']
-            stat_type = pred['stat_type']
-            
+
+            sport = pred["sport"]
+            stat_type = pred["stat_type"]
+
             # Ensure diversity: max 3 per sport, max 2 per stat type
-            if (sport_counts.get(sport, 0) < 3 and 
-                stat_type_counts.get(stat_type, 0) < 2 and
-                pred['confidence'] >= 70):  # Minimum confidence threshold
-                
+            if (
+                sport_counts.get(sport, 0) < 3
+                and stat_type_counts.get(stat_type, 0) < 2
+                and pred["confidence"] >= 70
+            ):  # Minimum confidence threshold
+
                 bet = {
-                    'id': pred['id'],
-                    'player_name': pred['player_name'],
-                    'sport': sport,
-                    'stat_type': stat_type,
-                    'line': pred['line'],
-                    'recommendation': pred['ml_prediction']['recommendation'],
-                    'confidence': pred['confidence'],
-                    'expected_value': pred['expected_value'],
-                    'composite_score': pred['composite_score']
+                    "id": pred["id"],
+                    "player_name": pred["player_name"],
+                    "sport": sport,
+                    "stat_type": stat_type,
+                    "line": pred["line"],
+                    "recommendation": pred["ml_prediction"]["recommendation"],
+                    "confidence": pred["confidence"],
+                    "expected_value": pred["expected_value"],
+                    "composite_score": pred["composite_score"],
                 }
-                
+
                 selected_bets.append(bet)
                 sport_counts[sport] = sport_counts.get(sport, 0) + 1
                 stat_type_counts[stat_type] = stat_type_counts.get(stat_type, 0) + 1
-        
+
         return selected_bets
 
     async def _generate_bet_reasoning(self, bet: Dict[str, Any]) -> str:
@@ -529,19 +549,20 @@ class EnhancedPropOllamaEngine:
             
             Provide a 1-2 sentence explanation focusing on recent performance, matchup factors, or statistical trends.
             """
-            
+
             # Simulate LLM response for now
             reasoning_templates = [
                 f"Strong recent form with favorable matchup conditions",
                 f"Historical performance suggests {bet['recommendation'].lower()} trend",
                 f"Advanced metrics indicate value in this line",
                 f"Matchup analysis supports {bet['recommendation'].lower()} position",
-                f"Player trending {bet['recommendation'].lower()} in similar situations"
+                f"Player trending {bet['recommendation'].lower()} in similar situations",
             ]
-            
+
             import random
+
             return random.choice(reasoning_templates)
-            
+
         except Exception as e:
             logger.error(f"Error generating reasoning: {e}")
             return f"AI analysis supports {bet['recommendation']} based on comprehensive data"
@@ -552,9 +573,9 @@ class EnhancedPropOllamaEngine:
 
         try:
             message = request.message
-            include_web_research = getattr(request, 'includeWebResearch', False)
-            request_best_bets = getattr(request, 'requestBestBets', False)
-            
+            include_web_research = getattr(request, "includeWebResearch", False)
+            request_best_bets = getattr(request, "requestBestBets", False)
+
             context = self.get_context(getattr(request, "conversationId", None))
             analysis_type = request.analysisType or self.detect_analysis_type(message)
 
@@ -572,9 +593,9 @@ class EnhancedPropOllamaEngine:
             )
 
             # Include best bets if requested
-            if request_best_bets or 'best bets' in message.lower():
+            if request_best_bets or "best bets" in message.lower():
                 best_bets_data = await self.generate_best_bets(12)
-                response['best_bets'] = best_bets_data['best_bets']
+                response["best_bets"] = best_bets_data["best_bets"]
 
             # Add AI response to context
             context.add_message(
@@ -604,33 +625,40 @@ class EnhancedPropOllamaEngine:
                 "analysis_type": "error",
             }
 
-    async def _perform_web_research(self, message: str, analysis_type: str) -> Dict[str, Any]:
+    async def _perform_web_research(
+        self, message: str, analysis_type: str
+    ) -> Dict[str, Any]:
         """Perform web research for enhanced responses"""
         try:
             # Simulate web research for now
             # In production, this would use DuckDuckGo, Tavily, or other search APIs
-            
+
             research_results = {
-                'sources_found': 3,
-                'key_insights': [
-                    'Recent injury reports affecting player performance',
-                    'Weather conditions impacting outdoor games',
-                    'Team matchup advantages in current season'
+                "sources_found": 3,
+                "key_insights": [
+                    "Recent injury reports affecting player performance",
+                    "Weather conditions impacting outdoor games",
+                    "Team matchup advantages in current season",
                 ],
-                'last_updated': datetime.now(timezone.utc).isoformat()
+                "last_updated": datetime.now(timezone.utc).isoformat(),
             }
-            
+
             return research_results
-            
+
         except Exception as e:
             logger.error(f"Error in web research: {e}")
             return {}
 
     async def _generate_intelligent_response_with_web(
-        self, message: str, context: ConversationContext, analysis_type: str, request, web_data: Dict
+        self,
+        message: str,
+        context: ConversationContext,
+        analysis_type: str,
+        request,
+        web_data: Dict,
     ) -> Dict[str, Any]:
         """Generate intelligent response enhanced with web research"""
-        
+
         # Get recent predictions from model manager
         predictions = self.model_manager.get_predictions()
         model_status = self.model_manager.get_status()
@@ -639,48 +667,62 @@ class EnhancedPropOllamaEngine:
         llm_context = self._build_llm_context(
             message, context, predictions, model_status, analysis_type
         )
-        
+
         # Add web research data
         if web_data:
-            llm_context['web_research'] = web_data
+            llm_context["web_research"] = web_data
 
         # Generate response based on analysis type
         if analysis_type == "prop_analysis":
-            return await self._handle_prop_analysis_with_web(message, llm_context, predictions, web_data)
+            return await self._handle_prop_analysis_with_web(
+                message, llm_context, predictions, web_data
+            )
         elif analysis_type == "explanation":
             return await self._handle_explanation(message, llm_context, predictions)
         elif analysis_type == "strategy":
             return await self._handle_strategy(message, llm_context)
         elif analysis_type == "general_chat":
-            return await self._handle_general_chat_with_web(message, llm_context, web_data)
+            return await self._handle_general_chat_with_web(
+                message, llm_context, web_data
+            )
         else:
-            return await self._handle_general_analysis_with_web(message, llm_context, predictions, web_data)
+            return await self._handle_general_analysis_with_web(
+                message, llm_context, predictions, web_data
+            )
 
     async def _handle_prop_analysis_with_web(
         self, message: str, context: Dict, predictions: List, web_data: Dict
     ) -> Dict[str, Any]:
         """Handle prop analysis with web research enhancement"""
-        
+
         # Extract prop details from message
         prop_details = self._extract_prop_details(message)
-        
+
         # Find relevant predictions
-        relevant_preds = [p for p in predictions if 
-                         prop_details.get('player', '').lower() in p.get('player_name', '').lower()]
-        
+        relevant_preds = [
+            p
+            for p in predictions
+            if prop_details.get("player", "").lower()
+            in p.get("player_name", "").lower()
+        ]
+
         # Generate enhanced analysis
         analysis_parts = []
-        
+
         if relevant_preds:
             pred = relevant_preds[0]
-            analysis_parts.append(f"**ML Analysis:** {pred.get('confidence', 'N/A')}% confidence")
-            analysis_parts.append(f"**Recommendation:** {pred.get('ml_prediction', {}).get('recommendation', 'HOLD')}")
-        
-        if web_data and web_data.get('key_insights'):
+            analysis_parts.append(
+                f"**ML Analysis:** {pred.get('confidence', 'N/A')}% confidence"
+            )
+            analysis_parts.append(
+                f"**Recommendation:** {pred.get('ml_prediction', {}).get('recommendation', 'HOLD')}"
+            )
+
+        if web_data and web_data.get("key_insights"):
             analysis_parts.append("**Latest Intelligence:**")
-            for insight in web_data['key_insights']:
+            for insight in web_data["key_insights"]:
                 analysis_parts.append(f"• {insight}")
-        
+
         content = f"""🎯 **ENHANCED PROP ANALYSIS**
 
 {chr(10).join(analysis_parts)}
@@ -690,47 +732,58 @@ Based on comprehensive ML models and real-time web research, this analysis incor
 
 **Confidence Level:** {relevant_preds[0].get('confidence', 75) if relevant_preds else 75}%
 """
-        
+
         return {
-            'content': content,
-            'confidence': relevant_preds[0].get('confidence', 75) if relevant_preds else 75,
-            'suggestions': [
-                'Get similar player analysis',
-                'Check injury reports',
-                'View matchup details',
-                'Show betting trends'
-            ]
+            "content": content,
+            "confidence": (
+                relevant_preds[0].get("confidence", 75) if relevant_preds else 75
+            ),
+            "suggestions": [
+                "Get similar player analysis",
+                "Check injury reports",
+                "View matchup details",
+                "Show betting trends",
+            ],
         }
 
-    async def _handle_general_chat_with_web(self, message: str, context: Dict, web_data: Dict) -> Dict[str, Any]:
+    async def _handle_general_chat_with_web(
+        self, message: str, context: Dict, web_data: Dict
+    ) -> Dict[str, Any]:
         """Handle general chat with web research enhancement"""
-        
+
         # Detect if user is asking for best bets or recommendations
-        if any(term in message.lower() for term in ['best bets', 'recommendations', 'picks', 'today']):
+        if any(
+            term in message.lower()
+            for term in ["best bets", "recommendations", "picks", "today"]
+        ):
             best_bets_data = await self.generate_best_bets(5)  # Top 5 for chat
-            
+
             content = f"""🤖 **PropOllama AI Assistant**
 
 Here are today's top recommendations based on our 96.4% accuracy ML ensemble:
 
 """
-            for i, bet in enumerate(best_bets_data['best_bets'][:5], 1):
+            for i, bet in enumerate(best_bets_data["best_bets"][:5], 1):
                 content += f"**{i}. {bet['player_name']} - {bet['stat_type']} {bet['recommendation']} {bet['line']}**\n"
-                content += f"   Confidence: {bet['confidence']}% | {bet['reasoning']}\n\n"
-            
-            content += "💡 **Ask me to explain any of these picks for detailed analysis!**"
-            
+                content += (
+                    f"   Confidence: {bet['confidence']}% | {bet['reasoning']}\n\n"
+                )
+
+            content += (
+                "💡 **Ask me to explain any of these picks for detailed analysis!**"
+            )
+
             return {
-                'content': content,
-                'confidence': 85,
-                'suggestions': [
-                    'Explain pick #1',
-                    'Show all 12 best bets',
-                    'Compare NBA vs NFL props',
-                    'Get injury updates'
-                ]
+                "content": content,
+                "confidence": 85,
+                "suggestions": [
+                    "Explain pick #1",
+                    "Show all 12 best bets",
+                    "Compare NBA vs NFL props",
+                    "Get injury updates",
+                ],
             }
-        
+
         # General response
         content = f"""🤖 **PropOllama AI Assistant**
 
@@ -742,28 +795,28 @@ I'm your intelligent sports betting expert with access to:
 
 How can I help you make smarter betting decisions today?
 """
-        
-        if web_data and web_data.get('key_insights'):
+
+        if web_data and web_data.get("key_insights"):
             content += f"\n**Latest Market Intelligence:**\n"
-            for insight in web_data['key_insights']:
+            for insight in web_data["key_insights"]:
                 content += f"• {insight}\n"
-        
+
         return {
-            'content': content,
-            'confidence': 90,
-            'suggestions': [
-                'Show today\'s best bets',
-                'Analyze a specific player',
-                'Compare betting strategies',
-                'Get injury reports'
-            ]
+            "content": content,
+            "confidence": 90,
+            "suggestions": [
+                "Show today's best bets",
+                "Analyze a specific player",
+                "Compare betting strategies",
+                "Get injury reports",
+            ],
         }
 
     async def _handle_general_analysis_with_web(
         self, message: str, context: Dict, predictions: List, web_data: Dict
     ) -> Dict[str, Any]:
         """Handle general analysis with web research enhancement"""
-        
+
         content = f"""📊 **COMPREHENSIVE ANALYSIS**
 
 **PropOllama AI Analysis:**
@@ -774,21 +827,21 @@ How can I help you make smarter betting decisions today?
 • Models operating at 96.4% accuracy
 • Real-time data integration active
 """
-        
-        if web_data and web_data.get('key_insights'):
+
+        if web_data and web_data.get("key_insights"):
             content += f"\n**Latest Intelligence:**\n"
-            for insight in web_data['key_insights']:
+            for insight in web_data["key_insights"]:
                 content += f"• {insight}\n"
-        
+
         return {
-            'content': content,
-            'confidence': 80,
-            'suggestions': [
-                'Get specific recommendations',
-                'View detailed breakdowns',
-                'Check recent trends',
-                'Compare options'
-            ]
+            "content": content,
+            "confidence": 80,
+            "suggestions": [
+                "Get specific recommendations",
+                "View detailed breakdowns",
+                "Check recent trends",
+                "Compare options",
+            ],
         }
 
     def detect_analysis_type(self, message: str) -> str:
@@ -977,9 +1030,9 @@ How can I help you make smarter betting decisions today?
         """
 
         try:
-            # Get LLM response
+            # Get LLM response, FORCE model to 'llama3:latest'
             ai_response = await self.llm_engine.generate_text(
-                prompt, max_tokens=400, temperature=0.3
+                prompt, max_tokens=400, temperature=0.3, model="llama3:latest"
             )
 
             # Extract confidence from response or use default
@@ -1026,7 +1079,7 @@ How can I help you make smarter betting decisions today?
 
         try:
             ai_response = await self.llm_engine.generate_text(
-                prompt, max_tokens=300, temperature=0.2
+                prompt, max_tokens=300, temperature=0.2, model="llama3:latest"
             )
             confidence = self._extract_confidence_from_response(ai_response)
             suggestions = self._generate_contextual_suggestions(
@@ -1066,7 +1119,7 @@ How can I help you make smarter betting decisions today?
 
         try:
             ai_response = await self.llm_engine.generate_text(
-                prompt, max_tokens=350, temperature=0.4
+                prompt, max_tokens=350, temperature=0.4, model="llama3:latest"
             )
             confidence = 85  # Strategy advice generally has high confidence
 
@@ -1108,7 +1161,7 @@ How can I help you make smarter betting decisions today?
 
         try:
             ai_response = await self.llm_engine.generate_text(
-                prompt, max_tokens=250, temperature=0.6
+                prompt, max_tokens=250, temperature=0.6, model="llama3:latest"
             )
             confidence = 75  # General chat has moderate confidence
 
@@ -1152,7 +1205,7 @@ How can I help you make smarter betting decisions today?
 
         try:
             ai_response = await self.llm_engine.generate_text(
-                prompt, max_tokens=300, temperature=0.4
+                prompt, max_tokens=300, temperature=0.4, model="llama3:latest"
             )
             confidence = self._extract_confidence_from_response(ai_response)
             suggestions = self._generate_contextual_suggestions(

@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const TrendAnalysisChart: React.FC;
+declare const _TrendAnalysisChart: React.FC;
 export default TrendAnalysisChart;

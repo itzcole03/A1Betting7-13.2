@@ -19,6 +19,9 @@ import numpy as np
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# Register new sports prediction/personalization API router
+from backend.api_sports_personalization import router as sports_router
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -161,6 +164,11 @@ app = FastAPI(
     description="Sports betting prediction platform (Production Fix)",
     version="4.0.1-production-fix",
     lifespan=lifespan,
+)
+
+# Register new endpoints for sports prediction and personalization
+app.include_router(
+    sports_router, prefix="/api/sports", tags=["Sports Prediction & Personalization"]
 )
 
 # Add CORS middleware

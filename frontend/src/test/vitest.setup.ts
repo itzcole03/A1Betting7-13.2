@@ -1,24 +1,24 @@
 // Polyfill TextEncoder and TextDecoder for Vitest
-// @ts-expect-error TS(1378): Top-level 'await' expressions are only allowed whe... Remove this comment to see the full error message
-globalThis.TextEncoder = globalThis.TextEncoder || (await import('util')).TextEncoder;
-// @ts-expect-error TS(1378): Top-level 'await' expressions are only allowed whe... Remove this comment to see the full error message
-globalThis.TextDecoder = globalThis.TextDecoder || (await import('util')).TextDecoder;
+(async () => {
+  globalThis.TextEncoder = globalThis.TextEncoder || (await import('util')).TextEncoder;
+  globalThis.TextDecoder = globalThis.TextDecoder || (await import('util')).TextDecoder;
+})();
 
 // Mock localStorage if not present
 if (!globalThis.localStorage) {
-  let store: Record<string, string> = {};
+  let _store: Record<string, string> = {};
   globalThis.localStorage = {
-    getItem: (key: string) => store[key] || null,
+    getItem: (key: string) => _store[key] || null,
     setItem: (key: string, value: string) => {
-      store[key] = value;
+      _store[key] = value;
     },
     removeItem: (key: string) => {
-      delete store[key];
+      delete _store[key];
     },
     clear: () => {
-      store = {};
+      _store = {};
     },
-    key: (i: number) => Object.keys(store)[i] || null,
+    key: (i: number) => Object.keys(_store)[i] || null,
     length: 0,
   } as Storage;
 }

@@ -11,7 +11,7 @@ interface GlowCardProps {
   pulse?: boolean;
 }
 
-export const GlowCard: React.FC<GlowCardProps> = ({
+export const _GlowCard: React.FC<GlowCardProps> = ({
   children,
   className = '',
   variant = 'default',
@@ -20,7 +20,7 @@ export const GlowCard: React.FC<GlowCardProps> = ({
   hover = true,
   pulse = false,
 }) => {
-  const variantConfig = {
+  const _variantConfig = {
     default: {
       gradient: 'from-slate-800/50 to-slate-900/50',
       border: 'border-slate-700/50',
@@ -53,17 +53,17 @@ export const GlowCard: React.FC<GlowCardProps> = ({
     },
   };
 
-  const intensityMultiplier = {
+  const _intensityMultiplier = {
     low: 0.5,
     medium: 1,
     high: 1.5,
     extreme: 2,
   };
 
-  const config = variantConfig[variant];
-  const multiplier = intensityMultiplier[intensity];
+  const _config = variantConfig[variant];
+  const _multiplier = intensityMultiplier[intensity];
 
-  const cardVariants = {
+  const _cardVariants = {
     hidden: {
       opacity: 0,
       y: 20,
@@ -102,7 +102,7 @@ export const GlowCard: React.FC<GlowCardProps> = ({
     },
   };
 
-  const baseClasses = `
+  const _baseClasses = `
     relative backdrop-blur-lg border rounded-xl p-6
     bg-gradient-to-br ${config.gradient} ${config.border}
     transition-all duration-300

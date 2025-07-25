@@ -96,7 +96,7 @@ interface DataSettings {
   };
 }
 
-const AdvancedSettings: React.FC = () => {
+const _AdvancedSettings: React.FC = () => {
   const [activeSection, setActiveSection] = useState('ml');
   const [mlSettings, setMlSettings] = useState<MLSettings>({
     predictionEngine: {
@@ -180,7 +180,7 @@ const AdvancedSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
-  const saveSettings = async () => {
+  const _saveSettings = async () => {
     setIsLoading(true);
     setSaveStatus('saving');
 
@@ -199,7 +199,7 @@ const AdvancedSettings: React.FC = () => {
     }
   };
 
-  const resetToDefaults = () => {
+  const _resetToDefaults = () => {
     // Reset to default values
     setMlSettings({
       predictionEngine: {
@@ -226,7 +226,7 @@ const AdvancedSettings: React.FC = () => {
     });
   };
 
-  const ToggleSwitch: React.FC<{
+  const _ToggleSwitch: React.FC<{
     enabled: boolean;
     onChange: (enabled: boolean) => void;
     disabled?: boolean;
@@ -248,7 +248,7 @@ const AdvancedSettings: React.FC = () => {
     </button>
   );
 
-  const sections = [
+  const _sections = [
     { id: 'ml', label: 'ML & AI', icon: Brain },
     { id: 'system', label: 'System', icon: Server },
     { id: 'data', label: 'Data', icon: Database },
@@ -256,7 +256,7 @@ const AdvancedSettings: React.FC = () => {
     { id: 'monitoring', label: 'Monitoring', icon: Activity },
   ];
 
-  const renderMLSettings = () => (
+  const _renderMLSettings = () => (
     <div className='space-y-6'>
       {/* Prediction Engine */}
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
@@ -570,7 +570,7 @@ const AdvancedSettings: React.FC = () => {
           <div className='grid grid-cols-2 md:grid-cols-4 gap-2'>
             {['DraftKings', 'FanDuel', 'BetMGM', 'Caesars', 'PointsBet', 'WynnBET'].map(
               bookmaker => {
-                const inputId = `bookmaker-filter-${bookmaker}`;
+                const _inputId = `bookmaker-filter-${bookmaker}`;
                 return (
                   <div key={bookmaker} className='flex items-center space-x-2'>
                     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
@@ -580,7 +580,7 @@ const AdvancedSettings: React.FC = () => {
                       type='checkbox'
                       checked={mlSettings.arbitrageScanner.bookmaker_filters.includes(bookmaker)}
                       onChange={e => {
-                        const filters = e.target.checked
+                        const _filters = e.target.checked
                           ? [...mlSettings.arbitrageScanner.bookmaker_filters, bookmaker]
                           : mlSettings.arbitrageScanner.bookmaker_filters.filter(
                               b => b !== bookmaker
@@ -753,7 +753,7 @@ const AdvancedSettings: React.FC = () => {
     </div>
   );
 
-  const renderSystemSettings = () => (
+  const _renderSystemSettings = () => (
     <div className='space-y-6'>
       {/* Performance */}
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
@@ -1034,7 +1034,7 @@ const AdvancedSettings: React.FC = () => {
     </div>
   );
 
-  const renderDataSettings = () => (
+  const _renderDataSettings = () => (
     <div className='space-y-6'>
       {/* Data Sources */}
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
@@ -1314,7 +1314,7 @@ const AdvancedSettings: React.FC = () => {
     </div>
   );
 
-  const renderSectionContent = () => {
+  const _renderSectionContent = () => {
     switch (activeSection) {
       case 'ml':
         return renderMLSettings();

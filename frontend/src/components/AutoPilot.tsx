@@ -71,7 +71,7 @@ interface AutoPilotStats {
   safetyStatus: 'safe' | 'warning' | 'critical';
 }
 
-export const AutoPilot: React.FC = () => {
+export const _AutoPilot: React.FC = () => {
   const [rules, setRules] = useState<AutoBetRule[]>([]);
   const [executions, setExecutions] = useState<AutoBetExecution[]>([]);
   const [stats, setStats] = useState<AutoPilotStats | null>(null);
@@ -79,7 +79,7 @@ export const AutoPilot: React.FC = () => {
   const [showRuleBuilder, setShowRuleBuilder] = useState(false);
 
   useEffect(() => {
-    const generateMockRules = (): AutoBetRule[] => {
+    const _generateMockRules = (): AutoBetRule[] => {
       return [
         {
           id: 'rule-1',
@@ -168,8 +168,8 @@ export const AutoPilot: React.FC = () => {
       ];
     };
 
-    const generateMockExecutions = (): AutoBetExecution[] => {
-      const games = [
+    const _generateMockExecutions = (): AutoBetExecution[] => {
+      const _games = [
         'Lakers vs Warriors',
         'Chiefs vs Bills',
         'Yankees vs Red Sox',
@@ -188,13 +188,13 @@ export const AutoPilot: React.FC = () => {
             ? `+${Math.floor(Math.random() * 150) + 100}`
             : `-${Math.floor(Math.random() * 150) + 100}`,
         confidence: 70 + Math.random() * 25,
-        status: ['placed', 'pending', 'failed'][Math.floor(Math.random() * 3)] as any,
+        status: ['placed', 'pending', 'failed'][Math.floor(Math.random() * 3)] as unknown,
         timestamp: `${Math.floor(Math.random() * 6) + 1}h ago`,
         reasoning: 'High confidence prediction with favorable value proposition',
       }));
     };
 
-    const generateMockStats = (): AutoPilotStats => ({
+    const _generateMockStats = (): AutoPilotStats => ({
       isActive: isGlobalActive,
       rulesActive: 2,
       betsToday: 7,
@@ -210,13 +210,13 @@ export const AutoPilot: React.FC = () => {
     setStats(generateMockStats());
   }, [isGlobalActive]);
 
-  const toggleRule = (ruleId: string) => {
+  const _toggleRule = (ruleId: string) => {
     setRules(prev =>
       prev.map(rule => (rule.id === ruleId ? { ...rule, isActive: !rule.isActive } : rule))
     );
   };
 
-  const getStatusColor = (status: string) => {
+  const _getStatusColor = (status: string) => {
     switch (status) {
       case 'placed':
         return 'text-green-400 border-green-400';
@@ -231,9 +231,9 @@ export const AutoPilot: React.FC = () => {
     }
   };
 
-  const getConditionText = (rule: AutoBetRule) => {
+  const _getConditionText = (rule: AutoBetRule) => {
     const { condition } = rule;
-    const typeText = {
+    const _typeText = {
       confidence: 'Confidence',
       odds: 'Odds',
       value: 'Expected Value',
@@ -243,7 +243,7 @@ export const AutoPilot: React.FC = () => {
     return `${typeText} ${condition.operator} ${condition.threshold}${condition.type === 'confidence' || condition.type === 'composite' ? '%' : ''}`;
   };
 
-  const getSafetyStatusColor = (status: string) => {
+  const _getSafetyStatusColor = (status: string) => {
     switch (status) {
       case 'safe':
         return 'text-green-400 border-green-400';

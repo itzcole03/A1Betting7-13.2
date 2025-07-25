@@ -10,6 +10,7 @@ from backend.models.base import Base
 
 class ModelPerformance(Base):
     __tablename__ = "model_performance"
+    __table_args__ = {"extend_existing": True}
 
     id = Column(Integer, primary_key=True, index=True)
     model_name = Column(String, index=True, nullable=False)

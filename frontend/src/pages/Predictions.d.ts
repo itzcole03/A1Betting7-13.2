@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const Predictions: React.FC;
+declare const _Predictions: React.FC;
 export default Predictions;

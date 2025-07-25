@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const ModelComparisonChart: React.FC;
+declare const _ModelComparisonChart: React.FC;
 export default ModelComparisonChart;

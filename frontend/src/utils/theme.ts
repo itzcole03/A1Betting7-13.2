@@ -24,8 +24,8 @@ declare module '@mui/material/styles' {
 }
 
 // Create theme function;
-export const createTheme = (mode: 'light' | 'dark' = 'light'): Theme => {
-  const isDark = mode === 'dark';
+export const _createTheme = (mode: 'light' | 'dark' = 'light'): Theme => {
+  const _isDark = mode === 'dark';
   return createMuiTheme({
     palette: {
       mode,
@@ -142,7 +142,7 @@ export const createTheme = (mode: 'light' | 'dark' = 'light'): Theme => {
 };
 
 // Hook to get the current theme;
-export const useTheme = () => {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+export const _useTheme = () => {
+  const _prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   return createTheme(prefersDarkMode ? 'dark' : 'light');
 };

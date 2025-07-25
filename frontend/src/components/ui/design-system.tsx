@@ -54,7 +54,7 @@ interface ComponentExample {
   description: string;
   component: React.ReactNode;
   code?: string;
-  props?: Record<string, any>;
+  props?: Record<string, unknown>;
 }
 
 interface DesignSystemProps {
@@ -64,7 +64,7 @@ interface DesignSystemProps {
   className?: string;
 }
 
-const componentExamples: ComponentExample[] = [
+const _componentExamples: ComponentExample[] = [
   {
     id: 'button-basic',
     name: 'Button',
@@ -398,9 +398,9 @@ const componentExamples: ComponentExample[] = [
   },
 ];
 
-const categories = Array.from(new Set(componentExamples.map(ex => ex.category)));
+const _categories = Array.from(new Set(componentExamples.map(ex => ex.category)));
 
-const DesignSystem: React.FC<DesignSystemProps> = ({
+const _DesignSystem: React.FC<DesignSystemProps> = ({
   variant = 'default',
   showCode = false,
   interactive = true,
@@ -410,15 +410,15 @@ const DesignSystem: React.FC<DesignSystemProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  const filteredExamples = componentExamples.filter(example => {
-    const matchesCategory = selectedCategory === 'All' || example.category === selectedCategory;
-    const matchesSearch =
+  const _filteredExamples = componentExamples.filter(example => {
+    const _matchesCategory = selectedCategory === 'All' || example.category === selectedCategory;
+    const _matchesSearch =
       example.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       example.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white',
     cyber: 'bg-slate-900 text-cyan-300',
     showcase: 'bg-gradient-to-br from-white to-gray-50',

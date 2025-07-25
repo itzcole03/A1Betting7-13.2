@@ -2,9 +2,9 @@ import { EventBus } from '../core/EventBus';
 import { DataSource } from './DataSource';
 import { PerformanceMonitor } from './PerformanceMonitor';
 // Mock player list for demonstration
-const players: string[] = ['LeBron James', 'Stephen Curry', 'Kevin Durant'];
+const _players: string[] = ['LeBron James', 'Stephen Curry', 'Kevin Durant'];
 // Mock newsService and ESPNHeadline for demonstration
-const newsService = {
+const _newsService = {
   fetchHeadlines: async (source: string, count: number) => [] as ESPNHeadline[],
 };
 type ESPNHeadline = { title: string; summary: string };
@@ -51,8 +51,8 @@ export class SocialSentimentAdapter implements DataSource<SocialSentimentData[]>
 
   public async fetch(): Promise<SocialSentimentData[]> {
     try {
-      const sentimentData: SocialSentimentData[] = [];
-      const traceId = 'fetch-trace';
+      const _sentimentData: SocialSentimentData[] = [];
+      const _traceId = 'fetch-trace';
       if (this.isCacheValid()) {
         return this.cache.data!;
       }
@@ -74,9 +74,7 @@ export class SocialSentimentAdapter implements DataSource<SocialSentimentData[]>
 
   private async gatherSocialSentiment(): Promise<SocialSentimentData[]> {
     // --- Twitter scraping (public search, no API key) ---
-    async function fetchTwitterMentions(
-      player: string
-    ): Promise<{ score: number; volume: number }> {
+    async function fetchTwitterMentions(_player: string): Promise<{ score: number; volume: number }> {
       // Production: Should integrate with actual Twitter/X API;
       // For now, return null data to indicate unavailable;
       // console statement removed
@@ -85,12 +83,12 @@ export class SocialSentimentAdapter implements DataSource<SocialSentimentData[]>
     }
 
     // --- Reddit scraping (public API) ---
-    async function fetchRedditMentions(player: string): Promise<{ score: number; volume: number }> {
+    async function fetchRedditMentions(_player: string): Promise<{ score: number; volume: number }> {
       try {
-        const score = 0;
-        const volume = 0;
+        const _score = 0;
+        const _volume = 0;
         // Mock: no actual Reddit API call
-        // for (const post of json.data.children) {
+        // for (const _post of json.data.children) {
         //   if (/good|win|hot|underrated|must/i.test(text)) score += 1;
         //   if (/bad|cold|overrated|injured|avoid/i.test(text)) score -= 1;
         //   volume++;
@@ -102,13 +100,13 @@ export class SocialSentimentAdapter implements DataSource<SocialSentimentData[]>
     }
 
     // --- News scraping (Google News RSS) ---
-    async function fetchNewsMentions(player: string): Promise<{ score: number; volume: number }> {
+    async function fetchNewsMentions(_player: string): Promise<{ score: number; volume: number }> {
       try {
-        const headlines: ESPNHeadline[] = await newsService.fetchHeadlines('espn', 10);
-        let score = 0;
-        let volume = 0;
-        for (const h of headlines) {
-          const text = (h.title + ' ' + h.summary).toLowerCase();
+        const _headlines: ESPNHeadline[] = await newsService.fetchHeadlines('espn', 10);
+        let _score = 0;
+        let _volume = 0;
+        for (const _h of headlines) {
+          const _text = (h.title + ' ' + h.summary).toLowerCase();
           if (!text.includes(player.toLowerCase())) continue;
           if (/good|win|hot|underrated|must/i.test(text)) score += 1;
           if (/bad|cold|overrated|injured|avoid/i.test(text)) score -= 1;
@@ -123,15 +121,15 @@ export class SocialSentimentAdapter implements DataSource<SocialSentimentData[]>
     // --- Main aggregation logic ---
     // See roadmap for player list integration;
 
-    const results: SocialSentimentData[] = [];
-    for (const player of players) {
+    const _results: SocialSentimentData[] = [];
+    for (const _player of players) {
       const [twitter, reddit, news] = await Promise.all([
         fetchTwitterMentions(player),
         fetchRedditMentions(player),
         fetchNewsMentions(player),
       ]);
-      const totalVolume = twitter.volume + reddit.volume + news.volume;
-      const avgScore = (twitter.score + reddit.score + news.score) / 3;
+      const _totalVolume = twitter.volume + reddit.volume + news.volume;
+      const _avgScore = (twitter.score + reddit.score + news.score) / 3;
       results.push({
         player,
         sentiment: {
@@ -152,7 +150,7 @@ export class SocialSentimentAdapter implements DataSource<SocialSentimentData[]>
   }
 
   private isCacheValid(): boolean {
-    const cacheTimeout = 5 * 60 * 1000; // 5 minutes;
+    const _cacheTimeout = 5 * 60 * 1000; // 5 minutes;
     return this.cache.data !== null && Date.now() - this.cache.timestamp < cacheTimeout;
   }
 

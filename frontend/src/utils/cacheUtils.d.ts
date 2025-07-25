@@ -14,7 +14,4 @@ export declare class Cache<K, V> {
   private cleanup;
   size(): number;
 }
-export declare function cached(
-  ttl: number,
-  maxSize?: number
-): (target: unknown, propertyKey: string, descriptor: PropertyDescriptor) => PropertyDescriptor;
+export declare function cached(_ttl: number, _maxSize?: number): (target: unknown, propertyKey: string, descriptor: PropertyDescriptor) => PropertyDescriptor;

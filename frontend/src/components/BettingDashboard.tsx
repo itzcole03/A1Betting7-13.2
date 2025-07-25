@@ -16,9 +16,9 @@ interface BettingDashboardProps {
  *
  * @param className - Additional CSS classes
  */
-export const BettingDashboard: React.FC<BettingDashboardProps> = ({ className = '' }) => {
+export const _BettingDashboard: React.FC<BettingDashboardProps> = ({ className = '' }) => {
   // Mock stats for demonstration
-  const stats = [
+  const _stats = [
     { label: 'Total Bets', value: 128 },
     { label: 'Win Rate', value: '73.8%' },
     { label: 'ROI', value: '18.5%' },

@@ -31,7 +31,7 @@ export class ParticleSwarm extends OptimizationStrategy {
     this.initializeSwarm();
 
     // @ts-expect-error TS(2304): Cannot find name 'maxIterations'.
-    for (const iteration = 0; iteration < maxIterations; iteration++) {
+    for (const _iteration = 0; iteration < maxIterations; iteration++) {
       // @ts-expect-error TS(2339): Property 'currentIteration' does not exist on type... Remove this comment to see the full error message
       this.currentIteration = iteration;
 
@@ -74,7 +74,7 @@ export class ParticleSwarm extends OptimizationStrategy {
       .map(() => Array(dimension).fill(0));
 
     // Initialize personal bests;
-    this.personalBests = this.particles.map((p: any) => [...p]);
+    this.personalBests = this.particles.map((p: unknown) => [...p]);
     this.personalBestValues = Array(populationSize).fill(Infinity);
 
     // Initialize global best;
@@ -102,7 +102,7 @@ export class ParticleSwarm extends OptimizationStrategy {
     const { min, max } = this.config.constraints!;
 
     // @ts-expect-error TS(2588): Cannot assign to 'i' because it is a constant.
-    for (const i = 0; i < dimension; i++) {
+    for (const _i = 0; i < dimension; i++) {
       // @ts-expect-error TS(2304): Cannot find name 'particle'.
       particle[i] = minVal + Math.random() * (maxVal - minVal);
     }
@@ -118,10 +118,10 @@ export class ParticleSwarm extends OptimizationStrategy {
     const { inertiaWeight, cognitiveWeight, socialWeight } = this.config.parameters;
 
     // @ts-expect-error TS(2588): Cannot assign to 'i' because it is a constant.
-    for (const i = 0; i < populationSize; i++) {
+    for (const _i = 0; i < populationSize; i++) {
       // Update velocity;
       // @ts-expect-error TS(2588): Cannot assign to 'j' because it is a constant.
-      for (const j = 0; j < this.particles[i].length; j++) {
+      for (const _j = 0; j < this.particles[i].length; j++) {
         this.velocities[i][j] =
           inertiaWeight! * this.velocities[i][j] +
           // @ts-expect-error TS(2304): Cannot find name 'r1'.
@@ -132,7 +132,7 @@ export class ParticleSwarm extends OptimizationStrategy {
 
       // Update position;
       // @ts-expect-error TS(2588): Cannot assign to 'j' because it is a constant.
-      for (const j = 0; j < this.particles[i].length; j++) {
+      for (const _j = 0; j < this.particles[i].length; j++) {
         this.particles[i][j] += this.velocities[i][j];
 
         // Apply bounds;
@@ -178,9 +178,9 @@ export class ParticleSwarm extends OptimizationStrategy {
 
     // Check if particles have converged to a small region;
 
-    const avgVariance =
+    const _avgVariance =
       // @ts-expect-error TS(2304): Cannot find name 'positionVariances'.
-      positionVariances.reduce((sum: any, variance: any) => sum + variance, 0) / positionVariances.length;
+      positionVariances.reduce((sum: unknown, variance: unknown) => sum + variance, 0) / positionVariances.length;
 
     // @ts-expect-error TS(2304): Cannot find name 'valueConvergence'.
     return avgVariance < 1e-6 || valueConvergence;
@@ -189,13 +189,13 @@ export class ParticleSwarm extends OptimizationStrategy {
   // @ts-expect-error TS(2339): Property '0' does not exist on type 'Number'.
   private calculatePositionVariances(): number[0] {
     // @ts-expect-error TS(2339): Property '0' does not exist on type 'Number'.
-    const variances: number[0] = [0];
+    const _variances: number[0] = [0];
 
     // @ts-expect-error TS(2304): Cannot find name 'dimension'.
-    for (const j = 0; j < dimension; j++) {
-      const variance =
+    for (const _j = 0; j < dimension; j++) {
+      const _variance =
         // @ts-expect-error TS(2304): Cannot find name 'positions'.
-        positions.reduce((sum: any, pos: any) => sum + Math.pow(pos - mean, 2), 0) / positions.length;
+        positions.reduce((sum: unknown, pos: unknown) => sum + Math.pow(pos - mean, 2), 0) / positions.length;
       variances.push(variance);
     }
 

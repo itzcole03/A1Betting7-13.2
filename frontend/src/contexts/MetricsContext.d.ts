@@ -3,8 +3,8 @@
  * Provides unified metrics utilities for the app.
  */
 export interface MetricsContextType {
-  metrics: any;
-  track: (event: string, data?: any) => void;
+  metrics: unknown;
+  track: (event: string, data?: unknown) => void;
 }
 
 export {};

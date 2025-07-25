@@ -11,7 +11,7 @@ interface BankrollEntry {
   timestamp: Date;
   category?: string;
   tags?: string[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface BankrollStats {
@@ -60,36 +60,36 @@ interface BankrollTrackerProps {
   onExport?: (data: { entries: BankrollEntry[]; stats: BankrollStats }) => void;
 }
 
-const calculateStats = (entries: BankrollEntry[], initialBalance: number = 0): BankrollStats => {
-  const deposits = entries.filter(e => e.type === 'deposit').reduce((sum, e) => sum + e.amount, 0);
-  const withdrawals = entries
+const _calculateStats = (entries: BankrollEntry[], initialBalance: number = 0): BankrollStats => {
+  const _deposits = entries.filter(e => e.type === 'deposit').reduce((sum, e) => sum + e.amount, 0);
+  const _withdrawals = entries
     .filter(e => e.type === 'withdrawal')
     .reduce((sum, e) => sum + e.amount, 0);
-  const bets = entries.filter(e => e.type === 'bet').reduce((sum, e) => sum + e.amount, 0);
-  const winnings = entries.filter(e => e.type === 'win').reduce((sum, e) => sum + e.amount, 0);
-  const losses = entries.filter(e => e.type === 'loss').reduce((sum, e) => sum + e.amount, 0);
+  const _bets = entries.filter(e => e.type === 'bet').reduce((sum, e) => sum + e.amount, 0);
+  const _winnings = entries.filter(e => e.type === 'win').reduce((sum, e) => sum + e.amount, 0);
+  const _losses = entries.filter(e => e.type === 'loss').reduce((sum, e) => sum + e.amount, 0);
 
-  const currentBalance = initialBalance + deposits - withdrawals + winnings - losses - bets;
-  const netProfit = winnings - losses - bets;
-  const totalInvested = deposits;
-  const roi = totalInvested > 0 ? (netProfit / totalInvested) * 100 : 0;
+  const _currentBalance = initialBalance + deposits - withdrawals + winnings - losses - bets;
+  const _netProfit = winnings - losses - bets;
+  const _totalInvested = deposits;
+  const _roi = totalInvested > 0 ? (netProfit / totalInvested) * 100 : 0;
 
-  const betEntries = entries.filter(e => e.type === 'bet');
-  const winEntries = entries.filter(e => e.type === 'win');
-  const winRate = betEntries.length > 0 ? (winEntries.length / betEntries.length) * 100 : 0;
-  const averageBetSize = betEntries.length > 0 ? bets / betEntries.length : 0;
+  const _betEntries = entries.filter(e => e.type === 'bet');
+  const _winEntries = entries.filter(e => e.type === 'win');
+  const _winRate = betEntries.length > 0 ? (winEntries.length / betEntries.length) * 100 : 0;
+  const _averageBetSize = betEntries.length > 0 ? bets / betEntries.length : 0;
 
   // Calculate streaks
-  let currentWinStreak = 0;
-  let currentLossStreak = 0;
-  let longestWinStreak = 0;
-  let longestLossStreak = 0;
+  let _currentWinStreak = 0;
+  let _currentLossStreak = 0;
+  let _longestWinStreak = 0;
+  let _longestLossStreak = 0;
 
-  const gambleEntries = entries
+  const _gambleEntries = entries
     .filter(e => e.type === 'win' || e.type === 'loss')
     .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
-  for (const entry of gambleEntries) {
+  for (const _entry of gambleEntries) {
     if (entry.type === 'win') {
       currentWinStreak++;
       currentLossStreak = 0;
@@ -102,20 +102,20 @@ const calculateStats = (entries: BankrollEntry[], initialBalance: number = 0): B
   }
 
   // Calculate time-based profits
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const thisWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const _now = new Date();
+  const _today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const _thisWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const _thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const profitToday = entries
+  const _profitToday = entries
     .filter(e => e.timestamp >= today && (e.type === 'win' || e.type === 'loss'))
     .reduce((sum, e) => sum + (e.type === 'win' ? e.amount : -e.amount), 0);
 
-  const profitThisWeek = entries
+  const _profitThisWeek = entries
     .filter(e => e.timestamp >= thisWeek && (e.type === 'win' || e.type === 'loss'))
     .reduce((sum, e) => sum + (e.type === 'win' ? e.amount : -e.amount), 0);
 
-  const profitThisMonth = entries
+  const _profitThisMonth = entries
     .filter(e => e.timestamp >= thisMonth && (e.type === 'win' || e.type === 'loss'))
     .reduce((sum, e) => sum + (e.type === 'win' ? e.amount : -e.amount), 0);
 
@@ -138,15 +138,15 @@ const calculateStats = (entries: BankrollEntry[], initialBalance: number = 0): B
   };
 };
 
-const formatCurrency = (amount: number, currency: string = 'USD') => {
+const _formatCurrency = (amount: number, currency: string = 'USD') => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency,
   }).format(amount);
 };
 
-const getEntryIcon = (type: string) => {
-  const icons = {
+const _getEntryIcon = (type: string) => {
+  const _icons = {
     deposit: '💰',
     withdrawal: '🏧',
     bet: '🎲',
@@ -158,8 +158,8 @@ const getEntryIcon = (type: string) => {
   return icons[type as keyof typeof icons] || '📝';
 };
 
-const getEntryColor = (type: string, variant: string = 'default') => {
-  const colors = {
+const _getEntryColor = (type: string, variant: string = 'default') => {
+  const _colors = {
     default: {
       deposit: 'text-green-600 bg-green-50 border-green-200',
       withdrawal: 'text-blue-600 bg-blue-50 border-blue-200',
@@ -185,7 +185,7 @@ const getEntryColor = (type: string, variant: string = 'default') => {
     : colors.default[type as keyof typeof colors.default] || colors.default.fee;
 };
 
-export const BankrollTracker: React.FC<BankrollTrackerProps> = ({
+export const _BankrollTracker: React.FC<BankrollTrackerProps> = ({
   initialBalance = 0,
   entries = [],
   goals = [],
@@ -211,15 +211,15 @@ export const BankrollTracker: React.FC<BankrollTrackerProps> = ({
 
   // Recalculate stats when entries change
   useEffect(() => {
-    const newStats = calculateStats(bankrollEntries, initialBalance);
+    const _newStats = calculateStats(bankrollEntries, initialBalance);
     setStats(newStats);
     onBalanceChange?.(newStats.currentBalance);
   }, [bankrollEntries, initialBalance, onBalanceChange]);
 
-  const addEntry = () => {
+  const _addEntry = () => {
     if (!newEntryAmount || !newEntryDescription.trim()) return;
 
-    const entry: BankrollEntry = {
+    const _entry: BankrollEntry = {
       id: Date.now().toString(),
       type: newEntryType,
       amount: parseFloat(newEntryAmount),
@@ -235,8 +235,8 @@ export const BankrollTracker: React.FC<BankrollTrackerProps> = ({
     setNewEntryDescription('');
   };
 
-  const addGoal = (name: string, targetAmount: number, deadline?: Date) => {
-    const goal: BankrollGoal = {
+  const _addGoal = (name: string, targetAmount: number, deadline?: Date) => {
+    const _goal: BankrollGoal = {
       id: Date.now().toString(),
       name,
       targetAmount,
@@ -249,11 +249,11 @@ export const BankrollTracker: React.FC<BankrollTrackerProps> = ({
     onGoalAdd?.(goal);
   };
 
-  const exportData = () => {
+  const _exportData = () => {
     onExport?.({ entries: bankrollEntries, stats });
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-lg shadow-sm',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -563,7 +563,7 @@ interface StatCardProps {
   positive?: boolean;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ label, value, variant, positive }) => (
+const _StatCard: React.FC<StatCardProps> = ({ label, value, variant, positive }) => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div
     className={cn(
@@ -603,8 +603,8 @@ interface GoalProgressProps {
   currency: string;
 }
 
-const GoalProgress: React.FC<GoalProgressProps> = ({ goal, currentBalance, variant, currency }) => {
-  const progress = Math.min((currentBalance / goal.targetAmount) * 100, 100);
+const _GoalProgress: React.FC<GoalProgressProps> = ({ goal, currentBalance, variant, currency }) => {
+  const _progress = Math.min((currentBalance / goal.targetAmount) * 100, 100);
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

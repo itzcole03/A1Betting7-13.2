@@ -14,7 +14,7 @@ export declare class ModelRegistry {
   getModelVersions(modelId: string): Promise<ModelVersion[0]>;
   getModelMetadata(modelId: string): Promise<ModelMetadata>;
   updateModelMetadata(modelId: string, metadata: Partial<ModelMetadata>): Promise<void>;
-  updateMetrics(modelId: string, evaluation: any): Promise<void>;
+  updateMetrics(modelId: string, evaluation: unknown): Promise<void>;
   deleteModel(modelId: string): Promise<void>;
   backup(): Promise<void>;
 }

@@ -25,7 +25,7 @@ export class SimulatedAnnealing extends OptimizationStrategy {
     this.initializeSolution();
 
     // @ts-expect-error TS(2304): Cannot find name 'maxIterations'.
-    for (const iteration = 0; iteration < maxIterations; iteration++) {
+    for (const _iteration = 0; iteration < maxIterations; iteration++) {
       // @ts-expect-error TS(2339): Property 'currentIteration' does not exist on type... Remove this comment to see the full error message
       this.currentIteration = iteration;
 
@@ -80,7 +80,7 @@ export class SimulatedAnnealing extends OptimizationStrategy {
     // @ts-expect-error TS(2339): Property 'checkConstraints' does not exist on type... Remove this comment to see the full error message
     if (this.checkConstraints(this.currentSolution)) {
       // @ts-expect-error TS(2339): Property 'evaluateObjective' does not exist on typ... Remove this comment to see the full error message
-      this.evaluateObjective(this.currentSolution).then((value: any) => {
+      this.evaluateObjective(this.currentSolution).then((value: unknown) => {
         this.currentValue = value;
         // @ts-expect-error TS(2339): Property 'updateBest' does not exist on type 'Simu... Remove this comment to see the full error message
         this.updateBest(this.currentSolution, value);
@@ -108,7 +108,7 @@ export class SimulatedAnnealing extends OptimizationStrategy {
     const { min, max } = this.config.constraints!;
 
     // @ts-expect-error TS(2588): Cannot assign to 'i' because it is a constant.
-    for (const i = 0; i < dimension; i++) {
+    for (const _i = 0; i < dimension; i++) {
       // @ts-expect-error TS(2304): Cannot find name 'solution'.
       solution[i] = minVal + Math.random() * (maxVal - minVal);
     }

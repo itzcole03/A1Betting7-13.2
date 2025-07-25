@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const ESPNHeadlinesTicker: React.FC;
+declare const _ESPNHeadlinesTicker: React.FC;
 export default ESPNHeadlinesTicker;

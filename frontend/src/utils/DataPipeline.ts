@@ -1,36 +1,75 @@
-// @ts-expect-error TS(2307): Cannot find module '@/core/EventBus' or its corres... Remove this comment to see the full error message
-import { EventBus } from '@/core/EventBus';
+/**
+ * Data pipeline utilities for processing, transforming, and caching data streams.
+ *
+ * Includes pipeline metrics, stages, sinks, and a generic cache for data processing workflows.
+ *
+ * @module utils/DataPipeline
+ */
+import { EventBus } from '../../core/EventBus';
 import { PerformanceMonitor } from './PerformanceMonitor';
 import { DataSource } from './PredictionEngine';
 
+/**
+ * Metrics for pipeline processing performance.
+ */
 export interface PipelineMetrics {
+  /** Number of items processed */
   processedCount: number;
+  /** Number of errors encountered */
   errorCount: number;
+  /** Average processing latency (ms) */
   averageLatency: number;
+  /** Timestamp of last processed item */
   lastProcessed: number;
+  /** Throughput (items/sec) */
   throughput: number;
 }
 
+/**
+ * A stage in the data pipeline, responsible for transforming and optionally validating or cleaning up data.
+ */
 export interface PipelineStage<T, U> {
+  /** Unique stage identifier */
   id: string;
+  /** Transform function for this stage */
   transform(data: T): Promise<U>;
+  /** Optional validation function */
   validate?(data: T): Promise<boolean>;
+  /** Optional cleanup function */
   cleanup?(data: T): Promise<void>;
 }
 
+/**
+ * A sink for writing processed data from the pipeline.
+ */
 export interface DataSink<T> {
+  /** Unique sink identifier */
   id: string;
+  /** Write function for processed data */
   write(data: T): Promise<void>;
+  /** Optional flush function */
   flush?(): Promise<void>;
 }
 
+/**
+ * Generic cache for storing data with time-to-live (TTL) support.
+ */
 export class DataCache<T> {
   private cache: Map<string, { data: T; timestamp: number; ttl: number }>;
 
+  /**
+   * @param defaultTtl Default time-to-live for cache entries (ms)
+   */
   constructor(private defaultTtl: number = 5 * 60 * 1000) {
     this.cache = new Map();
   }
 
+  /**
+   * Set a value in the cache.
+   * @param key Cache key
+   * @param data Data to cache
+   * @param ttl Optional TTL (ms)
+   */
   set(key: string, data: T, ttl?: number): void {
     this.cache.set(key, {
       data,
@@ -40,15 +79,15 @@ export class DataCache<T> {
   }
 
   get(key: string): T | undefined {
-    const entry = this.cache.get(key);
-    if (!entry) return undefined;
+    const _entry = this.cache.get(key);
+    if (!_entry) return undefined;
 
-    if (Date.now() - entry.timestamp > entry.ttl) {
+    if (Date.now() - _entry.timestamp > _entry.ttl) {
       this.cache.delete(key);
       return undefined;
     }
 
-    return entry.data;
+    return _entry.data;
   }
 
   clear(): void {
@@ -66,7 +105,7 @@ export class StreamingDataPipeline<T, U> {
 
   constructor(
     private readonly source: DataSource,
-    private readonly stages: PipelineStage<any, any>[],
+    private readonly stages: PipelineStage<unknown, unknown>[],
     private readonly sink: DataSink<U>,
     private readonly options: {
       cacheEnabled: boolean;
@@ -129,62 +168,62 @@ export class StreamingDataPipeline<T, U> {
   }
 
   private async process(): Promise<void> {
-    const traceId = this.performanceMonitor.startTrace('pipeline-processing');
+    const _traceId = this.performanceMonitor.startTrace('pipeline-processing');
 
     try {
       // Fetch data from source
-      const data = await this.source.fetch();
-      let duration = 0;
+      const _data = await this.source.fetch();
+      let _duration = 0;
       if (this.options.cacheEnabled) {
-        const cached = this.cache.get(this.generateCacheKey(data as T));
-        if (cached) {
-          this.performanceMonitor.endTrace(traceId);
+        const _cached = this.cache.get(this.generateCacheKey(_data as T));
+        if (_cached) {
+          this.performanceMonitor.endTrace(_traceId);
           return;
         }
-        this.cache.set(this.generateCacheKey(data as T), data as T);
+        this.cache.set(this.generateCacheKey(_data as T), _data as T);
       }
 
-      let transformed = data;
-      for (const stage of this.stages) {
+      let _transformed = _data;
+      for (const _stage of this.stages) {
+        let _stageTraceId: string | undefined;
         try {
-          let isValid = true;
-          const stageTraceId = this.performanceMonitor.startTrace('stage-processing');
-          if (stage.validate) {
-            isValid = await stage.validate(transformed);
-            if (!isValid) {
-              throw new Error(`Validation failed at stage ${stage.id}`);
+          let _isValid = true;
+          _stageTraceId = this.performanceMonitor.startTrace('stage-processing');
+          if (_stage.validate) {
+            _isValid = await _stage.validate(_transformed);
+            if (!_isValid) {
+              throw new Error(`Validation failed at stage ${_stage.id}`);
             }
           }
 
-          transformed = await stage.transform(transformed);
-          this.performanceMonitor.endTrace(stageTraceId);
+          _transformed = await _stage.transform(_transformed);
+          this.performanceMonitor.endTrace(_stageTraceId);
         } catch (error) {
-          // @ts-expect-error TS(2304): Cannot find name 'stageTraceId'.
-          this.performanceMonitor.endTrace(stageTraceId, error as Error);
+          this.performanceMonitor.endTrace(_stageTraceId as string, error as Error);
           throw error;
         }
       }
 
-      const start = Date.now();
-      await this.sink.write(transformed as U);
-      duration = Date.now() - start;
+      const _start = Date.now();
+      await this.sink.write(_transformed as U);
+      _duration = Date.now() - _start;
 
-      this.updateMetrics(duration);
+      this.updateMetrics(_duration);
 
       // Commented out eventBus.publish if not available
       if (typeof this.eventBus.publish === 'function') {
         this.eventBus.publish('pipeline:processed', {
           sourceId: this.source.id,
           sinkId: this.sink.id,
-          duration,
+          duration: _duration,
           timestamp: Date.now(),
         });
       }
 
-      this.performanceMonitor.endTrace(traceId);
+      this.performanceMonitor.endTrace(_traceId);
     } catch (error) {
       this.metrics.errorCount++;
-      this.performanceMonitor.endTrace(traceId, error as Error);
+      this.performanceMonitor.endTrace(_traceId, error as Error);
       if (typeof this.eventBus.publish === 'function') {
         this.eventBus.publish('pipeline:error', {
           sourceId: this.source.id,

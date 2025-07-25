@@ -4,7 +4,7 @@ import { ErrorCategory, ErrorSeverity, ErrorContext } from './UnifiedError';
 export class SystemError extends Error {
   public readonly context: ErrorContext;
 
-  constructor(message: string, details?: Record<string, any>) {
+  constructor(message: string, details?: Record<string, unknown>) {
     super(message);
     this.name = 'SystemError';
     this.context = {

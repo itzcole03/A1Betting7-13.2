@@ -1,5 +1,5 @@
-const ConfidenceIndicator = ({ confidence }) => {
-  const getColor = () => {
+const _ConfidenceIndicator = ({ confidence }) => {
+  const _getColor = () => {
     if (confidence >= 0.85) return 'bg-green-500';
     if (confidence >= 0.7) return 'bg-yellow-400';
     return 'bg-red-400';

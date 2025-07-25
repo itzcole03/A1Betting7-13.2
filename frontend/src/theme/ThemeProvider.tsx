@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   Theme,
-  getThemeById,
-  applyCSSVariables,
-  saveTheme,
-  loadTheme,
-  getRecommendedTheme,
-  DEFAULT_THEME,
+  _DEFAULT_THEME,
+  _applyCSSVariables,
+  _getRecommendedTheme,
+  _getThemeById,
+  _loadTheme,
+  _saveTheme,
 } from './index';
 
 interface ThemeContextType {
@@ -17,14 +17,14 @@ interface ThemeContextType {
   isLoading: boolean;
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const _ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
+export const _useTheme = () => {
+  const _context = useContext(_ThemeContext);
+  if (_context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
-  return context;
+  return _context;
 };
 
 interface ThemeProviderProps {
@@ -33,67 +33,67 @@ interface ThemeProviderProps {
   enableSystemTheme?: boolean;
 }
 
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({
+export const _ThemeProvider: React.FC<ThemeProviderProps> = ({
   children,
   defaultTheme,
   enableSystemTheme = true,
 }) => {
-  const [currentThemeId, setCurrentThemeId] = useState<string>(DEFAULT_THEME);
+  const [currentThemeId, setCurrentThemeId] = useState<string>(_DEFAULT_THEME);
   const [currentTheme, setCurrentTheme] = useState<Theme | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const initializeTheme = () => {
-      let themeId = defaultTheme || loadTheme();
+    const _initializeTheme = () => {
+      let themeId = defaultTheme || _loadTheme();
 
       // If enableSystemTheme and no saved theme, use system preference
       if (enableSystemTheme && !localStorage.getItem('a1betting-theme')) {
-        themeId = getRecommendedTheme();
+        themeId = _getRecommendedTheme();
       }
 
-      const theme = getThemeById(themeId);
+      const theme = _getThemeById(themeId);
       if (theme) {
         setCurrentThemeId(themeId);
         setCurrentTheme(theme);
-        applyCSSVariables(theme);
+        _applyCSSVariables(theme);
       } else {
         // Fallback to default theme if selected theme is not found
-        const fallbackTheme = getThemeById(DEFAULT_THEME);
+        const fallbackTheme = _getThemeById(_DEFAULT_THEME);
         if (fallbackTheme) {
-          setCurrentThemeId(DEFAULT_THEME);
+          setCurrentThemeId(_DEFAULT_THEME);
           setCurrentTheme(fallbackTheme);
-          applyCSSVariables(fallbackTheme);
+          _applyCSSVariables(fallbackTheme);
         }
       }
 
       setIsLoading(false);
     };
 
-    initializeTheme();
+    _initializeTheme();
 
     // Listen for system theme changes
     if (enableSystemTheme) {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleSystemThemeChange = () => {
+      const _mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const _handleSystemThemeChange = () => {
         // Only auto-change if user hasn't manually set a theme
         if (!localStorage.getItem('a1betting-theme')) {
-          const recommendedTheme = getRecommendedTheme();
+          const recommendedTheme = _getRecommendedTheme();
           setTheme(recommendedTheme);
         }
       };
 
-      mediaQuery.addEventListener('change', handleSystemThemeChange);
-      return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+      _mediaQuery.addEventListener('change', _handleSystemThemeChange);
+      return () => _mediaQuery.removeEventListener('change', _handleSystemThemeChange);
     }
   }, [defaultTheme, enableSystemTheme]);
 
   const setTheme = (themeId: string) => {
-    const theme = getThemeById(themeId);
+    const theme = _getThemeById(themeId);
     if (theme) {
       setCurrentThemeId(themeId);
       setCurrentTheme(theme);
-      applyCSSVariables(theme);
-      saveTheme(themeId);
+      _applyCSSVariables(theme);
+      _saveTheme(themeId);
 
       // Dispatch custom event for other components to listen to
       window.dispatchEvent(new CustomEvent('themeChange', { detail: { themeId, theme } }));
@@ -106,20 +106,20 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     // Toggle between dark and light versions of the current theme category
     if (currentTheme.isDark) {
       // Switch to light version
-      const lightThemeId = currentThemeId.replace('-dark', '-light');
-      const lightTheme = getThemeById(lightThemeId);
+      const _lightThemeId = currentThemeId.replace('-dark', '-light');
+      const lightTheme = _getThemeById(_lightThemeId);
       if (lightTheme) {
-        setTheme(lightThemeId);
+        setTheme(_lightThemeId);
       } else {
         // Fallback to cyber-light if no light version exists
         setTheme('cyber-light');
       }
     } else {
       // Switch to dark version
-      const darkThemeId = currentThemeId.replace('-light', '-dark');
-      const darkTheme = getThemeById(darkThemeId);
+      const _darkThemeId = currentThemeId.replace('-light', '-dark');
+      const darkTheme = _getThemeById(_darkThemeId);
       if (darkTheme) {
-        setTheme(darkThemeId);
+        setTheme(_darkThemeId);
       } else {
         // Fallback to cyber-dark if no dark version exists
         setTheme('cyber-dark');
@@ -137,13 +137,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
   if (isLoading) {
     return (
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='min-h-screen bg-slate-900 flex items-center justify-center'>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center space-x-3'>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin'></div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span className='text-white text-lg'>Loading theme...</span>
         </div>
       </div>
@@ -151,9 +147,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   }
 
   return (
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-    <ThemeContext.Provider value={contextValue}>
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+    <_ThemeContext.Provider value={contextValue}>
       <div
         className={`min-h-screen transition-all duration-500 ease-in-out theme-${currentThemeId}`}
         data-theme={currentThemeId}
@@ -165,36 +159,35 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
       >
         {children}
       </div>
-    </ThemeContext.Provider>
+    </_ThemeContext.Provider>
   );
 };
 
 // Hook for listening to theme changes
-export const useThemeListener = (callback: (theme: Theme) => void) => {
+export const _useThemeListener = (callback: (theme: Theme) => void) => {
   useEffect(() => {
-    const handleThemeChange = (event: CustomEvent) => {
+    const _handleThemeChange = (event: CustomEvent) => {
       callback(event.detail.theme);
     };
 
-    window.addEventListener('themeChange', handleThemeChange as EventListener);
-    return () => window.removeEventListener('themeChange', handleThemeChange as EventListener);
+    window.addEventListener('themeChange', _handleThemeChange as EventListener);
+    return () => window.removeEventListener('themeChange', _handleThemeChange as EventListener);
   }, [callback]);
 };
 
 // Higher-order component for theme-aware components
-export const withTheme = <P extends object>(
+export const _withTheme = <P extends object>(
   Component: React.ComponentType<P & { theme: Theme }>
 ) => {
   return (props: P) => {
-    const { currentTheme } = useTheme();
+    const { currentTheme } = _useTheme();
 
     if (!currentTheme) {
       return null;
     }
 
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     return <Component {...props} theme={currentTheme} />;
   };
 };
 
-export default ThemeProvider;
+export default _ThemeProvider;

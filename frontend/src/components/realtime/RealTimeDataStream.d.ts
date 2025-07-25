@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const RealTimeDataStream: React.FC;
+declare const _RealTimeDataStream: React.FC;
 export default RealTimeDataStream;

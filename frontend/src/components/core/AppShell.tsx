@@ -28,10 +28,10 @@ interface AppShellProps {
   onNavigate?: (viewId: string) => void;
 }
 
-export const AppShell: React.FC<AppShellProps> = ({ children, activeView, onNavigate }) => {
+export const _AppShell: React.FC<AppShellProps> = ({ children, activeView, onNavigate }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<unknown[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -40,7 +40,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeView, onNavi
 
   // Close mobile menu when screen size changes
   useEffect(() => {
-    const handleResize = () => {
+    const _handleResize = () => {
       if (window.innerWidth >= 1024) {
         setIsMobileMenuOpen(false);
       }
@@ -52,7 +52,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeView, onNavi
 
   // Close user menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const _handleClickOutside = (event: MouseEvent) => {
       if (showUserMenu && !(event.target as Element).closest('.user-menu-container')) {
         setShowUserMenu(false);
       }
@@ -63,11 +63,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children, activeView, onNavi
   }, [showUserMenu]);
 
   // Handle search functionality
-  const handleSearch = (query: string) => {
+  const _handleSearch = (query: string) => {
     setSearchQuery(query);
     if (query.length > 2) {
       // Mock search results - replace with actual search logic
-      const mockResults = [
+      const _mockResults = [
         {
           id: 'moneymaker',
           title: 'Money Maker',

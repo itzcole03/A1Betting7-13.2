@@ -49,7 +49,7 @@ interface ThemeSelectorProps {
   compact?: boolean;
 }
 
-const ThemeSelector: React.FC<ThemeSelectorProps> = ({
+const _ThemeSelector: React.FC<ThemeSelectorProps> = ({
   currentTheme,
   onThemeChange,
   isOpen,
@@ -64,84 +64,84 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
 
   useEffect(() => {
     // Load favorite themes from localStorage
-    const saved = localStorage.getItem('a1betting-favorite-themes');
+    const _saved = localStorage.getItem('a1betting-favorite-themes');
     if (saved) {
       setFavoriteThemes(JSON.parse(saved));
     }
 
     // Load custom themes from localStorage
-    const savedCustom = localStorage.getItem('a1betting-custom-themes');
+    const _savedCustom = localStorage.getItem('a1betting-custom-themes');
     if (savedCustom) {
       setCustomThemes(JSON.parse(savedCustom));
     }
   }, []);
 
-  const saveFavoriteThemes = (themes: string[]) => {
+  const _saveFavoriteThemes = (themes: string[]) => {
     setFavoriteThemes(themes);
     localStorage.setItem('a1betting-favorite-themes', JSON.stringify(themes));
   };
 
-  const toggleFavorite = (themeId: string) => {
-    const newFavorites = favoriteThemes.includes(themeId)
+  const _toggleFavorite = (themeId: string) => {
+    const _newFavorites = favoriteThemes.includes(themeId)
       ? favoriteThemes.filter(id => id !== themeId)
       : [...favoriteThemes, themeId];
     saveFavoriteThemes(newFavorites);
   };
 
-  const handleThemeSelect = (themeId: string) => {
+  const _handleThemeSelect = (themeId: string) => {
     onThemeChange(themeId);
     saveTheme(themeId);
     setPreviewTheme(null);
   };
 
-  const handleThemePreview = (themeId: string | null) => {
+  const _handleThemePreview = (themeId: string | null) => {
     if (!showPreview) return;
 
     setPreviewTheme(themeId);
     if (themeId) {
-      const theme = getThemeById(themeId);
+      const _theme = getThemeById(themeId);
       if (theme) {
         applyCSSVariables(theme);
       }
     } else {
       // Restore current theme
-      const theme = getThemeById(currentTheme);
+      const _theme = getThemeById(currentTheme);
       if (theme) {
         applyCSSVariables(theme);
       }
     }
   };
 
-  const resetToSystemTheme = () => {
-    const recommended = getRecommendedTheme();
+  const _resetToSystemTheme = () => {
+    const _recommended = getRecommendedTheme();
     handleThemeSelect(recommended);
   };
 
-  const exportThemes = () => {
-    const data = {
+  const _exportThemes = () => {
+    const _data = {
       currentTheme,
       favoriteThemes,
       customThemes,
       timestamp: new Date().toISOString(),
     };
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const _blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const _url = URL.createObjectURL(blob);
+    const _link = document.createElement('a');
     link.href = url;
     link.download = 'a1betting-themes.json';
     link.click();
     URL.revokeObjectURL(url);
   };
 
-  const importThemes = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const _importThemes = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const _file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
+    const _reader = new FileReader();
     reader.onload = e => {
       try {
-        const data = JSON.parse(e.target?.result as string);
+        const _data = JSON.parse(e.target?.result as string);
         if (data.favoriteThemes) {
           saveFavoriteThemes(data.favoriteThemes);
         }
@@ -159,7 +159,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
     reader.readAsText(file);
   };
 
-  const getCategoryIcon = (category: string) => {
+  const _getCategoryIcon = (category: string) => {
     switch (category) {
       case 'cyber':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -179,7 +179,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
     }
   };
 
-  const getThemeIcon = (theme: Theme) => {
+  const _getThemeIcon = (theme: Theme) => {
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     if (theme.category === 'cyber') return <Zap className='w-4 h-4' />;
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -190,14 +190,14 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
     return theme.isDark ? <Moon className='w-4 h-4' /> : <Sun className='w-4 h-4' />;
   };
 
-  const filteredThemes =
+  const _filteredThemes =
     selectedCategory === 'all'
       ? THEMES
       : selectedCategory === 'favorites'
-        ? THEMES.filter((theme: any) => favoriteThemes.includes(theme.id))
-        : getThemesByCategory(selectedCategory as any);
+        ? THEMES.filter((theme: unknown) => favoriteThemes.includes(theme.id))
+        : getThemesByCategory(selectedCategory as unknown);
 
-  const ThemeCard: React.FC<{ theme: Theme; isActive: boolean; isPreview: boolean }> = ({
+  const _ThemeCard: React.FC<{ theme: Theme; isActive: boolean; isPreview: boolean }> = ({
     theme,
     isActive,
     isPreview,
@@ -340,7 +340,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='grid grid-cols-2 gap-2'>
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                {THEMES.slice(0, 4).map((theme: any) => <ThemeCard
+                {THEMES.slice(0, 4).map((theme: unknown) => <ThemeCard
                   key={theme.id}
                   theme={theme}
                   isActive={currentTheme === theme.id}
@@ -416,7 +416,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         {[
           { id: 'all', label: 'All Themes', count: THEMES.length },
           { id: 'favorites', label: 'Favorites', count: favoriteThemes.length },
-          ...THEME_CATEGORIES.filter((cat: any) => cat.id !== 'all'),
+          ...THEME_CATEGORIES.filter((cat: unknown) => cat.id !== 'all'),
         ].map(category => (
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <button
@@ -446,7 +446,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <AnimatePresence>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-          {filteredThemes.map((theme: any) => <ThemeCard
+          {filteredThemes.map((theme: unknown) => <ThemeCard
             key={theme.id}
             theme={theme}
             isActive={currentTheme === theme.id}
@@ -477,7 +477,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
               {previewTheme ? 'Previewing' : 'Current Theme'}
             </h3>
             {(() => {
-              const theme = getThemeById(previewTheme || currentTheme);
+              const _theme = getThemeById(previewTheme || currentTheme);
               if (!theme) return null;
 
               return (

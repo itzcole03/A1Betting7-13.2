@@ -2,7 +2,7 @@
 // All logic is now handled by useUnifiedAnalytics and related unified services.
 // If you need to reference legacy ML analytics, see project documentation or backups.
 // Manual mock for mlService to allow tests to run
-export const mlService = {
+export const _mlService = {
   getPrediction: jest.fn(() => null),
   detectPatterns: jest.fn(() => null),
   assessRisk: jest.fn(() => null),

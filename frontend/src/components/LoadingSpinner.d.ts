@@ -5,7 +5,6 @@
   label?: string;
 }
 
-declare function LoadingSpinner({
-  className,
-}: LoadingSpinnerProps): import('react/jsx-runtime').JSX.Element;
+declare function LoadingSpinner(_{
+  className, _}: LoadingSpinnerProps): import('react/jsx-runtime').JSX.Element;
 export default LoadingSpinner;

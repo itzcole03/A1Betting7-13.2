@@ -35,7 +35,7 @@ interface ExplanationInsight {
   icon: string;
 }
 
-export const SHAPAnalysis: React.FC = () => {
+export const _SHAPAnalysis: React.FC = () => {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [selectedPrediction, setSelectedPrediction] = useState<Prediction | null>(null);
   const [insights, setInsights] = useState<ExplanationInsight[]>([]);
@@ -43,8 +43,8 @@ export const SHAPAnalysis: React.FC = () => {
   const [analysisDepth, setAnalysisDepth] = useState<'basic' | 'detailed' | 'expert'>('detailed');
 
   // Generate mock SHAP values
-  const generateSHAPValues = (): SHAPValue[] => {
-    const features = [
+  const _generateSHAPValues = (): SHAPValue[] => {
+    const _features = [
       { feature: 'Player Recent Form', category: 'player' as const },
       { feature: 'Team Offensive Rating', category: 'team' as const },
       { feature: 'Home Field Advantage', category: 'game' as const },
@@ -62,7 +62,7 @@ export const SHAPAnalysis: React.FC = () => {
     // @ts-expect-error TS(2322): Type '({ value: number; contribution: number; impa... Remove this comment to see the full error message
     return features
       .map(f => {
-        const contribution = (Math.random() - 0.5) * 20;
+        const _contribution = (Math.random() - 0.5) * 20;
         return {
           ...f,
           value: Math.random() * 100,
@@ -74,8 +74,8 @@ export const SHAPAnalysis: React.FC = () => {
   };
 
   // Generate mock predictions
-  const generatePredictions = (): Prediction[] => {
-    const games = [
+  const _generatePredictions = (): Prediction[] => {
+    const _games = [
       { game: 'Lakers vs Warriors', sport: 'NBA', type: 'Player Props' },
       { game: 'Chiefs vs Bills', sport: 'NFL', type: 'Game Total' },
       { game: 'Celtics vs Heat', sport: 'NBA', type: 'Spread' },
@@ -99,12 +99,12 @@ export const SHAPAnalysis: React.FC = () => {
   };
 
   // Generate insights
-  const generateInsights = (prediction: Prediction): ExplanationInsight[] => {
-    const shapValues = prediction.shapValues;
-    const insights: ExplanationInsight[] = [];
+  const _generateInsights = (prediction: Prediction): ExplanationInsight[] => {
+    const _shapValues = prediction.shapValues;
+    const _insights: ExplanationInsight[] = [];
 
     // Key driver
-    const keyDriver = shapValues[0];
+    const _keyDriver = shapValues[0];
     if (keyDriver) {
       insights.push({
         type: 'key_driver',
@@ -116,7 +116,7 @@ export const SHAPAnalysis: React.FC = () => {
     }
 
     // Risk factor
-    const riskFactor = shapValues.find(
+    const _riskFactor = shapValues.find(
       s => s.impact === 'negative' && Math.abs(s.contribution) > 3
     );
     if (riskFactor) {
@@ -130,7 +130,7 @@ export const SHAPAnalysis: React.FC = () => {
     }
 
     // Confidence booster
-    const confidenceBooster = shapValues.find(
+    const _confidenceBooster = shapValues.find(
       s => s.impact === 'positive' && Math.abs(s.contribution) > 4
     );
     if (confidenceBooster) {
@@ -144,7 +144,7 @@ export const SHAPAnalysis: React.FC = () => {
     }
 
     // Unexpected factor
-    const unexpected = shapValues.find(
+    const _unexpected = shapValues.find(
       s => s.category === 'external' && Math.abs(s.contribution) > 2
     );
     if (unexpected) {
@@ -161,7 +161,7 @@ export const SHAPAnalysis: React.FC = () => {
   };
 
   useEffect(() => {
-    const preds = generatePredictions();
+    const _preds = generatePredictions();
     setPredictions(preds);
     if (preds.length > 0) {
       setSelectedPrediction(preds[0]);
@@ -174,7 +174,7 @@ export const SHAPAnalysis: React.FC = () => {
     }
   }, [selectedPrediction]);
 
-  const getCategoryColor = (category: string) => {
+  const _getCategoryColor = (category: string) => {
     switch (category) {
       case 'player':
         return 'text-blue-400 border-blue-400';
@@ -191,7 +191,7 @@ export const SHAPAnalysis: React.FC = () => {
     }
   };
 
-  const getImpactColor = (impact: string) => {
+  const _getImpactColor = (impact: string) => {
     switch (impact) {
       case 'positive':
         return 'text-green-400';
@@ -202,7 +202,7 @@ export const SHAPAnalysis: React.FC = () => {
     }
   };
 
-  const getInsightTypeColor = (type: string) => {
+  const _getInsightTypeColor = (type: string) => {
     switch (type) {
       case 'key_driver':
         return 'border-yellow-500/30 bg-yellow-900/10';
@@ -303,7 +303,7 @@ export const SHAPAnalysis: React.FC = () => {
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <select
                 value={viewMode}
-                onChange={e => setViewMode(e.target.value as any)}
+                onChange={e => setViewMode(e.target.value as unknown)}
                 className='px-3 py-1 bg-gray-800 border border-gray-700 rounded-lg'
                 aria-label='View mode'
               >
@@ -323,7 +323,7 @@ export const SHAPAnalysis: React.FC = () => {
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <select
                 value={analysisDepth}
-                onChange={e => setAnalysisDepth(e.target.value as any)}
+                onChange={e => setAnalysisDepth(e.target.value as unknown)}
                 className='px-3 py-1 bg-gray-800 border border-gray-700 rounded-lg'
                 aria-label='Analysis depth'
               >

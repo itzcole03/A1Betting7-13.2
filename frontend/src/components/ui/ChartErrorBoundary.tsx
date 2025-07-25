@@ -20,7 +20,7 @@ export interface ChartErrorBoundaryProps {
   enableRetry?: boolean;
   maxRetries?: number;
   showDataTable?: boolean;
-  fallbackData?: any[];
+  fallbackData?: unknown[];
   showErrorDetails?: boolean;
 }
 
@@ -40,7 +40,7 @@ export class ChartErrorBoundary extends Component<
   }
 
   static getDerivedStateFromError(error: Error): Partial<ChartErrorBoundaryState> {
-    const errorId = `chart_err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const _errorId = `chart_err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     return {
       hasError: true,
       error,
@@ -88,7 +88,7 @@ export class ChartErrorBoundary extends Component<
       return null;
     }
 
-    const headers = Object.keys(fallbackData[0] || {});
+    const _headers = Object.keys(fallbackData[0] || {});
 
     return (
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -184,7 +184,7 @@ export class ChartErrorBoundary extends Component<
         return fallback;
       }
 
-      const baseClasses = `
+      const _baseClasses = `
         flex flex-col items-center justify-center p-6 rounded-lg border min-h-[300px]
         ${
           variant === 'cyber'
@@ -196,7 +196,7 @@ export class ChartErrorBoundary extends Component<
         ${className}
       `;
 
-      const canRetry = enableRetry && this.state.retryCount < maxRetries;
+      const _canRetry = enableRetry && this.state.retryCount < maxRetries;
 
       return (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -370,7 +370,7 @@ export class ChartErrorBoundary extends Component<
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button
                   onClick={() => {
-                    const tableElement = document.querySelector('.fallback-data-table');
+                    const _tableElement = document.querySelector('.fallback-data-table');
                     tableElement?.scrollIntoView({ behavior: 'smooth' });
                   }}
                   className={`px-4 py-2 rounded font-medium text-sm transition-all ${

@@ -4,7 +4,7 @@ export interface TrendAnalysisChartProps {
   anomalies: { type: string; detected: boolean }[];
 }
 
-const TrendAnalysisChart: React.FC<TrendAnalysisChartProps> = ({ anomalies }) => {
+const _TrendAnalysisChart: React.FC<TrendAnalysisChartProps> = ({ anomalies }) => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div key={241917}>

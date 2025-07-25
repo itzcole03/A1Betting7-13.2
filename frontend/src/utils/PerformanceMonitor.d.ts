@@ -5,4 +5,4 @@
   startTrace(label: string): string;
   endTrace(traceId: string, error?: Error): void;
 }
-export declare function measurePerformance(fn: () => Promise<void>, label: string): Promise<void>;
+export declare function measurePerformance(_fn: () => Promise<void>, label: string): Promise<void>;

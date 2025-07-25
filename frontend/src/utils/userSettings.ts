@@ -3,7 +3,7 @@
  * Provides easy access to user settings throughout the application;
  */
 
-interface UserSettings {
+export interface UserSettings {
   profile: {
     name: string;
     email: string;
@@ -62,15 +62,28 @@ export const DEFAULT_SETTINGS: UserSettings = {
 /**
  * Get user settings from localStorage;
  */
+function deepMerge<T>(target: T, source: Partial<T>): T {
+  if (typeof target !== 'object' || typeof source !== 'object' || !target || !source) return target;
+  const result: any = Array.isArray(target) ? [...target] : { ...target };
+  for (const key in source) {
+    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+      result[key] = deepMerge((target as any)[key], source[key]);
+    } else if (source[key] !== undefined) {
+      result[key] = source[key];
+    }
+  }
+  return result;
+}
+
 export const getUserSettings = (): UserSettings => {
   try {
     const saved = localStorage.getItem('a1betting-user-settings');
     const parsed = saved ? JSON.parse(saved) : null;
     if (parsed) {
-      return { ...DEFAULT_SETTINGS, ...parsed };
+      return deepMerge(DEFAULT_SETTINGS, parsed);
     }
   } catch (error) {
-    // console statement removed
+    console.warn('getUserSettings error:', error);
   }
   return DEFAULT_SETTINGS;
 };
@@ -107,7 +120,7 @@ export const saveUserSettings = (settings: UserSettings): void => {
     // Notify other components;
     window.dispatchEvent(new CustomEvent('settingsChanged', { detail: settings }));
   } catch (error) {
-    // console statement removed
+    console.warn('saveUserSettings error:', error);
   }
 };
 
@@ -121,7 +134,7 @@ export const getUserDisplayName = (): string => {
     const settings = getUserSettings();
     return settings.profile.name;
   } catch (error) {
-    // console statement removed
+    console.warn('getUserDisplayName error:', error);
     return 'User';
   }
 };
@@ -136,7 +149,7 @@ export const getUserEmail = (): string => {
     const settings = getUserSettings();
     return settings.profile.email;
   } catch (error) {
-    // console statement removed
+    console.warn('getUserEmail error:', error);
     return 'user@a1betting.com';
   }
 };
@@ -149,7 +162,7 @@ export const isDarkMode = (): boolean => {
     const settings = getUserSettings();
     return settings.display.darkMode;
   } catch (error) {
-    // console statement removed
+    console.warn('isDarkMode error:', error);
     return true; // Default to dark mode;
   }
 };

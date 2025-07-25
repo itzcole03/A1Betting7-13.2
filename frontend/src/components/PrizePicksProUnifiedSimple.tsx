@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Simple test component to isolate the error
-const PrizePicksProUnifiedSimple: React.FC = () => {
+const _PrizePicksProUnifiedSimple: React.FC = () => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='p-8 bg-gray-900 text-white min-h-screen'>

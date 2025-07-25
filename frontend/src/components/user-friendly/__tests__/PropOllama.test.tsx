@@ -1,18 +1,75 @@
+// Mock matchMedia and scrollIntoView for jsdom and framer-motion requirements
+// Must be set before importing the component
+Object.defineProperty(HTMLDivElement.prototype, 'scrollIntoView', {
+  value: jest.fn(),
+  writable: true,
+});
+const matchMediaMock = (query: string) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addListener: jest.fn(), // deprecated
+  removeListener: jest.fn(), // deprecated
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+  dispatchEvent: jest.fn(),
+});
+window.matchMedia = matchMediaMock;
+global.matchMedia = matchMediaMock;
+if (!window.addEventListener) {
+  window.addEventListener = jest.fn();
+}
+if (!document.addEventListener) {
+  document.addEventListener = jest.fn();
+}
+if (!Element.prototype.addEventListener) {
+  Element.prototype.addEventListener = jest.fn();
+}
+if (!Element.prototype.removeEventListener) {
+  Element.prototype.removeEventListener = jest.fn();
+}
+window.alert = jest.fn();
+
+// (imports moved below matchMedia mock)
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-// @ts-expect-error TS(6142): Module '../PropOllama' was resolved to 'C:/Users/b... Remove this comment to see the full error message
 import PropOllama from '../PropOllama';
 
-// Mock fetch for health and chat endpoints
+// Mock fetch for all PropOllama endpoints
 beforeEach(() => {
-  global.fetch = jest.fn((url, opts) => {
+  global.fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input.toString();
+    const opts = init;
     if (url === '/api/propollama/health') {
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve({ status: 'ok', message: 'PropOllama API is healthy.' }),
       });
     }
+    if (url === '/api/propollama/models') {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ models: ['gpt-4', 'gpt-3.5'] }),
+      });
+    }
+    if (url === '/api/propollama/model_health') {
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            model_health: { 'gpt-4': { status: 'ready' }, 'gpt-3.5': { status: 'ready' } },
+          }),
+      });
+    }
     if (url === '/api/propollama/chat') {
-      if (opts && opts.body && JSON.parse(opts.body).message === 'error') {
+      let message = '';
+      if (opts && opts.body) {
+        if (typeof opts.body === 'string') {
+          try {
+            message = JSON.parse(opts.body).message;
+          } catch {}
+        }
+      }
+      if (message === 'error') {
         return Promise.resolve({
           ok: false,
           status: 500,
@@ -38,7 +95,7 @@ beforeEach(() => {
       });
     }
     return Promise.reject(new Error('Unknown endpoint'));
-  }) as any;
+  }) as jest.Mock;
 });
 
 afterEach(() => {
@@ -46,36 +103,33 @@ afterEach(() => {
 });
 
 test('displays health check status', async () => {
-  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   render(<PropOllama />);
-  const healthBtn = screen.getByRole('button', { name: /check api health/i });
-  fireEvent.click(healthBtn);
+  // Use aria-label for robust querying
+  const _healthBtn = screen.getByRole('button', { name: /check propollama api health/i });
+  fireEvent.click(_healthBtn);
   await waitFor(() => {
     expect(screen.queryByText(/health check failed/i)).not.toBeInTheDocument();
   });
 });
 
 test('displays backend error message', async () => {
-  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   render(<PropOllama />);
-  const input = screen.getByLabelText(/type your message/i);
-  fireEvent.change(input, { target: { value: 'error' } });
-  // @ts-expect-error TS(2339): Property 'form' does not exist on type 'HTMLElemen... Remove this comment to see the full error message
-  fireEvent.submit(input.form!);
+  const _input = screen.getByLabelText(/type your message/i) as HTMLInputElement;
+  fireEvent.change(_input, { target: { value: 'error' } });
+  fireEvent.submit(_input.form!);
   await waitFor(() => {
-    expect(screen.getByRole('alert')).toHaveTextContent(/internal server error/i);
-    expect(screen.getByRole('alert')).toHaveTextContent(/simulated error/i);
-    expect(screen.getByRole('alert')).toHaveTextContent(/traceback/i);
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent(/simulated error/i);
+    expect(alert).toHaveTextContent(/traceback/i);
+    expect(alert).toHaveTextContent(/http 500/i);
   });
 });
 
 test('displays AI response for valid message', async () => {
-  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   render(<PropOllama />);
-  const input = screen.getByLabelText(/type your message/i);
-  fireEvent.change(input, { target: { value: 'hello' } });
-  // @ts-expect-error TS(2339): Property 'form' does not exist on type 'HTMLElemen... Remove this comment to see the full error message
-  fireEvent.submit(input.form!);
+  const _input = screen.getByLabelText(/type your message/i) as HTMLInputElement;
+  fireEvent.change(_input, { target: { value: 'hello' } });
+  fireEvent.submit(_input.form!);
   await waitFor(() => {
     expect(screen.getByText(/AI response/)).toBeInTheDocument();
   });

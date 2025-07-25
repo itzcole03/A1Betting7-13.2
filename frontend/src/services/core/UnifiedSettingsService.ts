@@ -8,7 +8,7 @@ import { UnifiedServiceRegistry } from '@/unified/UnifiedServiceRegistry';
 export class UnifiedSettingsService {
   private static instance: UnifiedSettingsService;
   private logger: UnifiedLogger;
-  private settings: Map<string, any>;
+  private settings: Map<string, unknown>;
   private settingsFile: string;
 
   private constructor(registry: UnifiedServiceRegistry) {

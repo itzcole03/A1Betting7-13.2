@@ -14,7 +14,7 @@ interface SearchResult {
   image?: string;
   category: string;
   tags?: string[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   relevanceScore?: number;
   lastUpdated?: Date;
 }
@@ -24,7 +24,7 @@ interface SearchFilter {
   label: string;
   type: 'checkbox' | 'radio' | 'select' | 'daterange';
   options?: Array<{ value: string; label: string; count?: number }>;
-  value?: any;
+  value?: unknown;
   category?: string;
 }
 
@@ -33,7 +33,7 @@ interface SearchHistory {
   query: string;
   timestamp: Date;
   resultCount: number;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
 }
 
 interface SearchSuggestion {
@@ -58,13 +58,13 @@ interface SearchModalProps {
   debounceMs?: number;
   className?: string;
   onClose: () => void;
-  onSearch: (query: string, filters?: Record<string, any>) => Promise<SearchResult[]>;
+  onSearch: (query: string, filters?: Record<string, unknown>) => Promise<SearchResult[]>;
   onResultClick?: (result: SearchResult) => void;
   onHistoryClick?: (historyItem: SearchHistory) => void;
   onSuggestionClick?: (suggestion: SearchSuggestion) => void;
 }
 
-const defaultFilters: SearchFilter[] = [
+const _defaultFilters: SearchFilter[] = [
   {
     id: 'type',
     label: 'Content Type',
@@ -92,7 +92,7 @@ const defaultFilters: SearchFilter[] = [
   },
 ];
 
-const defaultSuggestions: SearchSuggestion[] = [
+const _defaultSuggestions: SearchSuggestion[] = [
   { id: '1', text: 'NBA games today', type: 'query', category: 'Sports', icon: '🏀' },
   {
     id: '2',
@@ -106,8 +106,8 @@ const defaultSuggestions: SearchSuggestion[] = [
   { id: '5', text: 'Top performing models', type: 'filter', category: 'AI', icon: '🤖' },
 ];
 
-const getResultIcon = (type: string) => {
-  const icons = {
+const _getResultIcon = (type: string) => {
+  const _icons = {
     page: '📄',
     bet: '🎯',
     user: '👤',
@@ -121,11 +121,11 @@ const getResultIcon = (type: string) => {
   return icons[type as keyof typeof icons] || '🔍';
 };
 
-const highlightText = (text: string, query: string): React.ReactNode => {
+const _highlightText = (text: string, query: string): React.ReactNode => {
   if (!query.trim()) return text;
 
-  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-  const parts = text.split(regex);
+  const _regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const _parts = text.split(regex);
 
   return parts.map((part, index) =>
     regex.test(part) ? (
@@ -139,11 +139,11 @@ const highlightText = (text: string, query: string): React.ReactNode => {
   );
 };
 
-const useDebounce = (value: string, delay: number) => {
+const _useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
-    const handler = setTimeout(() => {
+    const _handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
 
@@ -155,7 +155,7 @@ const useDebounce = (value: string, delay: number) => {
   return debouncedValue;
 };
 
-export const SearchModal: React.FC<SearchModalProps> = ({
+export const _SearchModal: React.FC<SearchModalProps> = ({
   isOpen,
   variant = 'default',
   placeholder = 'Search anything...',
@@ -179,14 +179,14 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [filters, setFilters] = useState<SearchFilter[]>(defaultFilters);
-  const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
+  const [activeFilters, setActiveFilters] = useState<Record<string, unknown>>({});
   const [searchHistory, setSearchHistory] = useState<SearchHistory[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isListening, setIsListening] = useState(false);
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
-  const debouncedQuery = useDebounce(query, debounceMs);
+  const _inputRef = useRef<HTMLInputElement>(null);
+  const _resultsRef = useRef<HTMLDivElement>(null);
+  const _debouncedQuery = useDebounce(query, debounceMs);
 
   // Focus input when modal opens
   useEffect(() => {
@@ -207,7 +207,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
   // Keyboard navigation
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const _handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
 
       switch (e.key) {
@@ -239,22 +239,22 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   // Scroll selected item into view
   useEffect(() => {
     if (resultsRef.current && selectedIndex >= 0) {
-      const selectedElement = resultsRef.current.children[selectedIndex] as HTMLElement;
+      const _selectedElement = resultsRef.current.children[selectedIndex] as HTMLElement;
       if (selectedElement) {
         selectedElement.scrollIntoView({ block: 'nearest' });
       }
     }
   }, [selectedIndex, resultsRef, results]);
 
-  const handleSearch = async (searchQuery: string) => {
+  const _handleSearch = async (searchQuery: string) => {
     setLoading(true);
     try {
-      const searchResults = await onSearch(searchQuery, activeFilters);
+      const _searchResults = await onSearch(searchQuery, activeFilters);
       setResults(searchResults.slice(0, maxResults));
       setSelectedIndex(-1);
 
       // Add to history
-      const historyItem: SearchHistory = {
+      const _historyItem: SearchHistory = {
         id: Date.now().toString(),
         query: searchQuery,
         timestamp: new Date(),
@@ -271,7 +271,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     }
   };
 
-  const handleResultClick = (result: SearchResult) => {
+  const _handleResultClick = (result: SearchResult) => {
     onResultClick?.(result);
     if (result.url) {
       window.location.href = result.url;
@@ -279,28 +279,28 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     onClose();
   };
 
-  const handleFilterChange = (filterId: string, value: any) => {
+  const _handleFilterChange = (filterId: string, value: unknown) => {
     setActiveFilters(prev => ({
       ...prev,
       [filterId]: value,
     }));
   };
 
-  const clearFilters = () => {
+  const _clearFilters = () => {
     setActiveFilters({});
   };
 
-  const startVoiceSearch = () => {
+  const _startVoiceSearch = () => {
     if (!enableVoiceSearch || !('webkitSpeechRecognition' in window)) return;
 
-    const recognition = new (window as any).webkitSpeechRecognition();
+    const _recognition = new (window as unknown).webkitSpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = 'en-US';
 
     recognition.onstart = () => setIsListening(true);
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
+    recognition.onresult = (event: unknown) => {
+      const _transcript = event.results[0][0].transcript;
       setQuery(transcript);
     };
     recognition.onend = () => setIsListening(false);
@@ -309,11 +309,11 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     recognition.start();
   };
 
-  const groupedResults = useMemo(() => {
+  const _groupedResults = useMemo(() => {
     if (!showCategories) return { All: results };
 
     return results.reduce((groups, result) => {
-      const category = result.category || 'Other';
+      const _category = result.category || 'Other';
       if (!groups[category]) {
         groups[category] = [];
       }
@@ -324,14 +324,14 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
   if (!isOpen) return null;
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'max-w-2xl mx-4 mt-20',
     cyber: 'max-w-2xl mx-4 mt-20',
     minimal: 'max-w-xl mx-4 mt-24',
     fullscreen: 'w-full h-full m-0',
   };
 
-  const modalClasses = {
+  const _modalClasses = {
     default: 'bg-white border border-gray-200 rounded-xl shadow-2xl',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-xl shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -506,8 +506,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                             type='checkbox'
                             checked={activeFilters[filter.id]?.includes(option.value) || false}
                             onChange={e => {
-                              const current = activeFilters[filter.id] || [];
-                              const updated = e.target.checked
+                              const _current = activeFilters[filter.id] || [];
+                              const _updated = e.target.checked
                                 ? [...current, option.value]
                                 : current.filter((v: string) => v !== option.value);
                               handleFilterChange(filter.id, updated);
@@ -707,7 +707,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                   )}
 
                   {categoryResults.map((result, index) => {
-                    const globalIndex =
+                    const _globalIndex =
                       Object.entries(groupedResults)
                         .slice(0, Object.keys(groupedResults).indexOf(category))
                         .reduce((acc, [, results]) => acc + results.length, 0) + index;

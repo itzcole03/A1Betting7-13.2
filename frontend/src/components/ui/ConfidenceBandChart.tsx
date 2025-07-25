@@ -8,7 +8,7 @@ interface ChartDataPoint {
   y: number;
   timestamp?: Date;
   label?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface ChartConfidenceBand {
@@ -75,7 +75,7 @@ interface ConfidenceBandChartProps {
   onExport?: (format: 'png' | 'svg' | 'pdf' | 'csv') => void;
 }
 
-const defaultConfig: ChartConfig = {
+const _defaultConfig: ChartConfig = {
   width: 800,
   height: 400,
   padding: { top: 20, right: 20, bottom: 60, left: 60 },
@@ -87,8 +87,8 @@ const defaultConfig: ChartConfig = {
   responsive: true,
 };
 
-const getThemeColors = (variant: string, theme: string) => {
-  const themes = {
+const _getThemeColors = (variant: string, theme: string) => {
+  const _themes = {
     light: {
       background: '#ffffff',
       surface: '#f8fafc',
@@ -116,12 +116,12 @@ const getThemeColors = (variant: string, theme: string) => {
   return themes[theme as keyof typeof themes] || themes.light;
 };
 
-const calculateChartScales = (
+const _calculateChartScales = (
   series: ChartSeries[],
   bands: ChartConfidenceBand[],
   config: ChartConfig
 ) => {
-  const allPoints = [
+  const _allPoints = [
     ...series.flatMap(s => s.data),
     ...bands.flatMap(b => [...b.upperBound, ...b.lowerBound]),
   ];
@@ -137,16 +137,16 @@ const calculateChartScales = (
     };
   }
 
-  const xMin = Math.min(...allPoints.map(p => p.x));
-  const xMax = Math.max(...allPoints.map(p => p.x));
-  const yMin = Math.min(...allPoints.map(p => p.y));
-  const yMax = Math.max(...allPoints.map(p => p.y));
+  const _xMin = Math.min(...allPoints.map(p => p.x));
+  const _xMax = Math.max(...allPoints.map(p => p.x));
+  const _yMin = Math.min(...allPoints.map(p => p.y));
+  const _yMax = Math.max(...allPoints.map(p => p.y));
 
-  const xRange = xMax - xMin || 1;
-  const yRange = yMax - yMin || 1;
+  const _xRange = xMax - xMin || 1;
+  const _yRange = yMax - yMin || 1;
 
-  const chartWidth = config.width - config.padding.left - config.padding.right;
-  const chartHeight = config.height - config.padding.top - config.padding.bottom;
+  const _chartWidth = config.width - config.padding.left - config.padding.right;
+  const _chartHeight = config.height - config.padding.top - config.padding.bottom;
 
   return {
     xScale: (x: number) => ((x - xMin) / xRange) * chartWidth + config.padding.left,
@@ -159,44 +159,44 @@ const calculateChartScales = (
   };
 };
 
-const formatAxisValue = (value: number, precision: number = 2): string => {
+const _formatAxisValue = (value: number, precision: number = 2): string => {
   if (Math.abs(value) >= 1e9) return (value / 1e9).toFixed(1) + 'B';
   if (Math.abs(value) >= 1e6) return (value / 1e6).toFixed(1) + 'M';
   if (Math.abs(value) >= 1e3) return (value / 1e3).toFixed(1) + 'K';
   return value.toFixed(precision);
 };
 
-const createSmoothPath = (
+const _createSmoothPath = (
   points: ChartDataPoint[],
   xScale: (x: number) => number,
   yScale: (y: number) => number
 ): string => {
   if (points.length === 0) return '';
   if (points.length === 1) {
-    const x = xScale(points[0].x);
-    const y = yScale(points[0].y);
+    const _x = xScale(points[0].x);
+    const _y = yScale(points[0].y);
     return `M ${x} ${y}`;
   }
 
-  let path = '';
-  for (let i = 0; i < points.length; i++) {
-    const x = xScale(points[i].x);
-    const y = yScale(points[i].y);
+  let _path = '';
+  for (let _i = 0; i < points.length; i++) {
+    const _x = xScale(points[i].x);
+    const _y = yScale(points[i].y);
 
     if (i === 0) {
       path += `M ${x} ${y}`;
     } else {
       // Create smooth curves using quadratic bezier
-      const prevX = xScale(points[i - 1].x);
-      const prevY = yScale(points[i - 1].y);
-      const cpX = (prevX + x) / 2;
+      const _prevX = xScale(points[i - 1].x);
+      const _prevY = yScale(points[i - 1].y);
+      const _cpX = (prevX + x) / 2;
       path += ` Q ${cpX} ${prevY} ${x} ${y}`;
     }
   }
   return path;
 };
 
-export const ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
+export const _ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
   series,
   confidenceBands,
   annotations = [],
@@ -215,14 +215,14 @@ export const ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
   onZoom,
   onExport,
 }) => {
-  const svgRef = useRef<SVGSVGElement>(null);
+  const _svgRef = useRef<SVGSVGElement>(null);
   const [config, setConfig] = useState<ChartConfig>({
     ...defaultConfig,
     ...userConfig,
   });
   const [hoveredElement, setHoveredElement] = useState<{
     type: 'point' | 'band' | 'series';
-    data: any;
+    data: unknown;
     position: { x: number; y: number };
   } | null>(null);
   const [zoomState, setZoomState] = useState<{
@@ -232,15 +232,15 @@ export const ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
     yMax: number;
   } | null>(null);
 
-  const themeColors = getThemeColors(variant, theme);
-  const scales = calculateChartScales(series, confidenceBands, config);
+  const _themeColors = getThemeColors(variant, theme);
+  const _scales = calculateChartScales(series, confidenceBands, config);
 
   // Responsive handling
   useEffect(() => {
     if (!config.responsive) return;
 
-    const handleResize = () => {
-      const container = svgRef.current?.parentElement;
+    const _handleResize = () => {
+      const _container = svgRef.current?.parentElement;
       if (container) {
         const { width } = container.getBoundingClientRect();
         setConfig(prev => ({
@@ -256,26 +256,26 @@ export const ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, [config.responsive]);
 
-  const handleMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
+  const _handleMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
     if (!config.showTooltip) return;
 
-    const svgRect = svgRef.current?.getBoundingClientRect();
+    const _svgRect = svgRef.current?.getBoundingClientRect();
     if (!svgRect) return;
 
-    const x = event.clientX - svgRect.left;
-    const y = event.clientY - svgRect.top;
+    const _x = event.clientX - svgRect.left;
+    const _y = event.clientY - svgRect.top;
 
     // Find closest data point
-    let closestPoint: ChartDataPoint | null = null;
-    let closestSeries: ChartSeries | null = null;
-    let minDistance = Infinity;
+    let _closestPoint: ChartDataPoint | null = null;
+    let _closestSeries: ChartSeries | null = null;
+    let _minDistance = Infinity;
 
     series.forEach(s => {
       if (!s.visible) return;
       s.data.forEach(point => {
-        const pointX = scales.xScale(point.x);
-        const pointY = scales.yScale(point.y);
-        const distance = Math.sqrt((x - pointX) ** 2 + (y - pointY) ** 2);
+        const _pointX = scales.xScale(point.x);
+        const _pointY = scales.yScale(point.y);
+        const _distance = Math.sqrt((x - pointX) ** 2 + (y - pointY) ** 2);
 
         if (distance < minDistance && distance < 20) {
           minDistance = distance;
@@ -296,12 +296,12 @@ export const ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
     }
   };
 
-  const exportChart = (format: 'png' | 'svg' | 'pdf' | 'csv') => {
+  const _exportChart = (format: 'png' | 'svg' | 'pdf' | 'csv') => {
     if (format === 'svg' && svgRef.current) {
-      const svgData = new XMLSerializer().serializeToString(svgRef.current);
-      const blob = new Blob([svgData], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const _svgData = new XMLSerializer().serializeToString(svgRef.current);
+      const _blob = new Blob([svgData], { type: 'image/svg+xml' });
+      const _url = URL.createObjectURL(blob);
+      const _link = document.createElement('a');
       link.href = url;
       link.download = 'confidence-band-chart.svg';
       link.click();
@@ -310,7 +310,7 @@ export const ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
     onExport?.(format);
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-lg shadow-sm',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -375,7 +375,7 @@ export const ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
                 type='checkbox'
                 checked={s.visible !== false}
                 onChange={e => {
-                  const newSeries = series.map(series =>
+                  const _newSeries = series.map(series =>
                     series.id === s.id ? { ...series, visible: e.target.checked } : series
                   );
                   // Would need to update series through props
@@ -424,7 +424,7 @@ export const ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
             <g className='opacity-30'>
               {/* Vertical grid lines */}
               {Array.from({ length: 8 }, (_, i) => {
-                const x =
+                const _x =
                   config.padding.left +
                   (i * (config.width - config.padding.left - config.padding.right)) / 7;
                 return (
@@ -443,7 +443,7 @@ export const ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
 
               {/* Horizontal grid lines */}
               {Array.from({ length: 6 }, (_, i) => {
-                const y =
+                const _y =
                   config.padding.top +
                   (i * (config.height - config.padding.top - config.padding.bottom)) / 5;
                 return (
@@ -464,13 +464,13 @@ export const ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
 
           {/* Confidence Bands */}
           {confidenceBands.map((band, index) => {
-            const upperPath = createSmoothPath(band.upperBound, scales.xScale, scales.yScale);
-            const lowerPath = createSmoothPath(
+            const _upperPath = createSmoothPath(band.upperBound, scales.xScale, scales.yScale);
+            const _lowerPath = createSmoothPath(
               band.lowerBound.slice().reverse(),
               scales.xScale,
               scales.yScale
             );
-            const areaPath = `${upperPath} L ${lowerPath.slice(1)} Z`;
+            const _areaPath = `${upperPath} L ${lowerPath.slice(1)} Z`;
 
             return (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -514,7 +514,7 @@ export const ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
           {series
             .filter(s => s.visible !== false)
             .map(s => {
-              const path = createSmoothPath(s.data, scales.xScale, scales.yScale);
+              const _path = createSmoothPath(s.data, scales.xScale, scales.yScale);
 
               return (
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -673,10 +673,10 @@ export const ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
           <g fill={themeColors.text} fontSize='12'>
             {/* X-axis ticks */}
             {Array.from({ length: 8 }, (_, i) => {
-              const x =
+              const _x =
                 config.padding.left +
                 (i * (config.width - config.padding.left - config.padding.right)) / 7;
-              const value = scales.xMin + (i * (scales.xMax - scales.xMin)) / 7;
+              const _value = scales.xMin + (i * (scales.xMax - scales.xMin)) / 7;
               return (
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <g key={`x-tick-${i}`}>
@@ -698,11 +698,11 @@ export const ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
 
             {/* Y-axis ticks */}
             {Array.from({ length: 6 }, (_, i) => {
-              const y =
+              const _y =
                 config.height -
                 config.padding.bottom -
                 (i * (config.height - config.padding.top - config.padding.bottom)) / 5;
-              const value = scales.yMin + (i * (scales.yMax - scales.yMin)) / 5;
+              const _value = scales.yMin + (i * (scales.yMax - scales.yMin)) / 5;
               return (
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <g key={`y-tick-${i}`}>

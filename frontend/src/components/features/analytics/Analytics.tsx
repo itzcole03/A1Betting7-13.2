@@ -247,14 +247,14 @@ interface VaRAnalysis {
   monteCarloSimulation: number[];
 }
 
-const Analytics: React.FC = () => {
+const _Analytics: React.FC = () => {
   const [models, setModels] = useState<ModelMetrics[]>([]);
   const [featureImportance, setFeatureImportance] = useState<FeatureImportance[]>([]);
   const [predictionMetrics, setPredictionMetrics] = useState<PredictionMetrics | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>('all');
   const [timeRange, setTimeRange] = useState<string>('7d');
-  const filterTimeRangeId = 'analytics-filter-time-range';
-  const filterModelId = 'analytics-filter-model';
+  const _filterTimeRangeId = 'analytics-filter-time-range';
+  const _filterModelId = 'analytics-filter-model';
   const [isLoading, setIsLoading] = useState(false);
   const [showDetails, setShowDetails] = useState<Record<string, boolean>>({});
 
@@ -313,17 +313,17 @@ const Analytics: React.FC = () => {
   }, [selectedModel, timeRange]);
 
   useEffect(() => {
-    const interval = setInterval(runQuantumSimulation, 1000 / simulationSpeed);
+    const _interval = setInterval(runQuantumSimulation, 1000 / simulationSpeed);
     return () => clearInterval(interval);
   }, [isQuantumActive, simulationSpeed]);
 
-  const loadAnalyticsData = async () => {
+  const _loadAnalyticsData = async () => {
     setIsLoading(true);
     try {
       // Mock data - replace with real API calls
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const mockModels: ModelMetrics[] = [
+      const _mockModels: ModelMetrics[] = [
         {
           id: 'xgb-001',
           name: 'XGBoost Ensemble',
@@ -382,7 +382,7 @@ const Analytics: React.FC = () => {
         },
       ];
 
-      const mockFeatures: FeatureImportance[] = [
+      const _mockFeatures: FeatureImportance[] = [
         { feature: 'Team Recent Form', importance: 0.18, category: 'Performance', trend: 'up' },
         { feature: 'Player Injuries', importance: 0.15, category: 'Health', trend: 'stable' },
         { feature: 'Weather Conditions', importance: 0.12, category: 'Environment', trend: 'up' },
@@ -400,7 +400,7 @@ const Analytics: React.FC = () => {
         { feature: 'Referee Impact', importance: 0.04, category: 'Officials', trend: 'stable' },
       ];
 
-      const mockMetrics: PredictionMetrics = {
+      const _mockMetrics: PredictionMetrics = {
         totalPredictions: 4282,
         correctPredictions: 4089,
         accuracy: 95.5,
@@ -424,25 +424,25 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const loadInjuryData = async () => {
+  const _loadInjuryData = async () => {
     try {
       // Generate mock injury data
-      const sports = ['NBA', 'NFL', 'MLB', 'NHL'];
-      const teams = {
+      const _sports = ['NBA', 'NFL', 'MLB', 'NHL'];
+      const _teams = {
         NBA: ['Lakers', 'Warriors', 'Celtics', 'Heat', 'Nets', 'Knicks'],
         NFL: ['Chiefs', 'Bills', 'Cowboys', 'Patriots', 'Packers', 'Ravens'],
         MLB: ['Yankees', 'Red Sox', 'Dodgers', 'Astros', 'Giants', 'Mets'],
         NHL: ['Rangers', 'Lightning', 'Bruins', 'Kings', 'Penguins', 'Capitals'],
       };
 
-      const positions = {
+      const _positions = {
         NBA: ['PG', 'SG', 'SF', 'PF', 'C'],
         NFL: ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'CB', 'S', 'K'],
         MLB: ['P', 'C', '1B', '2B', '3B', 'SS', 'OF'],
         NHL: ['C', 'LW', 'RW', 'D', 'G'],
       };
 
-      const injuries = [
+      const _injuries = [
         'Ankle Sprain',
         'Knee Injury',
         'Hamstring Strain',
@@ -457,7 +457,7 @@ const Analytics: React.FC = () => {
         'Foot Injury',
       ];
 
-      const bodyParts = [
+      const _bodyParts = [
         'Ankle',
         'Knee',
         'Hamstring',
@@ -472,11 +472,11 @@ const Analytics: React.FC = () => {
         'Foot',
       ];
 
-      const injuryData: InjuryReport[] = Array.from({ length: 15 }, (_, index) => {
-        const sport = sports[Math.floor(Math.random() * sports.length)];
+      const _injuryData: InjuryReport[] = Array.from({ length: 15 }, (_, index) => {
+        const _sport = sports[Math.floor(Math.random() * sports.length)];
         // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-        const team = teams[sport][Math.floor(Math.random() * teams[sport].length)];
-        const severity =
+        const _team = teams[sport][Math.floor(Math.random() * teams[sport].length)];
+        const _severity =
           Math.random() > 0.7 ? 'severe' : Math.random() > 0.4 ? 'moderate' : 'minor';
 
         return {
@@ -526,19 +526,19 @@ const Analytics: React.FC = () => {
       });
 
       // Generate team impacts
-      const teamMap = new Map<string, InjuryReport[]>();
+      const _teamMap = new Map<string, InjuryReport[]>();
       injuryData.forEach(injury => {
-        const key = `${injury.team}-${injury.sport}`;
+        const _key = `${injury.team}-${injury.sport}`;
         if (!teamMap.has(key)) {
           teamMap.set(key, []);
         }
         teamMap.get(key)!.push(injury);
       });
 
-      const teamImpactData: TeamImpact[] = Array.from(teamMap.entries())
+      const _teamImpactData: TeamImpact[] = Array.from(teamMap.entries())
         .map(([key, teamInjuries]) => {
           const [team, sport] = key.split('-');
-          const keyPlayerInjuries = teamInjuries.filter(
+          const _keyPlayerInjuries = teamInjuries.filter(
             i => i.severity === 'severe' || i.severity === 'moderate'
           ).length;
 
@@ -563,7 +563,7 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const loadQuantumData = async () => {
+  const _loadQuantumData = async () => {
     try {
       const { nodes: networkNodes, connections: networkConnections } = generateQuantumNetwork();
       setQuantumNodes(networkNodes);
@@ -575,12 +575,12 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const generateQuantumNetwork = (): { nodes: QuantumNode[]; connections: QuantumConnection[] } => {
-    const networkNodes: QuantumNode[] = [];
-    const networkConnections: QuantumConnection[] = [];
+  const _generateQuantumNetwork = (): { nodes: QuantumNode[]; connections: QuantumConnection[] } => {
+    const _networkNodes: QuantumNode[] = [];
+    const _networkConnections: QuantumConnection[] = [];
 
     // Input layer
-    for (let i = 0; i < 4; i++) {
+    for (let _i = 0; i < 4; i++) {
       networkNodes.push({
         id: `input-${i}`,
         type: 'input',
@@ -590,8 +590,8 @@ const Analytics: React.FC = () => {
     }
 
     // Quantum layers
-    for (let layer = 0; layer < 3; layer++) {
-      for (let i = 0; i < 6; i++) {
+    for (let _layer = 0; layer < 3; layer++) {
+      for (let _i = 0; i < 6; i++) {
         networkNodes.push({
           id: `quantum-${layer}-${i}`,
           type: 'quantum',
@@ -605,7 +605,7 @@ const Analytics: React.FC = () => {
     }
 
     // Neural processing layer
-    for (let i = 0; i < 4; i++) {
+    for (let _i = 0; i < 4; i++) {
       networkNodes.push({
         id: `neural-${i}`,
         type: 'neural',
@@ -615,7 +615,7 @@ const Analytics: React.FC = () => {
     }
 
     // Output layer
-    for (let i = 0; i < 2; i++) {
+    for (let _i = 0; i < 2; i++) {
       networkNodes.push({
         id: `output-${i}`,
         type: 'output',
@@ -627,7 +627,7 @@ const Analytics: React.FC = () => {
     // Generate connections between layers
     networkNodes.forEach(node => {
       if (node.type === 'input') {
-        const quantumNodes = networkNodes.filter(n => n.id.startsWith('quantum-0-'));
+        const _quantumNodes = networkNodes.filter(n => n.id.startsWith('quantum-0-'));
         quantumNodes.forEach(qNode => {
           networkConnections.push({
             from: node.id,
@@ -643,8 +643,8 @@ const Analytics: React.FC = () => {
     return { nodes: networkNodes, connections: networkConnections };
   };
 
-  const generateQuantumPredictions = (): QuantumPrediction[] => {
-    const games = [
+  const _generateQuantumPredictions = (): QuantumPrediction[] => {
+    const _games = [
       { game: 'Lakers vs Warriors', sport: 'NBA' },
       { game: 'Chiefs vs Bills', sport: 'NFL' },
       { game: 'Celtics vs Heat', sport: 'NBA' },
@@ -653,8 +653,8 @@ const Analytics: React.FC = () => {
     ];
 
     return games.map((g, index) => {
-      const classicalProb = 0.5 + (Math.random() - 0.5) * 0.3;
-      const quantumAdv = Math.random() * 0.15;
+      const _classicalProb = 0.5 + (Math.random() - 0.5) * 0.3;
+      const _quantumAdv = Math.random() * 0.15;
 
       return {
         id: `qpred-${index}`,
@@ -674,7 +674,7 @@ const Analytics: React.FC = () => {
     });
   };
 
-  const generateQuantumMetrics = (): QuantumMetrics => ({
+  const _generateQuantumMetrics = (): QuantumMetrics => ({
     coherenceTime: 50 + Math.random() * 50,
     fidelity: 0.95 + Math.random() * 0.04,
     entanglementDegree: Math.random() * 0.8 + 0.2,
@@ -682,7 +682,7 @@ const Analytics: React.FC = () => {
     errorRate: Math.random() * 0.02 + 0.001,
   });
 
-  const runQuantumSimulation = () => {
+  const _runQuantumSimulation = () => {
     if (!isQuantumActive) return;
 
     setQuantumNodes(prev =>
@@ -700,7 +700,7 @@ const Analytics: React.FC = () => {
     setQuantumMetrics(generateQuantumMetrics());
   };
 
-  const getNodeColor = (node: QuantumNode) => {
+  const _getNodeColor = (node: QuantumNode) => {
     switch (node.type) {
       case 'input':
         return '#3B82F6';
@@ -717,12 +717,12 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const getConnectionColor = (connection: QuantumConnection) => {
+  const _getConnectionColor = (connection: QuantumConnection) => {
     if (connection.entanglement) return '#EC4899';
     return connection.type === 'quantum' ? '#8B5CF6' : '#6B7280';
   };
 
-  const getAlgorithmDescription = (algorithm: string) => {
+  const _getAlgorithmDescription = (algorithm: string) => {
     switch (algorithm) {
       case 'grover':
         return 'Quantum search algorithm for unstructured databases';
@@ -737,9 +737,9 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const loadWeatherData = async () => {
+  const _loadWeatherData = async () => {
     try {
-      const weatherGames = [
+      const _weatherGames = [
         { game: 'Chiefs vs Bills', sport: 'NFL', venue: 'Arrowhead Stadium', city: 'Kansas City' },
         { game: 'Yankees vs Red Sox', sport: 'MLB', venue: 'Yankee Stadium', city: 'New York' },
         { game: 'Lakers vs Warriors', sport: 'NBA', venue: 'Staples Center', city: 'Los Angeles' },
@@ -757,10 +757,10 @@ const Analytics: React.FC = () => {
         },
       ];
 
-      const weatherDataGenerated: WeatherData[] = weatherGames.map((g, index) => {
-        const temp = 32 + Math.random() * 68;
-        const windSpeed = Math.random() * 25;
-        const humidity = 30 + Math.random() * 50;
+      const _weatherDataGenerated: WeatherData[] = weatherGames.map((g, index) => {
+        const _temp = 32 + Math.random() * 68;
+        const _windSpeed = Math.random() * 25;
+        const _humidity = 30 + Math.random() * 50;
 
         return {
           gameId: `weather-${index}`,
@@ -807,7 +807,7 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const getWeatherIcon = (condition: string) => {
+  const _getWeatherIcon = (condition: string) => {
     switch (condition.toLowerCase()) {
       case 'clear':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -834,7 +834,7 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const getWeatherImpactColor = (impact: string) => {
+  const _getWeatherImpactColor = (impact: string) => {
     switch (impact) {
       case 'high':
         return 'text-red-400 border-red-400';
@@ -847,11 +847,11 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const loadNewsData = async () => {
+  const _loadNewsData = async () => {
     try {
-      const sports = ['NBA', 'NFL', 'MLB', 'NHL', 'Soccer'];
-      const categories = ['breaking', 'injury', 'trade', 'analysis', 'prediction'] as const;
-      const sources = [
+      const _sports = ['NBA', 'NFL', 'MLB', 'NHL', 'Soccer'];
+      const _categories = ['breaking', 'injury', 'trade', 'analysis', 'prediction'] as const;
+      const _sources = [
         'ESPN',
         'The Athletic',
         'Bleacher Report',
@@ -860,7 +860,7 @@ const Analytics: React.FC = () => {
         'NBC Sports',
       ];
 
-      const sampleNews = [
+      const _sampleNews = [
         {
           title: "Star Player Questionable for Tonight's Game",
           summary:
@@ -903,10 +903,10 @@ const Analytics: React.FC = () => {
         },
       ];
 
-      const newsData: NewsArticle[] = Array.from({ length: 12 }, (_, index) => {
-        const category = categories[Math.floor(Math.random() * categories.length)];
-        const sport = sports[Math.floor(Math.random() * sports.length)];
-        const newsItem = sampleNews[Math.floor(Math.random() * sampleNews.length)];
+      const _newsData: NewsArticle[] = Array.from({ length: 12 }, (_, index) => {
+        const _category = categories[Math.floor(Math.random() * categories.length)];
+        const _sport = sports[Math.floor(Math.random() * sports.length)];
+        const _newsItem = sampleNews[Math.floor(Math.random() * sampleNews.length)];
 
         return {
           id: `news-${index}`,
@@ -928,7 +928,7 @@ const Analytics: React.FC = () => {
         };
       });
 
-      const topics = [
+      const _topics = [
         'Trade Deadline',
         'Playoff Race',
         'MVP Candidates',
@@ -939,7 +939,7 @@ const Analytics: React.FC = () => {
         'Draft Prospects',
       ];
 
-      const topicsData: NewsImpactTopic[] = topics.map(topic => ({
+      const _topicsData: NewsImpactTopic[] = topics.map(topic => ({
         topic,
         mentions: Math.floor(Math.random() * 5000 + 1000),
         sentiment: Math.random() > 0.5 ? 'positive' : Math.random() > 0.5 ? 'neutral' : 'negative',
@@ -953,7 +953,7 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const getNewsCategoryIcon = (category: string) => {
+  const _getNewsCategoryIcon = (category: string) => {
     switch (category) {
       case 'breaking':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -976,7 +976,7 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const getNewsImpactColor = (impact: string) => {
+  const _getNewsImpactColor = (impact: string) => {
     switch (impact) {
       case 'high':
         return 'text-red-400 border-red-400';
@@ -989,7 +989,7 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const getNewsSentimentColor = (sentiment: string) => {
+  const _getNewsSentimentColor = (sentiment: string) => {
     switch (sentiment) {
       case 'positive':
         return 'text-green-400';
@@ -1003,7 +1003,7 @@ const Analytics: React.FC = () => {
   };
 
   // Filter and sort news articles
-  const filteredNewsArticles = newsArticles
+  const _filteredNewsArticles = newsArticles
     .filter(article => {
       if (selectedNewsCategory !== 'all' && article.category !== selectedNewsCategory) return false;
       if (selectedNewsSport !== 'all' && article.sport !== selectedNewsSport) return false;
@@ -1018,7 +1018,7 @@ const Analytics: React.FC = () => {
     .sort((a, b) => {
       switch (newsSortBy) {
         case 'impact':
-          const impactOrder = { high: 3, medium: 2, low: 1 };
+          const _impactOrder = { high: 3, medium: 2, low: 1 };
           return impactOrder[b.impact] - impactOrder[a.impact];
         case 'credibility':
           return b.credibility - a.credibility;
@@ -1030,9 +1030,9 @@ const Analytics: React.FC = () => {
       }
     });
 
-  const loadRiskData = async () => {
+  const _loadRiskData = async () => {
     try {
-      const mockAlerts: RiskAlert[] = [
+      const _mockAlerts: RiskAlert[] = [
         {
           id: 'alert-001',
           type: 'portfolio',
@@ -1076,7 +1076,7 @@ const Analytics: React.FC = () => {
         },
       ];
 
-      const mockMetrics: RiskMetric[] = [
+      const _mockMetrics: RiskMetric[] = [
         {
           id: 'var-95',
           name: 'Value at Risk (95%)',
@@ -1112,7 +1112,7 @@ const Analytics: React.FC = () => {
         },
       ];
 
-      const mockCorrelations: CorrelationMatrix = {
+      const _mockCorrelations: CorrelationMatrix = {
         pairs: [
           { asset1: 'NBA Props', asset2: 'NBA Spreads', correlation: 0.85, risk: 'high' },
           { asset1: 'NFL Totals', asset2: 'Weather Props', correlation: 0.72, risk: 'medium' },
@@ -1120,7 +1120,7 @@ const Analytics: React.FC = () => {
         ],
       };
 
-      const mockVaR: VaRAnalysis = {
+      const _mockVaR: VaRAnalysis = {
         oneDay: {
           confidence95: -1247,
           confidence99: -2156,
@@ -1144,7 +1144,7 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const getRiskSeverityColor = (severity: string) => {
+  const _getRiskSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
         return 'border-red-500/50 bg-red-500/10 text-red-400';
@@ -1159,7 +1159,7 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const getRiskStatusColor = (status: string) => {
+  const _getRiskStatusColor = (status: string) => {
     switch (status) {
       case 'safe':
         return 'text-green-400';
@@ -1172,7 +1172,7 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const getRiskTrendIcon = (trend: string) => {
+  const _getRiskTrendIcon = (trend: string) => {
     switch (trend) {
       case 'up':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -1188,20 +1188,20 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const dismissRiskAlert = (alertId: string) => {
+  const _dismissRiskAlert = (alertId: string) => {
     setRiskAlerts(prev =>
       prev.map(alert => (alert.id === alertId ? { ...alert, dismissed: true } : alert))
     );
   };
 
-  const toggleDetails = (modelId: string) => {
+  const _toggleDetails = (modelId: string) => {
     setShowDetails(prev => ({
       ...prev,
       [modelId]: !prev[modelId],
     }));
   };
 
-  const getStatusColor = (status: string) => {
+  const _getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
         return 'text-green-400 bg-green-500/20';
@@ -1214,7 +1214,7 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const getTrendIcon = (trend: string) => {
+  const _getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'up':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -1231,7 +1231,7 @@ const Analytics: React.FC = () => {
   };
 
   // Injury helper functions
-  const getSeverityColor = (severity: string) => {
+  const _getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
         return 'text-red-600 border-red-600 bg-red-900/20';
@@ -1246,7 +1246,7 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const getInjuryStatusColor = (status: string) => {
+  const _getInjuryStatusColor = (status: string) => {
     switch (status) {
       case 'out':
       case 'ir':
@@ -1262,7 +1262,7 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const getSeverityIcon = (severity: string) => {
+  const _getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'critical':
       case 'severe':
@@ -1281,7 +1281,7 @@ const Analytics: React.FC = () => {
   };
 
   // Filter injuries
-  const filteredInjuries = injuries.filter(injury => {
+  const _filteredInjuries = injuries.filter(injury => {
     if (selectedSport !== 'all' && injury.sport !== selectedSport) return false;
     if (selectedSeverity !== 'all' && injury.severity !== selectedSeverity) return false;
     if (
@@ -4272,7 +4272,7 @@ const Analytics: React.FC = () => {
               <select
                 id='quantum-algorithm'
                 value={selectedAlgorithm}
-                onChange={e => setSelectedAlgorithm(e.target.value as any)}
+                onChange={e => setSelectedAlgorithm(e.target.value as unknown)}
                 className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm'
               >
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -4375,8 +4375,8 @@ const Analytics: React.FC = () => {
                 <svg width='100%' height='100%' className='absolute inset-0'>
                   {/* Render connections */}
                   {quantumConnections.map((connection, index) => {
-                    const fromNode = quantumNodes.find(n => n.id === connection.from);
-                    const toNode = quantumNodes.find(n => n.id === connection.to);
+                    const _fromNode = quantumNodes.find(n => n.id === connection.from);
+                    const _toNode = quantumNodes.find(n => n.id === connection.to);
 
                     if (!fromNode || !toNode) return null;
 

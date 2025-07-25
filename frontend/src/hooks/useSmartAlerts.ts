@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
-import { masterServiceRegistry } from '../services/MasterServiceRegistry';
+import { useCallback, useEffect, useState } from 'react';
 
 export enum AlertType {
   VALUE_BET = 'value_bet',
@@ -28,7 +27,7 @@ export interface SmartAlert {
   sport?: string;
   gameId?: string;
   playerId?: string;
-  data?: any;
+  data?: unknown;
   timestamp: Date;
   read: boolean;
   dismissed: boolean;
@@ -65,7 +64,7 @@ export interface AlertPreferences {
   sportsFilter: string[];
 }
 
-export const useSmartAlerts = () => {
+export const _useSmartAlerts = () => {
   const [alerts, setAlerts] = useState<SmartAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,21 +83,21 @@ export const useSmartAlerts = () => {
     sportsFilter: [],
   });
 
-  const fetchAlerts = useCallback(async (filters?: AlertFilters) => {
+  const _fetchAlerts = useCallback(async (filters?: AlertFilters) => {
     try {
       setLoading(true);
       setError(null);
 
-      const notificationService = masterServiceRegistry.getService('notifications');
+      const _notificationService = masterServiceRegistry.getService('notifications');
       if (!notificationService) {
         setAlerts([]);
         return;
       }
 
-      const data = await notificationService.getAlerts(filters);
+      const _data = await notificationService.getAlerts(filters);
       setAlerts(data || []);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch alerts';
+      const _errorMessage = err instanceof Error ? err.message : 'Failed to fetch alerts';
       setError(errorMessage);
       console.error('Alerts fetch error:', err);
     } finally {
@@ -106,9 +105,9 @@ export const useSmartAlerts = () => {
     }
   }, []);
 
-  const markAsRead = useCallback(async (alertId: string) => {
+  const _markAsRead = useCallback(async (alertId: string) => {
     try {
-      const notificationService = masterServiceRegistry.getService('notifications');
+      const _notificationService = masterServiceRegistry.getService('notifications');
       if (notificationService?.markAsRead) {
         await notificationService.markAsRead(alertId);
       }
@@ -121,9 +120,9 @@ export const useSmartAlerts = () => {
     }
   }, []);
 
-  const markAllAsRead = useCallback(async () => {
+  const _markAllAsRead = useCallback(async () => {
     try {
-      const notificationService = masterServiceRegistry.getService('notifications');
+      const _notificationService = masterServiceRegistry.getService('notifications');
       if (notificationService?.markAllAsRead) {
         await notificationService.markAllAsRead();
       }
@@ -134,9 +133,9 @@ export const useSmartAlerts = () => {
     }
   }, []);
 
-  const dismissAlert = useCallback(async (alertId: string) => {
+  const _dismissAlert = useCallback(async (alertId: string) => {
     try {
-      const notificationService = masterServiceRegistry.getService('notifications');
+      const _notificationService = masterServiceRegistry.getService('notifications');
       if (notificationService?.dismissAlert) {
         await notificationService.dismissAlert(alertId);
       }
@@ -149,9 +148,9 @@ export const useSmartAlerts = () => {
     }
   }, []);
 
-  const clearAlerts = useCallback(async (olderThan?: Date) => {
+  const _clearAlerts = useCallback(async (olderThan?: Date) => {
     try {
-      const notificationService = masterServiceRegistry.getService('notifications');
+      const _notificationService = masterServiceRegistry.getService('notifications');
       if (notificationService?.clearAlerts) {
         await notificationService.clearAlerts(olderThan);
       }
@@ -162,13 +161,13 @@ export const useSmartAlerts = () => {
     }
   }, []);
 
-  const updatePreferences = useCallback(
+  const _updatePreferences = useCallback(
     async (newPreferences: Partial<AlertPreferences>) => {
       try {
-        const updatedPrefs = { ...preferences, ...newPreferences };
+        const _updatedPrefs = { ...preferences, ...newPreferences };
         setPreferences(updatedPrefs);
 
-        const notificationService = masterServiceRegistry.getService('notifications');
+        const _notificationService = masterServiceRegistry.getService('notifications');
         if (notificationService?.updatePreferences) {
           await notificationService.updatePreferences(updatedPrefs);
         }
@@ -182,15 +181,15 @@ export const useSmartAlerts = () => {
     [preferences]
   );
 
-  const createAlert = useCallback(
+  const _createAlert = useCallback(
     async (alertData: Omit<SmartAlert, 'id' | 'timestamp' | 'read' | 'dismissed'>) => {
       try {
-        const notificationService = masterServiceRegistry.getService('notifications');
+        const _notificationService = masterServiceRegistry.getService('notifications');
         if (!notificationService?.createAlert) {
           return null;
         }
 
-        const alert = await notificationService.createAlert(alertData);
+        const _alert = await notificationService.createAlert(alertData);
         setAlerts(prev => [alert, ...prev]);
 
         return alert;
@@ -202,15 +201,15 @@ export const useSmartAlerts = () => {
     []
   );
 
-  const subscribeToAlerts = useCallback(() => {
+  const _subscribeToAlerts = useCallback(() => {
     try {
-      const wsService = masterServiceRegistry.getService('websocket');
+      const _wsService = masterServiceRegistry.getService('websocket');
       if (!wsService) {
         return;
       }
 
       // Subscribe to different alert types
-      wsService.subscribe('value_bet_alert', (data: any) => {
+      wsService.subscribe('value_bet_alert', (data: unknown) => {
         if (preferences.enableValueBets) {
           createAlert({
             type: AlertType.VALUE_BET,
@@ -233,7 +232,7 @@ export const useSmartAlerts = () => {
         }
       });
 
-      wsService.subscribe('odds_movement', (data: any) => {
+      wsService.subscribe('odds_movement', (data: unknown) => {
         if (
           preferences.enableOddsMovement &&
           Math.abs(data.movement) >= preferences.minimumOddsMovement
@@ -251,7 +250,7 @@ export const useSmartAlerts = () => {
         }
       });
 
-      wsService.subscribe('injury_update', (data: any) => {
+      wsService.subscribe('injury_update', (data: unknown) => {
         if (preferences.enableInjuryUpdates) {
           createAlert({
             type: AlertType.INJURY_UPDATE,
@@ -270,18 +269,18 @@ export const useSmartAlerts = () => {
     }
   }, [preferences, createAlert]);
 
-  const getUnreadCount = useCallback(() => {
+  const _getUnreadCount = useCallback(() => {
     return alerts.filter(alert => !alert.read && !alert.dismissed).length;
   }, [alerts]);
 
-  const getAlertsByType = useCallback(
+  const _getAlertsByType = useCallback(
     (type: AlertType) => {
       return alerts.filter(alert => alert.type === type && !alert.dismissed);
     },
     [alerts]
   );
 
-  const getAlertsByPriority = useCallback(
+  const _getAlertsByPriority = useCallback(
     (priority: AlertPriority) => {
       return alerts.filter(alert => alert.priority === priority && !alert.dismissed);
     },
@@ -290,7 +289,7 @@ export const useSmartAlerts = () => {
 
   useEffect(() => {
     // Load preferences from localStorage
-    const savedPrefs = localStorage.getItem('alertPreferences');
+    const _savedPrefs = localStorage.getItem('alertPreferences');
     if (savedPrefs) {
       try {
         setPreferences(JSON.parse(savedPrefs));

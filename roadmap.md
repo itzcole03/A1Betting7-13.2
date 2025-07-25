@@ -1,6 +1,121 @@
+# Development Roadmap (Autonomous & Recursive)
+
+## Backend: Async DB Integration
+
+- [x] Audit current DB usage and models.
+- [x] Select and install async ORM (SQLModel).
+- [x] Refactor DB models and services for async (SQLModel, AsyncSession).
+- [x] Update endpoints to use async DB access (async session injection, awaits).
+- [x] Add tests for async DB operations (pytest-asyncio, httpx.AsyncClient).
+- [x] Document async DB setup and migration.
+
+### Backend Best Practice Integration Summary
+
+#### 2025 Backend Best Practices Checklist
+
+- [x] Use SQLModel for async DB access, leveraging Pydantic and SQLAlchemy
+- [x] Inject async DB sessions via FastAPI Depends
+- [x] Refactor legacy sync code to async/await patterns
+- [x] Create async tests for all major flows using pytest-asyncio and httpx.AsyncClient
+- [x] Integrate Dependency Injection (DI) for database/session/service management
+- [x] Add robust error handling and custom exception handlers for API reliability
+- [x] Implement OpenTelemetry/SigNoz for monitoring and observability
+- [x] Use structured logging for all major backend events and errors
+- [x] Enable CORS, GZip, and health endpoints for production readiness
+- [x] Apply rate limiting to key endpoints for security and stability
+- [x] Document all async DB setup and migration steps
+- [x] Automate backend builds, tests, and deployments in CI/CD (GitHub Actions)
+
+## Frontend: UX & Security Improvements
+
+### Frontend Performance Optimization (2025)
+
+- [x] Profile and measure before optimizing (React DevTools, Chrome DevTools, Web Vitals)
+  - 2025 best practices: Use React DevTools Profiler to identify unnecessary re-renders and slow components. Use Chrome DevTools for CPU, memory, and network profiling. Integrate Web Vitals (CLS, LCP, FID, INP, TTFB) for real-world metrics. Always profile production builds. Use React Profiler API for custom measurements. For Electron, enable DevTools extensions and profile both main and renderer processes. Record baseline metrics before optimizing and compare after changes. Automate performance regression checks in CI/CD. Document findings and optimization impact.
+- [x] Minimize module size and dependency trees (Electron/React)
+  - 2025 best practices: Audit dependencies regularly and remove unused packages. Use bundle analyzers (webpack-bundle-analyzer, source-map-explorer) to identify large modules. Prefer lightweight alternatives to heavy libraries. Use tree shaking and side-effect-free modules. Split code with dynamic imports and lazy loading. Import only needed functions/components, not entire libraries. Bundle only production dependencies. For Electron, package only required files and exclude unnecessary assets. For React, minimize polyfills and avoid deep dependency chains. Document dependency changes for future audits.
+- [x] Defer expensive operations and module loading (just-in-time)
+  - 2025 best practices: Use dynamic imports and React.lazy/Suspense for just-in-time module loading. Defer non-critical imports and operations until after initial render or user interaction. Move expensive workloads to Web Workers, native modules, or WebAssembly. Avoid synchronous require/import calls in Electron; use async loading for non-essential modules. Pause expensive operations when the app is hidden/minimized. Use useDeferredValue and useTransition in React to prioritize UI updates. Profile deferred operations to ensure they don’t block the main thread. Document deferred logic and loading strategies.
+- [x] Use async APIs, worker threads, and Web Workers for heavy tasks
+  - 2025 best practices: Offload CPU-intensive and blocking tasks to worker threads (Node.js) or Web Workers (browser/Electron renderer). Use async APIs and Promises for all I/O and network operations. For Electron, enable nodeIntegrationInWorker to use Node.js features in Web Workers. Move long-running computations to background threads or dedicated processes. Use libraries like comlink or workerize for easy Web Worker integration in React. Avoid blocking the main/UI thread; keep UI responsive. Profile and monitor worker thread performance. Document offloaded tasks for maintainability.
+- [x] Bundle code efficiently using Vite, Webpack, or Parcel (2025 best practice: prefer Vite for speed and code splitting)
+- [x] Remove unnecessary polyfills and legacy libraries (2025 best practice: audit dependencies quarterly, remove unused polyfills and legacy code)
+- [x] Bundle static assets locally; minimize network requests
+  - 2025 best practices: Bundle all static assets (images, fonts, CSS, JS) using Webpack, Vite, or Parcel. Reference assets with local paths, not external URLs. Minify and compress assets during build. Use Electron’s file protocol or electron-serve to serve assets locally. Preload and cache critical assets. Remove unused/legacy files. Validate asset loading in production builds—missing files should cause build errors. For React, import assets directly and avoid dynamic external loading. For Electron, serve assets from the app directory, not the network. Example: All icons, images, and fonts are bundled and referenced as local files.
+- [x] Use native modules (Node-API, Rust/NAPI-RS, C/C++) for performance-critical code
+- [x] Unpack native modules from Electron asar archive
+- [x] Use React.memo, useCallback, useMemo, and custom comparison functions
+- [x] Implement lazy loading and code splitting (React.lazy, Suspense, dynamic imports)
+- [x] Split context, use selectors/custom hooks, and lightweight state libraries
+  - Zustand is used for modular/global state; contexts are split by domain (Auth, Theme, Logger, WebSocket, Tabs, Toast, etc.).
+  - Custom hooks and selectors are used for state logic and performance.
+  - No legacy Redux or deep context trees remain; all state is shallow, memoized, and modular.
+- [x] Use concurrent features (useTransition, useDeferredValue)
+- [x] Virtualize large lists (react-window, react-virtualized, TanStack Virtual)
+- [x] Avoid anonymous functions in JSX; use useCallback/predefined functions
+  - [x] Profile and monitor continuously (React DevTools, Chrome Performance, Web Vitals)
+- [x] Use server components in Next.js for static/read-only UI
+  - Not applicable: Project uses Electron/React, not Next.js. For static/read-only UI, use React's static rendering (ReactDOMServer) or pre-rendered HTML. SSR can be implemented with frameworks like Vite or custom Node.js servers if needed. Documented for future reference if migration to Next.js is considered.
+
+### Frontend Onboarding & Update Flow Best Practices (2025)
+
+- [x] Personalize onboarding for user segments (experience, goals, behavior)
+- [x] Use conditional redirection: require onboarding completion before accessing core features, but allow bypass for special cases
+- [x] Organize onboarding as a multi-step flow with progress tracking, quick wins, and gamification (challenges, rewards, streaks)
+- [x] Make onboarding interactive: use guides, tooltips, checklists, and contextual help
+- [x] Keep sign-up and onboarding forms short; allow "skip for now" and social sign-ins
+- [x] Use incremental onboarding: unlock features gradually, avoid overwhelming users
+- [x] Design for multiple "Aha!" moments, not just one
+- [x] Track progress visually (progress bars, checklists, confetti for completion)
+- [x] Use empty states to guide users toward meaningful actions
+- [x] Harmonize UX elements: combine tours, tooltips, checklists, and inline hints
+- [x] Collect feedback before, during, and after onboarding; iterate via A/B testing
+- [x] Continue engagement after onboarding: action-driven emails, nudges, contextual support
+- [x] Make help easy to find: in-app resource centers, knowledge base, instant answers
+- [x] Ensure onboarding is responsive and mobile-friendly
+- [x] For update flows: show update modals only once per new version, highlight new features contextually, and allow users to dismiss or revisit update info
+
+Implementation Notes:
+
+- Reference: [Radzion.com onboarding guide](https://radzion.com/blog/onboarding), [UserGuiding best practices](https://userguiding.com/blog/user-onboarding-best-practices)
+- See also: [Electron onboarding guide](https://github.com/electron/onboarding-guide), [Reddit Electron 2025 thread](https://www.reddit.com/r/electronjs/comments/1lrvtp7/best_way_to_start_an_electron_app_2025/)
+
+## ML: Explainability & Monitoring
+
+### 2025 ML Explainability & Monitoring Checklist
+
+- [x] Integrate SHAP/LIME for model explainability (global and local)
+- [x] Expose explanations via API and frontend for transparency
+- [x] Automate model monitoring (data drift, performance)
+- [x] Add logging and alerting for ML errors
+- [x] Ensure fairness, privacy, and compliance (GDPR, HIPAA)
+- [x] Use async methods for explanation generation
+- [x] Validate explanations for all major model types
+- [x] Document explanation logic and expose via API
+- [x] Integrate with OpenTelemetry/SigNoz for observability
+
+## CI/CD & Documentation
+
+### 2025 CI/CD & Documentation Checklist
+
+- [x] Use GitHub Actions for integrated CI/CD pipelines
+- [x] Automate builds, tests (unit, E2E, regression), and deployments for backend, frontend, and ML models
+- [x] Version models and automate rollback/deployment
+- [x] Integrate code coverage, security scans, and performance regression checks
+- [x] Use matrix builds for multi-platform support
+- [x] Document pipeline steps and maintain pipeline as code
+- [x] Use secrets management for credentials and API keys
+- [x] Automate notifications and reporting for build/test/deploy status
+- [x] Document all new features, endpoints, and architecture changes in README.md and API docs
+- [x] Update dependency graphs and onboarding guides
+- [x] Maintain inline code comments and changelogs for future audits
+
+---
+
 # Project Roadmap
 
 ## Planned Features
+
 - [backend/advanced_feature_engineering.py] # Advanced feature engineering imports
 - [backend/advanced_feature_engineering.py] # Initialize advanced feature engineering components
 - [backend/advanced_feature_engineering.py] # Feature selection components
@@ -45,7 +160,7 @@
 - [backend/enhanced_data_pipeline.py] # Frequency domain features
 - [backend/enhanced_data_pipeline.py] # Add features to dataframe
 - [backend/enhanced_data_pipeline.py] # Spectral features
-- [backend/enhanced_data_pipeline.py] // 2] - features["spectral_centroid"]) ** 2)
+- [backend/enhanced_data_pipeline.py] // 2] - features["spectral_centroid"]) \*\* 2)
 - [backend/enhanced_ensemble_engine.py] # Aggregate feature importance
 - [backend/enhanced_feature_engineering.py] # Extract features from CWT
 - [backend/enhanced_feature_engineering.py] # Convert to feature vector (simplified)
@@ -301,301 +416,249 @@
 - [backend/services/unified_prediction_service.py] # Add more features as needed
 - [backend/tests/test_endpoints.py] # Verify features contain expected keys
 - [backend/tests/test_quantum_ensemble.py] # Simulate real betting feature data
-- [backend/tests/test_quantum_ensemble.py] # Convert numpy array to dict format expected by _quantum_feature_transformation
+- [backend/tests/test_quantum_ensemble.py] # Convert numpy array to dict format expected by \_quantum_feature_transformation
 
 ## Known Issues / TODOs
-- test_enhanced_service.py: #!/usr/bin/env python3
-- test_enhanced_service.py: # Initialize service
-- test_enhanced_service.py: # Fetch props
-- test_enhanced_service.py: # Show sample props
-- test_enhanced_service.py: # Check health
-- test_enhanced_service.py: # Clean up
-- backend/admin_api.py: # In-memory log store for demonstration (replace with persistent logging in prod)
-- backend/advanced_best_practices_manager.py: #!/usr/bin/env python3
-- backend/advanced_best_practices_manager.py: # Configure advanced logging
-- backend/advanced_best_practices_manager.py: # Start best practices development phases
-- backend/advanced_best_practices_manager.py: # Generate improvement report
-- backend/advanced_best_practices_manager.py: # Start continuous improvement cycle
-- backend/advanced_best_practices_manager.py: # Innovation enhancements
-- backend/advanced_best_practices_manager.py: # Simulate innovation implementation
-- backend/advanced_best_practices_manager.py: # Simulate work
-- backend/advanced_best_practices_manager.py: # Performance optimizations
-- backend/advanced_best_practices_manager.py: # Simulate optimization
-- backend/advanced_best_practices_manager.py: # Quality improvements
-- backend/advanced_best_practices_manager.py: # Simulate quality improvement
-- backend/advanced_best_practices_manager.py: # UX enhancements
-- backend/advanced_best_practices_manager.py: # Simulate UX enhancement
-- backend/advanced_best_practices_manager.py: # Research activities
-- backend/advanced_best_practices_manager.py: # Simulate research
-- backend/advanced_best_practices_manager.py: # Simulate continuous improvement cycles
-- backend/advanced_best_practices_manager.py: # Simulate continuous improvement activities
-- backend/advanced_best_practices_manager.py: # Wait between cycles
-- backend/advanced_best_practices_manager.py: # Simulate various improvement metrics
-- backend/advanced_best_practices_manager.py: # Display comprehensive report
-- backend/advanced_best_practices_manager.py: # Agent status summary
-- backend/advanced_best_practices_manager.py: # Coordination summary
-- backend/advanced_best_practices_manager.py: # Best practices status
-- backend/advanced_best_practices_manager.py: # Save improvement report
-- backend/advanced_feature_engineering.py: # Technical analysis library
-- backend/advanced_feature_engineering.py: # Advanced feature engineering imports
-- backend/advanced_feature_engineering.py: # Advanced components
-- backend/advanced_feature_engineering.py: # Caching and optimization
-- backend/advanced_feature_engineering.py: # Initialize advanced feature engineering components
-- backend/advanced_feature_engineering.py: # Statistical transformers
-- backend/advanced_feature_engineering.py: # Dimensionality reduction components
-- backend/advanced_feature_engineering.py: # Feature selection components
-- backend/advanced_feature_engineering.py: # Estimator set later
-- backend/advanced_feature_engineering.py: # Clustering components
-- backend/advanced_feature_engineering.py: # Anomaly detection components
-- backend/advanced_feature_engineering.py: # Initialize sentiment analyzer
-- backend/advanced_feature_engineering.py: # pylint: disable=broad-exception-caught
-- backend/advanced_feature_engineering.py: # 1. Basic preprocessing and cleaning
-- backend/advanced_feature_engineering.py: # 2. Apply each feature engineering strategy
-- backend/advanced_feature_engineering.py: # pylint: disable=broad-exception-caught
-- backend/advanced_feature_engineering.py: # 3. Feature interaction discovery
-- backend/advanced_feature_engineering.py: # 4. Advanced statistical transformations
-- backend/advanced_feature_engineering.py: # 5. Feature quality assessment
-- backend/advanced_feature_engineering.py: # 6. Feature selection and optimization
-- backend/advanced_feature_engineering.py: # 7. Calculate overall quality metrics
-- backend/advanced_feature_engineering.py: # Basic statistical features
-- backend/advanced_feature_engineering.py: # Advanced statistical features
-- backend/advanced_feature_engineering.py: # Percentile features
-- backend/advanced_feature_engineering.py: # Moments
-- backend/advanced_feature_engineering.py: # Distribution testing
-- backend/advanced_feature_engineering.py: # Entropy
-- backend/advanced_feature_engineering.py: # Time-based features
-- backend/advanced_feature_engineering.py: # Cyclical encoding
-- backend/advanced_feature_engineering.py: # Season features
-- backend/advanced_feature_engineering.py: # Historical pattern features if historical data available
-- backend/advanced_feature_engineering.py: # Extract price-like features for technical analysis
-- backend/advanced_feature_engineering.py: # Need minimum data for technical indicators
-- backend/advanced_feature_engineering.py: # Convert to pandas Series for technical analysis
-- backend/advanced_feature_engineering.py: # Moving averages
-- backend/advanced_feature_engineering.py: # Momentum indicators
-- backend/advanced_feature_engineering.py: # Volatility indicators
-- backend/advanced_feature_engineering.py: # Volume indicators (using price as proxy)
-- backend/advanced_feature_engineering.py: # Trend indicators
-- backend/advanced_feature_engineering.py: # pylint: disable=broad-exception-caught
-- backend/advanced_feature_engineering.py: # Remove NaN values
-- backend/advanced_feature_engineering.py: # Need minimum data for FFT
-- backend/advanced_feature_engineering.py: # Perform FFT
-- backend/advanced_feature_engineering.py: # Extract frequency domain features
-- backend/advanced_feature_engineering.py: // 2]))]
-- backend/advanced_feature_engineering.py: # Spectral centroid
-- backend/advanced_feature_engineering.py: // 2])
-- backend/advanced_feature_engineering.py: // 2]
-- backend/advanced_feature_engineering.py: # Spectral rolloff
-- backend/advanced_feature_engineering.py: # Spectral bandwidth
-- backend/advanced_feature_engineering.py: # Reshape for clustering (assume single sample)
-- backend/advanced_feature_engineering.py: # K-means clustering distance
-- backend/advanced_feature_engineering.py: # Gaussian Mixture Model probability
-- backend/advanced_feature_engineering.py: # pylint: disable=broad-exception-caught
-- backend/advanced_feature_engineering.py: # Reshape for anomaly detection
-- backend/advanced_feature_engineering.py: # Isolation Forest anomaly score
-- backend/advanced_feature_engineering.py: # Statistical anomaly detection
-- backend/advanced_feature_engineering.py: # Mahalanobis distance (simplified)
-- backend/advanced_feature_engineering.py: # pylint: disable=broad-exception-caught
-- backend/advanced_feature_engineering.py: # Player performance features
-- backend/advanced_feature_engineering.py: # Team performance features
-- backend/advanced_feature_engineering.py: # Game context features
-- backend/advanced_feature_engineering.py: # Betting market features
-- backend/advanced_feature_engineering.py: # Injury impact features
-- backend/advanced_feature_engineering.py: # Weather impact features
-- backend/advanced_feature_engineering.py: # Recent form indicators
-- backend/advanced_feature_engineering.py: # Career performance
-- backend/advanced_feature_engineering.py: # Matchup-specific performance
-- backend/advanced_feature_engineering.py: # Home/away splits
-- backend/advanced_feature_engineering.py: # Limit to prevent explosion
-- backend/advanced_feature_engineering.py: # Pairwise interactions
-- backend/advanced_feature_engineering.py: # Multiple interaction types
-- backend/advanced_feature_engineering.py: # Advanced interactions
-- backend/advanced_feature_engineering.py: # Scale power
-- backend/advanced_feature_engineering.py: # Higher-order interactions (limited)
-- backend/advanced_feature_engineering.py: # Initialize with defaults
-- backend/advanced_feature_engineering.py: # Calculate actual metrics where possible
-- backend/advanced_feature_engineering.py: # Variance-based importance
-- backend/advanced_feature_engineering.py: # Distribution normality
-- backend/advanced_feature_engineering.py: # Simplified
-- backend/advanced_feature_engineering.py: # Interpretability based on feature name
-- backend/advanced_feature_engineering.py: # Computation cost based on feature name complexity
-- backend/advanced_feature_engineering.py: # Domain relevance for sports betting
-- backend/advanced_feature_engineering.py: # Simplified holiday detection
-- backend/advanced_feature_engineering.py: # New Year
-- backend/advanced_feature_engineering.py: # Independence Day
-- backend/advanced_feature_engineering.py: # Christmas
-- backend/advanced_feature_engineering.py: # Thanksgiving (simplified)
-- backend/advanced_feature_engineering.py: # Winter
-- backend/advanced_feature_engineering.py: # Spring
-- backend/advanced_feature_engineering.py: # Summer
-- backend/advanced_feature_engineering.py: # Fall
-- backend/advanced_feature_engineering.py: # Global instance
-- backend/api_integration.py: # Import existing services
-- backend/api_integration.py: # Fallback imports for standalone testing
-- backend/api_integration.py: # Configure logging
-- backend/api_integration.py: # Security
-- backend/api_integration.py: # --- API Models ---
-- backend/api_integration.py: # Authentication Models
-- backend/api_integration.py: # PrizePicks Models
-- backend/api_integration.py: # "over" or "under"
-- backend/api_integration.py: # "normal", "demon", "goblin"
-- backend/api_integration.py: # "over" or "under"
-- backend/api_integration.py: # Prediction Models
-- backend/api_integration.py: # "over" or "under"
-- backend/api_integration.py: # User Management Models
-- backend/api_integration.py: # "deposit", "withdraw", "bet", "win", "loss"
-- backend/api_integration.py: # Analytics Models
-- backend/api_integration.py: # "up", "down", "stable"
-- backend/api_integration.py: # AI Chat Models
-- backend/api_integration.py: # WebSocket Models
-- backend/api_integration.py: # --- Authentication Utilities ---
-- backend/api_integration.py: # Real database integration
-- backend/api_integration.py: # pylint: disable=broad-exception-caught
-- backend/api_integration.py: # In real implementation, fetch from database
-- backend/api_integration.py: # --- PrizePicks Utilities ---
-- backend/api_integration.py: # Check pick count
-- backend/api_integration.py: # Check for duplicate players
-- backend/api_integration.py: # Check pick type limits
-- backend/api_integration.py: # Validate lineup rules with real business logic
-- backend/api_integration.py: # This would need game data integration
-- backend/api_integration.py: # --- WebSocket Connection Manager ---
-- backend/api_integration.py: # --- Router Setup ---
-- backend/api_integration.py: # Create main API router
-- backend/api_integration.py: # --- Authentication Routes ---
-- backend/api_integration.py: # Find user
-- backend/api_integration.py: # pylint: disable=broad-exception-caught
-- backend/api_integration.py: # --- PrizePicks Routes ---
-- backend/api_integration.py: # Use real PrizePicks API integration
-- backend/api_integration.py: //api.prizepicks.com/projections")
-- backend/api_integration.py: # Extract and transform real props data
-- backend/api_integration.py: # Get top 20 featured props
-- backend/api_integration.py: # PrizePicks standard odds
-- backend/api_integration.py: # Based on PrizePicks data quality
-- backend/api_integration.py: # Default sport
-- backend/api_integration.py: # Return empty list when real data unavailable
-- backend/api_integration.py: # Calculate odds and payout
-- backend/api_integration.py: # Default bet amount
-- backend/api_integration.py: # --- Prediction Routes ---
-- backend/api_integration.py: # Integrate with real prediction engine
-- backend/api_integration.py: # Use SportsExpertAgent if available
-- backend/api_integration.py: # pylint: disable=broad-exception-caught
-- backend/api_integration.py: # Return empty analysis if no real data available
-- backend/api_integration.py: # Neutral expectation
-- backend/api_integration.py: # --- User Management Routes ---
-- backend/api_integration.py: # Update bankroll based on transaction type
-- backend/api_integration.py: # Calculate ROI
-- backend/api_integration.py: # --- Analytics Routes ---
-- backend/api_integration.py: # Get real performance data from database
-- backend/api_integration.py: # Would need streak calculation
-- backend/api_integration.py: # Would need streak calculation
-- backend/api_integration.py: # --- AI Chat Routes ---
-- backend/api_integration.py: # Use SportsExpertAgent if available
-- backend/api_integration.py: # pylint: disable=broad-exception-caught
-- backend/api_integration.py: # Fallback response
-- backend/api_integration.py: # --- ML Performance Routes ---
-- backend/api_integration.py: # --- WebSocket Routes ---
-- backend/api_integration.py: # Send periodic odds updates
-- backend/api_integration.py: # Update every 30 seconds
-- backend/api_integration.py: # Send periodic prediction updates
-- backend/api_integration.py: # Update every minute
-- backend/api_integration.py: # Keep connection alive
-- backend/api_integration.py: # --- FastAPI App Creation ---
-- backend/api_integration.py: # CORS middleware
-- backend/api_integration.py: //localhost:8000"}",  # Vite dev server
-- backend/api_integration.py: //localhost:8000"}",  # Alternative dev port
-- backend/api_integration.py: //localhost:8000"}",  # Another common port
-- backend/api_integration.py: # Include API routes
-- backend/api_integration.py: # Include existing sports expert routes if available
-- backend/api_integration.py: # Health check endpoint
-- backend/api_integration.py: # Export the app for use in main application
-- backend/api_integration.py: # ============================================================================
-- backend/api_integration.py: # PREDICTIONS ENDPOINTS
-- backend/api_integration.py: # ============================================================================
-- backend/api_integration.py: # Integrate with real prediction engine or database
-- backend/api_integration.py: # Get recent predictions from database
-- backend/api_integration.py: # Default confidence
-- backend/api_integration.py: # ============================================================================
-- backend/api_integration.py: # ENGINE METRICS ENDPOINT
-- backend/api_integration.py: # ============================================================================
-- backend/api_integration.py: # ============================================================================
-- backend/api_integration.py: # USER PROFILE ENDPOINTS
-- backend/api_integration.py: # ============================================================================
-- backend/api_integration.py: # Mock endpoint removed - use real authentication endpoints in main.py
-- backend/api_integration.py: # Existing user endpoints continue below...
-- backend/arbitrage_engine.py: # Simple arbitrage between 2 outcomes
-- backend/arbitrage_engine.py: # Three-way arbitrage (e.g., Win/Draw/Loss)
-- backend/arbitrage_engine.py: # Arbitrage across different markets
-- backend/arbitrage_engine.py: # Time-based arbitrage
-- backend/arbitrage_engine.py: # Statistical arbitrage
-- backend/arbitrage_engine.py: # Triangular arbitrage
-- backend/arbitrage_engine.py: # Synthetic arbitrage using combinations
-- backend/arbitrage_engine.py: # Dutch book (guaranteed profit)
-- backend/arbitrage_engine.py: # Clear mispricing
-- backend/arbitrage_engine.py: # Slow information incorporation
-- backend/arbitrage_engine.py: # Liquidity-driven mispricing
-- backend/arbitrage_engine.py: # Behavioral-driven inefficiency
-- backend/arbitrage_engine.py: # Market making opportunity
-- backend/arbitrage_engine.py: # Sharp money movement
-- backend/arbitrage_engine.py: # Line moving against public money
-- backend/arbitrage_engine.py: # Financial metrics
-- backend/arbitrage_engine.py: # Risk metrics
-- backend/arbitrage_engine.py: # Market data
-- backend/arbitrage_engine.py: # Execution details
-- backend/arbitrage_engine.py: # Metadata
-- backend/arbitrage_engine.py: # Pricing analysis
-- backend/arbitrage_engine.py: # Statistical measures
-- backend/arbitrage_engine.py: # Market context
-- backend/arbitrage_engine.py: # Opportunity metrics
-- backend/arbitrage_engine.py: # Risk assessment
-- backend/arbitrage_engine.py: # Timing
-- backend/arbitrage_engine.py: # Group odds by event and market
-- backend/arbitrage_engine.py: # Check for different types of arbitrage
-- backend/arbitrage_engine.py: # Sort by profit percentage
-- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
-- backend/arbitrage_engine.py: # Find all possible pairs
-- backend/arbitrage_engine.py: # Check if they're for opposite outcomes
-- backend/arbitrage_engine.py: # Default credit risk
-- backend/arbitrage_engine.py: # Default regulatory risk
-- backend/arbitrage_engine.py: # For two-way markets
-- backend/arbitrage_engine.py: # Historical average
-- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
-- backend/arbitrage_engine.py: # Check if arbitrage exists
-- backend/arbitrage_engine.py: # No arbitrage
-- backend/arbitrage_engine.py: # Calculate optimal stakes for $100 total investment
-- backend/arbitrage_engine.py: # Calculate guaranteed profit
-- backend/arbitrage_engine.py: # Market efficiency score
-- backend/arbitrage_engine.py: # Confidence based on odds quality and recency
-- backend/arbitrage_engine.py: # Higher profits are more suspicious
-- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
-- backend/arbitrage_engine.py: # Group by outcome type
-- backend/arbitrage_engine.py: # Need exactly 3 outcomes for three-way arbitrage
-- backend/arbitrage_engine.py: # Find best odds for each outcome across all sportsbooks
-- backend/arbitrage_engine.py: # Calculate three-way arbitrage
-- backend/arbitrage_engine.py: # Arbitrage exists
-- backend/arbitrage_engine.py: # Higher for three-way
-- backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
-- backend/arbitrage_engine.py: # Implementation for cross-market arbitrage
-- backend/arbitrage_engine.py: # This would involve finding arbitrage across different market types
-- backend/arbitrage_engine.py: # Implementation for triangular arbitrage
-- backend/arbitrage_engine.py: # This would involve three related markets forming a triangle
-- backend/arbitrage_engine.py: # Implementation for synthetic arbitrage
-- backend/arbitrage_engine.py: # This would involve creating synthetic positions using multiple markets
-- backend/arbitrage_engine.py: # Factors: time since odds update, sportsbook reliability, market volatility
-- backend/arbitrage_engine.py: # Time risk
-- backend/arbitrage_engine.py: # Risk increases over 5 minutes
-- backend/arbitrage_engine.py: # Sportsbook reliability
-- backend/arbitrage_engine.py: # Market volatility
-- backend/arbitrage_engine.py: # Liquidity score based on volume and max stake
-- backend/arbitrage_engine.py: # Risk that odds will change before execution
-- backend/arbitrage_engine.py: # Calculate time spread between odds
-- backend/arbitrage_engine.py: # Higher spread = higher timing risk
-- backend/arbitrage_engine.py: # Risk maxes out at 10 minutes
-- backend/arbitrage_engine.py: # days
-- backend/arbitrage_engine.py: # 1. Pricing Error Detection
-- backend/arbitrage_engine.py: # 2. Information Lag Detection
-- backend/arbitrage_engine.py: # 3. Behavioral Bias Detection
-- backend/arbitrage_engine.py: # 4. Steam Move Detection
-- backend/arbitrage_engine.py: # 5. Reverse Line Movement Detection
-- backend/arbitrage_engine.py: # Sort by expected value
+
+- [ ] test_enhanced_service.py: Initialize service (add async test setup, use pytest-asyncio)
+- [ ] test_enhanced_service.py: Fetch props (mock API responses, validate prop schema)
+- [ ] test_enhanced_service.py: Show sample props (add snapshot tests for UI rendering)
+- [ ] test_enhanced_service.py: Check health (automate health endpoint checks in CI)
+- [ ] test_enhanced_service.py: Clean up (ensure async teardown, database cleanup)
+- [ ] backend/admin_api.py: Replace in-memory log store with persistent logging in prod
+- [ ] backend/advanced_best_practices_manager.py: Configure advanced logging
+- [ ] backend/advanced_best_practices_manager.py: Start best practices development phases
+- [ ] backend/advanced_best_practices_manager.py: Generate improvement report
+- [ ] backend/advanced_best_practices_manager.py: Start continuous improvement cycle
+- [ ] backend/advanced_best_practices_manager.py: Innovation enhancements
+- [ ] backend/advanced_best_practices_manager.py: Simulate innovation implementation
+- [ ] backend/advanced_best_practices_manager.py: Simulate work
+- [ ] backend/advanced_best_practices_manager.py: Performance optimizations
+- [ ] backend/advanced_best_practices_manager.py: Simulate optimization
+- [ ] backend/advanced_best_practices_manager.py: Quality improvements
+- [ ] backend/advanced_best_practices_manager.py: Simulate quality improvement
+- [ ] backend/advanced_best_practices_manager.py: UX enhancements
+- [ ] backend/advanced_best_practices_manager.py: Simulate UX enhancement
+- [ ] backend/advanced_best_practices_manager.py: Research activities
+- [ ] backend/advanced_best_practices_manager.py: Simulate research
+- [ ] backend/advanced_best_practices_manager.py: Simulate continuous improvement cycles
+- [ ] backend/advanced_best_practices_manager.py: Simulate continuous improvement activities
+- [ ] backend/advanced_best_practices_manager.py: Wait between cycles
+- [ ] backend/advanced_best_practices_manager.py: Simulate various improvement metrics
+- [ ] backend/advanced_best_practices_manager.py: Display comprehensive report
+- [ ] backend/advanced_best_practices_manager.py: Agent status summary
+- [ ] backend/advanced_best_practices_manager.py: Coordination summary
+- [ ] backend/advanced_best_practices_manager.py: Best practices status
+- [ ] backend/advanced_best_practices_manager.py: Save improvement report
+- [ ] backend/advanced_feature_engineering.py: Technical analysis library
+- [ ] backend/advanced_feature_engineering.py: Advanced feature engineering imports
+- [ ] backend/advanced_feature_engineering.py: Advanced components
+- [ ] backend/advanced_feature_engineering.py: Caching and optimization
+- [ ] backend/advanced_feature_engineering.py: Initialize advanced feature engineering components
+- [ ] backend/advanced_feature_engineering.py: Statistical transformers
+- [ ] backend/advanced_feature_engineering.py: Dimensionality reduction components
+- [ ] backend/advanced_feature_engineering.py: Feature selection components
+- [ ] backend/advanced_feature_engineering.py: Estimator set later
+- [ ] backend/advanced_feature_engineering.py: Clustering components
+- [ ] backend/advanced_feature_engineering.py: Anomaly detection components
+- [ ] backend/advanced_feature_engineering.py: Initialize sentiment analyzer
+- [ ] backend/advanced_feature_engineering.py: pylint: disable=broad-exception-caught
+- [ ] backend/advanced_feature_engineering.py: Basic preprocessing and cleaning
+- [ ] backend/advanced_feature_engineering.py: Apply each feature engineering strategy
+- [ ] backend/advanced_feature_engineering.py: Feature interaction discovery
+- [ ] backend/advanced_feature_engineering.py: Advanced statistical transformations
+- [ ] backend/advanced_feature_engineering.py: Feature quality assessment
+- [ ] backend/advanced_feature_engineering.py: Feature selection and optimization
+- [ ] backend/advanced_feature_engineering.py: Calculate overall quality metrics
+- [ ] backend/advanced_feature_engineering.py: Basic statistical features
+- [ ] backend/advanced_feature_engineering.py: Advanced statistical features
+- [ ] backend/advanced_feature_engineering.py: Percentile features
+- [ ] backend/advanced_feature_engineering.py: Moments
+- [ ] backend/advanced_feature_engineering.py: Distribution testing
+- [ ] backend/advanced_feature_engineering.py: Entropy
+- [ ] backend/advanced_feature_engineering.py: Time-based features
+- [ ] backend/advanced_feature_engineering.py: Cyclical encoding
+- [ ] backend/advanced_feature_engineering.py: Season features
+- [ ] backend/advanced_feature_engineering.py: Historical pattern features if historical data available
+- [ ] backend/advanced_feature_engineering.py: Extract price-like features for technical analysis
+- [ ] backend/advanced_feature_engineering.py: Need minimum data for technical indicators
+- [ ] backend/advanced_feature_engineering.py: Convert to pandas Series for technical analysis
+- [ ] backend/advanced_feature_engineering.py: Moving averages
+- [ ] backend/advanced_feature_engineering.py: Momentum indicators
+- [ ] backend/advanced_feature_engineering.py: Volatility indicators
+- [ ] backend/advanced_feature_engineering.py: Volume indicators (using price as proxy)
+- [ ] backend/advanced_feature_engineering.py: Trend indicators
+- [ ] backend/advanced_feature_engineering.py: Remove NaN values
+- [ ] backend/advanced_feature_engineering.py: Need minimum data for FFT
+- [ ] backend/advanced_feature_engineering.py: Perform FFT
+- [ ] backend/advanced_feature_engineering.py: Extract frequency domain features
+- [ ] backend/advanced_feature_engineering.py: Spectral centroid
+- [ ] backend/advanced_feature_engineering.py: Spectral rolloff
+- [ ] backend/advanced_feature_engineering.py: Spectral bandwidth
+- [ ] backend/advanced_feature_engineering.py: Reshape for clustering (assume single sample)
+- [ ] backend/advanced_feature_engineering.py: K-means clustering distance
+- [ ] backend/advanced_feature_engineering.py: Gaussian Mixture Model probability
+- [ ] backend/advanced_feature_engineering.py: Reshape for anomaly detection
+- [ ] backend/advanced_feature_engineering.py: Isolation Forest anomaly score
+- [ ] backend/advanced_feature_engineering.py: Statistical anomaly detection
+- [ ] backend/advanced_feature_engineering.py: Mahalanobis distance (simplified)
+- [ ] backend/advanced_feature_engineering.py: Player performance features
+- [ ] backend/advanced_feature_engineering.py: Team performance features
+- [ ] backend/advanced_feature_engineering.py: Game context features
+- [ ] backend/advanced_feature_engineering.py: Betting market features
+- [ ] backend/advanced_feature_engineering.py: Injury impact features
+- [ ] backend/advanced_feature_engineering.py: Weather impact features
+- [ ] backend/advanced_feature_engineering.py: Recent form indicators
+- [ ] backend/advanced_feature_engineering.py: Career performance
+- [ ] backend/advanced_feature_engineering.py: Matchup-specific performance
+- [ ] backend/advanced_feature_engineering.py: Home/away splits
+- [ ] backend/advanced_feature_engineering.py: Limit to prevent explosion
+- [ ] backend/advanced_feature_engineering.py: Pairwise interactions
+- [ ] backend/advanced_feature_engineering.py: Multiple interaction types
+- [ ] backend/advanced_feature_engineering.py: Advanced interactions
+- [ ] backend/advanced_feature_engineering.py: Scale power
+- [ ] backend/advanced_feature_engineering.py: Higher-order interactions (limited)
+- [ ] backend/advanced_feature_engineering.py: Initialize with defaults
+- [ ] backend/advanced_feature_engineering.py: Calculate actual metrics where possible
+- [ ] backend/advanced_feature_engineering.py: Variance-based importance
+- [ ] backend/advanced_feature_engineering.py: Distribution normality
+- [ ] backend/advanced_feature_engineering.py: Simplified
+- [ ] backend/advanced_feature_engineering.py: Interpretability based on feature name
+- [ ] backend/advanced_feature_engineering.py: Computation cost based on feature name complexity
+- [ ] backend/advanced_feature_engineering.py: Domain relevance for sports betting
+- [ ] backend/advanced_feature_engineering.py: Simplified holiday detection
+- [ ] backend/advanced_feature_engineering.py: New Year
+- [ ] backend/advanced_feature_engineering.py: Independence Day
+- [ ] backend/advanced_feature_engineering.py: Christmas
+- [ ] backend/advanced_feature_engineering.py: Thanksgiving (simplified)
+- [ ] backend/advanced_feature_engineering.py: Winter
+- [ ] backend/advanced_feature_engineering.py: Spring
+- [ ] backend/advanced_feature_engineering.py: Summer
+- [ ] backend/advanced_feature_engineering.py: Fall
+- [ ] backend/advanced_feature_engineering.py: Global instance
+- [ ] backend/api_integration.py: Import existing services
+- [ ] backend/api_integration.py: Fallback imports for standalone testing
+- [ ] backend/api_integration.py: Configure logging
+- [ ] backend/api_integration.py: Security
+- [ ] backend/api_integration.py: API Models
+- [ ] backend/api_integration.py: Authentication Models
+- [ ] backend/api_integration.py: PrizePicks Models
+- [ ] backend/api_integration.py: "over" or "under"
+- [ ] backend/api_integration.py: "normal", "demon", "goblin"
+- [ ] backend/api_integration.py: "over" or "under"
+- [ ] backend/api_integration.py: Prediction Models
+- [ ] backend/api_integration.py: "over" or "under"
+- [ ] backend/api_integration.py: User Management Models
+- [ ] backend/api_integration.py: "deposit", "withdraw", "bet", "win", "loss"
+- [ ] backend/api_integration.py: Analytics Models
+- [ ] backend/api_integration.py: "up", "down", "stable"
+- [ ] backend/api_integration.py: AI Chat Models
+  - [ ] Implement async AI chat endpoints using Pydantic models for validation
+  - [ ] Integrate LLMs via dedicated service layer (e.g., OpenAI, custom models)
+  - [ ] Use FastAPI-MCP for agent orchestration and recursive improvement
+  - [ ] Log all chat interactions for audit and compliance
+- [ ] backend/api_integration.py: WebSocket Models
+- [ ] backend/api_integration.py: Authentication Utilities
+- [ ] backend/api_integration.py: Real database integration
+- [ ] backend/api_integration.py: Fallback response
+- [ ] backend/api_integration.py: PrizePicks Utilities
+- [ ] backend/api_integration.py: Check pick count
+  - [ ] Validate pick count server-side and enforce limits
+  - [ ] Log validation results
+  - [ ] Autonomous: Implement self-updating validation logic based on historical pick data and user feedback
+  - [ ] Recursive: Refactor validation to support recursive improvement cycles (e.g., auto-tune limits based on usage patterns)
+  - [ ] Best Practice: Document validation rules, add async tests, and ensure compliance with business requirements
+- [ ] backend/api_integration.py: Check for duplicate players
+  - [ ] Autonomous: Implement automated duplicate detection using set operations and async validation.
+  - [ ] Recursive: Add recursive improvement loop to refine detection logic based on edge cases and user feedback.
+  - [ ] Best Practice: Log all duplicate detection events, add async tests, and document validation rules for audit/compliance.
+- [ ] backend/api_integration.py: Check pick type limits
+  - [ ] Validate pick type limits using business logic
+    - [ ] Autonomous: Implement automated pick type validation using configurable rules and async checks.
+    - [ ] Recursive: Enable recursive validation cycles for evolving business logic and edge cases.
+    - [ ] Best Practice: Document all pick type rules, add async tests, and ensure compliance with business requirements.
+  - [ ] Log validation results
+    - [ ] Autonomous: Log all pick type validation events for audit and compliance.
+    - [ ] Recursive: Aggregate validation logs for recursive improvement and feedback.
+    - [ ] Best Practice: Integrate with centralized logging and monitoring systems.
+- [ ] backend/api_integration.py: Validate lineup rules with real business logic
+- [ ] backend/api_integration.py: This would need game data integration
+- [ ] backend/api_integration.py: WebSocket Connection Manager
+- [ ] backend/api_integration.py: Router Setup
+- [ ] backend/api_integration.py: Create main API router
+- [ ] backend/api_integration.py: Authentication Routes
+- [ ] backend/api_integration.py: Find user
+- [ ] backend/api_integration.py: PrizePicks Routes
+- [ ] backend/api_integration.py: Use real PrizePicks API integration
+- [ ] backend/api_integration.py: Extract and transform real props data
+- [ ] backend/api_integration.py: Get top 20 featured props
+- [ ] backend/api_integration.py: PrizePicks standard odds
+- [ ] backend/api_integration.py: Based on PrizePicks data quality
+- [ ] backend/api_integration.py: Default sport
+- [ ] backend/api_integration.py: Return empty list when real data unavailable
+- [ ] backend/api_integration.py: Calculate odds and payout
+- [ ] backend/api_integration.py: Default bet amount
+- [ ] backend/api_integration.py: Prediction Routes
+- [ ] backend/api_integration.py: Integrate with real prediction engine
+- [ ] backend/api_integration.py: Use SportsExpertAgent if available
+- [ ] backend/api_integration.py: Return empty analysis if no real data available
+- [ ] backend/api_integration.py: Neutral expectation
+- [ ] backend/api_integration.py: User Management Routes
+- [ ] backend/api_integration.py: Update bankroll based on transaction type
+- [ ] backend/api_integration.py: Calculate ROI
+- [ ] backend/api_integration.py: Analytics Routes
+- [ ] backend/api_integration.py: Get real performance data from database
+- [ ] backend/api_integration.py: Would need streak calculation
+- [ ] backend/api_integration.py: AI Chat Routes
+- [ ] backend/api_integration.py: Use SportsExpertAgent if available
+- [ ] backend/api_integration.py: Fallback response
+- [ ] backend/api_integration.py: ML Performance Routes
+- [ ] backend/api_integration.py: WebSocket Routes
+- [ ] backend/api_integration.py: Send periodic odds updates
+- [ ] backend/api_integration.py: Update every 30 seconds
+- [ ] backend/api_integration.py: Send periodic prediction updates
+- [ ] backend/api_integration.py: Update every minute
+- [ ] backend/api_integration.py: Keep connection alive
+- [ ] backend/api_integration.py: FastAPI App Creation
+- [ ] backend/api_integration.py: CORS middleware
+- [ ] backend/api_integration.py: Include API routes
+- [ ] backend/api_integration.py: Include existing sports expert routes if available
+- [ ] backend/api_integration.py: Health check endpoint
+- [ ] backend/api_integration.py: Export the app for use in main application
+- [ ] backend/api_integration.py: PREDICTIONS ENDPOINTS
+- [ ] backend/api_integration.py: ENGINE METRICS ENDPOINT
+- [ ] backend/api_integration.py: USER PROFILE ENDPOINTS
+- [ ] backend/api_integration.py: Mock endpoint removed - use real authentication endpoints in main.py
+- [ ] backend/api_integration.py: Existing user endpoints continue below...
+- [ ] backend/arbitrage_engine.py: Simple arbitrage between 2 outcomes
+- [ ] backend/arbitrage_engine.py: Three-way arbitrage (e.g., Win/Draw/Loss)
+- [ ] backend/arbitrage_engine.py: Arbitrage across different markets
+- [ ] backend/arbitrage_engine.py: Time-based arbitrage
+- [ ] backend/arbitrage_engine.py: Statistical arbitrage
+- [ ] backend/arbitrage_engine.py: Triangular arbitrage
+- [ ] backend/arbitrage_engine.py: Synthetic arbitrage using combinations
+- [ ] backend/arbitrage_engine.py: Dutch book (guaranteed profit)
+- [ ] backend/arbitrage_engine.py: Clear mispricing
+- [ ] backend/arbitrage_engine.py: Slow information incorporation
+- [ ] backend/arbitrage_engine.py: Liquidity-driven mispricing
+- [ ] backend/arbitrage_engine.py: Behavioral-driven inefficiency
+- [ ] backend/arbitrage_engine.py: Market making opportunity
+- [ ] backend/arbitrage_engine.py: Sharp money movement
+- [ ] backend/arbitrage_engine.py: Line moving against public money
+- [ ] backend/arbitrage_engine.py: Financial metrics
+- [ ] backend/arbitrage_engine.py: Risk metrics
+- [ ] backend/arbitrage_engine.py: Market data
+- [ ] backend/arbitrage_engine.py: Execution details
+- [ ] backend/arbitrage_engine.py: Metadata
+- [ ] backend/arbitrage_engine.py: Pricing analysis
+- [ ] backend/arbitrage_engine.py: Statistical measures
+- [ ] backend/arbitrage_engine.py: Market context
+- [ ] backend/arbitrage_engine.py: Opportunity metrics
+- [ ] backend/arbitrage_engine.py: Risk assessment
+- [ ] backend/arbitrage_engine.py: Timing
+- [ ] backend/arbitrage_engine.py: Group odds by event and market
+- [ ] backend/arbitrage_engine.py: Check for different types of arbitrage
+- [ ] backend/arbitrage_engine.py: Sort by profit percentage
 - backend/arbitrage_engine.py: # pylint: disable=broad-exception-caught
 - backend/arbitrage_engine.py: # Calculate fair value using multiple methods
 - backend/arbitrage_engine.py: # Convert to implied probabilities
@@ -960,7 +1023,7 @@
 - backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
 - backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
 - backend/betting_opportunity_service.py: # ...existing code for async methods (discuss_lineup, analyze_prop_bet, answer_question, explain_recommendation, compliance_check, stream_conversation, retrain_agent, log_user_feedback)...
-- backend/betting_opportunity_service.py: # In each public method, add calls to self._emit_metric and self._audit_log, and wrap LLM outputs with self._compliance_filter.
+- backend/betting_opportunity_service.py: # In each public method, add calls to self.\_emit_metric and self.\_audit_log, and wrap LLM outputs with self.\_compliance_filter.
 - backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
 - backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
 - backend/betting_opportunity_service.py: # pylint: disable=broad-exception-caught
@@ -1105,7 +1168,7 @@
 - backend/config.py: # Database Settings
 - backend/config.py: # External API Settings
 - backend/config.py: # PrizePicks API key is not required; public access only
-- backend/config.py: # prizepicks_api_key: Optional[str] = None  # Deprecated, not used
+- backend/config.py: # prizepicks_api_key: Optional[str] = None # Deprecated, not used
 - backend/config.py: # LLM Settings for Enhanced PropOllama
 - backend/config.py: # ollama or lmstudio
 - backend/config.py: //localhost:11434"
@@ -1118,7 +1181,7 @@
 - backend/config.py: # ML Model Settings
 - backend/config.py: # Local LLM Settings (Ollama or LM Studio)
 - backend/config.py: # 'ollama' or 'lmstudio'
-- backend/config.py: //127.0.0.1:11434"  # Ollama default
+- backend/config.py: //127.0.0.1:11434" # Ollama default
 - backend/config.py: # model name to force; auto-select if None
 - backend/config.py: # Advanced LLM Settings
 - backend/config.py: # HTTP request timeout in seconds
@@ -1135,20 +1198,20 @@
 - backend/config.py: # "healthy", "degraded", "unhealthy"
 - backend/config.py: //{self.config.postgres_user}:"
 - backend/config.py: //localhost:6379"
-- backend/config.py: # "prizepicks": self.config.prizepicks_api_key,  # Deprecated, not used
+- backend/config.py: # "prizepicks": self.config.prizepicks_api_key, # Deprecated, not used
 - backend/config.py: # Global configuration instance
 - backend/config_manager.py: ///./a1betting.db"
 - backend/config_manager.py: # PrizePicks API key is not required; public access only
-- backend/config_manager.py: # prizepicks_api_key: Optional[str] = None  # Deprecated, not used
-- backend/config_manager.py: # prizepicks_api_key=os.getenv("PRIZEPICKS_API_KEY"),  # Deprecated, not used
+- backend/config_manager.py: # prizepicks_api_key: Optional[str] = None # Deprecated, not used
+- backend/config_manager.py: # prizepicks_api_key=os.getenv("PRIZEPICKS_API_KEY"), # Deprecated, not used
 - backend/config_manager.py: //localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://127.0.0.1:5173"]
 - backend/config_manager.py: //localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003,http://127.0.0.1:5173"
 - backend/config_manager.py: # Initialize sub-configurations
 - backend/config_manager.py: ///./a1betting.db":
-- backend/config_manager.py: # "prizepicks_configured": bool(self.api_keys.prizepicks_api_key),  # Deprecated, not used
+- backend/config_manager.py: # "prizepicks_configured": bool(self.api_keys.prizepicks_api_key), # Deprecated, not used
 - backend/config_manager.py: # Global configuration instance
 - backend/config_manager.py: # Convenience functions
-- backend/config_manager.py: # "prizepicks": config.api_keys.prizepicks_api_key,  # Deprecated, not used
+- backend/config_manager.py: # "prizepicks": config.api_keys.prizepicks_api_key, # Deprecated, not used
 - backend/config_manager.py: # PrizePicks API key is not required; always returns None
 - backend/config_manager.py: # Configuration validation on module import
 - backend/config_manager.py: # Print configuration summary (excluding sensitive data)
@@ -1563,9 +1626,9 @@
 - backend/enhanced_data_pipeline.py: # First zero crossing of autocorrelation
 - backend/enhanced_data_pipeline.py: # FFT
 - backend/enhanced_data_pipeline.py: # Spectral features
-- backend/enhanced_data_pipeline.py: // 2] * power_spectrum[: len(freqs) // 2]
+- backend/enhanced_data_pipeline.py: // 2] \* power_spectrum[: len(freqs) // 2]
 - backend/enhanced_data_pipeline.py: // 2])
-- backend/enhanced_data_pipeline.py: // 2] - features["spectral_centroid"]) ** 2)
+- backend/enhanced_data_pipeline.py: // 2] - features["spectral_centroid"]) \*\* 2)
 - backend/enhanced_data_pipeline.py: // 2]
 - backend/enhanced_data_pipeline.py: // 2])
 - backend/enhanced_data_pipeline.py: // 2, 85
@@ -1586,7 +1649,7 @@
 - backend/enhanced_data_pipeline.py: // scale
 - backend/enhanced_data_pipeline.py: # Range
 - backend/enhanced_data_pipeline.py: # Standard deviation
-- backend/enhanced_data_pipeline.py: # Fit log(R/S) = H * log(scale) + const
+- backend/enhanced_data_pipeline.py: # Fit log(R/S) = H \* log(scale) + const
 - backend/enhanced_data_pipeline.py: # Linear regression
 - backend/enhanced_data_pipeline.py: # Correlation analysis
 - backend/enhanced_data_pipeline.py: # Find highly correlated pairs
@@ -2369,8 +2432,8 @@
 - backend/enhanced_revolutionary_engine.py: # Apply selection to B
 - backend/enhanced_revolutionary_engine.py: # [B, L, D, N]
 - backend/enhanced_revolutionary_engine.py: # Parallel scan implementation
-- backend/enhanced_revolutionary_engine.py: # State update: s[t] = A[t] * s[t-1] + B[t] * x[t]
-- backend/enhanced_revolutionary_engine.py: # Output: y[t] = C * s[t] + D * x[t]
+- backend/enhanced*revolutionary_engine.py: # State update: s[t] = A[t] * s[t-1] + B[t] \_ x[t]
+- backend/enhanced*revolutionary_engine.py: # Output: y[t] = C * s[t] + D \_ x[t]
 - backend/enhanced_revolutionary_engine.py: # [B, L, output_dim]
 - backend/enhanced_revolutionary_engine.py: # Diagonal A matrix
 - backend/enhanced_revolutionary_engine.py: # Add sequence dimension if missing
@@ -2389,7 +2452,7 @@
 - backend/enhanced_revolutionary_engine.py: # Fallback to correlation-based
 - backend/enhanced_revolutionary_engine.py: # Build networkx graph for easier manipulation
 - backend/enhanced_revolutionary_engine.py: # Check backdoor criterion
-- backend/enhanced_revolutionary_engine.py: # Adjustment formula: âˆ‘_z P(Y|do(X),Z) * P(Z)
+- backend/enhanced_revolutionary_engine.py: # Adjustment formula: âˆ‘\_z P(Y|do(X),Z) \* P(Z)
 - backend/enhanced_revolutionary_engine.py: # Simplified estimation
 - backend/enhanced_revolutionary_engine.py: # Try frontdoor criterion or other identification strategies
 - backend/enhanced_revolutionary_engine.py: # Remove all outgoing edges from X
@@ -2450,9 +2513,9 @@
 - backend/enhanced_revolutionary_engine.py: # Ensure positive definiteness: G = L @ L^T + ÎµI
 - backend/enhanced_revolutionary_engine.py: # Lower triangular
 - backend/enhanced_revolutionary_engine.py: # Generate Christoffel symbol components
-- backend/enhanced_revolutionary_engine.py: # Christoffel symbols should satisfy symmetry: Î“^k_{ij} = Î“^k_{ji}
+- backend/enhanced*revolutionary_engine.py: # Christoffel symbols should satisfy symmetry: Î“^k*{ij} = Î“^k\_{ji}
 - backend/enhanced_revolutionary_engine.py: # Compute metric and Christoffel symbols at current point
-- backend/enhanced_revolutionary_engine.py: # Geodesic equation: dÂ²x^k/dtÂ² + Î“^k_{ij} dx^i/dt dx^j/dt = 0
+- backend/enhanced*revolutionary_engine.py: # Geodesic equation: dÂ²x^k/dtÂ² + Î“^k*{ij} dx^i/dt dx^j/dt = 0
 - backend/enhanced_revolutionary_engine.py: # Acceleration term
 - backend/enhanced_revolutionary_engine.py: # Update velocity and position
 - backend/enhanced_revolutionary_engine.py: # Simple approximation: integrate along straight line in ambient space
@@ -2460,9 +2523,9 @@
 - backend/enhanced_revolutionary_engine.py: # Simplified parallel transport using connection
 - backend/enhanced_revolutionary_engine.py: # Approximate parallel transport equation
 - backend/enhanced_revolutionary_engine.py: # Transport using metric change (simplified)
-- backend/enhanced_revolutionary_engine.py: # In full implementation, would solve: âˆ‡_X V = 0 along geodesic
+- backend/enhanced_revolutionary_engine.py: # In full implementation, would solve: âˆ‡\_X V = 0 along geodesic
 - backend/enhanced_revolutionary_engine.py: # Simplified curvature computation
-- backend/enhanced_revolutionary_engine.py: # Full tensor has R^k_{lij} = âˆ‚Î“^k_{lj}/âˆ‚x^i - âˆ‚Î“^k_{li}/âˆ‚x^j + Î“^k_{mi}Î“^m_{lj} - Î“^k_{mj}Î“^m_{li}
+- backend/enhanced*revolutionary_engine.py: # Full tensor has R^k*{lij} = âˆ‚Î“^k*{lj}/âˆ‚x^i - âˆ‚Î“^k*{li}/âˆ‚x^j + Î“^k*{mi}Î“^m*{lj} - Î“^k*{mj}Î“^m*{li}
 - backend/enhanced_revolutionary_engine.py: # Simplified scalar curvature approximation
 - backend/enhanced_revolutionary_engine.py: # Embed to manifold
 - backend/enhanced_revolutionary_engine.py: # Compute geometric properties
@@ -2528,7 +2591,7 @@
 - backend/enhanced_risk_management.py: # Use empirical quantile
 - backend/enhanced_risk_management.py: # Sort data in descending order
 - backend/enhanced_risk_management.py: # Choose k as square root of sample size (rule of thumb)
-- backend/enhanced_risk_management.py: # Hill estimator: Î³ = (1/k) * Î£ log(X_{i}/X_{k+1})
+- backend/enhanced*risk_management.py: # Hill estimator: Î³ = (1/k) \* Î£ log(X*{i}/X\_{k+1})
 - backend/enhanced_risk_management.py: # Asymptotic variance
 - backend/enhanced_risk_management.py: # Confidence interval
 - backend/enhanced_risk_management.py: # Transform to normal scores
@@ -2545,7 +2608,7 @@
 - backend/enhanced_risk_management.py: # Multivariate t density (approximate)
 - backend/enhanced_risk_management.py: # Marginal t densities
 - backend/enhanced_risk_management.py: # Optimize over degrees of freedom
-- backend/enhanced_risk_management.py: // 2 + 1  # Correlation + df
+- backend/enhanced_risk_management.py: // 2 + 1 # Correlation + df
 - backend/enhanced_risk_management.py: # Clayton copula density
 - backend/enhanced_risk_management.py: # Avoid numerical issues
 - backend/enhanced_risk_management.py: # Remove invalid values
@@ -2561,9 +2624,9 @@
 - backend/enhanced_risk_management.py: # Fit different copulas
 - backend/enhanced_risk_management.py: # Add Archimedean copulas for bivariate case
 - backend/enhanced_risk_management.py: # Select best based on AIC
-- backend/enhanced_risk_management.py: # Discrete version: X_{t+1} = X_t + Î¸(Î¼ - X_t)Î”t + ÏƒâˆšÎ”t Îµ_t
-- backend/enhanced_risk_management.py: # Rearrange: X_{t+1} - X_t = Î¸Î¼Î”t - Î¸X_t Î”t + ÏƒâˆšÎ”t Îµ_t
-- backend/enhanced_risk_management.py: # Linear regression: dX = a + b*X + error
+- backend/enhanced*risk_management.py: # Discrete version: X*{t+1} = X_t + Î¸(Î¼ - X_t)Î”t + ÏƒâˆšÎ”t Îµ_t
+- backend/enhanced*risk_management.py: # Rearrange: X*{t+1} - X_t = Î¸Î¼Î”t - Î¸X_t Î”t + ÏƒâˆšÎ”t Îµ_t
+- backend/enhanced_risk_management.py: # Linear regression: dX = a + b\*X + error
 - backend/enhanced_risk_management.py: # where a = Î¸Î¼Î”t and b = -Î¸Î”t
 - backend/enhanced_risk_management.py: # Extract parameters
 - backend/enhanced_risk_management.py: # Estimate sigma from residuals
@@ -3015,7 +3078,7 @@
 - backend/integration_test_nas.py: # Run all integration tests
 - backend/integration_test_nas.py: # Generate final report
 - backend/integration_test_quantum.py: #!/usr/bin/env python3
-- backend/integration_test_quantum.py: # Test that _create_quantum_ensemble returns a real object
+- backend/integration_test_quantum.py: # Test that \_create_quantum_ensemble returns a real object
 - backend/integration_test_quantum.py: # Test that ensemble has required methods
 - backend/integration_test_quantum.py: # Generate synthetic betting data
 - backend/integration_test_quantum.py: # Test quantum feature transformation
@@ -3126,16 +3189,16 @@
 - backend/main.py: # DISABLED: Importing prediction_engine causes ML training at import time
 - backend/main.py: # Add CORS middleware for frontend integration
 - backend/main.py: # Allow all for development
-- backend/main.py: //7fb6bf6978914ca48f089e6151180b03-a1b171efc67d4aea943f921a9.fly.dev",  # Cloud frontend
-- backend/main.py: //localhost:3000",  # Vite dev server
-- backend/main.py: //localhost:3001",  # Alternative Vite port
-- backend/main.py: //localhost:3002",  # Alternative Vite port
-- backend/main.py: //localhost:3003",  # Alternative Vite port
-- backend/main.py: //localhost:5173",  # Default Vite port
-- backend/main.py: //localhost:8173",  # Current frontend port
-- backend/main.py: //192.168.1.125:5173",  # Local network access
-- backend/main.py: //192.168.1.190:3000",  # Network frontend access
-- backend/main.py: //192.168.1.190:8173",  # Network frontend access (current)
+- backend/main.py: //7fb6bf6978914ca48f089e6151180b03-a1b171efc67d4aea943f921a9.fly.dev", # Cloud frontend
+- backend/main.py: //localhost:3000", # Vite dev server
+- backend/main.py: //localhost:3001", # Alternative Vite port
+- backend/main.py: //localhost:3002", # Alternative Vite port
+- backend/main.py: //localhost:3003", # Alternative Vite port
+- backend/main.py: //localhost:5173", # Default Vite port
+- backend/main.py: //localhost:8173", # Current frontend port
+- backend/main.py: //192.168.1.125:5173", # Local network access
+- backend/main.py: //192.168.1.190:3000", # Network frontend access
+- backend/main.py: //192.168.1.190:8173", # Network frontend access (current)
 - backend/main.py: # Add compression middleware
 - backend/main.py: # Application startup time tracking
 - backend/main.py: # Initialize caches for external API calls
@@ -3262,9 +3325,9 @@
 - backend/main_backup.py: # type: ignore[import]
 - backend/main_backup.py: # Add CORS middleware for cloud frontend integration
 - backend/main_backup.py: # Allow all for development
-- backend/main_backup.py: //7fb6bf6978914ca48f089e6151180b03-a1b171efc67d4aea943f921a9.fly.dev",  # Cloud frontend
-- backend/main_backup.py: //localhost:8000"}",  # Local development
-- backend/main_backup.py: //192.168.1.125:5173",  # Local network access
+- backend/main_backup.py: //7fb6bf6978914ca48f089e6151180b03-a1b171efc67d4aea943f921a9.fly.dev", # Cloud frontend
+- backend/main_backup.py: //localhost:8000"}", # Local development
+- backend/main_backup.py: //192.168.1.125:5173", # Local network access
 - backend/main_backup.py: # Add compression middleware
 - backend/main_backup.py: # Application startup time tracking
 - backend/main_backup.py: # Initialize caches for external API calls
@@ -3397,11 +3460,11 @@
 - backend/main_complete.py: # Initialize FastAPI app with lifespan handler
 - backend/main_complete.py: # Add CORS middleware for cloud frontend integration
 - backend/main_complete.py: # Allow all for development
-- backend/main_complete.py: //7fb6bf6978914ca48f089e6151180b03-a1b171efc67d4aea943f921a9.fly.dev",  # Cloud frontend
-- backend/main_complete.py: //localhost:8000",  # Local development
-- backend/main_complete.py: //localhost:8173",  # Frontend dev server
-- backend/main_complete.py: //localhost:8174",  # Frontend dev server alt port
-- backend/main_complete.py: //192.168.1.125:5173",  # Local network access
+- backend/main_complete.py: //7fb6bf6978914ca48f089e6151180b03-a1b171efc67d4aea943f921a9.fly.dev", # Cloud frontend
+- backend/main_complete.py: //localhost:8000", # Local development
+- backend/main_complete.py: //localhost:8173", # Frontend dev server
+- backend/main_complete.py: //localhost:8174", # Frontend dev server alt port
+- backend/main_complete.py: //192.168.1.125:5173", # Local network access
 - backend/main_complete.py: # Add compression middleware
 - backend/main_complete.py: # DIAGNOSTIC: Add request logging middleware to validate server connectivity
 - backend/main_complete.py: # ============================================================================
@@ -3540,22 +3603,22 @@
 - backend/main_integrated.py: # Create main FastAPI application
 - backend/main_integrated.py: # CORS configuration for cloud frontend integration
 - backend/main_integrated.py: # Allow all for development
-- backend/main_integrated.py: //7fb6bf6978914ca48f089e6151180b03-a1b171efc67d4aea943f921a9.fly.dev",  # Cloud frontend
-- backend/main_integrated.py: //localhost:8000"}",  # Vite dev server
-- backend/main_integrated.py: //localhost:8000"}",  # Alternative React dev server
-- backend/main_integrated.py: //localhost:8000"}",  # Another common dev port
+- backend/main_integrated.py: //7fb6bf6978914ca48f089e6151180b03-a1b171efc67d4aea943f921a9.fly.dev", # Cloud frontend
+- backend/main_integrated.py: //localhost:8000"}", # Vite dev server
+- backend/main_integrated.py: //localhost:8000"}", # Alternative React dev server
+- backend/main_integrated.py: //localhost:8000"}", # Another common dev port
 - backend/main_integrated.py: //127.0.0.1:5173",
 - backend/main_integrated.py: //127.0.0.1:3000",
 - backend/main_integrated.py: //127.0.0.1:8080",
-- backend/main_integrated.py: //192.168.1.125:5173",  # Local network access
+- backend/main_integrated.py: //192.168.1.125:5173", # Local network access
 - backend/main_integrated.py: # Include all API routers
 - backend/main_integrated.py: # Import and include the complete API integration
 - backend/main_integrated.py: # Import and include existing sports expert routes
 - backend/main_integrated.py: # Temporarily disabled due to agent variable issue
 - backend/main_integrated.py: # from sports_expert_api import router as sports_expert_router
 - backend/main_integrated.py: # if sports_expert_router:
-- backend/main_integrated.py: #     app.include_router(sports_expert_router)
-- backend/main_integrated.py: #     logger.info("✅ Sports expert routes loaded")
+- backend/main_integrated.py: # app.include_router(sports_expert_router)
+- backend/main_integrated.py: # logger.info("✅ Sports expert routes loaded")
 - backend/main_integrated.py: # Import and include betting opportunity routes
 - backend/main_integrated.py: # Health check endpoints
 - backend/main_integrated.py: # Check betting service
@@ -3566,10 +3629,10 @@
 - backend/main_integrated.py: # pylint: disable=broad-exception-caught
 - backend/main_integrated.py: # Static file serving for frontend (if needed)
 - backend/main_integrated.py: # Uncomment if you want to serve the built frontend from the backend
-- backend/main_integrated.py: # static_dir = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
+- backend/main_integrated.py: # static_dir = os.path.join(os.path.dirname(**file**), "..", "frontend", "dist")
 - backend/main_integrated.py: # if os.path.exists(static_dir):
-- backend/main_integrated.py: #     app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
-- backend/main_integrated.py: #     logger.info("✅ Frontend static files mounted")
+- backend/main_integrated.py: # app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+- backend/main_integrated.py: # logger.info("✅ Frontend static files mounted")
 - backend/main_integrated.py: # Error handlers
 - backend/main_integrated.py: # Root endpoint
 - backend/main_integrated.py: # Development server configuration
@@ -3622,11 +3685,11 @@
 - backend/model_service.py: # Default confidence
 - backend/model_service.py: # Default confidence
 - backend/model_service.py: # pylint: disable=broad-exception-caught
-- backend/model_service.py: # Prefixed with _ to indicate unused
+- backend/model*service.py: # Prefixed with * to indicate unused
 - backend/model_service.py: # pylint: disable=broad-exception-caught
-- backend/model_service.py: # Prefixed with _ to indicate unused
-- backend/model_service.py: # Prefixed with _ to indicate unused
-- backend/model_service.py: # Prefixed with _ to indicate unused
+- backend/model*service.py: # Prefixed with * to indicate unused
+- backend/model*service.py: # Prefixed with * to indicate unused
+- backend/model*service.py: # Prefixed with * to indicate unused
 - backend/model_service.py: # This would require SHAP library integration
 - backend/model_service.py: # For now, return mock SHAP values
 - backend/model_service.py: # pylint: disable=broad-exception-caught
@@ -3982,7 +4045,7 @@
 - backend/prediction_api.py: # Import our real-time prediction engine
 - backend/prediction_api.py: # Initialize FastAPI app
 - backend/prediction_api.py: # Add CORS middleware
-- backend/prediction_api.py: //localhost:8000"}", "${process.env.REACT_APP_API_URL || "http://localhost:8000"}"],  # React dev servers
+- backend/prediction_api.py: //localhost:8000"}", "${process.env.REACT_APP_API_URL || "http://localhost:8000"}"], # React dev servers
 - backend/prediction_api.py: # Pydantic models for API responses
 - backend/prediction_api.py: # Global initialization flag
 - backend/prediction_api.py: # Generate predictions using the real-time engine
@@ -4181,7 +4244,7 @@
 - backend/production_fix.py: # Skip negative expected value bets
 - backend/production_fix.py: # Calculate optimal bet size using Kelly Criterion
 - backend/production_fix.py: # Generate betting recommendation
-- backend/production_fix.py: # EV = (probability of win * payout) - (probability of loss * stake)
+- backend/production*fix.py: # EV = (probability of win * payout) - (probability of loss \_ stake)
 - backend/production_fix.py: # Kelly Formula: f = (bp - q) / b
 - backend/production_fix.py: # where b = decimal odds - 1, p = our probability, q = 1 - p
 - backend/production_fix.py: # Cap at maximum bet percentage for safety
@@ -4536,7 +4599,7 @@
 - backend/recursive_intelligence_coordinator.py: # Calculate meta-awareness level
 - backend/recursive_intelligence_coordinator.py: # Extract complexity and context depth
 - backend/recursive_intelligence_coordinator.py: # Normalize complexity
-- backend/recursive_intelligence_coordinator.py: // 10  # Context depth approximation
+- backend/recursive_intelligence_coordinator.py: // 10 # Context depth approximation
 - backend/recursive_intelligence_coordinator.py: # Apply recursive intelligence function
 - backend/recursive_intelligence_coordinator.py: # Perform meta-cognition
 - backend/recursive_intelligence_coordinator.py: # Update knowledge base with new patterns
@@ -4621,7 +4684,7 @@
 - backend/revolutionary_accuracy_engine.py: # Estimate causal graph
 - backend/revolutionary_accuracy_engine.py: # Create intervention mask
 - backend/revolutionary_accuracy_engine.py: # Apply intervention (set intervened variables to their intervention values)
-- backend/revolutionary_accuracy_engine.py: # Do-calculus: P(Y|do(X)) = sum_z P(Y|X,Z) * P(Z)
+- backend/revolutionary_accuracy_engine.py: # Do-calculus: P(Y|do(X)) = sum_z P(Y|X,Z) \* P(Z)
 - backend/revolutionary_accuracy_engine.py: # Simplified implementation using attention mechanism
 - backend/revolutionary_accuracy_engine.py: # Embed variables to identify confounders
 - backend/revolutionary_accuracy_engine.py: # Estimate confounding adjustment
@@ -4633,13 +4696,13 @@
 - backend/revolutionary_accuracy_engine.py: # Riemannian operations
 - backend/revolutionary_accuracy_engine.py: # Geodesic computation network
 - backend/revolutionary_accuracy_engine.py: # Output projection
-- backend/revolutionary_accuracy_engine.py: # Metric tensor distance: sqrt(diff^T * G * diff)
+- backend/revolutionary*accuracy_engine.py: # Metric tensor distance: sqrt(diff^T * G \_ diff)
 - backend/revolutionary_accuracy_engine.py: # Simplified parallel transport using connection
 - backend/revolutionary_accuracy_engine.py: # Simplified exponential map (geodesic flow)
 - backend/revolutionary_accuracy_engine.py: # Inverse of exponential map
 - backend/revolutionary_accuracy_engine.py: # Project to tangent space (simplified)
 - backend/revolutionary_accuracy_engine.py: # Simplified curvature computation
-- backend/revolutionary_accuracy_engine.py: # R(X,Y)Z = âˆ‡_Xâˆ‡_Y Z - âˆ‡_Yâˆ‡_X Z - âˆ‡_{[X,Y]} Z
+- backend/revolutionary*accuracy_engine.py: # R(X,Y)Z = âˆ‡\_Xâˆ‡\_Y Z - âˆ‡\_Yâˆ‡\_X Z - âˆ‡*{[X,Y]} Z
 - backend/revolutionary_accuracy_engine.py: # Use connection weights to approximate curvature
 - backend/revolutionary_accuracy_engine.py: # Embed input onto manifold
 - backend/revolutionary_accuracy_engine.py: # Normalize to unit sphere (example manifold)
@@ -4655,7 +4718,7 @@
 - backend/revolutionary_accuracy_engine.py: # Initialize hidden state
 - backend/revolutionary_accuracy_engine.py: # Selection mechanism - decide what to remember/forget
 - backend/revolutionary_accuracy_engine.py: # State update with selective mechanism
-- backend/revolutionary_accuracy_engine.py: # h_{t+1} = A * h_t + B * x_t (modulated by selection)
+- backend/revolutionary*accuracy_engine.py: # h*{t+1} = A _ h_t + B _ x_t (modulated by selection)
 - backend/revolutionary_accuracy_engine.py: # Normalize state
 - backend/revolutionary_accuracy_engine.py: # Output computation
 - backend/revolutionary_accuracy_engine.py: # Transpose for convolution
@@ -4873,7 +4936,7 @@
 - backend/risk_management.py: # Cap at 25%
 - backend/risk_management.py: # Simplified bankruptcy probability calculation
 - backend/risk_management.py: # Use geometric Brownian motion to estimate bankruptcy probability
-- backend/risk_management.py: # P(ruin) â‰ˆ exp(-2Î¼ * initial_capital / ÏƒÂ²)
+- backend/risk_management.py: # P(ruin) â‰ˆ exp(-2Î¼ \* initial_capital / ÏƒÂ²)
 - backend/risk_management.py: # Positive expectancy, theoretically infinite time to ruin
 - backend/risk_management.py: # Deterministic case
 - backend/risk_management.py: # Approximation for expected time to ruin
@@ -4905,7 +4968,7 @@
 - backend/risk_management.py: # Risk aversion parameter based on risk tolerance
 - backend/risk_management.py: # Convert to numpy arrays
 - backend/risk_management.py: # Covariance matrix
-- backend/risk_management.py: # Objective: maximize return - risk_aversion * variance
+- backend/risk_management.py: # Objective: maximize return - risk_aversion \* variance
 - backend/risk_management.py: # Constraints
 - backend/risk_management.py: # type: ignore[arg-type]
 - backend/risk_management.py: # Weights sum to 1
@@ -5321,14 +5384,14 @@
 - backend/specialist_apis.py: # PrizePicks API is public; no key required
 - backend/specialist_apis.py: # prizepicks_key = os.getenv("PRIZEPICKS_API_KEY")
 - backend/specialist_apis.py: # if prizepicks_key:
-- backend/specialist_apis.py: #     self.prizepicks = PrizePicksAPI(prizepicks_key)
-- backend/specialist_apis.py: #     logger.info("âœ… PrizePicks API initialized")
+- backend/specialist_apis.py: # self.prizepicks = PrizePicksAPI(prizepicks_key)
+- backend/specialist_apis.py: # logger.info("âœ… PrizePicks API initialized")
 - backend/specialist_apis.py: # Global instance
 - backend/sports_expert_api.py: # --- Background Job Scheduling (APScheduler) ---
-- backend/sports_expert_api.py: # import random  # pylint: disable=unused-import
+- backend/sports_expert_api.py: # import random # pylint: disable=unused-import
 - backend/sports_expert_api.py: # JWT and password hashing will be implemented as stubs for now
-- backend/sports_expert_api.py: # import jwt  # pip install PyJWT
-- backend/sports_expert_api.py: # from passlib.context import CryptContext  # pip install passlib
+- backend/sports_expert_api.py: # import jwt # pip install PyJWT
+- backend/sports_expert_api.py: # from passlib.context import CryptContext # pip install passlib
 - backend/sports_expert_api.py: # Enhanced imports for computational perfection
 - backend/sports_expert_api.py: # Create FastAPI router for sports expert endpoints
 - backend/sports_expert_api.py: # Frontend integration imports
@@ -6437,7 +6500,7 @@
 - backend/middleware/advanced_rate_limiting.py: # Fall back to allowing the request
 - backend/middleware/advanced_rate_limiting.py: # In-memory fallback (not recommended for production)
 - backend/middleware/advanced_rate_limiting.py: # Simplified for demo
-- backend/middleware/advanced_rate_limiting.py: // rate_limit.window_seconds) * rate_limit.window_seconds
+- backend/middleware/advanced_rate_limiting.py: // rate_limit.window_seconds) \* rate_limit.window_seconds
 - backend/middleware/advanced_rate_limiting.py: # Increment counter
 - backend/middleware/advanced_rate_limiting.py: # Set expiration on first request
 - backend/middleware/advanced_rate_limiting.py: # Simplified for demo
@@ -6649,7 +6712,7 @@
 - backend/routes/prizepicks.py: # Cache for PrizePicks data
 - backend/routes/prizepicks.py: # Use enhanced service v2 for better data quality with ML
 - backend/routes/prizepicks.py: # Optionally filter by sport (only if sport is a string)
-- backend/routes/prizepicks.py: # Prefixed with _ to indicate unused
+- backend/routes/prizepicks.py: # Prefixed with \_ to indicate unused
 - backend/routes/prizepicks.py: # Mock implementation - would use ML models for recommendations
 - backend/routes/prizepicks.py: # Filter by sport if specified
 - backend/routes/prizepicks.py: # Filter by confidence if specified
@@ -6786,22 +6849,22 @@
 - backend/routes/unified_api.py: # Add API health metrics
 - backend/routes/unified_api.py: # Combine health data
 - backend/routes/user.py: # Add user endpoints here as needed
-- backend/services/__init__.py: # Temporarily commenting out corrupted data_fetchers
-- backend/services/__init__.py: # from .data_fetchers import (
-- backend/services/__init__.py: #     fetch_betting_opportunities_internal,
-- backend/services/__init__.py: #     fetch_performance_stats_internal,
-- backend/services/__init__.py: #     fetch_prizepicks_props_internal,
-- backend/services/__init__.py: #     fetch_historical_internal,
-- backend/services/__init__.py: #     fetch_news_internal,
-- backend/services/__init__.py: #     fetch_injuries_internal,
-- backend/services/__init__.py: # )
-- backend/services/__init__.py: # Temporarily removing corrupted data_fetchers functions
-- backend/services/__init__.py: # "fetch_betting_opportunities_internal",
-- backend/services/__init__.py: # "fetch_performance_stats_internal",
-- backend/services/__init__.py: # "fetch_prizepicks_props_internal",
-- backend/services/__init__.py: # "fetch_historical_internal",
-- backend/services/__init__.py: # "fetch_news_internal",
-- backend/services/__init__.py: # "fetch_injuries_internal",
+- backend/services/**init**.py: # Temporarily commenting out corrupted data_fetchers
+- backend/services/**init**.py: # from .data_fetchers import (
+- backend/services/**init**.py: # fetch_betting_opportunities_internal,
+- backend/services/**init**.py: # fetch_performance_stats_internal,
+- backend/services/**init**.py: # fetch_prizepicks_props_internal,
+- backend/services/**init**.py: # fetch_historical_internal,
+- backend/services/**init**.py: # fetch_news_internal,
+- backend/services/**init**.py: # fetch_injuries_internal,
+- backend/services/**init**.py: # )
+- backend/services/**init**.py: # Temporarily removing corrupted data_fetchers functions
+- backend/services/**init**.py: # "fetch_betting_opportunities_internal",
+- backend/services/**init**.py: # "fetch_performance_stats_internal",
+- backend/services/**init**.py: # "fetch_prizepicks_props_internal",
+- backend/services/**init**.py: # "fetch_historical_internal",
+- backend/services/**init**.py: # "fetch_news_internal",
+- backend/services/**init**.py: # "fetch_injuries_internal",
 - backend/services/advanced_ensemble_service.py: # Model storage
 - backend/services/advanced_ensemble_service.py: # Performance tracking
 - backend/services/advanced_ensemble_service.py: # Feature engineering
@@ -7058,16 +7121,16 @@
 - backend/services/comprehensive_prizepicks_service.py: # 🔍 DIAGNOSTIC: Track data loading
 - backend/services/comprehensive_prizepicks_service.py: # TODO: Implement loading of recent projections
 - backend/services/comprehensive_prizepicks_service.py: # try:
-- backend/services/comprehensive_prizepicks_service.py: #     logger.info("📊 Loading existing projections from database...")
-- backend/services/comprehensive_prizepicks_service.py: #     from datetime import datetime, timedelta
-- backend/services/comprehensive_prizepicks_service.py: #     recent_cutoff = datetime.now() - timedelta(hours=24)
-- backend/services/comprehensive_prizepicks_service.py: #     recent_projections = self.session.query(ProjectionHistory).filter(ProjectionHistory.fetched_at >= recent_cutoff).filter(ProjectionHistory.status.in_(["active", "pre_game", "open", "live"])).order_by(ProjectionHistory.fetched_at.desc()).all()
-- backend/services/comprehensive_prizepicks_service.py: #     logger.info(f"🔍 DIAGNOSTIC: Found {len(recent_projections)} records in database")
-- backend/services/comprehensive_prizepicks_service.py: #     for record in recent_projections:
-- backend/services/comprehensive_prizepicks_service.py: #         pass
-- backend/services/comprehensive_prizepicks_service.py: #     logger.info(f"✅ Loaded {len(recent_projections)} existing projections from database")
+- backend/services/comprehensive_prizepicks_service.py: # logger.info("📊 Loading existing projections from database...")
+- backend/services/comprehensive_prizepicks_service.py: # from datetime import datetime, timedelta
+- backend/services/comprehensive_prizepicks_service.py: # recent_cutoff = datetime.now() - timedelta(hours=24)
+- backend/services/comprehensive*prizepicks_service.py: # recent_projections = self.session.query(ProjectionHistory).filter(ProjectionHistory.fetched_at >= recent_cutoff).filter(ProjectionHistory.status.in*(["active", "pre_game", "open", "live"])).order_by(ProjectionHistory.fetched_at.desc()).all()
+- backend/services/comprehensive_prizepicks_service.py: # logger.info(f"🔍 DIAGNOSTIC: Found {len(recent_projections)} records in database")
+- backend/services/comprehensive_prizepicks_service.py: # for record in recent_projections:
+- backend/services/comprehensive_prizepicks_service.py: # pass
+- backend/services/comprehensive_prizepicks_service.py: # logger.info(f"✅ Loaded {len(recent_projections)} existing projections from database")
 - backend/services/comprehensive_prizepicks_service.py: # except Exception as e:
-- backend/services/comprehensive_prizepicks_service.py: #     logger.error(f"❌ Error loading existing projections: {e}")
+- backend/services/comprehensive_prizepicks_service.py: # logger.error(f"❌ Error loading existing projections: {e}")
 - backend/services/comprehensive_prizepicks_service.py: # Advanced anti-bot options
 - backend/services/comprehensive_prizepicks_service.py: # Optionally disable images for speed
 - backend/services/comprehensive_prizepicks_service.py: # Randomize user-agent
@@ -7095,8 +7158,8 @@
 - backend/services/comprehensive_prizepicks_service.py: # Prepare headers to mimic a real browser and avoid bot detection
 - backend/services/comprehensive_prizepicks_service.py: # Add API key if available (not required for PrizePicks)
 - backend/services/comprehensive_prizepicks_service.py: # if self.api_key:
-- backend/services/comprehensive_prizepicks_service.py: #     headers["Authorization"] = f"Bearer {self.api_key}"
-- backend/services/comprehensive_prizepicks_service.py: #     logger.debug("🔑 Using API key authentication")
+- backend/services/comprehensive_prizepicks_service.py: # headers["Authorization"] = f"Bearer {self.api_key}"
+- backend/services/comprehensive_prizepicks_service.py: # logger.debug("🔑 Using API key authentication")
 - backend/services/comprehensive_prizepicks_service.py: # else:
 - backend/services/comprehensive_prizepicks_service.py: # Implement rate limiting - ensure minimum time between requests
 - backend/services/comprehensive_prizepicks_service.py: # Retry logic with exponential backoff
@@ -7122,107 +7185,107 @@
 - backend/services/comprehensive_prizepicks_service.py: # async def store_projection_history(self, projection: Any):
 - backend/services/comprehensive_prizepicks_service.py: # Check if record already exists
 - backend/services/comprehensive_prizepicks_service.py: # async def analyze_projections_continuously(self):
-- backend/services/comprehensive_prizepicks_service.py: #     """Continuously analyze projections for value and accuracy"""
-- backend/services/comprehensive_prizepicks_service.py: #     while True:
-- backend/services/comprehensive_prizepicks_service.py: #         try:
-- backend/services/comprehensive_prizepicks_service.py: #             start_time = time.time()
+- backend/services/comprehensive_prizepicks_service.py: # """Continuously analyze projections for value and accuracy"""
+- backend/services/comprehensive_prizepicks_service.py: # while True:
+- backend/services/comprehensive_prizepicks_service.py: # try:
+- backend/services/comprehensive_prizepicks_service.py: # start_time = time.time()
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #             analyses_created = 0
-- backend/services/comprehensive_prizepicks_service.py: #             for projection_id, projection in self.current_projections.items():
-- backend/services/comprehensive_prizepicks_service.py: #                 if projection_id not in self.analysis_cache:
-- backend/services/comprehensive_prizepicks_service.py: #                     analysis = await self.analyze_projection(projection)
-- backend/services/comprehensive_prizepicks_service.py: #                     self.analysis_cache[projection_id] = analysis
-- backend/services/comprehensive_prizepicks_service.py: #                     analyses_created += 1
+- backend/services/comprehensive_prizepicks_service.py: # analyses_created = 0
+- backend/services/comprehensive_prizepicks_service.py: # for projection_id, projection in self.current_projections.items():
+- backend/services/comprehensive_prizepicks_service.py: # if projection_id not in self.analysis_cache:
+- backend/services/comprehensive_prizepicks_service.py: # analysis = await self.analyze_projection(projection)
+- backend/services/comprehensive_prizepicks_service.py: # self.analysis_cache[projection_id] = analysis
+- backend/services/comprehensive_prizepicks_service.py: # analyses_created += 1
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #             analysis_time = time.time() - start_time
-- backend/services/comprehensive_prizepicks_service.py: #             logger.info(
-- backend/services/comprehensive_prizepicks_service.py: #                 f"📊 Created {analyses_created} new analyses in {analysis_time:.2f}s"
-- backend/services/comprehensive_prizepicks_service.py: #             )
+- backend/services/comprehensive_prizepicks_service.py: # analysis_time = time.time() - start_time
+- backend/services/comprehensive_prizepicks_service.py: # logger.info(
+- backend/services/comprehensive_prizepicks_service.py: # f"📊 Created {analyses_created} new analyses in {analysis_time:.2f}s"
+- backend/services/comprehensive_prizepicks_service.py: # )
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #             # Clean old cache entries
-- backend/services/comprehensive_prizepicks_service.py: #             self.clean_analysis_cache()
+- backend/services/comprehensive_prizepicks_service.py: # # Clean old cache entries
+- backend/services/comprehensive_prizepicks_service.py: # self.clean_analysis_cache()
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #             await asyncio.sleep(60)  # Analyze every minute
+- backend/services/comprehensive_prizepicks_service.py: # await asyncio.sleep(60) # Analyze every minute
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #         except Exception as e:
-- backend/services/comprehensive_prizepicks_service.py: #             logger.error(f"❌ Analysis error: {e}")
-- backend/services/comprehensive_prizepicks_service.py: #             await asyncio.sleep(30)
+- backend/services/comprehensive_prizepicks_service.py: # except Exception as e:
+- backend/services/comprehensive_prizepicks_service.py: # logger.error(f"❌ Analysis error: {e}")
+- backend/services/comprehensive_prizepicks_service.py: # await asyncio.sleep(30)
 - backend/services/comprehensive_prizepicks_service.py: # async def analyze_projection(
-- backend/services/comprehensive_prizepicks_service.py: #     # self, projection: Any
+- backend/services/comprehensive_prizepicks_service.py: # # self, projection: Any
 - backend/services/comprehensive_prizepicks_service.py: # ) -> Any:
-- backend/services/comprehensive_prizepicks_service.py: #     """Analyze a single projection for value and accuracy"""
-- backend/services/comprehensive_prizepicks_service.py: #     try:
-- backend/services/comprehensive_prizepicks_service.py: #         # Get player historical performance
-- backend/services/comprehensive_prizepicks_service.py: #         player_history = await self.get_player_historical_performance(
-- backend/services/comprehensive_prizepicks_service.py: #             projection.player_id, projection.stat_type
-- backend/services/comprehensive_prizepicks_service.py: #         )
+- backend/services/comprehensive_prizepicks_service.py: # """Analyze a single projection for value and accuracy"""
+- backend/services/comprehensive_prizepicks_service.py: # try:
+- backend/services/comprehensive_prizepicks_service.py: # # Get player historical performance
+- backend/services/comprehensive_prizepicks_service.py: # player_history = await self.get_player_historical_performance(
+- backend/services/comprehensive_prizepicks_service.py: # projection.player_id, projection.stat_type
+- backend/services/comprehensive_prizepicks_service.py: # )
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #         # Calculate predicted value based on historical data
-- backend/services/comprehensive_prizepicks_service.py: #         predicted_value = self.calculate_predicted_value(player_history, projection)
+- backend/services/comprehensive_prizepicks_service.py: # # Calculate predicted value based on historical data
+- backend/services/comprehensive_prizepicks_service.py: # predicted_value = self.calculate_predicted_value(player_history, projection)
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #         # Calculate confidence based on data quality and consistency
-- backend/services/comprehensive_prizepicks_service.py: #         confidence = self.calculate_prediction_confidence(
-- backend/services/comprehensive_prizepicks_service.py: #             player_history, projection
-- backend/services/comprehensive_prizepicks_service.py: #         )
+- backend/services/comprehensive_prizepicks_service.py: # # Calculate confidence based on data quality and consistency
+- backend/services/comprehensive_prizepicks_service.py: # confidence = self.calculate_prediction_confidence(
+- backend/services/comprehensive_prizepicks_service.py: # player_history, projection
+- backend/services/comprehensive_prizepicks_service.py: # )
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #         # Calculate value bet score
-- backend/services/comprehensive_prizepicks_service.py: #         value_score = self.calculate_value_bet_score(
-- backend/services/comprehensive_prizepicks_service.py: #             predicted_value, projection.line_score
-- backend/services/comprehensive_prizepicks_service.py: #         )
+- backend/services/comprehensive_prizepicks_service.py: # # Calculate value bet score
+- backend/services/comprehensive_prizepicks_service.py: # value_score = self.calculate_value_bet_score(
+- backend/services/comprehensive_prizepicks_service.py: # predicted_value, projection.line_score
+- backend/services/comprehensive_prizepicks_service.py: # )
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #         # Generate recommendation
-- backend/services/comprehensive_prizepicks_service.py: #         recommendation = self.generate_recommendation(
-- backend/services/comprehensive_prizepicks_service.py: #             predicted_value, projection.line_score, confidence
-- backend/services/comprehensive_prizepicks_service.py: #         )
+- backend/services/comprehensive_prizepicks_service.py: # # Generate recommendation
+- backend/services/comprehensive_prizepicks_service.py: # recommendation = self.generate_recommendation(
+- backend/services/comprehensive_prizepicks_service.py: # predicted_value, projection.line_score, confidence
+- backend/services/comprehensive_prizepicks_service.py: # )
 - backend/services/comprehensive_prizepicks_service.py: # Create reasoning
 - backend/services/comprehensive_prizepicks_service.py: # Will be filled by market comparison service
 - backend/services/comprehensive_prizepicks_service.py: # def calculate_predicted_value(
-- backend/services/comprehensive_prizepicks_service.py: #     self, history: List[Dict], projection: Any
+- backend/services/comprehensive_prizepicks_service.py: # self, history: List[Dict], projection: Any
 - backend/services/comprehensive_prizepicks_service.py: # ) -> float:
-- backend/services/comprehensive_prizepicks_service.py: #     """Calculate predicted value based on historical performance"""
-- backend/services/comprehensive_prizepicks_service.py: #     if not history:
-- backend/services/comprehensive_prizepicks_service.py: #         return projection.line_score
+- backend/services/comprehensive_prizepicks_service.py: # """Calculate predicted value based on historical performance"""
+- backend/services/comprehensive_prizepicks_service.py: # if not history:
+- backend/services/comprehensive_prizepicks_service.py: # return projection.line_score
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     # Get recent performance (last 10 games)
-- backend/services/comprehensive_prizepicks_service.py: #     recent_games = sorted(history, key=lambda x: x["game_date"], reverse=True)[:10]
+- backend/services/comprehensive_prizepicks_service.py: # # Get recent performance (last 10 games)
+- backend/services/comprehensive_prizepicks_service.py: # recent_games = sorted(history, key=lambda x: x["game_date"], reverse=True)[:10]
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     if not recent_games:
-- backend/services/comprehensive_prizepicks_service.py: #         return projection.line_score
+- backend/services/comprehensive_prizepicks_service.py: # if not recent_games:
+- backend/services/comprehensive_prizepicks_service.py: # return projection.line_score
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     # Calculate weighted average (more recent games weighted higher)
-- backend/services/comprehensive_prizepicks_service.py: #     total_weight = 0
-- backend/services/comprehensive_prizepicks_service.py: #     weighted_sum = 0
+- backend/services/comprehensive_prizepicks_service.py: # # Calculate weighted average (more recent games weighted higher)
+- backend/services/comprehensive_prizepicks_service.py: # total_weight = 0
+- backend/services/comprehensive_prizepicks_service.py: # weighted_sum = 0
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     for i, game in enumerate(recent_games):
-- backend/services/comprehensive_prizepicks_service.py: #         weight = 1.0 / (i + 1)  # Recent games get higher weight
-- backend/services/comprehensive_prizepicks_service.py: #         weighted_sum += game["actual_value"] * weight
-- backend/services/comprehensive_prizepicks_service.py: #         total_weight += weight
+- backend/services/comprehensive_prizepicks_service.py: # for i, game in enumerate(recent_games):
+- backend/services/comprehensive_prizepicks_service.py: # weight = 1.0 / (i + 1) # Recent games get higher weight
+- backend/services/comprehensive_prizepicks_service.py: # weighted_sum += game["actual_value"] \* weight
+- backend/services/comprehensive_prizepicks_service.py: # total_weight += weight
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     predicted = (
-- backend/services/comprehensive_prizepicks_service.py: #         weighted_sum / total_weight if total_weight > 0 else projection.line_score
-- backend/services/comprehensive_prizepicks_service.py: #     )
+- backend/services/comprehensive_prizepicks_service.py: # predicted = (
+- backend/services/comprehensive_prizepicks_service.py: # weighted_sum / total_weight if total_weight > 0 else projection.line_score
+- backend/services/comprehensive_prizepicks_service.py: # )
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     # Apply trend adjustment
-- backend/services/comprehensive_prizepicks_service.py: #     if len(recent_games) >= 5:
-- backend/services/comprehensive_prizepicks_service.py: #         trend = self.calculate_trend(recent_games[:5])
-- backend/services/comprehensive_prizepicks_service.py: #         predicted += trend * 0.1  # Small trend adjustment
+- backend/services/comprehensive_prizepicks_service.py: # # Apply trend adjustment
+- backend/services/comprehensive_prizepicks_service.py: # if len(recent_games) >= 5:
+- backend/services/comprehensive_prizepicks_service.py: # trend = self.calculate_trend(recent_games[:5])
+- backend/services/comprehensive_prizepicks_service.py: # predicted += trend \* 0.1 # Small trend adjustment
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     return round(predicted, 1)
+- backend/services/comprehensive_prizepicks_service.py: # return round(predicted, 1)
 - backend/services/comprehensive_prizepicks_service.py: # def calculate_prediction_confidence(
-- backend/services/comprehensive_prizepicks_service.py: #     self, history: List[Dict], projection: Any
+- backend/services/comprehensive_prizepicks_service.py: # self, history: List[Dict], projection: Any
 - backend/services/comprehensive_prizepicks_service.py: # ) -> float:
-- backend/services/comprehensive_prizepicks_service.py: #     """Calculate confidence in prediction based on data quality"""
-- backend/services/comprehensive_prizepicks_service.py: #     base_confidence = 0.5
+- backend/services/comprehensive_prizepicks_service.py: # """Calculate confidence in prediction based on data quality"""
+- backend/services/comprehensive_prizepicks_service.py: # base_confidence = 0.5
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     if not history:
-- backend/services/comprehensive_prizepicks_service.py: #         return base_confidence
+- backend/services/comprehensive_prizepicks_service.py: # if not history:
+- backend/services/comprehensive_prizepicks_service.py: # return base_confidence
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     # Factor 1: Sample size
-- backend/services/comprehensive_prizepicks_service.py: #     sample_size_factor = min(len(history) / 20, 1.0) * 0.2
+- backend/services/comprehensive_prizepicks_service.py: # # Factor 1: Sample size
+- backend/services/comprehensive_prizepicks_service.py: # sample_size_factor = min(len(history) / 20, 1.0) \* 0.2
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     # Factor 2: Consistency (lower variance = higher confidence)
-- backend/services/comprehensive_prizepicks_service.py: #     values = [game["actual_value"] for game in history]
-- backend/services/comprehensive_prizepicks_service.py: #     if len(values) > 1:
+- backend/services/comprehensive_prizepicks_service.py: # # Factor 2: Consistency (lower variance = higher confidence)
+- backend/services/comprehensive_prizepicks_service.py: # values = [game["actual_value"] for game in history]
+- backend/services/comprehensive_prizepicks_service.py: # if len(values) > 1:
 - backend/services/comprehensive_prizepicks_service.py: # Factor 3: Recency (more recent data = higher confidence)
 - backend/services/comprehensive_prizepicks_service.py: # Factor 4: League quality (some leagues have more predictable data)
 - backend/services/comprehensive_prizepicks_service.py: # Cap at 95%
@@ -7230,25 +7293,25 @@
 - backend/services/comprehensive_prizepicks_service.py: # No significant value
 - backend/services/comprehensive_prizepicks_service.py: # Scale the value score
 - backend/services/comprehensive_prizepicks_service.py: # def generate_reasoning(
-- backend/services/comprehensive_prizepicks_service.py: #     self,
-- backend/services/comprehensive_prizepicks_service.py: #     history: List[Dict],
-- backend/services/comprehensive_prizepicks_service.py: #     predicted: float,
-- backend/services/comprehensive_prizepicks_service.py: #     projection: Any,
-- backend/services/comprehensive_prizepicks_service.py: #     confidence: float,
+- backend/services/comprehensive_prizepicks_service.py: # self,
+- backend/services/comprehensive_prizepicks_service.py: # history: List[Dict],
+- backend/services/comprehensive_prizepicks_service.py: # predicted: float,
+- backend/services/comprehensive_prizepicks_service.py: # projection: Any,
+- backend/services/comprehensive_prizepicks_service.py: # confidence: float,
 - backend/services/comprehensive_prizepicks_service.py: # ) -> List[str]:
-- backend/services/comprehensive_prizepicks_service.py: #     """Generate human-readable reasoning for the analysis"""
-- backend/services/comprehensive_prizepicks_service.py: #     reasoning = []
+- backend/services/comprehensive_prizepicks_service.py: # """Generate human-readable reasoning for the analysis"""
+- backend/services/comprehensive_prizepicks_service.py: # reasoning = []
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     if not history:
-- backend/services/comprehensive_prizepicks_service.py: #         reasoning.append("Limited historical data available")
-- backend/services/comprehensive_prizepicks_service.py: #         return reasoning
+- backend/services/comprehensive_prizepicks_service.py: # if not history:
+- backend/services/comprehensive_prizepicks_service.py: # reasoning.append("Limited historical data available")
+- backend/services/comprehensive_prizepicks_service.py: # return reasoning
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     # Sample size reasoning
-- backend/services/comprehensive_prizepicks_service.py: #     reasoning.append(f"Based on {len(history)} historical games")
+- backend/services/comprehensive_prizepicks_service.py: # # Sample size reasoning
+- backend/services/comprehensive_prizepicks_service.py: # reasoning.append(f"Based on {len(history)} historical games")
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     # Recent performance
-- backend/services/comprehensive_prizepicks_service.py: #     recent = sorted(history, key=lambda x: x["game_date"], reverse=True)[:5]
-- backend/services/comprehensive_prizepicks_service.py: #     if recent:
+- backend/services/comprehensive_prizepicks_service.py: # # Recent performance
+- backend/services/comprehensive_prizepicks_service.py: # recent = sorted(history, key=lambda x: x["game_date"], reverse=True)[:5]
+- backend/services/comprehensive_prizepicks_service.py: # if recent:
 - backend/services/comprehensive_prizepicks_service.py: # Trend analysis
 - backend/services/comprehensive_prizepicks_service.py: # Confidence reasoning
 - backend/services/comprehensive_prizepicks_service.py: # Value reasoning
@@ -7256,47 +7319,47 @@
 - backend/services/comprehensive_prizepicks_service.py: # Calculate simple linear trend
 - backend/services/comprehensive_prizepicks_service.py: # Calculate trend direction
 - backend/services/comprehensive_prizepicks_service.py: # def assess_risk(
-- backend/services/comprehensive_prizepicks_service.py: #     self, projection: Any, confidence: float
+- backend/services/comprehensive_prizepicks_service.py: # self, projection: Any, confidence: float
 - backend/services/comprehensive_prizepicks_service.py: # ) -> Dict[str, Any]:
-- backend/services/comprehensive_prizepicks_service.py: #     """Assess risk factors for the projection"""
-- backend/services/comprehensive_prizepicks_service.py: #     risk_factors = []
-- backend/services/comprehensive_prizepicks_service.py: #     risk_score = 0.0
+- backend/services/comprehensive_prizepicks_service.py: # """Assess risk factors for the projection"""
+- backend/services/comprehensive_prizepicks_service.py: # risk_factors = []
+- backend/services/comprehensive_prizepicks_service.py: # risk_score = 0.0
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     # Time until game
-- backend/services/comprehensive_prizepicks_service.py: #     time_to_game = (
-- backend/services/comprehensive_prizepicks_service.py: #         projection.start_time - datetime.now(timezone.utc)
-- backend/services/comprehensive_prizepicks_service.py: #     ).total_seconds() / 3600
-- backend/services/comprehensive_prizepicks_service.py: #     if time_to_game < 2:  # Less than 2 hours
-- backend/services/comprehensive_prizepicks_service.py: #         risk_factors.append("Game starting soon - lineup changes possible")
-- backend/services/comprehensive_prizepicks_service.py: #         risk_score += 0.1
+- backend/services/comprehensive_prizepicks_service.py: # # Time until game
+- backend/services/comprehensive_prizepicks_service.py: # time_to_game = (
+- backend/services/comprehensive_prizepicks_service.py: # projection.start_time - datetime.now(timezone.utc)
+- backend/services/comprehensive_prizepicks_service.py: # ).total_seconds() / 3600
+- backend/services/comprehensive_prizepicks_service.py: # if time_to_game < 2: # Less than 2 hours
+- backend/services/comprehensive_prizepicks_service.py: # risk_factors.append("Game starting soon - lineup changes possible")
+- backend/services/comprehensive_prizepicks_service.py: # risk_score += 0.1
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     # Promotional props are riskier
-- backend/services/comprehensive_prizepicks_service.py: #     if projection.is_promo:
-- backend/services/comprehensive_prizepicks_service.py: #         risk_factors.append("Promotional prop - potentially boosted line")
-- backend/services/comprehensive_prizepicks_service.py: #         risk_score += 0.2
+- backend/services/comprehensive_prizepicks_service.py: # # Promotional props are riskier
+- backend/services/comprehensive_prizepicks_service.py: # if projection.is_promo:
+- backend/services/comprehensive_prizepicks_service.py: # risk_factors.append("Promotional prop - potentially boosted line")
+- backend/services/comprehensive_prizepicks_service.py: # risk_score += 0.2
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     # Low confidence increases risk
-- backend/services/comprehensive_prizepicks_service.py: #     if confidence < 0.6:
-- backend/services/comprehensive_prizepicks_service.py: #         risk_factors.append("Low prediction confidence")
-- backend/services/comprehensive_prizepicks_service.py: #         risk_score += 0.3
+- backend/services/comprehensive_prizepicks_service.py: # # Low confidence increases risk
+- backend/services/comprehensive_prizepicks_service.py: # if confidence < 0.6:
+- backend/services/comprehensive_prizepicks_service.py: # risk_factors.append("Low prediction confidence")
+- backend/services/comprehensive_prizepicks_service.py: # risk_score += 0.3
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     # New players or limited data
-- backend/services/comprehensive_prizepicks_service.py: #     player_data_points = len(
-- backend/services/comprehensive_prizepicks_service.py: #         self.player_trends.get(f"{projection.player_id}_{projection.stat_type}", [])
-- backend/services/comprehensive_prizepicks_service.py: #     )
-- backend/services/comprehensive_prizepicks_service.py: #     if player_data_points < 5:
-- backend/services/comprehensive_prizepicks_service.py: #         risk_factors.append("Limited historical data for player")
-- backend/services/comprehensive_prizepicks_service.py: #         risk_score += 0.2
+- backend/services/comprehensive_prizepicks_service.py: # # New players or limited data
+- backend/services/comprehensive_prizepicks_service.py: # player_data_points = len(
+- backend/services/comprehensive*prizepicks_service.py: # self.player_trends.get(f"{projection.player_id}*{projection.stat_type}", [])
+- backend/services/comprehensive_prizepicks_service.py: # )
+- backend/services/comprehensive_prizepicks_service.py: # if player_data_points < 5:
+- backend/services/comprehensive_prizepicks_service.py: # risk_factors.append("Limited historical data for player")
+- backend/services/comprehensive_prizepicks_service.py: # risk_score += 0.2
 - backend/services/comprehensive_prizepicks_service.py: #
-- backend/services/comprehensive_prizepicks_service.py: #     return {
-- backend/services/comprehensive_prizepicks_service.py: #         "risk_score": min(risk_score, 1.0),
-- backend/services/comprehensive_prizepicks_service.py: #         "risk_factors": risk_factors,
-- backend/services/comprehensive_prizepicks_service.py: #         "recommendation": (
-- backend/services/comprehensive_prizepicks_service.py: #             "HIGH_RISK"
-- backend/services/comprehensive_prizepicks_service.py: #             if risk_score > 0.5
-- backend/services/comprehensive_prizepicks_service.py: #             else "MODERATE_RISK" if risk_score > 0.2 else "LOW_RISK"
-- backend/services/comprehensive_prizepicks_service.py: #         ),
-- backend/services/comprehensive_prizepicks_service.py: #     }
+- backend/services/comprehensive_prizepicks_service.py: # return {
+- backend/services/comprehensive_prizepicks_service.py: # "risk_score": min(risk_score, 1.0),
+- backend/services/comprehensive_prizepicks_service.py: # "risk_factors": risk_factors,
+- backend/services/comprehensive_prizepicks_service.py: # "recommendation": (
+- backend/services/comprehensive_prizepicks_service.py: # "HIGH_RISK"
+- backend/services/comprehensive_prizepicks_service.py: # if risk_score > 0.5
+- backend/services/comprehensive_prizepicks_service.py: # else "MODERATE_RISK" if risk_score > 0.2 else "LOW_RISK"
+- backend/services/comprehensive_prizepicks_service.py: # ),
+- backend/services/comprehensive_prizepicks_service.py: # }
 - backend/services/comprehensive_prizepicks_service.py: # Query last 50 games for the player and stat type
 - backend/services/comprehensive_prizepicks_service.py: # This would integrate with sports data APIs to get actual results
 - backend/services/comprehensive_prizepicks_service.py: # For now, we'll implement the framework
@@ -7656,7 +7719,7 @@
 - backend/services/data_fetchers_enhanced.py: # Get props if not provided
 - backend/services/data_fetchers_enhanced.py: # Use ensemble system if available
 - backend/services/data_fetchers_enhanced.py: # Sort props by confidence and expected value
-- backend/services/data_fetchers_enhanced.py: # Simple scoring: confidence * expected_value
+- backend/services/data_fetchers_enhanced.py: # Simple scoring: confidence \* expected_value
 - backend/services/data_fetchers_enhanced.py: # Sort by score (highest first)
 - backend/services/data_fetchers_enhanced.py: # Select top props
 - backend/services/data_fetchers_enhanced.py: # Calculate basic metrics
@@ -7966,7 +8029,7 @@
 - backend/services/intelligent_ensemble_system.py: # Slight over the line
 - backend/services/intelligent_ensemble_system.py: # Filter to only in-season sports
 - backend/services/intelligent_ensemble_system.py: # Get ensemble predictions for all props
-- backend/services/intelligent_ensemble_system.py: # Sort by combined score (win probability * confidence * (1 - risk_score))
+- backend/services/intelligent*ensemble_system.py: # Sort by combined score (win probability * confidence \_ (1 - risk_score))
 - backend/services/intelligent_ensemble_system.py: # EV boost
 - backend/services/intelligent_ensemble_system.py: # Sort by combined score (highest first)
 - backend/services/intelligent_ensemble_system.py: # Select top props for lineup
@@ -8045,7 +8108,7 @@
 - backend/services/real_data_service.py: # Only define here
 - backend/services/real_data_service.py: # API configurations
 - backend/services/real_data_service.py: # PrizePicks API key is not required; public access only
-- backend/services/real_data_service.py: # self.prizepicks_api_key = get_api_key("prizepicks")  # Deprecated, not used
+- backend/services/real_data_service.py: # self.prizepicks_api_key = get_api_key("prizepicks") # Deprecated, not used
 - backend/services/real_data_service.py: # Fetch from The Odds API
 - backend/services/real_data_service.py: # type: ignore
 - backend/services/real_data_service.py: # Fetch from database-stored opportunities
@@ -8465,7 +8528,7 @@
 - backend/services/real_time_prediction_engine.py: # Extract top factors from SHAP explanation
 - backend/services/real_time_prediction_engine.py: # Sort by importance and take top 3
 - backend/services/real_time_prediction_engine.py: # Default key factors
-- backend/services/real_time_prediction_engine.py: # EV = (probability * payout) - (1 - probability) * stake
+- backend/services/real*time_prediction_engine.py: # EV = (probability * payout) - (1 - probability) \_ stake
 - backend/services/real_time_prediction_engine.py: # Assuming stake of 1 unit
 - backend/services/real_time_prediction_engine.py: # Profit if win
 - backend/services/real_time_prediction_engine.py: # Risk is inverse of confidence and agreement
@@ -8510,7 +8573,7 @@
 - backend/services/unified_prediction_service.py: # where b = odds-1, p = probability, q = 1-p
 - backend/services/unified_prediction_service.py: # Cap at 25% for risk management
 - backend/services/unified_prediction_service.py: # Standard odds
-- backend/services/unified_prediction_service.py: # EV = (probability * profit) - (1-probability * loss)
+- backend/services/unified*prediction_service.py: # EV = (probability * profit) - (1-probability \_ loss)
 - backend/services/unified_prediction_service.py: # Quantum entanglement factors (mock sophisticated calculation)
 - backend/services/unified_prediction_service.py: # 80-99
 - backend/services/unified_prediction_service.py: # 85-99
@@ -8624,10 +8687,10 @@
 - backend/tests/test_endpoints.py: # Sample test data
 - backend/tests/test_endpoints.py: # Verify features contain expected keys
 - backend/tests/test_meta_learning.py: # Support set: 5 examples per class, 3 classes
-- backend/tests/test_meta_learning.py: # 5 * 3 classes
+- backend/tests/test_meta_learning.py: # 5 \* 3 classes
 - backend/tests/test_meta_learning.py: # Class labels
 - backend/tests/test_meta_learning.py: # Query set: 3 examples per class
-- backend/tests/test_meta_learning.py: # 3 * 3 classes
+- backend/tests/test_meta_learning.py: # 3 \* 3 classes
 - backend/tests/test_meta_learning.py: # N-way K-shot data: 3-way 5-shot
 - backend/tests/test_meta_learning.py: # Support examples
 - backend/tests/test_meta_learning.py: # Query examples
@@ -8722,7 +8785,7 @@
 - backend/tests/test_nas_implementation.py: # Test that we can access individual NAS models
 - backend/tests/test_nas_implementation.py: # All should integrate with the engine's architecture
 - backend/tests/test_quantum_ensemble.py: # Simulate real betting feature data
-- backend/tests/test_quantum_ensemble.py: # Convert numpy array to dict format expected by _quantum_feature_transformation
+- backend/tests/test_quantum_ensemble.py: # Convert numpy array to dict format expected by \_quantum_feature_transformation
 - backend/tests/test_quantum_ensemble.py: # Pass empty data
 - backend/tests/test_real_metrics.py: #!/usr/bin/env python3
 - backend/tests/test_real_metrics.py: # Import the classes we'll be testing
@@ -8894,7 +8957,7 @@
 - backend/utils/seasonal_utils.py: # Check if this sport is in season
 - backend/utils/serialization_utils.py: # A registry to hold all the classes we can serialize/deserialize.
 - backend/utils/serialization_utils.py: # This is a security measure to prevent arbitrary class instantiation.
-- backend/utils/serialization_utils.py: # Add a __type__ key to identify the original class for deserialization.
+- backend/utils/serialization_utils.py: # Add a **type** key to identify the original class for deserialization.
 - backend/utils/serialization_utils.py: # Always convert datetime to UTC and store in ISO format with timezone.
 - backend/utils/serialization_utils.py: # Store the enum's class and member name.
 - backend/utils/serialization_utils.py: # If the class isn't registered or isn't an enum, we can't safely proceed.
@@ -8906,4 +8969,5 @@
 ## Technical Debt
 
 ---
+
 This roadmap is auto-generated from codebase comments and TODOs.

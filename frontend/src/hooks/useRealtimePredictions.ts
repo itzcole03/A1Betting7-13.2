@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { masterServiceRegistry } from '../services/MasterServiceRegistry';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface PredictionData {
   id: string;
@@ -9,7 +8,7 @@ interface PredictionData {
   prediction: number;
   confidence: number;
   modelUsed: string;
-  factors: any[];
+  factors: unknown[];
   timestamp: Date;
   status: 'active' | 'settled' | 'cancelled';
 }
@@ -22,13 +21,13 @@ interface RealtimeConfig {
   minConfidence: number;
 }
 
-export const useRealtimePredictions = () => {
+export const _useRealtimePredictions = () => {
   const [predictions, setPredictions] = useState<PredictionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const wsRef = useRef<any>(null);
+  const _intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const _wsRef = useRef<unknown>(null);
 
   const [config, setConfig] = useState<RealtimeConfig>({
     autoRefresh: true,
@@ -38,28 +37,28 @@ export const useRealtimePredictions = () => {
     minConfidence: 0.6,
   });
 
-  const fetchPredictions = useCallback(
-    async (filters?: any) => {
+  const _fetchPredictions = useCallback(
+    async (filters?: unknown) => {
       try {
         setLoading(true);
         setError(null);
 
-        const predictionService = masterServiceRegistry.getService('predictions');
+        const _predictionService = masterServiceRegistry.getService('predictions');
         if (!predictionService) {
           throw new Error('Prediction service not available');
         }
 
-        const requestFilters = {
+        const _requestFilters = {
           sports: config.sports,
           markets: config.markets,
           minConfidence: config.minConfidence,
           ...filters,
         };
 
-        const data = await predictionService.getRealtimePredictions(requestFilters);
+        const _data = await predictionService.getRealtimePredictions(requestFilters);
         setPredictions(data || []);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch predictions';
+        const _errorMessage = err instanceof Error ? err.message : 'Failed to fetch predictions';
         setError(errorMessage);
         console.error('Predictions fetch error:', err);
       } finally {
@@ -69,14 +68,14 @@ export const useRealtimePredictions = () => {
     [config]
   );
 
-  const makePrediction = useCallback(async (request: any) => {
+  const _makePrediction = useCallback(async (request: unknown) => {
     try {
-      const predictionService = masterServiceRegistry.getService('predictions');
+      const _predictionService = masterServiceRegistry.getService('predictions');
       if (!predictionService) {
         throw new Error('Prediction service not available');
       }
 
-      const result = await predictionService.makePrediction(request);
+      const _result = await predictionService.makePrediction(request);
 
       // Add new prediction to current list
       setPredictions(prev => [result, ...prev]);
@@ -88,9 +87,9 @@ export const useRealtimePredictions = () => {
     }
   }, []);
 
-  const connectWebSocket = useCallback(() => {
+  const _connectWebSocket = useCallback(() => {
     try {
-      const wsService = masterServiceRegistry.getService('websocket');
+      const _wsService = masterServiceRegistry.getService('websocket');
       if (!wsService) {
         console.warn('WebSocket service not available');
         return;
@@ -99,10 +98,10 @@ export const useRealtimePredictions = () => {
       // Subscribe to prediction updates
       wsRef.current = wsService.subscribe('prediction_update', (data: PredictionData) => {
         setPredictions(prev => {
-          const index = prev.findIndex(p => p.id === data.id);
+          const _index = prev.findIndex(p => p.id === data.id);
           if (index >= 0) {
             // Update existing prediction
-            const updated = [...prev];
+            const _updated = [...prev];
             updated[index] = data;
             return updated;
           } else {
@@ -113,7 +112,7 @@ export const useRealtimePredictions = () => {
       });
 
       // Subscribe to real-time game updates
-      wsService.subscribe('game_update', (data: any) => {
+      wsService.subscribe('game_update', (data: unknown) => {
         // Trigger prediction refresh for affected games
         fetchPredictions({ gameId: data.gameId });
       });
@@ -125,9 +124,9 @@ export const useRealtimePredictions = () => {
     }
   }, [fetchPredictions]);
 
-  const disconnectWebSocket = useCallback(() => {
+  const _disconnectWebSocket = useCallback(() => {
     try {
-      const wsService = masterServiceRegistry.getService('websocket');
+      const _wsService = masterServiceRegistry.getService('websocket');
       if (wsService && wsRef.current) {
         wsService.unsubscribe(wsRef.current);
         wsRef.current = null;
@@ -138,7 +137,7 @@ export const useRealtimePredictions = () => {
     }
   }, []);
 
-  const startAutoRefresh = useCallback(() => {
+  const _startAutoRefresh = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
@@ -150,29 +149,29 @@ export const useRealtimePredictions = () => {
     }
   }, [config.autoRefresh, config.refreshInterval, fetchPredictions]);
 
-  const stopAutoRefresh = useCallback(() => {
+  const _stopAutoRefresh = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
   }, []);
 
-  const updateConfig = useCallback((newConfig: Partial<RealtimeConfig>) => {
+  const _updateConfig = useCallback((newConfig: Partial<RealtimeConfig>) => {
     setConfig(prev => ({ ...prev, ...newConfig }));
   }, []);
 
-  const refreshPredictions = useCallback(() => {
+  const _refreshPredictions = useCallback(() => {
     fetchPredictions();
   }, [fetchPredictions]);
 
-  const getPredictionsByGame = useCallback(
+  const _getPredictionsByGame = useCallback(
     (gameId: string) => {
       return predictions.filter(p => p.gameId === gameId);
     },
     [predictions]
   );
 
-  const getPredictionsBySport = useCallback(
+  const _getPredictionsBySport = useCallback(
     (sport: string) => {
       return predictions.filter(p => p.sport === sport);
     },

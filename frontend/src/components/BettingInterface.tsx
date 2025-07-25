@@ -4,11 +4,11 @@ import React, { useState } from 'react';
 /**
  * BettingInterface - Place and track bets with real-time analytics.
  */
-const BettingInterface: React.FC = () => {
+const _BettingInterface: React.FC = () => {
   const [betAmount, setBetAmount] = useState('');
   const [betPlaced, setBetPlaced] = useState(false);
 
-  const handlePlaceBet = () => {
+  const _handlePlaceBet = () => {
     setBetPlaced(true);
     setTimeout(() => setBetPlaced(false), 2000);
   };

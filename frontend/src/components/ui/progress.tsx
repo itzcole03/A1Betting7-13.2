@@ -14,7 +14,7 @@ export interface ProgressProps {
   className?: string;
 }
 
-export const Progress: React.FC<ProgressProps> = ({
+export const _Progress: React.FC<ProgressProps> = ({
   value,
   max = 100,
   variant = 'default',
@@ -26,15 +26,15 @@ export const Progress: React.FC<ProgressProps> = ({
   animate = true,
   className = '',
 }) => {
-  const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+  const _percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
-  const sizeClasses = {
+  const _sizeClasses = {
     sm: 'h-2',
     md: 'h-3',
     lg: 'h-4',
   };
 
-  const colorClasses = {
+  const _colorClasses = {
     blue: {
       bg: 'bg-blue-500',
       gradient: 'from-blue-400 to-blue-600',
@@ -67,7 +67,7 @@ export const Progress: React.FC<ProgressProps> = ({
     },
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-slate-700',
     cyber: 'bg-slate-900/50 border border-cyan-500/30',
     glass: 'bg-white/10 backdrop-blur-sm border border-white/10',
@@ -75,8 +75,8 @@ export const Progress: React.FC<ProgressProps> = ({
     pulse: 'bg-slate-700',
   };
 
-  const getProgressBarClasses = () => {
-    const colorConfig = colorClasses[color];
+  const _getProgressBarClasses = () => {
+    const _colorConfig = colorClasses[color];
 
     switch (variant) {
       case 'cyber':
@@ -92,7 +92,7 @@ export const Progress: React.FC<ProgressProps> = ({
     }
   };
 
-  const progressVariants = {
+  const _progressVariants = {
     initial: { width: 0 },
     animate: {
       width: `${percentage}%`,
@@ -103,7 +103,7 @@ export const Progress: React.FC<ProgressProps> = ({
     },
   };
 
-  const pulseVariants = {
+  const _pulseVariants = {
     pulse: {
       scale: [1, 1.02, 1],
       transition: {

@@ -1,2 +1,2 @@
 ﻿import { UnifiedLogger } from '@/types.ts';
-export declare function getLogger(context: string): UnifiedLogger;
+export declare function getLogger(_context: string): UnifiedLogger;

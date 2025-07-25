@@ -49,23 +49,23 @@ export class ProjectionAnalyzer implements Analyzer<DailyFantasyData, Projection
   }
 
   public async analyze(data: DailyFantasyData): Promise<ProjectionAnalysis[]> {
-    const traceId = this.performanceMonitor.startTrace('projection-analysis', {
+    const _traceId = this.performanceMonitor.startTrace('projection-analysis', {
       category: 'analysis.projection',
       description: 'Projection analysis',
     });
 
     try {
-      const analyses: ProjectionAnalysis[] = [];
+      const _analyses: ProjectionAnalysis[] = [];
 
-      for (const projection of data.projections) {
-        const spanId = this.performanceMonitor.startSpan(traceId, 'player-analysis', {
+      for (const _projection of data.projections) {
+        const _spanId = this.performanceMonitor.startSpan(traceId, 'player-analysis', {
           player: projection.name,
           team: projection.team,
         });
 
         try {
-          const baseConfidence = this.calculateBaseConfidence(projection);
-          const analysis = this.analyzePlayerProjection(projection, baseConfidence);
+          const _baseConfidence = this.calculateBaseConfidence(projection);
+          const _analysis = this.analyzePlayerProjection(projection, baseConfidence);
           if (analysis.confidence >= this.confidenceThreshold) {
             analyses.push(analysis);
           }
@@ -85,7 +85,7 @@ export class ProjectionAnalyzer implements Analyzer<DailyFantasyData, Projection
 
   public async confidence(data: DailyFantasyData): Promise<number> {
     if (!data.projections.length) return 0;
-    const validProjections = data.projections.filter((p: any) => this.isValidProjection(p));
+    const _validProjections = data.projections.filter((p: unknown) => this.isValidProjection(p));
     return validProjections.length / data.projections.length;
   }
 
@@ -93,7 +93,7 @@ export class ProjectionAnalyzer implements Analyzer<DailyFantasyData, Projection
     projection: DailyFantasyData['projections'][0],
     baseConfidence: number
   ): ProjectionAnalysis {
-    const analysis: ProjectionAnalysis = {
+    const _analysis: ProjectionAnalysis = {
       player: projection.name,
       predictions: {
         points: this.calculateMetrics(projection.pts, baseConfidence, 'points'),
@@ -131,7 +131,7 @@ export class ProjectionAnalyzer implements Analyzer<DailyFantasyData, Projection
   }
 
   private calculateBaseConfidence(projection: DailyFantasyData['projections'][0]): number {
-    let confidence = 1.0;
+    let _confidence = 1.0;
     // Reduce confidence for missing or invalid data
     if (!this.isValidProjection(projection)) {
       confidence *= 0.5;
@@ -152,7 +152,7 @@ export class ProjectionAnalyzer implements Analyzer<DailyFantasyData, Projection
     baseConfidence: number,
     statType: string
   ): PredictionMetrics {
-    const variance = this.calculateVariance(value, statType);
+    const _variance = this.calculateVariance(value, statType);
     return {
       predicted: value,
       confidence: baseConfidence * this.getStatTypeConfidence(statType),
@@ -165,7 +165,7 @@ export class ProjectionAnalyzer implements Analyzer<DailyFantasyData, Projection
 
   private calculateVariance(value: number, statType: string): number {
     // Different stats have different natural variances
-    const varianceFactors: Record<string, number> = {
+    const _varianceFactors: Record<string, number> = {
       points: 0.2,
       rebounds: 0.25,
       assists: 0.3,
@@ -179,7 +179,7 @@ export class ProjectionAnalyzer implements Analyzer<DailyFantasyData, Projection
 
   private getStatTypeConfidence(statType: string): number {
     // Some stats are more predictable than others
-    const confidenceFactors: Record<string, number> = {
+    const _confidenceFactors: Record<string, number> = {
       points: 0.9,
       rebounds: 0.85,
       assists: 0.8,

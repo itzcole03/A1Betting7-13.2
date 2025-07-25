@@ -19,9 +19,9 @@ interface ChartConfig {
 }
 
 interface ChartData {
-  datasets: any[];
+  datasets: unknown[];
   labels?: string[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface ChartError {
@@ -74,7 +74,7 @@ interface ChartWrapperState {
   isVisible: boolean;
 }
 
-const defaultConfig: ChartConfig = {
+const _defaultConfig: ChartConfig = {
   responsive: true,
   maintainAspectRatio: true,
   aspectRatio: 2,
@@ -88,8 +88,8 @@ const defaultConfig: ChartConfig = {
   },
 };
 
-const getSizeClasses = (size: string) => {
-  const sizes = {
+const _getSizeClasses = (size: string) => {
+  const _sizes = {
     sm: 'w-64 h-32',
     md: 'w-96 h-48',
     lg: 'w-[32rem] h-64',
@@ -99,11 +99,11 @@ const getSizeClasses = (size: string) => {
   return sizes[size as keyof typeof sizes] || sizes.md;
 };
 
-const formatFileSize = (bytes: number): string => {
+const _formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const _k = 1024;
+  const _sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const _i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
@@ -112,7 +112,7 @@ class ChartErrorBoundary extends React.Component<
   { children: React.ReactNode; onError: (error: ChartError) => void; fallback: React.ReactNode },
   { hasError: boolean; error: ChartError | null }
 > {
-  constructor(props: any) {
+  constructor(props: unknown) {
     super(props);
     this.state = { hasError: false, error: null };
   }
@@ -129,7 +129,7 @@ class ChartErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    const chartError: ChartError = {
+    const _chartError: ChartError = {
       message: error.message,
       stack: error.stack,
       // @ts-expect-error TS(2322): Type 'string | null | undefined' is not assignable... Remove this comment to see the full error message
@@ -150,12 +150,12 @@ class ChartErrorBoundary extends React.Component<
 }
 
 // Intersection Observer Hook for Lazy Loading
-const useIntersectionObserver = (threshold = 0.1) => {
+const _useIntersectionObserver = (threshold = 0.1) => {
   const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const _ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    const _observer = new IntersectionObserver(
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
       },
@@ -177,15 +177,15 @@ const useIntersectionObserver = (threshold = 0.1) => {
 };
 
 // Resize Observer Hook
-const useResizeObserver = () => {
+const _useResizeObserver = () => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const ref = useRef<HTMLDivElement>(null);
+  const _ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!ref.current) return;
 
-    const observer = new ResizeObserver(entries => {
-      const entry = entries[0];
+    const _observer = new ResizeObserver(entries => {
+      const _entry = entries[0];
       if (entry) {
         setDimensions({
           width: entry.contentRect.width,
@@ -201,7 +201,7 @@ const useResizeObserver = () => {
   return [ref, dimensions] as const;
 };
 
-export const ChartWrapper: React.FC<ChartWrapperProps> = ({
+export const _ChartWrapper: React.FC<ChartWrapperProps> = ({
   children,
   title,
   subtitle,
@@ -250,15 +250,15 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
 
   const [containerRef, containerSize] = useResizeObserver();
   const [intersectionRef, isInViewport] = useIntersectionObserver();
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const _wrapperRef = useRef<HTMLDivElement>(null);
 
   // Combine refs
-  const combinedRef = (node: HTMLDivElement) => {
+  const _combinedRef = (node: HTMLDivElement) => {
     if (containerRef.current !== node) {
-      (containerRef as any).current = node;
+      (containerRef as unknown).current = node;
     }
     if (intersectionRef.current !== node) {
-      (intersectionRef as any).current = node;
+      (intersectionRef as unknown).current = node;
     }
     // @ts-expect-error TS(2540): Cannot assign to 'current' because it is a read-on... Remove this comment to see the full error message
     wrapperRef.current = node;
@@ -267,7 +267,7 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
   // Handle error prop changes
   useEffect(() => {
     if (error) {
-      const chartError: ChartError = {
+      const _chartError: ChartError = {
         message: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
         timestamp: new Date(),
@@ -289,7 +289,7 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
   useEffect(() => {
     if (!refreshInterval || !onRefresh) return;
 
-    const interval = setInterval(() => {
+    const _interval = setInterval(() => {
       onRefresh();
     }, refreshInterval * 1000);
 
@@ -298,7 +298,7 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
 
   // Fullscreen handling
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
+    const _handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && state.isFullscreen) {
         exitFullscreen();
       }
@@ -308,7 +308,7 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [state.isFullscreen]);
 
-  const handleRetry = () => {
+  const _handleRetry = () => {
     if (state.retryCount >= maxRetries) return;
 
     setState(prev => ({
@@ -321,7 +321,7 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
     onRetry?.();
   };
 
-  const enterFullscreen = () => {
+  const _enterFullscreen = () => {
     if (wrapperRef.current?.requestFullscreen) {
       wrapperRef.current.requestFullscreen();
       setState(prev => ({ ...prev, isFullscreen: true }));
@@ -329,24 +329,24 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
     }
   };
 
-  const exitFullscreen = () => {
+  const _exitFullscreen = () => {
     if (document.exitFullscreen) {
       document.exitFullscreen();
       setState(prev => ({ ...prev, isFullscreen: false }));
     }
   };
 
-  const handleExport = (format: 'png' | 'svg' | 'pdf' | 'csv') => {
+  const _handleExport = (format: 'png' | 'svg' | 'pdf' | 'csv') => {
     onExport?.(format);
   };
 
-  const handleConfigChange = (newConfig: Partial<ChartConfig>) => {
-    const updatedConfig = { ...config, ...newConfig };
+  const _handleConfigChange = (newConfig: Partial<ChartConfig>) => {
+    const _updatedConfig = { ...config, ...newConfig };
     setConfig(updatedConfig);
     onConfigChange?.(updatedConfig);
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-lg shadow-sm',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -356,7 +356,7 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
   };
 
   // Render loading state
-  const renderLoading = () => (
+  const _renderLoading = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='flex items-center justify-center h-full min-h-32'>
       {loadingComponent || (
@@ -379,7 +379,7 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
   );
 
   // Render error state
-  const renderError = () => (
+  const _renderError = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='flex flex-col items-center justify-center h-full min-h-32 p-6'>
       {errorComponent || (
@@ -425,7 +425,7 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
   );
 
   // Render empty state
-  const renderEmpty = () => (
+  const _renderEmpty = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='flex flex-col items-center justify-center h-full min-h-32'>
       {emptyComponent || (
@@ -457,10 +457,10 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
   );
 
   // Check if we should render (lazy loading)
-  const shouldRender = !enableLazyLoading || isInViewport;
+  const _shouldRender = !enableLazyLoading || isInViewport;
 
   // Chart content
-  const chartContent = () => {
+  const _chartContent = () => {
     if (state.isLoading) return renderLoading();
     if (state.error) return renderError();
     if (!data || (data.datasets && data.datasets.length === 0)) return renderEmpty();
@@ -469,7 +469,7 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
     return children;
   };
 
-  const ChartContent = () => {
+  const _ChartContent = () => {
     if (enableErrorBoundary) {
       return (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -585,7 +585,7 @@ export const ChartWrapper: React.FC<ChartWrapperProps> = ({
                       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <button
                         key={format}
-                        onClick={() => handleExport(format as any)}
+                        onClick={() => handleExport(format as unknown)}
                         className={cn(
                           'w-full px-3 py-2 text-left text-sm hover:bg-gray-50 first:rounded-t last:rounded-b',
                           variant === 'cyber' && 'hover:bg-cyan-500/10 text-cyan-300'

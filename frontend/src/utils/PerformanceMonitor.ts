@@ -24,7 +24,7 @@ export class PerformanceMonitor {
   }
 }
 
-export async function measurePerformance(fn: () => Promise<void>, label: string) {
+export async function measurePerformance(_fn: () => Promise<void>, label: string) {
   await fn();
   // Log or report;
   // if (duration > 2000) {

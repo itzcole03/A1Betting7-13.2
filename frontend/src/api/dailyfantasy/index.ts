@@ -10,24 +10,24 @@ interface DailyFantasyRequest {
   sport: string;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(_req: NextApiRequest, _res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { site, date, sport } = req.body as DailyFantasyRequest;
-  const logger = getLogger();
-  const metrics = getMetrics();
-  const apiKey = process.env.DAILYFANTASY_API_KEY;
+  const _logger = getLogger();
+  const _metrics = getMetrics();
+  const _apiKey = import.meta.env.VITE_DAILYFANTASY_API_KEY;
 
   if (!apiKey) {
     return res.status(401).json({ error: 'API key is required' });
   }
 
   try {
-    const startTime = Date.now();
-    const data = await fetchDailyFantasyData(site, date, sport, apiKey);
-    const duration = Date.now() - startTime;
+    const _startTime = Date.now();
+    const _data = await fetchDailyFantasyData(site, date, sport, apiKey);
+    const _duration = Date.now() - startTime;
 
     metrics.timing('dailyfantasy_api_request_duration', duration, {
       site,
@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(200).json(data);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const _errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
     logger.error('Error fetching DailyFantasy data', {
       error: errorMessage,
@@ -62,15 +62,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 }
 
 async function fetchDailyFantasyData(
-  site: 'draftkings' | 'fanduel',
-  date: string,
-  sport: string,
-  apiKey: string
+  _site: 'draftkings' | 'fanduel',
+  _date: string,
+  _sport: string,
+  _apiKey: string
 ) {
-  const baseUrl =
+  const _baseUrl =
     site === 'draftkings' ? 'https://api.draftkings.com/v1' : 'https://api.fanduel.com/v1';
 
-  const response = await fetch(`${baseUrl}/contests/${sport}/${date}`, {
+  const _response = await fetch(`${baseUrl}/contests/${sport}/${date}`, {
     headers: {
       Authorization: `Bearer ${apiKey}`,
       Accept: 'application/json',
@@ -84,16 +84,16 @@ async function fetchDailyFantasyData(
     throw new Error(`API request failed: ${response.statusText}`);
   }
 
-  const data = await response.json();
+  const _data = await response.json();
   return processFantasyData(data, site);
 }
 
-function processFantasyData(data: any, _site: 'draftkings' | 'fanduel') {
+function processFantasyData(_data: unknown, _site: 'draftkings' | 'fanduel') {
   // Process the raw API response into our standardized format
-  const players = data.players || [];
+  const _players = data.players || [];
 
-  return players.map((player: any) => {
-    const playerData = player;
+  return players.map((player: unknown) => {
+    const _playerData = player;
 
     return {
       playerId: playerData.id,

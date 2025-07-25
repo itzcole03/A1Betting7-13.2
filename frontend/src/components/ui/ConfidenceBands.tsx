@@ -50,10 +50,10 @@ interface ConfidenceBandsProps {
   onBandHover?: (band: ConfidenceBand, point: DataPoint) => void;
 }
 
-const defaultConfidenceLevels = [68, 95, 99]; // 1σ, 2σ, 3σ equivalent
+const _defaultConfidenceLevels = [68, 95, 99]; // 1σ, 2σ, 3σ equivalent
 
-const generateConfidenceColors = (variant: string = 'default') => {
-  const colorSchemes = {
+const _generateConfidenceColors = (variant: string = 'default') => {
+  const _colorSchemes = {
     default: [
       { bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)' }, // blue
       { bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.3)' }, // green
@@ -69,20 +69,20 @@ const generateConfidenceColors = (variant: string = 'default') => {
   return variant === 'cyber' ? colorSchemes.cyber : colorSchemes.default;
 };
 
-const calculateScales = (data: PredictionData, width: number, height: number, padding = 40) => {
-  const allPoints = [
+const _calculateScales = (data: PredictionData, width: number, height: number, padding = 40) => {
+  const _allPoints = [
     ...data.actual,
     ...data.predicted,
     ...data.confidenceBands.flatMap(band => [...band.upperBound, ...band.lowerBound]),
   ];
 
-  const xMin = Math.min(...allPoints.map(p => p.x));
-  const xMax = Math.max(...allPoints.map(p => p.x));
-  const yMin = Math.min(...allPoints.map(p => p.y));
-  const yMax = Math.max(...allPoints.map(p => p.y));
+  const _xMin = Math.min(...allPoints.map(p => p.x));
+  const _xMax = Math.max(...allPoints.map(p => p.x));
+  const _yMin = Math.min(...allPoints.map(p => p.y));
+  const _yMax = Math.max(...allPoints.map(p => p.y));
 
-  const xRange = xMax - xMin || 1;
-  const yRange = yMax - yMin || 1;
+  const _xRange = xMax - xMin || 1;
+  const _yRange = yMax - yMin || 1;
 
   return {
     xScale: (x: number) => ((x - xMin) / xRange) * (width - 2 * padding) + padding,
@@ -96,7 +96,7 @@ const calculateScales = (data: PredictionData, width: number, height: number, pa
   };
 };
 
-const formatValue = (value: number, precision = 2): string => {
+const _formatValue = (value: number, precision = 2): string => {
   if (Math.abs(value) >= 1000000) {
     return (value / 1000000).toFixed(1) + 'M';
   }
@@ -106,7 +106,7 @@ const formatValue = (value: number, precision = 2): string => {
   return value.toFixed(precision);
 };
 
-export const ConfidenceBands: React.FC<ConfidenceBandsProps> = ({
+export const _ConfidenceBands: React.FC<ConfidenceBandsProps> = ({
   data,
   variant = 'default',
   width = 800,
@@ -132,19 +132,19 @@ export const ConfidenceBands: React.FC<ConfidenceBandsProps> = ({
   } | null>(null);
   const [selectedBands, setSelectedBands] = useState<Set<number>>(new Set(confidenceLevels));
 
-  const scales = useMemo(() => calculateScales(data, width, height), [data, width, height]);
+  const _scales = useMemo(() => calculateScales(data, width, height), [data, width, height]);
 
-  const colors = useMemo(() => generateConfidenceColors(variant), [variant]);
+  const _colors = useMemo(() => generateConfidenceColors(variant), [variant]);
 
-  const filteredBands = data.confidenceBands.filter(band => selectedBands.has(band.level));
+  const _filteredBands = data.confidenceBands.filter(band => selectedBands.has(band.level));
 
-  const createPath = (points: DataPoint[]): string => {
+  const _createPath = (points: DataPoint[]): string => {
     if (points.length === 0) return '';
 
-    const pathData = points
+    const _pathData = points
       .map((point, index) => {
-        const x = scales.xScale(point.x);
-        const y = scales.yScale(point.y);
+        const _x = scales.xScale(point.x);
+        const _y = scales.yScale(point.y);
         return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
       })
       .join(' ');
@@ -152,23 +152,23 @@ export const ConfidenceBands: React.FC<ConfidenceBandsProps> = ({
     return pathData;
   };
 
-  const createAreaPath = (upperBound: DataPoint[], lowerBound: DataPoint[]): string => {
+  const _createAreaPath = (upperBound: DataPoint[], lowerBound: DataPoint[]): string => {
     if (upperBound.length === 0 || lowerBound.length === 0) return '';
 
-    const upperPath = upperBound
+    const _upperPath = upperBound
       .map((point, index) => {
-        const x = scales.xScale(point.x);
-        const y = scales.yScale(point.y);
+        const _x = scales.xScale(point.x);
+        const _y = scales.yScale(point.y);
         return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
       })
       .join(' ');
 
-    const lowerPath = lowerBound
+    const _lowerPath = lowerBound
       .slice()
       .reverse()
       .map(point => {
-        const x = scales.xScale(point.x);
-        const y = scales.yScale(point.y);
+        const _x = scales.xScale(point.x);
+        const _y = scales.yScale(point.y);
         return `L ${x} ${y}`;
       })
       .join(' ');
@@ -176,8 +176,8 @@ export const ConfidenceBands: React.FC<ConfidenceBandsProps> = ({
     return `${upperPath} ${lowerPath} Z`;
   };
 
-  const toggleBand = (level: number) => {
-    const newSelected = new Set(selectedBands);
+  const _toggleBand = (level: number) => {
+    const _newSelected = new Set(selectedBands);
     if (newSelected.has(level)) {
       newSelected.delete(level);
     } else {
@@ -186,7 +186,7 @@ export const ConfidenceBands: React.FC<ConfidenceBandsProps> = ({
     setSelectedBands(newSelected);
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-lg shadow-sm',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -249,7 +249,7 @@ export const ConfidenceBands: React.FC<ConfidenceBandsProps> = ({
               <g className='opacity-30'>
                 {/* Vertical grid lines */}
                 {Array.from({ length: 6 }, (_, i) => {
-                  const x = 40 + (i * (width - 80)) / 5;
+                  const _x = 40 + (i * (width - 80)) / 5;
                   return (
                     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <line
@@ -267,7 +267,7 @@ export const ConfidenceBands: React.FC<ConfidenceBandsProps> = ({
 
                 {/* Horizontal grid lines */}
                 {Array.from({ length: 6 }, (_, i) => {
-                  const y = 40 + (i * (height - 80)) / 5;
+                  const _y = 40 + (i * (height - 80)) / 5;
                   return (
                     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <line
@@ -287,7 +287,7 @@ export const ConfidenceBands: React.FC<ConfidenceBandsProps> = ({
 
             {/* Confidence Bands */}
             {filteredBands.map((band, index) => {
-              const color = colors[index % colors.length];
+              const _color = colors[index % colors.length];
               return (
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <g key={`band-${band.level}`}>
@@ -304,15 +304,15 @@ export const ConfidenceBands: React.FC<ConfidenceBandsProps> = ({
                     onMouseEnter={e => {
                       if (showTooltips) {
                         // Find closest point for tooltip
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        const svgRect = e.currentTarget.closest('svg')?.getBoundingClientRect();
+                        const _rect = e.currentTarget.getBoundingClientRect();
+                        const _svgRect = e.currentTarget.closest('svg')?.getBoundingClientRect();
                         if (svgRect) {
-                          const x = e.clientX - svgRect.left;
+                          const _x = e.clientX - svgRect.left;
                           // Find closest data point
-                          const closestPoint = band.upperBound.reduce((closest, point) => {
-                            const pointX = scales.xScale(point.x);
-                            const distance = Math.abs(pointX - x);
-                            const closestDistance = Math.abs(scales.xScale(closest.x) - x);
+                          const _closestPoint = band.upperBound.reduce((closest, point) => {
+                            const _pointX = scales.xScale(point.x);
+                            const _distance = Math.abs(pointX - x);
+                            const _closestDistance = Math.abs(scales.xScale(closest.x) - x);
                             return distance < closestDistance ? point : closest;
                           });
                           setHoveredPoint({ point: closestPoint, type: 'band', band });
@@ -459,8 +459,8 @@ export const ConfidenceBands: React.FC<ConfidenceBandsProps> = ({
             >
               {/* X-axis ticks */}
               {Array.from({ length: 6 }, (_, i) => {
-                const x = 40 + (i * (width - 80)) / 5;
-                const value = scales.xMin + (i * scales.xRange) / 5;
+                const _x = 40 + (i * (width - 80)) / 5;
+                const _value = scales.xMin + (i * scales.xRange) / 5;
                 return (
                   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <g key={`x-tick-${i}`}>
@@ -476,8 +476,8 @@ export const ConfidenceBands: React.FC<ConfidenceBandsProps> = ({
 
               {/* Y-axis ticks */}
               {Array.from({ length: 6 }, (_, i) => {
-                const y = height - 40 - (i * (height - 80)) / 5;
-                const value = scales.yMin + (i * scales.yRange) / 5;
+                const _y = height - 40 - (i * (height - 80)) / 5;
+                const _value = scales.yMin + (i * scales.yRange) / 5;
                 return (
                   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <g key={`y-tick-${i}`}>
@@ -581,8 +581,8 @@ export const ConfidenceBands: React.FC<ConfidenceBandsProps> = ({
 
             {/* Confidence Bands Legend */}
             {data.confidenceBands.map((band, index) => {
-              const color = colors[index % colors.length];
-              const isSelected = selectedBands.has(band.level);
+              const _color = colors[index % colors.length];
+              const _isSelected = selectedBands.has(band.level);
               return (
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button

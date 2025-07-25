@@ -17,8 +17,8 @@ export declare class ModelRegistry extends EventEmitter {
   getModelMetrics(modelName: string): ModelMetrics | undefined;
   updateModelWeights(): void;
   getModelWeight(modelName: string): number;
-  trainAllModels(data: any): Promise<void>;
-  evaluateAllModels(data: any): Promise<void>;
+  trainAllModels(data: unknown): Promise<void>;
+  evaluateAllModels(data: unknown): Promise<void>;
   saveAllModels(basePath: string): Promise<void>;
   loadAllModels(basePath: string): Promise<void>;
 }

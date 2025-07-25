@@ -1,2 +1,2 @@
 import React from 'react.ts';
-export declare const SmartLineupBuilder: React.FC;
+export declare const _SmartLineupBuilder: React.FC;

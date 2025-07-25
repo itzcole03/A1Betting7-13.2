@@ -2,7 +2,7 @@
 import { apiClient } from '@/api/client';
 
 export class PredictionService {
-  static async updateConfig(config: any) {
+  static async updateConfig(config: unknown) {
     try {
       await apiClient.post('/ml/prediction/config', config);
       return true;

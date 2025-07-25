@@ -1,7 +1,5 @@
-// @ts-expect-error TS(2307): Cannot find module '@/core/UnifiedMonitor' or its ... Remove this comment to see the full error message
-import { UnifiedMonitor } from '@/core/UnifiedMonitor';
-// @ts-expect-error TS(2307): Cannot find module '@/unified/EventBus' or its cor... Remove this comment to see the full error message
-import { EventBus } from '@/unified/EventBus';
+import { UnifiedMonitor } from '../../core/UnifiedMonitor';
+import { EventBus } from '../../unified/EventBus';
 
 export interface AnalysisContext {
   timestamp: number;
@@ -29,7 +27,7 @@ export class AnalysisRegistry {
   private static instance: AnalysisRegistry;
   private readonly eventBus: EventBus;
   private readonly monitor: UnifiedMonitor;
-  private readonly plugins: Map<string, AnalysisPlugin<any, any>>;
+  private readonly plugins: Map<string, AnalysisPlugin<unknown, unknown>>;
   private readonly pluginDependencies: Map<string, Set<string>>;
   private readonly pluginConfidence: Map<string, number>;
 
@@ -102,28 +100,28 @@ export class AnalysisRegistry {
     input: TInput,
     context: AnalysisContext
   ): Promise<TOutput> {
-    const plugin = this.getPlugin<TInput, TOutput>(pluginId);
+    const _plugin = this.getPlugin<TInput, TOutput>(pluginId);
 
-    if (!plugin) {
+    if (!_plugin) {
       throw new Error('Plugin ' + pluginId + ' not found');
     }
 
-    const trace = this.monitor.startTrace('plugin-analysis', {
+    const _trace = this.monitor.startTrace('plugin-analysis', {
       category: 'analysis.plugin',
       description: 'Running plugin analysis',
     });
 
     try {
       // Run analysis
-      const result = await plugin.analyze(input, context);
+      const _result = await _plugin.analyze(input, context);
 
       // Update plugin confidence based on result
       this.updatePluginConfidence(pluginId, context);
 
-      this.monitor.endTrace(trace);
-      return result;
+      this.monitor.endTrace(_trace);
+      return _result;
     } catch (error) {
-      this.monitor.endTrace(trace, error as Error);
+      this.monitor.endTrace(_trace, error as Error);
       throw error;
     }
   }
@@ -145,7 +143,7 @@ export class AnalysisRegistry {
     }
   }
 
-  public getPluginsByTag(tag: string): AnalysisPlugin<any, any>[] {
+  public getPluginsByTag(tag: string): AnalysisPlugin<unknown, unknown>[] {
     return Array.from(this.plugins.values()).filter(plugin => plugin.metadata.tags.includes(tag));
   }
 
@@ -153,50 +151,50 @@ export class AnalysisRegistry {
     return this.pluginConfidence.get(pluginId) || 0;
   }
 
-  private validateDependencies(plugin: AnalysisPlugin<any, any>): void {
-    for (const dependency of plugin.metadata.dependencies) {
-      if (!this.plugins.has(dependency)) {
-        throw new Error('Plugin ' + plugin.id + ' requires missing dependency ' + dependency);
+  private validateDependencies(plugin: AnalysisPlugin<unknown, unknown>): void {
+    for (const _dependency of plugin.metadata.dependencies) {
+      if (!this.plugins.has(_dependency)) {
+        throw new Error('Plugin ' + plugin.id + ' requires missing dependency ' + _dependency);
       }
     }
   }
 
   private updatePluginConfidence(pluginId: string, context: AnalysisContext): void {
-    const plugin = this.plugins.get(pluginId);
-    const currentConfidence = this.pluginConfidence.get(pluginId) || 0;
+    const _plugin = this.plugins.get(pluginId);
+    const _currentConfidence = this.pluginConfidence.get(pluginId) || 0;
 
-    if (!plugin) return;
+    if (!_plugin) return;
 
     // Update confidence based on context and stability
-    const newConfidence = this.calculatePluginConfidence(currentConfidence, plugin, context);
+    const _newConfidence = this.calculatePluginConfidence(_currentConfidence, _plugin, context);
 
-    this.pluginConfidence.set(pluginId, newConfidence);
+    this.pluginConfidence.set(pluginId, _newConfidence);
 
     // Record metric
-    this.monitor.recordMetric('plugin_confidence', newConfidence, {
+    this.monitor.recordMetric('plugin_confidence', _newConfidence, {
       plugin_id: pluginId,
-      plugin_name: plugin.name,
+      plugin_name: _plugin.name,
     });
   }
 
   private calculatePluginConfidence(
     currentConfidence: number,
-    plugin: AnalysisPlugin<any, any>,
+    plugin: AnalysisPlugin<unknown, unknown>,
     context: AnalysisContext
   ): number {
-    const weights = {
+    const _weights = {
       streamConfidence: 0.3,
       modelDiversity: 0.2,
       predictionStability: 0.3,
       historicalConfidence: 0.2,
     };
 
-    const newConfidence =
-      context.streamConfidence * weights.streamConfidence +
-      context.modelDiversity * weights.modelDiversity +
-      context.predictionStability * weights.predictionStability +
-      currentConfidence * weights.historicalConfidence;
+    const _newConfidence =
+      context.streamConfidence * _weights.streamConfidence +
+      context.modelDiversity * _weights.modelDiversity +
+      context.predictionStability * _weights.predictionStability +
+      currentConfidence * _weights.historicalConfidence;
 
-    return Math.max(0, Math.min(1, newConfidence));
+    return Math.max(0, Math.min(1, _newConfidence));
   }
 }

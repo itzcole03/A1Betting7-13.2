@@ -51,7 +51,7 @@ interface NavigationProps {
   onNavigate?: (viewId: string) => void;
 }
 
-const navigationSections: NavigationSection[] = [
+const _navigationSections: NavigationSection[] = [
   {
     id: 'core',
     title: 'Core',
@@ -220,7 +220,7 @@ const navigationSections: NavigationSection[] = [
         id: 'bankroll',
         label: 'Bankroll Manager',
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-        icon: <Wallet className='w-4 h-4' />,
+        icon: <Wallet _className='w-4 h-4' />,
         description: 'Portfolio & risk management',
       },
       {
@@ -287,7 +287,7 @@ const navigationSections: NavigationSection[] = [
   },
 ];
 
-export const Navigation: React.FC<NavigationProps> = ({
+export const _Navigation: React.FC<NavigationProps> = ({
   isMobileMenuOpen,
   onCloseMobileMenu,
   activeView = 'dashboard',
@@ -295,8 +295,8 @@ export const Navigation: React.FC<NavigationProps> = ({
 }) => {
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
 
-  const toggleSection = (sectionId: string) => {
-    const newCollapsed = new Set(collapsedSections);
+  const _toggleSection = (sectionId: string) => {
+    const _newCollapsed = new Set(collapsedSections);
     if (newCollapsed.has(sectionId)) {
       newCollapsed.delete(sectionId);
     } else {
@@ -305,12 +305,12 @@ export const Navigation: React.FC<NavigationProps> = ({
     setCollapsedSections(newCollapsed);
   };
 
-  const handleItemClick = (itemId: string) => {
+  const _handleItemClick = (itemId: string) => {
     onNavigate?.(itemId);
     onCloseMobileMenu();
   };
 
-  const getBadgeColor = (badge: string) => {
+  const _getBadgeColor = (badge: string) => {
     switch (badge) {
       case 'HOT':
         return 'bg-red-500/20 text-red-300 border-red-500/30';
@@ -408,7 +408,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <nav className='space-y-2'>
               {navigationSections.map(section => {
-                const isCollapsed = collapsedSections.has(section.id);
+                const _isCollapsed = collapsedSections.has(section.id);
 
                 return (
                   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

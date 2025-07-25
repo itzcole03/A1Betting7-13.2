@@ -52,7 +52,7 @@ interface RiskMetrics {
   valueAtRisk: number;
 }
 
-export const BankrollManager: React.FC = () => {
+export const _BankrollManager: React.FC = () => {
   const [bankrollData, setBankrollData] = useState<BankrollData | null>(null);
   const [allocations, setAllocations] = useState<BetAllocation[]>([]);
   const [riskMetrics, setRiskMetrics] = useState<RiskMetrics | null>(null);
@@ -63,10 +63,10 @@ export const BankrollManager: React.FC = () => {
   const [kellyFraction, setKellyFraction] = useState<number>(0.25);
 
   useEffect(() => {
-    const generateBankrollData = (): BankrollData => {
-      const startingBalance = 10000;
-      const currentBalance = startingBalance + (Math.random() * 15000 - 2500);
-      const totalProfit = currentBalance - startingBalance;
+    const _generateBankrollData = (): BankrollData => {
+      const _startingBalance = 10000;
+      const _currentBalance = startingBalance + (Math.random() * 15000 - 2500);
+      const _totalProfit = currentBalance - startingBalance;
 
       return {
         currentBalance,
@@ -85,8 +85,8 @@ export const BankrollManager: React.FC = () => {
       };
     };
 
-    const generateBetAllocations = (): BetAllocation[] => {
-      const games = [
+    const _generateBetAllocations = (): BetAllocation[] => {
+      const _games = [
         { game: 'Lakers vs Warriors', type: 'Spread' },
         { game: 'Chiefs vs Bills', type: 'Total' },
         { game: 'Yankees vs Red Sox', type: 'Moneyline' },
@@ -95,9 +95,9 @@ export const BankrollManager: React.FC = () => {
       ];
 
       return games.map((g, index) => {
-        const confidence = 60 + Math.random() * 35;
-        const kellyPercent = ((confidence - 50) / 10) * kellyFraction;
-        const currentBalance = 18500; // Use current balance
+        const _confidence = 60 + Math.random() * 35;
+        const _kellyPercent = ((confidence - 50) / 10) * kellyFraction;
+        const _currentBalance = 18500; // Use current balance
 
         return {
           id: `allocation-${index}`,
@@ -112,7 +112,7 @@ export const BankrollManager: React.FC = () => {
       });
     };
 
-    const generateRiskMetrics = (): RiskMetrics => {
+    const _generateRiskMetrics = (): RiskMetrics => {
       return {
         riskLevel,
         maxBetSize: riskLevel === 'conservative' ? 2 : riskLevel === 'moderate' ? 5 : 8,
@@ -132,7 +132,7 @@ export const BankrollManager: React.FC = () => {
     setRiskMetrics(generateRiskMetrics());
   }, [riskLevel, kellyFraction]);
 
-  const getRiskColor = (risk: string) => {
+  const _getRiskColor = (risk: string) => {
     switch (risk) {
       case 'low':
         return 'text-green-400 border-green-400';
@@ -145,17 +145,17 @@ export const BankrollManager: React.FC = () => {
     }
   };
 
-  const getStreakColor = (streak: number) => {
+  const _getStreakColor = (streak: number) => {
     if (streak > 0) return 'text-green-400';
     if (streak < 0) return 'text-red-400';
     return 'text-gray-400';
   };
 
-  const calculateOptimalBankroll = () => {
+  const _calculateOptimalBankroll = () => {
     if (!bankrollData) return 0;
-    const winRate = bankrollData.winRate / 100;
-    const avgOdds = 2.0; // Assume average odds of 2.0
-    const kellyOptimal = (winRate * avgOdds - 1) / (avgOdds - 1);
+    const _winRate = bankrollData.winRate / 100;
+    const _avgOdds = 2.0; // Assume average odds of 2.0
+    const _kellyOptimal = (winRate * avgOdds - 1) / (avgOdds - 1);
     return bankrollData.currentBalance * kellyOptimal;
   };
 
@@ -256,7 +256,7 @@ export const BankrollManager: React.FC = () => {
             <select
               id='risk-level-select'
               value={riskLevel}
-              onChange={e => setRiskLevel(e.target.value as any)}
+              onChange={e => setRiskLevel(e.target.value as unknown)}
               className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg'
               aria-label='Risk level'
             >

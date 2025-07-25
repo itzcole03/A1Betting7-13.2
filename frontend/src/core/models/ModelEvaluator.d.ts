@@ -3,7 +3,7 @@ export declare class ModelEvaluator {
   private config;
   private logger;
   constructor(config: ModelEvaluatorConfig);
-  evaluate(model: ModelVersion, data: any): Promise<ModelEvaluation>;
+  evaluate(model: ModelVersion, data: unknown): Promise<ModelEvaluation>;
   private splitData;
   private getPredictions;
   private calculateMetrics;

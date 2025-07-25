@@ -105,7 +105,7 @@ export interface Strategy {
   confidence: number;
   analyze(data: IntegratedData): Promise<Decision>;
   validate(data: IntegratedData): boolean;
-  getMetrics(): any;
+  getMetrics(): unknown;
 }
 export interface Decision {
   id: string;
@@ -180,7 +180,7 @@ export declare class PredictionEngine {
   private setupMonitoring;
   start(): Promise<void>;
   stop(): Promise<void>;
-  predict(prop: any): Promise<PredictionData>;
+  predict(prop: unknown): Promise<PredictionData>;
   private determineMarketState;
   private identifyCorrelationFactors;
   private integrateData;

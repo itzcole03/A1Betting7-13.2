@@ -14,7 +14,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   showPasswordToggle?: boolean;
 }
 
-export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+export const _Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
     {
       className = '',
@@ -35,15 +35,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const [showPassword, setShowPassword] = React.useState(false);
     const [isFocused, setIsFocused] = React.useState(false);
 
-    const inputType = type === 'password' && showPassword ? 'text' : type;
+    const _inputType = type === 'password' && showPassword ? 'text' : type;
 
-    const sizeClasses = {
+    const _sizeClasses = {
       sm: 'px-3 py-2 text-sm',
       md: 'px-4 py-3 text-base',
       lg: 'px-5 py-4 text-lg',
     };
 
-    const variantClasses = {
+    const _variantClasses = {
       default: `
         bg-slate-800/50 border border-slate-600/50 
         focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50
@@ -63,7 +63,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       `,
     };
 
-    const baseClasses = `
+    const _baseClasses = `
       w-full rounded-lg text-white placeholder-gray-400
       transition-all duration-200 ease-in-out
       disabled:opacity-50 disabled:cursor-not-allowed
@@ -75,7 +75,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       ${className}
     `;
 
-    const inputVariants = {
+    const _inputVariants = {
       unfocused: { scale: 1 },
       focused: { scale: 1.01 },
     };

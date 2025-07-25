@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from './Card';
  * Modern, accessible display of real-time WebSocket connection status and analytics.
  * Shows connection state, message count, and last message time.
  */
-export const WebSocketAnalytics: React.FC = () => {
+export const _WebSocketAnalytics: React.FC = () => {
   // Mock state for demonstration
   const [status, setStatus] = useState<'connected' | 'disconnected' | 'connecting'>('connected');
   const [messageCount, setMessageCount] = useState(128);
@@ -16,7 +16,7 @@ export const WebSocketAnalytics: React.FC = () => {
 
   // Simulate real-time updates
   useEffect(() => {
-    const interval = setInterval(() => {
+    const _interval = setInterval(() => {
       setMessageCount(c => c + 1);
       setLastMessage(new Date().toISOString().replace('T', ' ').slice(0, 19));
     }, 5000);

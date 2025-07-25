@@ -3,7 +3,7 @@
 import { z } from '@/zod';
 
 // Bet Validation Schema;
-export const betSchema = z.object({
+export const _betSchema = z.object({
   id: z.string(),
   userId: z.string(),
   eventId: z.string(),
@@ -15,7 +15,7 @@ export const betSchema = z.object({
 });
 
 // User Validation Schema;
-export const userSchema = z.object({
+export const _userSchema = z.object({
   id: z.string(),
   username: z.string().min(3),
   email: z.string().email(),
@@ -24,7 +24,7 @@ export const userSchema = z.object({
 });
 
 // Prediction Validation Schema;
-export const predictionSchema = z.object({
+export const _predictionSchema = z.object({
   id: z.string(),
   betId: z.string(),
   model: z.string(),
@@ -34,7 +34,7 @@ export const predictionSchema = z.object({
 });
 
 // Market Validation Schema;
-export const marketSchema = z.object({
+export const _marketSchema = z.object({
   id: z.string(),
   name: z.string(),
   type: z.string(),
@@ -42,7 +42,7 @@ export const marketSchema = z.object({
 });
 
 // Event Validation Schema;
-export const eventSchema = z.object({
+export const _eventSchema = z.object({
   id: z.string(),
   name: z.string(),
   startTime: z.string().datetime(),
@@ -53,7 +53,7 @@ export const eventSchema = z.object({
 // Validation Middleware;
 import type { NextFunction, Request, Response } from 'express';
 import type { ZodSchema, ZodTypeAny } from 'zod';
-export const validateRequest = (schema: ZodSchema<unknown> | ZodTypeAny) => {
+export const _validateRequest = (schema: ZodSchema<unknown> | ZodTypeAny) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       await schema.parseAsync(req.body);

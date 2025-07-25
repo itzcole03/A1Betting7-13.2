@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "module": "commonjs",
+    "module": "esnext",
     "esModuleInterop": true,
     "allowJs": true,
     "noEmit": true,

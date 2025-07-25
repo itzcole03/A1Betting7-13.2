@@ -7,6 +7,6 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   icon?: React.ReactNode;
   fullWidth?: boolean;
 }
-export declare const Button: React.ForwardRefExoticComponent<
+export declare const _Button: React.ForwardRefExoticComponent<
   ButtonProps & MotionProps & React.RefAttributes<HTMLButtonElement>
 >;

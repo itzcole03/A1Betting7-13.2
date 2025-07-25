@@ -11,7 +11,8 @@ The A1Betting platform provides a comprehensive real-time analysis API that proc
 
 ## Authentication
 
-Currently, the API uses basic authentication for protected endpoints. Include authentication headers when required.
+**All new endpoints use JWT authentication.**
+Legacy endpoints may use basic auth; these are deprecated and will be removed. See backend/README.md for details.
 
 ## Real-Time Analysis Endpoints
 
@@ -191,9 +192,11 @@ Check the real-time analysis system status.
 }
 ```
 
-## Enhanced Betting Endpoints (Legacy)
+## ⚠️ Deprecated Endpoints (Legacy)
 
-### Get Enhanced Bets
+> The following endpoints are deprecated and will be removed in a future release. Migrate to the new real-time analysis endpoints.
+
+### Get Enhanced Bets (Deprecated)
 
 **Endpoint:** `GET /api/unified/enhanced-bets`
 
@@ -279,7 +282,7 @@ const response = await realTimeAnalysisService.startComprehensiveAnalysis({
 
 // Monitor progress
 for await (const progress of realTimeAnalysisService.monitorAnalysisProgress(
-  response.analysis_id,
+  response.analysis_id
 )) {
   console.log(`Progress: ${progress.progress_percentage}%`);
   if (progress.status === "completed") break;
@@ -287,10 +290,10 @@ for await (const progress of realTimeAnalysisService.monitorAnalysisProgress(
 
 // Get results
 const opportunities = await realTimeAnalysisService.getBettingOpportunities(
-  response.analysis_id,
+  response.analysis_id
 );
 const lineups = await realTimeAnalysisService.getOptimalLineups(
-  response.analysis_id,
+  response.analysis_id
 );
 ```
 
@@ -392,5 +395,6 @@ Check the health and freshness of all major data sources (e.g., scrapers, extern
 - `stale`: Whether data is considered stale
 
 **Troubleshooting:**
+
 - If either endpoint is unavailable, ensure the backend is running and accessible on the correct port.
 - See the main README for more details on running and interpreting the Health API.

@@ -33,13 +33,13 @@ interface SourceHealthBarProps {
   onRefresh?: () => void;
 }
 
-const getHealthColor = (healthScore: number, variant: string = 'default') => {
-  let color = 'green';
+const _getHealthColor = (healthScore: number, variant: string = 'default') => {
+  let _color = 'green';
   if (healthScore < 30) color = 'red';
   else if (healthScore < 60) color = 'orange';
   else if (healthScore < 80) color = 'yellow';
 
-  const colors = {
+  const _colors = {
     default: {
       red: 'bg-red-500',
       orange: 'bg-orange-500',
@@ -59,8 +59,8 @@ const getHealthColor = (healthScore: number, variant: string = 'default') => {
     : colors.default[color as keyof typeof colors.default];
 };
 
-const getStatusColor = (status: string, variant: string = 'default') => {
-  const colors = {
+const _getStatusColor = (status: string, variant: string = 'default') => {
+  const _colors = {
     default: {
       healthy: 'text-green-700 bg-green-100 border-green-200',
       degraded: 'text-yellow-700 bg-yellow-100 border-yellow-200',
@@ -82,8 +82,8 @@ const getStatusColor = (status: string, variant: string = 'default') => {
     : colors.default[status as keyof typeof colors.default] || colors.default.unknown;
 };
 
-const getTypeIcon = (type: string) => {
-  const icons = {
+const _getTypeIcon = (type: string) => {
+  const _icons = {
     api: '🔌',
     database: '🗄️',
     feed: '📡',
@@ -94,23 +94,23 @@ const getTypeIcon = (type: string) => {
   return icons[type as keyof typeof icons] || '📊';
 };
 
-const formatTimeAgo = (date: Date) => {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
+const _formatTimeAgo = (date: Date) => {
+  const _now = new Date();
+  const _diffMs = now.getTime() - date.getTime();
+  const _diffMins = Math.floor(diffMs / 60000);
+  const _diffHours = Math.floor(diffMs / 3600000);
 
   if (diffMins < 1) return 'Just now';
   if (diffMins < 60) return `${diffMins}m ago`;
   return `${diffHours}h ago`;
 };
 
-const formatResponseTime = (time: number) => {
+const _formatResponseTime = (time: number) => {
   if (time < 1000) return `${time}ms`;
   return `${(time / 1000).toFixed(1)}s`;
 };
 
-export const SourceHealthBar: React.FC<SourceHealthBarProps> = ({
+export const _SourceHealthBar: React.FC<SourceHealthBarProps> = ({
   sources,
   variant = 'default',
   showMetrics = true,
@@ -126,7 +126,7 @@ export const SourceHealthBar: React.FC<SourceHealthBarProps> = ({
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
   // Filter sources
-  const filteredSources = sources.filter(source => {
+  const _filteredSources = sources.filter(source => {
     switch (filterBy) {
       case 'healthy':
         return source.status === 'healthy';
@@ -140,12 +140,12 @@ export const SourceHealthBar: React.FC<SourceHealthBarProps> = ({
   });
 
   // Sort sources
-  const sortedSources = [...filteredSources].sort((a, b) => {
+  const _sortedSources = [...filteredSources].sort((a, b) => {
     switch (sortBy) {
       case 'health':
         return b.healthScore - a.healthScore;
       case 'priority':
-        const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
+        const _priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
         return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0);
       case 'name':
         return a.name.localeCompare(b.name);
@@ -156,7 +156,7 @@ export const SourceHealthBar: React.FC<SourceHealthBarProps> = ({
     }
   });
 
-  const handleRefresh = () => {
+  const _handleRefresh = () => {
     setLastRefresh(new Date());
     onRefresh?.();
   };
@@ -165,7 +165,7 @@ export const SourceHealthBar: React.FC<SourceHealthBarProps> = ({
   useEffect(() => {
     if (!autoRefresh) return;
 
-    const interval = setInterval(() => {
+    const _interval = setInterval(() => {
       handleRefresh();
     }, refreshInterval * 1000);
 
@@ -173,15 +173,15 @@ export const SourceHealthBar: React.FC<SourceHealthBarProps> = ({
   }, [autoRefresh, refreshInterval]);
 
   // Calculate overall health
-  const overallHealth =
+  const _overallHealth =
     sources.length > 0
       ? Math.round(sources.reduce((sum, source) => sum + source.healthScore, 0) / sources.length)
       : 0;
 
-  const healthySources = sources.filter(s => s.status === 'healthy').length;
-  const totalSources = sources.length;
+  const _healthySources = sources.filter(s => s.status === 'healthy').length;
+  const _totalSources = sources.length;
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-lg shadow-sm',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/20 backdrop-blur-md',

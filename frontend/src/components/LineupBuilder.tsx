@@ -4,13 +4,13 @@ import { toast } from 'react-hot-toast';
 import ApiHealthIndicator from './ApiHealthIndicator';
 import ConfidenceIndicator from './ConfidenceIndicator';
 
-const Spinner = () => (
+const _Spinner = () => (
   <div className='flex justify-center items-center h-24'>
     <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600'></div>
   </div>
 );
 
-const LineupBuilder = () => {
+const _LineupBuilder = () => {
   type Prediction = {
     id: string;
     [key: string]: string | number | boolean | null | undefined;
@@ -55,11 +55,11 @@ const LineupBuilder = () => {
   const [legs, setLegs] = useState(2);
 
   // Fetch lineup data (with optional refresh)
-  const fetchLineup = async (refresh: boolean = false) => {
+  const _fetchLineup = async (refresh: boolean = false) => {
     setLoading(true);
     setError('');
-    let url = '/api/lineup';
-    const params: string[] = [];
+    let _url = '/api/lineup';
+    const _params: string[] = [];
     if (filterDate) params.push(`date=${filterDate}`);
     if (filterStatus !== 'All') params.push(`status=${filterStatus}`);
     if (filterTeam !== 'All') params.push(`team=${filterTeam}`);
@@ -67,7 +67,7 @@ const LineupBuilder = () => {
     if (refresh) params.push('refresh=true');
     if (params.length) url += '?' + params.join('&');
     try {
-      const res = await axios.get(url);
+      const _res = await axios.get(url);
       setPlayers(Array.isArray(res.data.players) ? res.data.players : []);
       if (res.data.teams) setTeams(res.data.teams);
       if (res.data.sports) setSports(res.data.sports);
@@ -82,10 +82,10 @@ const LineupBuilder = () => {
   };
 
   // Fetch predictions for selected sport;
-  const fetchPredictions = useCallback(async () => {
+  const _fetchPredictions = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`/api/predictions?sport=${sport}`);
+      const _res = await axios.get(`/api/predictions?sport=${sport}`);
       setPredictions(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       window.alert('Error fetching predictions');
@@ -95,14 +95,14 @@ const LineupBuilder = () => {
   }, [sport]);
 
   // Optimize lineup;
-  const optimizeLineup = useCallback(async () => {
+  const _optimizeLineup = useCallback(async () => {
     if (selectedPredictions.length < legs) {
       window.alert(`Please select at least ${legs} predictions`);
       return;
     }
     try {
       setLoading(true);
-      const res = await axios.post('/api/optimize', {
+      const _res = await axios.post('/api/optimize', {
         predictions: selectedPredictions,
         legs,
       });
@@ -121,14 +121,14 @@ const LineupBuilder = () => {
     fetchPredictions();
   }, [filterDate, filterStatus, filterTeam, filterSport, fetchPredictions]);
 
-  const handleSelect = (player: Player) => {
+  const _handleSelect = (player: Player) => {
     setSelectedPlayers(prev =>
       prev.some(p => p.id === player.id) ? prev.filter(p => p.id !== player.id) : [...prev, player]
     );
   };
 
   // Save lineup POST;
-  const handleSave = async () => {
+  const _handleSave = async () => {
     try {
       await axios.post('/api/lineup/save', selectedPlayers);
       toast.success('Lineup saved!');
@@ -137,11 +137,11 @@ const LineupBuilder = () => {
     }
   };
 
-  const handleExport = (type: string) => {
-    let dataStr: string, fileName: string;
+  const _handleExport = (type: string) => {
+    let _dataStr: string, fileName: string;
     if (type === 'csv') {
-      const header = 'id,name,team,sport,position';
-      const rows = selectedPlayers.map(
+      const _header = 'id,name,team,sport,position';
+      const _rows = selectedPlayers.map(
         p => `${p.id},${p.name},${p.team || ''},${p.sport || ''},${p.position || ''}`
       );
       dataStr = [header, ...rows].join('\n');
@@ -150,9 +150,9 @@ const LineupBuilder = () => {
       dataStr = JSON.stringify(selectedPlayers, null, 2);
       fileName = 'lineup.json';
     }
-    const blob = new Blob([dataStr], { type: type === 'csv' ? 'text/csv' : 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const _blob = new Blob([dataStr], { type: type === 'csv' ? 'text/csv' : 'application/json' });
+    const _url = URL.createObjectURL(blob);
+    const _a = document.createElement('a');
     a.href = url;
     a.download = fileName;
     a.click();
@@ -164,13 +164,13 @@ const LineupBuilder = () => {
   // Unique filter options;
 
   // Advanced filtering logic;
-  const filteredPlayers = players.filter(player => {
+  const _filteredPlayers = players.filter(player => {
     // TODO: Implement actual filtering logic
     return true;
   });
 
   // Handle prediction selection;
-  const handlePredictionSelect = (prediction: Prediction) => {
+  const _handlePredictionSelect = (prediction: Prediction) => {
     if (selectedPredictions.find((p: Prediction) => p.id === prediction.id)) {
       setSelectedPredictions((prev: Prediction[]) =>
         prev.filter((p: Prediction) => p.id !== prediction.id)
@@ -185,7 +185,7 @@ const LineupBuilder = () => {
   };
 
   // Handle legs change;
-  const handleLegsChange = (newLegs: number) => {
+  const _handleLegsChange = (newLegs: number) => {
     if (newLegs < 2 || newLegs > 6) {
       window.alert('Number of legs must be between 2 and 6');
       return;
@@ -197,12 +197,12 @@ const LineupBuilder = () => {
   };
 
   // Handle sport change;
-  const handleSportChange = (newSport: string) => {
+  const _handleSportChange = (newSport: string) => {
     setSport(newSport);
     setSelectedPredictions([]);
     setOptimizedLineup(null);
   };
-  const positions = ['PG', 'SG', 'SF', 'PF', 'C'];
+  const _positions = ['PG', 'SG', 'SF', 'PF', 'C'];
 
   if (loading) return <Spinner />;
   if (error) return <div className='p-4 text-red-600'>{error}</div>;

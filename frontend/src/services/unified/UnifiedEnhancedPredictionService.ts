@@ -17,7 +17,7 @@ export interface UnifiedPredictionRequest {
   // Feature data;
   features: Record<string, number>;
   historical_data?: Record<string, number[]>;
-  contextual_features?: Record<string, any>;
+  contextual_features?: Record<string, unknown>;
 
   // Processing configuration;
   processing_level: 'basic' | 'advanced' | 'research_grade' | 'revolutionary';
@@ -76,7 +76,7 @@ export interface UnifiedPredictionResponse {
     convergence_achieved: boolean;
     theoretical_guarantees: Record<string, boolean>;
     numerical_stability: Record<string, boolean>;
-    complexity_analysis: Record<string, any>;
+    complexity_analysis: Record<string, unknown>;
   };
 
   // Feature analysis;
@@ -119,7 +119,7 @@ export interface UnifiedPredictionResponse {
     input_validation: boolean;
     output_validation: boolean;
     mathematical_consistency: boolean;
-    convergence_diagnostics: Record<string, any>;
+    convergence_diagnostics: Record<string, unknown>;
     error_bounds: Record<string, number>;
     sensitivity_analysis: Record<string, number>;
   };
@@ -129,7 +129,7 @@ export interface UnifiedPredictionResponse {
     shap_values: Record<string, number>;
     feature_attributions: Record<string, number>;
     causal_explanations: Record<string, string>;
-    topological_insights: Record<string, any>;
+    topological_insights: Record<string, unknown>;
     decision_pathway: string[];
   };
 
@@ -207,7 +207,7 @@ class UnifiedEnhancedPredictionService {
   async generatePrediction(request: UnifiedPredictionRequest): Promise<UnifiedPredictionResponse> {
     try {
       // Stub undefined variable
-      const predictionId = '';
+      const _predictionId = '';
       this.logger.info('Starting unified enhanced prediction', {
         predictionId,
         eventId: request.event_id,
@@ -219,7 +219,7 @@ class UnifiedEnhancedPredictionService {
       this.validatePredictionRequest(request);
 
       // Step 2: Get unified prediction from backend;
-      const unifiedResult = await this.backendService.getUnifiedPrediction({
+      const _unifiedResult = await this.backendService.getUnifiedPrediction({
         event_id: request.event_id,
         sport: request.sport,
         features: request.features,
@@ -228,17 +228,17 @@ class UnifiedEnhancedPredictionService {
       });
 
       // Step 3: Calculate additional metrics and analysis;
-      const additionalAnalysis = await this.performAdditionalAnalysis(request, unifiedResult);
+      const _additionalAnalysis = await this.performAdditionalAnalysis(request, unifiedResult);
 
       // Step 4: Generate explainability insights;
-      const explainability = await this.generateExplainability(request, unifiedResult);
+      const _explainability = await this.generateExplainability(request, unifiedResult);
 
       // Step 5: Create recommendations;
-      const recommendations = this.generateRecommendations(unifiedResult, additionalAnalysis);
+      const _recommendations = this.generateRecommendations(unifiedResult, additionalAnalysis);
 
       // Step 6: Validate outputs;
 
-      const response: UnifiedPredictionResponse = {
+      const _response: UnifiedPredictionResponse = {
         prediction_id: predictionId,
         event_id: request.event_id,
         sport: request.sport,
@@ -369,7 +369,7 @@ class UnifiedEnhancedPredictionService {
   async getModelPerformance(): Promise<ModelPerformanceMetrics[0]> {
     try {
       // @ts-expect-error TS(2304): Cannot find name 'modelStatus'.
-      return modelStatus.models.map((model: any) => ({
+      return modelStatus.models.map((model: unknown) => ({
         model_id: model.id,
         model_name: model.name,
         accuracy: model.accuracy,
@@ -438,15 +438,15 @@ class UnifiedEnhancedPredictionService {
   // @ts-expect-error TS(2339): Property '0' does not exist on type 'UnifiedPredic... Remove this comment to see the full error message
   ): Promise<UnifiedPredictionResponse[0]> {
     // @ts-expect-error TS(2339): Property '0' does not exist on type 'UnifiedPredic... Remove this comment to see the full error message
-    const results: UnifiedPredictionResponse[0] = [0];
-    const batchSize = 5; // Process in batches to avoid overwhelming the system;
+    const _results: UnifiedPredictionResponse[0] = [0];
+    const _batchSize = 5; // Process in batches to avoid overwhelming the system;
 
     // @ts-expect-error TS(2588): Cannot assign to 'i' because it is a constant.
-    for (const i = 0; i < requests.length; i += batchSize) {
+    for (const _i = 0; i < requests.length; i += batchSize) {
       try {
-        const batchResults = await Promise.all(
+        const _batchResults = await Promise.all(
           // @ts-expect-error TS(2304): Cannot find name 'batch'.
-          batch.map((request: any) => this.generatePrediction(request))
+          batch.map((request: unknown) => this.generatePrediction(request))
         );
         results.push(...batchResults);
       } catch (error) {
@@ -477,7 +477,7 @@ class UnifiedEnhancedPredictionService {
     try {
       // This would typically use WebSockets or Server-Sent Events;
       // For now, we'll simulate with an API call;
-      const updates = {
+      const _updates = {
         timestamp: new Date().toISOString(),
         prediction_confidence: 0.85 + Math.random() * 0.1,
         mathematical_analysis: {
@@ -529,7 +529,7 @@ class UnifiedEnhancedPredictionService {
 
   private async performAdditionalAnalysis(
     request: UnifiedPredictionRequest,
-    unifiedResult: any
+    unifiedResult: unknown
   ): Promise<{
     data_quality_score: number;
     outlier_detected: boolean;
@@ -558,7 +558,7 @@ class UnifiedEnhancedPredictionService {
 
   private async generateExplainability(
     request: UnifiedPredictionRequest,
-    unifiedResult: any
+    unifiedResult: unknown
   ): Promise<UnifiedPredictionResponse['explainability']> {
     return {
       shap_values: {
@@ -597,10 +597,10 @@ class UnifiedEnhancedPredictionService {
   }
 
   private generateRecommendations(
-    unifiedResult: any,
-    additionalAnalysis: any
+    unifiedResult: unknown,
+    additionalAnalysis: unknown
   ): UnifiedPredictionResponse['recommendations'] {
-    const rigorScore = unifiedResult.mathematical_analysis.mathematical_rigor_score;
+    const _rigorScore = unifiedResult.mathematical_analysis.mathematical_rigor_score;
 
     return {
       // @ts-expect-error TS(2304): Cannot find name 'confidence'.
@@ -648,7 +648,7 @@ class UnifiedEnhancedPredictionService {
     };
   }
 
-  private validatePredictionResults(unifiedResult: any): {
+  private validatePredictionResults(unifiedResult: unknown): {
     output_valid: boolean;
     mathematically_consistent: boolean;
     error_bounds: Record<string, number>;

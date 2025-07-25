@@ -2,10 +2,10 @@ import { motion } from 'framer-motion';
 import React from 'react';
 import { useKeyMetrics, useLiveOpportunities, useMlModelStats } from './hooks';
 
-const Dashboard = () => {
-  const keyMetrics = useKeyMetrics();
-  const liveOpportunities = useLiveOpportunities();
-  const mlModelStats = useMlModelStats();
+const _Dashboard = () => {
+  const _keyMetrics = useKeyMetrics();
+  const _liveOpportunities = useLiveOpportunities();
+  const _mlModelStats = useMlModelStats();
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

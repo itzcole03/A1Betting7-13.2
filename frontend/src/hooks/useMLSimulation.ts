@@ -12,7 +12,7 @@ import {
 // @ts-expect-error TS(2307): Cannot find module '@/types/betting' or its corres... Remove this comment to see the full error message
 } from '@/types/betting';
 
-export const useMLSimulation = () => {
+export const _useMLSimulation = () => {
   const [simulationService] = useState(() => new MLSimulationService());
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -26,7 +26,7 @@ export const useMLSimulation = () => {
     }
   }, [simulationService]);
 
-  const generatePrediction = useCallback(
+  const _generatePrediction = useCallback(
     (gameId: string, playerId: string, metric: keyof PlayerStats): Prediction => {
       if (!isInitialized) {
         throw new Error('Simulation not initialized');
@@ -36,7 +36,7 @@ export const useMLSimulation = () => {
     [simulationService, isInitialized]
   );
 
-  const getTeamStats = useCallback(
+  const _getTeamStats = useCallback(
     (teamId: string) => {
       if (!isInitialized) {
         throw new Error('Simulation not initialized');
@@ -46,7 +46,7 @@ export const useMLSimulation = () => {
     [simulationService, isInitialized]
   );
 
-  const getPlayerStats = useCallback(
+  const _getPlayerStats = useCallback(
     (playerId: string) => {
       if (!isInitialized) {
         throw new Error('Simulation not initialized');
@@ -56,7 +56,7 @@ export const useMLSimulation = () => {
     [simulationService, isInitialized]
   );
 
-  const getGamePredictions = useCallback(
+  const _getGamePredictions = useCallback(
     (gameId: string) => {
       if (!isInitialized) {
         throw new Error('Simulation not initialized');
@@ -66,7 +66,7 @@ export const useMLSimulation = () => {
     [simulationService, isInitialized]
   );
 
-  const updatePlayerForm = useCallback(
+  const _updatePlayerForm = useCallback(
     (playerId: string, form: PlayerForm) => {
       if (!isInitialized) {
         throw new Error('Simulation not initialized');
@@ -76,7 +76,7 @@ export const useMLSimulation = () => {
     [simulationService, isInitialized]
   );
 
-  const updateInjuryStatus = useCallback(
+  const _updateInjuryStatus = useCallback(
     // @ts-expect-error TS(2304): Cannot find name 'InjuryStatus'.
     (playerId: string, status: InjuryStatus) => {
       if (!isInitialized) {

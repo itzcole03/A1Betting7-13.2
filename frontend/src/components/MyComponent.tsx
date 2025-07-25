@@ -1,4 +1,4 @@
-export default function MyComponent(props: any) {
+export default function MyComponent(_props: unknown) {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div style={{ 

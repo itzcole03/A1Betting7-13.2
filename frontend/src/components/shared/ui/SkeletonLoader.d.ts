@@ -1,2 +1,2 @@
 import React from 'react.ts';
-export declare const SkeletonLoader: React.FC;
+export declare const _SkeletonLoader: React.FC;

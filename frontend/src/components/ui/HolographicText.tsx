@@ -10,7 +10,7 @@ interface HolographicTextProps {
   glow?: boolean;
 }
 
-export const HolographicText: React.FC<HolographicTextProps> = ({
+export const _HolographicText: React.FC<HolographicTextProps> = ({
   children,
   size = 'md',
   className = '',
@@ -18,7 +18,7 @@ export const HolographicText: React.FC<HolographicTextProps> = ({
   animate = true,
   glow = true,
 }) => {
-  const sizeClasses = {
+  const _sizeClasses = {
     xs: 'text-xs',
     sm: 'text-sm',
     md: 'text-base',
@@ -29,7 +29,7 @@ export const HolographicText: React.FC<HolographicTextProps> = ({
     '4xl': 'text-4xl',
   };
 
-  const intensityConfig = {
+  const _intensityConfig = {
     low: {
       gradient: 'from-cyan-200 via-blue-300 to-purple-200',
       shadow: 'drop-shadow-sm',
@@ -52,9 +52,9 @@ export const HolographicText: React.FC<HolographicTextProps> = ({
     },
   };
 
-  const config = intensityConfig[intensity];
+  const _config = intensityConfig[intensity];
 
-  const textVariants = {
+  const _textVariants = {
     hidden: { opacity: 0, scale: 0.8 },
     visible: {
       opacity: 1,
@@ -79,13 +79,13 @@ export const HolographicText: React.FC<HolographicTextProps> = ({
     },
   };
 
-  const baseClasses = `
+  const _baseClasses = `
     bg-gradient-to-r ${config.gradient} bg-clip-text text-transparent 
     font-bold ${sizeClasses[size]} ${config.shadow}
     ${className}
   `;
 
-  const styles = glow
+  const _styles = glow
     ? {
         filter: config.blur,
       }

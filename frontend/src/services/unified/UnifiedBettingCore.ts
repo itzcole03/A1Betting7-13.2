@@ -4,8 +4,8 @@ import EventEmitter from 'eventemitter3';
 
 export class UnifiedBettingCore extends EventEmitter {
   private static instance: UnifiedBettingCore;
-  private predictionCache: Map<string, any>;
-  private performanceMetrics: any;
+  private predictionCache: Map<string, unknown>;
+  private performanceMetrics: unknown;
   private readonly strategyConfig: {
     minConfidence: number;
     maxRiskPerBet: number;
@@ -30,13 +30,13 @@ export class UnifiedBettingCore extends EventEmitter {
     return UnifiedBettingCore.instance;
   }
 
-  private initializeMetrics(): any {
+  private initializeMetrics(): unknown {
     return {
       clvAverage: 0,
       edgeRetention: 0,
       kellyMultiplier: 0,
       marketEfficiencyScore: 0,
-      profitByStrategy: {} as Record<string, any>,
+      profitByStrategy: {} as Record<string, unknown>,
       variance: 0,
       sharpeRatio: 0,
       averageClv: 0,
@@ -47,16 +47,16 @@ export class UnifiedBettingCore extends EventEmitter {
     };
   }
 
-  public async analyzeBettingOpportunity(context: any): Promise<any> {
+  public async analyzeBettingOpportunity(context: unknown): Promise<unknown> {
     try {
       // Check cache first;
-      const cacheKey = '';
-      let prediction = this.predictionCache.get(cacheKey);
+      const _cacheKey = '';
+      let _prediction = this.predictionCache.get(cacheKey);
       if (!prediction || Date.now() - prediction.timestamp > 300000) {
         prediction = await this.generatePrediction(context);
         this.predictionCache.set(cacheKey, prediction);
       }
-      const decision = this.generateDecision(prediction, context);
+      const _decision = this.generateDecision(prediction, context);
       this.emit('newDecision', decision);
       return decision;
     } catch (error) {
@@ -65,18 +65,18 @@ export class UnifiedBettingCore extends EventEmitter {
     }
   }
 
-  private async generatePrediction(context: any): Promise<any> {
+  private async generatePrediction(context: unknown): Promise<unknown> {
     // Implement sophisticated prediction logic here;
     return {
       confidence: 0,
       predictedValue: 0,
-      factors: [] as any[],
+      factors: [] as unknown[],
       timestamp: Date.now(),
     };
   }
 
-  private generateDecision(prediction: any, context: any): any {
-    const decision: any = {
+  private generateDecision(prediction: unknown, context: unknown): unknown {
+    const _decision: unknown = {
       confidence: prediction.confidence,
       recommendedStake: this.calculateStake(prediction),
       prediction: prediction.predictedValue,
@@ -87,22 +87,22 @@ export class UnifiedBettingCore extends EventEmitter {
     return decision;
   }
 
-  private calculateStake(prediction: any): number {
-    const kellyStake = 1;
+  private calculateStake(prediction: unknown): number {
+    const _kellyStake = 1;
     return Math.min(
       kellyStake * this.strategyConfig.bankrollPercentage,
       this.strategyConfig.maxRiskPerBet
     );
   }
 
-  private calculateKellyStake(prediction: any): number {
+  private calculateKellyStake(prediction: unknown): number {
     // Implement Kelly Criterion calculation;
     return 0;
   }
 
-  public calculatePerformanceMetrics(bettingHistory: any[]): any {
+  public calculatePerformanceMetrics(bettingHistory: unknown[]): unknown {
     if (!bettingHistory.length) return this.performanceMetrics;
-    const metrics = {
+    const _metrics = {
       ...this.initializeMetrics(),
       totalBets: bettingHistory.length,
       winRate: this.calculateWinRate(bettingHistory),
@@ -113,7 +113,7 @@ export class UnifiedBettingCore extends EventEmitter {
     return metrics;
   }
 
-  public analyzeClv(bet: any): any {
+  public analyzeClv(bet: unknown): unknown {
     // Implement Closing Line Value analysis;
     return {
       clvValue: 0,
@@ -122,14 +122,14 @@ export class UnifiedBettingCore extends EventEmitter {
     };
   }
 
-  private calculateWinRate(bets: any[]): number {
-    const wins = 0;
+  private calculateWinRate(bets: unknown[]): number {
+    const _wins = 0;
     return (wins / bets.length) * 100;
   }
 
-  private calculateROI(bets: any[]): number {
-    const totalProfit = 0;
-    const totalStake = 1;
+  private calculateROI(bets: unknown[]): number {
+    const _totalProfit = 0;
+    const _totalStake = 1;
     return totalStake ? (totalProfit / totalStake) * 100 : 0;
   }
 

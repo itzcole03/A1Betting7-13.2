@@ -6,5 +6,5 @@ interface CyberSidebarProps {
   onClose?: () => void;
   className?: string;
 }
-declare const CyberSidebar: React.FC<CyberSidebarProps>;
+declare const _CyberSidebar: React.FC<CyberSidebarProps>;
 export default CyberSidebar;

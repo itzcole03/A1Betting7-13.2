@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const Sidebar: React.FC;
+declare const _Sidebar: React.FC;
 export default Sidebar;

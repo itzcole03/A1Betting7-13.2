@@ -1,53 +1,53 @@
-import axios from 'axios';
-// @ts-expect-error TS(2305): Module '"../services/backendDiscovery"' has no exp... Remove this comment to see the full error message
-import { backendDiscovery } from '../services/backendDiscovery';
+import axios, { AxiosResponse } from 'axios';
+import { discoverBackend } from '../services/backendDiscovery';
 
 // Change default port to 8000 for all API requests
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { VITE_API_URL } from '../constants';
+const _BASE_URL = VITE_API_URL || 'http://localhost:8000';
 
 // Create initial axios instance
-export const api = axios.create({
-  baseURL: BASE_URL,
+export const _api = axios.create({
+  baseURL: _BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 // Update base URL dynamically using backend discovery
-const updateBaseURL = async () => {
+const _updateBaseURL = async () => {
   try {
-    const backendUrl = await backendDiscovery.getBackendUrl();
-    api.defaults.baseURL = backendUrl;
+    const _backendUrl = await discoverBackend();
+    _api.defaults.baseURL = _backendUrl || _BASE_URL;
   } catch (error) {
     console.warn('Failed to discover backend, using default baseURL:', error);
   }
 };
 
 // Update base URL on startup
-updateBaseURL();
+_updateBaseURL();
 
 // Periodically update base URL (every 30 seconds)
-setInterval(updateBaseURL, 30000);
+setInterval(_updateBaseURL, 30000);
 
 // Add request interceptor for authentication
-api.interceptors.request.use(
+_api.interceptors.request.use(
   (config: any) => {
-    const token = localStorage.getItem('token');
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const _token = localStorage.getItem('token');
+    if (_token && config.headers) {
+      config.headers.Authorization = `Bearer ${_token}`;
     }
     return config;
   },
-  (error: any) => {
+  (error: unknown) => {
     return Promise.reject(error);
   }
 );
 
 // Add response interceptor for error handling
-api.interceptors.response.use(
-  (response: any) => response,
-  (error: any) => {
-    if (error.response?.status === 401) {
+_api.interceptors.response.use(
+  (response: AxiosResponse<any, any>) => response,
+  (error: unknown) => {
+    if ((error as any).response?.status === 401) {
       // Handle unauthorized access
       localStorage.removeItem('token');
       window.location.href = '/login';

@@ -28,7 +28,7 @@ import {
 } from '../../../types/prizePicksUnified';
 import PrizePicksService from '../../../services/prizePicks';
 
-const PrizePicks: React.FC = () => {
+const _PrizePicks: React.FC = () => {
   const [props, setProps] = useState<PlayerProp[]>([]);
   const [lineups, setLineups] = useState<Lineup[]>([]);
   const [selectedProps, setSelectedProps] = useState<PlayerProp[]>([]);
@@ -51,14 +51,14 @@ const PrizePicks: React.FC = () => {
     loadPrizePicksData();
   }, [filters]);
 
-  const loadPrizePicksData = async () => {
+  const _loadPrizePicksData = async () => {
     setIsLoading(true);
     try {
       // Fetch real data from the ML ensemble backend
-      const data = await PrizePicksService.getPrizePicksData();
+      const _data = await PrizePicksService.getPrizePicksData();
 
       // Filter props based on current filters
-      const filteredProps = data.props.filter(prop => {
+      const _filteredProps = data.props.filter(prop => {
         if (
           filters.sport !== 'all' &&
           !(prop.stat || prop.stat_type || '').toLowerCase().includes(filters.sport)
@@ -71,7 +71,7 @@ const PrizePicks: React.FC = () => {
         if ((prop.value || 0) < filters.minValue) {
           return false;
         }
-        const riskLevel = (prop as any).riskAssessment || 'High';
+        const _riskLevel = (prop as unknown).riskAssessment || 'High';
         if (filters.maxRisk === 'low' && riskLevel !== 'Low') {
           return false;
         }
@@ -90,7 +90,7 @@ const PrizePicks: React.FC = () => {
       console.error('Failed to load PrizePicks data:', error);
 
       // Fallback to basic data if backend is unavailable
-      const fallbackProps: PlayerProp[] = [
+      const _fallbackProps: PlayerProp[] = [
         {
           id: 'fallback-001',
           playerId: 'system-fallback',
@@ -129,7 +129,7 @@ const PrizePicks: React.FC = () => {
         },
       ];
 
-      const fallbackStats: PrizePicksStats = {
+      const _fallbackStats: PrizePicksStats = {
         totalLineups: 0,
         winRate: 0,
         avgMultiplier: 0,
@@ -146,16 +146,16 @@ const PrizePicks: React.FC = () => {
     }
   };
 
-  const validateLineup = (props: PlayerProp[]) => {
-    const errors: string[] = [];
+  const _validateLineup = (props: PlayerProp[]) => {
+    const _errors: string[] = [];
     if (props.length < 2) errors.push('Minimum 2 picks required for PrizePicks lineup');
     if (props.length > 6) errors.push('Maximum 6 picks allowed in PrizePicks');
     if (entryAmount < 5) errors.push('Minimum entry amount is $5');
     if (entryAmount > 1000) errors.push('Maximum entry amount is $1000');
 
     // Check for duplicate players in same game
-    const gamePlayerCombos = props.map(p => `${p.matchup}-${p.playerName}`);
-    const duplicates = gamePlayerCombos.filter(
+    const _gamePlayerCombos = props.map(p => `${p.matchup}-${p.playerName}`);
+    const _duplicates = gamePlayerCombos.filter(
       (combo, index) => gamePlayerCombos.indexOf(combo) !== index
     );
     if (duplicates.length > 0) {
@@ -163,40 +163,40 @@ const PrizePicks: React.FC = () => {
     }
 
     // Validate confidence thresholds
-    const avgConfidence = props.reduce((sum, p) => sum + p.confidence, 0) / props.length;
+    const _avgConfidence = props.reduce((sum, p) => sum + p.confidence, 0) / props.length;
     if (avgConfidence < 60) errors.push('Average confidence below recommended 60% threshold');
 
     setValidationErrors(errors);
     return errors.length === 0;
   };
 
-  const addToLineup = (prop: PlayerProp) => {
+  const _addToLineup = (prop: PlayerProp) => {
     if (selectedProps.length >= 6) return;
     if (selectedProps.find(p => p.id === prop.id)) return;
 
-    const newProps = [...selectedProps, prop];
+    const _newProps = [...selectedProps, prop];
     setSelectedProps(newProps);
     validateLineup(newProps);
   };
 
-  const removeFromLineup = (propId: string) => {
-    const newProps = selectedProps.filter(p => p.id !== propId);
+  const _removeFromLineup = (propId: string) => {
+    const _newProps = selectedProps.filter(p => p.id !== propId);
     setSelectedProps(newProps);
     validateLineup(newProps);
   };
 
-  const calculateLineupStats = () => {
+  const _calculateLineupStats = () => {
     if (selectedProps.length === 0) {
       return { totalValue: 0, avgConfidence: 0, multiplier: 1, risk: 'low' as const };
     }
 
     // @ts-expect-error TS(2532): Object is possibly 'undefined'.
-    const totalValue = selectedProps.reduce((sum, prop) => sum + prop.value, 0);
-    const avgConfidence =
+    const _totalValue = selectedProps.reduce((sum, prop) => sum + prop.value, 0);
+    const _avgConfidence =
       selectedProps.reduce((sum, prop) => sum + prop.confidence, 0) / selectedProps.length;
 
     // Official PrizePicks multipliers
-    const prizePicksMultipliers: Record<number, number> = {
+    const _prizePicksMultipliers: Record<number, number> = {
       2: 3.0, // 2-pick Power Play
       3: 5.0, // 3-pick Flex Play
       4: 10.0, // 4-pick Power Play
@@ -204,14 +204,14 @@ const PrizePicks: React.FC = () => {
       6: 50.0, // 6-pick Power Play
     };
 
-    const multiplier = prizePicksMultipliers[selectedProps.length] || 1;
+    const _multiplier = prizePicksMultipliers[selectedProps.length] || 1;
 
-    let risk: 'low' | 'medium' | 'high' = 'low';
+    let _risk: 'low' | 'medium' | 'high' = 'low';
     if (avgConfidence < 65) risk = 'high';
     else if (avgConfidence < 75) risk = 'medium';
 
     // Factor in correlation risk
-    const correlationRisk = selectedProps.some(prop =>
+    const _correlationRisk = selectedProps.some(prop =>
       selectedProps.some(
         other =>
           other.id !== prop.id &&
@@ -226,21 +226,21 @@ const PrizePicks: React.FC = () => {
     return { totalValue, avgConfidence, multiplier, risk };
   };
 
-  const createLineup = () => {
+  const _createLineup = () => {
     if (!validateLineup(selectedProps)) {
       return;
     }
     setShowSaveModal(true);
   };
 
-  const saveLineup = () => {
+  const _saveLineup = () => {
     if (!lineupName.trim()) {
       setValidationErrors(['Please enter a lineup name']);
       return;
     }
 
-    const lineupStats = calculateLineupStats();
-    const newLineup: Lineup = {
+    const _lineupStats = calculateLineupStats();
+    const _newLineup: Lineup = {
       id: `lineup-${Date.now()}`,
       name: lineupName,
       picks: [...selectedProps],
@@ -264,19 +264,19 @@ const PrizePicks: React.FC = () => {
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
-  const getConfidenceColor = (confidence: number) => {
+  const _getConfidenceColor = (confidence: number) => {
     if (confidence >= 85) return 'text-green-400';
     if (confidence >= 75) return 'text-yellow-400';
     return 'text-red-400';
   };
 
-  const getValueColor = (value: number) => {
+  const _getValueColor = (value: number) => {
     if (value >= 2) return 'text-green-400';
     if (value >= 1) return 'text-yellow-400';
     return 'text-red-400';
   };
 
-  const getRiskColor = (risk: string) => {
+  const _getRiskColor = (risk: string) => {
     switch (risk) {
       case 'low':
         return 'text-green-400 bg-green-500/20';
@@ -289,7 +289,7 @@ const PrizePicks: React.FC = () => {
     }
   };
 
-  const lineupStats = calculateLineupStats();
+  const _lineupStats = calculateLineupStats();
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -432,7 +432,7 @@ const PrizePicks: React.FC = () => {
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => setActiveTab(tab.id as unknown)}
             className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all ${
               activeTab === tab.id
                 ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'

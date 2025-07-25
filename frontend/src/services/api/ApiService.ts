@@ -6,10 +6,10 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 
 // Define base URL from environment variables
 // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const _BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 // Create axios instance with default configuration
-const apiClient = axios.create({
+const _apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 30000,
   headers: {
@@ -21,7 +21,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config): typeof config => {
     // In a real app, you'd get the token from a state manager or local storage
-    const token = localStorage.getItem('auth_token');
+    const _token = localStorage.getItem('auth_token');
     if (token) {
       if (config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -33,7 +33,7 @@ apiClient.interceptors.request.use(
     }
     return config;
   },
-  (error: any): Promise<never> => {
+  (error: unknown): Promise<never> => {
     // console.error('[API Request Error]', error);
     return Promise.reject(error);
   }
@@ -69,8 +69,8 @@ export class ApiService {
    * @param params - Optional query parameters.
    * @returns A promise that resolves with the response data.
    */
-  static async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-    const response = await apiClient.get<T>(endpoint, { params });
+  static async get<T>(endpoint: string, params?: Record<string, unknown>): Promise<T> {
+    const _response = await apiClient.get<T>(endpoint, { params });
     return response.data;
   }
 
@@ -80,8 +80,8 @@ export class ApiService {
    * @param data - The data to send in the request body.
    * @returns A promise that resolves with the response data.
    */
-  static async post<T>(endpoint: string, data: any): Promise<T> {
-    const response = await apiClient.post<T>(endpoint, data);
+  static async post<T>(endpoint: string, data: unknown): Promise<T> {
+    const _response = await apiClient.post<T>(endpoint, data);
     return response.data;
   }
 
@@ -91,8 +91,8 @@ export class ApiService {
    * @param data - The data to send in the request body.
    * @returns A promise that resolves with the response data.
    */
-  static async put<T>(endpoint: string, data: any): Promise<T> {
-    const response = await apiClient.put<T>(endpoint, data);
+  static async put<T>(endpoint: string, data: unknown): Promise<T> {
+    const _response = await apiClient.put<T>(endpoint, data);
     return response.data;
   }
 
@@ -102,11 +102,11 @@ export class ApiService {
    * @returns A promise that resolves with the response data.
    */
   static async delete<T>(endpoint: string): Promise<T> {
-    const response = await apiClient.delete<T>(endpoint);
+    const _response = await apiClient.delete<T>(endpoint);
     return response.data;
   }
 }
 
 // Export a singleton instance
-export const api = ApiService;
+export const _api = ApiService;
 export default ApiService;

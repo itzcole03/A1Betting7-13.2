@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const Settings: React.FC;
+declare const _Settings: React.FC;
 export default Settings;

@@ -1,3 +1,9 @@
+/*
+  components.css
+  Purpose: Provides reusable style variants for cards, buttons, and inputs across the frontend.
+  Usage: Imported by components for consistent UI styling. See README and onboarding docs for details.
+*/
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

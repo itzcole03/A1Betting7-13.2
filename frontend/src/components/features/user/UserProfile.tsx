@@ -98,7 +98,7 @@ interface Achievement {
   total?: number;
 }
 
-const UserProfile: React.FC = () => {
+const _UserProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
@@ -113,7 +113,7 @@ const UserProfile: React.FC = () => {
     loadUserData();
   }, []);
 
-  const loadUserData = async () => {
+  const _loadUserData = async () => {
     setIsLoading(true);
     try {
       await Promise.all([
@@ -129,11 +129,11 @@ const UserProfile: React.FC = () => {
     }
   };
 
-  const loadUserProfile = async () => {
+  const _loadUserProfile = async () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const mockProfile: UserProfile = {
+    const _mockProfile: UserProfile = {
       id: 'user-001',
       username: 'pro_bettor_2024',
       email: 'john.doe@example.com',
@@ -169,11 +169,11 @@ const UserProfile: React.FC = () => {
     setUserProfile(mockProfile);
   };
 
-  const loadUserStats = async () => {
+  const _loadUserStats = async () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    const mockStats: UserStats = {
+    const _mockStats: UserStats = {
       totalBets: 1247,
       winRate: 67.3,
       profit: 8420.5,
@@ -189,11 +189,11 @@ const UserProfile: React.FC = () => {
     setUserStats(mockStats);
   };
 
-  const loadActivityData = async () => {
+  const _loadActivityData = async () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 600));
 
-    const mockActivity: ActivityData[] = Array.from({ length: 30 }, (_, i) => ({
+    const _mockActivity: ActivityData[] = Array.from({ length: 30 }, (_, i) => ({
       date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       bets: Math.floor(Math.random() * 20) + 1,
       profit: (Math.random() - 0.4) * 500,
@@ -203,11 +203,11 @@ const UserProfile: React.FC = () => {
     setActivityData(mockActivity);
   };
 
-  const loadAchievements = async () => {
+  const _loadAchievements = async () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 400));
 
-    const mockAchievements: Achievement[] = [
+    const _mockAchievements: Achievement[] = [
       {
         id: 'first-win',
         name: 'First Win',
@@ -255,7 +255,7 @@ const UserProfile: React.FC = () => {
     setAchievements(mockAchievements);
   };
 
-  const saveProfile = async () => {
+  const _saveProfile = async () => {
     setIsLoading(true);
     setSaveStatus('saving');
 
@@ -275,7 +275,7 @@ const UserProfile: React.FC = () => {
     }
   };
 
-  const getRarityColor = (rarity: Achievement['rarity']) => {
+  const _getRarityColor = (rarity: Achievement['rarity']) => {
     switch (rarity) {
       case 'common':
         return 'text-gray-400 border-gray-400/20 bg-gray-400/10';
@@ -290,7 +290,7 @@ const UserProfile: React.FC = () => {
     }
   };
 
-  const getPlanColor = (plan: string) => {
+  const _getPlanColor = (plan: string) => {
     switch (plan) {
       case 'elite':
         return 'text-purple-400 bg-purple-400/10 border-purple-400/20';
@@ -303,7 +303,7 @@ const UserProfile: React.FC = () => {
     }
   };
 
-  const tabs = [
+  const _tabs = [
     { id: 'overview', label: 'Overview', icon: User },
     { id: 'stats', label: 'Statistics', icon: BarChart3 },
     { id: 'activity', label: 'Activity', icon: Activity },
@@ -312,7 +312,7 @@ const UserProfile: React.FC = () => {
     { id: 'billing', label: 'Billing', icon: CreditCard },
   ];
 
-  const renderOverview = () => (
+  const _renderOverview = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       {/* Profile Header */}
@@ -666,7 +666,7 @@ const UserProfile: React.FC = () => {
     </div>
   );
 
-  const renderStats = () => (
+  const _renderStats = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -761,7 +761,7 @@ const UserProfile: React.FC = () => {
     </div>
   );
 
-  const renderActivity = () => (
+  const _renderActivity = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -818,7 +818,7 @@ const UserProfile: React.FC = () => {
     </div>
   );
 
-  const renderAchievements = () => (
+  const _renderAchievements = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -896,7 +896,7 @@ const UserProfile: React.FC = () => {
     </div>
   );
 
-  const renderSettings = () => (
+  const _renderSettings = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -1144,7 +1144,7 @@ const UserProfile: React.FC = () => {
     </div>
   );
 
-  const renderBilling = () => (
+  const _renderBilling = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -1270,7 +1270,7 @@ const UserProfile: React.FC = () => {
     </div>
   );
 
-  const renderTabContent = () => {
+  const _renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
         return renderOverview();

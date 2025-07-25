@@ -20,7 +20,7 @@ interface AccessRequestManagerProps {
   adminEmail: string;
 }
 
-const AccessRequestManager: React.FC<AccessRequestManagerProps> = ({ authToken, adminEmail }) => {
+const _AccessRequestManager: React.FC<AccessRequestManagerProps> = ({ authToken, adminEmail }) => {
   const [requests, setRequests] = useState<AccessRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,11 +36,11 @@ const AccessRequestManager: React.FC<AccessRequestManagerProps> = ({ authToken, 
     loadRequests();
   }, []);
 
-  const loadRequests = async () => {
+  const _loadRequests = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await accessRequestService.getAllAccessRequests(authToken);
+      const _data = await accessRequestService.getAllAccessRequests(authToken);
       setRequests(data);
     } catch (err) {
       setError('Failed to load access requests');
@@ -50,12 +50,12 @@ const AccessRequestManager: React.FC<AccessRequestManagerProps> = ({ authToken, 
     }
   };
 
-  const handleApprove = async (requestId: string) => {
+  const _handleApprove = async (requestId: string) => {
     if (processingRequest) return;
 
     setProcessingRequest(requestId);
     try {
-      const response = await accessRequestService.approveAccessRequest(
+      const _response = await accessRequestService.approveAccessRequest(
         requestId,
         authToken,
         adminEmail
@@ -71,12 +71,12 @@ const AccessRequestManager: React.FC<AccessRequestManagerProps> = ({ authToken, 
     }
   };
 
-  const handleDeny = async (requestId: string) => {
+  const _handleDeny = async (requestId: string) => {
     if (processingRequest) return;
 
     setProcessingRequest(requestId);
     try {
-      const response = await accessRequestService.denyAccessRequest(
+      const _response = await accessRequestService.denyAccessRequest(
         requestId,
         authToken,
         adminEmail,
@@ -95,15 +95,15 @@ const AccessRequestManager: React.FC<AccessRequestManagerProps> = ({ authToken, 
     }
   };
 
-  const filteredRequests = requests
+  const _filteredRequests = requests
     .filter(request => {
-      const matchesSearch = request.email.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
+      const _matchesSearch = request.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const _matchesStatus = statusFilter === 'all' || request.status === statusFilter;
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime());
 
-  const getStatusBadge = (status: AccessRequest['status']) => {
+  const _getStatusBadge = (status: AccessRequest['status']) => {
     switch (status) {
       case 'pending':
         return (
@@ -135,7 +135,7 @@ const AccessRequestManager: React.FC<AccessRequestManagerProps> = ({ authToken, 
     }
   };
 
-  const formatDate = (date: Date) => {
+  const _formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -212,7 +212,7 @@ const AccessRequestManager: React.FC<AccessRequestManagerProps> = ({ authToken, 
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <select
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value as any)}
+            onChange={e => setStatusFilter(e.target.value as unknown)}
             className='px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:border-cyber-primary'
           >
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

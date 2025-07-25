@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 // @ts-expect-error TS(6142): Module '../auth/AuthContext' was resolved to 'C:/U... Remove this comment to see the full error message
-import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
-const Login = () => {
+const _Login = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -13,21 +13,21 @@ const Login = () => {
 
   // @ts-expect-error TS(2339): Property 'login' does not exist on type 'unknown'.
   const { login } = useAuth();
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
-  const handleChange = (e: any) => {
+  const _handleChange = (e: unknown) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = async (e: any) => {
+  const _handleSubmit = async (e: unknown) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    const result = await login(formData.username, formData.password);
+    const _result = await login(formData.username, formData.password);
 
     if (result.success) {
       navigate('/dashboard');
@@ -41,16 +41,20 @@ const Login = () => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div className='max-w-md w-full space-y-8'>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900'>
             Sign in to A1Betting
           </h2>
         </div>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
           {error && (
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -58,14 +62,16 @@ const Login = () => {
               {error}
             </div>
           )}
-
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <label htmlFor='username' className='sr-only'>
               Username or Email
             </label>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <input
               id='username'
               name='username'
@@ -77,14 +83,16 @@ const Login = () => {
               onChange={handleChange}
             />
           </div>
-
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <label htmlFor='password' className='sr-only'>
               Password
             </label>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <input
               id='password'
               name='password'
@@ -96,10 +104,11 @@ const Login = () => {
               onChange={handleChange}
             />
           </div>
-
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <button
               type='submit'
               disabled={loading}
@@ -108,13 +117,14 @@ const Login = () => {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
-
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='text-center'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <span className='text-sm text-gray-600'>
-              Don't have an account?{' '}
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              Don't have an account? // @ts-expect-error TS(17004): Cannot use JSX unless the
+              '--jsx' flag is provided... Remove this comment to see the full error message
               <button
                 type='button'
                 className='font-medium text-indigo-600 hover:text-indigo-500'

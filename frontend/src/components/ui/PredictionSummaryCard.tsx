@@ -45,7 +45,7 @@ export interface PredictionSummaryCardProps {
   className?: string;
 }
 
-export const PredictionSummaryCard: React.FC<PredictionSummaryCardProps> = ({
+export const _PredictionSummaryCard: React.FC<PredictionSummaryCardProps> = ({
   prediction,
   variant = 'default',
   showFeatures = false,
@@ -53,15 +53,15 @@ export const PredictionSummaryCard: React.FC<PredictionSummaryCardProps> = ({
   onSelect,
   className = '',
 }) => {
-  const isClickable = !!onSelect;
+  const _isClickable = !!onSelect;
 
-  const getConfidenceColor = (confidence: number) => {
+  const _getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'text-green-400 bg-green-500/20';
     if (confidence >= 65) return 'text-yellow-400 bg-yellow-500/20';
     return 'text-orange-400 bg-orange-500/20';
   };
 
-  const getStatusColor = (status: PredictionData['status']) => {
+  const _getStatusColor = (status: PredictionData['status']) => {
     switch (status) {
       case 'won':
         return 'text-green-400 bg-green-500/20';
@@ -76,7 +76,7 @@ export const PredictionSummaryCard: React.FC<PredictionSummaryCardProps> = ({
     }
   };
 
-  const getStatusIcon = (status: PredictionData['status']) => {
+  const _getStatusIcon = (status: PredictionData['status']) => {
     switch (status) {
       case 'won':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -96,13 +96,13 @@ export const PredictionSummaryCard: React.FC<PredictionSummaryCardProps> = ({
     }
   };
 
-  const getROIColor = (roi: number) => {
+  const _getROIColor = (roi: number) => {
     if (roi > 0) return 'text-green-400';
     if (roi < 0) return 'text-red-400';
     return 'text-gray-400';
   };
 
-  const cardVariants = {
+  const _cardVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
     visible: {
       opacity: 1,
@@ -125,7 +125,7 @@ export const PredictionSummaryCard: React.FC<PredictionSummaryCardProps> = ({
       : {},
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-slate-800/50 border-slate-700/50',
     cyber: 'bg-slate-900/50 border-cyan-500/30 shadow-[0_0_20px_rgba(34,211,238,0.2)]',
     compact: 'bg-slate-800/50 border-slate-700/50 p-4',

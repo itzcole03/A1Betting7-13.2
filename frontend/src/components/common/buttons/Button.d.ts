@@ -9,4 +9,4 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   rightIcon?: React.ReactNode;
   fullWidth?: boolean;
 }
-export declare const Button: React.FC<ButtonProps>;
+export declare const _Button: React.FC<ButtonProps>;

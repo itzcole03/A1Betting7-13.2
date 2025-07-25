@@ -11,6 +11,6 @@ export type CardHeaderProps = React.HTMLAttributes<HTMLDivElement>;
 export type CardContentProps = React.HTMLAttributes<HTMLDivElement>;
 export type CardFooterProps = React.HTMLAttributes<HTMLDivElement>;
 
-export declare const Card: React.ForwardRefExoticComponent<
+export declare const _Card: React.ForwardRefExoticComponent<
   CardProps & MotionProps & React.RefAttributes<HTMLDivElement>
 >;

@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { masterServiceRegistry } from '../services/MasterServiceRegistry';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface DataSource {
   id: string;
@@ -23,16 +22,16 @@ interface DataQuality {
 }
 
 interface RealTimeData {
-  odds: any[];
-  games: any[];
-  players: any[];
-  injuries: any[];
-  weather: any[];
-  news: any[];
+  odds: unknown[];
+  games: unknown[];
+  players: unknown[];
+  injuries: unknown[];
+  weather: unknown[];
+  news: unknown[];
   lastSync: Date;
 }
 
-export const useEnhancedRealDataSources = () => {
+export const _useEnhancedRealDataSources = () => {
   const [dataSources, setDataSources] = useState<DataSource[]>([]);
   const [dataQuality, setDataQuality] = useState<DataQuality>({
     overall: 0,
@@ -54,31 +53,32 @@ export const useEnhancedRealDataSources = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isMonitoring, setIsMonitoring] = useState(false);
-  const monitoringInterval = useRef<NodeJS.Timeout | null>(null);
+  const _monitoringInterval = useRef<NodeJS.Timeout | null>(null);
 
-  const initializeDataSources = useCallback(async () => {
+  const _initializeDataSources = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const dataService = masterServiceRegistry.getService('data');
+      const _dataService = masterServiceRegistry.getService('data');
       if (!dataService) {
         throw new Error('Data service not available');
       }
 
       // Get data source status
-      const sources = (await dataService.getDataSources?.()) || [];
+      const _sources = (await dataService.getDataSources?.()) || [];
       setDataSources(sources);
 
       // Get data quality metrics
-      const quality = (await dataService.getDataQuality?.()) || dataQuality;
+      const _quality = (await dataService.getDataQuality?.()) || dataQuality;
       setDataQuality(quality);
 
       // Get initial real-time data
-      const initialData = (await dataService.getRealTimeData?.()) || realTimeData;
+      const _initialData = (await dataService.getRealTimeData?.()) || realTimeData;
       setRealTimeData(initialData);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to initialize data sources';
+      const _errorMessage =
+        err instanceof Error ? err.message : 'Failed to initialize data sources';
       setError(errorMessage);
       console.error('Data sources initialization error:', err);
     } finally {
@@ -86,14 +86,14 @@ export const useEnhancedRealDataSources = () => {
     }
   }, [dataQuality, realTimeData]);
 
-  const connectToDataSource = useCallback(async (sourceId: string) => {
+  const _connectToDataSource = useCallback(async (sourceId: string) => {
     try {
-      const dataService = masterServiceRegistry.getService('data');
+      const _dataService = masterServiceRegistry.getService('data');
       if (!dataService?.connectDataSource) {
         return false;
       }
 
-      const success = await dataService.connectDataSource(sourceId);
+      const _success = await dataService.connectDataSource(sourceId);
 
       if (success) {
         setDataSources(prev =>
@@ -112,14 +112,14 @@ export const useEnhancedRealDataSources = () => {
     }
   }, []);
 
-  const disconnectFromDataSource = useCallback(async (sourceId: string) => {
+  const _disconnectFromDataSource = useCallback(async (sourceId: string) => {
     try {
-      const dataService = masterServiceRegistry.getService('data');
+      const _dataService = masterServiceRegistry.getService('data');
       if (!dataService?.disconnectDataSource) {
         return false;
       }
 
-      const success = await dataService.disconnectDataSource(sourceId);
+      const _success = await dataService.disconnectDataSource(sourceId);
 
       if (success) {
         setDataSources(prev =>
@@ -136,14 +136,14 @@ export const useEnhancedRealDataSources = () => {
     }
   }, []);
 
-  const refreshDataSource = useCallback(async (sourceId: string) => {
+  const _refreshDataSource = useCallback(async (sourceId: string) => {
     try {
-      const dataService = masterServiceRegistry.getService('data');
+      const _dataService = masterServiceRegistry.getService('data');
       if (!dataService?.refreshDataSource) {
         return false;
       }
 
-      const success = await dataService.refreshDataSource(sourceId);
+      const _success = await dataService.refreshDataSource(sourceId);
 
       if (success) {
         setDataSources(prev =>
@@ -160,17 +160,17 @@ export const useEnhancedRealDataSources = () => {
     }
   }, []);
 
-  const refreshAllDataSources = useCallback(async () => {
+  const _refreshAllDataSources = useCallback(async () => {
     try {
-      const dataService = masterServiceRegistry.getService('data');
+      const _dataService = masterServiceRegistry.getService('data');
       if (!dataService?.refreshAllDataSources) {
         // Fallback to refreshing each source individually
-        const promises = dataSources.map(source => refreshDataSource(source.id));
+        const _promises = dataSources.map(source => refreshDataSource(source.id));
         await Promise.all(promises);
         return true;
       }
 
-      const success = await dataService.refreshAllDataSources();
+      const _success = await dataService.refreshAllDataSources();
 
       if (success) {
         setDataSources(prev =>
@@ -188,7 +188,7 @@ export const useEnhancedRealDataSources = () => {
     }
   }, [dataSources, refreshDataSource]);
 
-  const getDataByType = useCallback(
+  const _getDataByType = useCallback(
     (type: DataSource['type']) => {
       switch (type) {
         case 'odds':
@@ -208,43 +208,43 @@ export const useEnhancedRealDataSources = () => {
     [realTimeData]
   );
 
-  const getDataSourcesByStatus = useCallback(
+  const _getDataSourcesByStatus = useCallback(
     (status: DataSource['status']) => {
       return dataSources.filter(source => source.status === status);
     },
     [dataSources]
   );
 
-  const getDataSourcesByType = useCallback(
+  const _getDataSourcesByType = useCallback(
     (type: DataSource['type']) => {
       return dataSources.filter(source => source.type === type);
     },
     [dataSources]
   );
 
-  const getHighPriorityDataSources = useCallback(() => {
+  const _getHighPriorityDataSources = useCallback(() => {
     return dataSources.filter(source => source.priority === 'high');
   }, [dataSources]);
 
-  const getDataSourceHealth = useCallback(() => {
-    const total = dataSources.length;
+  const _getDataSourceHealth = useCallback(() => {
+    const _total = dataSources.length;
     if (total === 0) return 0;
 
-    const healthy = dataSources.filter(
+    const _healthy = dataSources.filter(
       source => source.status === 'connected' && source.reliability > 0.8
     ).length;
 
     return healthy / total;
   }, [dataSources]);
 
-  const getUnreliableDataSources = useCallback(
+  const _getUnreliableDataSources = useCallback(
     (threshold = 0.7) => {
       return dataSources.filter(source => source.reliability < threshold);
     },
     [dataSources]
   );
 
-  const startMonitoring = useCallback(() => {
+  const _startMonitoring = useCallback(() => {
     if (monitoringInterval.current) {
       clearInterval(monitoringInterval.current);
     }
@@ -253,19 +253,19 @@ export const useEnhancedRealDataSources = () => {
 
     monitoringInterval.current = setInterval(async () => {
       try {
-        const dataService = masterServiceRegistry.getService('data');
+        const _dataService = masterServiceRegistry.getService('data');
         if (!dataService) return;
 
         // Update data source status
-        const sources = (await dataService.getDataSources?.()) || [];
+        const _sources = (await dataService.getDataSources?.()) || [];
         setDataSources(sources);
 
         // Update data quality
-        const quality = (await dataService.getDataQuality?.()) || dataQuality;
+        const _quality = (await dataService.getDataQuality?.()) || dataQuality;
         setDataQuality(quality);
 
         // Update real-time data
-        const newData = (await dataService.getRealTimeData?.()) || realTimeData;
+        const _newData = (await dataService.getRealTimeData?.()) || realTimeData;
         setRealTimeData(newData);
       } catch (err) {
         console.error('Monitoring error:', err);
@@ -273,7 +273,7 @@ export const useEnhancedRealDataSources = () => {
     }, 30000); // Monitor every 30 seconds
   }, [dataQuality, realTimeData]);
 
-  const stopMonitoring = useCallback(() => {
+  const _stopMonitoring = useCallback(() => {
     if (monitoringInterval.current) {
       clearInterval(monitoringInterval.current);
       monitoringInterval.current = null;
@@ -281,9 +281,9 @@ export const useEnhancedRealDataSources = () => {
     setIsMonitoring(false);
   }, []);
 
-  const testDataSource = useCallback(async (sourceId: string) => {
+  const _testDataSource = useCallback(async (sourceId: string) => {
     try {
-      const dataService = masterServiceRegistry.getService('data');
+      const _dataService = masterServiceRegistry.getService('data');
       if (!dataService?.testDataSource) {
         return { success: false, message: 'Testing not available' };
       }
@@ -295,9 +295,9 @@ export const useEnhancedRealDataSources = () => {
     }
   }, []);
 
-  const optimizeDataSources = useCallback(async () => {
+  const _optimizeDataSources = useCallback(async () => {
     try {
-      const dataService = masterServiceRegistry.getService('data');
+      const _dataService = masterServiceRegistry.getService('data');
       if (!dataService?.optimizeDataSources) {
         return false;
       }
@@ -309,17 +309,17 @@ export const useEnhancedRealDataSources = () => {
     }
   }, []);
 
-  const getDataLatency = useCallback(() => {
+  const _getDataLatency = useCallback(() => {
     if (dataSources.length === 0) return 0;
 
-    const totalLatency = dataSources.reduce((sum, source) => sum + source.latency, 0);
+    const _totalLatency = dataSources.reduce((sum, source) => sum + source.latency, 0);
     return totalLatency / dataSources.length;
   }, [dataSources]);
 
-  const getUpdateFrequencyStats = useCallback(() => {
+  const _getUpdateFrequencyStats = useCallback(() => {
     if (dataSources.length === 0) return { min: 0, max: 0, avg: 0 };
 
-    const frequencies = dataSources.map(source => source.updateFrequency);
+    const _frequencies = dataSources.map(source => source.updateFrequency);
     return {
       min: Math.min(...frequencies),
       max: Math.max(...frequencies),
@@ -327,13 +327,13 @@ export const useEnhancedRealDataSources = () => {
     };
   }, [dataSources]);
 
-  const subscribeToDataUpdates = useCallback(() => {
+  const _subscribeToDataUpdates = useCallback(() => {
     try {
-      const wsService = masterServiceRegistry.getService('websocket');
+      const _wsService = masterServiceRegistry.getService('websocket');
       if (!wsService) return;
 
       // Subscribe to data source updates
-      wsService.subscribe('data_source_update', (data: any) => {
+      wsService.subscribe('data_source_update', (data: unknown) => {
         setDataSources(prev =>
           prev.map(source =>
             source.id === data.sourceId ? { ...source, ...data.updates } : source

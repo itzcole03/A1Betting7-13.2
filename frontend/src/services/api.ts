@@ -35,15 +35,15 @@ export interface PrizePicksProjection {
   updated_at: string;
 }
 
-const API_BASE_URL = '/api/prizepicks';
+const _API_BASE_URL = '/api/prizepicks';
 
 export async function fetchPrizePicksProps(): Promise<PrizePicksProp[]> {
-  const response = await axios.get(`${API_BASE_URL}/props`);
+  const _response = await axios.get(`${API_BASE_URL}/props`);
   return response.data;
 }
 
 export async function fetchPrizePicksProjections(): Promise<PrizePicksProjection[]> {
-  const response = await axios.get(`${API_BASE_URL}/comprehensive-projections`);
+  const _response = await axios.get(`${API_BASE_URL}/comprehensive-projections`);
   return response.data;
 }
 

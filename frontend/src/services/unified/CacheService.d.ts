@@ -1,5 +1,5 @@
 ﻿export declare class CacheService {
-  static get(key: string): Promise<any>;
-  static set(key: string, value: any): Promise<boolean>;
+  static get(key: string): Promise<unknown>;
+  static set(key: string, value: unknown): Promise<boolean>;
 }
 export default CacheService;

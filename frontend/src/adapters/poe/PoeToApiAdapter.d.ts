@@ -9,5 +9,5 @@ export declare class PoeToApiAdapter {
    * Placeholder for fetching and transforming Poe data.
    * Returns an empty array for now.
    */
-  fetchAndTransformPoeData(): Promise<any[0]>;
+  fetchAndTransformPoeData(): Promise<unknown[0]>;
 }

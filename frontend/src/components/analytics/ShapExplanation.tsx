@@ -8,7 +8,7 @@ export interface ShapExplanationProps {
   eventId: string;
 }
 
-const ShapExplanation: React.FC<ShapExplanationProps> = ({ shap, eventId }) => {
+const _ShapExplanation: React.FC<ShapExplanationProps> = ({ shap, eventId }) => {
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   if (!shap) return <div key={241917}>No SHAP data available.</div>;
   return (

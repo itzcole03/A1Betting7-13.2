@@ -1,3 +1,3 @@
 ﻿import React from 'react.ts';
-declare const LoadingSkeleton: React.FC;
+declare const _LoadingSkeleton: React.FC;
 export { LoadingSkeleton };

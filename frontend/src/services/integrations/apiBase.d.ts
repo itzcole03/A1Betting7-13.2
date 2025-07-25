@@ -7,5 +7,5 @@ export declare abstract class ApiBase {
   protected retryDelay: number;
   constructor(baseUrl: string, apiKey?: string);
   protected request<T>(config: AxiosRequestConfig, attempt?: number): Promise<T>;
-  protected logError(error: any, config: AxiosRequestConfig): void;
+  protected logError(error: unknown, config: AxiosRequestConfig): void;
 }

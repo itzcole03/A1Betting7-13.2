@@ -5,5 +5,5 @@ interface BuilderPageProps {
   content?: unknown;
   url?: string;
 }
-declare const BuilderPage: React.FC<BuilderPageProps>;
+declare const _BuilderPage: React.FC<BuilderPageProps>;
 export default BuilderPage;

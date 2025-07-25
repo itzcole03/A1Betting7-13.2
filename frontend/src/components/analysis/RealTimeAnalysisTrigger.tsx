@@ -40,7 +40,7 @@ interface AnalysisState {
   lineups?: OptimalLineup[];
 }
 
-export const RealTimeAnalysisTrigger: React.FC<RealTimeAnalysisTriggerProps> = ({
+export const _RealTimeAnalysisTrigger: React.FC<RealTimeAnalysisTriggerProps> = ({
   onAnalysisComplete,
   onAnalysisStateChange,
   className = '',
@@ -60,9 +60,9 @@ export const RealTimeAnalysisTrigger: React.FC<RealTimeAnalysisTriggerProps> = (
     loadSystemStatus();
   }, []);
 
-  const loadSystemStatus = async () => {
+  const _loadSystemStatus = async () => {
     try {
-      const status = await realTimeAnalysisService.getSystemStatus();
+      const _status = await realTimeAnalysisService.getSystemStatus();
       setSystemStatus(status);
     } catch (error) {
       // Silently handle API unavailability in development
@@ -77,12 +77,12 @@ export const RealTimeAnalysisTrigger: React.FC<RealTimeAnalysisTriggerProps> = (
     }
   };
 
-  const startComprehensiveAnalysis = async () => {
+  const _startComprehensiveAnalysis = async () => {
     try {
       setAnalysisState({ status: 'starting' });
 
       // Start the analysis
-      const response: AnalysisResponse = await realTimeAnalysisService.startComprehensiveAnalysis({
+      const _response: AnalysisResponse = await realTimeAnalysisService.startComprehensiveAnalysis({
         min_confidence: 75,
         max_results: 100,
         lineup_sizes: [6, 10],
@@ -98,7 +98,7 @@ export const RealTimeAnalysisTrigger: React.FC<RealTimeAnalysisTriggerProps> = (
       // Monitor progress
       await monitorAnalysisProgress(response.analysis_id);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const _errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setAnalysisState({
         status: 'error',
         error: errorMessage,
@@ -107,10 +107,10 @@ export const RealTimeAnalysisTrigger: React.FC<RealTimeAnalysisTriggerProps> = (
     }
   };
 
-  const monitorAnalysisProgress = async (analysisId: string) => {
+  const _monitorAnalysisProgress = async (analysisId: string) => {
     try {
       // Use the async generator to monitor progress
-      for await (const progress of realTimeAnalysisService.monitorAnalysisProgress(analysisId)) {
+      for await (const _progress of realTimeAnalysisService.monitorAnalysisProgress(analysisId)) {
         setAnalysisState(prev => ({
           ...prev,
           progress,
@@ -132,7 +132,7 @@ export const RealTimeAnalysisTrigger: React.FC<RealTimeAnalysisTriggerProps> = (
     }
   };
 
-  const handleAnalysisComplete = async (analysisId: string) => {
+  const _handleAnalysisComplete = async (analysisId: string) => {
     try {
       // Fetch results
       const [opportunities, lineups] = await Promise.all([
@@ -178,17 +178,17 @@ export const RealTimeAnalysisTrigger: React.FC<RealTimeAnalysisTriggerProps> = (
     }
   };
 
-  const resetAnalysis = () => {
+  const _resetAnalysis = () => {
     setAnalysisState({ status: 'idle' });
   };
 
-  const getProgressColor = (percentage: number) => {
+  const _getProgressColor = (percentage: number) => {
     if (percentage < 30) return 'from-blue-500 to-cyan-500';
     if (percentage < 70) return 'from-yellow-500 to-orange-500';
     return 'from-green-500 to-emerald-500';
   };
 
-  const getStatusIcon = () => {
+  const _getStatusIcon = () => {
     switch (analysisState.status) {
       case 'starting':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -208,7 +208,7 @@ export const RealTimeAnalysisTrigger: React.FC<RealTimeAnalysisTriggerProps> = (
     }
   };
 
-  const isAnalyzing = analysisState.status === 'starting' || analysisState.status === 'analyzing';
+  const _isAnalyzing = analysisState.status === 'starting' || analysisState.status === 'analyzing';
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

@@ -82,7 +82,7 @@ interface WeatherTrend {
   impactLevel: 'low' | 'medium' | 'high';
 }
 
-const WeatherStation: React.FC = () => {
+const _WeatherStation: React.FC = () => {
   const [weatherConditions, setWeatherConditions] = useState<WeatherCondition[]>([]);
   const [weatherAlerts, setWeatherAlerts] = useState<WeatherAlert[]>([]);
   const [weatherTrends, setWeatherTrends] = useState<WeatherTrend[]>([]);
@@ -93,7 +93,7 @@ const WeatherStation: React.FC = () => {
   useEffect(() => {
     loadWeatherData();
 
-    let interval: NodeJS.Timeout;
+    let _interval: NodeJS.Timeout;
     if (autoUpdate) {
       interval = setInterval(loadWeatherData, 300000); // Update every 5 minutes
     }
@@ -103,12 +103,12 @@ const WeatherStation: React.FC = () => {
     };
   }, [autoUpdate]);
 
-  const loadWeatherData = async () => {
+  const _loadWeatherData = async () => {
     setIsLoading(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      const mockWeatherConditions: WeatherCondition[] = [
+      const _mockWeatherConditions: WeatherCondition[] = [
         {
           id: 'weather-001',
           gameId: 'Chiefs vs Bills',
@@ -212,7 +212,7 @@ const WeatherStation: React.FC = () => {
         },
       ];
 
-      const mockAlerts: WeatherAlert[] = [
+      const _mockAlerts: WeatherAlert[] = [
         {
           id: 'alert-001',
           gameId: 'Chiefs vs Bills',
@@ -241,7 +241,7 @@ const WeatherStation: React.FC = () => {
         },
       ];
 
-      const mockTrends: WeatherTrend[] = [
+      const _mockTrends: WeatherTrend[] = [
         {
           metric: 'Wind Speed',
           current: 22,
@@ -282,7 +282,7 @@ const WeatherStation: React.FC = () => {
     }
   };
 
-  const getConditionIcon = (condition: string) => {
+  const _getConditionIcon = (condition: string) => {
     switch (condition.toLowerCase()) {
       case 'clear':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -305,7 +305,7 @@ const WeatherStation: React.FC = () => {
     }
   };
 
-  const getImpactColor = (impact: number) => {
+  const _getImpactColor = (impact: number) => {
     if (impact < -25) return 'text-red-400';
     if (impact < -10) return 'text-orange-400';
     if (impact < 0) return 'text-yellow-400';
@@ -313,7 +313,7 @@ const WeatherStation: React.FC = () => {
     return 'text-gray-400';
   };
 
-  const getSeverityColor = (severity: string) => {
+  const _getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'severe':
         return 'text-red-400 bg-red-500/20';
@@ -328,7 +328,7 @@ const WeatherStation: React.FC = () => {
     }
   };
 
-  const getAlertSeverityColor = (severity: string) => {
+  const _getAlertSeverityColor = (severity: string) => {
     switch (severity) {
       case 'warning':
         return 'border-red-500/50 bg-red-500/10';
@@ -341,7 +341,7 @@ const WeatherStation: React.FC = () => {
     }
   };
 
-  const getTrendIcon = (trend: string) => {
+  const _getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'improving':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -358,7 +358,7 @@ const WeatherStation: React.FC = () => {
     }
   };
 
-  const selectedWeather = weatherConditions.find(w => w.id === selectedGame);
+  const _selectedWeather = weatherConditions.find(w => w.id === selectedGame);
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

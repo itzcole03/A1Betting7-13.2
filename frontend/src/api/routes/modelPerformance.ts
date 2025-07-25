@@ -7,10 +7,10 @@ import { ModelPerformanceMetrics } from '@/core/analytics/ModelPerformanceTracke
 import express, { Request, Response } from 'express';
 
 // Add missing logger and performanceTracker definitions
-const logger = new UnifiedLogger();
-const performanceTracker = UnifiedMetrics.getInstance();
+const _logger = new UnifiedLogger();
+const _performanceTracker = UnifiedMetrics.getInstance();
 
-const router = express.Router();
+const _router = express.Router();
 
 // Initialize the performance tracker;
 
@@ -20,13 +20,13 @@ router.get('/:modelName', async (req, res) => {
     const { modelName } = req.params;
     const { timeframe = 'all' } = req.query;
 
-    const history = performanceTracker.getPerformanceHistory(
+    const _history = performanceTracker.getPerformanceHistory(
       modelName,
       timeframe as 'day' | 'week' | 'month' | 'all'
     );
 
     // Define performance before using it
-    const performance = history && history.length > 0 ? history[0] : null;
+    const _performance = history && history.length > 0 ? history[0] : null;
 
     if (!performance) {
       return res.status(404).json({ error: 'Model performance data not found' });
@@ -48,7 +48,7 @@ router.get('/top/:metric', async (req, res) => {
     const { metric } = req.params;
     const { limit = '5' } = req.query;
 
-    const topModels = performanceTracker.getTopPerformingModels(
+    const _topModels = performanceTracker.getTopPerformingModels(
       metric as keyof ModelPerformanceMetrics | undefined,
       parseInt(limit as string, 10)
     );

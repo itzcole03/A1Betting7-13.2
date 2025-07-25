@@ -12,7 +12,7 @@ export interface SkeletonProps {
   spacing?: string; // Spacing between lines
 }
 
-export const Skeleton: React.FC<SkeletonProps> = ({
+export const _Skeleton: React.FC<SkeletonProps> = ({
   variant = 'default',
   shape = 'rectangle',
   width,
@@ -22,14 +22,14 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   lines = 3,
   spacing = 'space-y-2',
 }) => {
-  const shapeClasses = {
+  const _shapeClasses = {
     rectangle: 'rounded-md',
     circle: 'rounded-full',
     line: 'rounded-sm h-4',
     text: 'rounded-sm',
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-slate-700/50',
     cyber: 'bg-slate-900/50 border border-cyan-500/20',
     glass: 'bg-white/10 backdrop-blur-sm border border-white/10',
@@ -37,7 +37,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     wave: 'bg-slate-700/50',
   };
 
-  const skeletonVariants = {
+  const _skeletonVariants = {
     shimmer: {
       x: ['-100%', '100%'],
       transition: {
@@ -64,8 +64,8 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     },
   };
 
-  const getSkeletonStyle = () => {
-    const style: React.CSSProperties = {};
+  const _getSkeletonStyle = () => {
+    const _style: React.CSSProperties = {};
 
     if (width) {
       style.width = typeof width === 'number' ? `${width}px` : width;
@@ -99,13 +99,13 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     return style;
   };
 
-  const renderTextSkeleton = () => {
+  const _renderTextSkeleton = () => {
     return (
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className={spacing}>
         {Array.from({ length: lines }).map((_, index) => {
-          const isLast = index === lines - 1;
-          const lineWidth = isLast ? '75%' : '100%';
+          const _isLast = index === lines - 1;
+          const _lineWidth = isLast ? '75%' : '100%';
 
           return (
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -227,7 +227,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 };
 
 // Skeleton composition components for common patterns
-export const SkeletonCard: React.FC<{ className?: string }> = ({ className = '' }) => (
+export const _SkeletonCard: React.FC<{ className?: string }> = ({ className = '' }) => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div className={`p-6 bg-slate-800/50 rounded-lg border border-slate-700/50 ${className}`}>
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -252,7 +252,7 @@ export const SkeletonCard: React.FC<{ className?: string }> = ({ className = '' 
   </div>
 );
 
-export const SkeletonTable: React.FC<{ rows?: number; columns?: number; className?: string }> = ({
+export const _SkeletonTable: React.FC<{ rows?: number; columns?: number; className?: string }> = ({
   rows = 5,
   columns = 4,
   className = '',
@@ -285,7 +285,7 @@ export const SkeletonTable: React.FC<{ rows?: number; columns?: number; classNam
   </div>
 );
 
-export const SkeletonChart: React.FC<{ className?: string }> = ({ className = '' }) => (
+export const _SkeletonChart: React.FC<{ className?: string }> = ({ className = '' }) => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div className={`p-6 bg-slate-800/50 rounded-lg border border-slate-700/50 ${className}`}>
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

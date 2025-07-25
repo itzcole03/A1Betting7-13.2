@@ -28,7 +28,7 @@ export interface EnhancedPredictionRequest {
   use_gpu: boolean;
   numerical_precision: string;
   convergence_tolerance: number;
-  context: Record<string, any>;
+  context: Record<string, unknown>;
 }
 
 export interface EnhancedPredictionResponse {
@@ -43,11 +43,11 @@ export interface EnhancedPredictionResponse {
   riemannian_projection: number;
   final_prediction: number;
   // Mathematical rigor metrics;
-  neuromorphic_metrics: Record<string, any>;
-  mamba_metrics: Record<string, any>;
-  causal_metrics: Record<string, any>;
-  topological_metrics: Record<string, any>;
-  riemannian_metrics: Record<string, any>;
+  neuromorphic_metrics: Record<string, unknown>;
+  mamba_metrics: Record<string, unknown>;
+  causal_metrics: Record<string, unknown>;
+  topological_metrics: Record<string, unknown>;
+  riemannian_metrics: Record<string, unknown>;
   // Advanced mathematical properties;
   riemannian_curvature: number;
   persistent_betti_numbers: Record<string, number>;
@@ -61,7 +61,7 @@ export interface EnhancedPredictionResponse {
   lyapunov_exponent: number;
   mathematical_guarantees: Record<string, boolean>;
   // Computational complexity analysis;
-  actual_complexity: Record<string, any>;
+  actual_complexity: Record<string, unknown>;
   runtime_analysis: Record<string, number>;
   memory_usage: Record<string, number>;
   // Uncertainty quantification;
@@ -74,7 +74,7 @@ export interface EnhancedPredictionResponse {
   timestamp: string;
   // Mathematical validation;
   numerical_stability: Record<string, boolean>;
-  convergence_diagnostics: Record<string, any>;
+  convergence_diagnostics: Record<string, unknown>;
   theoretical_bounds_satisfied: boolean;
 }
 
@@ -100,7 +100,7 @@ export interface FeatureEngineeringResponse {
   };
   manifold_properties: {
     curvature_estimates: number[];
-    topology_summary: Record<string, any>;
+    topology_summary: Record<string, unknown>;
     geodesic_distances: number[][];
   };
   information_theory_metrics: {
@@ -150,7 +150,7 @@ export interface RiskAssessmentResponse {
 }
 
 export interface MathematicalAnalysisRequest {
-  prediction_data: Array<Record<string, any>>;
+  prediction_data: Array<Record<string, unknown>>;
   analysis_depth: string;
   include_stability_analysis: boolean;
   include_convergence_analysis: boolean;
@@ -161,7 +161,7 @@ export interface MathematicalAnalysisRequest {
 }
 
 export interface MathematicalAnalysisResponse {
-  mathematical_analysis: Record<string, any>;
+  mathematical_analysis: Record<string, unknown>;
   analysis_depth: string;
   data_dimensions: {
     num_samples: number;
@@ -200,7 +200,7 @@ export interface ModelStatusResponse {
     error_rate: number;
     average_response_time: number;
   };
-  mathematical_foundations: Record<string, any>;
+  mathematical_foundations: Record<string, unknown>;
 }
 
 class EnhancedBackendApiService {
@@ -290,7 +290,7 @@ class EnhancedBackendApiService {
         return cached;
       }
 
-      const response = await this.client.post<EnhancedPredictionResponse>(
+      const _response = await this.client.post<EnhancedPredictionResponse>(
         '/api/enhanced-revolutionary/predict/enhanced',
         request
       );
@@ -329,7 +329,7 @@ class EnhancedBackendApiService {
     request: FeatureEngineeringRequest
   ): Promise<FeatureEngineeringResponse> {
     try {
-      const response = await this.client.post<FeatureEngineeringResponse>(
+      const _response = await this.client.post<FeatureEngineeringResponse>(
         '/api/enhanced-features/engineer',
         request
       );
@@ -355,7 +355,7 @@ class EnhancedBackendApiService {
   // Enhanced Risk Assessment;
   async getEnhancedRiskAssessment(request: RiskAssessmentRequest): Promise<RiskAssessmentResponse> {
     try {
-      const response = await this.client.post<RiskAssessmentResponse>(
+      const _response = await this.client.post<RiskAssessmentResponse>(
         '/api/enhanced-risk/assess',
         request
       );
@@ -383,7 +383,7 @@ class EnhancedBackendApiService {
     request: MathematicalAnalysisRequest
   ): Promise<MathematicalAnalysisResponse> {
     try {
-      const response = await this.client.post<MathematicalAnalysisResponse>(
+      const _response = await this.client.post<MathematicalAnalysisResponse>(
         '/api/enhanced-revolutionary/analyze/mathematical-rigor',
         request
       );
@@ -407,7 +407,7 @@ class EnhancedBackendApiService {
   }
 
   // Get Mathematical Foundations;
-  async getMathematicalFoundations(): Promise<Record<string, any>> {
+  async getMathematicalFoundations(): Promise<Record<string, unknown>> {
     try {
       // @ts-expect-error TS(2552): Cannot find name 'cached'. Did you mean 'Cache'?
       if (cached) {
@@ -415,7 +415,7 @@ class EnhancedBackendApiService {
         return cached;
       }
 
-      const response = await this.client.get(
+      const _response = await this.client.get(
         '/api/enhanced-revolutionary/research/mathematical-foundations'
       );
 
@@ -438,7 +438,7 @@ class EnhancedBackendApiService {
   // Enhanced Model Status;
   async getEnhancedModelStatus(): Promise<ModelStatusResponse> {
     try {
-      const response = await this.client.get<ModelStatusResponse>('/api/enhanced-models/status');
+      const _response = await this.client.get<ModelStatusResponse>('/api/enhanced-models/status');
 
       this.logger.info('Retrieved enhanced model status', {
         totalModels: response.data.models.length,
@@ -471,7 +471,7 @@ class EnhancedBackendApiService {
     risk_assessment: RiskAssessmentResponse;
     mathematical_analysis: MathematicalAnalysisResponse;
     unified_confidence: number;
-    processing_summary: Record<string, any>;
+    processing_summary: Record<string, unknown>;
   }> {
     try {
       // Parallel processing for efficiency;
@@ -532,7 +532,7 @@ class EnhancedBackendApiService {
       ]);
 
       // Mathematical analysis (after other computations)
-      const mathematicalAnalysis = await this.getMathematicalAnalysis({
+      const _mathematicalAnalysis = await this.getMathematicalAnalysis({
         prediction_data: [
           {
             features: request.features,
@@ -552,16 +552,16 @@ class EnhancedBackendApiService {
       });
 
       // Calculate unified confidence;
-      const confidenceComponents = [
+      const _confidenceComponents = [
         enhancedPrediction.prediction_confidence,
         featureEngineering.dimensionality_reduction.explained_variance,
         1.0 - riskAssessment.portfolio_risk.value_at_risk,
         mathematicalAnalysis.mathematical_rigor_score / 100,
       ];
-      const unifiedConfidence =
+      const _unifiedConfidence =
         confidenceComponents.reduce((a, b) => a + b, 0) / confidenceComponents.length;
 
-      const result = {
+      const _result = {
         predictions: {
           enhanced_revolutionary: enhancedPrediction.final_prediction,
           base_prediction: enhancedPrediction.base_prediction,

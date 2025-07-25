@@ -9,7 +9,7 @@ import { GameData, OddsData } from '../types/unified';
  * @param sport The sport identifier (e.g., 'nba', 'soccer')
  * @param date Optional date string (YYYY-MM-DD)
  */
-export function useSportradarGames(sport: string, date?: string) {
+export function useSportradarGames(_sport: string, _date?: string) {
   return useQuery<GameData[0], Error>({
     queryKey: ['srGames', sport, date],
     queryFn: () => unifiedDataPipeline.fetchSportradarGames(sport, date),
@@ -22,7 +22,7 @@ export function useSportradarGames(sport: string, date?: string) {
  * @param eventId The ID of the event/game
  * @param market Optional market filter (e.g., 'h2h')
  */
-export function useEventOdds(eventId: string, market?: string) {
+export function useEventOdds(_eventId: string, _market?: string) {
   return useQuery<OddsData[0], Error>({
     queryKey: ['eventOdds', eventId, market],
     queryFn: () => unifiedDataPipeline.fetchOdds(eventId, market),

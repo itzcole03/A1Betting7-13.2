@@ -57,7 +57,7 @@ export declare class ApiService {
   private initializeWebSocket;
   private handleReconnection;
   private subscribeToDataFeeds;
-  getDataStream(): import('rxjs').Observable<any>;
+  getDataStream(): import('rxjs').Observable<unknown>;
   fetchPlayerStats(
     playerId: string,
     options?: {
@@ -76,7 +76,7 @@ export declare class ApiService {
     team?: string;
     status?: string[];
   }): Promise<ApiResponse<InjuryReport[]>>;
-  getSocialNews(params?: Record<string, any>): Promise<ApiResponse<any>>;
+  getSocialNews(params?: Record<string, unknown>): Promise<ApiResponse<unknown>>;
   private getHeaders;
   fetchHistoricalData(options: {
     startDate: string;
@@ -84,13 +84,13 @@ export declare class ApiService {
     players?: string[];
     teams?: string[];
     propTypes?: string[];
-  }): Promise<ApiResponse<any[]>>;
+  }): Promise<ApiResponse<unknown[]>>;
   /**
    * Generic GET method for arbitrary endpoints.
    * @param url - The endpoint URL (absolute or relative).
    * @param params - Query parameters as a key-value object.
    * @returns Parsed response data of type T.
    */
-  get<T>(url: string, params?: Record<string, any>): Promise<T>;
+  get<T>(url: string, params?: Record<string, unknown>): Promise<T>;
 }
-export declare const apiService: ApiService;
+export declare const _apiService: ApiService;

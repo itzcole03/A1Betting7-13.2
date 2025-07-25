@@ -28,8 +28,8 @@ interface StatusIndicatorProps {
   onClick?: () => void;
 }
 
-const getStatusConfig = (status: Status) => {
-  const configs = {
+const _getStatusConfig = (status: Status) => {
+  const _configs = {
     online: {
       color: 'green',
       label: 'Online',
@@ -95,8 +95,8 @@ const getStatusConfig = (status: Status) => {
   return configs[status] || configs.unknown;
 };
 
-const getStatusColors = (color: string, variant: string = 'default') => {
-  const colorMap = {
+const _getStatusColors = (color: string, variant: string = 'default') => {
+  const _colorMap = {
     default: {
       green: 'bg-green-500 border-green-500 text-green-700',
       red: 'bg-red-500 border-red-500 text-red-700',
@@ -120,8 +120,8 @@ const getStatusColors = (color: string, variant: string = 'default') => {
     : colorMap.default[color as keyof typeof colorMap.default] || colorMap.default.gray;
 };
 
-const getSizeClasses = (size: string, variant: string = 'default') => {
-  const sizeMap = {
+const _getSizeClasses = (size: string, variant: string = 'default') => {
+  const _sizeMap = {
     dot: {
       xs: 'w-2 h-2',
       sm: 'w-3 h-3',
@@ -138,11 +138,11 @@ const getSizeClasses = (size: string, variant: string = 'default') => {
     },
   };
 
-  const mapKey = variant === 'dot' || variant === 'minimal' ? 'dot' : 'default';
+  const _mapKey = variant === 'dot' || variant === 'minimal' ? 'dot' : 'default';
   return sizeMap[mapKey][size as keyof typeof sizeMap.dot] || sizeMap[mapKey].md;
 };
 
-export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
+export const _StatusIndicator: React.FC<StatusIndicatorProps> = ({
   status,
   variant = 'default',
   size = 'md',
@@ -154,14 +154,14 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
   className,
   onClick,
 }) => {
-  const config = getStatusConfig(status);
-  const statusColors = getStatusColors(config.color, variant);
-  const sizeClasses = getSizeClasses(size, variant);
+  const _config = getStatusConfig(status);
+  const _statusColors = getStatusColors(config.color, variant);
+  const _sizeClasses = getSizeClasses(size, variant);
 
-  const displayLabel = label || config.label;
-  const displayDescription = description || config.description;
+  const _displayLabel = label || config.label;
+  const _displayDescription = description || config.description;
 
-  const isInteractive = !!onClick;
+  const _isInteractive = !!onClick;
 
   // Dot variant
   if (variant === 'dot' || variant === 'minimal') {

@@ -27,7 +27,7 @@ export interface MLStatusIndicatorsProps {
   refreshInterval?: number;
 }
 
-const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
+const _MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
   models = [],
   variant = 'default',
   className = '',
@@ -42,7 +42,7 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const defaultModels: MLModel[] =
+  const _defaultModels: MLModel[] =
     models.length > 0
       ? models
       : [
@@ -110,7 +110,7 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
 
   useEffect(() => {
     if (autoRefresh) {
-      const interval = setInterval(() => {
+      const _interval = setInterval(() => {
         setCurrentTime(new Date());
         setIsRefreshing(true);
         setTimeout(() => setIsRefreshing(false), 1000);
@@ -119,7 +119,7 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
     }
   }, [autoRefresh, refreshInterval]);
 
-  const getStatusColor = (status: string) => {
+  const _getStatusColor = (status: string) => {
     switch (status) {
       case 'ready':
         return variant === 'cyber' ? '#00ff88' : '#10b981';
@@ -136,7 +136,7 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
     }
   };
 
-  const getTypeIcon = (type: string) => {
+  const _getTypeIcon = (type: string) => {
     switch (type) {
       case 'prediction':
         return (
@@ -206,10 +206,10 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
     }
   };
 
-  const getTimeAgo = (date: Date) => {
-    const diff = currentTime.getTime() - date.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const _getTimeAgo = (date: Date) => {
+    const _diff = currentTime.getTime() - date.getTime();
+    const _hours = Math.floor(diff / (1000 * 60 * 60));
+    const _minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
     if (hours > 0) {
       return `${hours}h ago`;
@@ -217,12 +217,12 @@ const MLStatusIndicators: React.FC<MLStatusIndicatorsProps> = ({
     return `${minutes}m ago`;
   };
 
-  const baseClasses = `
+  const _baseClasses = `
     ${variant === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}
     ${className}
   `;
 
-  const cardClasses = `
+  const _cardClasses = `
     p-4 rounded-lg border transition-all duration-200
     ${
       variant === 'cyber'

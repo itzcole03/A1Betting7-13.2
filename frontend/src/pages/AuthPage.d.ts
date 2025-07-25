@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const AuthPage: React.FC;
+declare const _AuthPage: React.FC;
 export default AuthPage;

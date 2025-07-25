@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const ApiHealthIndicator = () => {
+const _ApiHealthIndicator = () => {
   const [status, setStatus] = useState('checking');
 
   useEffect(() => {
@@ -11,8 +11,8 @@ const ApiHealthIndicator = () => {
       .catch(() => setStatus('down'));
   }, []);
 
-  const color = 'gray';
-  const text = 'Checking...';
+  const _color = 'gray';
+  const _text = 'Checking...';
   if (status === 'ok') {
     // @ts-expect-error TS(2588): Cannot assign to 'color' because it is a constant.
     color = 'green';

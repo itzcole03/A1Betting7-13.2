@@ -71,8 +71,8 @@ interface PredictionExplanationOverlayProps {
   onExportExplanation?: () => void;
 }
 
-const getFactorIcon = (category: string) => {
-  const icons = {
+const _getFactorIcon = (category: string) => {
+  const _icons = {
     statistical: '📊',
     historical: '📈',
     contextual: '🎯',
@@ -82,8 +82,8 @@ const getFactorIcon = (category: string) => {
   return icons[category as keyof typeof icons] || '📋';
 };
 
-const getModelIcon = (type: string) => {
-  const icons = {
+const _getModelIcon = (type: string) => {
+  const _icons = {
     neural_network: '🧠',
     random_forest: '🌳',
     logistic_regression: '📈',
@@ -93,12 +93,12 @@ const getModelIcon = (type: string) => {
   return icons[type as keyof typeof icons] || '🔬';
 };
 
-const getImpactColor = (impact: number, variant: string = 'default') => {
-  const intensity = Math.abs(impact);
+const _getImpactColor = (impact: number, variant: string = 'default') => {
+  const _intensity = Math.abs(impact);
 
   if (impact > 0) {
     // Positive impact
-    const colors = {
+    const _colors = {
       default:
         intensity > 0.7
           ? 'text-green-700 bg-green-100'
@@ -115,7 +115,7 @@ const getImpactColor = (impact: number, variant: string = 'default') => {
     return variant === 'cyber' ? colors.cyber : colors.default;
   } else {
     // Negative impact
-    const colors = {
+    const _colors = {
       default:
         intensity > 0.7
           ? 'text-red-700 bg-red-100'
@@ -133,8 +133,8 @@ const getImpactColor = (impact: number, variant: string = 'default') => {
   }
 };
 
-const getConfidenceColor = (confidence: number, variant: string = 'default') => {
-  const colors = {
+const _getConfidenceColor = (confidence: number, variant: string = 'default') => {
+  const _colors = {
     default: {
       high: 'text-green-600 bg-green-100',
       medium: 'text-yellow-600 bg-yellow-100',
@@ -147,19 +147,19 @@ const getConfidenceColor = (confidence: number, variant: string = 'default') => 
     },
   };
 
-  const level = confidence >= 0.8 ? 'high' : confidence >= 0.6 ? 'medium' : 'low';
+  const _level = confidence >= 0.8 ? 'high' : confidence >= 0.6 ? 'medium' : 'low';
   return variant === 'cyber' ? colors.cyber[level] : colors.default[level];
 };
 
-const formatPercentage = (value: number): string => {
+const _formatPercentage = (value: number): string => {
   return `${(value * 100).toFixed(1)}%`;
 };
 
-const formatTime = (date: Date): string => {
+const _formatTime = (date: Date): string => {
   return date.toLocaleString();
 };
 
-export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlayProps> = ({
+export const _PredictionExplanationOverlay: React.FC<PredictionExplanationOverlayProps> = ({
   explanation,
   isOpen,
   variant = 'default',
@@ -182,7 +182,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
 
   // Close on escape key
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
+    const _handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         onClose?.();
       }
@@ -194,8 +194,8 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
 
   if (!isOpen) return null;
 
-  const toggleFactorExpansion = (factorId: string) => {
-    const newExpanded = new Set(expandedFactors);
+  const _toggleFactorExpansion = (factorId: string) => {
+    const _newExpanded = new Set(expandedFactors);
     if (newExpanded.has(factorId)) {
       newExpanded.delete(factorId);
     } else {
@@ -204,14 +204,14 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
     setExpandedFactors(newExpanded);
   };
 
-  const positionClasses = {
+  const _positionClasses = {
     center: 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
     right: 'top-0 right-0 h-full',
     left: 'top-0 left-0 h-full',
     bottom: 'bottom-0 left-0 right-0',
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-lg shadow-xl',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -220,7 +220,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
     detailed: 'bg-white border border-gray-300 rounded-xl shadow-2xl',
   };
 
-  const topFactors = explanation.factors.sort((a, b) => b.importance - a.importance).slice(0, 5);
+  const _topFactors = explanation.factors.sort((a, b) => b.importance - a.importance).slice(0, 5);
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -424,7 +424,7 @@ export const PredictionExplanationOverlay: React.FC<PredictionExplanationOverlay
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <button
               key={tab}
-              onClick={() => setActiveTab(tab as any)}
+              onClick={() => setActiveTab(tab as unknown)}
               className={cn(
                 'px-4 py-3 text-sm font-medium transition-colors capitalize',
                 activeTab === tab

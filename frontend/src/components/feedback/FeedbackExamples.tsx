@@ -2,7 +2,7 @@ import React from 'react';
 // @ts-expect-error TS(6142): Module './FeedbackWidget' was resolved to 'C:/User... Remove this comment to see the full error message
 import FeedbackWidget from './FeedbackWidget';
 
-const FeedbackExamples: React.FC = () => {
+const _FeedbackExamples: React.FC = () => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='p-8 space-y-8'>

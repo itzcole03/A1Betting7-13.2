@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const AdvancedAnalyticsHub: React.FC;
+declare const _AdvancedAnalyticsHub: React.FC;
 export default AdvancedAnalyticsHub;

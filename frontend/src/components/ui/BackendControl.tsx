@@ -31,7 +31,7 @@ export interface BackendControlProps {
   metrics?: SystemMetrics;
   className?: string;
   onServiceAction?: (serviceId: string, action: string) => void;
-  onSystemAction?: (action: string, params?: any) => void;
+  onSystemAction?: (action: string, params?: unknown) => void;
   showLogs?: boolean;
   showMetrics?: boolean;
   showServices?: boolean;
@@ -39,7 +39,7 @@ export interface BackendControlProps {
   realTimeUpdates?: boolean;
 }
 
-export const BackendControl: React.FC<BackendControlProps> = ({
+export const _BackendControl: React.FC<BackendControlProps> = ({
   variant = 'default',
   services = [],
   metrics,
@@ -54,10 +54,10 @@ export const BackendControl: React.FC<BackendControlProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState('services');
   const [selectedService, setSelectedService] = useState<string | null>(null);
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<unknown[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const defaultServices: ServiceStatus[] =
+  const _defaultServices: ServiceStatus[] =
     services.length > 0
       ? services
       : [
@@ -110,7 +110,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
           },
         ];
 
-  const defaultMetrics: SystemMetrics = metrics || {
+  const _defaultMetrics: SystemMetrics = metrics || {
     cpu: 45,
     memory: 67,
     disk: 23,
@@ -123,7 +123,7 @@ export const BackendControl: React.FC<BackendControlProps> = ({
     errorRate: 0.02,
   };
 
-  const getStatusColor = (status: string) => {
+  const _getStatusColor = (status: string) => {
     switch (status) {
       case 'online':
         return variant === 'cyber' ? '#00ff88' : '#10b981';
@@ -138,25 +138,25 @@ export const BackendControl: React.FC<BackendControlProps> = ({
     }
   };
 
-  const handleServiceAction = (serviceId: string, action: string) => {
+  const _handleServiceAction = (serviceId: string, action: string) => {
     setIsLoading(true);
     onServiceAction?.(serviceId, action);
     setTimeout(() => setIsLoading(false), 1000);
   };
 
-  const handleSystemAction = (action: string, params?: any) => {
+  const _handleSystemAction = (action: string, params?: unknown) => {
     setIsLoading(true);
     onSystemAction?.(action, params);
     setTimeout(() => setIsLoading(false), 2000);
   };
 
-  const baseClasses = `
+  const _baseClasses = `
     w-full h-full bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700
     ${variant === 'cyber' ? 'bg-black border-cyan-400 shadow-lg shadow-cyan-400/20' : ''}
     ${className}
   `;
 
-  const cyberGrid =
+  const _cyberGrid =
     variant === 'cyber' ? (
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='absolute inset-0 opacity-10 pointer-events-none'>

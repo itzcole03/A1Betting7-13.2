@@ -40,7 +40,7 @@ export interface GridItemProps {
   onClick?: () => void;
 }
 
-export const Grid: React.FC<GridProps> = ({
+export const _Grid: React.FC<GridProps> = ({
   children,
   cols = 12,
   gap = 'md',
@@ -55,8 +55,8 @@ export const Grid: React.FC<GridProps> = ({
   animated = false,
   staggerChildren = 0.1,
 }) => {
-  const getColsClass = (colCount: number) => {
-    const colsMap = {
+  const _getColsClass = (colCount: number) => {
+    const _colsMap = {
       1: 'grid-cols-1',
       2: 'grid-cols-2',
       3: 'grid-cols-3',
@@ -73,9 +73,9 @@ export const Grid: React.FC<GridProps> = ({
     return colsMap[colCount as keyof typeof colsMap] || 'grid-cols-12';
   };
 
-  const getRowsClass = () => {
+  const _getRowsClass = () => {
     if (rows === 'auto') return '';
-    const rowsMap = {
+    const _rowsMap = {
       1: 'grid-rows-1',
       2: 'grid-rows-2',
       3: 'grid-rows-3',
@@ -86,8 +86,8 @@ export const Grid: React.FC<GridProps> = ({
     return rowsMap[rows as keyof typeof rowsMap] || '';
   };
 
-  const getGapClass = () => {
-    const gapMap = {
+  const _getGapClass = () => {
+    const _gapMap = {
       none: 'gap-0',
       xs: 'gap-1',
       sm: 'gap-2',
@@ -99,10 +99,10 @@ export const Grid: React.FC<GridProps> = ({
     return gapMap[gap];
   };
 
-  const getResponsiveClasses = () => {
+  const _getResponsiveClasses = () => {
     if (!responsive) return '';
 
-    let classes = '';
+    let _classes = '';
     if (responsive.sm) classes += ` sm:${getColsClass(responsive.sm)}`;
     if (responsive.md) classes += ` md:${getColsClass(responsive.md)}`;
     if (responsive.lg) classes += ` lg:${getColsClass(responsive.lg)}`;
@@ -111,8 +111,8 @@ export const Grid: React.FC<GridProps> = ({
     return classes;
   };
 
-  const getAutoFlowClass = () => {
-    const flowMap = {
+  const _getAutoFlowClass = () => {
+    const _flowMap = {
       row: 'grid-flow-row',
       column: 'grid-flow-col',
       dense: 'grid-flow-dense',
@@ -122,8 +122,8 @@ export const Grid: React.FC<GridProps> = ({
     return flowMap[autoFlow];
   };
 
-  const getAlignItemsClass = () => {
-    const alignMap = {
+  const _getAlignItemsClass = () => {
+    const _alignMap = {
       start: 'items-start',
       end: 'items-end',
       center: 'items-center',
@@ -132,8 +132,8 @@ export const Grid: React.FC<GridProps> = ({
     return alignMap[alignItems];
   };
 
-  const getJustifyItemsClass = () => {
-    const justifyMap = {
+  const _getJustifyItemsClass = () => {
+    const _justifyMap = {
       start: 'justify-items-start',
       end: 'justify-items-end',
       center: 'justify-items-center',
@@ -142,7 +142,7 @@ export const Grid: React.FC<GridProps> = ({
     return justifyMap[justifyItems];
   };
 
-  const baseClasses = `
+  const _baseClasses = `
     grid
     ${getColsClass(cols)}
     ${getRowsClass()}
@@ -155,11 +155,11 @@ export const Grid: React.FC<GridProps> = ({
     ${className}
   `;
 
-  const gridStyle: React.CSSProperties = {
+  const _gridStyle: React.CSSProperties = {
     ...(autoRows && { gridAutoRows: autoRows }),
   };
 
-  const containerVariants = {
+  const _containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -210,7 +210,7 @@ export const Grid: React.FC<GridProps> = ({
   );
 };
 
-export const GridItem: React.FC<GridItemProps> = ({
+export const _GridItem: React.FC<GridItemProps> = ({
   children,
   colSpan,
   rowSpan,
@@ -227,11 +227,11 @@ export const GridItem: React.FC<GridItemProps> = ({
   delay = 0,
   onClick,
 }) => {
-  const getColSpanClass = () => {
+  const _getColSpanClass = () => {
     if (!colSpan) return '';
     if (colSpan === 'full') return 'col-span-full';
 
-    const spanMap = {
+    const _spanMap = {
       1: 'col-span-1',
       2: 'col-span-2',
       3: 'col-span-3',
@@ -248,11 +248,11 @@ export const GridItem: React.FC<GridItemProps> = ({
     return spanMap[colSpan as keyof typeof spanMap] || '';
   };
 
-  const getRowSpanClass = () => {
+  const _getRowSpanClass = () => {
     if (!rowSpan) return '';
     if (rowSpan === 'full') return 'row-span-full';
 
-    const spanMap = {
+    const _spanMap = {
       1: 'row-span-1',
       2: 'row-span-2',
       3: 'row-span-3',
@@ -263,9 +263,9 @@ export const GridItem: React.FC<GridItemProps> = ({
     return spanMap[rowSpan as keyof typeof spanMap] || '';
   };
 
-  const getColStartClass = () => {
+  const _getColStartClass = () => {
     if (!colStart) return '';
-    const startMap = {
+    const _startMap = {
       1: 'col-start-1',
       2: 'col-start-2',
       3: 'col-start-3',
@@ -283,9 +283,9 @@ export const GridItem: React.FC<GridItemProps> = ({
     return startMap[colStart as keyof typeof startMap] || '';
   };
 
-  const getColEndClass = () => {
+  const _getColEndClass = () => {
     if (!colEnd) return '';
-    const endMap = {
+    const _endMap = {
       1: 'col-end-1',
       2: 'col-end-2',
       3: 'col-end-3',
@@ -303,9 +303,9 @@ export const GridItem: React.FC<GridItemProps> = ({
     return endMap[colEnd as keyof typeof endMap] || '';
   };
 
-  const getRowStartClass = () => {
+  const _getRowStartClass = () => {
     if (!rowStart) return '';
-    const startMap = {
+    const _startMap = {
       1: 'row-start-1',
       2: 'row-start-2',
       3: 'row-start-3',
@@ -317,9 +317,9 @@ export const GridItem: React.FC<GridItemProps> = ({
     return startMap[rowStart as keyof typeof startMap] || '';
   };
 
-  const getRowEndClass = () => {
+  const _getRowEndClass = () => {
     if (!rowEnd) return '';
-    const endMap = {
+    const _endMap = {
       1: 'row-end-1',
       2: 'row-end-2',
       3: 'row-end-3',
@@ -331,8 +331,8 @@ export const GridItem: React.FC<GridItemProps> = ({
     return endMap[rowEnd as keyof typeof endMap] || '';
   };
 
-  const getJustifySelfClass = () => {
-    const justifyMap = {
+  const _getJustifySelfClass = () => {
+    const _justifyMap = {
       auto: '',
       start: 'justify-self-start',
       end: 'justify-self-end',
@@ -342,8 +342,8 @@ export const GridItem: React.FC<GridItemProps> = ({
     return justifyMap[justifySelf];
   };
 
-  const getAlignSelfClass = () => {
-    const alignMap = {
+  const _getAlignSelfClass = () => {
+    const _alignMap = {
       auto: '',
       start: 'self-start',
       end: 'self-end',
@@ -353,7 +353,7 @@ export const GridItem: React.FC<GridItemProps> = ({
     return alignMap[alignSelf];
   };
 
-  const getVariantClasses = () => {
+  const _getVariantClasses = () => {
     switch (variant) {
       case 'cyber':
         return 'relative bg-black/50 border border-cyan-400/30 rounded-lg p-4 hover:border-cyan-400/50 transition-all duration-200';
@@ -366,7 +366,7 @@ export const GridItem: React.FC<GridItemProps> = ({
     }
   };
 
-  const baseClasses = `
+  const _baseClasses = `
     ${getColSpanClass()}
     ${getRowSpanClass()}
     ${getColStartClass()}
@@ -380,11 +380,11 @@ export const GridItem: React.FC<GridItemProps> = ({
     ${className}
   `;
 
-  const itemStyle: React.CSSProperties = {
+  const _itemStyle: React.CSSProperties = {
     ...(order && { order }),
   };
 
-  const itemVariants = {
+  const _itemVariants = {
     hidden: {
       opacity: 0,
       y: 20,

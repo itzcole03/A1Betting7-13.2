@@ -33,7 +33,7 @@ interface SystemHealth {
   last_update: string;
 }
 
-const SettingsAdminPage: React.FC = () => {
+const _SettingsAdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [userProfile, setUserProfile] = useState<UserProfile>({
     username: 'demo_user',
@@ -46,18 +46,18 @@ const SettingsAdminPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Check if user is admin
-  const isAdmin = userProfile.role === 'admin' || userProfile.role === 'super_admin';
+  const _isAdmin = userProfile.role === 'admin' || userProfile.role === 'super_admin';
 
   useEffect(() => {
     fetchSystemHealth();
   }, []);
 
-  const fetchSystemHealth = async () => {
+  const _fetchSystemHealth = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:8000/api/health/status');
+      const _response = await fetch('http://localhost:8000/api/health/status');
       if (response.ok) {
-        const health = await response.json();
+        const _health = await response.json();
         setSystemHealth(health);
       }
     } catch (error) {
@@ -68,7 +68,7 @@ const SettingsAdminPage: React.FC = () => {
     }
   };
 
-  const tabs = [
+  const _tabs = [
     { id: 'profile', label: '👤 Profile', icon: User },
     { id: 'preferences', label: '⚙️ Preferences', icon: Settings },
     { id: 'notifications', label: '🔔 Notifications', icon: Bell },
@@ -83,7 +83,7 @@ const SettingsAdminPage: React.FC = () => {
       : []),
   ];
 
-  const renderProfileTab = () => (
+  const _renderProfileTab = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -153,7 +153,7 @@ const SettingsAdminPage: React.FC = () => {
     </div>
   );
 
-  const renderPreferencesTab = () => (
+  const _renderPreferencesTab = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -283,7 +283,7 @@ const SettingsAdminPage: React.FC = () => {
     </div>
   );
 
-  const renderAdminPanel = () => (
+  const _renderAdminPanel = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -369,7 +369,7 @@ const SettingsAdminPage: React.FC = () => {
     </div>
   );
 
-  const renderSystemHealth = () => (
+  const _renderSystemHealth = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -462,7 +462,7 @@ const SettingsAdminPage: React.FC = () => {
     </div>
   );
 
-  const renderTabContent = () => {
+  const _renderTabContent = () => {
     switch (activeTab) {
       case 'profile':
         return renderProfileTab();
@@ -525,7 +525,7 @@ const SettingsAdminPage: React.FC = () => {
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <nav className='space-y-2' role='tablist' aria-label='Settings Tabs'>
                 {tabs.map(tab => {
-                  const Icon = tab.icon;
+                  const _Icon = tab.icon;
                   return (
                     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <button

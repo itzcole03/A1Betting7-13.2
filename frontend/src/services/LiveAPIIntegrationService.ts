@@ -14,16 +14,16 @@ class LiveAPIIntegrationService {
   }
   private static instance: LiveAPIIntegrationService;
 
-  async testAllConnections(): Promise<any> {
+  async testAllConnections(): Promise<unknown> {
     return {};
   }
-  async checkAPIHealth(): Promise<any> {
+  async checkAPIHealth(): Promise<unknown> {
     return {};
   }
-  getRateLimitStatus(): any {
+  getRateLimitStatus(): unknown {
     return {};
   }
-  async getOdds(): Promise<any> {
+  async getOdds(): Promise<unknown> {
     return {};
   }
 }

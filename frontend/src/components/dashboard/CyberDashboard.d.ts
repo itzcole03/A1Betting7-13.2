@@ -2,5 +2,5 @@
 interface CyberDashboardProps {
   currentPage?: string;
 }
-declare const CyberDashboard: React.FC<CyberDashboardProps>;
+declare const _CyberDashboard: React.FC<CyberDashboardProps>;
 export default CyberDashboard;

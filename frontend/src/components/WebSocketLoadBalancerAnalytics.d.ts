@@ -1,2 +1,2 @@
 import React from 'react.ts';
-export declare const WebSocketLoadBalancerAnalytics: React.FC;
+export declare const _WebSocketLoadBalancerAnalytics: React.FC;

@@ -20,7 +20,7 @@ import StreamingTab from './StreamingTab';
 import WeatherTab from './WeatherTab';
 
 /**
-const A1BettingPreview: React.FC = () => {
+const _A1BettingPreview: React.FC = () => {
  *
  * Main enterprise betting dashboard preview for A1Betting platform.
  * Renders header, sidebar navigation, and tabbed content area.
@@ -29,7 +29,7 @@ const A1BettingPreview: React.FC = () => {
  *
  * @returns {JSX.Element} The preview UI.
  */
-const TABS = [
+const _TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: '📊' },
   { id: 'moneymaker', label: 'Money Maker', icon: '💎' },
   { id: 'arbitrage', label: 'Arbitrage', icon: '⚡' },
@@ -49,14 +49,14 @@ const TABS = [
   { id: 'settings', label: 'Settings', icon: '⚙️' },
 ];
 
-const A1BettingPreview: React.FC = () => {
+const _A1BettingPreview: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const sidebarRef = useRef<HTMLDivElement>(null);
+  const _sidebarRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
   const { notification, setNotification } = useAppContext();
   // Mock user profile (replace with real user data integration)
-  const user = {
+  const _user = {
     name: 'Jane Doe',
     role: 'Pro Member',
     avatar: '\ud83d\udc64',
@@ -64,8 +64,8 @@ const A1BettingPreview: React.FC = () => {
 
   // Responsive: close sidebar on small screens by default
   useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 900;
+    const _handleResize = () => {
+      const _mobile = window.innerWidth < 900;
       setIsMobile(mobile);
 
                 style={{

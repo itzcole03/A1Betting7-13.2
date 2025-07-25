@@ -35,7 +35,7 @@ interface ProgressBarProps {
  * @param showPercentage - Whether to show percentage text
  * @param animated - Whether to animate the progress
  */
-export const ProgressBar: React.FC<ProgressBarProps> = ({
+export const _ProgressBar: React.FC<ProgressBarProps> = ({
   value,
   max = 100,
   size = 'md',
@@ -46,9 +46,9 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   showPercentage = false,
   animated = true,
 }) => {
-  const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+  const _percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
-  const sizeClasses = {
+  const _sizeClasses = {
     sm: 'h-2',
     md: 'h-3',
     lg: 'h-4',

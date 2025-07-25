@@ -47,7 +47,7 @@ export interface MarketOpportunityCardProps {
   isLoading?: boolean;
 }
 
-export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
+export const _MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
   opportunity,
   variant = 'default',
   className = '',
@@ -66,10 +66,10 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
 
   // Update countdown timer
   useEffect(() => {
-    const updateTimer = () => {
-      const now = new Date();
-      const expiry = new Date(opportunity.expiresAt);
-      const diff = expiry.getTime() - now.getTime();
+    const _updateTimer = () => {
+      const _now = new Date();
+      const _expiry = new Date(opportunity.expiresAt);
+      const _diff = expiry.getTime() - now.getTime();
 
       if (diff <= 0) {
         setIsExpired(true);
@@ -77,9 +77,9 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
         return;
       }
 
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      const _hours = Math.floor(diff / (1000 * 60 * 60));
+      const _minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const _seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
       if (hours > 0) {
         setTimeRemaining(`${hours}h ${minutes}m`);
@@ -91,11 +91,11 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
     };
 
     updateTimer();
-    const interval = setInterval(updateTimer, 1000);
+    const _interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
   }, [opportunity.expiresAt]);
 
-  const getRiskColor = (risk: string) => {
+  const _getRiskColor = (risk: string) => {
     switch (risk) {
       case 'low':
         return variant === 'cyber' ? '#00ff88' : '#10b981';
@@ -108,13 +108,13 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
     }
   };
 
-  const getConfidenceColor = (confidence: number) => {
+  const _getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return variant === 'cyber' ? '#00ff88' : '#10b981';
     if (confidence >= 60) return variant === 'cyber' ? '#ffaa00' : '#f59e0b';
     return variant === 'cyber' ? '#ff0044' : '#ef4444';
   };
 
-  const formatCurrency = (amount: number) => {
+  const _formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -122,11 +122,11 @@ export const MarketOpportunityCard: React.FC<MarketOpportunityCardProps> = ({
     }).format(amount);
   };
 
-  const formatOdds = (odds: number) => {
+  const _formatOdds = (odds: number) => {
     return odds > 0 ? `+${odds}` : odds.toString();
   };
 
-  const baseClasses = `
+  const _baseClasses = `
     rounded-lg border transition-all duration-200 overflow-hidden
     ${
       variant === 'cyber'

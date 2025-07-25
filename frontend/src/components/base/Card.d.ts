@@ -7,6 +7,6 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   loading?: boolean;
   children: React.ReactNode;
 }
-export declare const Card: React.ForwardRefExoticComponent<
+export declare const _Card: React.ForwardRefExoticComponent<
   CardProps & MotionProps & React.RefAttributes<HTMLDivElement>
 >;

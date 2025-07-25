@@ -22,7 +22,7 @@ export interface MetricCardProps {
   trend?: Array<{ value: number; label?: string }>;
 }
 
-export const MetricCard: React.FC<MetricCardProps> = ({
+export const _MetricCard: React.FC<MetricCardProps> = ({
   title,
   value,
   change,
@@ -37,9 +37,9 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   loading = false,
   trend,
 }) => {
-  const isClickable = !!onClick;
+  const _isClickable = !!onClick;
 
-  const sizeConfig = {
+  const _sizeConfig = {
     sm: {
       container: 'p-4',
       title: 'text-sm',
@@ -63,7 +63,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     },
   };
 
-  const colorConfig = {
+  const _colorConfig = {
     blue: {
       gradient: 'from-blue-400 to-cyan-500',
       glow: 'shadow-[0_0_20px_rgba(59,130,246,0.3)]',
@@ -102,17 +102,17 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     },
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-slate-800/50 border-slate-700/50',
     cyber: `bg-slate-900/50 ${colorConfig[color].border} ${colorConfig[color].glow}`,
     glass: 'bg-white/5 backdrop-blur-lg border-white/10',
     gradient: `bg-gradient-to-br ${colorConfig[color].gradient} text-white`,
   };
 
-  const formatValue = (val: string | number): string => {
+  const _formatValue = (val: string | number): string => {
     if (loading) return '---';
 
-    const numValue = typeof val === 'string' ? parseFloat(val) : val;
+    const _numValue = typeof val === 'string' ? parseFloat(val) : val;
 
     switch (format) {
       case 'currency':
@@ -130,7 +130,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     }
   };
 
-  const getChangeIcon = () => {
+  const _getChangeIcon = () => {
     if (!change) return null;
 
     switch (change.type) {
@@ -146,7 +146,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     }
   };
 
-  const getChangeColor = () => {
+  const _getChangeColor = () => {
     if (!change) return 'text-gray-400';
 
     switch (change.type) {
@@ -159,7 +159,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     }
   };
 
-  const cardVariants = {
+  const _cardVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
     visible: {
       opacity: 1,
@@ -182,7 +182,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       : {},
   };
 
-  const loadingVariants = {
+  const _loadingVariants = {
     pulse: {
       opacity: [0.5, 1, 0.5],
       transition: {
@@ -305,8 +305,8 @@ export const MetricCard: React.FC<MetricCardProps> = ({
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-end space-x-1 h-8 mb-2'>
             {trend.map((point, index) => {
-              const maxValue = Math.max(...trend.map(p => p.value));
-              const height = (point.value / maxValue) * 100;
+              const _maxValue = Math.max(...trend.map(p => p.value));
+              const _height = (point.value / maxValue) * 100;
 
               return (
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

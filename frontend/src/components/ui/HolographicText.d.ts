@@ -5,5 +5,5 @@ interface HolographicTextProps {
   animated?: boolean;
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
 }
-declare const HolographicText: React.FC<HolographicTextProps>;
+declare const _HolographicText: React.FC<HolographicTextProps>;
 export default HolographicText;

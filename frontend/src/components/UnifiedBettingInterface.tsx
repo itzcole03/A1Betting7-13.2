@@ -16,11 +16,11 @@ import { Card, CardContent, CardHeader } from './Card';
  * Combines BetSlip, BettingHistory, and BettingDashboard into a single, seamless interface.
  * Allows users to place bets, view history, and monitor stats in one place.
  */
-export const UnifiedBettingInterface: React.FC = () => {
+export const _UnifiedBettingInterface: React.FC = () => {
   const [showHistory, setShowHistory] = useState(false);
-  const [bets, setBets] = useState<any[]>([]);
+  const [bets, setBets] = useState<unknown[]>([]);
 
-  const handleBetSubmit = (bet: { amount: number; selection: string }) => {
+  const _handleBetSubmit = (bet: { amount: number; selection: string }) => {
     setBets(prev => [
       {
         id: (prev.length + 1).toString(),

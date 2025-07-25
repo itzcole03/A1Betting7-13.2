@@ -6,5 +6,5 @@ interface CyberButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
   glowing?: boolean;
   children: React.ReactNode;
 }
-declare const CyberButton: React.FC<CyberButtonProps>;
+declare const _CyberButton: React.FC<CyberButtonProps>;
 export default CyberButton;

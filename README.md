@@ -1,117 +1,209 @@
+# A1Betting Backend Roadmap (2025)
+
+## Next Features
+
+- User Management & Authentication (**JWT**; see unified section below)
+- Betting Logic (place bets, odds, results, risk management)
+- ML-Powered Features (real models, training, evaluation)
+- Data Integration (live APIs, ETL)
+- Monitoring & Reporting (health, metrics, dashboards)
+- Frontend Integration (React/Electron)
+
+## Best Practices
+
+- Pydantic for validation
+- **JWT for authentication** (all new endpoints; legacy endpoints may use basic auth, see migration section)
+- SQLAlchemy ORM
+- Modular code, docstrings
+- Automated tests (Jest/RTL for frontend, pytest for backend)
+- OpenAPI/Swagger docs
+- CI/CD
+
+## Recent Improvements (2025-07)
+
+- **PerformanceAnalyticsDashboard**: Modern React dashboard with virtualization, lazy loading, Suspense, and memoization for optimal performance.
+- **AnalyticsWidget**: Modular analytics component with snapshot tests and error boundary support.
+- **ErrorBoundary**: Robust error handling for React components.
+- **Testing**: Added snapshot and integration tests for new analytics components. Legacy tests require further cleanup.
+- **CI/CD**: Automated pipelines for build, test, lint, and documentation updates.
+- **Continuous Improvement**: Backend and frontend support recursive, autonomous improvement cycles with monitoring and reporting.
+
+## Best Practices
+
+- Use `useMemo` and `useCallback` for memoization.
+- Use `React.lazy` and `Suspense` for code splitting.
+- Use virtualization (`react-window`) for large lists.
+- Integrate error boundaries for robust error handling.
+- Maintain comprehensive test coverage and CI/CD automation.
+
+## Next Steps
+
+- Clean up legacy test and service imports (see Legacy Test Cleanup section below).
+- Expand accessibility and edge case testing (see Testing & Accessibility section).
+- Continue recursive improvement cycles and reporting.
+
 ## Backend Logging and Developer Experience
 
 As of v4.0.1 (2025-07-14), all backend print statements have been replaced with logger.info for consistent logging. Log message style is now standardized (no emojis, concise informative text). Backend API endpoints and router registration are clean and developer-friendly.
 
-# Legacy Endpoints & Migration
+## ⚠️ Legacy Endpoints & Migration (Deprecated)
 
-## Legacy Endpoints Catalog
+> **Deprecated Endpoints:**
+>
+> - `/api/v1/unified-data` [GET]: Unified feed combining all data sources (mock implementation)
+> - `/api/v1/sr/games` [GET]: SportRadar games API integration (legacy)
+> - `/api/v1/odds/{event_id}` [GET]: Odds API integration for specific event (legacy)
+> - `/api/v4/predict/ultra-accuracy` [GET, POST]: Ultra-accuracy prediction (deprecated, use `/api/v1/ultra-accuracy`)
 
-Legacy endpoints are maintained for backward compatibility and are marked for migration/removal. Each legacy endpoint now issues a deprecation warning when accessed.
+**Note:** Accessing any legacy endpoint will trigger a deprecation warning in logs. Migrate clients to new endpoints as soon as possible. See inline comments in `backend/main.py` for details and migration guidance.
 
-### Catalog (as of v4.0.0)
-
-- `/api/v1/unified-data` [GET]: Unified feed combining all data sources (mock implementation)
-- `/api/v1/sr/games` [GET]: SportRadar games API integration (legacy)
-- `/api/v1/odds/{event_id}` [GET]: Odds API integration for specific event (legacy)
-- `/api/v4/predict/ultra-accuracy` [GET, POST]: Ultra-accuracy prediction (deprecated, use `/api/v1/ultra-accuracy`)
-
-**Note:** Accessing any legacy endpoint will trigger a deprecation warning in logs. Migrate clients to new endpoints as soon as possible.
-
-## Migration Instructions
+### Migration Instructions
 
 - Audit usage of legacy endpoints in client applications.
 - Update integrations to use new route structure and endpoints.
 - Remove legacy endpoints after confirming no active clients depend on them.
 
-## Technical Debt
+### Technical Debt
 
 - Inline documentation and endpoint catalog added for maintainability.
 - See `backend/main.py` for details and migration status.
 <!--- AI_CONTEXT_BLOCK_START --->
 
-```json
+````json
 {
-  "project": "A1Betting7-13.2",
-  "last_updated": "2025-07-14 11:50 UTC",
-  "directory": [
-    "\u2514\u2500\u2500 itzcole03-a1betting7-13.2/",
-    "    \u251c\u2500\u2500 README.md",
-    "    \u251c\u2500\u2500 ADMIN_MODE_FEATURES.md",
-    "    \u251c\u2500\u2500 API_DOCUMENTATION.md",
-    "    \u251c\u2500\u2500 CHANGELOG.md",
-    "    \u251c\u2500\u2500 cookies.txt",
-    "    \u251c\u2500\u2500 FEATURE_INTEGRATION_ROADMAP.md",
-    "    \u251c\u2500\u2500 Inventory.md",
-    "    \u251c\u2500\u2500 prizepicks_data.db",
-    "    \u251c\u2500\u2500 roadmap.md",
-    "    \u251c\u2500\u2500 test_enhanced_service.py",
-    "    \u251c\u2500\u2500 test_output.txt",
-    "    \u251c\u2500\u2500 users.db",
-    "    \u251c\u2500\u2500 backend/",
-    "    \u2502   \u251c\u2500\u2500 README.md",
-    "    \u2502   \u251c\u2500\u2500 __init__.py",
-    "    \u2502   \u251c\u2500\u2500 a1betting_fallback.db",
-    "    \u2502   \u251c\u2500\u2500 admin_api.py",
-    "    \u2502   \u251c\u2500\u2500 advanced_best_practices_manager.py",
-    "    \u2502   \u251c\u2500\u2500 ADVANCED_BEST_PRACTICES_REPORT_20250701_151152.json",
-    "    \u2502   \u251c\u2500\u2500 advanced_feature_engineering.py",
-    "    \u2502   \u251c\u2500\u2500 agent_planner.py",
-    "    \u2502   \u251c\u2500\u2500 api_integration.py",
-    "    \u2502   \u251c\u2500\u2500 arbitrage_engine.py",
-    "    \u2502   \u251c\u2500\u2500 auth.py",
-    "    \u2502   \u251c\u2500\u2500 auth_service.py",
-    "    \u2502   \u251c\u2500\u2500 autonomous_project_development_handler.py",
-    "    \u2502   \u251c\u2500\u2500 autonomous_recursive_orchestrator.py",
-    "    \u2502   \u251c\u2500\u2500 autonomous_system.py",
-    "    \u2502   \u251c\u2500\u2500 backend_8001.py",
-    "    \u2502   \u251c\u2500\u2500 BACKEND_FILE_USAGE_ANALYSIS.md",
-    "    \u2502   \u251c\u2500\u2500 background_agents.py",
-    "    \u2502   \u251c\u2500\u2500 betting_opportunity_service.py",
-    "    \u2502   \u251c\u2500\u2500 cache_optimizer.py",
-    "    \u2502   \u251c\u2500\u2500 cleanup_console_statements.py",
-    "    \u2502   \u251c\u2500\u2500 command_registry.py",
-    "    \u2502   \u251c\u2500\u2500 complete_stub_endpoints.py",
-    "    \u2502   \u251c\u2500\u2500 config.py",
-    "    \u2502   \u251c\u2500\u2500 config_manager.py",
-    "    \u2502   \u251c\u2500\u2500 data_pipeline.py"
-  ],
-  "api_endpoints": [
-    "backend/admin_api.py: @router.get(\"/admin/logs\", response_model=List[LogEntry])",
-    "backend/admin_api.py: @router.post(\"/admin/logs\")",
-    "backend/admin_api.py: @router.get(\"/admin/users\", response_model=List[User])",
-    "backend/admin_api.py: @router.get(\"/admin/health\")",
-    "backend/api_integration.py: @app.get(\"/health\")",
-    "backend/backend_8001.py: @app.get(\"/\")",
-    "backend/backend_8001.py: @app.get(\"/health\")",
-    "backend/backend_8001.py: @app.get(\"/api/prizepicks/props\")",
-    "backend/betting_opportunity_service.py: @router.get(\"/opportunities\")",
-    "backend/betting_opportunity_service.py: @router.get(\"/status\")"
-  ],
-  "file_types": {
-    ".py": 229,
-    ".md": 54,
-    ".txt": 16,
-    ".json": 11,
-    ".js": 9,
-    ".db": 6,
-    ".bat": 5,
-    ".html": 5,
-    ".ps1": 4,
-    "(no ext)": 3,
-    ".sh": 3,
-    ".cjs": 3,
-    ".example": 2,
-    ".ini": 1,
-    ".pkl": 1,
-    ".backup": 1,
-    ".code-workspace": 1
-  },
-  "health": {
-    "backend": "present",
-    "frontend": "present",
-    "api_health": "/api/health"
+
+## 🚀 Quick Start
+
+### 1. Clone the repo
+```bash
+git clone https://github.com/itzcole03/A1Betting7-13.2.git
+cd A1Betting7-13.2
+````
+
+### 2. Install dependencies
+
+```bash
+cd frontend && npm install
+cd ../backend && pip install -r requirements.txt
+```
+
+### 3. Configure API Keys & Endpoint Audit
+
+> **Required:** The backend will not start or endpoints will fail unless valid API keys are present in a `.env` file in the `backend/` directory. Use these exact variable names:
+
+```env
+SPORTRADAR_API_KEY=your_sportradar_key_here
+ODDS_API_KEY=your_odds_api_key_here
+```
+
+> **Never commit your `.env` file to version control.**
+
+### 4. Start the backend
+
+```bash
+python -m backend.main
+# or, from backend/ directory:
+cd backend
+python main.py
+```
+
+### 5. Start the frontend
+
+```bash
+cd ../frontend && npm run dev
+```
+
+### 6. Open the app
+
+- Web: http://localhost:8173
+- Desktop: Run the Electron app
+
+### 7. Run tests (frontend)
+
+```bash
+cd frontend
+npm test # Runs all Jest/RTL tests
+```
+
+### 8. Run tests (backend)
+
+```bash
+cd backend
+pytest
+```
+
+### 9. E2E/Integration Testing
+
+- See `frontend/jest.setup.e2e.js` for global mocks and E2E setup.
+- Use Playwright or Cypress for browser-based E2E if needed.
+
+### 10. Monitoring, Profiling, and CI/CD
+
+- Backend: OpenTelemetry/SigNoz for monitoring, see backend/README.md.
+- Frontend: Sentry for error tracking, web-vitals for performance (see `frontend/src/webVitals.ts`).
+- CI/CD: Automated via GitHub Actions/GitLab CI. See `.github/workflows/` or `.gitlab-ci.yml`.
+
+## 🧪 Testing & Accessibility
+
+- All new tests should use Jest and React Testing Library (RTL) for frontend, pytest for backend.
+- Use `frontend/jest.setup.e2e.js` for global mocks and robust test isolation.
+- Expand accessibility and edge case coverage (keyboard, screen reader, high contrast, error boundaries).
+- Remove or refactor legacy tests in `frontend/` that do not use Jest/RTL or are not isolated.
+- See [Legacy Test Cleanup](#legacy-test-cleanup) below.
+
+## 🗑️ Legacy Test Cleanup
+
+The following test files are legacy, non-isolated, or obsolete and should be removed or refactored:
+
+- `frontend/test_api.js`
+- `frontend/test-sportsradar.js`
+- `frontend/test_backup_beast.js`
+- `frontend/test_ipc_security_beast.js`
+- `frontend/test_ipc_handlers.js`
+- `frontend/test_ipc_api_failures.js`
+- `frontend/test_error_handling.js`
+- `frontend/test_notifications_update_beast.js`
+- `frontend/test_onboarding_help_beast.js`
+- `frontend/test_performance_beast.js`
+- `frontend/test_settings_offline_beast.js`
+- `frontend/test_settings_offline.js`
+
+**Action:**
+
+- Remove empty or obsolete files.
+- Refactor any useful tests to use Jest/RTL and global mocks.
+- Ensure all tests are robust, isolated, and follow best practices.
+
+## 🔐 Authentication (Unified)
+
+- **All new endpoints use JWT authentication.**
+- Legacy endpoints may use basic auth; these are deprecated and will be removed.
+- See backend/README.md and API_DOCUMENTATION.md for details.
+
+## 🛠️ Frontend Development & Workflow
+
+- All frontend code is in `frontend/`.
+- Use `npm run dev` to start the dev server.
+- Use `npm test` to run Jest/RTL tests.
+- Use `jest.setup.e2e.js` for global mocks and E2E setup.
+- For E2E browser tests, use Playwright or Cypress (optional).
+- See `src/components/__tests__` for modern test examples.
+
+## 🛠️ Backend Development & Workflow
+
+- All backend code is in `backend/`.
+- Use `python -m backend.main` or `python backend/main.py` to start the API server.
+- Use `pytest` to run backend tests.
+- See `backend/README.md` for Alembic migration and integration details.
+
+## 🩺 Monitoring, Profiling, and CI/CD (Actionable)
+
+- Backend: OpenTelemetry/SigNoz for monitoring, see backend/README.md.
+- Frontend: Sentry for error tracking, web-vitals for performance (see `frontend/src/webVitals.ts`).
+- CI/CD: Automated via GitHub Actions/GitLab CI. See `.github/workflows/` or `.gitlab-ci.yml`.
+- To update docs after code changes, run: `python scripts/extract_digest_for_docs.py`.
   }
-}
+
 ```
 
 <!--- AI_CONTEXT_BLOCK_END --->
@@ -161,9 +253,11 @@ This project is designed for seamless use with AI copilots and LLM-based agents 
 
 - **All auto-generated sections are clearly marked.**
 - **To update documentation, run:**
-  ```
-  python scripts/extract_digest_for_docs.py
-  ```
+```
+
+python scripts/extract_digest_for_docs.py
+
+```
 - **Copilots should use the auto-generated sections for context, code search, and code generation.**
 - **Manual narrative sections are for human onboarding, tutorials, and conceptual docs.**
 - **Copilots should preserve manual narrative sections and only regenerate auto-generated blocks.**
@@ -218,83 +312,95 @@ Copilots and AI agents should **not** overwrite this section!_
 ---
 
 1. **Clone the repo**
-   ```
-   git clone https://github.com/itzcole03/A1Betting7-13.2.git
-   cd A1Betting7-13.2
-   ```
+```
+
+git clone https://github.com/itzcole03/A1Betting7-13.2.git
+cd A1Betting7-13.2
+
+```
 2. **Install dependencies**
-   ```
-   cd frontend && npm install
-   cd ../backend && pip install -r requirements.txt
-   ```
+```
+
+cd frontend && npm install
+cd ../backend && pip install -r requirements.txt
+
+````
 3. **Configure API Keys & Endpoint Audit**
 
-   > **⚠️ Required:** The backend will not start or endpoints will fail unless valid API keys are present in a `.env` file in the `backend/` directory. Use these exact variable names:
+> **⚠️ Required:** The backend will not start or endpoints will fail unless valid API keys are present in a `.env` file in the `backend/` directory. Use these exact variable names:
 
-   > **.env Setup (Required for Backend):** 2. Fill in your real API keys:
-   >
-   > ```
-   > SPORTRADAR_API_KEY=your_sportradar_key_here
-   > ```
-   >
-   > 3. **Never commit your `.env` file to version control.**
+> **.env Setup (Required for Backend):** 2. Fill in your real API keys:
+>
+> ```
+> SPORTRADAR_API_KEY=your_sportradar_key_here
+> ```
+>
+> 3. **Never commit your `.env` file to version control.**
 
-   ***
+***
 
-   > - **`/api/prizepicks/props`** (PrizePicks, all sports, live data)
-   > - **`/api/v1/sr/games`** (SportRadar, live games data, robust error handling, defensive parsing for missing fields)
-   >   ```
-   >   cd backend
-   >   ```
+> - **`/api/prizepicks/props`** (PrizePicks, all sports, live data)
+> - **`/api/v1/sr/games`** (SportRadar, live games data, robust error handling, defensive parsing for missing fields)
+>   ```
+>   cd backend
+>   ```
 
-   > **Audit practices:**
-   >
-   > - If you add or modify endpoints, **document their data source, error handling, and edge case coverage** in the code and update this README.
+> **Audit practices:**
+>
+> - If you add or modify endpoints, **document their data source, error handling, and edge case coverage** in the code and update this README.
 
-   > **Technical Debt Notice:**
-   > Legacy endpoints in the backend are now clearly marked with inline comments explaining their deprecated status and migration recommendations.
-   > These endpoints exist for backward compatibility and should not be used for new development. Audit usage before removal to avoid breaking integrations.
-   >
-   > - See inline comments in `backend/main.py` for details on legacy endpoints and migration guidance.
-   >
-   > - For details, see [API_DOCUMENTATION.md](API_DOCUMENTATION.md).
+> **Technical Debt Notice:**
+> Legacy endpoints in the backend are now clearly marked with inline comments explaining their deprecated status and migration recommendations.
+> These endpoints exist for backward compatibility and should not be used for new development. Audit usage before removal to avoid breaking integrations.
+>
+> - See inline comments in `backend/main.py` for details on legacy endpoints and migration guidance.
+>
+> - For details, see [API_DOCUMENTATION.md](API_DOCUMENTATION.md).
 
-   > See `backend/README.md` for integration details. Dependencies (e.g., `httpx`, `fastapi`) are listed in `backend/requirements.txt`.
+> See `backend/README.md` for integration details. Dependencies (e.g., `httpx`, `fastapi`) are listed in `backend/requirements.txt`.
 
-   ***
+***
 
-   > - **`/api/v1/odds/{event_id}`** (Odds API, live odds data, robust error handling, defensive parsing for missing bookmakers/markets/outcomes)
-   >   **Backend Logging Best Practices:**
-   >
-   > - Use lazy `%` formatting in logger calls for performance and safety (avoid f-strings).
-   > - Mock methods (e.g., `authenticate`) should not include unused arguments.
-   > - See CHANGELOG for backend refactor details.
+> - **`/api/v1/odds/{event_id}`** (Odds API, live odds data, robust error handling, defensive parsing for missing bookmakers/markets/outcomes)
+>   **Backend Logging Best Practices:**
+>
+> - Use lazy `%` formatting in logger calls for performance and safety (avoid f-strings).
+> - Mock methods (e.g., `authenticate`) should not include unused arguments.
+> - See CHANGELOG for backend refactor details.
 
 4. **Start the backend**
-   > **💡 Recommended:** Start from the project root for best compatibility:
-   ```
-   python -m backend.main
-   ```
-   > If you see `ModuleNotFoundError: No module named 'backend'`, ensure your working directory is the project root and that `backend/__init__.py` exists.
-   > For automation/CI, you may need to set the Python path:
-   ```
-   export PYTHONPATH=$(pwd)
-   python -m backend.main
-   ```
-   > Or (from backend/ directory, if imports are local):
-   ```
-   cd backend
-   python main.py
-   ```
-   > The backend now uses real sportsbook and odds APIs. Mock endpoints have been removed.
-   > For endpoint details, see [API_DOCUMENTATION.md](API_DOCUMENTATION.md).
+> **💡 Recommended:** Start from the project root for best compatibility:
+````
+
+python -m backend.main
+
+```
+> If you see `ModuleNotFoundError: No module named 'backend'`, ensure your working directory is the project root and that `backend/__init__.py` exists.
+> For automation/CI, you may need to set the Python path:
+```
+
+export PYTHONPATH=$(pwd)
+python -m backend.main
+
+```
+> Or (from backend/ directory, if imports are local):
+```
+
+cd backend
+python main.py
+
+```
+> The backend now uses real sportsbook and odds APIs. Mock endpoints have been removed.
+> For endpoint details, see [API_DOCUMENTATION.md](API_DOCUMENTATION.md).
 5. **Start the frontend**
-   ```
-   cd ../frontend && npm run dev
-   ```
+```
+
+cd ../frontend && npm run dev
+
+````
 6. **Open the app**
-   - Web: http://localhost:8173
-   - Desktop: Run the Electron app
+- Web: http://localhost:8173
+- Desktop: Run the Electron app
 
 ---
 
@@ -305,15 +411,15 @@ Copilots and AI agents should **not** overwrite this section!_
 ---
 
 - **Q: I get a port in use error when starting the frontend?**
-  - A: The dev server will try the next available port. Check the terminal for the new port.
+- A: The dev server will try the next available port. Check the terminal for the new port.
 - **Q: Backend won't start, missing dependencies?**
-  - A: Run `pip install -r requirements.txt` in the backend directory.
+- A: Run `pip install -r requirements.txt` in the backend directory.
 - **Q: Backend endpoints return 503 or 502 errors?**
-  - A: Make sure you have a valid `.env` file in the backend directory with correct `SPORTRADAR_API_KEY` and `ODDS_API_KEY` values. Without these, real sportsbook and odds endpoints will not work.
+- A: Make sure you have a valid `.env` file in the backend directory with correct `SPORTRADAR_API_KEY` and `ODDS_API_KEY` values. Without these, real sportsbook and odds endpoints will not work.
 - **Q: How do I regenerate documentation?**
-  - A: Run `python scripts/extract_digest_for_docs.py` from the project root.
+- A: Run `python scripts/extract_digest_for_docs.py` from the project root.
 - **Q: Where do I add onboarding or tutorials?**
-  - A: In the Manual Narrative Section of the README.
+- A: In the Manual Narrative Section of the README.
 
 ---
 
@@ -339,9 +445,9 @@ Copilots and AI agents should **not** overwrite this section!_
 - All core services present.
 - Health API available at `/api/health` (see backend).
 - For live status, run the backend and visit:
-  - http://localhost:8000/api/health (basic health)
-  - http://localhost:8000/api/health/status (comprehensive health)
-  - http://localhost:8000/api/health/all (if implemented)
+- http://localhost:8000/api/health (basic health)
+- http://localhost:8000/api/health/status (comprehensive health)
+- http://localhost:8000/api/health/all (if implemented)
 
 ---
 
@@ -352,6 +458,15 @@ Copilots and AI agents should **not** overwrite this section!_
 ---
 
 # A1Betting Platform Changelog
+
+## [2025-07-20] - AuthContext Refactoring
+
+### 🚀 IMPROVED: Authentication Context
+
+- **REMOVED**: Redundant `checkAdminStatus` function from `AuthContext.tsx`.
+- **SIMPLIFIED**: Direct usage of `isAdmin` state for checking admin status in `AuthContext`.
+- **UPDATED**: `AuthContext.test.tsx` to reflect the removal of `checkAdminStatus` and use `isAdmin` directly.
+- **IMPROVED**: Code readability and maintainability by removing duplicate logic.
 
 ## [2025-07-14] - Backend Refactor & Real Sportsbook API Integration
 
@@ -481,11 +596,95 @@ For large repos, you can update only specific sections:
 
 ---
 
-## 🚨 DO NOT EDIT BELOW THIS LINE: AUTO-GENERATED BY extract_digest_for_docs.py 🚨
+# Project Feature & Architecture Summary (2025)
+
+# Native Modules Integration (Node-API, Rust/NAPI-RS, C/C++)
+
+### Best Practices (2025)
+
+- Use Node-API for cross-version compatibility and future-proofing.
+- For Rust, use napi-rs (napi, napi-derive) and @napi-rs/cli for building and packaging. No node-gyp required.
+- For C/C++, use node-gyp and rebuild native modules for Electron using @electron/rebuild.
+- On Windows, set `win_delay_load_hook: true` in binding.gyp for Electron compatibility.
+- Always rebuild native modules after upgrading Electron.
+- Unpack native modules from Electron asar archive for runtime loading.
+- Use prebuild or node-pre-gyp for distributing binaries, but prefer building from source for maximum compatibility.
+
+### Example: Rust/NAPI-RS Integration
+
+1. Create a Rust crate with `crate-type = ["cdylib"]` in Cargo.toml.
+2. Add `napi` and `napi-derive` as dependencies.
+3. Use `@napi-rs/cli` to build and package the native module.
+4. Require the resulting `.node` file in Electron/React code.
+5. Rebuild with @electron/rebuild after Electron upgrades.
+
+### Example: C/C++ Integration
+
+1. Use node-gyp and set up binding.gyp.
+2. Set `win_delay_load_hook: true` for Windows/Electron.
+3. Rebuild with @electron/rebuild after Electron upgrades.
+
+### Unpacking Native Modules
+
+- Unpack native modules from Electron asar archive to allow dynamic loading at runtime.
+- See Electron docs for details: https://www.electronjs.org/docs/latest/tutorial/using-native-node-modules
+
+## Monitoring & Profiling
+
+Production monitoring uses OpenTelemetry/SigNoz for backend and Sentry for frontend error tracking. Performance profiling is done using Chrome DevTools, React DevTools, and automated Core Web Vitals reporting via the web-vitals library (see `frontend/src/webVitals.ts`).
+
+### Core Web Vitals Integration
+
+The frontend integrates the latest web-vitals (v5.x, 2025) using the recommended API (`onCLS`, `onINP`, `onLCP`, `onTTFB`). Metrics are logged to the console and can be sent to analytics/monitoring endpoints. See `webVitals.ts` for details and extension points.
+
+#### How to use:
+
+1. Import and call `initWebVitals()` in your app entry point.
+2. Metrics will be logged to the console and can be sent to any endpoint for further analysis.
+
+#### Findings:
+
+- All onboarding, update, and settings flows are profiled and optimized for Core Web Vitals.
+- No runtime errors detected in metrics reporting.
+
+## Backend
+
+- Full async DB integration (SQLModel, AsyncSession)
+- Dependency Injection for DB/session/service management
+- Robust error handling and custom exception handlers
+- OpenTelemetry/SigNoz monitoring and observability
+- Structured logging for all major events and errors
+- CORS, GZip, health endpoints, and rate limiting for production readiness
+- Legacy endpoint migration and deprecation warnings
+
+## Frontend
+
+- Electron/React with context isolation and IPC security
+- Multi-step onboarding and update flows (personalized, gamified, interactive)
+- Accessibility and edge case testing (keyboard, screen reader, high contrast)
+- Performance optimization: profiling, code splitting, lazy loading, virtualization, memoization
+- Continuous profiling and monitoring (React DevTools, Chrome DevTools, Web Vitals)
+
+## ML Explainability & Monitoring
+
+- SHAP/LIME integration for model explainability
+- Explanations exposed via API and frontend (JSON, charts, summaries)
+- Automated model monitoring (data drift, performance, error logging)
+
+## CI/CD & Testing
+
+- Automated build, test, and deployment pipelines (GitHub Actions/GitLab CI)
+- Model and API versioning (semantic versioning, artifact tagging)
+- Automated unit, integration, and E2E tests (pytest, httpx, Playwright/Cypress)
+- Automated database migrations and environment setup
+- Deployment monitoring and rollback
+
+## Documentation
+
+- Inline documentation and endpoint catalog for maintainability
+- Updated roadmap and feature integration summary
 
 ---
-
-## **Last Updated:** 2025-07-14 11:50 UTC
 
 ## Features
 
@@ -546,7 +745,7 @@ For large repos, you can update only specific sections:
 │ ├── config_manager.py
 │ ├── data_pipeline.py
 ...
-```
+````
 
 ---
 
@@ -755,3 +954,88 @@ See `CHANGELOG.md` for details on recent changes.
 - Always validate input before sending to backend.
 - Monitor logs for recurring errors and address root causes.
 - Keep backend and frontend error handling in sync for best UX.
+
+---
+
+## Dependency Graphs
+
+Visualize and understand project dependencies using the auto-generated SVGs:
+
+- **Frontend:** `frontend-dependency-graph.svg` (generated by madge)
+- **Backend:** `backend-dependency-graph.svg` (generated by pydeps)
+
+### How to Regenerate
+
+**Frontend:**
+
+```bash
+npx madge --image frontend-dependency-graph.svg frontend/src/
+```
+
+**Backend:**
+
+```bash
+pydeps backend/main.py -o backend-dependency-graph.svg --show-deps --max-bacon=2
+```
+
+Both SVGs are committed to the repo for maintainers. View them in your browser or VS Code.
+
+---
+
+## Onboarding for New Contributors
+
+Welcome to A1Betting7-13.2! To get started:
+
+1. **Clone the repo and install dependencies** (see Quick Start above).
+2. **Review the dependency graphs** (`frontend-dependency-graph.svg`, `backend-dependency-graph.svg`) for project structure and module relationships.
+3. **Check the README and API docs** for endpoint details and integration notes.
+4. **Run audits and tests** before submitting changes:
+   - File usage/incompleteness audits are automated in CI (`.github/workflows/audit.yml`).
+   - Regenerate dependency graphs after major refactors.
+5. **Document new endpoints and features** in code and README.
+6. **Ask for help** in issues or discussions if onboarding is unclear.
+
+For more, see the Manual Narrative Section and FAQ above.
+
+---
+
+## ML Explainability: SHAP & LIME Integration (v4.1+)
+
+### API Response Fields
+
+All prediction API responses now include:
+
+- `shap_values`: Feature importance scores from SHAP for each prediction.
+- `lime_values`: Local feature explanations from LIME for each prediction.
+
+Example response:
+
+```json
+{
+  "prediction_id": "...",
+  "sport": "basketball",
+  "event": "TeamA vs TeamB",
+  "prediction": 0.72,
+  "confidence": 0.85,
+  "expected_value": 0.12,
+  "recommendation": "BUY",
+  "features_used": ["home_strength", "away_strength"],
+  "model_version": "ensemble-v1.0",
+  "timestamp": "2025-07-20T12:34:56Z",
+  "shap_values": { "home_strength": 0.1, "away_strength": -0.05 },
+  "lime_values": { "home_strength": 0.08, "away_strength": -0.03 }
+}
+```
+
+### How It Works
+
+- SHAP values are computed using the ensemble engine for each prediction request.
+- LIME values provide local explanations for the same input features.
+- Both are available for all supported sports and markets.
+
+### Usage
+
+- Integrate these fields in your frontend to display model transparency and feature impact.
+- See `backend/ensemble_engine.py` for implementation details.
+
+---

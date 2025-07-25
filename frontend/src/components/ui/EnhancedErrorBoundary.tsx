@@ -40,7 +40,7 @@ export class EnhancedErrorBoundary extends Component<
   }
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    const errorId = `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const _errorId = `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     return {
       hasError: true,
       error,
@@ -111,7 +111,7 @@ export class EnhancedErrorBoundary extends Component<
 
   private copyErrorDetails = () => {
     const { error, errorInfo, errorId } = this.state;
-    const errorDetails = {
+    const _errorDetails = {
       errorId,
       message: error?.message,
       stack: error?.stack,
@@ -146,7 +146,7 @@ export class EnhancedErrorBoundary extends Component<
         return fallback;
       }
 
-      const baseClasses = `
+      const _baseClasses = `
         flex flex-col items-center justify-center p-8 min-h-[400px] rounded-lg border
         ${
           variant === 'cyber'
@@ -156,7 +156,7 @@ export class EnhancedErrorBoundary extends Component<
         ${className}
       `;
 
-      const canRetry = enableRetry && this.state.retryCount < maxRetries;
+      const _canRetry = enableRetry && this.state.retryCount < maxRetries;
 
       return (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

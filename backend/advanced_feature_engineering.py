@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 import pandas as pd
 
+# Adding a comment to trigger linter refresh
 warnings.filterwarnings("ignore")
 
 import nltk
@@ -41,6 +42,7 @@ from sklearn.feature_selection import (
     mutual_info_regression,
 )
 from sklearn.neighbors import LocalOutlierFactor
+from sklearn.linear_model import LinearRegression
 
 # Advanced feature engineering imports
 from sklearn.preprocessing import (
@@ -141,6 +143,7 @@ class AdvancedFeatureEngineer:
         self.feature_importance_cache = {}
         self.interaction_cache = {}
         self.temporal_patterns_cache = {}
+        self.historical_feature_metrics = defaultdict(list) # In-memory store for historical metrics
 
         # Advanced components
         self.statistical_transformers = {}
@@ -282,6 +285,9 @@ class AdvancedFeatureEngineer:
             )
             feature_metrics[feature_name] = metrics
 
+        # 5.1. Monitor feature drift
+        await self._monitor_feature_drift(feature_metrics)
+
         # 6. Feature selection and optimization
         optimized_features = await self._optimize_feature_set(
             engineered_features, feature_metrics, target_variable
@@ -319,6 +325,18 @@ class AdvancedFeatureEngineer:
         logger.info(
             f"Feature engineering completed: {len(optimized_features)} features in {computation_time:.2f}s"
         )
+        
+        # Simulate logging model performance after feature engineering
+        await self._log_model_performance(
+            model_name="Prediction_Model_v1.0",
+            metrics={
+                "feature_engineering_time": computation_time,
+                "num_features": len(optimized_features),
+                "quality_score": quality_score,
+                "avg_predictive_index": feature_set.predictive_index,
+            }
+        )
+
         return feature_set
 
     async def _apply_strategy(
@@ -838,6 +856,52 @@ class AdvancedFeatureEngineer:
 
         # Calculate actual metrics where possible
         if isinstance(feature_value, (int, float, np.number)):
+            # Convert all_features to a pandas DataFrame for easier calculations
+            feature_df = pd.DataFrame([all_features])
+            if not feature_df.empty and target_variable and target_variable in feature_df.columns and feature_name in feature_df.columns:
+                # Ensure the columns are numeric for correlation/mutual information
+                feature_df = feature_df.apply(pd.to_numeric, errors='coerce').dropna(axis=1)
+
+                if feature_name in feature_df.columns and target_variable in feature_df.columns and len(feature_df) > 1:
+                    # Correlation with Target
+                    try:
+                        correlation_with_target = feature_df[feature_name].corr(feature_df[target_variable])
+                        if np.isnan(correlation_with_target): # Handle NaN in correlation
+                            correlation_with_target = 0.0
+                    except Exception:
+                        correlation_with_target = 0.0
+
+                    # Mutual Information
+                    try:
+                        # Reshape for mutual_info_regression
+                        X = feature_df[[feature_name]].values
+                        y = feature_df[target_variable].values
+                        if len(X) > 1 and len(np.unique(y)) > 1:
+                            mutual_information = mutual_info_regression(X, y)[0]
+                        else:
+                            mutual_information = 0.0
+                    except Exception:
+                        mutual_information = 0.0
+
+                    # Predictive Power (simplified using Linear Regression R-squared)
+                    try:
+                        model = LinearRegression()
+                        # Ensure X and y have at least 2 samples for training
+                        if len(feature_df) > 1 and len(np.unique(feature_df[target_variable])) > 1:
+                            model.fit(feature_df[[feature_name]], feature_df[target_variable])
+                            predictive_power = model.score(feature_df[[feature_name]], feature_df[target_variable])
+                        else:
+                            predictive_power = 0.0
+                    except Exception:
+                        predictive_power = 0.0
+
+                # Redundancy Score (average absolute correlation with other features)
+                other_numeric_features = [col for col in feature_df.columns if col != feature_name and col != target_variable]
+                if other_numeric_features:
+                    correlations = feature_df[feature_name].corr(feature_df[other_numeric_features]).abs().values
+                    if len(correlations) > 0:
+                        redundancy_score = np.mean(correlations)
+
             # Variance-based importance
             numeric_values = [
                 v
@@ -851,9 +915,18 @@ class AdvancedFeatureEngineer:
 
             # Distribution normality
             try:
-                _, p_value = stats.normaltest([feature_value] * 10)  # Simplified
-                distribution_score = min(1.0, p_value * 2)
-            except:
+                # For a single feature_value, create a synthetic distribution for normaltest
+                if isinstance(feature_value, (int, float)):
+                    # Create a dummy array with some variance for statistical test
+                    dummy_data = np.array([feature_value, feature_value * 1.01, feature_value * 0.99, feature_value * 1.005, feature_value * 0.995])
+                    if np.std(dummy_data) == 0: # Avoid division by zero if all values are same
+                        p_value = 1.0
+                    else:
+                        _, p_value = stats.normaltest(dummy_data)
+                    distribution_score = min(1.0, p_value * 2)
+                else:
+                    distribution_score = 0.5
+            except Exception:
                 distribution_score = 0.5
 
         # Interpretability based on feature name
@@ -930,6 +1003,59 @@ class AdvancedFeatureEngineer:
         ]
         return int((timestamp.month, timestamp.day) in holidays)
 
+    async def _create_historical_pattern_features(
+        self, current_data: Dict[str, Any], historical_data: List[Dict[str, Any]], current_timestamp: datetime
+    ) -> Dict[str, Any]:
+        """Create features based on historical patterns and trends.
+        This would typically involve more sophisticated time series analysis,
+        but for now, we'll calculate simple moving averages and standard deviations.
+        """
+        features = {}
+
+        if not historical_data:
+            return features
+
+        # Convert historical data to a DataFrame for easier numerical operations
+        df = pd.DataFrame(historical_data)
+
+        # Identify numeric columns that are present in current_data
+        numeric_cols = [k for k, v in current_data.items() if isinstance(v, (int, float, np.number)) and k in df.columns]
+
+        if not numeric_cols:
+            return features
+
+        for col in numeric_cols:
+            # Calculate moving averages for different windows
+            for window in [3, 5, 10]:
+                if len(df) >= window:
+                    features[f"hist_{col}_sma_{window}"] = df[col].rolling(window=window).mean().iloc[-1]
+                    features[f"hist_{col}_std_{window}"] = df[col].rolling(window=window).std().iloc[-1]
+
+            # Calculate daily, weekly, monthly averages/trends if timestamp is available in historical data
+            if "timestamp" in df.columns:
+                df["timestamp"] = pd.to_datetime(df["timestamp"])
+                df.set_index("timestamp", inplace=True)
+
+                # Daily average for the current day
+                daily_data = df[df.index.date == current_timestamp.date()]
+                if not daily_data.empty:
+                    features[f"hist_{col}_daily_avg"] = daily_data[col].mean()
+
+                # Weekly average for the current week (example: last 7 days)
+                weekly_data = df[df.index >= (current_timestamp - pd.Timedelta(days=7))]
+                if not weekly_data.empty:
+                    features[f"hist_{col}_weekly_avg"] = weekly_data[col].mean()
+
+                # Monthly average for the current month
+                monthly_data = df[df.index.month == current_timestamp.month]
+                if not monthly_data.empty:
+                    features[f"hist_{col}_monthly_avg"] = monthly_data[col].mean()
+
+        # Remove any NaN values that might arise from insufficient historical data for rolling windows
+        features = {k: v for k, v in features.items() if not (isinstance(v, float) and np.isnan(v))}
+
+        return features
+
     def _get_season(self, timestamp: datetime) -> int:
         """Get season from timestamp"""
         month = timestamp.month
@@ -942,6 +1068,49 @@ class AdvancedFeatureEngineer:
         else:
             return 3  # Fall
 
+    async def _monitor_feature_drift(self, current_feature_metrics: Dict[str, AdvancedFeatureMetrics]):
+        """Monitors feature drift by comparing current metrics to historical data.
+        In a production system, this would use a persistent store and more sophisticated drift detection algorithms.
+        """
+        logger.info("Monitoring feature drift...")
 
-# Global instance
+        for feature_name, current_metrics in current_feature_metrics.items():
+            # Add current metrics to historical store
+            self.historical_feature_metrics[feature_name].append(current_metrics)
+            # Keep only the last N entries for simplicity (e.g., last 10)
+            self.historical_feature_metrics[feature_name] = self.historical_feature_metrics[feature_name][-10:]
+
+            historical_data_for_feature = self.historical_feature_metrics[feature_name]
+
+            if len(historical_data_for_feature) > 1:
+                # Simple drift detection: compare current value to the mean of historical values
+                # For demonstration, we'll check 'importance_score'
+                historical_scores = [m.importance_score for m in historical_data_for_feature[:-1]] # Exclude current
+
+                if historical_scores:
+                    avg_historical_score = np.mean(historical_scores)
+                    std_historical_score = np.std(historical_scores)
+
+                    # Define a threshold for significant drift (e.g., 2 standard deviations)
+                    if std_historical_score > 0 and abs(current_metrics.importance_score - avg_historical_score) > 2 * std_historical_score:
+                        logger.warning(
+                            f"Feature drift detected for '{feature_name}': "
+                            f"Current importance score {current_metrics.importance_score:.2f} is significantly different from historical average {avg_historical_score:.2f}."
+                        )
+                    else:
+                        logger.info(f"No significant drift detected for '{feature_name}'.")
+                else:
+                    logger.info(f"Not enough historical data to assess drift for '{feature_name}'.")
+            else:
+                logger.info(f"Not enough historical data to assess drift for '{feature_name}'.")
+
+    async def _log_model_performance(self, model_name: str, metrics: Dict[str, Any]):
+        """Simulates logging model performance metrics.
+        In a real system, this would integrate with a dedicated monitoring dashboard (e.g., SigNoz, Prometheus).
+        """
+        logger.info(f"Logging performance for model '{model_name}':")
+        for metric_name, value in metrics.items():
+            logger.info(f"  {metric_name}: {value}")
+
+    # Global instance
 advanced_feature_engineer = AdvancedFeatureEngineer()

@@ -48,7 +48,7 @@ interface QuantumMetrics {
   errorRate: number;
 }
 
-export const QuantumAI: React.FC = () => {
+export const _QuantumAI: React.FC = () => {
   const [nodes, setNodes] = useState<QuantumNode[]>([]);
   const [connections, setConnections] = useState<QuantumConnection[]>([]);
   const [predictions, setPredictions] = useState<QuantumPrediction[]>([]);
@@ -61,12 +61,12 @@ export const QuantumAI: React.FC = () => {
   const [simulationSpeed, setSimulationSpeed] = useState(1);
 
   // Generate quantum network
-  const generateQuantumNetwork = (): { nodes: QuantumNode[]; connections: QuantumConnection[] } => {
-    const networkNodes: QuantumNode[] = [];
-    const networkConnections: QuantumConnection[] = [];
+  const _generateQuantumNetwork = (): { nodes: QuantumNode[]; connections: QuantumConnection[] } => {
+    const _networkNodes: QuantumNode[] = [];
+    const _networkConnections: QuantumConnection[] = [];
 
     // Input layer
-    for (let i = 0; i < 4; i++) {
+    for (let _i = 0; i < 4; i++) {
       networkNodes.push({
         id: `input-${i}`,
         type: 'input',
@@ -76,8 +76,8 @@ export const QuantumAI: React.FC = () => {
     }
 
     // Quantum layers
-    for (let layer = 0; layer < 3; layer++) {
-      for (let i = 0; i < 6; i++) {
+    for (let _layer = 0; layer < 3; layer++) {
+      for (let _i = 0; i < 6; i++) {
         networkNodes.push({
           id: `quantum-${layer}-${i}`,
           type: 'quantum',
@@ -91,7 +91,7 @@ export const QuantumAI: React.FC = () => {
     }
 
     // Neural processing layer
-    for (let i = 0; i < 4; i++) {
+    for (let _i = 0; i < 4; i++) {
       networkNodes.push({
         id: `neural-${i}`,
         type: 'neural',
@@ -101,7 +101,7 @@ export const QuantumAI: React.FC = () => {
     }
 
     // Output layer
-    for (let i = 0; i < 2; i++) {
+    for (let _i = 0; i < 2; i++) {
       networkNodes.push({
         id: `output-${i}`,
         type: 'output',
@@ -114,7 +114,7 @@ export const QuantumAI: React.FC = () => {
     networkNodes.forEach(node => {
       if (node.type === 'input') {
         // Connect inputs to first quantum layer
-        const quantumNodes = networkNodes.filter(n => n.id.startsWith('quantum-0-'));
+        const _quantumNodes = networkNodes.filter(n => n.id.startsWith('quantum-0-'));
         quantumNodes.forEach(qNode => {
           networkConnections.push({
             from: node.id,
@@ -126,9 +126,9 @@ export const QuantumAI: React.FC = () => {
         });
       } else if (node.type === 'quantum') {
         // Connect quantum layers
-        const layer = parseInt(node.id.split('-')[1]);
+        const _layer = parseInt(node.id.split('-')[1]);
         if (layer < 2) {
-          const nextLayerNodes = networkNodes.filter(n => n.id.startsWith(`quantum-${layer + 1}-`));
+          const _nextLayerNodes = networkNodes.filter(n => n.id.startsWith(`quantum-${layer + 1}-`));
           nextLayerNodes.forEach(nextNode => {
             if (Math.random() > 0.5) {
               networkConnections.push({
@@ -142,7 +142,7 @@ export const QuantumAI: React.FC = () => {
           });
         } else {
           // Connect to neural layer
-          const neuralNodes = networkNodes.filter(n => n.type === 'neural');
+          const _neuralNodes = networkNodes.filter(n => n.type === 'neural');
           neuralNodes.forEach(neuralNode => {
             if (Math.random() > 0.4) {
               networkConnections.push({
@@ -156,7 +156,7 @@ export const QuantumAI: React.FC = () => {
         }
       } else if (node.type === 'neural') {
         // Connect neural to output
-        const outputNodes = networkNodes.filter(n => n.type === 'output');
+        const _outputNodes = networkNodes.filter(n => n.type === 'output');
         outputNodes.forEach(outputNode => {
           networkConnections.push({
             from: node.id,
@@ -172,8 +172,8 @@ export const QuantumAI: React.FC = () => {
   };
 
   // Generate quantum predictions
-  const generateQuantumPredictions = (): QuantumPrediction[] => {
-    const games = [
+  const _generateQuantumPredictions = (): QuantumPrediction[] => {
+    const _games = [
       { game: 'Lakers vs Warriors', sport: 'NBA' },
       { game: 'Chiefs vs Bills', sport: 'NFL' },
       { game: 'Celtics vs Heat', sport: 'NBA' },
@@ -182,8 +182,8 @@ export const QuantumAI: React.FC = () => {
     ];
 
     return games.map((g, index) => {
-      const classicalProb = 0.5 + (Math.random() - 0.5) * 0.3;
-      const quantumAdv = Math.random() * 0.15;
+      const _classicalProb = 0.5 + (Math.random() - 0.5) * 0.3;
+      const _quantumAdv = Math.random() * 0.15;
 
       return {
         id: `qpred-${index}`,
@@ -202,7 +202,7 @@ export const QuantumAI: React.FC = () => {
   };
 
   // Generate quantum metrics
-  const generateQuantumMetrics = (): QuantumMetrics => ({
+  const _generateQuantumMetrics = (): QuantumMetrics => ({
     coherenceTime: 50 + Math.random() * 50, // microseconds
     fidelity: 0.95 + Math.random() * 0.04,
     entanglementDegree: Math.random() * 0.8 + 0.2,
@@ -211,7 +211,7 @@ export const QuantumAI: React.FC = () => {
   });
 
   // Simulate quantum computation
-  const runQuantumSimulation = () => {
+  const _runQuantumSimulation = () => {
     if (!isQuantumActive) return;
 
     setNodes(prev =>
@@ -238,19 +238,18 @@ export const QuantumAI: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(runQuantumSimulation, 1000 / simulationSpeed);
+    const _interval = setInterval(runQuantumSimulation, 1000 / simulationSpeed);
     return () => clearInterval(interval);
   }, [isQuantumActive, simulationSpeed]);
 
-  const getNodeColor = (node: QuantumNode) => {
+  const _getNodeColor = (node: QuantumNode) => {
     switch (node.type) {
       case 'input':
         return '#3B82F6'; // blue
       case 'quantum':
         if (node.superposition) return '#A855F7'; // purple
         if (node.entangled) return '#06B6D4'; // cyan
-        return '#8B5CF6'; // violet
-      case 'neural':
+        return '#8B5CF6'; // violet _case 'neural':
         return '#10B981'; // green
       case 'output':
         return '#F59E0B'; // amber
@@ -259,12 +258,12 @@ export const QuantumAI: React.FC = () => {
     }
   };
 
-  const getConnectionColor = (connection: QuantumConnection) => {
+  const _getConnectionColor = (connection: QuantumConnection) => {
     if (connection.entanglement) return '#EC4899'; // pink
     return connection.type === 'quantum' ? '#8B5CF6' : '#6B7280';
   };
 
-  const getAlgorithmDescription = (algorithm: string) => {
+  const _getAlgorithmDescription = (algorithm: string) => {
     switch (algorithm) {
       case 'grover':
         return 'Quantum search algorithm for unstructured databases';
@@ -369,7 +368,7 @@ export const QuantumAI: React.FC = () => {
             <select
               id='quantum-algorithm'
               value={selectedAlgorithm}
-              onChange={e => setSelectedAlgorithm(e.target.value as any)}
+              onChange={e => setSelectedAlgorithm(e.target.value as unknown)}
               className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg'
               aria-label='Quantum algorithm'
             >
@@ -480,8 +479,8 @@ export const QuantumAI: React.FC = () => {
               <svg width='100%' height='100%' className='absolute inset-0'>
                 {/* Render connections */}
                 {connections.map((connection, index) => {
-                  const fromNode = nodes.find(n => n.id === connection.from);
-                  const toNode = nodes.find(n => n.id === connection.to);
+                  const _fromNode = nodes.find(n => n.id === connection.from);
+                  const _toNode = nodes.find(n => n.id === connection.to);
 
                   if (!fromNode || !toNode) return null;
 

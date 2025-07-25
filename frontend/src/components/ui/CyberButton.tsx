@@ -11,7 +11,7 @@ interface CyberButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
   children: React.ReactNode;
 }
 
-export const CyberButton: React.FC<CyberButtonProps> = ({
+export const _CyberButton: React.FC<CyberButtonProps> = ({
   variant = 'primary',
   size = 'md',
   loading = false,
@@ -22,14 +22,14 @@ export const CyberButton: React.FC<CyberButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const sizeClasses = {
+  const _sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2 text-base',
     lg: 'px-6 py-3 text-lg',
     xl: 'px-8 py-4 text-xl',
   };
 
-  const variantConfig = {
+  const _variantConfig = {
     primary: {
       gradient: 'from-cyan-500 to-blue-600',
       border: 'border-cyan-400/50',
@@ -74,9 +74,9 @@ export const CyberButton: React.FC<CyberButtonProps> = ({
     },
   };
 
-  const config = variantConfig[variant];
+  const _config = variantConfig[variant];
 
-  const buttonVariants = {
+  const _buttonVariants = {
     idle: {
       scale: 1,
       boxShadow: glow ? config.glow : `0 4px 14px 0 ${config.shadow}`,
@@ -109,7 +109,7 @@ export const CyberButton: React.FC<CyberButtonProps> = ({
     },
   };
 
-  const baseClasses = `
+  const _baseClasses = `
     relative overflow-hidden font-semibold rounded-lg border transition-all duration-300
     bg-gradient-to-r ${config.gradient} ${config.border} ${config.hover}
     ${sizeClasses[size]}

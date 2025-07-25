@@ -57,7 +57,7 @@ interface InfluencerMetrics {
   recentPosts: number;
 }
 
-export const SocialIntelligence: React.FC = () => {
+export const _SocialIntelligence: React.FC = () => {
   const [posts, setPosts] = useState<SocialPost[]>([]);
   const [sentimentTrends, setSentimentTrends] = useState<SentimentTrend[]>([]);
   const [marketSignals, setMarketSignals] = useState<MarketSignal[]>([]);
@@ -67,10 +67,10 @@ export const SocialIntelligence: React.FC = () => {
   const [isMonitoring, setIsMonitoring] = useState(true);
 
   // Generate mock social posts
-  const generateSocialPosts = (): SocialPost[] => {
-    const platforms = ['twitter', 'reddit', 'instagram', 'tiktok', 'facebook'] as const;
-    const sports = ['NBA', 'NFL', 'MLB', 'NHL', 'Soccer'];
-    const teams = {
+  const _generateSocialPosts = (): SocialPost[] => {
+    const _platforms = ['twitter', 'reddit', 'instagram', 'tiktok', 'facebook'] as const;
+    const _sports = ['NBA', 'NFL', 'MLB', 'NHL', 'Soccer'];
+    const _teams = {
       NBA: ['Lakers', 'Warriors', 'Celtics', 'Heat'],
       NFL: ['Chiefs', 'Bills', 'Cowboys', 'Patriots'],
       MLB: ['Yankees', 'Red Sox', 'Dodgers', 'Astros'],
@@ -78,7 +78,7 @@ export const SocialIntelligence: React.FC = () => {
       Soccer: ['Man City', 'Barcelona', 'Real Madrid', 'Liverpool'],
     };
 
-    const content = [
+    const _content = [
       'This team is looking unstoppable right now! 🔥',
       'Not sure about their defense tonight...',
       "Best lineup I've seen all season",
@@ -92,11 +92,11 @@ export const SocialIntelligence: React.FC = () => {
     ];
 
     return Array.from({ length: 20 }, (_, index) => {
-      const platform = platforms[Math.floor(Math.random() * platforms.length)];
-      const sport = sports[Math.floor(Math.random() * sports.length)];
+      const _platform = platforms[Math.floor(Math.random() * platforms.length)];
+      const _sport = sports[Math.floor(Math.random() * sports.length)];
       // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-      const team = teams[sport][Math.floor(Math.random() * teams[sport].length)];
-      const sentiment =
+      const _team = teams[sport][Math.floor(Math.random() * teams[sport].length)];
+      const _sentiment =
         Math.random() > 0.6 ? 'positive' : Math.random() > 0.3 ? 'neutral' : 'negative';
 
       return {
@@ -127,12 +127,12 @@ export const SocialIntelligence: React.FC = () => {
   };
 
   // Generate sentiment trends
-  const generateSentimentTrends = (): SentimentTrend[] => {
+  const _generateSentimentTrends = (): SentimentTrend[] => {
     return Array.from({ length: 24 }, (_, index) => {
-      const total = 100;
-      const positive = 20 + Math.random() * 40;
-      const negative = 10 + Math.random() * 30;
-      const neutral = total - positive - negative;
+      const _total = 100;
+      const _positive = 20 + Math.random() * 40;
+      const _negative = 10 + Math.random() * 30;
+      const _neutral = total - positive - negative;
 
       return {
         timestamp: `${23 - index}h ago`,
@@ -145,15 +145,15 @@ export const SocialIntelligence: React.FC = () => {
   };
 
   // Generate market signals
-  const generateMarketSignals = (): MarketSignal[] => {
-    const signalTypes = [
+  const _generateMarketSignals = (): MarketSignal[] => {
+    const _signalTypes = [
       'sentiment_shift',
       'viral_content',
       'influencer_opinion',
       'trending_topic',
     ] as const;
 
-    const descriptions = {
+    const _descriptions = {
       sentiment_shift: 'Sudden sentiment shift detected on social media',
       viral_content: 'Viral content affecting public perception',
       influencer_opinion: 'Major influencer shared strong opinion',
@@ -161,7 +161,7 @@ export const SocialIntelligence: React.FC = () => {
     };
 
     return Array.from({ length: 8 }, (_, index) => {
-      const type = signalTypes[Math.floor(Math.random() * signalTypes.length)];
+      const _type = signalTypes[Math.floor(Math.random() * signalTypes.length)];
       return {
         id: `signal-${index}`,
         type,
@@ -176,8 +176,8 @@ export const SocialIntelligence: React.FC = () => {
   };
 
   // Generate influencer metrics
-  const generateInfluencers = (): InfluencerMetrics[] => {
-    const names = [
+  const _generateInfluencers = (): InfluencerMetrics[] => {
+    const _names = [
       'SportsGuru_',
       'BettingPro_',
       'AnalyticsKing_',
@@ -188,7 +188,7 @@ export const SocialIntelligence: React.FC = () => {
       'SportsCapper_',
     ];
 
-    const platforms = ['Twitter', 'YouTube', 'Instagram', 'TikTok'];
+    const _platforms = ['Twitter', 'YouTube', 'Instagram', 'TikTok'];
 
     return names.map((name, index) => ({
       name: `${name}${Math.floor(Math.random() * 100)}`,
@@ -209,11 +209,11 @@ export const SocialIntelligence: React.FC = () => {
   }, []);
 
   // Filter posts by sport
-  const filteredPosts =
+  const _filteredPosts =
     selectedSport === 'All' ? posts : posts.filter(post => post.sport === selectedSport);
 
   // Calculate aggregate sentiment
-  const aggregateSentiment = filteredPosts.reduce(
+  const _aggregateSentiment = filteredPosts.reduce(
     (acc, post) => {
       acc[post.sentiment]++;
       return acc;
@@ -221,14 +221,14 @@ export const SocialIntelligence: React.FC = () => {
     { positive: 0, negative: 0, neutral: 0 }
   );
 
-  const totalPosts = filteredPosts.length;
-  const sentimentPercentages = {
+  const _totalPosts = filteredPosts.length;
+  const _sentimentPercentages = {
     positive: (aggregateSentiment.positive / totalPosts) * 100,
     negative: (aggregateSentiment.negative / totalPosts) * 100,
     neutral: (aggregateSentiment.neutral / totalPosts) * 100,
   };
 
-  const getPlatformIcon = (platform: string) => {
+  const _getPlatformIcon = (platform: string) => {
     switch (platform) {
       case 'twitter':
         return '🐦';
@@ -245,7 +245,7 @@ export const SocialIntelligence: React.FC = () => {
     }
   };
 
-  const getSentimentColor = (sentiment: string) => {
+  const _getSentimentColor = (sentiment: string) => {
     switch (sentiment) {
       case 'positive':
         return 'text-green-400 border-green-400';
@@ -256,7 +256,7 @@ export const SocialIntelligence: React.FC = () => {
     }
   };
 
-  const getImpactColor = (impact: string) => {
+  const _getImpactColor = (impact: string) => {
     switch (impact) {
       case 'high':
         return 'text-red-400 border-red-400';
@@ -377,7 +377,7 @@ export const SocialIntelligence: React.FC = () => {
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <select
                 value={timeframe}
-                onChange={e => setTimeframe(e.target.value as any)}
+                onChange={e => setTimeframe(e.target.value as unknown)}
                 className='px-3 py-1 bg-gray-800 border border-gray-700 rounded-lg'
                 aria-label='Select timeframe'
               >

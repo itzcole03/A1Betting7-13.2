@@ -9,7 +9,7 @@ import './A1BettingPreview.css';
  *
  * @returns {JSX.Element} Injury tracker UI
  */
-const InjuriesTab: React.FC = (): JSX.Element => (
+const _InjuriesTab: React.FC = (): JSX.Element => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div className='injuries-tab' role='tabpanel' aria-label='Injury Tracker'>
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

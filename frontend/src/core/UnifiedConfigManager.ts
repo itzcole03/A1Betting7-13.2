@@ -61,6 +61,6 @@ export class UnifiedConfigManager implements UnifiedConfigManagerType {
     // UnifiedConfig stores config as Record<string, ConfigValue>
     // Cast to unknown for compatibility
     // Optionally, clone to prevent mutation
-    return { ...(this.config as any).config };
+    return { ...(this.config as unknown).config };
   }
 }

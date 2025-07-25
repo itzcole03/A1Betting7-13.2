@@ -33,9 +33,9 @@ export class PrizePicksApiService extends BaseApiService {
     try {
       // @ts-expect-error TS(2339): Property 'emit' does not exist on type 'PrizePicks... Remove this comment to see the full error message
       this.emit('request', endpoint);
-      const client = this.initializeClient();
-      const response = await client.get<T>(endpoint, { params });
-      const apiResponse: ApiResponse<T> = {
+      const _client = this.initializeClient();
+      const _response = await client.get<T>(endpoint, { params });
+      const _apiResponse: ApiResponse<T> = {
         data: response.data,
         status: response.status,
         timestamp: Date.now(),
@@ -52,9 +52,9 @@ export class PrizePicksApiService extends BaseApiService {
     try {
       // @ts-expect-error TS(2339): Property 'emit' does not exist on type 'PrizePicks... Remove this comment to see the full error message
       this.emit('request', endpoint);
-      const client = this.initializeClient();
-      const response = await client.post<T>(endpoint, data);
-      const apiResponse: ApiResponse<T> = {
+      const _client = this.initializeClient();
+      const _response = await client.post<T>(endpoint, data);
+      const _apiResponse: ApiResponse<T> = {
         data: response.data,
         status: response.status,
         timestamp: Date.now(),
@@ -77,8 +77,8 @@ export class PrizePicksApiService extends BaseApiService {
     return this.get<PrizePicksPlayer>(`/players/${playerId}/stats`);
   }
 
-  public async getGameDetails(gameId: string): Promise<any> {
+  public async getGameDetails(gameId: string): Promise<unknown> {
     // Returns full game details, strictly typed;
-    return this.get<any>(`/games/${gameId}`);
+    return this.get<unknown>(`/games/${gameId}`);
   }
 }

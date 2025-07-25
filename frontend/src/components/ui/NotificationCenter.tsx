@@ -38,8 +38,8 @@ interface NotificationCenterProps {
   onClearAll?: () => void;
 }
 
-const getNotificationIcon = (type: string) => {
-  const icons = {
+const _getNotificationIcon = (type: string) => {
+  const _icons = {
     info: '💡',
     success: '✅',
     warning: '⚠️',
@@ -50,8 +50,8 @@ const getNotificationIcon = (type: string) => {
   return icons[type as keyof typeof icons] || '📢';
 };
 
-const getNotificationColor = (type: string, variant: string = 'default') => {
-  const colors = {
+const _getNotificationColor = (type: string, variant: string = 'default') => {
+  const _colors = {
     default: {
       info: 'border-blue-200 bg-blue-50',
       success: 'border-green-200 bg-green-50',
@@ -75,7 +75,7 @@ const getNotificationColor = (type: string, variant: string = 'default') => {
     : colors.default[type as keyof typeof colors.default] || colors.default.info;
 };
 
-const getPriorityIndicator = (priority: string, variant: string = 'default') => {
+const _getPriorityIndicator = (priority: string, variant: string = 'default') => {
   if (priority === 'urgent') {
     return variant === 'cyber'
       ? 'animate-pulse bg-red-500 shadow-red-500/50'
@@ -87,12 +87,12 @@ const getPriorityIndicator = (priority: string, variant: string = 'default') => 
   return 'bg-gray-400';
 };
 
-const formatTimeAgo = (date: Date) => {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
+const _formatTimeAgo = (date: Date) => {
+  const _now = new Date();
+  const _diffMs = now.getTime() - date.getTime();
+  const _diffMins = Math.floor(diffMs / 60000);
+  const _diffHours = Math.floor(diffMs / 3600000);
+  const _diffDays = Math.floor(diffMs / 86400000);
 
   if (diffMins < 1) return 'Just now';
   if (diffMins < 60) return `${diffMins}m ago`;
@@ -100,7 +100,7 @@ const formatTimeAgo = (date: Date) => {
   return `${diffDays}d ago`;
 };
 
-export const NotificationCenter: React.FC<NotificationCenterProps> = ({
+export const _NotificationCenter: React.FC<NotificationCenterProps> = ({
   notifications = [],
   variant = 'default',
   position = 'top-right',
@@ -118,7 +118,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   // Filter and sort notifications
   useEffect(() => {
-    let filtered = notifications;
+    let _filtered = notifications;
 
     if (showUnreadOnly) {
       filtered = filtered.filter(n => !n.read);
@@ -126,9 +126,9 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
     // Sort by priority and timestamp
     filtered = filtered.sort((a, b) => {
-      const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
-      const aPriority = priorityOrder[a.priority] || 1;
-      const bPriority = priorityOrder[b.priority] || 1;
+      const _priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+      const _aPriority = priorityOrder[a.priority] || 1;
+      const _bPriority = priorityOrder[b.priority] || 1;
 
       if (aPriority !== bPriority) {
         return bPriority - aPriority;
@@ -141,10 +141,10 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   }, [notifications, showUnreadOnly, maxVisible]);
 
   // Group notifications if needed
-  const groupedNotifications = groupByCategory
+  const _groupedNotifications = groupByCategory
     ? visibleNotifications.reduce(
         (groups, notification) => {
-          const category = notification.category || 'General';
+          const _category = notification.category || 'General';
           if (!groups[category]) {
             groups[category] = [];
           }
@@ -155,7 +155,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
       )
     : null;
 
-  const positionClasses = {
+  const _positionClasses = {
     'top-right': 'top-4 right-4',
     'top-left': 'top-4 left-4',
     'bottom-right': 'bottom-4 right-4',
@@ -163,7 +163,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     center: 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-lg shadow-lg',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -171,10 +171,10 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     detailed: 'bg-white border border-gray-300 rounded-xl shadow-xl',
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const _unreadCount = notifications.filter(n => !n.read).length;
 
-  const toggleGroup = (category: string) => {
-    const newExpanded = new Set(expandedGroups);
+  const _toggleGroup = (category: string) => {
+    const _newExpanded = new Set(expandedGroups);
     if (newExpanded.has(category)) {
       newExpanded.delete(category);
     } else {
@@ -183,11 +183,11 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     setExpandedGroups(newExpanded);
   };
 
-  const handleNotificationClick = (notification: Notification) => {
+  const _handleNotificationClick = (notification: Notification) => {
     onNotificationClick?.(notification);
   };
 
-  const handleDismiss = (notificationId: string, event: React.MouseEvent) => {
+  const _handleDismiss = (notificationId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     onNotificationDismiss?.(notificationId);
   };
@@ -352,7 +352,7 @@ interface NotificationItemProps {
   onDismiss: (notificationId: string, event: React.MouseEvent) => void;
 }
 
-const NotificationItem: React.FC<NotificationItemProps> = ({
+const _NotificationItem: React.FC<NotificationItemProps> = ({
   notification,
   variant,
   onClick,

@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const PropCards: React.FC;
+declare const _PropCards: React.FC;
 export default PropCards;

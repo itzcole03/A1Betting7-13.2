@@ -24,7 +24,7 @@ interface BreadcrumbProps {
  * @param className - Additional CSS classes
  * @param separator - Custom separator element
  */
-export const Breadcrumb: React.FC<BreadcrumbProps> = ({
+export const _Breadcrumb: React.FC<BreadcrumbProps> = ({
   items,
   className = '',
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

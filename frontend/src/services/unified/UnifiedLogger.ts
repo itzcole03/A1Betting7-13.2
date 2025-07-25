@@ -10,7 +10,7 @@ interface LogEntry {
   level: LogLevel;
   context: string;
   message: string;
-  data?: any;
+  data?: unknown;
 }
 
 export class UnifiedLogger {
@@ -35,34 +35,34 @@ export class UnifiedLogger {
     this.level = level;
   }
 
-  error(message: string, data?: any): void {
+  error(message: string, data?: unknown): void {
     this.log(LogLevel.ERROR, message, data);
     console.error(`[${this.context}] ${message}`, data);
   }
 
-  warn(message: string, data?: any): void {
+  warn(message: string, data?: unknown): void {
     this.log(LogLevel.WARN, message, data);
     if (this.level >= LogLevel.WARN) {
       console.warn(`[${this.context}] ${message}`, data);
     }
   }
 
-  info(message: string, data?: any): void {
+  info(message: string, data?: unknown): void {
     this.log(LogLevel.INFO, message, data);
     if (this.level >= LogLevel.INFO) {
       console.info(`[${this.context}] ${message}`, data);
     }
   }
 
-  debug(message: string, data?: any): void {
+  debug(message: string, data?: unknown): void {
     this.log(LogLevel.DEBUG, message, data);
     if (this.level >= LogLevel.DEBUG) {
       console.debug(`[${this.context}] ${message}`, data);
     }
   }
 
-  private log(level: LogLevel, message: string, data?: any): void {
-    const entry: LogEntry = {
+  private log(level: LogLevel, message: string, data?: unknown): void {
+    const _entry: LogEntry = {
       timestamp: new Date(),
       level,
       context: this.context,
@@ -98,4 +98,4 @@ export class UnifiedLogger {
   }
 }
 
-export const unifiedLogger = UnifiedLogger.getInstance();
+export const _unifiedLogger = UnifiedLogger.getInstance();

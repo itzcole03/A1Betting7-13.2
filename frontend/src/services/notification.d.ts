@@ -1,7 +1,7 @@
 ﻿import { EventEmitter } from 'events.ts';
 import { ToastNotification } from '@/types.ts';
 export type NotificationType = 'info' | 'warning' | 'error' | 'success';
-export type NotificationData = Record<string, any>;
+export type NotificationData = Record<string, unknown>;
 export declare class NotificationService extends EventEmitter {
   private static instance;
   private notifications;
@@ -20,5 +20,5 @@ export declare class NotificationService extends EventEmitter {
   getNotifications(): ToastNotification[0];
   notify(type: NotificationType, message: string, data?: NotificationData): void;
 }
-export declare const notificationService: NotificationService;
+export declare const _notificationService: NotificationService;
 export default notificationService;

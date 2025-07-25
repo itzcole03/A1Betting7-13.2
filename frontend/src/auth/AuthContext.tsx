@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AuthContext } from './authUtils';
+import { _AuthContext, login as backendLogin, register as backendRegister } from './authUtils';
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState(null);
@@ -38,59 +38,27 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [token]);
 
   const login = async (username: string, password: string) => {
-    try {
-      const response = await fetch('/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setToken(data.access_token);
-        setUser(data.user);
-        localStorage.setItem('token', data.access_token);
-        return { success: true };
-      } else {
-        const error = await response.json();
-        return { success: false, error: error.detail };
-      }
-    } catch (error) {
-      return { success: false, error: 'Network error' };
+    const result = await backendLogin(username, password);
+    if (result.success) {
+      setToken(localStorage.getItem('auth_token'));
+      setUser({ username });
     }
+    return result;
   };
 
   const register = async (userData: Record<string, unknown>) => {
-    try {
-      const response = await fetch('/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setToken(data.access_token);
-        setUser(data.user);
-        localStorage.setItem('token', data.access_token);
-        return { success: true };
-      } else {
-        const error = await response.json();
-        return { success: false, error: error.detail };
-      }
-    } catch (error) {
-      return { success: false, error: 'Network error' };
+    const result = await backendRegister(userData);
+    if (result.success) {
+      setToken(localStorage.getItem('auth_token'));
+      setUser({ username: userData.username });
     }
+    return result;
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('token');
+    localStorage.removeItem('auth_token');
   };
 
   const value = {
@@ -103,7 +71,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     isAuthenticated: !!user,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <_AuthContext.Provider value={value}>{children}</_AuthContext.Provider>;
 };
 
 export default AuthProvider;

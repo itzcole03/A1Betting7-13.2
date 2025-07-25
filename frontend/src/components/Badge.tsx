@@ -5,7 +5,7 @@ interface BadgeProps {
   color?: string;
 }
 
-const Badge: React.FC<BadgeProps> = ({ text, color = '#06ffa5' }) => (
+const _Badge: React.FC<BadgeProps> = ({ text, color = '#06ffa5' }) => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <span
     style={{

@@ -6,7 +6,7 @@ interface CommandSummary {
   description: string;
   category?: string;
   usage?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface CommandQueueItem {
@@ -14,7 +14,7 @@ interface CommandQueueItem {
   name: string;
   description: string;
   status: 'queued' | 'running' | 'success' | 'error';
-  result?: any;
+  result?: unknown;
 }
 
 interface CommandSummaryContextType {
@@ -27,45 +27,44 @@ interface CommandSummaryContextType {
   removeFromQueue: (id: string) => void;
 }
 
-const CommandSummaryContext = createContext<CommandSummaryContextType | undefined>(undefined);
+const _CommandSummaryContext = createContext<CommandSummaryContextType | undefined>(undefined);
 
-const executeCommand = async (
+const _executeCommand = async (
   cmd: CommandSummary,
-  updateStatus: (status: string, result?: any) => void
+  updateStatus: (status: 'queued' | 'running' | 'success' | 'error', result?: unknown) => void
 ) => {
   updateStatus('running');
   try {
-    const res = await fetch('/api/commands/execute', {
+    const _res = await fetch('/api/commands/execute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: cmd.id }),
     });
-    const data = await res.json();
-    if (data.status === 'success') {
-      updateStatus('success', data.result);
+    const _data = await _res.json();
+    if (_data.status === 'success') {
+      updateStatus('success', _data.result);
     } else {
-      updateStatus('error', data.result);
+      updateStatus('error', _data.result);
     }
-  } catch (e) {
-    // @ts-expect-error TS(2571): Object is of type 'unknown'.
+  } catch (e: any) {
     updateStatus('error', e.message);
   }
 };
 
-export const CommandSummaryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const _CommandSummaryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [commands, setCommands] = useState<CommandSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [queue, setQueue] = useState<CommandQueueItem[]>([]);
 
-  const fetchSummary = async () => {
+  const _fetchSummary = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/commands/summary');
-      if (!res.ok) throw new Error('Failed to fetch command summary');
-      const data = await res.json();
-      setCommands(Array.isArray(data) ? data : []);
+      const _res = await fetch('/api/commands/summary');
+      if (!_res.ok) throw new Error('Failed to fetch command summary');
+      const _data = await _res.json();
+      setCommands(Array.isArray(_data) ? _data : []);
     } catch (e: any) {
       setError(e.message || 'Unknown error');
       setCommands([]);
@@ -74,46 +73,48 @@ export const CommandSummaryProvider: React.FC<{ children: ReactNode }> = ({ chil
     }
   };
 
-  const addToQueue = (cmd: CommandSummary) => {
-    const item: CommandQueueItem = { ...cmd, status: 'queued' };
-    setQueue(q => [...q, item]);
+  const _addToQueue = (cmd: CommandSummary) => {
+    const _item: CommandQueueItem = { ...cmd, status: 'queued' };
+    setQueue(q => [...q, _item]);
     // Start execution immediately
-    const updateStatus = (status: string, result?: any) => {
-      // @ts-expect-error TS(2345): Argument of type '(q: CommandQueueItem[]) => (Comm... Remove this comment to see the full error message
+    const _updateStatus = (
+      status: 'queued' | 'running' | 'success' | 'error',
+      result?: unknown
+    ) => {
       setQueue(q => q.map(qi => (qi.id === cmd.id ? { ...qi, status, result } : qi)));
     };
-    executeCommand(cmd, updateStatus);
+    _executeCommand(cmd, _updateStatus);
   };
-  const removeFromQueue = (id: string) => {
-    setQueue(q => q.filter(item => item.id !== id));
+  const _removeFromQueue = (id: string) => {
+    setQueue(q => q.filter(_item => _item.id !== id));
   };
 
   useEffect(() => {
-    fetchSummary();
-    const interval = setInterval(fetchSummary, 30000); // Refresh every 30s
-    return () => clearInterval(interval);
+    _fetchSummary();
+    const _interval = setInterval(_fetchSummary, 30000); // Refresh every 30s
+    return () => clearInterval(_interval);
   }, []);
 
   return (
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-    <CommandSummaryContext.Provider
+    // Removed unused @ts-expect-error: JSX is supported in this environment
+    <_CommandSummaryContext.Provider
       value={{
         commands,
         loading,
         error,
-        refresh: fetchSummary,
+        refresh: _fetchSummary,
         queue,
-        addToQueue,
-        removeFromQueue,
+        addToQueue: _addToQueue,
+        removeFromQueue: _removeFromQueue,
       }}
     >
       {children}
-    </CommandSummaryContext.Provider>
+    </_CommandSummaryContext.Provider>
   );
 };
 
-export const useCommandSummary = () => {
-  const ctx = useContext(CommandSummaryContext);
-  if (!ctx) throw new Error('useCommandSummary must be used within CommandSummaryProvider');
-  return ctx;
+export const _useCommandSummary = () => {
+  const _ctx = useContext(_CommandSummaryContext);
+  if (!_ctx) throw new Error('useCommandSummary must be used within CommandSummaryProvider');
+  return _ctx;
 };

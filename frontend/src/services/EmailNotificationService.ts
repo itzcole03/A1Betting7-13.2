@@ -52,10 +52,10 @@ class EmailNotificationService {
    * Send email notification to admin about new access request
    */
   async notifyAdminOfAccessRequest(data: AccessRequestNotification): Promise<boolean> {
-    const template = this.createAccessRequestTemplate(data);
+    const _template = this.createAccessRequestTemplate(data);
 
     try {
-      const response = await fetch(`${this.baseUrl}/send`, {
+      const _response = await fetch(`${this.baseUrl}/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,10 +92,10 @@ class EmailNotificationService {
    * Send approval notification to user with temporary password
    */
   async notifyUserOfApproval(data: AccessApprovalNotification): Promise<boolean> {
-    const template = this.createApprovalTemplate(data);
+    const _template = this.createApprovalTemplate(data);
 
     try {
-      const response = await fetch(`${this.baseUrl}/send`, {
+      const _response = await fetch(`${this.baseUrl}/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,10 +132,10 @@ class EmailNotificationService {
    * Send invitation notification to user
    */
   async notifyUserOfInvitation(data: UserInvitationNotification): Promise<boolean> {
-    const template = this.createInvitationTemplate(data);
+    const _template = this.createInvitationTemplate(data);
 
     try {
-      const response = await fetch(`${this.baseUrl}/send`, {
+      const _response = await fetch(`${this.baseUrl}/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -172,10 +172,10 @@ class EmailNotificationService {
    * Send denial notification to user
    */
   async notifyUserOfDenial(data: AccessDenialNotification): Promise<boolean> {
-    const template = this.createDenialTemplate(data);
+    const _template = this.createDenialTemplate(data);
 
     try {
-      const response = await fetch(`${this.baseUrl}/send`, {
+      const _response = await fetch(`${this.baseUrl}/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -212,9 +212,9 @@ class EmailNotificationService {
    * Create email template for admin access request notification
    */
   private createAccessRequestTemplate(data: AccessRequestNotification): EmailTemplate {
-    const subject = `New Access Request - ${data.userEmail}`;
+    const _subject = `New Access Request - ${data.userEmail}`;
 
-    const htmlContent = `
+    const _htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -257,7 +257,7 @@ class EmailNotificationService {
       </html>
     `;
 
-    const textContent = `
+    const _textContent = `
 New Access Request - A1 Betting Platform
 
 User Email: ${data.userEmail}
@@ -286,9 +286,9 @@ This is an automated message. Please do not reply to this email.
    * Create email template for user approval notification
    */
   private createApprovalTemplate(data: AccessApprovalNotification): EmailTemplate {
-    const subject = 'Access Approved - Welcome to A1 Betting Platform';
+    const _subject = 'Access Approved - Welcome to A1 Betting Platform';
 
-    const htmlContent = `
+    const _htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -346,7 +346,7 @@ This is an automated message. Please do not reply to this email.
       </html>
     `;
 
-    const textContent = `
+    const _textContent = `
 Welcome to A1 Betting Platform!
 
 Your Access Request Has Been Approved
@@ -386,9 +386,9 @@ This is an automated message. Please do not reply to this email.
    * Create email template for user invitation
    */
   private createInvitationTemplate(data: UserInvitationNotification): EmailTemplate {
-    const subject = `Invitation to join A1 Betting Platform`;
+    const _subject = `Invitation to join A1 Betting Platform`;
 
-    const htmlContent = `
+    const _htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -456,7 +456,7 @@ This is an automated message. Please do not reply to this email.
       </html>
     `;
 
-    const textContent = `
+    const _textContent = `
 You're Invited to Join A1 Betting Platform!
 
 Hi there!
@@ -495,9 +495,9 @@ This invitation was sent by ${data.invitedBy}
    * Create email template for user denial notification
    */
   private createDenialTemplate(data: AccessDenialNotification): EmailTemplate {
-    const subject = 'Access Request Update - A1 Betting Platform';
+    const _subject = 'Access Request Update - A1 Betting Platform';
 
-    const htmlContent = `
+    const _htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -549,7 +549,7 @@ This invitation was sent by ${data.invitedBy}
       </html>
     `;
 
-    const textContent = `
+    const _textContent = `
 A1 Betting Platform - Access Request Update
 
 Thank you for your interest in the A1 Betting Platform. After careful review, we are unable to approve your access request at this time.
@@ -607,7 +607,7 @@ HTML content would be rendered with styling in production.
 }
 
 // Export singleton instance
-export const emailNotificationService = new EmailNotificationService();
+export const _emailNotificationService = new EmailNotificationService();
 
 // Export class for testing
 export default EmailNotificationService;

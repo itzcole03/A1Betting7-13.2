@@ -19,7 +19,7 @@ export class FeatureEngineeringService {
 
   public async engineerFeatures(rawData: RawPlayerData[]): Promise<EngineeredFeatures> {
     // Feature engineering implementation
-    const features: EngineeredFeatures = {
+    const _features: EngineeredFeatures = {
       numerical: [],
       categorical: [],
       temporal: [],
@@ -31,7 +31,7 @@ export class FeatureEngineeringService {
     };
 
     // Process raw data and extract features
-    for (const data of rawData) {
+    for (const _data of rawData) {
       // Implement feature extraction logic
       features.numerical.push(...this.extractNumericalFeatures(data));
       features.categorical.push(...this.extractCategoricalFeatures(data));
@@ -65,7 +65,7 @@ export class FeatureEngineeringService {
   }
 }
 
-export const featureEngineeringService = new FeatureEngineeringService({
+export const _featureEngineeringService = new FeatureEngineeringService({
   version: '1.0.0',
   features: {
     numerical: true,

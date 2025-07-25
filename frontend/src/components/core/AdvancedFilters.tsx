@@ -53,7 +53,7 @@ interface AdvancedFiltersProps {
   isLoading?: boolean;
 }
 
-const MARKET_TYPES = [
+const _MARKET_TYPES = [
   'Moneyline',
   'Spread',
   'Total',
@@ -68,7 +68,7 @@ const MARKET_TYPES = [
   'Season Props',
 ];
 
-const SORT_OPTIONS = [
+const _SORT_OPTIONS = [
   { value: 'value', label: 'Best Value' },
   { value: 'odds', label: 'Odds' },
   { value: 'time', label: 'Game Time' },
@@ -76,7 +76,7 @@ const SORT_OPTIONS = [
   { value: 'popularity', label: 'Popularity' },
 ];
 
-const POPULAR_TAGS = [
+const _POPULAR_TAGS = [
   'High Value',
   'Live Betting',
   'Prime Time',
@@ -94,7 +94,7 @@ const POPULAR_TAGS = [
   'Rest Advantage',
 ];
 
-const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
+const _AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   filters,
   onFiltersChange,
   onSavePreset,
@@ -109,23 +109,23 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   const [presetName, setPresetName] = useState('');
   const [showSavePreset, setShowSavePreset] = useState(false);
 
-  const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
+  const _updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
     onFiltersChange({ ...filters, [key]: value });
   };
 
-  const toggleArrayFilter = <T extends string>(
+  const _toggleArrayFilter = <T extends string>(
     key: keyof FilterState,
     value: T,
     currentArray: T[]
   ) => {
-    const newArray = currentArray.includes(value)
+    const _newArray = currentArray.includes(value)
       ? currentArray.filter(item => item !== value)
       : [...currentArray, value];
     updateFilter(key as keyof FilterState, newArray as FilterState[keyof FilterState]);
   };
 
-  const clearAllFilters = () => {
-    const defaultFilters: FilterState = {
+  const _clearAllFilters = () => {
+    const _defaultFilters: FilterState = {
       sports: [],
       categories: [],
       seasons: [],
@@ -146,7 +146,7 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
     onFiltersChange(defaultFilters);
   };
 
-  const savePreset = () => {
+  const _savePreset = () => {
     if (presetName.trim() && onSavePreset) {
       onSavePreset(presetName.trim(), filters);
       setPresetName('');
@@ -155,8 +155,8 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
     }
   };
 
-  const getActiveFilterCount = (): number => {
-    let count = 0;
+  const _getActiveFilterCount = (): number => {
+    let _count = 0;
     if (filters.sports.length > 0) count++;
     if (filters.categories.length > 0) count++;
     if (filters.seasons.length > 0) count++;
@@ -172,7 +172,7 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
     return count;
   };
 
-  const FilterChip: React.FC<{
+  const _FilterChip: React.FC<{
     label: string;
     onRemove: () => void;
     color?: string;
@@ -267,7 +267,7 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
             className='flex flex-wrap gap-2'
           >
             {filters.sports.map(sport => {
-              const sportConfig = getSportById(sport);
+              const _sportConfig = getSportById(sport);
               return (
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <FilterChip
@@ -345,7 +345,7 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as unknown)}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
                     activeTab === tab.id
                       ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50'

@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import LockedBets from './LockedBets';
 
 // Mock fetch
-const mockBets = [
+const _mockBets = [
   {
     id: '1',
     sportsbook: 'PrizePicks',
@@ -34,7 +34,7 @@ global.fetch = jest.fn(url => {
     return Promise.resolve({ ok: true, json: () => Promise.resolve([mockBets[1]]) });
   }
   return Promise.resolve({ ok: false, json: () => Promise.resolve([]) });
-}) as any;
+}) as unknown;
 
 describe('LockedBets', () => {
   it('shows loading spinner initially', () => {
@@ -67,7 +67,7 @@ describe('LockedBets', () => {
   });
 
   it('shows empty message if no bets', async () => {
-    (global.fetch as any).mockImplementationOnce(() =>
+    (global.fetch as unknown).mockImplementationOnce(() =>
       Promise.resolve({ ok: true, json: () => Promise.resolve([]) })
     );
     render(<LockedBets />);
@@ -75,7 +75,7 @@ describe('LockedBets', () => {
   });
 
   it('shows error toast on fetch error', async () => {
-    (global.fetch as any).mockImplementationOnce(() =>
+    (global.fetch as unknown).mockImplementationOnce(() =>
       Promise.resolve({ ok: false, json: () => Promise.resolve([]) })
     );
     render(<LockedBets />);

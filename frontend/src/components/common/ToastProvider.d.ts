@@ -2,5 +2,5 @@
 interface ToastProviderProps {
   children: ReactNode;
 }
-declare const ToastProvider: React.FC<ToastProviderProps>;
+declare const _ToastProvider: React.FC<ToastProviderProps>;
 export { ToastProvider };

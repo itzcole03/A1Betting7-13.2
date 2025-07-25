@@ -14,7 +14,7 @@ export interface LoadingOverlayProps {
   onCancel?: () => void; // Optional cancel function
 }
 
-export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
+export const _LoadingOverlay: React.FC<LoadingOverlayProps> = ({
   isLoading,
   variant = 'default',
   size = 'md',
@@ -25,20 +25,20 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
   children,
   onCancel,
 }) => {
-  const sizeConfig = {
+  const _sizeConfig = {
     sm: { spinner: 'w-6 h-6', text: 'text-sm', container: 'p-4' },
     md: { spinner: 'w-8 h-8', text: 'text-base', container: 'p-6' },
     lg: { spinner: 'w-12 h-12', text: 'text-lg', container: 'p-8' },
     xl: { spinner: 'w-16 h-16', text: 'text-xl', container: 'p-12' },
   };
 
-  const backdropClasses = {
+  const _backdropClasses = {
     blur: 'backdrop-blur-md bg-black/60',
     solid: 'bg-slate-900/90',
     transparent: 'bg-transparent',
   };
 
-  const getVariantConfig = () => {
+  const _getVariantConfig = () => {
     switch (variant) {
       case 'cyber':
         return {
@@ -88,10 +88,10 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
     }
   };
 
-  const config = getVariantConfig();
-  const IconComponent = config.icon;
+  const _config = getVariantConfig();
+  const _IconComponent = config.icon;
 
-  const overlayVariants = {
+  const _overlayVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -103,7 +103,7 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
     },
   };
 
-  const contentVariants = {
+  const _contentVariants = {
     hidden: {
       opacity: 0,
       scale: 0.8,
@@ -129,7 +129,7 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
     },
   };
 
-  const spinnerVariants = {
+  const _spinnerVariants = {
     spin: {
       rotate: 360,
       transition: {
@@ -149,7 +149,7 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
     },
   };
 
-  const matrixVariants = {
+  const _matrixVariants = {
     float: {
       y: [0, -10, 0],
       rotate: [0, 5, -5, 0],

@@ -1,3 +1,3 @@
 ﻿import { RealTimeUpdateService } from './realTimeUpdateService.js';
-declare const rtu: RealTimeUpdateService;
+declare const _rtu: RealTimeUpdateService;
 export default rtu;

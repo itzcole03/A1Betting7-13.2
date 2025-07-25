@@ -54,13 +54,13 @@ export class PerformanceTrackingService extends EventEmitter {
   }
 
   public getPerformanceMetrics(timeRange?: { start: number; end: number }): PerformanceMetrics {
-    let relevantBets = this.betHistory;
+    let _relevantBets = this.betHistory;
     if (timeRange) {
       relevantBets = this.betHistory.filter(
         bet => bet.timestamp >= timeRange.start && bet.timestamp <= timeRange.end
       );
     }
-    const metrics: PerformanceMetrics = {
+    const _metrics: PerformanceMetrics = {
       winRate: this.calculateWinRate(relevantBets),
       roi: this.calculateROI(relevantBets),
       totalBets: relevantBets.length,
@@ -85,7 +85,7 @@ export class PerformanceTrackingService extends EventEmitter {
   // Private helper methods;
   private calculateWinRate(bets: BetResult[]): number {
     if (bets.length === 0) return 0;
-    let wins = 0;
+    let _wins = 0;
     bets.forEach(bet => {
       if (bet.isWin) wins++;
     });
@@ -94,8 +94,8 @@ export class PerformanceTrackingService extends EventEmitter {
 
   private calculateROI(bets: BetResult[]): number {
     if (bets.length === 0) return 0;
-    let totalProfit = 0;
-    let totalStake = 0;
+    let _totalProfit = 0;
+    let _totalStake = 0;
     bets.forEach(bet => {
       totalProfit += bet.profitLoss;
       totalStake += bet.stakeAmount;
@@ -109,7 +109,7 @@ export class PerformanceTrackingService extends EventEmitter {
 
   private calculateAverageStake(bets: BetResult[]): number {
     if (bets.length === 0) return 0;
-    let totalStake = 0;
+    let _totalStake = 0;
     bets.forEach(bet => {
       totalStake += bet.stakeAmount;
     });
@@ -117,9 +117,9 @@ export class PerformanceTrackingService extends EventEmitter {
   }
 
   private calculateStreaks(bets: BetResult[]): { current: number; longest: number } {
-    let current = 0;
-    let longest = 0;
-    let isWinStreak = false;
+    let _current = 0;
+    let _longest = 0;
+    let _isWinStreak = false;
     bets.forEach((bet, index) => {
       if (index === 0) {
         current = 1;
@@ -137,9 +137,9 @@ export class PerformanceTrackingService extends EventEmitter {
   }
 
   private calculateMetricsByConfidence(bets: BetResult[]): PerformanceMetrics['byConfidence'] {
-    const confidenceBuckets: PerformanceMetrics['byConfidence'] = {};
+    const _confidenceBuckets: PerformanceMetrics['byConfidence'] = {};
     bets.forEach(bet => {
-      const key = String((bet.prediction as any)?.confidence ?? 'unknown');
+      const _key = String((bet.prediction as unknown)?.confidence ?? 'unknown');
       if (!confidenceBuckets[key]) {
         confidenceBuckets[key] = {
           winRate: 0,
@@ -158,7 +158,7 @@ export class PerformanceTrackingService extends EventEmitter {
 
   private updateMetrics(): void {
     // Stub metrics for now
-    const metrics: PerformanceMetrics = {
+    const _metrics: PerformanceMetrics = {
       winRate: 0,
       roi: 0,
       totalBets: 0,

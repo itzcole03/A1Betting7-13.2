@@ -1,6 +1,9 @@
-import { refereeService, RefereeStats } from '../../RefereeService';
+import { _refereeService as refereeService, RefereeStats } from '../../RefereeService';
+import axios from 'axios';
 
-global.fetch = jest.fn();
+jest.mock('axios');
+
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe('RefereeService', () => {
   beforeEach(() => {
@@ -8,76 +11,75 @@ describe('RefereeService', () => {
   });
 
   it('fetches referee stats', async () => {
-    // @ts-expect-error TS(2304): Cannot find name 'refereeId'.
+    const refereeId = 'testRef123';
     const mockStats: RefereeStats = { id: refereeId, name: 'John Doe', foulRate: 3.2 };
-    (fetch as jest.Mock).mockResolvedValue({ ok: true, json: async () => mockStats });
+    mockedAxios.get.mockResolvedValueOnce({ data: mockStats });
 
-    // @ts-expect-error TS(2552): Cannot find name 'stats'. Did you mean 'status'?
+    const stats = await refereeService.getRefereeStats(refereeId);
     expect(stats).toEqual(mockStats);
-    expect(fetch).toHaveBeenCalled();
+    expect(mockedAxios.get).toHaveBeenCalledWith(`/api/referee/${refereeId}/stats`);
   });
 
   it('throws on referee stats fetch failure', async () => {
-    (fetch as jest.Mock).mockResolvedValue({ ok: false, statusText: 'Not Found' });
-    // @ts-expect-error TS(2304): Cannot find name 'refereeId'.
+    mockedAxios.get.mockRejectedValueOnce(new Error('Not Found'));
+    const refereeId = 'testRef123';
     await expect(refereeService.getRefereeStats(refereeId)).rejects.toThrow(
-      'Failed to fetch referee stats: Not Found'
+      'Not Found'
     );
   });
 
   it('fetches batch referee stats', async () => {
-    // @ts-expect-error TS(2339): Property '0' does not exist on type 'RefereeStats'... Remove this comment to see the full error message
-    const mockStats: RefereeStats[0] = [
+    const mockStats: RefereeStats[] = [
       { id: 'ref123', name: 'John Doe', foulRate: 3.2 },
       { id: 'ref456', name: 'Jane Smith', foulRate: 2.8 },
     ];
-    (fetch as jest.Mock).mockResolvedValue({ ok: true, json: async () => mockStats });
+    mockedAxios.post.mockResolvedValueOnce({ data: mockStats });
 
-    // @ts-expect-error TS(2552): Cannot find name 'stats'. Did you mean 'status'?
+    const refereeIds = ['ref123', 'ref456'];
+    const stats = await refereeService.getRefereeStatsBatch(refereeIds);
     expect(stats).toEqual(mockStats);
-    expect(fetch).toHaveBeenCalled();
+    expect(mockedAxios.post).toHaveBeenCalledWith(`/api/referee/batch-stats`, { ids: refereeIds });
   });
 
   it('throws on batch referee stats fetch failure', async () => {
-    (fetch as jest.Mock).mockResolvedValue({ ok: false, statusText: 'Server Error' });
-    // @ts-expect-error TS(2304): Cannot find name 'refereeIds'.
+    mockedAxios.post.mockRejectedValueOnce(new Error('Server Error'));
+    const refereeIds = ['ref123', 'ref456'];
     await expect(refereeService.getRefereeStatsBatch(refereeIds)).rejects.toThrow(
-      'Failed to fetch referee stats batch: Server Error'
+      'Server Error'
     );
   });
 
   it('searches referees', async () => {
-    // @ts-expect-error TS(2339): Property '0' does not exist on type 'RefereeStats'... Remove this comment to see the full error message
-    const mockStats: RefereeStats[0] = [{ id: 'ref123', name: 'John Doe', foulRate: 3.2 }];
-    (fetch as jest.Mock).mockResolvedValue({ ok: true, json: async () => mockStats });
+    const mockStats: RefereeStats[] = [{ id: 'ref123', name: 'John Doe', foulRate: 3.2 }];
+    mockedAxios.get.mockResolvedValueOnce({ data: mockStats });
 
-    // @ts-expect-error TS(2552): Cannot find name 'stats'. Did you mean 'status'?
+    const stats = await refereeService.searchReferees('John');
     expect(stats).toEqual(mockStats);
-    expect(fetch).toHaveBeenCalled();
+    expect(mockedAxios.get).toHaveBeenCalledWith(`/api/referee/search?query=John`);
   });
 
   it('throws on search referees failure', async () => {
-    (fetch as jest.Mock).mockResolvedValue({ ok: false, statusText: 'Bad Request' });
-    // @ts-expect-error TS(2339): Property 'searchReferees' does not exist on type '... Remove this comment to see the full error message
+    mockedAxios.get.mockRejectedValueOnce(new Error('Bad Request'));
     await expect(refereeService.searchReferees('John')).rejects.toThrow(
-      'Failed to search referees: Bad Request'
+      'Bad Request'
     );
   });
 
   it('fetches referee modeling', async () => {
-    // @ts-expect-error TS(2304): Cannot find name 'mockModeling'.
-    (fetch as jest.Mock).mockResolvedValue({ ok: true, json: async () => mockModeling });
+    const mockModeling = { id: 'testRef123', modelData: 'some modeling data' };
+    mockedAxios.get.mockResolvedValueOnce({ data: mockModeling });
 
-    // @ts-expect-error TS(2304): Cannot find name 'modeling'.
+    const refereeId = 'testRef123';
+    const modeling = await refereeService.getRefereeModeling(refereeId);
     expect(modeling).toEqual(mockModeling);
-    expect(fetch).toHaveBeenCalled();
+    expect(mockedAxios.get).toHaveBeenCalledWith(`/api/referee/${refereeId}/modeling`);
   });
 
   it('throws on referee modeling fetch failure', async () => {
-    (fetch as jest.Mock).mockResolvedValue({ ok: false, statusText: 'Not Found' });
-    // @ts-expect-error TS(2339): Property 'getRefereeModeling' does not exist on ty... Remove this comment to see the full error message
+    mockedAxios.get.mockRejectedValueOnce(new Error('Not Found'));
+    const refereeId = 'testRef123';
     await expect(refereeService.getRefereeModeling(refereeId)).rejects.toThrow(
-      'Failed to fetch referee modeling: Not Found'
+      'Not Found'
     );
   });
 });

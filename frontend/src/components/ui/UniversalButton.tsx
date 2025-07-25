@@ -35,14 +35,14 @@ interface UniversalButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElem
   asChild?: boolean;
 }
 
-const getVariantClasses = (
+const _getVariantClasses = (
   variant: string,
   props: { gradient?: boolean; glowIntensity?: string }
 ) => {
-  const baseClasses =
+  const _baseClasses =
     'inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
 
-  const variants = {
+  const _variants = {
     default: cn(
       baseClasses,
       props.gradient
@@ -117,8 +117,8 @@ const getVariantClasses = (
   return variants[variant as keyof typeof variants] || variants.default;
 };
 
-const getSizeClasses = (size: string) => {
-  const sizes = {
+const _getSizeClasses = (size: string) => {
+  const _sizes = {
     xs: 'h-6 px-2 text-xs',
     sm: 'h-8 px-3 text-sm',
     md: 'h-10 px-4 text-base',
@@ -129,8 +129,8 @@ const getSizeClasses = (size: string) => {
   return sizes[size as keyof typeof sizes] || sizes.md;
 };
 
-const getRoundedClasses = (rounded: string) => {
-  const roundedClasses = {
+const _getRoundedClasses = (rounded: string) => {
+  const _roundedClasses = {
     none: 'rounded-none',
     sm: 'rounded-sm',
     md: 'rounded-md',
@@ -140,12 +140,12 @@ const getRoundedClasses = (rounded: string) => {
   return roundedClasses[rounded as keyof typeof roundedClasses] || roundedClasses.md;
 };
 
-const getShadowClasses = (shadow: string, variant: string) => {
+const _getShadowClasses = (shadow: string, variant: string) => {
   if (variant === 'cyber' || variant === 'glow' || variant === 'neon') {
     return ''; // These variants have built-in shadows
   }
 
-  const shadows = {
+  const _shadows = {
     none: '',
     sm: 'shadow-sm',
     md: 'shadow-md',
@@ -156,8 +156,8 @@ const getShadowClasses = (shadow: string, variant: string) => {
   return shadows[shadow as keyof typeof shadows] || '';
 };
 
-const getAnimationClasses = (animation: string) => {
-  const animations = {
+const _getAnimationClasses = (animation: string) => {
+  const _animations = {
     none: '',
     hover: 'hover:scale-105 active:scale-95',
     bounce: 'hover:animate-bounce',
@@ -170,7 +170,7 @@ const getAnimationClasses = (animation: string) => {
   return animations[animation as keyof typeof animations] || '';
 };
 
-export const UniversalButton = forwardRef<HTMLButtonElement, UniversalButtonProps>(
+export const _UniversalButton = forwardRef<HTMLButtonElement, UniversalButtonProps>(
   (
     {
       className,
@@ -195,9 +195,9 @@ export const UniversalButton = forwardRef<HTMLButtonElement, UniversalButtonProp
     },
     ref
   ) => {
-    const isDisabled = disabled || loading;
+    const _isDisabled = disabled || loading;
 
-    const buttonClasses = cn(
+    const _buttonClasses = cn(
       getVariantClasses(variant, { gradient, glowIntensity }),
       getSizeClasses(size),
       getRoundedClasses(rounded),
@@ -209,7 +209,7 @@ export const UniversalButton = forwardRef<HTMLButtonElement, UniversalButtonProp
       className
     );
 
-    const renderContent = () => {
+    const _renderContent = () => {
       if (loading) {
         return (
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -327,53 +327,53 @@ export const UniversalButton = forwardRef<HTMLButtonElement, UniversalButtonProp
 UniversalButton.displayName = 'UniversalButton';
 
 // Preset button components for common use cases
-export const PrimaryButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
+export const _PrimaryButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   (props, ref) => <UniversalButton ref={ref} variant='default' {...props} />
 );
 
-export const SecondaryButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
+export const _SecondaryButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   (props, ref) => <UniversalButton ref={ref} variant='secondary' {...props} />
 );
 
-export const DangerButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
+export const _DangerButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   (props, ref) => <UniversalButton ref={ref} variant='destructive' {...props} />
 );
 
-export const CyberButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
+export const _CyberButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   (props, ref) => <UniversalButton ref={ref} variant='cyber' {...props} />
 );
 
-export const GlowButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
+export const _GlowButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   (props, ref) => <UniversalButton ref={ref} variant='glow' {...props} />
 );
 
-export const GlassButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
+export const _GlassButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   (props, ref) => <UniversalButton ref={ref} variant='glass' {...props} />
 );
 
-export const NeonButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
+export const _NeonButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   (props, ref) => <UniversalButton ref={ref} variant='neon' {...props} />
 );
 
-export const QuantumButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
+export const _QuantumButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   (props, ref) => <UniversalButton ref={ref} variant='quantum' {...props} />
 );
 
-export const PremiumButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
+export const _PremiumButton = forwardRef<HTMLButtonElement, Omit<UniversalButtonProps, 'variant'>>(
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   (props, ref) => <UniversalButton ref={ref} variant='premium' {...props} />
 );
 
 // Loading button with built-in states
-export const LoadingButton = forwardRef<
+export const _LoadingButton = forwardRef<
   HTMLButtonElement,
   UniversalButtonProps & {
     isLoading?: boolean;
@@ -392,7 +392,7 @@ export const LoadingButton = forwardRef<
 ));
 
 // Icon button for icon-only use cases
-export const IconButton = forwardRef<
+export const _IconButton = forwardRef<
   HTMLButtonElement,
   Omit<UniversalButtonProps, 'size' | 'children'> & {
     icon: React.ReactNode;

@@ -24,7 +24,7 @@ export declare class FinalPredictionEngineImpl implements FinalPredictionEngine 
   generatePrediction(
     modelOutputs: ModelOutput[0],
     riskProfile: RiskProfile,
-    context?: Record<string, any>
+    context?: Record<string, unknown>
   ): Promise<FinalPrediction>;
   private validateModelOutputs;
   private validateRiskProfile;

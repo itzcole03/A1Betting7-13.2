@@ -2,7 +2,7 @@ import React from 'react';
 // @ts-expect-error TS(6142): Module './Card' was resolved to 'C:/Users/bcmad/Do... Remove this comment to see the full error message
 import { Card, CardContent, CardHeader } from './Card';
 
-const mockStats = [
+const _mockStats = [
   { label: 'Total Bets', value: 128 },
   { label: 'Total Wagered', value: '$12,400' },
   { label: 'Total Won', value: '$18,420' },
@@ -16,7 +16,7 @@ const mockStats = [
  * Modern, accessible display of key betting statistics for the A1Betting platform.
  * Shows total bets, wagered, won, and more.
  */
-export const BettingStats: React.FC = () => {
+export const _BettingStats: React.FC = () => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <Card className='max-w-2xl mx-auto'>

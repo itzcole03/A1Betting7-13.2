@@ -83,7 +83,7 @@ class RealTimeAnalysisService {
   constructor() {
     // Determine base URL based on environment
     if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname;
+      const _hostname = window.location.hostname;
       if (hostname === 'localhost' || hostname === '127.0.0.1') {
         this.baseUrl = 'http://localhost:8000/api/analysis';
       } else {
@@ -96,11 +96,11 @@ class RealTimeAnalysisService {
   }
 
   private async fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    const _controller = new AbortController();
+    const _timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
     try {
-      const response = await fetch(url, {
+      const _response = await fetch(url, {
         ...options,
         signal: controller.signal,
         headers: {
@@ -128,7 +128,7 @@ class RealTimeAnalysisService {
     try {
       console.log('🚀 Starting comprehensive multi-sport analysis...');
 
-      const response = await this.fetchWithTimeout(`${this.baseUrl}/start`, {
+      const _response = await this.fetchWithTimeout(`${this.baseUrl}/start`, {
         method: 'POST',
         body: JSON.stringify({
           sports: request.sports,
@@ -139,11 +139,11 @@ class RealTimeAnalysisService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: response.statusText }));
+        const _errorData = await response.json().catch(() => ({ detail: response.statusText }));
         throw new Error(errorData.detail || `HTTP ${response.status}`);
       }
 
-      const data: AnalysisResponse = await response.json();
+      const _data: AnalysisResponse = await response.json();
 
       console.log(`✅ Analysis started: ${data.analysis_id}`);
       return data;
@@ -160,14 +160,14 @@ class RealTimeAnalysisService {
    */
   async getAnalysisProgress(analysisId: string): Promise<AnalysisProgress> {
     try {
-      const response = await this.fetchWithTimeout(`${this.baseUrl}/progress/${analysisId}`);
+      const _response = await this.fetchWithTimeout(`${this.baseUrl}/progress/${analysisId}`);
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: response.statusText }));
+        const _errorData = await response.json().catch(() => ({ detail: response.statusText }));
         throw new Error(errorData.detail || `HTTP ${response.status}`);
       }
 
-      const progress: AnalysisProgress = await response.json();
+      const _progress: AnalysisProgress = await response.json();
       return progress;
     } catch (error) {
       console.error('❌ Failed to get analysis progress:', error);
@@ -186,15 +186,15 @@ class RealTimeAnalysisService {
     minConfidence: number = 80.0
   ): Promise<BetOpportunity[]> {
     try {
-      const url = `${this.baseUrl}/results/${analysisId}/opportunities?limit=${limit}&min_confidence=${minConfidence}`;
-      const response = await this.fetchWithTimeout(url);
+      const _url = `${this.baseUrl}/results/${analysisId}/opportunities?limit=${limit}&min_confidence=${minConfidence}`;
+      const _response = await this.fetchWithTimeout(url);
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: response.statusText }));
+        const _errorData = await response.json().catch(() => ({ detail: response.statusText }));
         throw new Error(errorData.detail || `HTTP ${response.status}`);
       }
 
-      const opportunities: BetOpportunity[] = await response.json();
+      const _opportunities: BetOpportunity[] = await response.json();
 
       console.log(`📊 Retrieved ${opportunities.length} betting opportunities`);
       return opportunities;
@@ -214,15 +214,15 @@ class RealTimeAnalysisService {
     lineupSizes: number[] = [6, 10]
   ): Promise<OptimalLineup[]> {
     try {
-      const url = `${this.baseUrl}/results/${analysisId}/lineups?${lineupSizes.map(size => `lineup_sizes=${size}`).join('&')}`;
-      const response = await this.fetchWithTimeout(url);
+      const _url = `${this.baseUrl}/results/${analysisId}/lineups?${lineupSizes.map(size => `lineup_sizes=${size}`).join('&')}`;
+      const _response = await this.fetchWithTimeout(url);
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: response.statusText }));
+        const _errorData = await response.json().catch(() => ({ detail: response.statusText }));
         throw new Error(errorData.detail || `HTTP ${response.status}`);
       }
 
-      const lineups: OptimalLineup[] = await response.json();
+      const _lineups: OptimalLineup[] = await response.json();
 
       console.log(`🎯 Retrieved ${lineups.length} optimal lineups`);
       return lineups;
@@ -239,13 +239,13 @@ class RealTimeAnalysisService {
    */
   async getSupportedSports(): Promise<string[]> {
     try {
-      const response = await this.fetchWithTimeout(`${this.baseUrl}/sports`);
+      const _response = await this.fetchWithTimeout(`${this.baseUrl}/sports`);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
 
-      const sports: string[] = await response.json();
+      const _sports: string[] = await response.json();
       return sports;
     } catch (error) {
       console.error('❌ Failed to get supported sports:', error);
@@ -259,13 +259,13 @@ class RealTimeAnalysisService {
    */
   async getSystemStatus(): Promise<SystemStatus> {
     try {
-      const response = await this.fetchWithTimeout(`${this.baseUrl}/status`);
+      const _response = await this.fetchWithTimeout(`${this.baseUrl}/status`);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
 
-      const status: SystemStatus = await response.json();
+      const _status: SystemStatus = await response.json();
       return status;
     } catch (error) {
       // Silently handle API unavailability - this is expected in development
@@ -287,12 +287,12 @@ class RealTimeAnalysisService {
   async *monitorAnalysisProgress(
     analysisId: string
   ): AsyncGenerator<AnalysisProgress, void, unknown> {
-    const pollInterval = 2000; // Poll every 2 seconds
-    let isCompleted = false;
+    const _pollInterval = 2000; // Poll every 2 seconds
+    let _isCompleted = false;
 
     while (!isCompleted) {
       try {
-        const progress = await this.getAnalysisProgress(analysisId);
+        const _progress = await this.getAnalysisProgress(analysisId);
         yield progress;
 
         // Check if analysis is completed
@@ -314,4 +314,4 @@ class RealTimeAnalysisService {
 }
 
 // Export singleton instance
-export const realTimeAnalysisService = new RealTimeAnalysisService();
+export const _realTimeAnalysisService = new RealTimeAnalysisService();

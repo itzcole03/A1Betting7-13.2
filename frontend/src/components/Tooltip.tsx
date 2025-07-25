@@ -23,7 +23,7 @@ interface TooltipProps {
  * @param className - Additional CSS classes
  * @param disabled - Whether tooltip is disabled
  */
-export const Tooltip: React.FC<TooltipProps> = ({
+export const _Tooltip: React.FC<TooltipProps> = ({
   content,
   children,
   position = 'top',
@@ -34,9 +34,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const [isVisible, setIsVisible] = useState(false);
   const [showTimeout, setShowTimeout] = useState<NodeJS.Timeout | null>(null);
   const [hideTimeout, setHideTimeout] = useState<NodeJS.Timeout | null>(null);
-  const triggerRef = useRef<HTMLDivElement>(null);
+  const _triggerRef = useRef<HTMLDivElement>(null);
 
-  const showTooltip = () => {
+  const _showTooltip = () => {
     if (disabled) return;
 
     if (hideTimeout) {
@@ -44,20 +44,20 @@ export const Tooltip: React.FC<TooltipProps> = ({
       setHideTimeout(null);
     }
 
-    const timeout = setTimeout(() => {
+    const _timeout = setTimeout(() => {
       setIsVisible(true);
     }, delay);
 
     setShowTimeout(timeout);
   };
 
-  const hideTooltip = () => {
+  const _hideTooltip = () => {
     if (showTimeout) {
       clearTimeout(showTimeout);
       setShowTimeout(null);
     }
 
-    const timeout = setTimeout(() => {
+    const _timeout = setTimeout(() => {
       setIsVisible(false);
     }, 100);
 
@@ -71,7 +71,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     };
   }, [showTimeout, hideTimeout]);
 
-  const getPositionClasses = () => {
+  const _getPositionClasses = () => {
     switch (position) {
       case 'top':
         return 'bottom-full left-1/2 transform -translate-x-1/2 mb-2';
@@ -86,7 +86,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
-  const getArrowClasses = () => {
+  const _getArrowClasses = () => {
     switch (position) {
       case 'top':
         return 'top-full left-1/2 transform -translate-x-1/2 border-l-transparent border-r-transparent border-b-transparent border-t-gray-800';

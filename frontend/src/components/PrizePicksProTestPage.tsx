@@ -2,13 +2,13 @@ import React from 'react';
 // @ts-expect-error TS(6142): Module './PrizePicksProUnified' was resolved to 'C... Remove this comment to see the full error message
 import { PrizePicksProUnified } from './PrizePicksProUnified';
 
-export const PrizePicksProTestPage: React.FC = () => {
-  const handleLineupGenerated = (lineup: any) => {
+export const _PrizePicksProTestPage: React.FC = () => {
+  const _handleLineupGenerated = (lineup: unknown) => {
     console.log('Lineup generated:', lineup);
     // In production, this would handle the optimized lineup
   };
 
-  const handleBetPlaced = (lineup: any) => {
+  const _handleBetPlaced = (lineup: unknown) => {
     console.log('Bet placed:', lineup);
     // In production, this would submit the bet to PrizePicks
     alert(`Bet placed! Expected payout: ${lineup.expected_payout.toFixed(2)}x`);

@@ -4,9 +4,9 @@
  */
 export interface WebSocketContextType {
   connected: boolean;
-  send: (msg: any) => void;
-  subscribe: (event: string, handler: (data: any) => void) => void;
-  unsubscribe: (event: string, handler: (data: any) => void) => void;
+  send: (msg: unknown) => void;
+  subscribe: (event: string, handler: (data: unknown) => void) => void;
+  unsubscribe: (event: string, handler: (data: unknown) => void) => void;
 }
 
 export {};

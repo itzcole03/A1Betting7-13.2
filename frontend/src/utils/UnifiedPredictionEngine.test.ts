@@ -3,12 +3,12 @@ import { PredictionContext, UnifiedPredictionEngine } from '@/core/UnifiedPredic
 import { BettingOpportunity, MarketUpdate } from '@/types/core';
 import { jest } from '@jest/globals';
 
-const traceHandler = jest.fn();
+const _traceHandler = jest.fn();
 
 describe('UnifiedPredictionEngine', () => {
-  let predictionEngine: UnifiedPredictionEngine;
-  let eventBus: EventBus;
-  const eventHandler = jest.fn();
+  let _predictionEngine: UnifiedPredictionEngine;
+  let _eventBus: EventBus;
+  const _eventHandler = jest.fn();
 
   beforeEach(() => {
     predictionEngine = UnifiedPredictionEngine.getInstance();
@@ -17,7 +17,7 @@ describe('UnifiedPredictionEngine', () => {
 
   describe('generatePrediction', () => {
     it('should generate a valid betting opportunity', async () => {
-      const context: PredictionContext = {
+      const _context: PredictionContext = {
         playerId: 'player-1',
         metric: 'points',
         timestamp: Date.now(),
@@ -44,7 +44,7 @@ describe('UnifiedPredictionEngine', () => {
         ],
       };
 
-      const opportunity = await predictionEngine.getPredictions(context);
+      const _opportunity = await predictionEngine.getPredictions(context);
 
       expect(opportunity).toBeDefined();
       expect(opportunity.id).toBeDefined();
@@ -63,7 +63,7 @@ describe('UnifiedPredictionEngine', () => {
     it('should emit prediction:update event', async () => {
       eventBus.on('prediction:update', eventHandler);
 
-      const context: PredictionContext = {
+      const _context: PredictionContext = {
         playerId: 'player-1',
         metric: 'points',
         timestamp: Date.now(),
@@ -77,12 +77,12 @@ describe('UnifiedPredictionEngine', () => {
       await predictionEngine.getPredictions(context);
 
       expect(eventHandler).toHaveBeenCalled();
-      const opportunity: BettingOpportunity = eventHandler.mock.calls[0][0];
+      const _opportunity: BettingOpportunity = eventHandler.mock.calls[0][0];
       expect(opportunity.propId).toBe(`${context.playerId}:${context.metric}`);
     });
 
     it('should handle market updates', async () => {
-      const update: MarketUpdate = {
+      const _update: MarketUpdate = {
         id: 'market-1',
         type: 'odds_update',
         timestamp: Date.now(),
@@ -108,27 +108,27 @@ describe('UnifiedPredictionEngine', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
 
       expect(eventHandler).toHaveBeenCalled();
-      const opportunity: BettingOpportunity = eventHandler.mock.calls[0][0];
+      const _opportunity: BettingOpportunity = eventHandler.mock.calls[0][0];
       expect(opportunity.propId).toBe('player-1: points');
     });
   });
 
   describe('error handling', () => {
     it('should handle invalid prediction context', async () => {
-      const context: PredictionContext = {
+      const _context: PredictionContext = {
         playerId: '',
         metric: '',
         timestamp: Date.now(),
       };
 
-      const error = new Error('prediction_generation');
+      const _error = new Error('prediction_generation');
       error.stack = 'mock stack';
 
       await expect(predictionEngine.getPredictions(context)).rejects.toThrow(error);
     });
 
     it('should handle missing historical data gracefully', async () => {
-      const context: PredictionContext = {
+      const _context: PredictionContext = {
         playerId: 'player-1',
         metric: 'points',
         timestamp: Date.now(),
@@ -139,7 +139,7 @@ describe('UnifiedPredictionEngine', () => {
         },
       };
 
-      const opportunity = await predictionEngine.getPredictions(context);
+      const _opportunity = await predictionEngine.getPredictions(context);
 
       expect(opportunity).toBeDefined();
       expect(opportunity.confidence).toBeLessThan(0.8); // Lower confidence due to missing data;
@@ -148,7 +148,7 @@ describe('UnifiedPredictionEngine', () => {
 
   describe('performance monitoring', () => {
     it('should track prediction generation time', async () => {
-      const context: PredictionContext = {
+      const _context: PredictionContext = {
         playerId: 'player-1',
         metric: 'points',
         timestamp: Date.now(),

@@ -1,2 +1,2 @@
 import React from 'react.ts';
-export declare const NotificationCenter: React.FC;
+export declare const _NotificationCenter: React.FC;

@@ -5,7 +5,7 @@ import './A1BettingPreview.css';
  * LiveBettingTab - Displays live games, odds, and a real-time feed for in-play betting.
  * Used as the Live Betting tab in A1BettingPreview.
  */
-const LiveBettingTab: React.FC = () => (
+const _LiveBettingTab: React.FC = () => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div className='livebetting-tab'>
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

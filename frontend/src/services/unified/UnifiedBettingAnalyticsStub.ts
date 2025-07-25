@@ -8,7 +8,7 @@ export type BetRecommendation = {
   expectedValue: number;
   riskLevel: 'low' | 'medium' | 'high';
   riskFactors: string[];
-  hedgingOpportunities: any[];
+  hedgingOpportunities: unknown[];
 };
 
 export class UnifiedBettingAnalyticsStub {

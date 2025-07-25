@@ -8,11 +8,11 @@ export interface SkeletonProps {
 }
 declare const _default: React.NamedExoticComponent<SkeletonProps>;
 export default _default;
-export declare const SkeletonText: React.FC<
+export declare const _SkeletonText: React.FC<
   {
     lines?: number;
   } & Omit<SkeletonProps, 'variant'>
 >;
-export declare const SkeletonCard: React.FC<{
+export declare const _SkeletonCard: React.FC<{
   rows?: number;
 }>;

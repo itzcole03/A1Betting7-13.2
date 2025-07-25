@@ -23,7 +23,7 @@ interface UseBettingDataOptions {
   autoRefresh?: boolean;
   refreshInterval?: number;
   minOddsChange?: number;
-  onNewOpportunity?: (opportunity: any) => void;
+  onNewOpportunity?: (opportunity: unknown) => void;
 }
 
 interface BettingDataState {
@@ -36,7 +36,7 @@ interface BettingDataState {
   lastUpdated: string | null;
 }
 
-export const useBettingData = ({
+export const _useBettingData = ({
   sport,
   propType,
   autoRefresh = true,
@@ -60,7 +60,7 @@ export const useBettingData = ({
   /**
    * Fetch initial betting data from backend
    */
-  const fetchData = useCallback(async () => {
+  const _fetchData = useCallback(async () => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
@@ -74,7 +74,7 @@ export const useBettingData = ({
       ]);
 
       // Process PrizePicks props
-      let propsData: PlayerProp[] = [];
+      let _propsData: PlayerProp[] = [];
       if (propsResponse.status === 'fulfilled') {
         propsData = propsResponse.value.data || [];
         //         console.log(`✅ Fetched ${propsData.length} PrizePicks props`);
@@ -83,7 +83,7 @@ export const useBettingData = ({
       }
 
       // Process betting opportunities
-      let opportunitiesData: Opportunity[] = [];
+      let _opportunitiesData: Opportunity[] = [];
       if (opportunitiesResponse.status === 'fulfilled') {
         opportunitiesData = opportunitiesResponse.value.data || [];
         //         console.log(`✅ Fetched ${opportunitiesData.length} betting opportunities`);
@@ -93,7 +93,7 @@ export const useBettingData = ({
 
       // Process unified data for additional context
       if (unifiedResponse.status === 'fulfilled') {
-        const unifiedData = unifiedResponse.value.data;
+        const _unifiedData = unifiedResponse.value.data;
         //         console.log('✅ Fetched unified data:', Object.keys(unifiedData || {}));
 
         // Merge additional data if available
@@ -135,7 +135,7 @@ export const useBettingData = ({
     } catch (error) {
       //       console.error('❌ Failed to fetch betting data:', error);
 
-      const apiError = error as ApiError;
+      const _apiError = error as ApiError;
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -149,15 +149,15 @@ export const useBettingData = ({
   /**
    * Handle WebSocket messages for real-time updates
    */
-  const handleWebSocketMessage = useCallback(
+  const _handleWebSocketMessage = useCallback(
     (message: unknown) => {
       if (typeof message !== 'object' || message === null) return;
 
-      const msg = message as any;
+      const _msg = message as unknown;
 
       switch (msg.type) {
         case 'prop_update': {
-          const data = msg.data as PlayerProp;
+          const _data = msg.data as PlayerProp;
           if (!data) return;
 
           // Apply filters
@@ -167,8 +167,8 @@ export const useBettingData = ({
           if (propType && data.stat_type?.toLowerCase() !== propType.toLowerCase()) return;
 
           setState(prev => {
-            const updated = [...prev.props];
-            const index = updated.findIndex(p => p.id === data.id);
+            const _updated = [...prev.props];
+            const _index = updated.findIndex(p => p.id === data.id);
 
             if (index === -1) {
               // Add new prop
@@ -190,7 +190,7 @@ export const useBettingData = ({
         }
 
         case 'odds_update': {
-          const update = msg.data as OddsUpdate & {
+          const _update = msg.data as OddsUpdate & {
             sport?: string;
             propType?: string;
             propName?: string;
@@ -201,9 +201,9 @@ export const useBettingData = ({
           if (sport && update.sport !== sport) return;
           if (propType && update.propType !== propType) return;
 
-          const oldOdds = update.oldOdds || update.odds;
-          const newOdds = update.newOdds || update.odds;
-          const oddsChange = Math.abs(newOdds - oldOdds);
+          const _oldOdds = update.oldOdds || update.odds;
+          const _newOdds = update.newOdds || update.odds;
+          const _oddsChange = Math.abs(newOdds - oldOdds);
 
           if (oddsChange < minOddsChange) return;
 
@@ -226,7 +226,7 @@ export const useBettingData = ({
         }
 
         case 'arbitrage_alert': {
-          const opportunity = msg.data as Opportunity;
+          const _opportunity = msg.data as Opportunity;
           if (!opportunity) return;
 
           setState(prev => ({
@@ -272,7 +272,7 @@ export const useBettingData = ({
     webSocketManager.on('message', handleWebSocketMessage);
 
     // Subscribe to relevant channels
-    const channels = ['betting_data', 'props_updates', 'odds_updates', 'arbitrage_alerts'];
+    const _channels = ['betting_data', 'props_updates', 'odds_updates', 'arbitrage_alerts'];
     if (sport) channels.push(`sport_${sport.toLowerCase()}`);
     if (propType) channels.push(`prop_${propType.toLowerCase()}`);
 
@@ -302,7 +302,7 @@ export const useBettingData = ({
     if (autoRefresh) {
       //       console.log(`⏰ Setting up auto-refresh every ${refreshInterval}ms`);
 
-      const interval = setInterval(() => {
+      const _interval = setInterval(() => {
         //         console.log('🔄 Auto-refreshing betting data...');
         fetchData();
       }, refreshInterval);
@@ -317,7 +317,7 @@ export const useBettingData = ({
   /**
    * Manual refresh function
    */
-  const refresh = useCallback(() => {
+  const _refresh = useCallback(() => {
     //     console.log('🔄 Manual refresh triggered');
     setState(prev => ({ ...prev, isLoading: true }));
     fetchData();
@@ -326,7 +326,7 @@ export const useBettingData = ({
   /**
    * Clear error state
    */
-  const clearError = useCallback(() => {
+  const _clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }));
   }, []);
 

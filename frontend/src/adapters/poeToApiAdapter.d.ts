@@ -20,4 +20,4 @@ export declare class PoeToApiAdapter {
    */
   fetchAndTransformPoeData(): Promise<PrizePicksProps[0]>;
 }
-export declare const poeToApiAdapter: PoeToApiAdapter;
+export declare const _poeToApiAdapter: PoeToApiAdapter;

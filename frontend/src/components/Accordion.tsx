@@ -5,7 +5,7 @@ interface AccordionProps {
   children: React.ReactNode;
 }
 
-const Accordion: React.FC<AccordionProps> = ({ title, children }) => {
+const _Accordion: React.FC<AccordionProps> = ({ title, children }) => {
   const [open, setOpen] = useState(false);
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

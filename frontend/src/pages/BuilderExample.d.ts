@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const BuilderExample: React.FC;
+declare const _BuilderExample: React.FC;
 export default BuilderExample;

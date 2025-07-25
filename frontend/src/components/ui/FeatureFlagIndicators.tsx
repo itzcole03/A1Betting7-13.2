@@ -2,19 +2,19 @@
 import { isFeatureEnabled } from '@/services/configService.js';
 import React from 'react';
 
-const features = ['INJURIES', 'NEWS', 'WEATHER', 'REALTIME', 'ESPN', 'ODDS', 'ANALYTICS'];
+const _features = ['INJURIES', 'NEWS', 'WEATHER', 'REALTIME', 'ESPN', 'ODDS', 'ANALYTICS'];
 
 /**
  * Displays the enabled/disabled state of all major feature flags.
  * Uses isFeatureEnabled to dynamically query each flag.
  */
-export const FeatureFlagIndicators: React.FC = () => {
+export const _FeatureFlagIndicators: React.FC = () => {
   const [flags, setFlags] = React.useState<{ [key: string]: boolean }>({});
 
   React.useEffect(() => {
-    const fetchFlags = async () => {
-      const results: { [key: string]: boolean } = {};
-      for (const feature of features) {
+    const _fetchFlags = async () => {
+      const _results: { [key: string]: boolean } = {};
+      for (const _feature of features) {
         results[feature] = await isFeatureEnabled(feature);
       }
       setFlags(results);

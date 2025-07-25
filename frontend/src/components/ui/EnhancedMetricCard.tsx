@@ -40,7 +40,7 @@ export interface EnhancedMetricCardProps {
   onTrendClick?: () => void;
 }
 
-export const EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
+export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
   title,
   value,
   unit = '',
@@ -65,22 +65,22 @@ export const EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
   const [displayValue, setDisplayValue] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
-  const numericValue = typeof value === 'number' ? value : parseFloat(value as string) || 0;
+  const _numericValue = typeof value === 'number' ? value : parseFloat(value as string) || 0;
 
   // Animate numeric values
   useEffect(() => {
     if (animated && typeof value === 'number') {
-      const startValue = displayValue;
-      const endValue = value;
-      const duration = 1000;
-      const startTime = Date.now();
+      const _startValue = displayValue;
+      const _endValue = value;
+      const _duration = 1000;
+      const _startTime = Date.now();
 
-      const animate = () => {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
+      const _animate = () => {
+        const _elapsed = Date.now() - startTime;
+        const _progress = Math.min(elapsed / duration, 1);
 
-        const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-        const currentValue = startValue + (endValue - startValue) * easeOutCubic;
+        const _easeOutCubic = 1 - Math.pow(1 - progress, 3);
+        const _currentValue = startValue + (endValue - startValue) * easeOutCubic;
 
         setDisplayValue(currentValue);
 
@@ -95,8 +95,8 @@ export const EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
     }
   }, [value, animated]);
 
-  const getColorClasses = (colorType: string) => {
-    const colors = {
+  const _getColorClasses = (colorType: string) => {
+    const _colors = {
       blue: {
         bg: variant === 'cyber' ? 'bg-blue-500/20' : 'bg-blue-100 dark:bg-blue-900/30',
         text: variant === 'cyber' ? 'text-blue-400' : 'text-blue-700 dark:text-blue-400',
@@ -137,7 +137,7 @@ export const EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
     return colors[colorType as keyof typeof colors] || colors.blue;
   };
 
-  const getStatusColor = () => {
+  const _getStatusColor = () => {
     if (!thresholds) return color;
 
     if (numericValue >= thresholds.critical) return 'red';
@@ -145,7 +145,7 @@ export const EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
     return 'green';
   };
 
-  const formatValue = (val: number) => {
+  const _formatValue = (val: number) => {
     if (val >= 1000000) {
       return `${(val / 1000000).toFixed(precision)}M`;
     }
@@ -155,7 +155,7 @@ export const EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
     return precision > 0 ? val.toFixed(precision) : Math.round(val).toLocaleString();
   };
 
-  const getTrendIcon = () => {
+  const _getTrendIcon = () => {
     if (!trend) return null;
 
     switch (trend.direction) {
@@ -211,20 +211,20 @@ export const EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
     }
   };
 
-  const renderSparkline = () => {
+  const _renderSparkline = () => {
     if (!showSparkline || history.length < 2) return null;
 
-    const width = 60;
-    const height = 20;
-    const values = history.map(h => h.value);
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const range = max - min || 1;
+    const _width = 60;
+    const _height = 20;
+    const _values = history.map(h => h.value);
+    const _min = Math.min(...values);
+    const _max = Math.max(...values);
+    const _range = max - min || 1;
 
-    const points = values
+    const _points = values
       .map((val, index) => {
-        const x = (index / (values.length - 1)) * width;
-        const y = height - ((val - min) / range) * height;
+        const _x = (index / (values.length - 1)) * width;
+        const _y = height - ((val - min) / range) * height;
         return `${x},${y}`;
       })
       .join(' ');
@@ -244,15 +244,15 @@ export const EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
     );
   };
 
-  const progressPercentage = target ? Math.min((numericValue / target) * 100, 100) : 0;
+  const _progressPercentage = target ? Math.min((numericValue / target) * 100, 100) : 0;
 
-  const sizeClasses = {
+  const _sizeClasses = {
     sm: 'p-3',
     md: 'p-4',
     lg: 'p-6',
   };
 
-  const baseClasses = `
+  const _baseClasses = `
     rounded-lg border transition-all duration-200 cursor-pointer
     ${
       variant === 'cyber'
@@ -266,7 +266,7 @@ export const EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
     ${className}
   `;
 
-  const colorClasses = getColorClasses(getStatusColor());
+  const _colorClasses = getColorClasses(getStatusColor());
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

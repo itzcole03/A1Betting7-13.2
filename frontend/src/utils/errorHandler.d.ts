@@ -15,17 +15,17 @@ export declare class ErrorHandler {
   static getInstance(): ErrorHandler;
   private setupGlobalHandlers;
   private startFlushTimer;
-  handleError(error: Error | BettingSystemError, context?: Record<string, any>): Promise<void>;
+  handleError(error: Error | BettingSystemError, context?: Record<string, unknown>): Promise<void>;
   private normalizeError;
   private isBettingSystemError;
   private logError;
   private logApiCall;
   private triggerEmergencyProcedures;
-  generateReport(): Record<string, any>;
+  generateReport(): Record<string, unknown>;
   downloadReport(): void;
   clearLogs(): void;
   flush(): Promise<void>;
   destroy(): void;
 }
-declare const errorHandler: ErrorHandler;
+declare const _errorHandler: ErrorHandler;
 export default errorHandler;

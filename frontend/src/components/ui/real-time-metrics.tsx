@@ -37,7 +37,7 @@ export interface RealTimeMetricsProps {
   isLive?: boolean;
 }
 
-const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
+const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
   metrics = [],
   variant = 'default',
   className = '',
@@ -52,9 +52,9 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
 }) => {
   const [currentMetrics, setCurrentMetrics] = useState<RealTimeMetric[]>([]);
   const [lastUpdate, setLastUpdate] = useState(new Date());
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const _intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const defaultMetrics: RealTimeMetric[] =
+  const _defaultMetrics: RealTimeMetric[] =
     metrics.length > 0
       ? metrics
       : [
@@ -200,7 +200,7 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
 
   // Initialize metrics with history
   useEffect(() => {
-    const initialMetrics = defaultMetrics.map(metric => ({
+    const _initialMetrics = defaultMetrics.map(metric => ({
       ...metric,
       history: Array.from({ length: 10 }, (_, i) => ({
         timestamp: new Date(Date.now() - (9 - i) * 60000),
@@ -217,18 +217,18 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
     intervalRef.current = setInterval(() => {
       setCurrentMetrics(prevMetrics =>
         prevMetrics.map(metric => {
-          const variation = (Math.random() - 0.5) * 0.1;
-          const newValue = Math.max(0, metric.value * (1 + variation));
-          const change = ((newValue - metric.value) / metric.value) * 100;
+          const _variation = (Math.random() - 0.5) * 0.1;
+          const _newValue = Math.max(0, metric.value * (1 + variation));
+          const _change = ((newValue - metric.value) / metric.value) * 100;
 
-          const newDataPoint: MetricDataPoint = {
+          const _newDataPoint: MetricDataPoint = {
             timestamp: new Date(),
             value: newValue,
           };
 
-          const updatedHistory = [...metric.history, newDataPoint].slice(-maxDataPoints);
+          const _updatedHistory = [...metric.history, newDataPoint].slice(-maxDataPoints);
 
-          const updatedMetric = {
+          const _updatedMetric = {
             ...metric,
             value: newValue,
             change: change,
@@ -263,7 +263,7 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
     };
   }, [isLive, updateInterval, maxDataPoints, showAlerts, onAlert]);
 
-  const getStatusColor = (metric: RealTimeMetric) => {
+  const _getStatusColor = (metric: RealTimeMetric) => {
     if (!metric.threshold) return metric.color || '#6b7280';
 
     if (metric.value >= metric.threshold.critical) {
@@ -275,9 +275,9 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
     return metric.color || (variant === 'cyber' ? '#00ff88' : '#10b981');
   };
 
-  const formatValue = (value: number, unit: string) => {
-    let formattedValue = value;
-    let suffix = '';
+  const _formatValue = (value: number, unit: string) => {
+    let _formattedValue = value;
+    let _suffix = '';
 
     if (value >= 1000000) {
       formattedValue = value / 1000000;
@@ -287,24 +287,24 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
       suffix = 'K';
     }
 
-    const precision = unit === '%' || value < 10 ? 1 : 0;
+    const _precision = unit === '%' || value < 10 ? 1 : 0;
     return `${formattedValue.toFixed(precision)}${suffix}${unit}`;
   };
 
-  const renderSparkline = (history: MetricDataPoint[], color: string) => {
+  const _renderSparkline = (history: MetricDataPoint[], color: string) => {
     if (!showSparklines || history.length < 2) return null;
 
-    const width = 60;
-    const height = 20;
-    const values = history.map(point => point.value);
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const range = max - min || 1;
+    const _width = 60;
+    const _height = 20;
+    const _values = history.map(point => point.value);
+    const _min = Math.min(...values);
+    const _max = Math.max(...values);
+    const _range = max - min || 1;
 
-    const points = values
+    const _points = values
       .map((value, index) => {
-        const x = (index / (values.length - 1)) * width;
-        const y = height - ((value - min) / range) * height;
+        const _x = (index / (values.length - 1)) * width;
+        const _y = height - ((value - min) / range) * height;
         return `${x},${y}`;
       })
       .join(' ');
@@ -324,7 +324,7 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
     );
   };
 
-  const baseClasses = `
+  const _baseClasses = `
     ${variant === 'dashboard' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}
     ${className}
   `;

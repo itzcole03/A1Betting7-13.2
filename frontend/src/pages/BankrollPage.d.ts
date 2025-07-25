@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const BankrollPage: React.FC;
+declare const _BankrollPage: React.FC;
 export default BankrollPage;

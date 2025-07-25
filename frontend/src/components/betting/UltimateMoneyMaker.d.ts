@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const UltimateMoneyMaker: React.FC;
+declare const _UltimateMoneyMaker: React.FC;
 export default UltimateMoneyMaker;

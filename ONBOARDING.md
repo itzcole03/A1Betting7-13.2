@@ -10,3 +10,9 @@
 5. Make your changes and run scripts/extract_digest_for_docs.py to update docs.
 6. Open a PR (tag with [AI] if you are an AI agent).
 7. Ensure all auto-generated files are up to date.
+
+8. Review CI audit workflow and dependency graphs:
+   - The repository runs automated file usage and hygiene audits in CI (see `.github/workflows/code-audit.yml`).
+   - Dependency graphs are generated for both frontend (`frontend-dependency-graph.svg`) and backend (`backend-dependency-graph.svg`).
+   - Code hygiene reports are uploaded as CI artifacts for every push and PR.
+   - Address any issues flagged by CI before merging.

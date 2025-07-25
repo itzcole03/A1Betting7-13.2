@@ -41,7 +41,7 @@ export interface CacheMetrics {
 
 class PredictionCacheService {
   private cache: Map<string, CachedPrediction[]> = new Map();
-  private aiExplanationCache: Map<string, any> = new Map();
+  private aiExplanationCache: Map<string, unknown> = new Map();
   private accuracyHistory: Map<string, number[]> = new Map();
   private cacheMetrics: CacheMetrics = {
     total_predictions: 0,
@@ -62,11 +62,11 @@ class PredictionCacheService {
    * Store a new prediction and compare with previous ones
    */
   storePrediction(prediction: CachedPrediction): PredictionComparison {
-    const key = this.generateKey(prediction.player_name, prediction.stat_type, prediction.line);
-    const history = this.cache.get(key) || [];
+    const _key = this.generateKey(prediction.player_name, prediction.stat_type, prediction.line);
+    const _history = this.cache.get(key) || [];
 
     // Get the most recent prediction for comparison
-    const previous = history.length > 0 ? history[history.length - 1] : undefined;
+    const _previous = history.length > 0 ? history[history.length - 1] : undefined;
 
     // Add timestamp if not present
     prediction.timestamp = prediction.timestamp || new Date().toISOString();
@@ -100,15 +100,15 @@ class PredictionCacheService {
     stat_type: string,
     line: number
   ): CachedPrediction | null {
-    const key = this.generateKey(player_name, stat_type, line);
-    const history = this.cache.get(key);
+    const _key = this.generateKey(player_name, stat_type, line);
+    const _history = this.cache.get(key);
 
     if (!history || history.length === 0) {
       return null;
     }
 
-    const latest = history[history.length - 1];
-    const age = Date.now() - new Date(latest.timestamp).getTime();
+    const _latest = history[history.length - 1];
+    const _age = Date.now() - new Date(latest.timestamp).getTime();
 
     // Return null if too old
     if (age > this.MAX_CACHE_AGE) {
@@ -126,15 +126,15 @@ class PredictionCacheService {
     stat_type: string,
     line: number
   ): PredictionComparison | null {
-    const key = this.generateKey(player_name, stat_type, line);
-    const history = this.cache.get(key);
+    const _key = this.generateKey(player_name, stat_type, line);
+    const _history = this.cache.get(key);
 
     if (!history || history.length === 0) {
       return null;
     }
 
-    const current = history[history.length - 1];
-    const previous = history.length > 1 ? history[history.length - 2] : undefined;
+    const _current = history[history.length - 1];
+    const _previous = history.length > 1 ? history[history.length - 2] : undefined;
 
     return this.createComparison(current, previous, key);
   }
@@ -142,8 +142,8 @@ class PredictionCacheService {
   /**
    * Store AI explanation with TTL
    */
-  storeAiExplanation(propId: string, explanation: any): void {
-    const entry = {
+  storeAiExplanation(propId: string, explanation: unknown): void {
+    const _entry = {
       data: explanation,
       timestamp: Date.now(),
       ttl: this.AI_EXPLANATION_TTL,
@@ -154,14 +154,14 @@ class PredictionCacheService {
   /**
    * Get AI explanation if still fresh
    */
-  getAiExplanation(propId: string): any | null {
-    const entry = this.aiExplanationCache.get(propId);
+  getAiExplanation(propId: string): unknown | null {
+    const _entry = this.aiExplanationCache.get(propId);
 
     if (!entry) {
       return null;
     }
 
-    const age = Date.now() - entry.timestamp;
+    const _age = Date.now() - entry.timestamp;
     if (age > entry.ttl) {
       this.aiExplanationCache.delete(propId);
       return null;
@@ -174,14 +174,14 @@ class PredictionCacheService {
    * Get recommendations that need refreshing
    */
   getStaleRecommendations(): string[] {
-    const staleKeys: string[] = [];
-    const now = Date.now();
+    const _staleKeys: string[] = [];
+    const _now = Date.now();
 
     for (const [key, history] of this.cache.entries()) {
       if (history.length === 0) continue;
 
-      const latest = history[history.length - 1];
-      const age = now - new Date(latest.timestamp).getTime();
+      const _latest = history[history.length - 1];
+      const _age = now - new Date(latest.timestamp).getTime();
 
       if (age > this.STALENESS_THRESHOLD) {
         staleKeys.push(key);
@@ -195,13 +195,13 @@ class PredictionCacheService {
    * Clean expired entries
    */
   cleanExpiredEntries(): number {
-    let cleaned = 0;
-    const now = Date.now();
+    let _cleaned = 0;
+    const _now = Date.now();
 
     // Clean prediction cache
     for (const [key, history] of this.cache.entries()) {
-      const filtered = history.filter(pred => {
-        const age = now - new Date(pred.timestamp).getTime();
+      const _filtered = history.filter(pred => {
+        const _age = now - new Date(pred.timestamp).getTime();
         return age <= this.MAX_CACHE_AGE * 2; // Keep double the max age for analysis
       });
 
@@ -217,7 +217,7 @@ class PredictionCacheService {
 
     // Clean AI explanation cache
     for (const [key, entry] of this.aiExplanationCache.entries()) {
-      const age = now - entry.timestamp;
+      const _age = now - entry.timestamp;
       if (age > entry.ttl) {
         this.aiExplanationCache.delete(key);
         cleaned++;
@@ -250,8 +250,8 @@ class PredictionCacheService {
   private calculateAccuracyScore(current: CachedPrediction, previous: CachedPrediction): number {
     // This is a simplified accuracy calculation
     // In a real implementation, you'd compare against actual game results
-    const predictionDiff = Math.abs(current.prediction - previous.prediction);
-    const confidenceFactor = (current.confidence + previous.confidence) / 200;
+    const _predictionDiff = Math.abs(current.prediction - previous.prediction);
+    const _confidenceFactor = (current.confidence + previous.confidence) / 200;
 
     // Lower difference and higher confidence = higher accuracy
     return Math.max(0, 100 - predictionDiff * 10) * confidenceFactor;
@@ -261,10 +261,10 @@ class PredictionCacheService {
    * Get historical accuracy for a prediction key
    */
   private getHistoricalAccuracy(key: string): number {
-    const history = this.cache.get(key);
+    const _history = this.cache.get(key);
     if (!history || history.length === 0) return 0;
 
-    const accuracyScores = history
+    const _accuracyScores = history
       .filter(pred => pred.accuracy_score !== undefined)
       .map(pred => pred.accuracy_score!);
 
@@ -281,10 +281,10 @@ class PredictionCacheService {
     previous: CachedPrediction | undefined,
     key: string
   ): PredictionComparison {
-    const now = Date.now();
-    const currentTime = new Date(current.timestamp).getTime();
-    const age = now - currentTime;
-    const freshness_score = Math.max(0, 100 - (age / this.MAX_CACHE_AGE) * 100);
+    const _now = Date.now();
+    const _currentTime = new Date(current.timestamp).getTime();
+    const _age = now - currentTime;
+    const _freshness_score = Math.max(0, 100 - (age / this.MAX_CACHE_AGE) * 100);
 
     if (!previous) {
       return {
@@ -301,19 +301,19 @@ class PredictionCacheService {
       };
     }
 
-    const confidence_change = current.confidence - previous.confidence;
-    const prediction_change = current.prediction - previous.prediction;
-    const recommendation_change = current.recommendation !== previous.recommendation;
-    const time_since_last_update = currentTime - new Date(previous.timestamp).getTime();
+    const _confidence_change = current.confidence - previous.confidence;
+    const _prediction_change = current.prediction - previous.prediction;
+    const _recommendation_change = current.recommendation !== previous.recommendation;
+    const _time_since_last_update = currentTime - new Date(previous.timestamp).getTime();
 
     // Determine if this is a significant change
-    const is_significant_change =
+    const _is_significant_change =
       recommendation_change ||
       Math.abs(confidence_change) > 10 ||
       Math.abs(prediction_change) > current.line * 0.1; // 10% of line value
 
     // Generate change reasons
-    const change_reasons: string[] = [];
+    const _change_reasons: string[] = [];
     if (recommendation_change) change_reasons.push('Recommendation changed');
     if (Math.abs(confidence_change) > 10)
       change_reasons.push(
@@ -325,9 +325,9 @@ class PredictionCacheService {
       change_reasons.push(`Prediction shifted by ${prediction_change.toFixed(2)}`);
     if (change_reasons.length === 0) change_reasons.push('Minor adjustments');
 
-    let accuracy_trend: 'improving' | 'declining' | 'stable' = 'stable';
+    let _accuracy_trend: 'improving' | 'declining' | 'stable' = 'stable';
     if (current.accuracy_score && previous.accuracy_score) {
-      const diff = current.accuracy_score - previous.accuracy_score;
+      const _diff = current.accuracy_score - previous.accuracy_score;
       if (diff > 5) accuracy_trend = 'improving';
       else if (diff < -5) accuracy_trend = 'declining';
     }
@@ -350,10 +350,10 @@ class PredictionCacheService {
    * Update cache metrics
    */
   private updateMetrics(): void {
-    let totalPredictions = 0;
-    let accuratePredictions = 0;
+    let _totalPredictions = 0;
+    let _accuratePredictions = 0;
 
-    for (const history of this.cache.values()) {
+    for (const _history of this.cache.values()) {
       totalPredictions += history.length;
       accuratePredictions += history.filter(p => p.accuracy_score && p.accuracy_score > 70).length;
     }
@@ -380,8 +380,8 @@ class PredictionCacheService {
    * Calculate staleness score
    */
   private calculateStalenessScore(): number {
-    const staleKeys = this.getStaleRecommendations();
-    const totalKeys = this.cache.size;
+    const _staleKeys = this.getStaleRecommendations();
+    const _totalKeys = this.cache.size;
 
     if (totalKeys === 0) return 0;
 
@@ -397,17 +397,17 @@ class PredictionCacheService {
     line: number,
     actualResult: number
   ): void {
-    const key = this.generateKey(player_name, stat_type, line);
-    const history = this.cache.get(key);
+    const _key = this.generateKey(player_name, stat_type, line);
+    const _history = this.cache.get(key);
 
     if (!history || history.length === 0) return;
 
-    const latestPrediction = history[history.length - 1];
-    const predictionDiff = Math.abs(latestPrediction.prediction - actualResult);
-    const lineDiff = Math.abs(line - actualResult);
+    const _latestPrediction = history[history.length - 1];
+    const _predictionDiff = Math.abs(latestPrediction.prediction - actualResult);
+    const _lineDiff = Math.abs(line - actualResult);
 
     // Calculate accuracy based on how close prediction was compared to the line
-    let accuracy_score: number;
+    let _accuracy_score: number;
     if (predictionDiff < lineDiff) {
       accuracy_score = Math.max(70, 100 - (predictionDiff / line) * 50);
     } else {
@@ -418,8 +418,8 @@ class PredictionCacheService {
     latestPrediction.accuracy_score = accuracy_score;
 
     // Track historical accuracy for this prop type
-    const accuracyKey = `${player_name}_${stat_type}`;
-    const accuracyHistory = this.accuracyHistory.get(accuracyKey) || [];
+    const _accuracyKey = `${player_name}_${stat_type}`;
+    const _accuracyHistory = this.accuracyHistory.get(accuracyKey) || [];
     accuracyHistory.push(accuracy_score);
 
     // Keep only last 10 results
@@ -445,16 +445,16 @@ class PredictionCacheService {
     trend: 'improving' | 'declining' | 'stable';
     history: number[];
   } | null {
-    const accuracyKey = `${player_name}_${stat_type}`;
-    const history = this.accuracyHistory.get(accuracyKey);
+    const _accuracyKey = `${player_name}_${stat_type}`;
+    const _history = this.accuracyHistory.get(accuracyKey);
 
     if (!history || history.length < 2) {
       return null;
     }
 
-    const current = history[history.length - 1];
-    const previous = history[history.length - 2];
-    const trend =
+    const _current = history[history.length - 1];
+    const _previous = history[history.length - 2];
+    const _trend =
       current > previous + 5 ? 'improving' : current < previous - 5 ? 'declining' : 'stable';
 
     return {
@@ -468,14 +468,14 @@ class PredictionCacheService {
    * Get fresh predictions that should be prioritized
    */
   getFreshPredictions(): string[] {
-    const freshKeys: string[] = [];
-    const now = Date.now();
+    const _freshKeys: string[] = [];
+    const _now = Date.now();
 
     for (const [key, history] of this.cache.entries()) {
       if (history.length === 0) continue;
 
-      const latest = history[history.length - 1];
-      const age = now - new Date(latest.timestamp).getTime();
+      const _latest = history[history.length - 1];
+      const _age = now - new Date(latest.timestamp).getTime();
 
       // Consider fresh if less than 30 minutes old and high confidence
       if (age < 30 * 60 * 1000 && latest.confidence > 80) {
@@ -488,16 +488,16 @@ class PredictionCacheService {
 }
 
 // Create singleton instance
-export const predictionCache = new PredictionCacheService();
+export const _predictionCache = new PredictionCacheService();
 
 // Enhanced storage utility functions
-export const StorageUtils = {
+export const _StorageUtils = {
   /**
    * Store data with expiration
    */
-  setWithExpiry: (key: string, value: any, ttlMs: number): void => {
-    const now = Date.now();
-    const item = {
+  setWithExpiry: (key: string, value: unknown, ttlMs: number): void => {
+    const _now = Date.now();
+    const _item = {
       value,
       expiry: now + ttlMs,
       timestamp: now,
@@ -512,13 +512,13 @@ export const StorageUtils = {
   /**
    * Get data with expiration check
    */
-  getWithExpiry: (key: string): any | null => {
+  getWithExpiry: (key: string): unknown | null => {
     try {
-      const itemStr = localStorage.getItem(key);
+      const _itemStr = localStorage.getItem(key);
       if (!itemStr) return null;
 
-      const item = JSON.parse(itemStr);
-      const now = Date.now();
+      const _item = JSON.parse(itemStr);
+      const _now = Date.now();
 
       if (now > item.expiry) {
         localStorage.removeItem(key);
@@ -536,19 +536,19 @@ export const StorageUtils = {
    * Clean expired localStorage entries
    */
   cleanExpired: (): number => {
-    let cleaned = 0;
-    const keysToRemove: string[] = [];
+    let _cleaned = 0;
+    const _keysToRemove: string[] = [];
 
     try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
+      for (let _i = 0; i < localStorage.length; i++) {
+        const _key = localStorage.key(i);
         if (!key) continue;
 
-        const itemStr = localStorage.getItem(key);
+        const _itemStr = localStorage.getItem(key);
         if (!itemStr) continue;
 
         try {
-          const item = JSON.parse(itemStr);
+          const _item = JSON.parse(itemStr);
           if (item.expiry && Date.now() > item.expiry) {
             keysToRemove.push(key);
           }
@@ -573,11 +573,11 @@ export const StorageUtils = {
    */
   getStorageStats: (): { used: number; total: number; percentage: number } => {
     try {
-      let used = 0;
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
+      let _used = 0;
+      for (let _i = 0; i < localStorage.length; i++) {
+        const _key = localStorage.key(i);
         if (key) {
-          const value = localStorage.getItem(key);
+          const _value = localStorage.getItem(key);
           if (value) {
             used += key.length + value.length;
           }
@@ -585,7 +585,7 @@ export const StorageUtils = {
       }
 
       // Estimate total available (typically 5-10MB)
-      const total = 5 * 1024 * 1024; // 5MB estimate
+      const _total = 5 * 1024 * 1024; // 5MB estimate
 
       return {
         used,

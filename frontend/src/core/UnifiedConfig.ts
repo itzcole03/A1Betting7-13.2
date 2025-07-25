@@ -8,10 +8,10 @@
 class SimpleEventEmitter {
   private listeners: { [event: string]: Function[] } = {};
 
-  emit(event: string, data?: any): void {
-    const eventListeners = this.listeners[event];
-    if (eventListeners) {
-      eventListeners.forEach(listener => listener(data));
+  emit(event: string, data?: unknown): void {
+    const _eventListeners = this.listeners[event];
+    if (_eventListeners) {
+      _eventListeners.forEach(listener => listener(data));
     }
   }
 
@@ -23,11 +23,11 @@ class SimpleEventEmitter {
   }
 
   off(event: string, listener: Function): void {
-    const eventListeners = this.listeners[event];
-    if (eventListeners) {
-      const index = eventListeners.indexOf(listener);
-      if (index > -1) {
-        eventListeners.splice(index, 1);
+    const _eventListeners = this.listeners[event];
+    if (_eventListeners) {
+      const _index = _eventListeners.indexOf(listener);
+      if (_index > -1) {
+        _eventListeners.splice(_index, 1);
       }
     }
   }
@@ -43,9 +43,9 @@ export type ConfigValue = ConfigLeaf | ConfigLeaf[] | { [key: string]: ConfigVal
  * Provides get/set/update/reset methods for runtime config, with optional event bus integration.
  *
  * Usage:
- *   const config = UnifiedConfig.getInstance();
+ *   const _config = UnifiedConfig.getInstance();
  *   config.set('theme', 'dark');
- *   const theme = config.get<string>('theme');
+ *   const _theme = config.get<string>('theme');
  */
 export class UnifiedConfig {
   private static instance: UnifiedConfig;
@@ -74,7 +74,7 @@ export class UnifiedConfig {
    * @returns The config value (typed)
    */
   public get<T = unknown>(key: string): T {
-    // @ts-expect-error TS(2352): Conversion of type 'string | number | boolean | Co... Remove this comment to see the full error message
+    return (this.config[key] as T) ?? (this.defaultConfig[key] as T);
     return (this.config[key] as T) ?? (this.defaultConfig[key] as T);
   }
 
@@ -95,10 +95,10 @@ export class UnifiedConfig {
    * @param updates Partial updates to merge
    */
   public update(key: string, updates: Partial<ConfigValue>): void {
-    const current = this.config[key] ?? this.defaultConfig[key] ?? {};
-    if (typeof current === 'object' && current !== null) {
+    const _current = this.config[key] ?? this.defaultConfig[key] ?? {};
+    if (typeof _current === 'object' && _current !== null) {
       // @ts-expect-error TS(2698): Spread types may only be created from object types... Remove this comment to see the full error message
-      this.config[key] = { ...current, ...updates };
+      this.config[key] = { ..._current, ...updates };
       this.saveToStorage();
       this.eventBus.emit('configChanged', { key, value: this.config[key] });
     }

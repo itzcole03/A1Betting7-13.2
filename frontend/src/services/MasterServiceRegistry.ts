@@ -7,18 +7,18 @@
 import ApiService from './unified/ApiService';
 import { UnifiedAnalyticsService } from './unified/UnifiedAnalyticsService';
 import { UnifiedBettingService } from './unified/UnifiedBettingService';
-import { UnifiedDataService } from './unified/UnifiedDataService';
-import { UnifiedPredictionService } from './unified/UnifiedPredictionService';
-import { UnifiedNotificationService } from './unified/UnifiedNotificationService';
-import { UnifiedStateService } from './unified/UnifiedStateService';
 import { UnifiedCache } from './unified/UnifiedCache';
+import { UnifiedDataService } from './unified/UnifiedDataService';
 import { UnifiedErrorService } from './unified/UnifiedErrorService';
 import { UnifiedLogger } from './unified/UnifiedLogger';
+import { UnifiedNotificationService } from './unified/UnifiedNotificationService';
+import { UnifiedPredictionService } from './unified/UnifiedPredictionService';
+import { UnifiedStateService } from './unified/UnifiedStateService';
 import { UnifiedWebSocketService } from './unified/UnifiedWebSocketService';
 
 // Import specific feature services
-import { injuryService } from './injuryService';
-import { lineupService } from './lineupService';
+import { _injuryService } from './injuryService';
+import { _lineupService } from './lineupService';
 
 // Import prototype services (temporarily commented out for debugging)
 // import { enhancedDataSources } from '../../../prototype/src/services/enhancedDataSources';
@@ -35,8 +35,13 @@ import { lineupService } from './lineupService';
 // import { PerformanceTrackingService } from './PerformanceTrackingService';
 // import { SecurityService } from './SecurityService';
 
+/**
+ * Health status for a registered service.
+ */
 export interface ServiceHealth {
+  /** Service name */
   name: string;
+  /** Health status */
   status: 'healthy' | 'degraded' | 'down';
   responseTime: number;
   lastCheck: Date;
@@ -65,10 +70,10 @@ export interface ServiceConfiguration {
 
 class MasterServiceRegistry {
   private static instance: MasterServiceRegistry;
-  private services: Map<string, any> = new Map();
+  private services: Map<string, unknown> = new Map();
   private serviceHealth: Map<string, ServiceHealth> = new Map();
   private serviceMetrics: Map<string, ServiceMetrics> = new Map();
-  private configuration: ServiceConfiguration;
+  public readonly configuration: ServiceConfiguration;
   private isInitialized = false;
 
   constructor() {
@@ -122,20 +127,17 @@ class MasterServiceRegistry {
 
   private async initializeUnifiedServices(): Promise<void> {
     console.log(
-      '[DEBUG] MasterServiceRegistry.initializeUnifiedServices this.config:',
-      // @ts-expect-error TS(2339): Property 'config' does not exist on type 'MasterSe... Remove this comment to see the full error message
-      this.config,
-      // @ts-expect-error TS(2339): Property 'config' does not exist on type 'MasterSe... Remove this comment to see the full error message
-      typeof this.config?.getApiUrl
+      '[DEBUG] MasterServiceRegistry.initializeUnifiedServices this.configuration:',
+      this.configuration,
+      typeof (this.configuration as any)?.getApiUrl
     );
-    const unifiedServices = [
+    const _unifiedServices = [
       { name: 'api', service: ApiService },
-      { name: 'analytics', service: UnifiedAnalyticsService.getInstance(this.configuration) },
+      { name: 'analytics', service: UnifiedAnalyticsService.getInstance(this) },
       { name: 'betting', service: UnifiedBettingService.getInstance() },
       { name: 'data', service: UnifiedDataService.getInstance() },
       { name: 'predictions', service: UnifiedPredictionService.getInstance() },
-      // @ts-expect-error TS(2339): Property 'getInstance' does not exist on type 'typ... Remove this comment to see the full error message
-      { name: 'notifications', service: UnifiedNotificationService.getInstance() },
+      { name: 'notifications', service: new UnifiedNotificationService(this) },
       { name: 'state', service: UnifiedStateService.getInstance() },
       { name: 'cache', service: UnifiedCache.getInstance() },
       { name: 'errors', service: UnifiedErrorService.getInstance() },
@@ -143,10 +145,10 @@ class MasterServiceRegistry {
       { name: 'websocket', service: UnifiedWebSocketService.getInstance() },
     ];
 
-    for (const { name, service } of unifiedServices) {
+    for (const { name, service } of _unifiedServices) {
       try {
-        if (service.initialize) {
-          await service.initialize();
+        if ((service as any).initialize) {
+          await (service as any).initialize();
         }
         this.registerService(name, service);
         this.updateServiceHealth(name, 'healthy', 0);
@@ -158,17 +160,15 @@ class MasterServiceRegistry {
   }
 
   private async initializeFeatureServices(): Promise<void> {
-    const featureServices = [
-      { name: 'injuries', service: injuryService },
-      { name: 'lineups', service: lineupService },
+    const _featureServices = [
+      { name: 'injuries', service: _injuryService },
+      { name: 'lineups', service: _lineupService },
     ];
 
-    for (const { name, service } of featureServices) {
+    for (const { name, service } of _featureServices) {
       try {
-        // @ts-expect-error TS(2339): Property 'initialize' does not exist on type 'Inju... Remove this comment to see the full error message
-        if (service.initialize) {
-          // @ts-expect-error TS(2339): Property 'initialize' does not exist on type 'Inju... Remove this comment to see the full error message
-          await service.initialize();
+        if ((service as any).initialize) {
+          await (service as any).initialize();
         }
         this.registerService(name, service);
         this.updateServiceHealth(name, 'healthy', 0);
@@ -180,21 +180,21 @@ class MasterServiceRegistry {
   }
 
   private async initializePrototypeServices(): Promise<void> {
-    const prototypeServices = [
-      // @ts-expect-error TS(2304): Cannot find name 'enhancedDataSources'.
-      { name: 'enhancedDataSources', service: enhancedDataSources },
-      // @ts-expect-error TS(2304): Cannot find name 'realDataService'.
-      { name: 'realDataService', service: realDataService },
-      // @ts-expect-error TS(2304): Cannot find name 'predictionEngine'.
-      { name: 'predictionEngine', service: predictionEngine },
-      // @ts-expect-error TS(2304): Cannot find name 'realTimeDataAggregator'.
-      { name: 'realTimeAggregator', service: realTimeDataAggregator },
+    // import { enhancedDataSources } from '../../../prototype/src/services/enhancedDataSources';
+    // import { realDataService } from '../../../prototype/src/services/realDataService';
+    // import { predictionEngine } from '../../../prototype/src/services/predictionEngine';
+    // import { realTimeDataAggregator } from '../../../prototype/src/services/realTimeDataAggregator';
+    const _prototypeServices: { name: string; service: unknown }[] = [
+      // { name: 'enhancedDataSources', service: enhancedDataSources },
+      // { name: 'realDataService', service: realDataService },
+      // { name: 'predictionEngine', service: predictionEngine },
+      // { name: 'realTimeAggregator', service: realTimeDataAggregator },
     ];
 
-    for (const { name, service } of prototypeServices) {
+    for (const { name, service } of _prototypeServices) {
       try {
-        if (service.initialize) {
-          await service.initialize();
+        if ((service as any).initialize) {
+          await (service as any).initialize();
         }
         this.registerService(name, service);
         this.updateServiceHealth(name, 'healthy', 0);
@@ -206,27 +206,27 @@ class MasterServiceRegistry {
   }
 
   private async initializeSpecializedServices(): Promise<void> {
-    const specializedServices = [
-      // @ts-expect-error TS(2304): Cannot find name 'AnalyticsService'.
-      { name: 'analyticsSpecialized', service: new AnalyticsService() },
-      // @ts-expect-error TS(2304): Cannot find name 'BettingService'.
-      { name: 'bettingSpecialized', service: new BettingService() },
-      // @ts-expect-error TS(2304): Cannot find name 'CacheService'.
-      { name: 'cacheSpecialized', service: new CacheService() },
-      // @ts-expect-error TS(2304): Cannot find name 'PredictionService'.
-      { name: 'predictionSpecialized', service: new PredictionService() },
-      // @ts-expect-error TS(2304): Cannot find name 'NotificationService'.
-      { name: 'notificationSpecialized', service: new NotificationService() },
-      // @ts-expect-error TS(2304): Cannot find name 'PerformanceTrackingService'.
-      { name: 'performance', service: new PerformanceTrackingService() },
-      // @ts-expect-error TS(2304): Cannot find name 'SecurityService'.
-      { name: 'security', service: new SecurityService() },
+    // import { AnalyticsService } from './AnalyticsService';
+    // import { BettingService } from './BettingService';
+    // import { CacheService } from './CacheService';
+    // import { PredictionService } from './predictionService';
+    // import { NotificationService } from './notificationService';
+    // import { PerformanceTrackingService } from './PerformanceTrackingService';
+    // import { SecurityService } from './SecurityService';
+    const _specializedServices: { name: string; service: unknown }[] = [
+      // { name: 'analyticsSpecialized', service: new AnalyticsService() },
+      // { name: 'bettingSpecialized', service: new BettingService() },
+      // { name: 'cacheSpecialized', service: new CacheService() },
+      // { name: 'predictionSpecialized', service: new PredictionService() },
+      // { name: 'notificationSpecialized', service: new NotificationService() },
+      // { name: 'performance', service: new PerformanceTrackingService() },
+      // { name: 'security', service: new SecurityService() },
     ];
 
-    for (const { name, service } of specializedServices) {
+    for (const { name, service } of _specializedServices) {
       try {
-        if (service.initialize) {
-          await service.initialize();
+        if ((service as any).initialize) {
+          await (service as any).initialize();
         }
         this.registerService(name, service);
         this.updateServiceHealth(name, 'healthy', 0);
@@ -237,7 +237,7 @@ class MasterServiceRegistry {
     }
   }
 
-  private registerService(name: string, service: any): void {
+  private registerService(name: string, service: unknown): void {
     this.services.set(name, service);
     this.initializeServiceMetrics(name);
   }
@@ -258,15 +258,14 @@ class MasterServiceRegistry {
     status: ServiceHealth['status'],
     responseTime: number
   ): void {
-    const existing = this.serviceHealth.get(name);
+    const _existing = this.serviceHealth.get(name) || { errorCount: 0, uptime: 100 };
     this.serviceHealth.set(name, {
       name,
       status,
       responseTime: Math.max(0, responseTime),
       lastCheck: new Date(),
-      errorCount: existing?.errorCount || 0,
-      uptime:
-        status === 'healthy' ? existing?.uptime || 100 : Math.max(0, (existing?.uptime || 100) - 1),
+      errorCount: _existing.errorCount,
+      uptime: status === 'healthy' ? _existing.uptime : Math.max(0, _existing.uptime - 1),
     });
   }
 
@@ -274,22 +273,22 @@ class MasterServiceRegistry {
     setInterval(async () => {
       for (const [name, service] of this.services.entries()) {
         try {
-          const startTime = Date.now();
+          const _startTime = Date.now();
 
           // Perform health check
-          if (service.healthCheck) {
-            await service.healthCheck();
-          } else if (service.ping) {
-            await service.ping();
+          if ((service as any).healthCheck) {
+            await (service as any).healthCheck();
+          } else if ((service as any).ping) {
+            await (service as any).ping();
           }
 
-          const responseTime = Date.now() - startTime;
-          this.updateServiceHealth(name, 'healthy', responseTime);
+          const _responseTime = Date.now() - _startTime;
+          this.updateServiceHealth(name, 'healthy', _responseTime);
         } catch (error) {
           this.updateServiceHealth(name, 'degraded', -1);
-          const health = this.serviceHealth.get(name);
-          if (health) {
-            health.errorCount += 1;
+          const _health = this.serviceHealth.get(name);
+          if (_health) {
+            _health.errorCount += 1;
           }
         }
       }
@@ -299,12 +298,12 @@ class MasterServiceRegistry {
   private setupMetricsCollection(): void {
     setInterval(() => {
       for (const [name, service] of this.services.entries()) {
-        if (service.getMetrics) {
+        if ((service as any).getMetrics) {
           try {
-            const metrics = service.getMetrics();
+            const _metrics = (service as any).getMetrics();
             this.serviceMetrics.set(name, {
               ...this.serviceMetrics.get(name)!,
-              ...metrics,
+              ..._metrics,
             });
           } catch (error) {
             this.log('warn', `Failed to collect metrics for service: ${name}`, error);
@@ -315,11 +314,11 @@ class MasterServiceRegistry {
   }
 
   // Service access methods
-  getService<T = any>(name: string): T | null {
-    return this.services.get(name) || null;
+  getService<T = unknown>(name: string): T | null {
+    return (this.services.get(name) as T) || null;
   }
 
-  getAllServices(): Map<string, any> {
+  getAllServices(): Map<string, unknown> {
     return new Map(this.services);
   }
 
@@ -338,79 +337,70 @@ class MasterServiceRegistry {
   }
 
   // Convenience methods for common services
-  // @ts-expect-error TS(2749): 'ApiService' refers to a value, but is being used ... Remove this comment to see the full error message
-  get api(): ApiService {
-    return this.getService('api');
+  get api(): any {
+    return this.getService('api')!;
   }
 
   get analytics(): UnifiedAnalyticsService {
-    // @ts-expect-error TS(2322): Type 'UnifiedAnalyticsService | null' is not assig... Remove this comment to see the full error message
-    return this.getService('analytics');
+    return this.getService<UnifiedAnalyticsService>('analytics')!;
   }
 
   get betting(): UnifiedBettingService {
-    // @ts-expect-error TS(2322): Type 'UnifiedBettingService | null' is not assigna... Remove this comment to see the full error message
-    return this.getService('betting');
+    return this.getService<UnifiedBettingService>('betting')!;
   }
 
   get data(): UnifiedDataService {
-    // @ts-expect-error TS(2322): Type 'UnifiedDataService | null' is not assignable... Remove this comment to see the full error message
-    return this.getService('data');
+    return this.getService<UnifiedDataService>('data')!;
   }
 
   get predictions(): UnifiedPredictionService {
-    // @ts-expect-error TS(2322): Type 'UnifiedPredictionService | null' is not assi... Remove this comment to see the full error message
-    return this.getService('predictions');
+    return this.getService<UnifiedPredictionService>('predictions')!;
   }
 
-  get injuries(): typeof injuryService {
-    // @ts-expect-error TS(2322): Type 'InjuryService | null' is not assignable to t... Remove this comment to see the full error message
-    return this.getService('injuries');
+  get injuries(): typeof _injuryService {
+    return this.getService<typeof _injuryService>('injuries')!;
   }
 
-  get lineups(): typeof lineupService {
-    // @ts-expect-error TS(2322): Type 'LineupService | null' is not assignable to t... Remove this comment to see the full error message
-    return this.getService('lineups');
+  get lineups(): typeof _lineupService {
+    return this.getService<typeof _lineupService>('lineups')!;
   }
 
-  // @ts-expect-error TS(2304): Cannot find name 'UnifiedCacheService'.
-  get cache(): UnifiedCacheService {
-    return this.getService('cache');
+  get cache(): UnifiedCache {
+    return this.getService<UnifiedCache>('cache')!;
   }
 
   get logger(): UnifiedLogger {
-    // @ts-expect-error TS(2322): Type 'UnifiedLogger | null' is not assignable to t... Remove this comment to see the full error message
-    return this.getService('logger');
+    return this.getService<UnifiedLogger>('logger')!;
   }
 
   get notifications(): UnifiedNotificationService {
-    // @ts-expect-error TS(2322): Type 'UnifiedNotificationService | null' is not as... Remove this comment to see the full error message
-    return this.getService('notifications');
+    return this.getService<UnifiedNotificationService>('notifications')!;
   }
 
   get websocket(): UnifiedWebSocketService {
-    // @ts-expect-error TS(2322): Type 'UnifiedWebSocketService | null' is not assig... Remove this comment to see the full error message
-    return this.getService('websocket');
+    return this.getService<UnifiedWebSocketService>('websocket')!;
   }
 
   // Service orchestration methods
-  async executeAcrossServices(methodName: string, ...args: any[]): Promise<Map<string, any>> {
-    const results = new Map();
+  async executeAcrossServices(
+    methodName: string,
+    ...args: unknown[]
+  ): Promise<Map<string, unknown>> {
+    const _results = new Map();
 
     for (const [name, service] of this.services.entries()) {
-      if (service[methodName] && typeof service[methodName] === 'function') {
+      if ((service as any)[methodName] && typeof (service as any)[methodName] === 'function') {
         try {
-          const result = await service[methodName](...args);
-          results.set(name, { success: true, data: result });
+          const _result = await (service as any)[methodName](...args);
+          _results.set(name, { success: true, data: _result });
         } catch (error) {
-          // @ts-expect-error TS(2571): Object is of type 'unknown'.
-          results.set(name, { success: false, error: error.message });
+          _results.set(name, { success: false, error: (error as Error).message });
           this.log('error', `Service ${name} failed to execute ${methodName}`, error);
         }
       }
     }
 
-    return results;
+    return _results;
   }
 
   async refreshAllData(): Promise<void> {
@@ -427,13 +417,13 @@ class MasterServiceRegistry {
 
   // Configuration management
   updateConfiguration(config: Partial<ServiceConfiguration>): void {
-    this.configuration = { ...this.configuration, ...config };
+    Object.assign(this.configuration, config);
 
     // Apply configuration to all services
     for (const [name, service] of this.services.entries()) {
-      if (service.updateConfiguration) {
+      if ((service as any).updateConfiguration) {
         try {
-          service.updateConfiguration(this.configuration);
+          (service as any).updateConfiguration(this.configuration);
         } catch (error) {
           this.log('warn', `Failed to update configuration for service: ${name}`, error);
         }
@@ -455,40 +445,54 @@ class MasterServiceRegistry {
     totalRequests: number;
     overallSuccessRate: number;
   } {
-    const healthArray = Array.from(this.serviceHealth.values());
-    const metricsArray = Array.from(this.serviceMetrics.values());
+    const _healthArray = Array.from(this.serviceHealth.values());
+    const _metricsArray = Array.from(this.serviceMetrics.values());
 
-    const totalServices = healthArray.length;
-    const healthyServices = healthArray.filter(h => h.status === 'healthy').length;
-    const degradedServices = healthArray.filter(h => h.status === 'degraded').length;
-    const downServices = healthArray.filter(h => h.status === 'down').length;
+    const _totalServices = _healthArray.length;
+    const _healthyServices = _healthArray.filter(h => h.status === 'healthy').length;
+    const _degradedServices = _healthArray.filter(h => h.status === 'degraded').length;
+    const _downServices = _healthArray.filter(h => h.status === 'down').length;
 
-    const averageResponseTime =
-      healthArray.reduce((sum, h) => sum + Math.max(0, h.responseTime), 0) / totalServices;
-    const totalRequests = metricsArray.reduce((sum, m) => sum + m.totalRequests, 0);
-    const overallSuccessRate =
-      metricsArray.reduce((sum, m) => sum + m.successRate, 0) / metricsArray.length;
+    const _averageResponseTime =
+      _healthArray.reduce((sum, h) => sum + Math.max(0, h.responseTime), 0) / _totalServices;
+    const _totalRequests = _metricsArray.reduce((sum, m) => sum + m.totalRequests, 0);
+    const _overallSuccessRate =
+      _metricsArray.reduce((sum, m) => sum + m.successRate, 0) / _metricsArray.length;
 
     return {
-      totalServices,
-      healthyServices,
-      degradedServices,
-      downServices,
-      averageResponseTime,
-      totalRequests,
-      overallSuccessRate,
+      totalServices: _totalServices,
+      healthyServices: _healthyServices,
+      degradedServices: _degradedServices,
+      downServices: _downServices,
+      averageResponseTime: _averageResponseTime,
+      totalRequests: _totalRequests,
+      overallSuccessRate: _overallSuccessRate,
     };
   }
 
   // Logging
-  private log(level: string, message: string, data?: any): void {
+  private log(level: string, message: string, data?: unknown): void {
     if (this.configuration.enableLogging) {
-      const logger = this.getService('logger');
-      if (logger && logger[level]) {
-        logger[level](message, data);
+      const _logger = this.getService<UnifiedLogger>('logger');
+      if (_logger && (_logger as any)[level]) {
+        (_logger as any)[level](message, data);
       } else {
-        // @ts-expect-error TS(2349): This expression is not callable.
-        console[level as keyof Console](`[MasterServiceRegistry] ${message}`, data || '');
+        switch (level) {
+          case 'debug':
+            console.debug(`[MasterServiceRegistry] ${message}`, data || '');
+            break;
+          case 'info':
+            console.info(`[MasterServiceRegistry] ${message}`, data || '');
+            break;
+          case 'warn':
+            console.warn(`[MasterServiceRegistry] ${message}`, data || '');
+            break;
+          case 'error':
+            console.error(`[MasterServiceRegistry] ${message}`, data || '');
+            break;
+          default:
+            console.log(`[MasterServiceRegistry] ${message}`, data || '');
+        }
       }
     }
   }
@@ -497,8 +501,8 @@ class MasterServiceRegistry {
   async shutdown(): Promise<void> {
     for (const [name, service] of this.services.entries()) {
       try {
-        if (service.shutdown) {
-          await service.shutdown();
+        if ((service as any).shutdown) {
+          await (service as any).shutdown();
         }
       } catch (error) {
         this.log('error', `Failed to shutdown service: ${name}`, error);
@@ -513,48 +517,48 @@ class MasterServiceRegistry {
 }
 
 // Export singleton instance
-export const masterServiceRegistry = MasterServiceRegistry.getInstance();
+export const _masterServiceRegistry = MasterServiceRegistry.getInstance();
 
 // Export convenience function for service access
-export const getService = <T = any>(name: string): T | null => {
-  return masterServiceRegistry.getService<T>(name);
+export const _getService = <T = unknown>(name: string): T | null => {
+  return _masterServiceRegistry.getService<T>(name);
 };
 
 // Export common services for direct access
-export const services = {
+export const _services = {
   get api() {
-    return masterServiceRegistry.api;
+    return _masterServiceRegistry.api;
   },
   get analytics() {
-    return masterServiceRegistry.analytics;
+    return _masterServiceRegistry.analytics;
   },
   get betting() {
-    return masterServiceRegistry.betting;
+    return _masterServiceRegistry.betting;
   },
   get data() {
-    return masterServiceRegistry.data;
+    return _masterServiceRegistry.data;
   },
   get predictions() {
-    return masterServiceRegistry.predictions;
+    return _masterServiceRegistry.predictions;
   },
   get injuries() {
-    return masterServiceRegistry.injuries;
+    return _masterServiceRegistry.injuries;
   },
   get lineups() {
-    return masterServiceRegistry.lineups;
+    return _masterServiceRegistry.lineups;
   },
   get cache() {
-    return masterServiceRegistry.cache;
+    return _masterServiceRegistry.cache;
   },
   get logger() {
-    return masterServiceRegistry.logger;
+    return _masterServiceRegistry.logger;
   },
   get notifications() {
-    return masterServiceRegistry.notifications;
+    return _masterServiceRegistry.notifications;
   },
   get websocket() {
-    return masterServiceRegistry.websocket;
+    return _masterServiceRegistry.websocket;
   },
 };
 
-export default masterServiceRegistry;
+export default _masterServiceRegistry;

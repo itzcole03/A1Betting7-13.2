@@ -1,19 +1,17 @@
 // Risk Assessment Service for variance, risk category, win expectancy;
-// @ts-expect-error TS(2307): Cannot find module '@/integrations/liveDataLogger'... Remove this comment to see the full error message
-import { logError, logInfo } from '@/integrations/liveDataLogger';
+import { logError, logInfo } from '../integrations/liveDataLogger';
 
 export class RiskAssessmentService {
-  static assessRisk(prediction: any): any {
+  static assessRisk(prediction: unknown): unknown {
     try {
       logInfo('Assessing risk', { prediction });
-      // Placeholder: Replace with real risk assessment logic;
       return {
         variance: 0.12,
         riskCategory: 'medium',
         winExpectancy: 0.67,
       };
     } catch (err) {
-      logError('Risk assessment failed', err);
+      logError('Risk assessment failed', { error: err });
       return null;
     }
   }

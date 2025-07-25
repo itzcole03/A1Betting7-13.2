@@ -5,25 +5,25 @@
 // import { UnifiedCache } from '@/unified/UnifiedCache';
 declare class EventEmitter {
   private events;
-  on(event: string, listener: (...args: any[]) => void): void;
-  off(event: string, listener: (...args: any[]) => void): void;
-  emit(event: string, ...args: any[]): void;
+  on(event: string, listener: (...args: unknown[]) => void): void;
+  off(event: string, listener: (...args: unknown[]) => void): void;
+  emit(event: string, ...args: unknown[]): void;
 }
 export interface ServiceError {
   code: string;
   source: string;
-  details?: any;
+  details?: unknown;
 }
 export declare abstract class BaseService extends EventEmitter {
   protected readonly name: string;
-  protected readonly serviceRegistry: any;
-  protected config: any;
-  protected logger: any;
-  protected api: any;
-  protected cache: any;
-  constructor(name: string, serviceRegistry: any);
+  protected readonly serviceRegistry: unknown;
+  protected config: unknown;
+  protected logger: unknown;
+  protected api: unknown;
+  protected cache: unknown;
+  constructor(name: string, serviceRegistry: unknown);
   private setupInterceptors;
-  protected handleError(error: any, serviceError: ServiceError): void;
+  protected handleError(error: unknown, serviceError: ServiceError): void;
   protected retry<T>(operation: () => Promise<T>, maxRetries?: number, delay?: number): Promise<T>;
   protected getCacheKey(...parts: (string | number)[]): string;
   protected withCache<T>(key: string, operation: () => Promise<T>, ttl?: number): Promise<T>;

@@ -10,7 +10,10 @@ import { discoverBackend } from './backendDiscovery';
 export interface PropOllamaRequest {
   message: string;
   analysisType?: 'prop' | 'spread' | 'total' | 'strategy' | 'general';
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
+  model?: string; // Add model to request interface
+  includeWebResearch?: boolean; // Add includeWebResearch
+  requestBestBets?: boolean; // Add requestBestBets
 }
 
 export interface PropOllamaResponse {
@@ -21,6 +24,7 @@ export interface PropOllamaResponse {
   response_time: number;
   analysis_type: string;
   shap_explanation?: Record<string, number>;
+  best_bets?: any[]; // Add best_bets to response interface
 }
 
 export interface PropOllamaChatMessage {
@@ -33,20 +37,32 @@ export interface PropOllamaChatMessage {
   suggestions?: string[];
 }
 
+// Health status interface from backend
+export interface ScraperHealth {
+  is_healthy?: boolean;
+  is_stale?: boolean;
+  last_success?: string;
+  last_error?: string;
+  healing_attempts?: number;
+}
+
+export interface ModelHealthStatus {
+  status: string;
+  last_error?: string;
+  last_update?: string;
+}
+
 class PropOllamaService {
   private chatHistory: PropOllamaChatMessage[] = [];
 
-  /**
-   * Get backend URL with auto-discovery
-   */
   private async getBackendUrl(): Promise<string> {
-    // @ts-expect-error TS(2304): Cannot find name 'backendDiscovery'.
-    return await backendDiscovery.getBackendUrl();
+    const url = await discoverBackend();
+    if (!url) {
+      throw new Error('Backend URL not discovered.');
+    }
+    return url;
   }
 
-  /**
-   * Send a chat message to PropOllama and get AI response
-   */
   async sendChatMessage(request: PropOllamaRequest): Promise<PropOllamaResponse> {
     try {
       const baseUrl = await this.getBackendUrl();
@@ -59,11 +75,10 @@ class PropOllamaService {
           headers: {
             'Content-Type': 'application/json',
           },
-          timeout: 30000,
+          timeout: 60000, // Increase timeout for chat responses
         }
       );
 
-      // Add messages to chat history
       this.addToHistory('user', request.message);
       this.addToHistory('assistant', response.data.content, {
         confidence: response.data.confidence,
@@ -72,9 +87,76 @@ class PropOllamaService {
       });
 
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('PropOllama chat error:', error);
-      throw new Error('Failed to get PropOllama response');
+      let errorMessage = 'Failed to get PropOllama response.';
+
+      if (axios.isAxiosError(error) && error.response) {
+        let backendError = '';
+        try {
+          backendError = JSON.stringify(error.response.data);
+        } catch {
+          backendError = error.response.data.toString();
+        }
+
+        errorMessage = `HTTP ${error.response.status}`;
+        try {
+          const errJson = error.response.data;
+          if (errJson?.detail) {
+            if (typeof errJson.detail === 'string') {
+              errorMessage += `: ${errJson.detail}`;
+            } else if (typeof errJson.detail === 'object') {
+              if (errJson.detail.message) errorMessage += `: ${errJson.detail.message}`;
+              if (errJson.detail.trace) errorMessage += `\nTrace: ${errJson.detail.trace}`;
+            } else if (Array.isArray(errJson.detail)) {
+              errorMessage += `: ${errJson.detail
+                .map((d: any) => d?.msg || JSON.stringify(d))
+                .join(', ')}`;
+            }
+          }
+        } catch {
+          errorMessage += `: ${backendError}`;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      throw new Error(errorMessage);
+    }
+  }
+
+  async getPropOllamaHealth(): Promise<any> {
+    try {
+      const baseUrl = await this.getBackendUrl();
+      const response = await axios.get(`${baseUrl}/api/propollama/health`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching PropOllama health:', error);
+      throw new Error('Failed to fetch PropOllama health');
+    }
+  }
+
+  async getAvailableModels(): Promise<string[]> {
+    try {
+      const baseUrl = await this.getBackendUrl();
+      const response = await axios.get(`${baseUrl}/api/propollama/models`);
+      if (Array.isArray(response.data.models)) {
+        return response.data.models;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching available models:', error);
+      throw new Error('Failed to fetch available models');
+    }
+  }
+
+  async getModelHealth(modelName: string): Promise<ModelHealthStatus> {
+    try {
+      const baseUrl = await this.getBackendUrl();
+      const response = await axios.get(`${baseUrl}/api/propollama/model_health`, { params: { model_name: modelName } });
+      return response.data.model_health;
+    } catch (error) {
+      console.error(`Error fetching health for model ${modelName}:`, error);
+      throw new Error(`Failed to fetch health for model ${modelName}`);
     }
   }
 
@@ -187,6 +269,5 @@ class PropOllamaService {
   }
 }
 
-// Export singleton instance
 export const propOllamaService = new PropOllamaService();
 export default propOllamaService;

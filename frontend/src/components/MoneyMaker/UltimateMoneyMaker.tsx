@@ -58,7 +58,7 @@ interface MoneyMakerConfig {
   followSharps?: boolean;
 }
 
-const UltimateMoneyMaker: React.FC = () => {
+const _UltimateMoneyMaker: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [opportunities, setOpportunities] = useState<BettingOpportunity[]>([]);
   const [totalBankroll, setTotalBankroll] = useState(10000);
@@ -81,7 +81,7 @@ const UltimateMoneyMaker: React.FC = () => {
 
   useEffect(() => {
     // Mock data - comprehensive opportunities with quantum AI analysis
-    const mockOpportunities: BettingOpportunity[] = [
+    const _mockOpportunities: BettingOpportunity[] = [
       {
         id: '1',
         game: 'Lakers vs Warriors',
@@ -142,14 +142,14 @@ const UltimateMoneyMaker: React.FC = () => {
     setOpportunities(mockOpportunities);
   }, []);
 
-  const runQuantumAnalysis = async () => {
+  const _runQuantumAnalysis = async () => {
     setIsAnalyzing(true);
 
     // Simulate comprehensive AI analysis
     await new Promise(resolve => setTimeout(resolve, 3500));
 
     // Generate enhanced opportunities with quantum boost
-    const enhancedOpportunities = opportunities.map(opp => ({
+    const _enhancedOpportunities = opportunities.map(opp => ({
       ...opp,
       confidence: Math.min(opp.confidence + 2.5, 99.9),
       expectedROI: opp.expectedROI * 1.15,
@@ -160,7 +160,7 @@ const UltimateMoneyMaker: React.FC = () => {
     setIsAnalyzing(false);
   };
 
-  const getRiskColor = (risk: string) => {
+  const _getRiskColor = (risk: string) => {
     switch (risk) {
       case 'low':
         return 'text-green-400 bg-green-500/20 border-green-500/30';
@@ -173,7 +173,7 @@ const UltimateMoneyMaker: React.FC = () => {
     }
   };
 
-  const getStrategyColor = (strategy: string) => {
+  const _getStrategyColor = (strategy: string) => {
     switch (strategy) {
       case 'quantum':
         return 'from-purple-500 to-cyan-500';
@@ -188,10 +188,10 @@ const UltimateMoneyMaker: React.FC = () => {
     }
   };
 
-  const totalExpectedProfit = opportunities.reduce((sum, opp) => sum + opp.expectedProfit, 0);
-  const averageROI =
+  const _totalExpectedProfit = opportunities.reduce((sum, opp) => sum + opp.expectedProfit, 0);
+  const _averageROI =
     opportunities.reduce((sum, opp) => sum + opp.expectedROI, 0) / opportunities.length;
-  const averageConfidence =
+  const _averageConfidence =
     opportunities.reduce((sum, opp) => sum + opp.confidence, 0) / opportunities.length;
 
   return (
@@ -419,7 +419,7 @@ const UltimateMoneyMaker: React.FC = () => {
             <select
               id='umm-strategy'
               value={config.strategy}
-              onChange={e => setConfig({ ...config, strategy: e.target.value as any })}
+              onChange={e => setConfig({ ...config, strategy: e.target.value as unknown })}
               className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400'
             >
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

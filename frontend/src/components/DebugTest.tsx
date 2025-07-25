@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
 
-const DebugTest: React.FC = () => {
+const _DebugTest: React.FC = () => {
   const [status, setStatus] = useState('Starting...');
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<unknown>(null);
 
   useEffect(() => {
-    const testAPI = async () => {
+    const _testAPI = async () => {
       try {
         setStatus('Testing backend connection...');
 
         // Test direct connection
-        const response = await fetch('http://localhost:8002/api/prizepicks/props/enhanced');
+        const _response = await fetch('http://localhost:8002/api/prizepicks/props/enhanced');
         setStatus(`Response status: ${response.status}`);
 
         if (response.ok) {
-          const result = await response.json();
+          const _result = await response.json();
           setStatus(`SUCCESS: Got ${result.length} items`);
           setData(result);
         } else {

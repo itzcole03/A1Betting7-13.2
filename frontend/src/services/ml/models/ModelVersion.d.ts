@@ -26,5 +26,5 @@ export declare class ModelVersion {
   incrementMinor(): ModelVersion;
   incrementMajor(): ModelVersion;
   toJSON(): object;
-  static fromJSON(json: any): ModelVersion;
+  static fromJSON(json: unknown): ModelVersion;
 }

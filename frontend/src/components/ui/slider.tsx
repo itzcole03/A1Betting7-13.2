@@ -21,7 +21,7 @@ export interface SliderProps {
   className?: string;
 }
 
-export const Slider: React.FC<SliderProps> = ({
+export const _Slider: React.FC<SliderProps> = ({
   value: controlledValue,
   defaultValue = 0,
   min = 0,
@@ -42,19 +42,19 @@ export const Slider: React.FC<SliderProps> = ({
 }) => {
   const [internalValue, setInternalValue] = useState(defaultValue);
   const [isDragging, setIsDragging] = useState(false);
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const thumbRef = useRef<HTMLDivElement>(null);
+  const _sliderRef = useRef<HTMLDivElement>(null);
+  const _thumbRef = useRef<HTMLDivElement>(null);
 
-  const value = controlledValue ?? internalValue;
-  const percentage = ((value - min) / (max - min)) * 100;
+  const _value = controlledValue ?? internalValue;
+  const _percentage = ((value - min) / (max - min)) * 100;
 
-  const sizeClasses = {
+  const _sizeClasses = {
     sm: { track: 'h-1', thumb: 'w-3 h-3' },
     md: { track: 'h-2', thumb: 'w-4 h-4' },
     lg: { track: 'h-3', thumb: 'w-5 h-5' },
   };
 
-  const colorClasses = {
+  const _colorClasses = {
     blue: {
       track: 'bg-blue-500',
       gradient: 'from-blue-400 to-blue-600',
@@ -93,7 +93,7 @@ export const Slider: React.FC<SliderProps> = ({
     },
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: {
       track: 'bg-slate-700',
       activeTrack: colorClasses[color].track,
@@ -116,27 +116,27 @@ export const Slider: React.FC<SliderProps> = ({
     },
   };
 
-  const calculateValueFromPosition = useCallback(
+  const _calculateValueFromPosition = useCallback(
     (clientX: number) => {
       if (!sliderRef.current) return value;
 
-      const rect = sliderRef.current.getBoundingClientRect();
-      const percentage = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-      const rawValue = min + percentage * (max - min);
-      const steppedValue = Math.round(rawValue / step) * step;
+      const _rect = sliderRef.current.getBoundingClientRect();
+      const _percentage = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      const _rawValue = min + percentage * (max - min);
+      const _steppedValue = Math.round(rawValue / step) * step;
       return Math.max(min, Math.min(max, steppedValue));
     },
     [min, max, step, value]
   );
 
-  const handleMouseDown = useCallback(
+  const _handleMouseDown = useCallback(
     (event: React.MouseEvent) => {
       if (disabled) return;
 
       event.preventDefault();
       setIsDragging(true);
 
-      const newValue = calculateValueFromPosition(event.clientX);
+      const _newValue = calculateValueFromPosition(event.clientX);
       if (!controlledValue) {
         setInternalValue(newValue);
       }
@@ -145,11 +145,11 @@ export const Slider: React.FC<SliderProps> = ({
     [disabled, calculateValueFromPosition, controlledValue, onValueChange]
   );
 
-  const handleMouseMove = useCallback(
+  const _handleMouseMove = useCallback(
     (event: MouseEvent) => {
       if (!isDragging || disabled) return;
 
-      const newValue = calculateValueFromPosition(event.clientX);
+      const _newValue = calculateValueFromPosition(event.clientX);
       if (!controlledValue) {
         setInternalValue(newValue);
       }
@@ -158,7 +158,7 @@ export const Slider: React.FC<SliderProps> = ({
     [isDragging, disabled, calculateValueFromPosition, controlledValue, onValueChange]
   );
 
-  const handleMouseUp = useCallback(() => {
+  const _handleMouseUp = useCallback(() => {
     if (isDragging) {
       setIsDragging(false);
       onValueCommit?.(value);
@@ -177,10 +177,10 @@ export const Slider: React.FC<SliderProps> = ({
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
+  const _handleKeyDown = (event: React.KeyboardEvent) => {
     if (disabled) return;
 
-    let newValue = value;
+    let _newValue = value;
     switch (event.key) {
       case 'ArrowRight':
       case 'ArrowUp':
@@ -208,13 +208,13 @@ export const Slider: React.FC<SliderProps> = ({
     onValueCommit?.(newValue);
   };
 
-  const renderTicks = () => {
+  const _renderTicks = () => {
     if (!showTicks) return null;
 
-    const ticks = [];
-    for (let i = 0; i <= tickCount; i++) {
-      const tickValue = min + (i / tickCount) * (max - min);
-      const tickPercentage = ((tickValue - min) / (max - min)) * 100;
+    const _ticks = [];
+    for (let _i = 0; i <= tickCount; i++) {
+      const _tickValue = min + (i / tickCount) * (max - min);
+      const _tickPercentage = ((tickValue - min) / (max - min)) * 100;
 
       ticks.push(
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -228,7 +228,7 @@ export const Slider: React.FC<SliderProps> = ({
     return ticks;
   };
 
-  const thumbVariants = {
+  const _thumbVariants = {
     default: { scale: 1 },
     hover: { scale: 1.2 },
     active: { scale: 1.3 },

@@ -3,7 +3,7 @@
   streamConfidence: number;
   modelDiversity: number;
   predictionStability: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AnalysisPlugin<TInput, TOutput> {
@@ -44,7 +44,7 @@ export declare class AnalysisRegistry {
     input: TInput,
     context: AnalysisContext
   ): Promise<TOutput>;
-  getPluginsByTag(tag: string): AnalysisPlugin<any, any>[];
+  getPluginsByTag(tag: string): AnalysisPlugin<unknown, unknown>[];
   getPluginConfidence(pluginId: string): number;
   private validateDependencies;
   private updatePluginConfidence;

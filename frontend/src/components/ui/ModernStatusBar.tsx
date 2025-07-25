@@ -71,8 +71,8 @@ interface ModernStatusBarProps {
   onSystemAlert?: (alert: { type: string; message: string }) => void;
 }
 
-const getStatusColor = (status: string, variant: string = 'default') => {
-  const colors = {
+const _getStatusColor = (status: string, variant: string = 'default') => {
+  const _colors = {
     default: {
       normal: 'text-gray-600',
       success: 'text-green-600',
@@ -94,8 +94,8 @@ const getStatusColor = (status: string, variant: string = 'default') => {
     : colors.default[status as keyof typeof colors.default] || colors.default.normal;
 };
 
-const getStatusIcon = (status: string) => {
-  const icons = {
+const _getStatusIcon = (status: string) => {
+  const _icons = {
     normal: '●',
     success: '✓',
     warning: '⚠',
@@ -105,31 +105,31 @@ const getStatusIcon = (status: string) => {
   return icons[status as keyof typeof icons] || icons.normal;
 };
 
-const formatUptime = (seconds: number): string => {
-  const days = Math.floor(seconds / 86400);
-  const hours = Math.floor((seconds % 86400) / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
+const _formatUptime = (seconds: number): string => {
+  const _days = Math.floor(seconds / 86400);
+  const _hours = Math.floor((seconds % 86400) / 3600);
+  const _minutes = Math.floor((seconds % 3600) / 60);
 
   if (days > 0) return `${days}d ${hours}h`;
   if (hours > 0) return `${hours}h ${minutes}m`;
   return `${minutes}m`;
 };
 
-const formatBytes = (bytes: number): string => {
+const _formatBytes = (bytes: number): string => {
   if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const _k = 1024;
+  const _sizes = ['B', 'KB', 'MB', 'GB'];
+  const _i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 };
 
-const formatNumber = (num: number): string => {
+const _formatNumber = (num: number): string => {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
   if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
   return num.toString();
 };
 
-const getCurrentTime = (): string => {
+const _getCurrentTime = (): string => {
   return new Date().toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
@@ -137,7 +137,7 @@ const getCurrentTime = (): string => {
   });
 };
 
-export const ModernStatusBar: React.FC<ModernStatusBarProps> = ({
+export const _ModernStatusBar: React.FC<ModernStatusBarProps> = ({
   statusItems = [],
   systemMetrics,
   applicationStatus,
@@ -163,7 +163,7 @@ export const ModernStatusBar: React.FC<ModernStatusBarProps> = ({
 
   // Update clock
   useEffect(() => {
-    const interval = setInterval(() => {
+    const _interval = setInterval(() => {
       setCurrentTime(getCurrentTime());
     }, 1000);
 
@@ -174,24 +174,24 @@ export const ModernStatusBar: React.FC<ModernStatusBarProps> = ({
   useEffect(() => {
     if (!autoHide) return;
 
-    const handleActivity = () => {
+    const _handleActivity = () => {
       setLastActivity(Date.now());
       setIsVisible(true);
     };
 
-    const checkActivity = () => {
+    const _checkActivity = () => {
       if (Date.now() - lastActivity > 5000) {
         // 5 seconds
         setIsVisible(false);
       }
     };
 
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    const _events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
     events.forEach(event => {
       document.addEventListener(event, handleActivity, true);
     });
 
-    const activityInterval = setInterval(checkActivity, 1000);
+    const _activityInterval = setInterval(checkActivity, 1000);
 
     return () => {
       events.forEach(event => {
@@ -221,7 +221,7 @@ export const ModernStatusBar: React.FC<ModernStatusBarProps> = ({
   }, [systemMetrics, onSystemAlert]);
 
   // Generate system status items
-  const systemStatusItems: StatusItem[] = [];
+  const _systemStatusItems: StatusItem[] = [];
 
   if (showConnectionStatus && systemMetrics) {
     systemStatusItems.push({
@@ -293,18 +293,18 @@ export const ModernStatusBar: React.FC<ModernStatusBarProps> = ({
   }
 
   // Combine and sort all status items
-  const allItems = [...statusItems, ...systemStatusItems]
+  const _allItems = [...statusItems, ...systemStatusItems]
     .sort((a, b) => b.priority - a.priority)
     .slice(0, maxItems);
 
-  const positionClasses = {
+  const _positionClasses = {
     top: 'top-0',
     bottom: 'bottom-0',
     'fixed-top': 'fixed top-0 z-40',
     'fixed-bottom': 'fixed bottom-0 z-40',
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border-t border-gray-200 shadow-sm',
     cyber:
       'bg-slate-900/95 border-t border-cyan-500/30 shadow-lg shadow-cyan-500/20 backdrop-blur-md',
@@ -545,7 +545,7 @@ export const ModernStatusBar: React.FC<ModernStatusBarProps> = ({
 };
 
 // Pre-built status items for common use cases
-export const createCommonStatusItems = (): StatusItem[] => [
+export const _createCommonStatusItems = (): StatusItem[] => [
   {
     id: 'sync-status',
     label: 'Sync',

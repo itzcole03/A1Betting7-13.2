@@ -2,5 +2,5 @@
 interface PayoutPreviewProps {
   payout: number;
 }
-declare const PayoutPreview: React.FC<PayoutPreviewProps>;
+declare const _PayoutPreview: React.FC<PayoutPreviewProps>;
 export default PayoutPreview;

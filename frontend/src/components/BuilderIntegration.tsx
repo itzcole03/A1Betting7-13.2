@@ -14,7 +14,7 @@ interface BuilderIntegrationProps {
   content?: Record<string, unknown> | string | null;
 }
 
-const CommandSummarySidebar: React.FC = () => {
+const _CommandSummarySidebar: React.FC = () => {
   const { commands, loading, error } = useCommandSummary();
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -61,8 +61,8 @@ const CommandSummarySidebar: React.FC = () => {
   );
 };
 
-const BuilderIntegration: React.FC<BuilderIntegrationProps> = ({ model = 'page', content }) => {
-  const location = useLocation();
+const _BuilderIntegration: React.FC<BuilderIntegrationProps> = ({ model = 'page', content }) => {
+  const _location = useLocation();
 
   // If Builder.io content exists, render it
   if (content) {
@@ -87,7 +87,7 @@ const BuilderIntegration: React.FC<BuilderIntegrationProps> = ({ model = 'page',
   return <QuantumSportsPlatform />;
 };
 
-export default function BuilderIntegrationWrapper(props: Record<string, unknown>) {
+export default function BuilderIntegrationWrapper(_props: Record<string, _unknown>) {
   return (
     <CommandSummaryProvider>
       <BuilderIntegration {...props} />

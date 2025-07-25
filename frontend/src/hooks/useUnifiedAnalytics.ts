@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
-import { masterServiceRegistry } from '../services/MasterServiceRegistry';
+import { useCallback, useEffect, useState } from 'react';
 
 interface AnalyticsMetrics {
   performance: {
@@ -42,7 +41,7 @@ interface AnalyticsMetrics {
   };
 }
 
-export const useUnifiedAnalytics = () => {
+export const _useUnifiedAnalytics = () => {
   const [metrics, setMetrics] = useState<AnalyticsMetrics>({
     performance: {
       totalBets: 0,
@@ -67,18 +66,18 @@ export const useUnifiedAnalytics = () => {
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
 
-  const fetchAnalytics = useCallback(
+  const _fetchAnalytics = useCallback(
     async (range?: string) => {
       try {
         setLoading(true);
         setError(null);
 
-        const analyticsService = masterServiceRegistry.getService('analytics');
+        const _analyticsService = masterServiceRegistry.getService('analytics');
         if (!analyticsService) {
           throw new Error('Analytics service not available');
         }
 
-        const data = await analyticsService.getUnifiedMetrics({
+        const _data = await analyticsService.getUnifiedMetrics({
           timeRange: range || timeRange,
           includeModels: true,
           includeSports: true,
@@ -88,7 +87,7 @@ export const useUnifiedAnalytics = () => {
 
         setMetrics(data);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch analytics';
+        const _errorMessage = err instanceof Error ? err.message : 'Failed to fetch analytics';
         setError(errorMessage);
         console.error('Unified analytics fetch error:', err);
       } finally {
@@ -98,7 +97,7 @@ export const useUnifiedAnalytics = () => {
     [timeRange]
   );
 
-  const generateReport = useCallback(
+  const _generateReport = useCallback(
     async (options: {
       timeRange: string;
       sports?: string[];
@@ -106,7 +105,7 @@ export const useUnifiedAnalytics = () => {
       format?: 'json' | 'pdf' | 'csv';
     }) => {
       try {
-        const analyticsService = masterServiceRegistry.getService('analytics');
+        const _analyticsService = masterServiceRegistry.getService('analytics');
         if (!analyticsService?.generateReport) {
           throw new Error('Report generation not available');
         }
@@ -120,9 +119,9 @@ export const useUnifiedAnalytics = () => {
     []
   );
 
-  const trackEvent = useCallback(async (event: string, properties: any) => {
+  const _trackEvent = useCallback(async (event: string, properties: unknown) => {
     try {
-      const analyticsService = masterServiceRegistry.getService('analytics');
+      const _analyticsService = masterServiceRegistry.getService('analytics');
       if (analyticsService?.trackEvent) {
         await analyticsService.trackEvent(event, properties);
       }
@@ -131,28 +130,28 @@ export const useUnifiedAnalytics = () => {
     }
   }, []);
 
-  const getModelPerformance = useCallback(
+  const _getModelPerformance = useCallback(
     (modelName: string) => {
       return metrics.models[modelName] || null;
     },
     [metrics.models]
   );
 
-  const getSportPerformance = useCallback(
+  const _getSportPerformance = useCallback(
     (sport: string) => {
       return metrics.sports[sport] || null;
     },
     [metrics.sports]
   );
 
-  const getMarketAnalysis = useCallback(
+  const _getMarketAnalysis = useCallback(
     (market: string) => {
       return metrics.markets[market] || null;
     },
     [metrics.markets]
   );
 
-  const getTopPerformingSports = useCallback(
+  const _getTopPerformingSports = useCallback(
     (limit = 5) => {
       return Object.entries(metrics.sports)
         .sort(([, a], [, b]) => b.roi - a.roi)
@@ -162,7 +161,7 @@ export const useUnifiedAnalytics = () => {
     [metrics.sports]
   );
 
-  const getTopPerformingModels = useCallback(
+  const _getTopPerformingModels = useCallback(
     (limit = 5) => {
       return Object.entries(metrics.models)
         .sort(([, a], [, b]) => b.accuracy - a.accuracy)
@@ -172,15 +171,15 @@ export const useUnifiedAnalytics = () => {
     [metrics.models]
   );
 
-  const calculateWinStreaks = useCallback(() => {
-    const daily = metrics.trends.daily;
+  const _calculateWinStreaks = useCallback(() => {
+    const _daily = metrics.trends.daily;
     if (!daily.length) return { current: 0, longest: 0 };
 
-    let current = 0;
-    let longest = 0;
-    let temp = 0;
+    let _current = 0;
+    let _longest = 0;
+    let _temp = 0;
 
-    for (let i = daily.length - 1; i >= 0; i--) {
+    for (let _i = daily.length - 1; i >= 0; i--) {
       if (daily[i].profit > 0) {
         temp++;
         if (i === daily.length - 1) current = temp;
@@ -194,42 +193,44 @@ export const useUnifiedAnalytics = () => {
     return { current, longest };
   }, [metrics.trends.daily]);
 
-  const getProfitTrend = useCallback(
+  const _getProfitTrend = useCallback(
     (period: 'daily' | 'weekly' | 'monthly' = 'daily') => {
-      const data = metrics.trends[period];
+      const _data = metrics.trends[period];
       if (!data.length) return { trend: 'flat', change: 0 };
 
-      const recent = data.slice(-7); // Last 7 periods
-      const older = data.slice(-14, -7); // Previous 7 periods
+      const _recent = data.slice(-7); // Last 7 periods
+      const _older = data.slice(-14, -7); // Previous 7 periods
 
       // @ts-expect-error TS(2349): This expression is not callable.
-      const recentAvg = recent.reduce((sum: any, item: any) => sum + item.profit, 0) / recent.length;
+      const _recentAvg =
+        recent.reduce((sum: unknown, item: unknown) => sum + item.profit, 0) / recent.length;
       // @ts-expect-error TS(2349): This expression is not callable.
-      const olderAvg = older.reduce((sum: any, item: any) => sum + item.profit, 0) / older.length || 1;
+      const _olderAvg =
+        older.reduce((sum: unknown, item: unknown) => sum + item.profit, 0) / older.length || 1;
 
-      const change = ((recentAvg - olderAvg) / Math.abs(olderAvg)) * 100;
-      const trend = change > 5 ? 'up' : change < -5 ? 'down' : 'flat';
+      const _change = ((recentAvg - olderAvg) / Math.abs(olderAvg)) * 100;
+      const _trend = change > 5 ? 'up' : change < -5 ? 'down' : 'flat';
 
       return { trend, change };
     },
     [metrics.trends]
   );
 
-  const exportData = useCallback(
+  const _exportData = useCallback(
     async (format: 'csv' | 'json' = 'json') => {
       try {
-        const analyticsService = masterServiceRegistry.getService('analytics');
+        const _analyticsService = masterServiceRegistry.getService('analytics');
         if (!analyticsService?.exportData) {
           // Fallback to client-side export
-          const dataStr =
+          const _dataStr =
             format === 'json' ? JSON.stringify(metrics, null, 2) : convertToCSV(metrics);
 
-          const blob = new Blob([dataStr], {
+          const _blob = new Blob([dataStr], {
             type: format === 'json' ? 'application/json' : 'text/csv',
           });
 
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
+          const _url = URL.createObjectURL(blob);
+          const _a = document.createElement('a');
           a.href = url;
           a.download = `analytics-${new Date().toISOString().split('T')[0]}.${format}`;
           a.click();
@@ -247,10 +248,10 @@ export const useUnifiedAnalytics = () => {
     [metrics]
   );
 
-  const convertToCSV = useCallback((data: any) => {
+  const _convertToCSV = useCallback((data: unknown) => {
     // Simple CSV conversion for performance data
-    const headers = ['Date', 'Profit', 'Bets', 'Win Rate'];
-    const rows = data.trends.daily.map((item: any) => [
+    const _headers = ['Date', 'Profit', 'Bets', 'Win Rate'];
+    const _rows = data.trends.daily.map((item: unknown) => [
       item.date,
       item.profit,
       item.bets,
@@ -260,11 +261,11 @@ export const useUnifiedAnalytics = () => {
     return [headers, ...rows].map(row => row.join(',')).join('\n');
   }, []);
 
-  const refreshAnalytics = useCallback(() => {
+  const _refreshAnalytics = useCallback(() => {
     fetchAnalytics();
   }, [fetchAnalytics]);
 
-  const setAnalyticsTimeRange = useCallback(
+  const _setAnalyticsTimeRange = useCallback(
     (range: '7d' | '30d' | '90d' | '1y') => {
       setTimeRange(range);
       fetchAnalytics(range);

@@ -15,7 +15,7 @@ export interface ElectronAPI {
   checkForUpdates: () => Promise<{ available: boolean; version: string | null }>;
 
   // Menu event listeners
-  onMenuAction: (callback: (event: any, data?: any) => void) => void;
+  onMenuAction: (callback: (event: unknown, data?: unknown) => void) => void;
   removeMenuListeners: () => void;
 
   // Platform detection
@@ -32,8 +32,8 @@ export interface NotificationAPI {
 }
 
 export interface StoreAPI {
-  set: (key: string, value: any) => void;
-  get: (key: string, defaultValue?: any) => any;
+  set: (key: string, value: unknown) => void;
+  get: (key: string, defaultValue?: unknown) => unknown;
   delete: (key: string) => void;
   clear: () => void;
 }

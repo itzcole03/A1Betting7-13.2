@@ -62,21 +62,21 @@ interface BetSimulationToolProps {
   onPortfolioAnalysis?: (portfolio: PortfolioSimulation) => void;
 }
 
-const calculateExpectedValue = (betAmount: number, odds: number, probability: number): number => {
-  const decimalOdds = odds > 0 ? odds / 100 + 1 : 100 / Math.abs(odds) + 1;
-  const winAmount = betAmount * (decimalOdds - 1);
-  const lossAmount = betAmount;
+const _calculateExpectedValue = (betAmount: number, odds: number, probability: number): number => {
+  const _decimalOdds = odds > 0 ? odds / 100 + 1 : 100 / Math.abs(odds) + 1;
+  const _winAmount = betAmount * (decimalOdds - 1);
+  const _lossAmount = betAmount;
   return probability * winAmount - (1 - probability) * lossAmount;
 };
 
-const calculateKellyPercentage = (odds: number, probability: number): number => {
-  const decimalOdds = odds > 0 ? odds / 100 + 1 : 100 / Math.abs(odds) + 1;
-  const q = 1 - probability;
-  const b = decimalOdds - 1;
+const _calculateKellyPercentage = (odds: number, probability: number): number => {
+  const _decimalOdds = odds > 0 ? odds / 100 + 1 : 100 / Math.abs(odds) + 1;
+  const _q = 1 - probability;
+  const _b = decimalOdds - 1;
   return Math.max(0, (probability * b - q) / b);
 };
 
-const calculateRiskLevel = (
+const _calculateRiskLevel = (
   ev: number,
   kelly: number,
   variance: number
@@ -87,19 +87,19 @@ const calculateRiskLevel = (
   return 'low';
 };
 
-const formatOdds = (odds: number): string => {
+const _formatOdds = (odds: number): string => {
   return odds > 0 ? `+${odds}` : `${odds}`;
 };
 
-const formatCurrency = (amount: number, currency: string = 'USD'): string => {
+const _formatCurrency = (amount: number, currency: string = 'USD'): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency,
   }).format(amount);
 };
 
-const getRiskColor = (risk: string, variant: string = 'default') => {
-  const colors = {
+const _getRiskColor = (risk: string, variant: string = 'default') => {
+  const _colors = {
     default: {
       low: 'text-green-600 bg-green-50 border-green-200',
       medium: 'text-yellow-600 bg-yellow-50 border-yellow-200',
@@ -119,7 +119,7 @@ const getRiskColor = (risk: string, variant: string = 'default') => {
     : colors.default[risk as keyof typeof colors.default];
 };
 
-export const BetSimulationTool: React.FC<BetSimulationToolProps> = ({
+export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
   initialBankroll = 1000,
   scenarios = [],
   variant = 'default',
@@ -156,31 +156,31 @@ export const BetSimulationTool: React.FC<BetSimulationToolProps> = ({
     };
   } | null>(null);
 
-  const runSimulation = (scenario: BetScenario): SimulationResult => {
-    const decimalOdds =
+  const _runSimulation = (scenario: BetScenario): SimulationResult => {
+    const _decimalOdds =
       scenario.odds > 0 ? scenario.odds / 100 + 1 : 100 / Math.abs(scenario.odds) + 1;
-    const winPayout = scenario.betAmount * decimalOdds;
-    const winProfit = winPayout - scenario.betAmount;
-    const lossAmount = scenario.betAmount;
+    const _winPayout = scenario.betAmount * decimalOdds;
+    const _winProfit = winPayout - scenario.betAmount;
+    const _lossAmount = scenario.betAmount;
 
-    const expectedValue = calculateExpectedValue(
+    const _expectedValue = calculateExpectedValue(
       scenario.betAmount,
       scenario.odds,
       scenario.probability
     );
-    const variance =
+    const _variance =
       scenario.probability * Math.pow(winProfit, 2) +
       (1 - scenario.probability) * Math.pow(-lossAmount, 2) -
       Math.pow(expectedValue, 2);
-    const sharpeRatio = expectedValue / Math.sqrt(variance);
-    const kellyOptimal = calculateKellyPercentage(scenario.odds, scenario.probability) * bankroll;
+    const _sharpeRatio = expectedValue / Math.sqrt(variance);
+    const _kellyOptimal = calculateKellyPercentage(scenario.odds, scenario.probability) * bankroll;
 
-    const requiredWinRate =
+    const _requiredWinRate =
       scenario.odds > 0
         ? 100 / (scenario.odds + 100)
         : Math.abs(scenario.odds) / (Math.abs(scenario.odds) + 100);
 
-    const riskOfRuin = bankroll > 0 ? Math.exp((-2 * expectedValue * bankroll) / variance) : 1;
+    const _riskOfRuin = bankroll > 0 ? Math.exp((-2 * expectedValue * bankroll) / variance) : 1;
 
     return {
       scenario,
@@ -207,25 +207,25 @@ export const BetSimulationTool: React.FC<BetSimulationToolProps> = ({
     };
   };
 
-  const runAllSimulations = () => {
-    const results = betScenarios.map(runSimulation);
+  const _runAllSimulations = () => {
+    const _results = betScenarios.map(runSimulation);
     setSimulationResults(results);
     onSimulationRun?.(results);
   };
 
-  const runMonteCarloSimulation = (iterations: number = 10000) => {
+  const _runMonteCarloSimulation = (iterations: number = 10000) => {
     if (betScenarios.length === 0) return;
 
-    const outcomes: number[] = [];
+    const _outcomes: number[] = [];
 
-    for (let i = 0; i < iterations; i++) {
-      let portfolioOutcome = 0;
+    for (let _i = 0; i < iterations; i++) {
+      let _portfolioOutcome = 0;
 
-      for (const scenario of betScenarios) {
-        const random = Math.random();
+      for (const _scenario of betScenarios) {
+        const _random = Math.random();
         if (random < scenario.probability) {
           // Win
-          const decimalOdds =
+          const _decimalOdds =
             scenario.odds > 0 ? scenario.odds / 100 + 1 : 100 / Math.abs(scenario.odds) + 1;
           portfolioOutcome += scenario.betAmount * (decimalOdds - 1);
         } else {
@@ -238,11 +238,11 @@ export const BetSimulationTool: React.FC<BetSimulationToolProps> = ({
     }
 
     outcomes.sort((a, b) => a - b);
-    const mean = outcomes.reduce((sum, val) => sum + val, 0) / outcomes.length;
-    const median = outcomes[Math.floor(outcomes.length / 2)];
-    const variance =
+    const _mean = outcomes.reduce((sum, val) => sum + val, 0) / outcomes.length;
+    const _median = outcomes[Math.floor(outcomes.length / 2)];
+    const _variance =
       outcomes.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / outcomes.length;
-    const stdDev = Math.sqrt(variance);
+    const _stdDev = Math.sqrt(variance);
 
     setMonteCarloResults({
       iterations,
@@ -261,7 +261,7 @@ export const BetSimulationTool: React.FC<BetSimulationToolProps> = ({
     });
   };
 
-  const addScenario = () => {
+  const _addScenario = () => {
     if (
       !newScenario.name ||
       !newScenario.betAmount ||
@@ -271,18 +271,18 @@ export const BetSimulationTool: React.FC<BetSimulationToolProps> = ({
       return;
     }
 
-    const betAmount = parseFloat(newScenario.betAmount);
-    const odds = parseFloat(newScenario.odds);
-    const probability = parseFloat(newScenario.probability) / 100;
+    const _betAmount = parseFloat(newScenario.betAmount);
+    const _odds = parseFloat(newScenario.odds);
+    const _probability = parseFloat(newScenario.probability) / 100;
 
-    const expectedValue = calculateExpectedValue(betAmount, odds, probability);
-    const kellyPercentage = calculateKellyPercentage(odds, probability);
-    const variance =
+    const _expectedValue = calculateExpectedValue(betAmount, odds, probability);
+    const _kellyPercentage = calculateKellyPercentage(odds, probability);
+    const _variance =
       probability * Math.pow((betAmount * odds) / 100, 2) +
       (1 - probability) * Math.pow(betAmount, 2);
-    const riskLevel = calculateRiskLevel(expectedValue, kellyPercentage, variance);
+    const _riskLevel = calculateRiskLevel(expectedValue, kellyPercentage, variance);
 
-    const scenario: BetScenario = {
+    const _scenario: BetScenario = {
       id: Date.now().toString(),
       name: newScenario.name,
       betAmount,
@@ -300,12 +300,12 @@ export const BetSimulationTool: React.FC<BetSimulationToolProps> = ({
     setNewScenario({ name: '', betAmount: '', odds: '', probability: '' });
   };
 
-  const removeScenario = (id: string) => {
+  const _removeScenario = (id: string) => {
     setBetScenarios(prev => prev.filter(s => s.id !== id));
     setSimulationResults(prev => prev.filter(r => r.scenario.id !== id));
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-lg shadow-sm',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -485,7 +485,7 @@ export const BetSimulationTool: React.FC<BetSimulationToolProps> = ({
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='space-y-3'>
             {betScenarios.map(scenario => {
-              const result = simulationResults.find(r => r.scenario.id === scenario.id);
+              const _result = simulationResults.find(r => r.scenario.id === scenario.id);
               return (
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <ScenarioCard
@@ -555,7 +555,7 @@ interface ScenarioCardProps {
   onRemove: (id: string) => void;
 }
 
-const ScenarioCard: React.FC<ScenarioCardProps> = ({
+const _ScenarioCard: React.FC<ScenarioCardProps> = ({
   scenario,
   result,
   variant,
@@ -707,11 +707,11 @@ interface PortfolioAnalysisProps {
   currency: string;
 }
 
-const PortfolioAnalysis: React.FC<PortfolioAnalysisProps> = ({ results, variant, currency }) => {
-  const totalExpectedValue = results.reduce((sum, r) => sum + r.expectedValue, 0);
-  const totalStake = results.reduce((sum, r) => sum + r.scenario.betAmount, 0);
-  const totalRisk = Math.sqrt(results.reduce((sum, r) => sum + r.variance, 0));
-  const portfolioSharpe = totalExpectedValue / totalRisk;
+const _PortfolioAnalysis: React.FC<PortfolioAnalysisProps> = ({ results, variant, currency }) => {
+  const _totalExpectedValue = results.reduce((sum, r) => sum + r.expectedValue, 0);
+  const _totalStake = results.reduce((sum, r) => sum + r.scenario.betAmount, 0);
+  const _totalRisk = Math.sqrt(results.reduce((sum, r) => sum + r.variance, 0));
+  const _portfolioSharpe = totalExpectedValue / totalRisk;
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -844,7 +844,7 @@ interface MonteCarloResultsProps {
   currency: string;
 }
 
-const MonteCarloResults: React.FC<MonteCarloResultsProps> = ({ results, variant, currency }) => (
+const _MonteCarloResults: React.FC<MonteCarloResultsProps> = ({ results, variant, currency }) => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div>
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

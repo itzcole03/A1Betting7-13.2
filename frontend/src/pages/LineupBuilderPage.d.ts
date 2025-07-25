@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const LineupBuilderPage: React.FC;
+declare const _LineupBuilderPage: React.FC;
 export default LineupBuilderPage;

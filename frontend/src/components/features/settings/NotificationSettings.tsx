@@ -34,7 +34,7 @@ import { Layout } from '../../core/Layout';
 interface NotificationChannel {
   id: string;
   name: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<unknown>;
   enabled: boolean;
   description: string;
   testable: boolean;
@@ -43,7 +43,7 @@ interface NotificationChannel {
 interface NotificationCategory {
   id: string;
   name: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<unknown>;
   description: string;
   settings: {
     email: boolean;
@@ -77,7 +77,7 @@ interface NotificationHistory {
   actionTaken?: boolean;
 }
 
-const NotificationSettings: React.FC = () => {
+const _NotificationSettings: React.FC = () => {
   const [activeTab, setActiveTab] = useState('channels');
   const [channels, setChannels] = useState<NotificationChannel[]>([
     {
@@ -247,7 +247,7 @@ const NotificationSettings: React.FC = () => {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [showCustomAlertModal, setShowCustomAlertModal] = useState(false);
 
-  const saveSettings = async () => {
+  const _saveSettings = async () => {
     setIsLoading(true);
     setSaveStatus('saving');
 
@@ -266,13 +266,13 @@ const NotificationSettings: React.FC = () => {
     }
   };
 
-  const testNotification = async (channelId: string) => {
+  const _testNotification = async (channelId: string) => {
     try {
       // Simulate sending test notification
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Add to history
-      const testNotification: NotificationHistory = {
+      const _testNotification: NotificationHistory = {
         id: Date.now().toString(),
         type: 'test',
         title: 'Test Notification',
@@ -288,13 +288,13 @@ const NotificationSettings: React.FC = () => {
     }
   };
 
-  const updateChannelStatus = (channelId: string, enabled: boolean) => {
+  const _updateChannelStatus = (channelId: string, enabled: boolean) => {
     setChannels(prev =>
       prev.map(channel => (channel.id === channelId ? { ...channel, enabled } : channel))
     );
   };
 
-  const updateCategorySettings = (
+  const _updateCategorySettings = (
     categoryId: string,
     channelType: keyof NotificationCategory['settings'],
     enabled: boolean
@@ -311,17 +311,17 @@ const NotificationSettings: React.FC = () => {
     );
   };
 
-  const toggleCustomAlert = (alertId: string) => {
+  const _toggleCustomAlert = (alertId: string) => {
     setCustomAlerts(prev =>
       prev.map(alert => (alert.id === alertId ? { ...alert, enabled: !alert.enabled } : alert))
     );
   };
 
-  const deleteCustomAlert = (alertId: string) => {
+  const _deleteCustomAlert = (alertId: string) => {
     setCustomAlerts(prev => prev.filter(alert => alert.id !== alertId));
   };
 
-  const markAsRead = (notificationId: string) => {
+  const _markAsRead = (notificationId: string) => {
     setNotificationHistory(prev =>
       prev.map(notification =>
         notification.id === notificationId ? { ...notification, read: true } : notification
@@ -329,7 +329,7 @@ const NotificationSettings: React.FC = () => {
     );
   };
 
-  const getPriorityColor = (priority: NotificationCategory['priority']) => {
+  const _getPriorityColor = (priority: NotificationCategory['priority']) => {
     switch (priority) {
       case 'critical':
         return 'text-red-400 bg-red-400/10 border-red-400/20';
@@ -344,7 +344,7 @@ const NotificationSettings: React.FC = () => {
     }
   };
 
-  const ToggleSwitch: React.FC<{
+  const _ToggleSwitch: React.FC<{
     enabled: boolean;
     onChange: (enabled: boolean) => void;
     disabled?: boolean;
@@ -366,14 +366,14 @@ const NotificationSettings: React.FC = () => {
     </button>
   );
 
-  const tabs = [
+  const _tabs = [
     { id: 'channels', label: 'Channels', icon: Bell },
     { id: 'categories', label: 'Categories', icon: Target },
     { id: 'custom', label: 'Custom Alerts', icon: Zap },
     { id: 'history', label: 'History', icon: Clock },
   ];
 
-  const renderChannels = () => (
+  const _renderChannels = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -437,7 +437,7 @@ const NotificationSettings: React.FC = () => {
     </div>
   );
 
-  const renderCategories = () => (
+  const _renderCategories = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -489,7 +489,7 @@ const NotificationSettings: React.FC = () => {
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
               {Object.entries(category.settings).map(([channelType, enabled]) => {
-                const channelInfo = channels.find(c => c.id === channelType) || {
+                const _channelInfo = channels.find(c => c.id === channelType) || {
                   id: channelType,
                   name: channelType,
                   enabled: true,
@@ -507,7 +507,7 @@ const NotificationSettings: React.FC = () => {
                     <ToggleSwitch
                       enabled={enabled && channelInfo.enabled}
                       onChange={newEnabled =>
-                        updateCategorySettings(category.id, channelType as any, newEnabled)
+                        updateCategorySettings(category.id, channelType as unknown, newEnabled)
                       }
                       disabled={!channelInfo.enabled || !category.customizable}
                     />
@@ -521,7 +521,7 @@ const NotificationSettings: React.FC = () => {
     </div>
   );
 
-  const renderCustomAlerts = () => (
+  const _renderCustomAlerts = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -627,7 +627,7 @@ const NotificationSettings: React.FC = () => {
     </div>
   );
 
-  const renderHistory = () => (
+  const _renderHistory = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -696,7 +696,7 @@ const NotificationSettings: React.FC = () => {
     </div>
   );
 
-  const renderTabContent = () => {
+  const _renderTabContent = () => {
     switch (activeTab) {
       case 'channels':
         return renderChannels();

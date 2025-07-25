@@ -1,3 +1,4 @@
+import { VITE_API_URL } from '../constants';
 /**
  * AccessRequestService - Handles user access requests and approval workflow
  */
@@ -29,9 +30,8 @@ class AccessRequestService {
   private baseUrl: string;
 
   constructor() {
-    // In production, this would come from environment variables
-    // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-    this.baseUrl = import.meta.env.VITE_API_URL || '/api';
+    // Use centralized VITE_API_URL for browser-safe environment variables
+    this.baseUrl = VITE_API_URL || '/api';
   }
 
   /**
@@ -39,7 +39,7 @@ class AccessRequestService {
    */
   async submitAccessRequest(data: AccessRequestSubmission): Promise<AccessRequestResponse> {
     try {
-      const response = await fetch(`${this.baseUrl}/access-requests`, {
+      const _response = await fetch(`${this.baseUrl}/access-requests`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,21 +53,18 @@ class AccessRequestService {
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Network error' }));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      if (!_response.ok) {
+        const _errorData = await _response.json().catch(() => ({ message: 'Network error' }));
+        throw new Error(_errorData.message || `HTTP error! status: ${_response.status}`);
       }
 
-      return await response.json();
+      return await _response.json();
     } catch (error) {
       console.error('Failed to submit access request:', error);
-
       // For demo purposes, simulate success
-      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-      if (import.meta.env.DEV) {
+      if (process.env.NODE_ENV === 'development') {
         return this.simulateAccessRequest(data);
       }
-
       throw error;
     }
   }
@@ -77,7 +74,7 @@ class AccessRequestService {
    */
   async checkExistingRequest(email: string): Promise<AccessRequest | null> {
     try {
-      const response = await fetch(
+      const _response = await fetch(
         `${this.baseUrl}/access-requests/check/${encodeURIComponent(email)}`,
         {
           method: 'GET',
@@ -87,24 +84,21 @@ class AccessRequestService {
         }
       );
 
-      if (response.status === 404) {
+      if (_response.status === 404) {
         return null; // No existing request
       }
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!_response.ok) {
+        throw new Error(`HTTP error! status: ${_response.status}`);
       }
 
-      return await response.json();
+      return await _response.json();
     } catch (error) {
       console.error('Failed to check existing request:', error);
-
       // For demo purposes, return null (no existing request)
-      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-      if (import.meta.env.DEV) {
+      if (process.env.NODE_ENV === 'development') {
         return null;
       }
-
       throw error;
     }
   }
@@ -114,7 +108,7 @@ class AccessRequestService {
    */
   async getAllAccessRequests(authToken: string): Promise<AccessRequest[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/admin/access-requests`, {
+      const _response = await fetch(`${this.baseUrl}/admin/access-requests`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -122,20 +116,17 @@ class AccessRequestService {
         },
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!_response.ok) {
+        throw new Error(`HTTP error! status: ${_response.status}`);
       }
 
-      return await response.json();
+      return await _response.json();
     } catch (error) {
       console.error('Failed to fetch access requests:', error);
-
       // For demo purposes, return mock data
-      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-      if (import.meta.env.DEV) {
+      if (process.env.NODE_ENV === 'development') {
         return this.getMockAccessRequests();
       }
-
       throw error;
     }
   }
@@ -149,7 +140,7 @@ class AccessRequestService {
     adminEmail: string
   ): Promise<AccessRequestResponse> {
     try {
-      const response = await fetch(`${this.baseUrl}/admin/access-requests/${requestId}/approve`, {
+      const _response = await fetch(`${this.baseUrl}/admin/access-requests/${requestId}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -161,24 +152,21 @@ class AccessRequestService {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!_response.ok) {
+        throw new Error(`HTTP error! status: ${_response.status}`);
       }
 
-      return await response.json();
+      return await _response.json();
     } catch (error) {
       console.error('Failed to approve access request:', error);
-
       // For demo purposes, simulate success
-      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-      if (import.meta.env.DEV) {
+      if (process.env.NODE_ENV === 'development') {
         return {
           success: true,
           message:
             'Access request approved successfully. User will receive email with login credentials.',
         };
       }
-
       throw error;
     }
   }
@@ -193,7 +181,7 @@ class AccessRequestService {
     reason?: string
   ): Promise<AccessRequestResponse> {
     try {
-      const response = await fetch(`${this.baseUrl}/admin/access-requests/${requestId}/deny`, {
+      const _response = await fetch(`${this.baseUrl}/admin/access-requests/${requestId}/deny`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -206,23 +194,20 @@ class AccessRequestService {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!_response.ok) {
+        throw new Error(`HTTP error! status: ${_response.status}`);
       }
 
-      return await response.json();
+      return await _response.json();
     } catch (error) {
       console.error('Failed to deny access request:', error);
-
       // For demo purposes, simulate success
-      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-      if (import.meta.env.DEV) {
+      if (process.env.NODE_ENV === 'development') {
         return {
           success: true,
           message: 'Access request denied. User will be notified via email.',
         };
       }
-
       throw error;
     }
   }
@@ -231,20 +216,20 @@ class AccessRequestService {
    * Validate email format
    */
   isValidEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    const _emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return _emailRegex.test(email);
   }
 
   /**
    * Generate temporary password
    */
   generateTempPassword(): string {
-    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
-    let password = '';
-    for (let i = 0; i < 12; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    const _chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    let _password = '';
+    for (let _i = 0; _i < 12; _i++) {
+      _password += _chars.charAt(Math.floor(Math.random() * _chars.length));
     }
-    return password;
+    return _password;
   }
 
   /**
@@ -304,7 +289,7 @@ class AccessRequestService {
 }
 
 // Export singleton instance
-export const accessRequestService = new AccessRequestService();
+export const _accessRequestService = new AccessRequestService();
 
 // Export class for testing
 export default AccessRequestService;

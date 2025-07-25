@@ -7,8 +7,8 @@ export interface AppContextType {
   setLoading: (loading: boolean) => void;
   notification: string | null;
   setNotification: (msg: string | null) => void;
-  user: any;
-  setUser: (user: any) => void;
+  user: unknown;
+  setUser: (user: unknown) => void;
 }
 
 export {};

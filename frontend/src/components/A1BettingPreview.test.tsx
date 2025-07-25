@@ -15,7 +15,7 @@ describe('A1BettingPreview', () => {
   it('switches to Money Maker tab when clicked', () => {
     render(<A1BettingPreview />);
     // Find and click the Money Maker tab button
-    const moneyMakerTab = screen.getByRole('tab', { name: /Money Maker/i });
+    const _moneyMakerTab = screen.getByRole('tab', { name: /Money Maker/i });
     fireEvent.click(moneyMakerTab);
     // Check that Money Maker tab is now active
     expect(moneyMakerTab).toHaveAttribute('aria-selected', 'true');
@@ -27,7 +27,7 @@ describe('A1BettingPreview', () => {
 
   it('renders Arbitrage tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /Arbitrage/i });
+    const _tab = screen.getByRole('tab', { name: /Arbitrage/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('Arbitrage')).toBeInTheDocument();
@@ -35,7 +35,7 @@ describe('A1BettingPreview', () => {
 
   it('renders Live Betting tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /Live Betting/i });
+    const _tab = screen.getByRole('tab', { name: /Live Betting/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('Live Betting')).toBeInTheDocument();
@@ -43,7 +43,7 @@ describe('A1BettingPreview', () => {
 
   it('renders PrizePicks tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /PrizePicks/i });
+    const _tab = screen.getByRole('tab', { name: /PrizePicks/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('PrizePicks')).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('A1BettingPreview', () => {
 
   it('renders Analytics tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /ML Analytics/i });
+    const _tab = screen.getByRole('tab', { name: /ML Analytics/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('ML Analytics')).toBeInTheDocument();
@@ -59,7 +59,7 @@ describe('A1BettingPreview', () => {
 
   it('renders Predictions tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /AI Predictions/i });
+    const _tab = screen.getByRole('tab', { name: /AI Predictions/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('AI Predictions')).toBeInTheDocument();
@@ -67,7 +67,7 @@ describe('A1BettingPreview', () => {
 
   it('renders Quantum AI tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /Quantum AI/i });
+    const _tab = screen.getByRole('tab', { name: /Quantum AI/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('Quantum AI')).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe('A1BettingPreview', () => {
 
   it('renders SHAP Analysis tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /SHAP Analysis/i });
+    const _tab = screen.getByRole('tab', { name: /SHAP Analysis/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('SHAP Analysis')).toBeInTheDocument();
@@ -83,7 +83,7 @@ describe('A1BettingPreview', () => {
 
   it('renders Social Intel tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /Social Intel/i });
+    const _tab = screen.getByRole('tab', { name: /Social Intel/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('Social Intel')).toBeInTheDocument();
@@ -91,7 +91,7 @@ describe('A1BettingPreview', () => {
 
   it('renders News Hub tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /News Hub/i });
+    const _tab = screen.getByRole('tab', { name: /News Hub/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('News Hub')).toBeInTheDocument();
@@ -99,7 +99,7 @@ describe('A1BettingPreview', () => {
 
   it('renders Weather Station tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /Weather Station/i });
+    const _tab = screen.getByRole('tab', { name: /Weather Station/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('Weather Station')).toBeInTheDocument();
@@ -107,7 +107,7 @@ describe('A1BettingPreview', () => {
 
   it('renders Injury Tracker tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /Injury Tracker/i });
+    const _tab = screen.getByRole('tab', { name: /Injury Tracker/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('Injury Tracker')).toBeInTheDocument();
@@ -115,7 +115,7 @@ describe('A1BettingPreview', () => {
 
   it('renders Live Stream tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /Live Stream/i });
+    const _tab = screen.getByRole('tab', { name: /Live Stream/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('Live Stream')).toBeInTheDocument();
@@ -123,7 +123,7 @@ describe('A1BettingPreview', () => {
 
   it('renders Backtesting tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /Backtesting/i });
+    const _tab = screen.getByRole('tab', { name: /Backtesting/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('Backtesting')).toBeInTheDocument();
@@ -131,7 +131,7 @@ describe('A1BettingPreview', () => {
 
   it('renders Settings tab', () => {
     render(<A1BettingPreview />);
-    const tab = screen.getByRole('tab', { name: /Settings/i });
+    const _tab = screen.getByRole('tab', { name: /Settings/i });
     fireEvent.click(tab);
     expect(tab).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('Settings')).toBeInTheDocument();

@@ -64,7 +64,7 @@ interface MarketAlert {
   expectedImpact: string;
 }
 
-const NewsHub: React.FC = () => {
+const _NewsHub: React.FC = () => {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [trendingStories, setTrendingStories] = useState<TrendingStory[]>([]);
   const [marketAlerts, setMarketAlerts] = useState<MarketAlert[]>([]);
@@ -75,16 +75,16 @@ const NewsHub: React.FC = () => {
 
   useEffect(() => {
     loadNewsData();
-    const interval = setInterval(loadNewsData, 300000); // Update every 5 minutes
+    const _interval = setInterval(loadNewsData, 300000); // Update every 5 minutes
     return () => clearInterval(interval);
   }, [selectedCategory, searchQuery]);
 
-  const loadNewsData = async () => {
+  const _loadNewsData = async () => {
     setIsLoading(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      const mockArticles: NewsArticle[] = [
+      const _mockArticles: NewsArticle[] = [
         {
           id: 'news-001',
           title: 'LeBron James Expected to Rest Against Warriors',
@@ -150,7 +150,7 @@ const NewsHub: React.FC = () => {
         },
       ];
 
-      const mockTrending: TrendingStory[] = [
+      const _mockTrending: TrendingStory[] = [
         {
           id: 'trend-001',
           headline: 'MVP Race Heating Up',
@@ -186,7 +186,7 @@ const NewsHub: React.FC = () => {
         },
       ];
 
-      const mockAlerts: MarketAlert[] = [
+      const _mockAlerts: MarketAlert[] = [
         {
           id: 'alert-001',
           type: 'breaking',
@@ -220,13 +220,13 @@ const NewsHub: React.FC = () => {
     }
   };
 
-  const getSentimentColor = (sentiment: number) => {
+  const _getSentimentColor = (sentiment: number) => {
     if (sentiment > 0.3) return 'text-green-400';
     if (sentiment > -0.3) return 'text-yellow-400';
     return 'text-red-400';
   };
 
-  const getImportanceColor = (importance: string) => {
+  const _getImportanceColor = (importance: string) => {
     switch (importance) {
       case 'critical':
         return 'text-red-400 bg-red-500/20';
@@ -241,7 +241,7 @@ const NewsHub: React.FC = () => {
     }
   };
 
-  const getCategoryIcon = (category: string) => {
+  const _getCategoryIcon = (category: string) => {
     switch (category) {
       case 'injury':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -264,7 +264,7 @@ const NewsHub: React.FC = () => {
     }
   };
 
-  const getTrendIcon = (trend: string) => {
+  const _getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'rising':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -281,7 +281,7 @@ const NewsHub: React.FC = () => {
     }
   };
 
-  const getUrgencyColor = (urgency: string) => {
+  const _getUrgencyColor = (urgency: string) => {
     switch (urgency) {
       case 'critical':
         return 'border-red-500/50 bg-red-500/10';
@@ -296,9 +296,9 @@ const NewsHub: React.FC = () => {
     }
   };
 
-  const filteredArticles = articles.filter(article => {
-    const matchesCategory = selectedCategory === 'all' || article.category === selectedCategory;
-    const matchesSearch =
+  const _filteredArticles = articles.filter(article => {
+    const _matchesCategory = selectedCategory === 'all' || article.category === selectedCategory;
+    const _matchesSearch =
       searchQuery === '' ||
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       article.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -306,7 +306,7 @@ const NewsHub: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const categories = ['all', 'injury', 'trade', 'performance', 'weather', 'betting', 'general'];
+  const _categories = ['all', 'injury', 'trade', 'performance', 'weather', 'betting', 'general'];
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

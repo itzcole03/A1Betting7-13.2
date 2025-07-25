@@ -57,20 +57,20 @@ export class UnifiedBettingAnalytics extends EventEmitter {
 
   private calculateKellyCriterion(probability: number, odds: number): number {
     // Placeholder Kelly calculation
-    const kelly = probability - (1 - probability) / (odds - 1);
+    const _kelly = probability - (1 - probability) / (odds - 1);
     return Math.max(0, Math.min(kelly, 0.1)); // Cap at 10% of bankroll;
   }
 
   async analyzeBettingOpportunity(stake: number): Promise<BettingAnalysis> {
     // odds and market are not used due to placeholder implementation;
-    const odds = 2; // Placeholder odds value for calculation;
+    const _odds = 2; // Placeholder odds value for calculation;
     // Placeholder implementation since UnifiedDataService is missing;
-    const prediction = { probability: 0.5 };
-    const recommendedStake = 0.05;
-    const riskFactors = this.assessRiskFactors();
-    const hedging: Array<{ market: string; odds: number; recommendedStake: number }> = [];
+    const _prediction = { probability: 0.5 };
+    const _recommendedStake = 0.05;
+    const _riskFactors = this.assessRiskFactors();
+    const _hedging: Array<{ market: string; odds: number; recommendedStake: number }> = [];
 
-    const analysis: BettingAnalysis = {
+    const _analysis: BettingAnalysis = {
       predictionConfidence: prediction.probability,
       recommendedStake: recommendedStake * stake,
       expectedValue: (prediction.probability * odds - 1) * stake,
@@ -101,7 +101,7 @@ export class UnifiedBettingAnalytics extends EventEmitter {
    * Extend as needed for more advanced analytics.
    */
   private assessRiskFactors(): string[] {
-    const riskFactors: string[] = [];
+    const _riskFactors: string[] = [];
     // Example: Check for missing active strategies;
     if (this.activeStrategies.size === 0) {
       riskFactors.push('No active betting strategies configured');

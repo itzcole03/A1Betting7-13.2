@@ -6,11 +6,12 @@ export const useClickOutside = <T extends HTMLElement = HTMLElement>(
   handler: (event: Event) => void,
   mouseEvent: 'mousedown' | 'mouseup' = 'mousedown'
 ): RefObject<T> => {
+  const ref = useRef<T>(null);
+
   useEffect(() => {
     const listener = (event: Event) => {
       // Do nothing if clicking ref's element or descendent elements;
-      // @ts-expect-error TS(2304): Cannot find name 'el'.
-      if (!el || el.contains(target)) {
+      if (!ref.current || ref.current.contains(event.target as Node)) {
         return;
       }
 
@@ -26,12 +27,11 @@ export const useClickOutside = <T extends HTMLElement = HTMLElement>(
     };
   }, [handler, mouseEvent]);
 
-  // @ts-expect-error TS(2304): Cannot find name 'ref'.
   return ref;
 };
 
 // Example usage:
-// const ref = useClickOutside<HTMLDivElement>(() => {
+// const _ref = useClickOutside<HTMLDivElement>(() => {
 //   // Handle click outside;
 //   setIsOpen(false);
 //});

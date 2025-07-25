@@ -621,29 +621,29 @@ export interface EventMap {
   /**
    * Emitted when a game's status is updated from ESPNService.
    */
-  'game:status': { game: any; timestamp: number };
+  'game:status': { game: unknown; timestamp: number };
   /**
    * Emitted when a player's data is updated from ESPNService.
    */
-  'player:update': { player: any; timestamp: number };
+  'player:update': { player: unknown; timestamp: number };
   /**
    * Emitted when Sportradar injuries are updated.
    */
   'injury:update': {
-    injuries: any[];
+    injuries: unknown[];
     timestamp: number;
   };
   /**
    * Emitted when Sportradar match is updated.
    */
   'match:update': {
-    match: any;
+    match: unknown;
     timestamp: number;
   };
   /**
    * Emitted when news headlines are updated.
    */
-  'news:update': { headlines: any[]; timestamp: number };
+  'news:update': { headlines: unknown[]; timestamp: number };
   /**
    * Emitted when weather data is updated.
    */

@@ -16,7 +16,7 @@ interface BettingHistoryProps {
   className?: string;
 }
 
-const mockBets: Bet[] = [
+const _mockBets: Bet[] = [
   { id: '1', date: '2025-01-18', selection: 'Team A', amount: 100, outcome: 'win', payout: 180 },
   { id: '2', date: '2025-01-17', selection: 'Team B', amount: 50, outcome: 'lose', payout: 0 },
   { id: '3', date: '2025-01-16', selection: 'Team C', amount: 75, outcome: 'pending', payout: 0 },
@@ -31,13 +31,13 @@ const mockBets: Bet[] = [
  * @param bets - Array of bet objects
  * @param className - Additional CSS classes
  */
-export const BettingHistory: React.FC<BettingHistoryProps> = ({
+export const _BettingHistory: React.FC<BettingHistoryProps> = ({
   bets = mockBets,
   className = '',
 }) => {
   const [filter, setFilter] = useState<'all' | 'win' | 'lose' | 'pending'>('all');
 
-  const filteredBets = filter === 'all' ? bets : bets.filter(bet => bet.outcome === filter);
+  const _filteredBets = filter === 'all' ? bets : bets.filter(bet => bet.outcome === filter);
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -51,7 +51,7 @@ export const BettingHistory: React.FC<BettingHistoryProps> = ({
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <select
             value={filter}
-            onChange={e => setFilter(e.target.value as any)}
+            onChange={e => setFilter(e.target.value as unknown)}
             className='bg-gray-800 border border-gray-600 rounded-lg text-white px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500'
             aria-label='Filter bets by outcome'
           >

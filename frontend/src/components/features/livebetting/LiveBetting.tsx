@@ -59,7 +59,7 @@ interface LiveAlert {
   dismissed: boolean;
 }
 
-const LiveBetting: React.FC = () => {
+const _LiveBetting: React.FC = () => {
   const [liveGames, setLiveGames] = useState<LiveGame[]>([]);
   const [alerts, setAlerts] = useState<LiveAlert[]>([]);
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
@@ -74,7 +74,7 @@ const LiveBetting: React.FC = () => {
   useEffect(() => {
     loadLiveData();
 
-    let interval: NodeJS.Timeout;
+    let _interval: NodeJS.Timeout;
     if (isAutoRefresh) {
       interval = setInterval(loadLiveData, 5000); // Update every 5 seconds
     }
@@ -84,11 +84,11 @@ const LiveBetting: React.FC = () => {
     };
   }, [isAutoRefresh, filters]);
 
-  const loadLiveData = async () => {
+  const _loadLiveData = async () => {
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      const mockGames: LiveGame[] = [
+      const _mockGames: LiveGame[] = [
         {
           id: 'live-001',
           sport: 'Basketball',
@@ -204,7 +204,7 @@ const LiveBetting: React.FC = () => {
         },
       ];
 
-      const mockAlerts: LiveAlert[] = [
+      const _mockAlerts: LiveAlert[] = [
         {
           id: 'alert-001',
           gameId: 'live-001',
@@ -230,7 +230,7 @@ const LiveBetting: React.FC = () => {
 
       // Play sound for new high urgency alerts
       if (soundEnabled) {
-        const newHighAlerts = mockAlerts.filter(
+        const _newHighAlerts = mockAlerts.filter(
           a => a.urgency === 'high' && !a.dismissed && Date.now() - a.timestamp.getTime() < 10000
         );
         if (newHighAlerts.length > 0) {
@@ -242,11 +242,11 @@ const LiveBetting: React.FC = () => {
     }
   };
 
-  const dismissAlert = (alertId: string) => {
+  const _dismissAlert = (alertId: string) => {
     setAlerts(alerts.map(alert => (alert.id === alertId ? { ...alert, dismissed: true } : alert)));
   };
 
-  const getAlertColor = (urgency: string) => {
+  const _getAlertColor = (urgency: string) => {
     switch (urgency) {
       case 'high':
         return 'border-red-500/50 bg-red-500/10';
@@ -259,7 +259,7 @@ const LiveBetting: React.FC = () => {
     }
   };
 
-  const getMomentumColor = (momentum: string) => {
+  const _getMomentumColor = (momentum: string) => {
     switch (momentum) {
       case 'home':
         return 'text-green-400';
@@ -272,7 +272,7 @@ const LiveBetting: React.FC = () => {
     }
   };
 
-  const getConfidenceColor = (confidence: number) => {
+  const _getConfidenceColor = (confidence: number) => {
     if (confidence >= 85) return 'text-green-400';
     if (confidence >= 75) return 'text-yellow-400';
     return 'text-red-400';

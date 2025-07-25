@@ -1,3 +1,3 @@
 import React from 'react.ts';
-export declare const RealTimeAccuracyDashboard: React.FC;
+export declare const _RealTimeAccuracyDashboard: React.FC;
 export default RealTimeAccuracyDashboard;

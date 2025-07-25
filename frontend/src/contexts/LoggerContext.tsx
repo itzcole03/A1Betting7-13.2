@@ -8,14 +8,14 @@ import React, { ReactNode, createContext, useContext } from 'react';
  */
 export type LoggerLevel = 'log' | 'info' | 'warn' | 'error' | 'debug';
 export interface LoggerContextType {
-  logger: any;
+  logger: unknown;
   log: (msg: string, level?: LoggerLevel) => void;
 }
 
-const LoggerContext = createContext<LoggerContextType | undefined>(undefined);
+const _LoggerContext = createContext<LoggerContextType | undefined>(undefined);
 
 // Simple logger implementation (replace with real logger as needed)
-const logger = {
+const _logger = {
   log: (msg: string, level: LoggerLevel = 'info') => {
     switch (level) {
       case 'log':
@@ -44,18 +44,22 @@ const logger = {
  * Wrap your app with this provider to enable logging utilities.
  * @param {ReactNode} children
  */
-export const LoggerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const log = (msg: string, level: LoggerLevel = 'info') => logger.log(msg, level);
-  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-  return <LoggerContext.Provider value={{ logger, log }}>{children}</LoggerContext.Provider>;
+export const _LoggerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const _log = (msg: string, level: LoggerLevel = 'info') => _logger.log(msg, level);
+  // Removed unused @ts-expect-error: JSX is supported in this environment
+  return (
+    <_LoggerContext.Provider value={{ logger: _logger, log: _log }}>
+      {children}
+    </_LoggerContext.Provider>
+  );
 };
 
 /**
  * useLogger
  * Access the logger context in any component.
  */
-export const useLogger = () => {
-  const ctx = useContext(LoggerContext);
-  if (!ctx) throw new Error('useLogger must be used within LoggerProvider');
-  return ctx;
+export const _useLogger = () => {
+  const _ctx = useContext(_LoggerContext);
+  if (!_ctx) throw new Error('useLogger must be used within LoggerProvider');
+  return _ctx;
 };

@@ -55,23 +55,58 @@ class AdvancedSupervisorCoordinator:
         }
 
     def log_improvement_action(
-        self,
-        agent: str,
-        action: str,
-        details: str,
-        success: bool = True,
-        metrics: Dict = None,
-    ):
-        """Log improvement actions with enhanced tracking"""
-        timestamp = datetime.now(timezone.utc).isoformat()
-        log_entry = {
-            "timestamp": timestamp,
-            "agent": agent,
-            "action": action,
-            "details": details,
-            "success": success,
-            "metrics": metrics or {},
-        }
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                fe_url = os.getenv("FEATURE_ENGINEERING_METRICS_URL", "http://localhost:8000/api/feature-engineering/metrics")
+                ml_url = os.getenv("ML_MONITORING_URL", "http://localhost:8000/api/model-status")
+                ux_url = os.getenv("USER_EXPERIENCE_METRICS_URL", "http://localhost:8000/api/health/status")
+
+                try:
+                    fe_metrics = await fetch_with_retries(client, fe_url)
+                    if fe_metrics:
+                        metrics["feature_engineering"] = fe_metrics
+                except Exception as e:
+                    logger.error(f"Feature engineering metrics collection failed: {e}")
+
+                try:
+                    ml_metrics = await fetch_with_retries(client, ml_url)
+                    if ml_metrics:
+                        metrics["ml_monitoring"] = ml_metrics
+                except Exception as e:
+                    logger.error(f"ML monitoring metrics collection failed: {e}")
+
+                try:
+                    ux_metrics = await fetch_with_retries(client, ux_url)
+                    if ux_metrics:
+                        metrics["user_experience"] = ux_metrics
+                except Exception as e:
+                    logger.error(f"User experience metrics collection failed: {e}")
+
+                # Health check and self-diagnostic endpoint integration
+                health_url = os.getenv(
+                    "SYSTEM_HEALTH_CHECK_URL",
+                    "http://localhost:8000/api/health/check",
+                )
+                diag_url = os.getenv(
+                    "SYSTEM_DIAGNOSTIC_URL",
+                    "http://localhost:8000/api/diagnostics",
+                )
+
+                try:
+                    health_metrics = await fetch_with_retries(client, health_url)
+                    if health_metrics:
+                        metrics["system_health"] = health_metrics
+                except Exception as e:
+                    logger.error(f"System health check failed: {e}")
+
+                try:
+                    diag_metrics = await fetch_with_retries(client, diag_url)
+                    if diag_metrics:
+                        metrics["system_diagnostics"] = diag_metrics
+                except Exception as e:
+                    logger.error(f"System diagnostics collection failed: {e}")
+        except Exception as e:
+            logger.error(f"Error in overall metric collection block: {e}")
 
         self.coordination_state["coordination_log"].append(log_entry)
         status = "ENHANCED" if success else "OPTIMIZING"
@@ -344,7 +379,19 @@ class AdvancedBestPracticesManager:
         )
 
     async def generate_improvement_report(self, overall_success: bool):
-        """Generate comprehensive improvement report"""
+        """
+        Generate comprehensive improvement report.
+        New features and changes:
+        - Retry logic for metric collection (fetch_with_retries)
+        - Environment variable configuration for endpoints
+        - Validation and sanitization of metrics
+        - Summary statistics and anomaly detection for metrics
+        - Notification stub for future integration
+        - Granular error logging for metric collection blocks
+        - Health check and self-diagnostic endpoint integration
+        - Enriched report metadata with system/environment info
+        - Automated cleanup of old reports to prevent disk bloat
+        """
         duration = (datetime.now(timezone.utc) - self.improvement_start).total_seconds()
 
         # Display comprehensive report
@@ -398,20 +445,172 @@ class AdvancedBestPracticesManager:
             logger.info("  🔄 Improvement coordination active")
             logger.info("  📋 Review enhancement status")
 
-        # Save improvement report
+        # Collect feature engineering and ML monitoring metrics from backend endpoints
+        import httpx
+
+        metrics = {}
+
+        async def fetch_with_retries(client, url, retries=3, delay=2):
+            # Retry logic for metric collection: attempts to fetch metrics up to 'retries' times
+            for attempt in range(retries):
+                try:
+                    response = await client.get(url)
+                    if response.status_code == 200:
+                        return response.json()
+                except Exception as e:
+                    logger.warning(f"Attempt {attempt+1} failed for {url}: {e}")
+                await asyncio.sleep(delay)
+            logger.error(f"Failed to fetch {url} after {retries} attempts.")
+            return None
+
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                fe_url = os.getenv(
+                    "FEATURE_ENGINEERING_METRICS_URL",
+                    "http://localhost:8000/api/feature-engineering/metrics",
+                )
+                ml_url = os.getenv(
+                    "ML_MONITORING_URL", "http://localhost:8000/api/model-status"
+                )
+                ux_url = os.getenv(
+                    "USER_EXPERIENCE_METRICS_URL",
+                    "http://localhost:8000/api/health/status",
+                )
+
+                try:
+                    fe_metrics = await fetch_with_retries(client, fe_url)
+                    if fe_metrics:
+                        metrics["feature_engineering"] = fe_metrics
+                except Exception as e:
+                    logger.error(f"Feature engineering metrics collection failed: {e}")
+
+                try:
+                    ml_metrics = await fetch_with_retries(client, ml_url)
+                    if ml_metrics:
+                        metrics["ml_monitoring"] = ml_metrics
+                except Exception as e:
+                    logger.error(f"ML monitoring metrics collection failed: {e}")
+
+                try:
+                    ux_metrics = await fetch_with_retries(client, ux_url)
+                    if ux_metrics:
+                        metrics["user_experience"] = ux_metrics
+                except Exception as e:
+                    logger.error(f"User experience metrics collection failed: {e}")
+        except Exception as e:
+            logger.error(f"Error collecting metrics for improvement report: {e}")
+
+        # Validate and sanitize metrics
+        def sanitize_metric(metric):
+            # Validation and sanitization of metrics before reporting
+            if isinstance(metric, dict):
+                return {
+                    k: sanitize_metric(v) for k, v in metric.items() if v is not None
+                }
+            elif isinstance(metric, list):
+                return [sanitize_metric(v) for v in metric if v is not None]
+            elif isinstance(metric, (str, int, float, bool)):
+                return metric
+            else:
+                return str(metric)
+
+        sanitized_metrics = {
+            k: sanitize_metric(v) for k, v in metrics.items() if v is not None
+        }
+
+        # Optionally validate required keys
+        required_keys = ["feature_engineering", "ml_monitoring", "user_experience"]
+        for key in required_keys:
+            if key not in sanitized_metrics:
+                logger.warning(f"Metric '{key}' missing from report.")
+
+        # Compute summary statistics and detect anomalies
+        def compute_summary_and_anomalies(metrics):
+            # Summary statistics and anomaly detection for metrics
+            summary = {}
+            anomalies = {}
+            for key, value in metrics.items():
+                if isinstance(value, dict):
+                    for subkey, subval in value.items():
+                        if isinstance(subval, (int, float)):
+                            summary.setdefault(key, {})[subkey] = subval
+                            # Example anomaly: value out of expected range
+                            if subval < 0 or subval > 1e6:
+                                anomalies.setdefault(key, []).append({subkey: subval})
+                elif isinstance(value, (int, float)):
+                    summary[key] = value
+                    if value < 0 or value > 1e6:
+                        anomalies.setdefault(key, []).append(value)
+            return summary, anomalies
+
+        summary_stats, anomaly_report = compute_summary_and_anomalies(sanitized_metrics)
+
+        # Save improvement report with summary and anomalies
+        # Gather system/environment info
+        import platform  # Used for system/environment info in report metadata
+        env_info = {
+            "os": platform.system(),
+            "os_version": platform.version(),
+            "python_version": platform.python_version(),
+            "hostname": platform.node(),
+            "cwd": os.getcwd(),
+            "env_vars": {k: os.environ.get(k) for k in [
+                "FEATURE_ENGINEERING_METRICS_URL",
+                "ML_MONITORING_URL",
+                "USER_EXPERIENCE_METRICS_URL",
+                "SYSTEM_HEALTH_CHECK_URL",
+                "SYSTEM_DIAGNOSTIC_URL",
+                "BEST_PRACTICES_NOTIFY"
+            ]}
+        }
+
         improvement_results = {
             "phase": "Advanced Best Practices Development",
             "status": "ENHANCED" if overall_success else "OPTIMIZING",
             "duration_seconds": duration,
             "supervisor_coordination": self.supervisor.coordination_state,
             "timestamp": datetime.now(timezone.utc).isoformat(),
+            "system_environment": env_info,
+            "metrics": sanitized_metrics,
+            "summary_statistics": summary_stats,
+            "anomalies": anomaly_report,
         }
 
         report_filename = f"ADVANCED_BEST_PRACTICES_REPORT_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+
         with open(report_filename, "w") as f:
             json.dump(improvement_results, f, indent=2, default=str)
 
         print(f"\n💾 Best practices report saved: {report_filename}")
+
+        # Automated cleanup: keep only the most recent N reports
+        def cleanup_old_reports(report_dir=".", pattern="ADVANCED_BEST_PRACTICES_REPORT_*.json", keep=10):
+            # Automated cleanup: keep only the most recent N reports to prevent disk bloat
+            import glob
+            files = sorted(glob.glob(os.path.join(report_dir, pattern)), reverse=True)
+            for old_file in files[keep:]:
+                try:
+                    os.remove(old_file)
+                    logger.info(f"Deleted old report: {old_file}")
+                except Exception as e:
+                    logger.warning(f"Failed to delete old report {old_file}: {e}")
+
+        cleanup_old_reports()
+
+        # Optional notification stub
+        def notify_report_generated(report_path):
+            # Notification stub for future integration (email/webhook)
+            notify_enabled = (
+                os.getenv("BEST_PRACTICES_NOTIFY", "false").lower() == "true"
+            )
+            if notify_enabled:
+                # Stub: Replace with real email/webhook integration
+                logger.info(
+                    f"Notification: Best practices report generated at {report_path}"
+                )
+                # Example: send_email(report_path) or send_webhook(report_path)
+
+        notify_report_generated(report_filename)
 
 
 async def main():

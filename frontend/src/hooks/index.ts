@@ -84,17 +84,17 @@ export { default as useUltimateSettings } from './useUltimateSettings';
 /**
  * @deprecated Use useUniversalTheme from UniversalHooks instead;
  */
-export const useThemeStore = () => {
+export const _useThemeStore = () => {
   // console statement removed
   // @ts-expect-error TS(2693): 'Record' only refers to a type, but is being used ... Remove this comment to see the full error message
-  return Record<string, any>;
+  return Record<string, unknown>;
 };
 
 /**
  * @deprecated Use consolidated hooks from UniversalHooks instead;
  */
-export const useMLAnalytics = () => {
+export const _useMLAnalytics = () => {
   // console statement removed
   // @ts-expect-error TS(2693): 'Record' only refers to a type, but is being used ... Remove this comment to see the full error message
-  return Record<string, any>;
+  return Record<string, unknown>;
 };

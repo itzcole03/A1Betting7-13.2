@@ -4,18 +4,17 @@
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "skipLibCheck": true,
-    "types": ["vite/client", "react", "react-dom", "@testing-library/jest-dom", "framer-motion"],
+    "types": ["@testing-library/jest-dom", "vite/client", "react", "react-dom", "framer-motion"],
     /* Bundler mode */
-    "moduleResolution": "node",
-    "allowImportingTsExtensions": true,
+    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "src/*": ["src/*"]
     },
     /* Linting */
     "strict": true,
@@ -24,10 +23,13 @@
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src", "jest.setup.js"],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+  "include": [
+    "src",
+    "src/**/*.test.tsx",
+    "src/**/*.test.ts",
+    "src/__tests__/**/*.ts",
+    "src/__tests__/**/*.tsx",
+    "./jest.setup.js"
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 
-const DarkModeToggle = () => {
+const _DarkModeToggle = () => {
   const [dark, setDark] = useState(() => {
     // Prefer user setting, fallback to system preference;
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('theme');
+      const _stored = localStorage.getItem('theme');
       if (stored) return stored === 'dark';
     }
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -22,8 +22,8 @@ const DarkModeToggle = () => {
 
   // Sync with system preference changes;
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = (e: MediaQueryListEvent) => {
+    const _mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const _handler = (e: MediaQueryListEvent) => {
       if (!localStorage.getItem('theme')) setDark(e.matches);
     };
     mq.addEventListener('change', handler);

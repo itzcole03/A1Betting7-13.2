@@ -2,7 +2,8 @@
 import { AlertTriangle, ArrowLeft, Shield } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { AdminRoute } from './auth/RouteGuard';
+import { getLocation } from '../utils/location';
+import { _AdminRoute } from './auth/RouteGuard';
 
 const AdminDashboardContent: React.FC = () => {
   const { user } = useAuth();
@@ -32,12 +33,25 @@ const AdminDashboardContent: React.FC = () => {
         <div className='flex items-center justify-between flex-wrap gap-4'>
           <div className='flex items-center space-x-2 sm:space-x-4 flex-shrink-0'>
             <button
-              onClick={() => (window.location.href = '/')}
+              onClick={() => {
+                console.log('DEBUG: BUTTON onClick handler fired');
+                console.log('DEBUG: Exit Admin Mode button clicked');
+                const loc = getLocation();
+                console.log('DEBUG: getLocation() =', loc);
+                console.log('DEBUG: getLocation().assign =', loc.assign);
+                console.log('DEBUG: About to call getLocation().assign');
+                console.log(
+                  'DEBUG: handleExitAdminMode stack:',
+                  new Error('handleExitAdminMode stack').stack
+                );
+                loc.assign('/');
+              }}
               className='flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-white transition-colors text-sm'
               tabIndex={0}
               onKeyDown={e => {
                 if (e.key === 'Enter' || e.key === ' ') {
-                  window.location.href = '/';
+                  console.log('DEBUG: Exit Admin Mode button clicked (keyboard)');
+                  getLocation().assign('/');
                 }
               }}
             >
@@ -107,15 +121,13 @@ const AdminDashboardContent: React.FC = () => {
                 Dashboard management and troubleshooting options
               </p>
               <div className='space-y-2'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
-                Remove this comment to see the full error message
                 <button
-                  onClick={() => window.location.reload()}
+                  onClick={() => getLocation().reload()}
                   className='w-full px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 rounded-lg text-white font-medium transition-all'
                   tabIndex={0}
                   onKeyDown={e => {
                     if (e.key === 'Enter' || e.key === ' ') {
-                      window.location.reload();
+                      getLocation().reload();
                     }
                   }}
                 >
@@ -144,9 +156,9 @@ const AdminDashboardContent: React.FC = () => {
 
 const AdminDashboard: React.FC = React.memo(() => {
   return (
-    <AdminRoute>
+    <_AdminRoute>
       <AdminDashboardContent />
-    </AdminRoute>
+    </_AdminRoute>
   );
 });
 

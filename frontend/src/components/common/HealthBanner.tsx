@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { discoverBackend } from '../../services/backendDiscovery';
 
-const HealthBanner: React.FC = () => {
+const _HealthBanner: React.FC = () => {
   const [backendStatus, setBackendStatus] = useState<'healthy' | 'error' | 'stale' | 'unknown'>('unknown');
   const [dataSources, setDataSources] = useState<Record<string, {
     status: 'healthy' | 'degraded' | 'unhealthy';
@@ -17,16 +17,16 @@ const HealthBanner: React.FC = () => {
     error?: string;
   }>({ status: 'idle' });
   const [dataSourceError, setDataSourceError] = useState<string | null>(null);
-  const [scraperHealth, setScraperHealth] = useState<any>(null);
+  const [scraperHealth, setScraperHealth] = useState<unknown>(null);
   const [scraperHealthError, setScraperHealthError] = useState<string | null>(null);
 
   // Poll backend health endpoint
   useEffect(() => {
-    const fetchHealth = async () => {
+    const _fetchHealth = async () => {
       try {
-        const backendUrl = await discoverBackend();
+        const _backendUrl = await discoverBackend();
         if (!backendUrl) throw new Error('No backend discovered');
-        const res = await fetch(`${backendUrl}/api/health`);
+        const _res = await fetch(`${backendUrl}/api/health`);
         if (res.ok) {
           setBackendStatus('healthy');
         } else {
@@ -37,19 +37,19 @@ const HealthBanner: React.FC = () => {
       }
     };
     fetchHealth();
-    const interval = setInterval(fetchHealth, 10000);
+    const _interval = setInterval(fetchHealth, 10000);
     return () => clearInterval(interval);
   }, []);
 
   // Poll data source health endpoint
   useEffect(() => {
-    const fetchDataSources = async () => {
+    const _fetchDataSources = async () => {
       try {
-        const backendUrl = await discoverBackend();
+        const _backendUrl = await discoverBackend();
         if (!backendUrl) throw new Error('No backend discovered');
-        const res = await fetch(`${backendUrl}/api/health/data-sources`);
+        const _res = await fetch(`${backendUrl}/api/health/data-sources`);
         if (res.ok) {
-          const data = await res.json();
+          const _data = await res.json();
           setDataSources(data);
           setDataSourceError(null);
         } else {
@@ -62,7 +62,7 @@ const HealthBanner: React.FC = () => {
       }
     };
     fetchDataSources();
-    const interval = setInterval(fetchDataSources, 10000);
+    const _interval = setInterval(fetchDataSources, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -70,28 +70,28 @@ const HealthBanner: React.FC = () => {
   useEffect(() => {
     // This is a placeholder. In a real app, you would subscribe to analysis events or context.
     // For now, just check localStorage for a lastAnalysis entry (set by analysis logic).
-    const checkAnalysis = () => {
-      const data = localStorage.getItem('lastAnalysis');
+    const _checkAnalysis = () => {
+      const _data = localStorage.getItem('lastAnalysis');
       if (data) setLastAnalysis(JSON.parse(data));
     };
     checkAnalysis();
-    const interval = setInterval(checkAnalysis, 5000);
+    const _interval = setInterval(checkAnalysis, 5000);
     return () => clearInterval(interval);
   }, []);
 
   // Poll PrizePicks scraper health from /status endpoint
   useEffect(() => {
-    const fetchScraperHealth = async () => {
+    const _fetchScraperHealth = async () => {
       try {
-        const backendUrl = await discoverBackend();
+        const _backendUrl = await discoverBackend();
         if (!backendUrl) throw new Error('No backend discovered');
         // /status is admin-protected; for demo, skip auth. In production, add auth headers.
-        const res = await fetch(`${backendUrl}/status`, {
+        const _res = await fetch(`${backendUrl}/status`, {
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
         });
         if (res.ok) {
-          const data = await res.json();
+          const _data = await res.json();
           setScraperHealth(data.prizepicks_scraper_health);
           setScraperHealthError(null);
         } else {
@@ -104,11 +104,11 @@ const HealthBanner: React.FC = () => {
       }
     };
     fetchScraperHealth();
-    const interval = setInterval(fetchScraperHealth, 15000);
+    const _interval = setInterval(fetchScraperHealth, 15000);
     return () => clearInterval(interval);
   }, []);
 
-  const getStatusIcon = (status: string) => {
+  const _getStatusIcon = (status: string) => {
     switch (status) {
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       case 'healthy': return <span className="mr-1">🟢</span>;

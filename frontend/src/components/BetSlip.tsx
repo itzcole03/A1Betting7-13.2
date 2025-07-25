@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-// @ts-expect-error TS(6142): Module './Button' was resolved to 'C:/Users/bcmad/... Remove this comment to see the full error message
-import { Button } from './Button';
-// @ts-expect-error TS(6142): Module './Card' was resolved to 'C:/Users/bcmad/Do... Remove this comment to see the full error message
-import { Card, CardContent, CardFooter, CardHeader } from './Card';
+import { _Button as Button } from './Button';
+import {
+  _Card as Card,
+  _CardContent as CardContent,
+  _CardFooter as CardFooter,
+  _CardHeader as CardHeader,
+} from './Card';
 
 interface BetSlipProps {
   onSubmit?: (bet: { amount: number; selection: string }) => void;
@@ -18,13 +21,13 @@ interface BetSlipProps {
  * @param onSubmit - Callback for bet submission
  * @param className - Additional CSS classes
  */
-export const BetSlip: React.FC<BetSlipProps> = ({ onSubmit, className = '' }) => {
+const _BetSlip: React.FC<BetSlipProps> = ({ onSubmit, className = '' }) => {
   const [amount, setAmount] = useState<number>(0);
   const [selection, setSelection] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const _handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     if (!selection) {
@@ -43,24 +46,16 @@ export const BetSlip: React.FC<BetSlipProps> = ({ onSubmit, className = '' }) =>
   };
 
   return (
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <Card className={`max-w-md mx-auto ${className}`}>
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <CardHeader>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <h2 className='text-lg font-bold text-white'>Bet Slip</h2>
       </CardHeader>
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-      <form onSubmit={handleSubmit}>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      <form onSubmit={_handleSubmit}>
         <CardContent className='space-y-4'>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <label htmlFor='bet-selection' className='block text-sm font-medium text-gray-300 mb-1'>
               Selection
             </label>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               id='bet-selection'
               type='text'
@@ -71,13 +66,10 @@ export const BetSlip: React.FC<BetSlipProps> = ({ onSubmit, className = '' }) =>
               required
             />
           </div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <label htmlFor='bet-amount' className='block text-sm font-medium text-gray-300 mb-1'>
               Amount ($)
             </label>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <input
               id='bet-amount'
               type='number'
@@ -88,12 +80,9 @@ export const BetSlip: React.FC<BetSlipProps> = ({ onSubmit, className = '' }) =>
               required
             />
           </div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {error && <div className='text-red-500 text-sm'>{error}</div>}
         </CardContent>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <CardFooter>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <Button type='submit' variant='primary' isLoading={isSubmitting} className='w-full'>
             Place Bet
           </Button>
@@ -103,4 +92,5 @@ export const BetSlip: React.FC<BetSlipProps> = ({ onSubmit, className = '' }) =>
   );
 };
 
-export default BetSlip;
+export { _BetSlip };
+export default _BetSlip;

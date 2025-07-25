@@ -1,2 +1,2 @@
-declare const theme: import('@mui/material/styles').Theme;
+declare const _theme: import('@mui/material/styles').Theme;
 export default theme;

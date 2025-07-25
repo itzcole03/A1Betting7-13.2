@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
-import { masterServiceRegistry } from '../services/MasterServiceRegistry';
+import { useCallback, useEffect, useState } from 'react';
 
 interface BettingMetrics {
   totalBets: number;
@@ -31,7 +30,7 @@ interface BettingOpportunity {
   timestamp: Date;
 }
 
-export const useBettingAnalytics = () => {
+export const _useBettingAnalytics = () => {
   const [metrics, setMetrics] = useState<BettingMetrics>({
     totalBets: 0,
     activeBets: 0,
@@ -53,20 +52,20 @@ export const useBettingAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchBettingMetrics = useCallback(async () => {
+  const _fetchBettingMetrics = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const bettingService = masterServiceRegistry.getService('betting');
+      const _bettingService = masterServiceRegistry.getService('betting');
       if (!bettingService) {
         throw new Error('Betting service not available');
       }
 
-      const metricsData = await bettingService.getBettingMetrics();
+      const _metricsData = await bettingService.getBettingMetrics();
       setMetrics(metricsData);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch betting metrics';
+      const _errorMessage = err instanceof Error ? err.message : 'Failed to fetch betting metrics';
       setError(errorMessage);
       console.error('Betting metrics fetch error:', err);
     } finally {
@@ -74,14 +73,14 @@ export const useBettingAnalytics = () => {
     }
   }, []);
 
-  const fetchBettingOpportunities = useCallback(async () => {
+  const _fetchBettingOpportunities = useCallback(async () => {
     try {
-      const bettingService = masterServiceRegistry.getService('betting');
+      const _bettingService = masterServiceRegistry.getService('betting');
       if (!bettingService) {
         return;
       }
 
-      const opportunitiesData = await bettingService.getBettingOpportunities();
+      const _opportunitiesData = await bettingService.getBettingOpportunities();
       setOpportunities(opportunitiesData || []);
     } catch (err) {
       console.error('Failed to fetch betting opportunities:', err);
@@ -89,15 +88,15 @@ export const useBettingAnalytics = () => {
     }
   }, []);
 
-  const placeBet = useCallback(
-    async (betData: any) => {
+  const _placeBet = useCallback(
+    async (betData: unknown) => {
       try {
-        const bettingService = masterServiceRegistry.getService('betting');
+        const _bettingService = masterServiceRegistry.getService('betting');
         if (!bettingService) {
           throw new Error('Betting service not available');
         }
 
-        const success = await bettingService.placeBet(betData);
+        const _success = await bettingService.placeBet(betData);
         if (success) {
           // Refresh metrics after placing a bet
           await fetchBettingMetrics();
@@ -112,9 +111,9 @@ export const useBettingAnalytics = () => {
     [fetchBettingMetrics, fetchBettingOpportunities]
   );
 
-  const getBetHistory = useCallback(async (filters?: any) => {
+  const _getBetHistory = useCallback(async (filters?: unknown) => {
     try {
-      const bettingService = masterServiceRegistry.getService('betting');
+      const _bettingService = masterServiceRegistry.getService('betting');
       if (!bettingService) {
         return [];
       }
@@ -126,9 +125,9 @@ export const useBettingAnalytics = () => {
     }
   }, []);
 
-  const updateBettingConfig = useCallback(async (config: any) => {
+  const _updateBettingConfig = useCallback(async (config: unknown) => {
     try {
-      const bettingService = masterServiceRegistry.getService('betting');
+      const _bettingService = masterServiceRegistry.getService('betting');
       if (!bettingService) {
         return false;
       }
@@ -141,7 +140,7 @@ export const useBettingAnalytics = () => {
     }
   }, []);
 
-  const refreshData = useCallback(async () => {
+  const _refreshData = useCallback(async () => {
     await Promise.all([fetchBettingMetrics(), fetchBettingOpportunities()]);
   }, [fetchBettingMetrics, fetchBettingOpportunities]);
 

@@ -35,7 +35,7 @@ import {
   LineupStrategy,
 } from '../../../services/lineupService';
 
-const LineupBuilder: React.FC = () => {
+const _LineupBuilder: React.FC = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [availableContests, setAvailableContests] = useState<Contest[]>([]);
   const [selectedContest, setSelectedContest] = useState<Contest | null>(null);
@@ -61,11 +61,11 @@ const LineupBuilder: React.FC = () => {
     loadPlayerData();
   }, [selectedContest, filterPosition]);
 
-  const loadPlayerData = async () => {
+  const _loadPlayerData = async () => {
     if (!selectedContest) return;
 
     try {
-      const players = await lineupService.getPlayerPool(selectedContest.id, {
+      const _players = await lineupService.getPlayerPool(selectedContest.id, {
         position: filterPosition === 'all' ? undefined : filterPosition,
       });
       setPlayers(players);
@@ -74,9 +74,9 @@ const LineupBuilder: React.FC = () => {
     }
   };
 
-  const loadContests = async () => {
+  const _loadContests = async () => {
     try {
-      const contests = await lineupService.getContests('NFL');
+      const _contests = await lineupService.getContests('NFL');
       setAvailableContests(contests);
       if (contests.length > 0) {
         setSelectedContest(contests[0]);
@@ -86,9 +86,9 @@ const LineupBuilder: React.FC = () => {
     }
   };
 
-  const loadStrategies = async () => {
+  const _loadStrategies = async () => {
     try {
-      const strategies = await lineupService.getStrategies();
+      const _strategies = await lineupService.getStrategies();
       setStrategies(strategies);
       if (strategies.length > 0) {
         setSelectedStrategy(strategies[0]);
@@ -98,17 +98,17 @@ const LineupBuilder: React.FC = () => {
     }
   };
 
-  const optimizeLineup = async () => {
+  const _optimizeLineup = async () => {
     if (!selectedContest || !selectedStrategy) return;
 
     setIsOptimizing(true);
     try {
-      const constraints = {
+      const _constraints = {
         lockedPlayers: Array.from(lockedPlayers),
         excludedPlayers: Array.from(excludedPlayers),
       };
 
-      const optimizations = await lineupService.optimizeLineup(
+      const _optimizations = await lineupService.optimizeLineup(
         selectedContest.id,
         selectedStrategy,
         constraints,
@@ -126,22 +126,22 @@ const LineupBuilder: React.FC = () => {
     }
   };
 
-  const generateOptimalLineup = (): LineupOptimization => {
+  const _generateOptimalLineup = (): LineupOptimization => {
     if (!selectedContest) {
       throw new Error('No contest selected');
     }
 
     // Simplified optimization - would use more complex algorithms in production
-    const availablePlayers = players.filter(p => !excludedPlayers.has(p.id));
-    const requiredPositions = selectedContest.positions;
-    const salaryCap = selectedContest.salaryCap;
+    const _availablePlayers = players.filter(p => !excludedPlayers.has(p.id));
+    const _requiredPositions = selectedContest.positions;
+    const _salaryCap = selectedContest.salaryCap;
 
-    let lineup: Player[] = [];
-    let totalSalary = 0;
+    let _lineup: Player[] = [];
+    let _totalSalary = 0;
 
     // Lock in required players first
     lockedPlayers.forEach(playerId => {
-      const player = availablePlayers.find(p => p.id === playerId);
+      const _player = availablePlayers.find(p => p.id === playerId);
       if (player) {
         lineup.push(player);
         totalSalary += player.salary;
@@ -150,12 +150,12 @@ const LineupBuilder: React.FC = () => {
 
     // Fill remaining positions with optimal players
     Object.entries(requiredPositions).forEach(([position, count]) => {
-      const positionPlayers = availablePlayers
+      const _positionPlayers = availablePlayers
         .filter(p => p.position === position && !lineup.includes(p))
         .sort((a, b) => b.value - a.value);
 
-      for (let i = 0; i < count && positionPlayers.length > 0; i++) {
-        const player = positionPlayers[i];
+      for (let _i = 0; i < count && positionPlayers.length > 0; i++) {
+        const _player = positionPlayers[i];
         if (totalSalary + player.salary <= salaryCap) {
           lineup.push(player);
           totalSalary += player.salary;
@@ -163,10 +163,10 @@ const LineupBuilder: React.FC = () => {
       }
     });
 
-    const projectedPoints = lineup.reduce((sum, p) => sum + p.projectedPoints, 0);
-    const ownership = lineup.reduce((sum, p) => sum + p.ownership, 0) / lineup.length;
-    const ceiling = lineup.reduce((sum, p) => sum + p.ceiling, 0);
-    const floor = lineup.reduce((sum, p) => sum + p.floor, 0);
+    const _projectedPoints = lineup.reduce((sum, p) => sum + p.projectedPoints, 0);
+    const _ownership = lineup.reduce((sum, p) => sum + p.ownership, 0) / lineup.length;
+    const _ceiling = lineup.reduce((sum, p) => sum + p.ceiling, 0);
+    const _floor = lineup.reduce((sum, p) => sum + p.floor, 0);
 
     // @ts-expect-error TS(2739): Type '{ lineup: Player[]; totalSalary: number; pro... Remove this comment to see the full error message
     return {
@@ -183,8 +183,8 @@ const LineupBuilder: React.FC = () => {
     };
   };
 
-  const togglePlayerLock = (playerId: string) => {
-    const newLocked = new Set(lockedPlayers);
+  const _togglePlayerLock = (playerId: string) => {
+    const _newLocked = new Set(lockedPlayers);
     if (newLocked.has(playerId)) {
       newLocked.delete(playerId);
     } else {
@@ -194,8 +194,8 @@ const LineupBuilder: React.FC = () => {
     setLockedPlayers(newLocked);
   };
 
-  const togglePlayerExclude = (playerId: string) => {
-    const newExcluded = new Set(excludedPlayers);
+  const _togglePlayerExclude = (playerId: string) => {
+    const _newExcluded = new Set(excludedPlayers);
     if (newExcluded.has(playerId)) {
       newExcluded.delete(playerId);
     } else {
@@ -205,13 +205,13 @@ const LineupBuilder: React.FC = () => {
     setExcludedPlayers(newExcluded);
   };
 
-  const getPlayerStatusColor = (player: Player) => {
+  const _getPlayerStatusColor = (player: Player) => {
     if (lockedPlayers.has(player.id)) return 'border-green-400 bg-green-400/10';
     if (excludedPlayers.has(player.id)) return 'border-red-400 bg-red-400/10';
     return 'border-slate-700/50 bg-slate-900/50';
   };
 
-  const getPlayerStatusIcon = (player: Player) => {
+  const _getPlayerStatusIcon = (player: Player) => {
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     if (lockedPlayers.has(player.id)) return <Lock className='w-4 h-4 text-green-400' />;
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -219,7 +219,7 @@ const LineupBuilder: React.FC = () => {
     return null;
   };
 
-  const getTierColor = (tier: string) => {
+  const _getTierColor = (tier: string) => {
     switch (tier) {
       case 'elite':
         return 'text-purple-400 bg-purple-400/20';
@@ -234,18 +234,18 @@ const LineupBuilder: React.FC = () => {
     }
   };
 
-  const filteredPlayers = players.filter(player => {
-    const matchesSearch =
+  const _filteredPlayers = players.filter(player => {
+    const _matchesSearch =
       searchQuery === '' ||
       player.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       player.team.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesPosition = filterPosition === 'all' || player.position === filterPosition;
+    const _matchesPosition = filterPosition === 'all' || player.position === filterPosition;
 
     return matchesSearch && matchesPosition;
   });
 
-  const sortedPlayers = [...filteredPlayers].sort((a, b) => {
+  const _sortedPlayers = [...filteredPlayers].sort((a, b) => {
     switch (sortBy) {
       case 'value':
         return b.value - a.value;
@@ -260,9 +260,9 @@ const LineupBuilder: React.FC = () => {
     }
   });
 
-  const currentLineupSalary = currentLineup.reduce((sum, p) => sum + p.salary, 0);
-  const currentLineupPoints = currentLineup.reduce((sum, p) => sum + p.projectedPoints, 0);
-  const remainingSalary = selectedContest ? selectedContest.salaryCap - currentLineupSalary : 0;
+  const _currentLineupSalary = currentLineup.reduce((sum, p) => sum + p.salary, 0);
+  const _currentLineupPoints = currentLineup.reduce((sum, p) => sum + p.projectedPoints, 0);
+  const _remainingSalary = selectedContest ? selectedContest.salaryCap - currentLineupSalary : 0;
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -276,7 +276,7 @@ const LineupBuilder: React.FC = () => {
           <select
             value={selectedContest?.id || ''}
             onChange={e => {
-              const contest = availableContests.find(c => c.id === e.target.value);
+              const _contest = availableContests.find(c => c.id === e.target.value);
               setSelectedContest(contest || null);
             }}
             className='px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
@@ -416,7 +416,7 @@ const LineupBuilder: React.FC = () => {
             <select
               value={selectedStrategy?.id || ''}
               onChange={e => {
-                const strategy = strategies.find(s => s.id === e.target.value);
+                const _strategy = strategies.find(s => s.id === e.target.value);
                 setSelectedStrategy(strategy || null);
               }}
               className='w-full px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400 mb-4'
@@ -523,7 +523,7 @@ const LineupBuilder: React.FC = () => {
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <select
                 value={sortBy}
-                onChange={e => setSortBy(e.target.value as any)}
+                onChange={e => setSortBy(e.target.value as unknown)}
                 className='px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
               >
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -692,7 +692,7 @@ const LineupBuilder: React.FC = () => {
             <div className='space-y-3'>
               {selectedContest &&
                 Object.entries(selectedContest.positions).map(([position, count]) => {
-                  const positionPlayers = currentLineup.filter(p => p.position === position);
+                  const _positionPlayers = currentLineup.filter(p => p.position === position);
 
                   return (
                     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -703,7 +703,7 @@ const LineupBuilder: React.FC = () => {
                       </h4>
 
                       {Array.from({ length: count }).map((_, idx) => {
-                        const player = positionPlayers[idx];
+                        const _player = positionPlayers[idx];
 
                         return (
                           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

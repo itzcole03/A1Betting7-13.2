@@ -2,5 +2,5 @@
 export interface RiskHeatMapProps {
   riskScores: number[0];
 }
-declare const RiskHeatMap: React.FC<RiskHeatMapProps>;
+declare const _RiskHeatMap: React.FC<RiskHeatMapProps>;
 export default RiskHeatMap;

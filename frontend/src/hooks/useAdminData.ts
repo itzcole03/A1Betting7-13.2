@@ -16,7 +16,7 @@ import {
  * Custom hook for managing admin dashboard data
  * Provides real-time data fetching with fallback to mock data
  */
-export const useAdminData = () => {
+export const _useAdminData = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [activity, setActivity] = useState<AdminActivity[]>([]);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
@@ -27,9 +27,9 @@ export const useAdminData = () => {
   /**
    * Fetch admin statistics
    */
-  const fetchStats = useCallback(async () => {
+  const _fetchStats = useCallback(async () => {
     try {
-      const data = await adminService.getAdminStats();
+      const _data = await adminService.getAdminStats();
       setStats(data);
     } catch (err) {
       setError('Failed to load admin statistics');
@@ -40,9 +40,9 @@ export const useAdminData = () => {
   /**
    * Fetch recent activity
    */
-  const fetchActivity = useCallback(async () => {
+  const _fetchActivity = useCallback(async () => {
     try {
-      const data = await adminService.getRecentActivity(10);
+      const _data = await adminService.getRecentActivity(10);
       setActivity(data);
     } catch (err) {
       setError('Failed to load recent activity');
@@ -53,9 +53,9 @@ export const useAdminData = () => {
   /**
    * Fetch system status
    */
-  const fetchSystemStatus = useCallback(async () => {
+  const _fetchSystemStatus = useCallback(async () => {
     try {
-      const data = await adminService.getSystemStatus();
+      const _data = await adminService.getSystemStatus();
       setSystemStatus(data);
     } catch (err) {
       setError('Failed to load system status');
@@ -66,9 +66,9 @@ export const useAdminData = () => {
   /**
    * Fetch user management data
    */
-  const fetchUserData = useCallback(async () => {
+  const _fetchUserData = useCallback(async () => {
     try {
-      const data = await adminService.getUserManagementData();
+      const _data = await adminService.getUserManagementData();
       setUserData(data);
     } catch (err) {
       setError('Failed to load user data');
@@ -79,7 +79,7 @@ export const useAdminData = () => {
   /**
    * Refresh all data
    */
-  const refreshAllData = useCallback(async () => {
+  const _refreshAllData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -95,11 +95,11 @@ export const useAdminData = () => {
   /**
    * Execute admin action
    */
-  const executeAction = useCallback(
-    async (action: string, params?: any) => {
+  const _executeAction = useCallback(
+    async (action: string, params?: unknown) => {
       try {
         setLoading(true);
-        const result = await adminService.executeAdminAction(action, params);
+        const _result = await adminService.executeAdminAction(action, params);
 
         // Refresh data after action
         await refreshAllData();
@@ -118,8 +118,8 @@ export const useAdminData = () => {
   /**
    * Start real-time updates
    */
-  const startRealTimeUpdates = useCallback(() => {
-    const interval = setInterval(() => {
+  const _startRealTimeUpdates = useCallback(() => {
+    const _interval = setInterval(() => {
       fetchStats();
       fetchActivity();
       fetchSystemStatus();
@@ -135,7 +135,7 @@ export const useAdminData = () => {
 
   // Start real-time updates
   useEffect(() => {
-    const cleanup = startRealTimeUpdates();
+    const _cleanup = startRealTimeUpdates();
     return cleanup;
   }, [startRealTimeUpdates]);
 

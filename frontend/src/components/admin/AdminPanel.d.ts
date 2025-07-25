@@ -19,5 +19,5 @@ import React from 'react.ts';
  * - Allows admin to update user status (active/suspended).
  * - Displays system logs and key system metrics.
  */
-declare const AdminPanel: React.FC;
+declare const _AdminPanel: React.FC;
 export default AdminPanel;

@@ -17,7 +17,7 @@ interface PropOllamaChatBoxProps {
   onToggleMinimize?: () => void;
 }
 
-const PropOllamaChatBox: React.FC<PropOllamaChatBoxProps> = ({
+const _PropOllamaChatBox: React.FC<PropOllamaChatBoxProps> = ({
   className = '',
   isMinimized = false,
   onToggleMinimize,
@@ -26,9 +26,9 @@ const PropOllamaChatBox: React.FC<PropOllamaChatBoxProps> = ({
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const _messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
+  const _scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -38,7 +38,7 @@ const PropOllamaChatBox: React.FC<PropOllamaChatBoxProps> = ({
 
   // Initialize with welcome message
   useEffect(() => {
-    const welcomeMessage: PropOllamaMessage = {
+    const _welcomeMessage: PropOllamaMessage = {
       id: 'welcome',
       type: 'ai',
       content: `🤖 **PropOllama AI Assistant**
@@ -63,10 +63,10 @@ Welcome! I'm your AI sports betting expert. I can help with:
     setMessages([welcomeMessage]);
   }, []);
 
-  const handleSendMessage = async () => {
+  const _handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
-    const userMessage: PropOllamaMessage = {
+    const _userMessage: PropOllamaMessage = {
       id: Date.now().toString(),
       type: 'user',
       content: input,
@@ -74,22 +74,22 @@ Welcome! I'm your AI sports betting expert. I can help with:
     };
 
     setMessages(prev => [...prev, userMessage]);
-    const currentInput = input;
+    const _currentInput = input;
     setInput('');
     setIsLoading(true);
 
     try {
       // Add timeout to fetch request
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const _controller = new AbortController();
+      const _timeoutId = setTimeout(() => controller.abort(), 10000);
 
       // Only send allowed fields: message and context
-      const payload: any = { message: currentInput };
+      const _payload: unknown = { message: currentInput };
       // Optionally add context if needed
       payload.context = 'sports_betting_analysis';
       console.log('[PropOllamaChatBox] Sending payload:', payload);
 
-      const response = await fetch(`http://localhost:8000/api/propollama/chat`, {
+      const _response = await fetch(`http://localhost:8000/api/propollama/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,9 +104,9 @@ Welcome! I'm your AI sports betting expert. I can help with:
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const _data = await response.json();
 
-      const aiResponse: PropOllamaMessage = {
+      const _aiResponse: PropOllamaMessage = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
         content:
@@ -121,7 +121,7 @@ Welcome! I'm your AI sports betting expert. I can help with:
       console.error('Error sending message:', error);
 
       // Generate intelligent fallback response based on user input
-      let fallbackContent = `🤖 **PropOllama AI (Offline Mode)**
+      let _fallbackContent = `🤖 **PropOllama AI (Offline Mode)**
 
 I'm currently offline, but here's some general advice:`;
 
@@ -172,7 +172,7 @@ I'm currently offline, but here's some general advice:`;
 
 *Try refreshing or check back later for full AI analysis.*`;
 
-      const errorMessage: PropOllamaMessage = {
+      const _errorMessage: PropOllamaMessage = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
         content: fallbackContent,
@@ -187,14 +187,14 @@ I'm currently offline, but here's some general advice:`;
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const _handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
+  const _handleSuggestionClick = (suggestion: string) => {
     setInput(suggestion);
   };
 

@@ -13,7 +13,7 @@ interface GlassCardProps {
   hover?: boolean;
 }
 
-export const GlassCard: React.FC<GlassCardProps> = ({
+export const _GlassCard: React.FC<GlassCardProps> = ({
   children,
   className = '',
   variant = 'default',
@@ -24,7 +24,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   animate = true,
   hover = true,
 }) => {
-  const blurClasses = {
+  const _blurClasses = {
     none: '',
     sm: 'backdrop-blur-sm',
     md: 'backdrop-blur-md',
@@ -32,7 +32,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
     xl: 'backdrop-blur-xl',
   };
 
-  const variantConfig = {
+  const _variantConfig = {
     default: {
       background: `rgba(255, 255, 255, ${opacity})`,
       border: 'border-white/20',
@@ -65,9 +65,9 @@ export const GlassCard: React.FC<GlassCardProps> = ({
     },
   };
 
-  const config = variantConfig[variant];
+  const _config = variantConfig[variant];
 
-  const cardVariants = {
+  const _cardVariants = {
     hidden: {
       opacity: 0,
       y: 20,
@@ -97,7 +97,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
       : {},
   };
 
-  const baseClasses = `
+  const _baseClasses = `
     relative rounded-xl p-6 overflow-hidden
     ${config.backdrop}
     ${border ? config.border + ' border' : ''}
@@ -106,7 +106,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
     ${className}
   `;
 
-  const backgroundStyle =
+  const _backgroundStyle =
     variant === 'crystal' || variant === 'hologram'
       ? { backgroundImage: config.background }
       : { backgroundColor: config.background };

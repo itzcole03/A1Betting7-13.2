@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const CyberFooter: React.FC;
+declare const _CyberFooter: React.FC;
 export default CyberFooter;

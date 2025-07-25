@@ -9,22 +9,22 @@ import { Line, Bar, Doughnut, Radar, Scatter, Chart } from '@/components/ui/Char
 export { Line, Bar, Doughnut, Radar, Scatter, Chart };
 
 // Also export with different names that might be used;
-export const LineChart = Line;
-export const BarChart = Bar;
-export const DoughnutChart = Doughnut;
-export const RadarChart = Radar;
-export const ScatterChart = Scatter;
+export const _LineChart = Line;
+export const _BarChart = Bar;
+export const _DoughnutChart = Doughnut;
+export const _RadarChart = Radar;
+export const _ScatterChart = Scatter;
 
 // Export Pie as alias for Doughnut;
-export const Pie = Doughnut;
-export const PieChart = Doughnut;
+export const _Pie = Doughnut;
+export const _PieChart = Doughnut;
 
 // Export Bubble as alias for Scatter;
-export const Bubble = Scatter;
-export const BubbleChart = Scatter;
+export const _Bubble = Scatter;
+export const _BubbleChart = Scatter;
 
 // Export PolarArea as alias for Radar;
-export const PolarArea = Radar;
+export const _PolarArea = Radar;
 
 // Re-export Chart.js types if needed;
 export type { ChartData, ChartOptions } from 'chart.js';

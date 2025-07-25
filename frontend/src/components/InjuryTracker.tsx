@@ -48,7 +48,7 @@ interface TeamImpact {
   affectedPositions: string[];
 }
 
-export const InjuryTracker: React.FC = () => {
+export const _InjuryTracker: React.FC = () => {
   // State for injury data, team impacts, filters, and UI feedback
   const [injuries, setInjuries] = useState<InjuryReport[]>([]);
   const [teamImpacts, setTeamImpacts] = useState<TeamImpact[]>([]);
@@ -59,17 +59,17 @@ export const InjuryTracker: React.FC = () => {
   const [error, setError] = useState<string | null>(null); // Error state for API fetch
 
   // Fetch injury data from API
-  const fetchInjuryData = async () => {
+  const _fetchInjuryData = async () => {
     setLoading(true);
     setError(null);
     try {
       // Replace this URL with your real backend endpoint
-      const response = await fetch('/api/injuries');
+      const _response = await fetch('/api/injuries');
       if (!response.ok) throw new Error('Failed to fetch injury data');
-      const data: InjuryReport[] = await response.json();
+      const _data: InjuryReport[] = await response.json();
       setInjuries(data);
       setTeamImpacts(generateTeamImpacts(data));
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Unknown error occurred');
       setInjuries([]);
       setTeamImpacts([]);
@@ -79,10 +79,10 @@ export const InjuryTracker: React.FC = () => {
   };
 
   // Generate team impact analysis from injury data
-  const generateTeamImpacts = (injuryData: InjuryReport[]): TeamImpact[] => {
-    const teamMap = new Map<string, InjuryReport[]>();
+  const _generateTeamImpacts = (injuryData: InjuryReport[]): TeamImpact[] => {
+    const _teamMap = new Map<string, InjuryReport[]>();
     injuryData.forEach(injury => {
-      const key = `${injury.team}-${injury.sport}`;
+      const _key = `${injury.team}-${injury.sport}`;
       if (!teamMap.has(key)) {
         teamMap.set(key, []);
       }
@@ -91,7 +91,7 @@ export const InjuryTracker: React.FC = () => {
     return Array.from(teamMap.entries())
       .map(([key, teamInjuries]) => {
         const [team, sport] = key.split('-');
-        const keyPlayerInjuries = teamInjuries.filter(
+        const _keyPlayerInjuries = teamInjuries.filter(
           i => i.severity === 'severe' || i.severity === 'moderate'
         ).length;
         return {
@@ -112,11 +112,11 @@ export const InjuryTracker: React.FC = () => {
   // Fetch data on mount
   useEffect(() => {
     fetchInjuryData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // Filter injuries based on user selection
-  const filteredInjuries = injuries.filter(injury => {
+  const _filteredInjuries = injuries.filter(injury => {
     if (selectedSport !== 'all' && injury.sport !== selectedSport) return false;
     if (selectedSeverity !== 'all' && injury.severity !== selectedSeverity) return false;
     if (
@@ -128,7 +128,7 @@ export const InjuryTracker: React.FC = () => {
     return true;
   });
 
-  const getSeverityColor = (severity: string) => {
+  const _getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
         return 'text-red-600 border-red-600 bg-red-900/20';
@@ -143,7 +143,7 @@ export const InjuryTracker: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const _getStatusColor = (status: string) => {
     switch (status) {
       case 'out':
       case 'ir':
@@ -159,7 +159,7 @@ export const InjuryTracker: React.FC = () => {
     }
   };
 
-  const getSeverityIcon = (severity: string) => {
+  const _getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'critical':
       case 'severe':

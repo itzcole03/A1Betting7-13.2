@@ -33,7 +33,7 @@ interface TrendingTopic {
   growth: number;
 }
 
-export const NewsHub: React.FC = () => {
+export const _NewsHub: React.FC = () => {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [trendingTopics, setTrendingTopics] = useState<TrendingTopic[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -44,10 +44,10 @@ export const NewsHub: React.FC = () => {
   );
 
   // Generate mock news articles
-  const generateNewsArticles = (): NewsArticle[] => {
-    const sports = ['NBA', 'NFL', 'MLB', 'NHL', 'Soccer'];
-    const categories = ['breaking', 'injury', 'trade', 'analysis', 'prediction'] as const;
-    const sources = [
+  const _generateNewsArticles = (): NewsArticle[] => {
+    const _sports = ['NBA', 'NFL', 'MLB', 'NHL', 'Soccer'];
+    const _categories = ['breaking', 'injury', 'trade', 'analysis', 'prediction'] as const;
+    const _sources = [
       'ESPN',
       'The Athletic',
       'Bleacher Report',
@@ -56,7 +56,7 @@ export const NewsHub: React.FC = () => {
       'NBC Sports',
     ];
 
-    const sampleNews = [
+    const _sampleNews = [
       {
         title: "Star Player Questionable for Tonight's Game",
         summary:
@@ -100,9 +100,9 @@ export const NewsHub: React.FC = () => {
     ];
 
     return Array.from({ length: 15 }, (_, index) => {
-      const category = categories[Math.floor(Math.random() * categories.length)];
-      const sport = sports[Math.floor(Math.random() * sports.length)];
-      const newsItem = sampleNews[Math.floor(Math.random() * sampleNews.length)];
+      const _category = categories[Math.floor(Math.random() * categories.length)];
+      const _sport = sports[Math.floor(Math.random() * sports.length)];
+      const _newsItem = sampleNews[Math.floor(Math.random() * sampleNews.length)];
 
       return {
         id: `news-${index}`,
@@ -125,8 +125,8 @@ export const NewsHub: React.FC = () => {
   };
 
   // Generate trending topics
-  const generateTrendingTopics = (): TrendingTopic[] => {
-    const topics = [
+  const _generateTrendingTopics = (): TrendingTopic[] => {
+    const _topics = [
       'Trade Deadline',
       'Playoff Race',
       'MVP Candidates',
@@ -151,7 +151,7 @@ export const NewsHub: React.FC = () => {
   }, []);
 
   // Filter and sort articles
-  const filteredArticles = articles
+  const _filteredArticles = articles
     .filter(article => {
       if (selectedCategory !== 'all' && article.category !== selectedCategory) return false;
       if (selectedSport !== 'all' && article.sport !== selectedSport) return false;
@@ -166,7 +166,7 @@ export const NewsHub: React.FC = () => {
     .sort((a, b) => {
       switch (sortBy) {
         case 'impact':
-          const impactOrder = { high: 3, medium: 2, low: 1 };
+          const _impactOrder = { high: 3, medium: 2, low: 1 };
           return impactOrder[b.impact] - impactOrder[a.impact];
         case 'credibility':
           return b.credibility - a.credibility;
@@ -177,7 +177,7 @@ export const NewsHub: React.FC = () => {
       }
     });
 
-  const getCategoryColor = (category: string) => {
+  const _getCategoryColor = (category: string) => {
     switch (category) {
       case 'breaking':
         return 'text-red-400 border-red-400';
@@ -194,7 +194,7 @@ export const NewsHub: React.FC = () => {
     }
   };
 
-  const getImpactColor = (impact: string) => {
+  const _getImpactColor = (impact: string) => {
     switch (impact) {
       case 'high':
         return 'text-red-400 border-red-400';
@@ -207,7 +207,7 @@ export const NewsHub: React.FC = () => {
     }
   };
 
-  const getSentimentColor = (sentiment: string) => {
+  const _getSentimentColor = (sentiment: string) => {
     switch (sentiment) {
       case 'positive':
         return 'text-green-400';
@@ -355,7 +355,7 @@ export const NewsHub: React.FC = () => {
             <select
               id='news-sort-by'
               value={sortBy}
-              onChange={e => setSortBy(e.target.value as any)}
+              onChange={e => setSortBy(e.target.value as unknown)}
               className='w-full p-2 bg-gray-800 border border-gray-700 rounded-lg'
               aria-label='Sort by'
             >

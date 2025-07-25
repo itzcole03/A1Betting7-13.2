@@ -4,9 +4,9 @@ import React from 'react';
 /**
  * UserProfile - Shows user info, stats, and account actions.
  */
-const UserProfile: React.FC = () => {
+const _UserProfile: React.FC = () => {
   // Example user data (replace with real integration)
-  const user = {
+  const _user = {
     name: 'Jane Doe',
     tier: 'Pro',
     betsPlaced: 124,

@@ -1,5 +1,5 @@
 // Simple test component for Builder.io
-export default function TestComponent(props: any) {
+export default function TestComponent(_props: unknown) {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div style={{

@@ -527,39 +527,68 @@ async def propollama_chat(request: Request):
         # Always refresh models before validating
         await llm_engine.refresh_models()
         valid_models = [m for m in llm_engine.models if "embed" not in m.lower()]
-        if model:
-            if model not in valid_models:
-                logger.error(
-                    json.dumps({"event": "chat_invalid_model", "model": model})
+        logger.info(
+            json.dumps(
+                {
+                    "event": "chat_model_selection_debug",
+                    "request_model": model,
+                    "valid_models": valid_models,
+                    "llm_engine_default_override": getattr(
+                        llm_engine, "default_override", None
+                    ),
+                    "llm_engine_task_model_map": getattr(
+                        llm_engine, "task_model_map", {}
+                    ),
+                    "llm_engine_models": getattr(llm_engine, "models", []),
+                }
+            )
+        )
+        # --- Step 9: Model selection and validation ---
+        # Always use 'llama3:latest' for chat requests, regardless of engine state or request payload
+        await llm_engine.refresh_models()
+        valid_models = [m for m in llm_engine.models if "embed" not in m.lower()]
+        forced_model = "llama3:latest"
+        if forced_model not in valid_models:
+            logger.error(
+                json.dumps(
+                    {
+                        "event": "chat_forced_model_not_available",
+                        "forced_model": forced_model,
+                        "valid_models": valid_models,
+                    }
                 )
-                raise HTTPException(
-                    status_code=400,
-                    detail={
-                        "error": "Invalid model for chat",
-                        "message": f"Model '{model}' is not a valid text-generation model. Valid options: {valid_models}",
-                    },
+            )
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "error": "Model not available",
+                    "message": f"Forced model '{forced_model}' is not available. Valid options: {valid_models}",
+                },
+            )
+        try:
+            llm_engine.set_default_model(forced_model)
+            logger.info(
+                json.dumps(
+                    {"event": "chat_model_set_default_override", "model": forced_model}
                 )
-            try:
-                llm_engine.set_default_model(model)
-            except Exception as e:
-                logger.error(
-                    json.dumps({"event": "chat_model_selection_error", "error": str(e)})
-                )
-                raise HTTPException(
-                    status_code=400,
-                    detail={
-                        "error": "Model selection error",
-                        "message": str(e),
-                    },
-                )
-        else:
-            llm_engine.set_default_model(None)
+            )
+        except Exception as e:
+            logger.error(
+                json.dumps({"event": "chat_model_selection_error", "error": str(e)})
+            )
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "Model selection error",
+                    "message": str(e),
+                },
+            )
 
         # --- Step 10: Generate response using LLM with timeout and robust error handling ---
         try:
-            selected_model = model or (
-                llm_engine.default_override
-                or llm_engine.task_model_map.get("conversation", "llama3:8b")
+            selected_model = forced_model
+            logger.info(
+                f"[propollama.py] Selected model for chat (forced): {selected_model}"
             )
             client = getattr(llm_engine, "client", None)
             # Refresh model health before checking readiness
@@ -607,32 +636,69 @@ async def propollama_chat(request: Request):
                 )
             # Await the async chat response method
             if client is not None:
-                if hasattr(client, "chat_response") and asyncio.iscoroutinefunction(
-                    client.chat_response
-                ):
-                    response_text = await client.chat_response(req_obj.message, context)
-                elif hasattr(client, "generate") and asyncio.iscoroutinefunction(
-                    client.generate
-                ):
-                    # Fallback to generate if chat_response is not available
-                    prompt = f"""
-                    You are PropOllama, an expert AI sports betting assistant. Respond to this user query:
+                try:
+                    if hasattr(client, "chat_response") and asyncio.iscoroutinefunction(
+                        client.chat_response
+                    ):
+                        response_text = await asyncio.wait_for(
+                            client.chat_response(req_obj.message, context), timeout=30
+                        )
+                    elif hasattr(client, "generate") and asyncio.iscoroutinefunction(
+                        client.generate
+                    ):
+                        prompt = f"""
+                        You are PropOllama, an expert AI sports betting assistant. Respond to this user query:
 
-                    User: {req_obj.message}
-                    {f'Current context: {context}' if context else ''}
+                        User: {req_obj.message}
+                        {f'Current context: {context}' if context else ''}
 
-                    Provide helpful, accurate betting advice. Be conversational but professional.
-                    Focus on actionable insights. Keep responses concise and valuable.
-                    """
-                    response_text = await client.generate(
-                        prompt, max_tokens=250, temperature=0.4
+                        Provide helpful, accurate betting advice. Be conversational but professional.
+                        Focus on actionable insights. Keep responses concise and valuable.
+                        """
+                        response_text = await asyncio.wait_for(
+                            client.generate(prompt, max_tokens=250, temperature=0.4),
+                            timeout=30,
+                        )
+                    else:
+                        raise HTTPException(
+                            status_code=503,
+                            detail={
+                                "error": "LLM client not available",
+                                "message": "Ollama client is not initialized or does not support text generation.",
+                            },
+                        )
+                except asyncio.TimeoutError:
+                    logger.error(
+                        json.dumps(
+                            {
+                                "event": "chat_timeout",
+                                "model": selected_model,
+                                "request_id": request_id,
+                            }
+                        )
                     )
-                else:
                     raise HTTPException(
-                        status_code=503,
+                        status_code=504,
                         detail={
-                            "error": "LLM client not available",
-                            "message": "Ollama client is not initialized or does not support text generation.",
+                            "error": "LLM chat timeout",
+                            "message": "Ollama did not respond within 30 seconds. Please try again or check model health.",
+                        },
+                    )
+                except Exception as e:
+                    logger.error(
+                        json.dumps(
+                            {
+                                "event": "chat_exception",
+                                "error": str(e),
+                                "request_id": request_id,
+                            }
+                        )
+                    )
+                    raise HTTPException(
+                        status_code=500,
+                        detail={
+                            "error": "LLM chat error",
+                            "message": str(e),
                         },
                     )
             else:

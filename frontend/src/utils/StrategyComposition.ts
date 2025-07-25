@@ -63,7 +63,7 @@ export class StrategyRegistry {
     }
 
     // Validate dependencies;
-    for (const depId of strategy.dependencies) {
+    for (const _depId of strategy.dependencies) {
       if (!this.strategies.has(depId)) {
         throw new Error(`Dependency ${depId} not found for strategy ${strategy.id}`);
       }
@@ -83,11 +83,11 @@ export class StrategyRegistry {
     input: T,
     context: StrategyContext
   ): Promise<StrategyResult<U>> {
-    const strategy = this.strategies.get(strategyId);
+    const _strategy = this.strategies.get(strategyId);
     if (!strategy) {
       throw new Error(`Strategy ${strategyId} not found`);
     }
-    const traceId = this.performanceMonitor.startTrace(`strategy-${strategy.id}`);
+    const _traceId = this.performanceMonitor.startTrace(`strategy-${strategy.id}`);
 
     try {
       if (!strategy.canHandle(input)) {
@@ -98,19 +98,19 @@ export class StrategyRegistry {
         throw new Error(`Input validation failed for strategy ${strategy.id}`);
       }
 
-      const startTime = Date.now();
-      const result = await strategy.evaluate(input, context);
-      const duration = Date.now() - startTime;
+      const _startTime = Date.now();
+      const _result = await strategy.evaluate(input, context);
+      const _duration = Date.now() - startTime;
 
       // Type guard: ensure result is of type U before assignment
-      let typedResult: U;
+      let _typedResult: U;
       if (this.isType<U>(result)) {
         typedResult = result as U;
       } else {
         throw new Error(`Result type does not match expected type for strategy ${strategy.id}`);
       }
 
-      const strategyResult: StrategyResult<U> = {
+      const _strategyResult: StrategyResult<U> = {
         id: `${strategy.id}-${startTime}`,
         timestamp: startTime,
         duration,
@@ -145,10 +145,10 @@ export class StrategyRegistry {
     input: T,
     context: StrategyContext
   ): Promise<StrategyResult<U>> {
-    const sortedStrategies = this.sortStrategiesByDependencies(strategies);
-    let currentInput: unknown = input;
-    let lastResult: StrategyResult<unknown> | null = null;
-    for (const strategyId of sortedStrategies) {
+    const _sortedStrategies = this.sortStrategiesByDependencies(strategies);
+    let _currentInput: unknown = input;
+    let _lastResult: StrategyResult<unknown> | null = null;
+    for (const _strategyId of sortedStrategies) {
       lastResult = await this.evaluate(strategyId, currentInput as T, {
         ...context,
         parameters: {
@@ -167,24 +167,24 @@ export class StrategyRegistry {
   }
 
   private sortStrategiesByDependencies(strategyIds: string[]): string[] {
-    const graph = new Map<string, Set<string>>();
-    const visited = new Set<string>();
-    const sorted: string[] = [];
-    for (const id of strategyIds) {
-      const strategy = this.strategies.get(id);
+    const _graph = new Map<string, Set<string>>();
+    const _visited = new Set<string>();
+    const _sorted: string[] = [];
+    for (const _id of strategyIds) {
+      const _strategy = this.strategies.get(id);
       if (!strategy) continue;
       graph.set(id, new Set(strategy.dependencies.filter(dep => strategyIds.includes(dep))));
     }
-    const visit = (id: string) => {
+    const _visit = (id: string) => {
       if (visited.has(id)) return;
       visited.add(id);
-      const deps = graph.get(id) || new Set();
-      for (const dep of deps) {
+      const _deps = graph.get(id) || new Set();
+      for (const _dep of deps) {
         visit(dep);
       }
       sorted.push(id);
     };
-    for (const id of strategyIds) {
+    for (const _id of strategyIds) {
       visit(id);
     }
     return sorted;
@@ -192,12 +192,12 @@ export class StrategyRegistry {
 
   private calculateConfidence(result: unknown): number {
     if (typeof result === 'object' && result !== null) {
-      if ('confidence' in result && typeof (result as any).confidence === 'number')
-        return (result as any).confidence;
-      if ('probability' in result && typeof (result as any).probability === 'number')
-        return (result as any).probability;
-      if ('score' in result && typeof (result as any).score === 'number')
-        return (result as any).score;
+      if ('confidence' in result && typeof (result as unknown).confidence === 'number')
+        return (result as unknown).confidence;
+      if ('probability' in result && typeof (result as unknown).probability === 'number')
+        return (result as unknown).probability;
+      if ('score' in result && typeof (result as unknown).score === 'number')
+        return (result as unknown).score;
     }
     return 1;
   }
@@ -212,30 +212,30 @@ export class StrategyRegistry {
 
   private calculateAccuracy(result: unknown): number {
     if (typeof result === 'object' && result !== null) {
-      if ('accuracy' in result && typeof (result as any).accuracy === 'number')
-        return (result as any).accuracy;
-      if ('confidence' in result && typeof (result as any).confidence === 'number')
-        return (result as any).confidence;
+      if ('accuracy' in result && typeof (result as unknown).accuracy === 'number')
+        return (result as unknown).accuracy;
+      if ('confidence' in result && typeof (result as unknown).confidence === 'number')
+        return (result as unknown).confidence;
     }
     return 1;
   }
 
   private calculateReliability(result: unknown): number {
     if (typeof result === 'object' && result !== null) {
-      if ('reliability' in result && typeof (result as any).reliability === 'number')
-        return (result as any).reliability;
-      if ('stability' in result && typeof (result as any).stability === 'number')
-        return (result as any).stability;
+      if ('reliability' in result && typeof (result as unknown).reliability === 'number')
+        return (result as unknown).reliability;
+      if ('stability' in result && typeof (result as unknown).stability === 'number')
+        return (result as unknown).stability;
     }
     return 1;
   }
 
   private calculatePerformance(result: unknown): number {
     if (typeof result === 'object' && result !== null) {
-      if ('performance' in result && typeof (result as any).performance === 'number')
-        return (result as any).performance;
-      if ('efficiency' in result && typeof (result as any).efficiency === 'number')
-        return (result as any).efficiency;
+      if ('performance' in result && typeof (result as unknown).performance === 'number')
+        return (result as unknown).performance;
+      if ('efficiency' in result && typeof (result as unknown).efficiency === 'number')
+        return (result as unknown).efficiency;
     }
     return 1;
   }
@@ -297,7 +297,7 @@ export class ComposableStrategy<T, U> implements StrategyComponent<T, U> {
       Math.max(this.priority, next.priority),
       [...this.dependencies, ...next.dependencies],
       async (input: T, context: StrategyContext) => {
-        const intermediate = await this.evaluate(input, context);
+        const _intermediate = await this.evaluate(input, context);
         return next.evaluate(intermediate, context);
       },
       undefined,

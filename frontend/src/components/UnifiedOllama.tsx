@@ -31,7 +31,7 @@ interface PropOllamaUnifiedProps {
   className?: string;
 }
 
-const UnifiedOllama: React.FC<PropOllamaUnifiedProps> = ({ variant = 'cyber', className = '' }) => {
+const _UnifiedOllama: React.FC<PropOllamaUnifiedProps> = ({ variant = 'cyber', className = '' }) => {
   // Chat state
   const [messages, setMessages] = useState<PropOllamaMessage[]>([]);
   const [input, setInput] = useState('');
@@ -43,25 +43,25 @@ const UnifiedOllama: React.FC<PropOllamaUnifiedProps> = ({ variant = 'cyber', cl
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
   // Health state
-  const [scraperHealth, setScraperHealth] = useState<any>(null);
+  const [scraperHealth, setScraperHealth] = useState<unknown>(null);
 
   // Auto-refresh best bets on component mount
   useEffect(() => {
     fetchBestBets();
     // Set up auto-refresh every 30 minutes
-    const interval = setInterval(fetchBestBets, 30 * 60 * 1000);
+    const _interval = setInterval(fetchBestBets, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
   // Poll scraper health every 30s
   useEffect(() => {
-    let isMounted = true;
-    const fetchHealth = async () => {
+    let _isMounted = true;
+    const _fetchHealth = async () => {
       try {
-        const backendUrl = await backendDiscovery.getBackendUrl();
-        const response = await fetch(`${backendUrl}/api/prizepicks/health`);
+        const _backendUrl = await backendDiscovery.getBackendUrl();
+        const _response = await fetch(`${backendUrl}/api/prizepicks/health`);
         if (response.ok) {
-          const data = await response.json();
+          const _data = await response.json();
           if (isMounted) setScraperHealth(data);
         } else {
           if (isMounted)
@@ -73,7 +73,7 @@ const UnifiedOllama: React.FC<PropOllamaUnifiedProps> = ({ variant = 'cyber', cl
       }
     };
     fetchHealth();
-    const interval = setInterval(fetchHealth, 30000);
+    const _interval = setInterval(fetchHealth, 30000);
     return () => {
       isMounted = false;
       clearInterval(interval);
@@ -81,16 +81,16 @@ const UnifiedOllama: React.FC<PropOllamaUnifiedProps> = ({ variant = 'cyber', cl
   }, []);
 
   // Updated July 2025: Now fetches best bets from /api/prizepicks/props, sorted by confidence (descending). Displays confidence, reasoning, and results for each bet.
-  const fetchBestBets = async () => {
+  const _fetchBestBets = async () => {
     setIsRefreshing(true);
     try {
-      const backendUrl = await backendDiscovery.getBackendUrl();
-      const response = await fetch(`${backendUrl}/api/prizepicks/props?min_confidence=70`);
+      const _backendUrl = await backendDiscovery.getBackendUrl();
+      const _response = await fetch(`${backendUrl}/api/prizepicks/props?min_confidence=70`);
       if (response.ok) {
-        let data = await response.json();
-        let bets = Array.isArray(data) ? data : Array.isArray(data.props) ? data.props : [];
+        let _data = await response.json();
+        let _bets = Array.isArray(data) ? data : Array.isArray(data.props) ? data.props : [];
         // Explicitly sort by confidence descending
-        const sortedBets = bets.sort((a: any, b: any) => (b.confidence || 0) - (a.confidence || 0));
+        const _sortedBets = bets.sort((a: unknown, b: unknown) => (b.confidence || 0) - (a.confidence || 0));
         setBestBets(sortedBets);
         setLastRefresh(new Date());
       } else {
@@ -105,10 +105,10 @@ const UnifiedOllama: React.FC<PropOllamaUnifiedProps> = ({ variant = 'cyber', cl
     }
   };
 
-  const handleSendMessage = async () => {
+  const _handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
-    const userMessage: PropOllamaMessage = {
+    const _userMessage: PropOllamaMessage = {
       id: Date.now().toString(),
       type: 'user',
       content: input,
@@ -120,8 +120,8 @@ const UnifiedOllama: React.FC<PropOllamaUnifiedProps> = ({ variant = 'cyber', cl
     setIsLoading(true);
 
     try {
-      const backendUrl = await backendDiscovery.getBackendUrl();
-      const response = await fetch(`${backendUrl}/api/propollama/chat`, {
+      const _backendUrl = await backendDiscovery.getBackendUrl();
+      const _response = await fetch(`${backendUrl}/api/propollama/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -135,10 +135,10 @@ const UnifiedOllama: React.FC<PropOllamaUnifiedProps> = ({ variant = 'cyber', cl
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const _data = await response.json();
         console.log('🤖 Chat response received:', data);
 
-        const aiResponse: PropOllamaMessage = {
+        const _aiResponse: PropOllamaMessage = {
           id: (Date.now() + 1).toString(),
           type: 'ai',
           content: data.content,
@@ -160,7 +160,7 @@ const UnifiedOllama: React.FC<PropOllamaUnifiedProps> = ({ variant = 'cyber', cl
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      const errorMessage: PropOllamaMessage = {
+      const _errorMessage: PropOllamaMessage = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
         content: `🚨 **Error**: Could not connect to PropOllama AI. Please try again.`,
@@ -173,14 +173,14 @@ const UnifiedOllama: React.FC<PropOllamaUnifiedProps> = ({ variant = 'cyber', cl
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const _handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
-  const baseClasses = `
+  const _baseClasses = `
     w-full h-screen flex bg-gradient-to-br from-gray-900 to-black text-white
     ${className}
   `;
@@ -514,16 +514,16 @@ interface BestBetCardProps {
   index: number;
 }
 
-const BestBetCard: React.FC<BestBetCardProps> = ({ bet, index }) => {
+const _BestBetCard: React.FC<BestBetCardProps> = ({ bet, index }) => {
   const [expanded, setExpanded] = React.useState(false);
   // Confidence color and bar
-  const confidenceColor =
+  const _confidenceColor =
     bet.confidence >= 80
       ? 'bg-green-400 text-green-900'
       : bet.confidence >= 65
         ? 'bg-yellow-400 text-yellow-900'
         : 'bg-red-400 text-red-100';
-  const barColor =
+  const _barColor =
     bet.confidence >= 80 ? 'bg-green-400' : bet.confidence >= 65 ? 'bg-yellow-400' : 'bg-red-400';
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

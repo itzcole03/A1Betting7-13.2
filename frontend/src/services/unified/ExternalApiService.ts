@@ -31,11 +31,11 @@ export class ExternalApiService extends EventEmitter {
   public async getSportsNews(): Promise<SportsNewsArticle[]> {
     // DEPRECATED: Use newsService.fetchHeadlines instead;
     // Stub headlines as empty array for now
-    const headlines: any[] = [];
+    const _headlines: unknown[] = [];
     try {
       // Dynamic import to avoid circular dependencies;
       // Map ESPNHeadline to SportsNewsArticle;
-      return headlines.map((h: any) => ({
+      return headlines.map((h: unknown) => ({
         id: h.id || `article-${Date.now()}`,
         title: h.title || h.summary || 'Untitled',
         summary: h.summary || h.title || 'No summary available',
@@ -58,9 +58,9 @@ export class ExternalApiService extends EventEmitter {
   }
 
   // Add more endpoints as needed;
-  public async getSchedule(): Promise<any[]> {
+  public async getSchedule(): Promise<unknown[]> {
     try {
-      const response = await fetch(`${this.config.baseURL}/schedule`, {
+      const _response = await fetch(`${this.config.baseURL}/schedule`, {
         // @ts-expect-error TS(2339): Property 'timeout' does not exist on type '{ new (... Remove this comment to see the full error message
         signal: AbortSignal.timeout(this.config.timeout || 5000),
       });
@@ -75,7 +75,7 @@ export class ExternalApiService extends EventEmitter {
   }
 }
 
-export const externalApiService = new ExternalApiService({
+export const _externalApiService = new ExternalApiService({
   // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
   baseURL: import.meta.env.VITE_EXTERNAL_API_URL || 'https://api.sportsdata.io/v3/news',
   timeout: 10000,

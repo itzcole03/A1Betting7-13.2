@@ -1,7 +1,7 @@
 import { FeatureFlags } from '../utils/FeatureFlags';
 
 // Initialize the feature flag manager
-const featureFlagManager = FeatureFlags.getInstance();
+const _featureFlagManager = FeatureFlags.getInstance();
 
 // Initialize feature flags (this could be done elsewhere in the app startup)
 featureFlagManager.initialize().catch(console.error);
@@ -12,7 +12,7 @@ featureFlagManager.initialize().catch(console.error);
  * @param context - Optional user context for feature flag evaluation
  * @returns Promise<boolean> - Whether the feature is enabled
  */
-export const isFeatureEnabled = async (featureId: string, context?: any): Promise<boolean> => {
+export const _isFeatureEnabled = async (featureId: string, context?: unknown): Promise<boolean> => {
   try {
     // Ensure feature flags are initialized
     await featureFlagManager.initialize();
@@ -30,13 +30,13 @@ export const isFeatureEnabled = async (featureId: string, context?: any): Promis
  * Get all feature flags status
  * @returns Promise<Record<string, boolean>> - Object with feature status
  */
-export const getAllFeatures = async (): Promise<Record<string, boolean>> => {
+export const _getAllFeatures = async (): Promise<Record<string, boolean>> => {
   try {
     await featureFlagManager.initialize();
-    const features = ['INJURIES', 'NEWS', 'WEATHER', 'REALTIME', 'ESPN', 'ODDS', 'ANALYTICS'];
-    const result: Record<string, boolean> = {};
+    const _features = ['INJURIES', 'NEWS', 'WEATHER', 'REALTIME', 'ESPN', 'ODDS', 'ANALYTICS'];
+    const _result: Record<string, boolean> = {};
 
-    for (const feature of features) {
+    for (const _feature of features) {
       result[feature] = featureFlagManager.isFeatureEnabled(feature);
     }
 
@@ -50,7 +50,7 @@ export const getAllFeatures = async (): Promise<Record<string, boolean>> => {
 /**
  * Configuration service for app-wide settings
  */
-export const configService = {
+export const _configService = {
   isFeatureEnabled,
   getAllFeatures,
 

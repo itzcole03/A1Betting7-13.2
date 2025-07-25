@@ -15,4 +15,4 @@ export declare class RealTimeUpdateService extends EventEmitter {
   private pollAll;
   stop(): void;
 }
-export declare const realTimeUpdateService: RealTimeUpdateService;
+export declare const _realTimeUpdateService: RealTimeUpdateService;

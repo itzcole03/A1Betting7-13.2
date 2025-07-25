@@ -25,7 +25,7 @@ export declare class EventBus {
     event: K
   ): Array<(data: EventTypes[K]) => void>;
   eventNames(): Array<keyof EventTypes>;
-  onAny(listener: (eventName: string, data: any) => void): void;
-  offAny(listener: (eventName: string, data: any) => void): void;
+  onAny(listener: (eventName: string, data: unknown) => void): void;
+  offAny(listener: (eventName: string, data: unknown) => void): void;
 }
-export declare const eventBus: EventBus;
+export declare const _eventBus: EventBus;

@@ -1,2 +1,2 @@
-﻿declare const EnsembleResults: () => import('react/jsx-runtime').JSX.Element;
+﻿declare const _EnsembleResults: () => import('react/jsx-runtime').JSX.Element;
 export { EnsembleResults };

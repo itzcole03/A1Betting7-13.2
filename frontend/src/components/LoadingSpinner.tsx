@@ -19,13 +19,13 @@ interface LoadingSpinnerProps {
  * @param className - Additional CSS classes
  * @param label - Accessibility label
  */
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+export const _LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = 'md',
   color = 'var(--cyber-primary)',
   className = '',
   label = 'Loading...',
 }) => {
-  const sizeClasses = {
+  const _sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-8 h-8',
     lg: 'w-12 h-12',

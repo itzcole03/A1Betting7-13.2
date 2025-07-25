@@ -17,4 +17,4 @@ export declare class UserService {
    */
   updateUserPreferences: (userId: string, preferences: UserPreferences) => Promise<User>;
 }
-export declare const userService: UserService;
+export declare const _userService: UserService;

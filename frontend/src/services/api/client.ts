@@ -36,40 +36,40 @@ class ApiClient {
     data?: unknown,
     config: ApiRequestConfig = {} as ApiRequestConfig
   ): Promise<ApiResponse<T>> {
-    const trace = unifiedMonitor.startTrace('api-client-request', {
+    const _trace = unifiedMonitor.startTrace('api-client-request', {
       category: 'api.client',
       description: 'API client request',
     });
     // Add query parameters;
-    const url = new URL(this.baseUrl + endpoint);
+    const _url = new URL(this.baseUrl + endpoint);
     if (config.params) {
       Object.entries(config.params).forEach(([key, value]) => {
         url.searchParams.append(key, value);
       });
     }
-    const headers = {
+    const _headers = {
       ...this.defaultHeaders,
       ...config.headers,
     };
     try {
-      const response = await fetch(url.toString(), {
+      const _response = await fetch(url.toString(), {
         method,
         headers,
         body: data ? JSON.stringify(data) : undefined,
         // @ts-expect-error TS(2339): Property 'timeout' does not exist on type '{ new (... Remove this comment to see the full error message
         signal: config.timeout ? AbortSignal.timeout(config.timeout) : undefined,
       });
-      const responseData = await response.json();
+      const _responseData = await response.json();
       // Utility to safely convert Headers to Record<string, string>
-      const headersToObject = (headers: Headers): Record<string, string> => {
-        const result: Record<string, string> = {};
+      const _headersToObject = (headers: Headers): Record<string, string> => {
+        const _result: Record<string, string> = {};
         headers.forEach((value, key) => {
           result[key] = value;
         });
         return result;
       };
       if (trace) {
-        (trace as any).httpStatus = response.status;
+        (trace as unknown).httpStatus = response.status;
         unifiedMonitor.endTrace(trace);
       }
       if (!response.ok) {
@@ -86,7 +86,7 @@ class ApiClient {
       };
     } catch (error: unknown) {
       if (trace) {
-        let errStatus = 500;
+        let _errStatus = 500;
         if (
           typeof error === 'object' &&
           error !== null &&
@@ -96,7 +96,7 @@ class ApiClient {
         ) {
           errStatus = (error as { response?: { status?: number } }).response!.status!;
         }
-        (trace as any).httpStatus = errStatus;
+        (trace as unknown).httpStatus = errStatus;
         unifiedMonitor.endTrace(trace);
       }
       if (error instanceof APIError) throw error;
@@ -110,7 +110,7 @@ class ApiClient {
         throw new AppError('Request timeout', { status: 408 }, error);
       }
       // Type guard for error with response.status;
-      function hasResponseStatus(err: unknown): err is { response: { status: number } } {
+      function hasResponseStatus(_err: unknown): err is { response: { status: number } } {
         return (
           typeof err === 'object' &&
           err !== null &&
@@ -158,8 +158,8 @@ class ApiClient {
 }
 
 // Export a singleton instance;
-export const apiClient = new ApiClient();
+export const _apiClient = new ApiClient();
 
 // Export get and post for compatibility with legacy imports;
-export const get = apiClient.get.bind(apiClient);
-export const post = apiClient.post.bind(apiClient);
+export const _get = apiClient.get.bind(apiClient);
+export const _post = apiClient.post.bind(apiClient);

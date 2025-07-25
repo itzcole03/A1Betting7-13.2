@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const Navbar: React.FC;
+declare const _Navbar: React.FC;
 export default Navbar;

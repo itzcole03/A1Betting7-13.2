@@ -13,12 +13,12 @@ interface ThemeProviderState {
   setTheme: (theme: Theme) => void;
 }
 
-const initialState: ThemeProviderState = {
+const _initialState: ThemeProviderState = {
   theme: 'system',
   setTheme: () => null,
 };
 
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
+const _ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 /**
  * ThemeProvider and useTheme hook
@@ -28,23 +28,20 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
  * Use the useTheme hook to access and set the current theme anywhere in the app.
  * Intended for use in the settings page and throughout the app for consistent theming.
  */
-export function ThemeProvider({
-  children,
-  defaultTheme = 'system',
-  storageKey = 'vite-ui-theme',
-  ...props
+export function ThemeProvider(_{
+  children, _defaultTheme = 'system', _storageKey = 'vite-ui-theme', _...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   );
 
   useEffect(() => {
-    const root = window.document.documentElement;
+    const _root = window.document.documentElement;
 
     root.classList.remove('light', 'dark');
 
     if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+      const _systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'
         : 'light';
 
@@ -55,7 +52,7 @@ export function ThemeProvider({
     root.classList.add(theme);
   }, [theme]);
 
-  const value = {
+  const _value = {
     theme,
     setTheme: (theme: Theme) => {
       localStorage.setItem(storageKey, theme);
@@ -77,8 +74,8 @@ export function ThemeProvider({
  * Access the global theme context.
  * Intended for use in the settings page and throughout the app for consistent theming.
  */
-export const useTheme = () => {
-  const context = useContext(ThemeProviderContext);
+export const _useTheme = () => {
+  const _context = useContext(ThemeProviderContext);
 
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');

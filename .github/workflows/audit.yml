@@ -1,0 +1,46 @@
+name: File Usage & Incompleteness Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install madge
+        run: npm install -g madge
+
+      - name: Generate frontend dependency graph
+        run: npx madge --image dependency-graph.svg frontend/src/
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install pydeps
+        run: pip install pydeps
+
+      - name: Generate backend dependency graph
+        run: pydeps backend/main.py --show-deps --max-bacon=2
+
+      - name: Scan for TODOs, stubs, placeholders
+        run: |
+          grep -rniE 'TODO|stub|placeholder' . || echo 'No incomplete code found.'
+
+      - name: Upload dependency graph
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-graph
+          path: dependency-graph.svg

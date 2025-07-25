@@ -1,3 +1,16 @@
+## Testing & E2E Integration
+
+- Run backend tests with:
+  ```bash
+  cd backend
+  pytest
+  ```
+- For E2E integration with the frontend:
+  - Start the backend as above.
+  - Start the frontend (`npm run dev` in `frontend/`).
+  - Use Jest/RTL for frontend E2E tests (see `frontend/jest.setup.e2e.js`).
+  - For browser-based E2E, use Playwright or Cypress (optional).
+
 # UltimateSportsBettingApp Backend
 
 ## Alembic Migration Workflow (v4.0.2+)
@@ -53,9 +66,30 @@ This directory contains the backend services for the UltimateSportsBettingApp, p
 
 ## Usage
 
-- Run the backend with FastAPI using `main.py`.
-- All services are modular and documented with docstrings.
-- See each module for detailed usage and API documentation.
+- **Main Backend Entry Point:**
+  - Run the backend with FastAPI using `minimal_test_app.py`.
+  - This unified backend includes ML predictions, user personalization, content recommendation, JWT authentication, and robust health/status endpoints.
+  - All services are modular and documented with docstrings.
+  - See each module for detailed usage and API documentation.
+
+### Running the Backend
+
+```bash
+python backend/minimal_test_app.py
+```
+
+### Features
+
+- ML Predictions
+- User Personalization
+- Content Recommendation
+- JWT Authentication
+- SQLite User Management
+- Health/Status Endpoints
+- Advanced Logging, CORS, GZip Middleware
+- Robust Error Handling
+
+Refer to `minimal_test_app.py` for endpoint details and usage examples.
 
 ## API Integrations & Data Sources
 

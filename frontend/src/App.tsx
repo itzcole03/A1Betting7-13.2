@@ -5,29 +5,119 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import AuthPage from './components/auth/AuthPage';
 import PasswordChangeForm from './components/auth/PasswordChangeForm';
-import ComprehensiveAdminDashboard from './components/comprehensive/ComprehensiveAdminDashboard';
 import { ErrorBoundary } from './components/core/ErrorBoundary';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { _AuthProvider, useAuth } from './contexts/AuthContext';
+import { OnboardingProvider } from './onboarding/OnboardingContext';
+import { OnboardingFlow } from './onboarding/OnboardingFlow';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import { discoverBackend } from './services/backendDiscovery';
+import { UpdateModal } from './update/UpdateModal';
+import { getBackendUrl } from './utils/getBackendUrl';
+import { getLocation } from './utils/location';
 
-// Navigation and component mapping
+console.log('[APP] Starting App.tsx rendering - Checking for module resolution issues');
 
-// Main App Content Component - Now uses comprehensive admin dashboard
+function App() {
+  console.log('[APP] Entering App component - Validating backend and imports');
+  const [apiUrl, setApiUrl] = useState(getBackendUrl());
+  const [backendHealthy, setBackendHealthy] = useState(true);
+  const expectedVersion = '1.0.0';
 
-const AppContent: React.FC = () => {
+  useEffect(() => {
+    console.log('[APP] Checking backend health - Potential caching impact');
+    async function checkBackend() {
+      let url = apiUrl;
+      let healthy = false;
+      try {
+        const res = await fetch(`${url}/api/health/status`);
+        healthy = res.ok;
+        if (healthy) {
+          const versionController = new AbortController();
+          const versionTimeoutId = setTimeout(() => versionController.abort(), 10000); // 10s timeout
+          let versionRes;
+          try {
+            versionRes = await fetch(`${url}/api/version`, { signal: versionController.signal });
+          } catch (err) {
+            if (
+              typeof err === 'object' &&
+              err !== null &&
+              'name' in err &&
+              (err as any).name === 'AbortError'
+            ) {
+              console.error('[APP] Backend version check timed out (10s)');
+            } else {
+              console.error('[APP] Backend version check failed:', err);
+            }
+            versionRes = undefined;
+          } finally {
+            clearTimeout(versionTimeoutId);
+          }
+          if (versionRes && versionRes.ok) {
+            const data = await versionRes.json();
+            if (data.version !== expectedVersion) {
+              console.warn(`[APP] Backend version mismatch - Possible resolution conflict`);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[APP] Backend check failed - Error:', err);
+        const discovered = await discoverBackend();
+        if (discovered) {
+          url = discovered;
+          setApiUrl(discovered);
+        }
+      }
+      setBackendHealthy(healthy);
+    }
+    checkBackend();
+  }, [apiUrl]);
+
+  if (!backendHealthy) {
+    console.log(`[APP] Backend not healthy at ${apiUrl} - Skipping render`);
+    return (
+      <div className='error-banner'>
+        Cannot connect to backend at {apiUrl}.{' '}
+        <button onClick={() => getLocation().reload()}>Retry</button>
+      </div>
+    );
+  }
+
+  return (
+    <QueryClientProvider client={new QueryClient()}>
+      <_AuthProvider>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <Routes>
+            <Route path='/reset-password' element={<ResetPasswordPage />} />
+            <Route path='*' element={<_AppContent />} />
+          </Routes>
+        </BrowserRouter>
+      </_AuthProvider>
+    </QueryClientProvider>
+  );
+}
+
+const _AppContent: React.FC = () => {
+  console.log('[APP] Entering _AppContent - Attempting to render child components');
   const { isAuthenticated, requiresPasswordChange, changePassword, loading, error, user } =
     useAuth();
+  const onboardingComplete = localStorage.getItem('onboardingComplete');
 
-  console.log('🏠 [DEBUG] App component - comprehensive admin dashboard loading');
+  // Only show onboarding if NOT authenticated and onboarding is not complete
+  if (!isAuthenticated && !onboardingComplete) {
+    console.log('[APP] Rendering OnboardingFlow - No authentication detected');
+    return (
+      <OnboardingProvider>
+        <OnboardingFlow />
+      </OnboardingProvider>
+    );
+  }
 
-  // Handle password change
+  // Fix handlePasswordChange reference
   const handlePasswordChange = async (
     currentPassword: string,
     newPassword: string,
     _confirmPassword: string
   ) => {
-    // PasswordChangeRequest expects: userId, oldPassword, newPassword
     if (!user) return;
     await changePassword({
       userId: user.id,
@@ -38,11 +128,15 @@ const AppContent: React.FC = () => {
 
   // Show auth page if not authenticated
   if (!isAuthenticated) {
+    // eslint-disable-next-line no-console
+    console.log('[APP] Rendering AuthPage (not authenticated)');
     return <AuthPage />;
   }
 
   // Show password change if required
   if (requiresPasswordChange) {
+    // eslint-disable-next-line no-console
+    console.log('[APP] Rendering PasswordChangeForm (requires password change)');
     return (
       <div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4'>
         <PasswordChangeForm
@@ -55,92 +149,23 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // Show comprehensive admin dashboard
+  // Show user-friendly UI for all authenticated users
+  console.log('[APP] Rendering UserFriendlyApp (simple UI)');
+  const UserFriendlyApp = React.lazy(() =>
+    import('./components/user-friendly/UserFriendlyApp').then(module => ({
+      default: module.default,
+    }))
+  );
   return (
     <ErrorBoundary>
-      <ComprehensiveAdminDashboard />
+      <UpdateModal />
+      <React.Suspense fallback={<div className='text-white p-8'>Loading dashboard...</div>}>
+        <UserFriendlyApp />
+      </React.Suspense>
     </ErrorBoundary>
   );
 };
 
-const queryClient = new QueryClient();
-
-function App() {
-  const [apiUrl, setApiUrl] = useState(import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000');
-  const [backendHealthy, setBackendHealthy] = useState(true);
-  // Remove backendVersion, only warn if version mismatch
-  const expectedVersion = '1.0.0'; // Update as needed
-  /// <reference types="node" />
-
-  useEffect(() => {
-    async function checkBackend() {
-      let url = apiUrl;
-      let healthy = false;
-      try {
-        const res = await fetch(`${url}/api/health/status`);
-        healthy = res.ok;
-        if (healthy) {
-          const versionRes = await fetch(`${url}/api/version`);
-          if (versionRes.ok) {
-            const data = await versionRes.json();
-            if (data.version !== expectedVersion) {
-              // Only warn, don't block
-              console.warn(
-                `Backend version mismatch! Frontend expects ${expectedVersion}, backend is ${data.version}`
-              );
-            }
-          }
-        }
-      } catch {
-        // Try discovery if not healthy
-        const discovered = await discoverBackend();
-        if (discovered) {
-          url = discovered;
-          setApiUrl(discovered);
-          const res = await fetch(`${discovered}/api/health/status`);
-          healthy = res.ok;
-          if (healthy) {
-            const versionRes = await fetch(`${discovered}/api/version`);
-            if (versionRes.ok) {
-              const data = await versionRes.json();
-              if (data.version !== expectedVersion) {
-                console.warn(
-                  `Backend version mismatch! Frontend expects ${expectedVersion}, backend is ${data.version}`
-                );
-              }
-            }
-          }
-        }
-      }
-      setBackendHealthy(healthy);
-    }
-    checkBackend();
-  }, [apiUrl]);
-
-  if (!backendHealthy) {
-    return (
-      <div className='error-banner'>
-        Cannot connect to backend at {apiUrl}.{' '}
-        <button onClick={() => window.location.reload()}>Retry</button>
-      </div>
-    );
-  }
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path='/reset-password' element={<ResetPasswordPage />} />
-            <Route path='*' element={<AppContent />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
-  );
-}
-
-// Export AppContent for use without AuthProvider wrapper
-export { AppContent };
+export { _AppContent as AppContent };
 
 export default App;

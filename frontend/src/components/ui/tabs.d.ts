@@ -2,17 +2,17 @@
 export interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
 }
-export declare const Tabs: React.FC<TabsProps>;
+export declare const _Tabs: React.FC<TabsProps>;
 export interface TabsListProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
 }
-export declare const TabsList: React.FC<TabsListProps>;
+export declare const _TabsList: React.FC<TabsListProps>;
 export interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   active?: boolean;
   children: React.ReactNode;
 }
-export declare const TabsTrigger: React.FC<TabsTriggerProps>;
+export declare const _TabsTrigger: React.FC<TabsTriggerProps>;
 export interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
 }
-export declare const TabsContent: React.FC<TabsContentProps>;
+export declare const _TabsContent: React.FC<TabsContentProps>;

@@ -1,53 +1,87 @@
-import { AffiliateLink, AffiliateOffer, affiliateService } from '../AffiliateService';
-
-global.fetch = jest.fn();
+/**
+ * @fileoverview
+ * Unit tests for the AffiliateService module.
+ *
+ * This suite verifies:
+ *  - Fetching affiliate links (success and failure)
+ *  - Tracking affiliate clicks (success and failure)
+ *  - Fetching affiliate offers (success and failure)
+ *
+ * All network requests are mocked using Jest's global.fetch.
+ */
+import { _affiliateService as affiliateService } from '../AffiliateService';
 
 describe('AffiliateService', () => {
+  beforeAll(() => {
+    // Override global.fetch for this test suite
+    global.fetch = jest.fn();
+  });
+  /**
+   * Reset all fetch mocks before each test to ensure isolation.
+   */
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
+  /**
+   * Should fetch affiliate links for a user and return the expected array.
+   */
   it('fetches affiliate links', async () => {
-    // @ts-expect-error TS(2339): Property '0' does not exist on type 'AffiliateLink... Remove this comment to see the full error message
-    const mockLinks: AffiliateLink[0] = [
+    const _mockLinks = [
       { id: '1', partnerName: 'PartnerA', url: 'https://a.com', active: true },
       { id: '2', partnerName: 'PartnerB', url: 'https://b.com', active: false },
     ];
-    (fetch as jest.Mock).mockResolvedValue({ ok: true, json: async () => mockLinks });
+    // Ensure the mock matches the Zod schema exactly
+    (global.fetch as jest.Mock).mockImplementation(() =>
+      Promise.resolve({ ok: true, json: () => Promise.resolve(_mockLinks) })
+    );
 
-    const links = mockLinks;
-    expect(links).toEqual(mockLinks);
+    const result = await affiliateService.getAffiliateLinks('test-user-id');
+    expect(result).toEqual(_mockLinks);
     expect(fetch).toHaveBeenCalled();
   });
 
+  /**
+   * Should throw an error if the affiliate links fetch fails.
+   */
   it('throws on affiliate links fetch failure', async () => {
-    (fetch as jest.Mock).mockResolvedValue({ ok: false, statusText: 'Not Found' });
-    const userId = 'test-user-id';
-    await expect(affiliateService.getAffiliateLinks(userId)).rejects.toThrow(
+    (global.fetch as jest.Mock).mockImplementation(() =>
+      Promise.resolve({ ok: false, statusText: 'Not Found' })
+    );
+    const _userId = 'test-user-id';
+    await expect(affiliateService.getAffiliateLinks(_userId)).rejects.toThrow(
       'Failed to fetch affiliate links: Not Found'
     );
   });
 
+  /**
+   * Should track an affiliate link click for a user.
+   */
   it('tracks affiliate click', async () => {
-    (fetch as jest.Mock).mockResolvedValue({ ok: true });
-    const linkId = 'test-link-id';
-    const userId = 'test-user-id';
-    await expect(affiliateService.trackAffiliateClick(linkId, userId)).resolves.toBeUndefined();
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
+    const _linkId = 'test-link-id';
+    const _userId = 'test-user-id';
+    await expect(affiliateService.trackAffiliateClick(_linkId, _userId)).resolves.toBeUndefined();
     expect(fetch).toHaveBeenCalled();
   });
 
+  /**
+   * Should throw an error if tracking an affiliate click fails.
+   */
   it('throws on affiliate click track failure', async () => {
-    (fetch as jest.Mock).mockResolvedValue({ ok: false, statusText: 'Bad Request' });
-    const linkId = 'test-link-id';
-    const userId = 'test-user-id';
-    await expect(affiliateService.trackAffiliateClick(linkId, userId)).rejects.toThrow(
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: false, statusText: 'Bad Request' });
+    const _linkId = 'test-link-id';
+    const _userId = 'test-user-id';
+    await expect(affiliateService.trackAffiliateClick(_linkId, _userId)).rejects.toThrow(
       'Failed to track affiliate click: Bad Request'
     );
   });
 
+  /**
+   * Should fetch affiliate offers and return the expected array.
+   */
   it('fetches affiliate offers', async () => {
-    // @ts-expect-error TS(2339): Property '0' does not exist on type 'AffiliateOffe... Remove this comment to see the full error message
-    const mockOffers: AffiliateOffer[0] = [
+    const _mockOffers = [
       {
         id: '1',
         partnerName: 'PartnerA',
@@ -58,16 +92,23 @@ describe('AffiliateService', () => {
         isActive: true,
       },
     ];
-    (fetch as jest.Mock).mockResolvedValue({ ok: true, json: async () => mockOffers });
+    // Ensure the mock matches the Zod schema exactly
+    (global.fetch as jest.Mock).mockImplementation(() =>
+      Promise.resolve({ ok: true, json: () => Promise.resolve(_mockOffers) })
+    );
 
-    const offers = mockOffers;
-    expect(offers).toEqual(mockOffers);
+    const result = await affiliateService.getAffiliateOffers();
+    expect(result).toEqual(_mockOffers);
     expect(fetch).toHaveBeenCalled();
   });
 
+  /**
+   * Should throw an error if the affiliate offers fetch fails.
+   */
   it('throws on affiliate offers fetch failure', async () => {
-    (fetch as jest.Mock).mockResolvedValue({ ok: false, statusText: 'Server Error' });
-    // @ts-expect-error TS(2339): Property 'getAffiliateOffers' does not exist on ty... Remove this comment to see the full error message
+    (global.fetch as jest.Mock).mockImplementation(() =>
+      Promise.resolve({ ok: false, statusText: 'Server Error' })
+    );
     await expect(affiliateService.getAffiliateOffers()).rejects.toThrow(
       'Failed to fetch affiliate offers: Server Error'
     );

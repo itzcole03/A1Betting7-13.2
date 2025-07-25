@@ -28,7 +28,7 @@ interface ModalProps {
  * @param closeOnOverlayClick - Whether to close on overlay click
  * @param showCloseButton - Whether to show close button
  */
-export const Modal: React.FC<ModalProps> = ({
+export const _Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   title,
@@ -38,9 +38,9 @@ export const Modal: React.FC<ModalProps> = ({
   closeOnOverlayClick = true,
   showCloseButton = true,
 }) => {
-  const modalRef = useRef<HTMLDivElement>(null);
+  const _modalRef = useRef<HTMLDivElement>(null);
 
-  const sizeClasses = {
+  const _sizeClasses = {
     sm: 'max-w-sm',
     md: 'max-w-md',
     lg: 'max-w-lg',
@@ -49,7 +49,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   // Handle escape key
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
+    const _handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         onClose();
       }
@@ -66,7 +66,7 @@ export const Modal: React.FC<ModalProps> = ({
     }
   }, [isOpen]);
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
+  const _handleOverlayClick = (e: React.MouseEvent) => {
     if (closeOnOverlayClick && e.target === e.currentTarget) {
       onClose();
     }

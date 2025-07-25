@@ -47,10 +47,10 @@ export interface SelectValueProps {
 }
 
 // Context
-const SelectContext = createContext<SelectContextType | undefined>(undefined);
+const _SelectContext = createContext<SelectContextType | undefined>(undefined);
 
-const useSelectContext = () => {
-  const context = useContext(SelectContext);
+const _useSelectContext = () => {
+  const _context = useContext(SelectContext);
   if (!context) {
     throw new Error('Select components must be used within a Select provider');
   }
@@ -58,7 +58,7 @@ const useSelectContext = () => {
 };
 
 // Main Select Component
-export const Select: React.FC<SelectProps> = ({
+export const _Select: React.FC<SelectProps> = ({
   value: controlledValue,
   defaultValue = '',
   onValueChange,
@@ -70,9 +70,9 @@ export const Select: React.FC<SelectProps> = ({
   const [internalValue, setInternalValue] = useState(defaultValue);
   const [open, setOpen] = useState(false);
 
-  const value = controlledValue ?? internalValue;
+  const _value = controlledValue ?? internalValue;
 
-  const handleValueChange = (newValue: string) => {
+  const _handleValueChange = (newValue: string) => {
     if (!controlledValue) {
       setInternalValue(newValue);
     }
@@ -80,13 +80,13 @@ export const Select: React.FC<SelectProps> = ({
     setOpen(false);
   };
 
-  const handleOpenChange = (newOpen: boolean) => {
+  const _handleOpenChange = (newOpen: boolean) => {
     if (!disabled) {
       setOpen(newOpen);
     }
   };
 
-  const contextValue: SelectContextType = {
+  const _contextValue: SelectContextType = {
     value,
     onValueChange: handleValueChange,
     open,
@@ -106,11 +106,11 @@ export const Select: React.FC<SelectProps> = ({
 };
 
 // Select Trigger Component
-export const SelectTrigger: React.FC<SelectTriggerProps> = ({ children, className = '' }) => {
+export const _SelectTrigger: React.FC<SelectTriggerProps> = ({ children, className = '' }) => {
   const { open, onOpenChange, disabled, variant } = useSelectContext();
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const _triggerRef = useRef<HTMLButtonElement>(null);
 
-  const variantClasses = {
+  const _variantClasses = {
     default: `
       bg-slate-800/50 border border-slate-600/50 
       hover:border-slate-500/50
@@ -130,7 +130,7 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = ({ children, classNam
     `,
   };
 
-  const triggerVariants = {
+  const _triggerVariants = {
     closed: { scale: 1 },
     open: { scale: 1.01 },
   };
@@ -165,12 +165,12 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = ({ children, classNam
 };
 
 // Select Value Component
-export const SelectValue: React.FC<SelectValueProps> = ({
+export const _SelectValue: React.FC<SelectValueProps> = ({
   placeholder: propPlaceholder,
   className = '',
 }) => {
   const { value, placeholder: contextPlaceholder } = useSelectContext();
-  const displayPlaceholder = propPlaceholder ?? contextPlaceholder;
+  const _displayPlaceholder = propPlaceholder ?? contextPlaceholder;
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -184,16 +184,16 @@ export const SelectValue: React.FC<SelectValueProps> = ({
 };
 
 // Select Content Component
-export const SelectContent: React.FC<SelectContentProps> = ({
+export const _SelectContent: React.FC<SelectContentProps> = ({
   children,
   className = '',
   position = 'popper',
 }) => {
   const { open, variant } = useSelectContext();
-  const contentRef = useRef<HTMLDivElement>(null);
+  const _contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const _handleClickOutside = (event: MouseEvent) => {
       if (contentRef.current && !contentRef.current.contains(event.target as Node)) {
         // We would call onOpenChange(false) here, but we don't have access to it
         // This would be handled by the trigger's blur event in a real implementation
@@ -209,13 +209,13 @@ export const SelectContent: React.FC<SelectContentProps> = ({
     };
   }, [open]);
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-slate-800 border border-slate-700',
     cyber: 'bg-slate-900 border-2 border-cyan-500/30 shadow-[0_0_20px_rgba(34,211,238,0.2)]',
     glass: 'bg-black/20 backdrop-blur-xl border border-white/10',
   };
 
-  const contentVariants = {
+  const _contentVariants = {
     hidden: {
       opacity: 0,
       scale: 0.95,
@@ -269,16 +269,16 @@ export const SelectContent: React.FC<SelectContentProps> = ({
 };
 
 // Select Item Component
-export const SelectItem: React.FC<SelectItemProps> = ({
+export const _SelectItem: React.FC<SelectItemProps> = ({
   value,
   children,
   disabled = false,
   className = '',
 }) => {
   const { value: selectedValue, onValueChange, variant } = useSelectContext();
-  const isSelected = selectedValue === value;
+  const _isSelected = selectedValue === value;
 
-  const variantClasses = {
+  const _variantClasses = {
     default: isSelected ? 'bg-slate-700 text-white' : 'hover:bg-slate-700/50 text-gray-300',
     cyber: isSelected
       ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400'
@@ -286,7 +286,7 @@ export const SelectItem: React.FC<SelectItemProps> = ({
     glass: isSelected ? 'bg-white/10 text-white' : 'hover:bg-white/5 text-gray-300',
   };
 
-  const itemVariants = {
+  const _itemVariants = {
     default: { scale: 1 },
     hover: { scale: 1.01 },
   };

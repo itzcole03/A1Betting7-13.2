@@ -1,11 +1,7 @@
-// @ts-expect-error TS(2691): An import path cannot end with a '.ts' extension. ... Remove this comment to see the full error message
-import { AnalysisPlugin } from './AnalysisFramework.ts';
-// @ts-expect-error TS(2691): An import path cannot end with a '.ts' extension. ... Remove this comment to see the full error message
-import { PipelineStage } from './DataPipeline.ts';
-// @ts-expect-error TS(2691): An import path cannot end with a '.ts' extension. ... Remove this comment to see the full error message
-import { FeatureComponent } from './FeatureComposition.ts';
-// @ts-expect-error TS(2691): An import path cannot end with a '.ts' extension. ... Remove this comment to see the full error message
-import { StrategyComponent, StrategyResult } from './StrategyComposition.ts';
+import { AnalysisPlugin } from './AnalysisFramework';
+import { PipelineStage } from './DataPipeline';
+import { FeatureComponent } from './FeatureComposition';
+import { StrategyComponent, StrategyResult } from './StrategyComposition';
 
 export interface PredictionData {
   value: number;
@@ -110,7 +106,7 @@ export interface Strategy {
   confidence: number;
   analyze(data: IntegratedData): Promise<Decision>;
   validate(data: IntegratedData): boolean;
-  getMetrics(): any;
+  getMetrics(): unknown;
 }
 export interface Decision {
   id: string;
@@ -180,22 +176,22 @@ export class PredictionEngine {
     // Use IPC to request ensemble prediction from main process
     // @ts-ignore
     import { ipcRenderer } from 'electron';
-    const response = await ipcRenderer.invoke('predict-ensemble', input, modelNames);
-    if (response.success && response.result) {
+    const _response = await ipcRenderer.invoke('predict-ensemble', input, modelNames);
+    if (_response.success && _response.result) {
       // Map aggregated result to PredictionData
       return {
         id: 'ensemble',
         timestamp: Date.now(),
-        context: input.context || {},
-        value: response.result.aggregated[0],
+        context: (_response.context || input.context) || {},
+        value: _response.result.aggregated[0],
         confidence: 0.9, // Example, can be computed from models
         analysis: {
           meta_analysis: {
             data_quality: 1,
             prediction_stability: 1,
             market_efficiency: 1,
-            playerId: input.context?.playerId || '',
-            metric: input.context?.metric || '',
+            playerId: (_response.context?.playerId || input.context?.playerId) || '',
+            metric: (_response.context?.metric || input.context?.metric) || '',
           },
           confidence_factors: {},
           risk_factors: {},
@@ -203,7 +199,7 @@ export class PredictionEngine {
         },
       };
     } else {
-      throw new Error(response.error || 'Prediction failed');
+      throw new Error(_response.error || 'Prediction failed');
     }
   }
   registerStrategy(_strategy: Strategy): void {}
@@ -222,9 +218,9 @@ export class PredictionEngine {
    */
   public async generatePrediction(context: PredictionContext): Promise<PredictionData> {
     // For test compatibility, return a mock prediction or the first from getPredictions()
-    const predictions = Array.from(this.getPredictions().values());
-    if (predictions.length > 0) {
-      return predictions[0];
+    const _predictions = Array.from(this.getPredictions().values());
+    if (_predictions.length > 0) {
+      return _predictions[0];
     }
     // Return a mock if none exist
     return {

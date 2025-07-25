@@ -1,5 +1,4 @@
-// @ts-expect-error TS(2307): Cannot find module '@/core/EventBus' or its corres... Remove this comment to see the full error message
-import { EventBus } from '@/core/EventBus';
+import { EventBus } from '../../core/EventBus';
 import { PerformanceMonitor } from './PerformanceMonitor';
 
 export interface FeatureMetadata {
@@ -43,7 +42,7 @@ export class ComposableFeature<T, U> implements FeatureComponent<T, U> {
   }
 
   async process(input: T, context: FeatureContext): Promise<U> {
-    const traceId = this.performanceMonitor.startTrace(`feature-${this.metadata.id}`);
+    const _traceId = this.performanceMonitor.startTrace(`feature-${this.metadata.id}`);
 
     try {
       if (this.validator && !(await this.validate(input))) {
@@ -62,11 +61,11 @@ export class ComposableFeature<T, U> implements FeatureComponent<T, U> {
       //     context
       //   }
       // });
-      this.performanceMonitor.endTrace(traceId);
+      this.performanceMonitor.endTrace(_traceId);
       // return result;
       return {} as U;
     } catch (error) {
-      this.performanceMonitor.endTrace(traceId, error as Error);
+      this.performanceMonitor.endTrace(_traceId, error as Error);
       if (this.rollbackHandler) {
         await this.rollbackHandler(input, error as Error);
       }
@@ -160,22 +159,19 @@ export class FeatureRegistry {
     firstFeatureId: string,
     secondFeatureId: string
   ): FeatureComponent<T, V> | undefined {
-    const first = this.getFeature<unknown, unknown>(firstFeatureId);
-    const second = this.getFeature<unknown, unknown>(secondFeatureId);
-    if (!first || !second) {
+    const _first = this.getFeature<unknown, unknown>(firstFeatureId);
+    const _second = this.getFeature<unknown, unknown>(secondFeatureId);
+    if (!_first || !_second) {
       return undefined;
     }
-    return first.combine(second) as FeatureComponent<T, V>;
+    return _first.combine(_second) as FeatureComponent<T, V>;
   }
 
   async executeFeature<T, U>(featureId: string, input: T, context: FeatureContext): Promise<U> {
-    const feature = this.getFeature<T, U>(featureId);
-    if (!feature) {
+    const _feature = this.getFeature<T, U>(featureId);
+    if (!_feature) {
       throw new Error(`Feature ${featureId} not found`);
     }
-    return feature.process(input, context);
+    return _feature.process(input, context);
   }
 }
-
-// @ts-expect-error TS(2484): Export declaration conflicts with exported declara... Remove this comment to see the full error message
-export type { FeatureComponent };

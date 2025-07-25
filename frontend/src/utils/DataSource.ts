@@ -5,13 +5,13 @@ export interface DataSource<T> {
   disconnect(): Promise<void>;
   getData(): Promise<T>;
   isConnected(): boolean;
-  getMetadata(): Record<string, any>;
+  getMetadata(): Record<string, unknown>;
 }
 
 export interface DataSourceConfig {
   url: string;
   apiKey?: string;
-  options?: Record<string, any>;
+  options?: Record<string, unknown>;
 }
 
 export interface DataSourceMetrics {

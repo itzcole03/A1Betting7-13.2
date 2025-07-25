@@ -9,13 +9,13 @@ export class EventBus {
   private static instance: EventBus;
   private emitter: any; // eventemitter3 v4+ workaround;
 
-  private constructor() {
+  private constructor(registry?: any) {
     this.emitter = new (EventEmitter as any)();
   }
 
-  public static getInstance(): EventBus {
+  public static getInstance(registry?: any): EventBus {
     if (!EventBus.instance) {
-      EventBus.instance = new EventBus();
+      EventBus.instance = new EventBus(registry);
     }
     return EventBus.instance;
   }
@@ -64,11 +64,11 @@ export class EventBus {
   }
 
   // Add onAny/offAny methods for DebugPanel;
-  public onAny(listener: (eventName: string, data: any) => void): void {
+  public onAny(listener: (eventName: string, data: unknown) => void): void {
     this.emitter.onAny(listener);
   }
 
-  public offAny(listener: (eventName: string, data: any) => void): void {
+  public offAny(listener: (eventName: string, data: unknown) => void): void {
     this.emitter.offAny(listener);
   }
 
@@ -84,4 +84,4 @@ export class EventBus {
 }
 
 // Singleton instance for convenience;
-export const eventBus = EventBus.getInstance();
+export const _eventBus = EventBus.getInstance();

@@ -34,14 +34,14 @@ export function useKeyMetrics() {
           return;
         }
         // Aggregate metrics from props (example: win rate, profit, accuracy, ROI, Sharpe)
-        const winRate = (data.filter((p: any) => p.result === 'win').length / data.length) * 100;
-        const totalProfit = data.reduce((acc: number, p: any) => acc + (p.profit || 0), 0);
-        const aiAccuracy =
-          data.reduce((acc: number, p: any) => acc + (p.confidence || 0), 0) / data.length;
-        const roi = data.reduce((acc: number, p: any) => acc + (p.roi || 0), 0) / data.length;
-        const sharpeRatio =
-          data.reduce((acc: number, p: any) => acc + (p.sharpe_ratio || 0), 0) / data.length;
-        const metrics = [
+        const _winRate = (data.filter((p: unknown) => p.result === 'win').length / data.length) * 100;
+        const _totalProfit = data.reduce((acc: number, p: unknown) => acc + (p.profit || 0), 0);
+        const _aiAccuracy =
+          data.reduce((acc: number, p: unknown) => acc + (p.confidence || 0), 0) / data.length;
+        const _roi = data.reduce((acc: number, p: unknown) => acc + (p.roi || 0), 0) / data.length;
+        const _sharpeRatio =
+          data.reduce((acc: number, p: unknown) => acc + (p.sharpe_ratio || 0), 0) / data.length;
+        const _metrics = [
           {
             id: 'win-rate',
             title: 'Win Rate',
@@ -121,7 +121,7 @@ export function useLiveOpportunities() {
           return;
         }
         // Map API response to LiveOpportunity type
-        const mapped = data.map((op: any) => ({
+        const _mapped = data.map((op: unknown) => ({
           id: op.id,
           game: op.player_name || op.name || '',
           roi: op.roi || 0,
@@ -140,7 +140,7 @@ export function useLiveOpportunities() {
 }
 
 export function useMlModelStats() {
-  const [mlModelStats, setMlModelStats] = useState<any[]>([]);
+  const [mlModelStats, setMlModelStats] = useState<unknown[]>([]);
   useEffect(() => {
     fetch('http://localhost:8000/api/prizepicks/props/enhanced')
       .then(res => res.json())
@@ -150,7 +150,7 @@ export function useMlModelStats() {
           return;
         }
         // Extract model stats from enhanced props (example: accuracy, f1, auc, last_trained)
-        const models = data.map((p: any) => ({
+        const _models = data.map((p: unknown) => ({
           name: p.model_name || p.player_name || '',
           accuracy: p.confidence || 0,
           f1_score: p.f1_score || null,

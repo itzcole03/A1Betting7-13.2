@@ -20,19 +20,19 @@ interface NotificationToastProps {
   onDismiss: (id: string) => void;
 }
 
-export const NotificationToast: React.FC<NotificationToastProps> = ({ toast, onDismiss }) => {
+export const _NotificationToast: React.FC<NotificationToastProps> = ({ toast, onDismiss }) => {
   const { id, type, title, message, duration = 5000, actions = [] } = toast;
 
   useEffect(() => {
     if (duration > 0) {
-      const timer = setTimeout(() => {
+      const _timer = setTimeout(() => {
         onDismiss(id);
       }, duration);
       return () => clearTimeout(timer);
     }
   }, [id, duration, onDismiss]);
 
-  const typeConfig = {
+  const _typeConfig = {
     success: {
       icon: CheckCircle,
       gradient: 'from-green-500 to-emerald-600',
@@ -70,10 +70,10 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ toast, onD
     },
   };
 
-  const config = typeConfig[type];
-  const IconComponent = config.icon;
+  const _config = typeConfig[type];
+  const _IconComponent = config.icon;
 
-  const toastVariants = {
+  const _toastVariants = {
     hidden: {
       opacity: 0,
       y: -50,
@@ -217,12 +217,12 @@ interface ToastContainerProps {
   position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 }
 
-export const ToastContainer: React.FC<ToastContainerProps> = ({
+export const _ToastContainer: React.FC<ToastContainerProps> = ({
   toasts,
   onDismiss,
   position = 'top-right',
 }) => {
-  const positionClasses = {
+  const _positionClasses = {
     'top-right': 'top-4 right-4',
     'top-left': 'top-4 left-4',
     'bottom-right': 'bottom-4 right-4',

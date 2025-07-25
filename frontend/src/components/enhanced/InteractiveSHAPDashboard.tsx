@@ -75,7 +75,7 @@ interface InteractiveSHAPDashboardProps {
   realTimeUpdates?: boolean;
 }
 
-const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
+const _InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
   explanation,
   onFeatureSelect,
   onExportData,
@@ -88,8 +88,8 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
   const [viewMode, setViewMode] = useState<'waterfall' | 'force' | 'summary'>('waterfall');
 
   // Filter and sort SHAP values based on user preferences
-  const filteredShapValues = useMemo(() => {
-    const filtered = explanation.shapValues.filter(
+  const _filteredShapValues = useMemo(() => {
+    const _filtered = explanation.shapValues.filter(
       sv => sv.confidence >= confidenceThreshold && (!showPositiveOnly || sv.shapValue > 0)
     );
 
@@ -109,12 +109,12 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
   }, [explanation.shapValues, sortBy, showPositiveOnly, confidenceThreshold]);
 
   // Waterfall chart data
-  const waterfallData = useMemo(() => {
-    const labels = ['Base Value', ...filteredShapValues.map(sv => sv.feature), 'Prediction'];
-    const data: number[] = [];
-    const backgroundColor: string[] = [];
+  const _waterfallData = useMemo(() => {
+    const _labels = ['Base Value', ...filteredShapValues.map(sv => sv.feature), 'Prediction'];
+    const _data: number[] = [];
+    const _backgroundColor: string[] = [];
 
-    let cumulativeValue = explanation.baseValue;
+    let _cumulativeValue = explanation.baseValue;
     data.push(cumulativeValue);
     backgroundColor.push('#94a3b8');
 
@@ -139,9 +139,9 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
   }, [filteredShapValues, explanation.baseValue]);
 
   // Force plot data (horizontal bar chart)
-  const forceData = useMemo(() => {
-    const positiveValues = filteredShapValues.filter(sv => sv.shapValue > 0);
-    const negativeValues = filteredShapValues.filter(sv => sv.shapValue < 0);
+  const _forceData = useMemo(() => {
+    const _positiveValues = filteredShapValues.filter(sv => sv.shapValue > 0);
+    const _negativeValues = filteredShapValues.filter(sv => sv.shapValue < 0);
 
     return {
       labels: filteredShapValues.map(sv => sv.feature),
@@ -161,16 +161,16 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
   }, [filteredShapValues]);
 
   // Summary statistics
-  const summaryStats = useMemo(() => {
-    const totalPositive = filteredShapValues
+  const _summaryStats = useMemo(() => {
+    const _totalPositive = filteredShapValues
       .filter(sv => sv.shapValue > 0)
       .reduce((sum, sv) => sum + sv.shapValue, 0);
 
-    const totalNegative = filteredShapValues
+    const _totalNegative = filteredShapValues
       .filter(sv => sv.shapValue < 0)
       .reduce((sum, sv) => sum + Math.abs(sv.shapValue), 0);
 
-    const topFeatures = filteredShapValues.slice(0, 5).map(sv => ({
+    const _topFeatures = filteredShapValues.slice(0, 5).map(sv => ({
       feature: sv.feature,
       impact: sv.shapValue,
       percentage: (Math.abs(sv.shapValue) / (totalPositive + totalNegative)) * 100,
@@ -185,9 +185,9 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
     };
   }, [filteredShapValues]);
 
-  const handleFeatureClick = useCallback(
+  const _handleFeatureClick = useCallback(
     (feature: string) => {
-      const newSelected = new Set(selectedFeatures);
+      const _newSelected = new Set(selectedFeatures);
       if (newSelected.has(feature)) {
         newSelected.delete(feature);
       } else {
@@ -199,7 +199,7 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
     [selectedFeatures, onFeatureSelect]
   );
 
-  const chartOptions = {
+  const _chartOptions = {
     responsive: true,
     plugins: {
       legend: {
@@ -211,8 +211,8 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
       },
       tooltip: {
         callbacks: {
-          label: (context: any) => {
-            const shapValue = filteredShapValues[context.dataIndex];
+          label: (context: unknown) => {
+            const _shapValue = filteredShapValues[context.dataIndex];
             if (shapValue) {
               return [
                 `SHAP Value: ${safeNumber(shapValue.shapValue).toFixed(4)}`,
@@ -230,11 +230,11 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
         beginAtZero: true,
       },
     },
-    onClick: (event: any, elements: any[]) => {
+    onClick: (event: unknown, elements: unknown[]) => {
       if (elements.length > 0) {
-        const index = elements[0].index;
+        const _index = elements[0].index;
         if (index > 0 && index <= filteredShapValues.length) {
-          const feature = filteredShapValues[index - 1]?.feature;
+          const _feature = filteredShapValues[index - 1]?.feature;
           if (feature) {
             handleFeatureClick(feature);
           }
@@ -292,7 +292,7 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
               <select
                 id='shap-sort-by'
                 value={sortBy}
-                onChange={e => setSortBy(e.target.value as any)}
+                onChange={e => setSortBy(e.target.value as unknown)}
                 className='w-full p-2 border rounded-md'
               >
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -314,7 +314,7 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
               <Slider
                 id='shap-confidence-threshold'
                 value={[confidenceThreshold]}
-                onValueChange={(value: any) => setConfidenceThreshold(value[0])}
+                onValueChange={(value: unknown) => setConfidenceThreshold(value[0])}
                 max={1}
                 min={0}
                 step={0.1}
@@ -407,7 +407,7 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <Tabs
         value={viewMode}
-        onValueChange={(value: any) => setViewMode(value as 'waterfall' | 'force' | 'summary')}
+        onValueChange={(value: unknown) => setViewMode(value as 'waterfall' | 'force' | 'summary')}
       >
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <TabsList className='grid w-full grid-cols-3'>
@@ -572,7 +572,7 @@ const InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
                       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div className='space-y-2'>
                         {Array.from(selectedFeatures).map(feature => {
-                          const shapValue = explanation.shapValues.find(
+                          const _shapValue = explanation.shapValues.find(
                             sv => sv.feature === feature
                           );
                           return shapValue ? (

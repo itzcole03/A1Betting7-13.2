@@ -1,4 +1,11 @@
 /**
+ * Safely calculates percentage change and formats with sign
+ * @param prev - Previous value
+ * @param next - Next value
+ * @param decimals - Number of decimal places (default: 1)
+ * @returns Formatted percentage change string (e.g., '+20.0%')
+ */
+/**
  * Safe number formatting utility to prevent runtime errors
  * Replaces unsafe .toFixed() calls throughout the codebase
  */
@@ -27,6 +34,7 @@ export function safeNumber(
   try {
     return numValue.toFixed(Math.max(0, Math.floor(decimals)));
   } catch (error) {
+    console.warn('safeNumber error:', error);
     return fallback;
   }
 }
@@ -45,6 +53,7 @@ export function safePercentage(value: SafeNumberInput, decimals: number = 1): st
   try {
     return `${(numValue * 100).toFixed(Math.max(0, Math.floor(decimals)))}%`;
   } catch (error) {
+    console.warn('safePercentage error:', error);
     return '0.0%';
   }
 }
@@ -61,8 +70,13 @@ export function safeCurrency(
   decimals: number = 2,
   currency: string = '$'
 ): string {
-  const formatted = safeNumber(value, decimals, '0.00');
-  return `${currency}${formatted}`;
+  try {
+    const formatted = safeNumber(value, decimals, '0.00');
+    return `${currency}${formatted}`;
+  } catch (error) {
+    console.warn('safeCurrency error:', error);
+    return `${currency}0.00`;
+  }
 }
 
 /**
@@ -72,20 +86,25 @@ export function safeCurrency(
  * @returns Formatted string with suffix
  */
 export function safeCompactNumber(value: SafeNumberInput, decimals: number = 1): string {
-  const numValue = typeof value === 'string' ? parseFloat(value) : value;
-  if (typeof numValue !== 'number' || isNaN(numValue) || !isFinite(numValue)) {
+  try {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (typeof numValue !== 'number' || isNaN(numValue) || !isFinite(numValue)) {
+      return '0';
+    }
+    const abs = Math.abs(numValue);
+    const sign = numValue < 0 ? '-' : '';
+    if (abs >= 1e9) {
+      return `${sign}${safeNumber(abs / 1e9, decimals)}B`;
+    } else if (abs >= 1e6) {
+      return `${sign}${safeNumber(abs / 1e6, decimals)}M`;
+    } else if (abs >= 1e3) {
+      return `${sign}${safeNumber(abs / 1e3, decimals)}K`;
+    } else {
+      return `${sign}${safeNumber(abs, 0)}`;
+    }
+  } catch (error) {
+    console.warn('safeCompactNumber error:', error);
     return '0';
-  }
-  const abs = Math.abs(numValue);
-  const sign = numValue < 0 ? '-' : '';
-  if (abs >= 1e9) {
-    return `${sign}${safeNumber(abs / 1e9, decimals)}B`;
-  } else if (abs >= 1e6) {
-    return `${sign}${safeNumber(abs / 1e6, decimals)}M`;
-  } else if (abs >= 1e3) {
-    return `${sign}${safeNumber(abs / 1e3, decimals)}K`;
-  } else {
-    return `${sign}${safeNumber(abs, 0)}`;
   }
 }
 
@@ -101,21 +120,26 @@ export function safeDivision(
   denominator: SafeNumberInput,
   fallback: number = 0
 ): number {
-  const num = typeof numerator === 'string' ? parseFloat(numerator) : numerator;
-  const den = typeof denominator === 'string' ? parseFloat(denominator) : denominator;
-  if (
-    typeof num !== 'number' ||
-    isNaN(num) ||
-    !isFinite(num) ||
-    typeof den !== 'number' ||
-    isNaN(den) ||
-    !isFinite(den) ||
-    den === 0
-  ) {
+  try {
+    const num = typeof numerator === 'string' ? parseFloat(numerator) : numerator;
+    const den = typeof denominator === 'string' ? parseFloat(denominator) : denominator;
+    if (
+      typeof num !== 'number' ||
+      isNaN(num) ||
+      !isFinite(num) ||
+      typeof den !== 'number' ||
+      isNaN(den) ||
+      !isFinite(den) ||
+      den === 0
+    ) {
+      return fallback;
+    }
+    const result = num / den;
+    return typeof result !== 'number' || isNaN(result) || !isFinite(result) ? fallback : result;
+  } catch (error) {
+    console.warn('safeDivision error:', error);
     return fallback;
   }
-  const result = num / den;
-  return typeof result !== 'number' || isNaN(result) || !isFinite(result) ? fallback : result;
 }
 
 /**
@@ -130,22 +154,32 @@ export function safePercentageChange(
   newValue: SafeNumberInput,
   decimals: number = 1
 ): string {
-  const oldNum = typeof oldValue === 'string' ? parseFloat(oldValue) : oldValue;
-  const newNum = typeof newValue === 'string' ? parseFloat(newValue) : newValue;
-  if (
-    typeof oldNum !== 'number' ||
-    isNaN(oldNum) ||
-    !isFinite(oldNum) ||
-    oldNum === 0 ||
-    typeof newNum !== 'number' ||
-    isNaN(newNum) ||
-    !isFinite(newNum)
-  ) {
+  try {
+    const oldNum = typeof oldValue === 'string' ? parseFloat(oldValue) : oldValue;
+    const newNum = typeof newValue === 'string' ? parseFloat(newValue) : newValue;
+    if (
+      typeof oldNum !== 'number' ||
+      isNaN(oldNum) ||
+      !isFinite(oldNum) ||
+      oldNum === 0 ||
+      typeof newNum !== 'number' ||
+      isNaN(newNum) ||
+      !isFinite(newNum)
+    ) {
+      return '0.0%';
+    }
+    const change = ((newNum - oldNum) / oldNum) * 100;
+    let sign = '';
+    if (change > 0) {
+      sign = '+';
+    } else if (change === 0) {
+      sign = '+';
+    }
+    return `${sign}${safeNumber(change, decimals)}%`;
+  } catch (error) {
+    console.warn('safePercentageChange error:', error);
     return '0.0%';
   }
-  const change = ((newNum - oldNum) / oldNum) * 100;
-  const sign = change > 0 ? '+' : '';
-  return `${sign}${safeNumber(change, decimals)}%`;
 }
 
 /**

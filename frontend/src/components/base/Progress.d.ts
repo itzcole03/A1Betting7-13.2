@@ -10,4 +10,4 @@ export interface ProgressProps {
   className?: string;
   animate?: boolean;
 }
-export declare const Progress: React.FC<ProgressProps>;
+export declare const _Progress: React.FC<ProgressProps>;

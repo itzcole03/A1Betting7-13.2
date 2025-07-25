@@ -19,7 +19,7 @@ export interface EnhancedPredictionRequest {
   use_gpu: boolean;
   numerical_precision: string;
   convergence_tolerance: number;
-  context: Record<string, any>;
+  context: Record<string, unknown>;
 }
 
 export interface EnhancedPredictionResponse {
@@ -32,11 +32,11 @@ export interface EnhancedPredictionResponse {
   topological_smoothing: number;
   riemannian_projection: number;
   final_prediction: number;
-  neuromorphic_metrics: Record<string, any>;
-  mamba_metrics: Record<string, any>;
-  causal_metrics: Record<string, any>;
-  topological_metrics: Record<string, any>;
-  riemannian_metrics: Record<string, any>;
+  neuromorphic_metrics: Record<string, unknown>;
+  mamba_metrics: Record<string, unknown>;
+  causal_metrics: Record<string, unknown>;
+  topological_metrics: Record<string, unknown>;
+  riemannian_metrics: Record<string, unknown>;
   riemannian_curvature: number;
   persistent_betti_numbers: Record<string, number>;
   causal_graph_structure: Record<string, string>;
@@ -47,7 +47,7 @@ export interface EnhancedPredictionResponse {
   stability_margin: number;
   lyapunov_exponent: number;
   mathematical_guarantees: Record<string, boolean>;
-  actual_complexity: Record<string, any>;
+  actual_complexity: Record<string, unknown>;
   runtime_analysis: Record<string, number>;
   memory_usage: Record<string, number>;
   prediction_confidence: number;
@@ -57,7 +57,7 @@ export interface EnhancedPredictionResponse {
   component_processing_times: Record<string, number>;
   timestamp: string;
   numerical_stability: Record<string, boolean>;
-  convergence_diagnostics: Record<string, any>;
+  convergence_diagnostics: Record<string, unknown>;
   theoretical_bounds_satisfied: boolean;
 }
 
@@ -83,7 +83,7 @@ export interface FeatureEngineeringResponse {
   };
   manifold_properties: {
     curvature_estimates: number;
-    topology_summary: Record<string, any>;
+    topology_summary: Record<string, unknown>;
     geodesic_distances: number;
   };
   information_theory_metrics: {
@@ -133,7 +133,7 @@ export interface RiskAssessmentResponse {
 }
 
 export interface MathematicalAnalysisRequest {
-  prediction_data: Array<Record<string, any>>;
+  prediction_data: Array<Record<string, unknown>>;
   analysis_depth: string;
   include_stability_analysis: boolean;
   include_convergence_analysis: boolean;
@@ -144,7 +144,7 @@ export interface MathematicalAnalysisRequest {
 }
 
 export interface MathematicalAnalysisResponse {
-  mathematical_analysis: Record<string, any>;
+  mathematical_analysis: Record<string, unknown>;
   analysis_depth: string;
   data_dimensions: {
     num_samples: number;
@@ -183,7 +183,7 @@ export interface ModelStatusResponse {
     error_rate: number;
     average_response_time: number;
   };
-  mathematical_foundations: Record<string, any>;
+  mathematical_foundations: Record<string, unknown>;
 }
 
 declare class EnhancedBackendApiService {
@@ -206,7 +206,7 @@ declare class EnhancedBackendApiService {
   getMathematicalAnalysis(
     request: MathematicalAnalysisRequest
   ): Promise<MathematicalAnalysisResponse>;
-  getMathematicalFoundations(): Promise<Record<string, any>>;
+  getMathematicalFoundations(): Promise<Record<string, unknown>>;
   getEnhancedModelStatus(): Promise<ModelStatusResponse>;
   getUnifiedPrediction(request: {
     event_id: string;
@@ -221,7 +221,7 @@ declare class EnhancedBackendApiService {
     risk_assessment: RiskAssessmentResponse;
     mathematical_analysis: MathematicalAnalysisResponse;
     unified_confidence: number;
-    processing_summary: Record<string, any>;
+    processing_summary: Record<string, unknown>;
   }>;
   healthCheck(): Promise<{
     status: string;

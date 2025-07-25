@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const SettingsPage: React.FC;
+declare const _SettingsPage: React.FC;
 export default SettingsPage;

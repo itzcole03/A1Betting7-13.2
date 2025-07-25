@@ -6,12 +6,12 @@ interface LoadingSpinnerProps {
   className?: string;
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+export const _LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = 'md',
   color = 'text-cyan-400',
   className = '',
 }) => {
-  const sizeClasses = {
+  const _sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-8 h-8',
     lg: 'w-12 h-12',

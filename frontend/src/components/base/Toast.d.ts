@@ -7,4 +7,4 @@ export interface ToastProps {
   duration?: number;
   onClose: (id: string) => void;
 }
-export declare const Toast: React.FC<ToastProps>;
+export declare const _Toast: React.FC<ToastProps>;

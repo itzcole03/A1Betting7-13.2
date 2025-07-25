@@ -1,9 +1,8 @@
 // frontend/src/services/AuthService.ts
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api/auth'; // Assuming the backend is running on port 8000
+const _API_URL = 'http://localhost:8000/auth';
 
-// Define the types that AuthContext.tsx expects
 export interface User {
   id: string;
   email: string;
@@ -17,6 +16,13 @@ export interface PasswordChangeRequest {
   newPassword?: string;
 }
 
+export interface AuthResponse {
+  success: boolean;
+  user?: User;
+  message?: string;
+  requiresPasswordChange?: boolean;
+}
+
 class AuthService {
   private user: User | null = null;
   private token: string | null = null;
@@ -27,11 +33,11 @@ class AuthService {
   }
 
   private loadFromLocalStorage() {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    if (token && user) {
-      this.token = token;
-      this.user = JSON.parse(user);
+    const _token = localStorage.getItem('token');
+    const _user = localStorage.getItem('user');
+    if (_token && _user) {
+      this.token = _token;
+      this.user = JSON.parse(_user);
       axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
     }
   }
@@ -68,26 +74,34 @@ class AuthService {
     return this.requiresPasswordChangeFlag;
   }
 
-  async login(email: string, password: string): Promise<any> {
-    const response = await axios.post(`${API_URL}/token`, {
-      username: email,
-      password,
-    }, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+  async login(email: string, password: string): Promise<AuthResponse> {
+    try {
+      const _response = await axios.post(
+        `${_API_URL}/login`,
+        {
+          username: email,
+          password,
         },
-        transformRequest: (data) => {
-            return new URLSearchParams(data).toString()
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
-    });
+      );
 
-    if (response.data.access_token) {
-        // A real implementation would fetch user details after getting the token
-        const user: User = { id: '1', email, role: 'admin' }; // Mock user
-        this.saveToLocalStorage(response.data.access_token, user);
-        return { success: true, user, requiresPasswordChange: false };
+      if (_response.data.access_token) {
+        const _user: User = { id: '1', email, role: 'admin' };
+        this.saveToLocalStorage(_response.data.access_token, _user);
+        return { success: true, user: _user, requiresPasswordChange: false };
+      }
+      return { success: false, message: 'Invalid credentials' };
+    } catch (error) {
+      console.error('Login API error:', error);
+      return {
+        success: false,
+        message: (error as Error).message || 'Login failed due to API error',
+      };
     }
-    return { success: false, message: 'Invalid credentials' };
   }
 
   async logout(): Promise<void> {
@@ -95,12 +109,19 @@ class AuthService {
     return Promise.resolve();
   }
 
-  async changePassword(data: PasswordChangeRequest): Promise<any> {
-    // This is a placeholder. A real implementation would make an API call.
-    console.log(`Changing password for user ${data.userId}`);
-    this.requiresPasswordChangeFlag = false;
-    return Promise.resolve({ success: true });
+  async changePassword(data: PasswordChangeRequest): Promise<AuthResponse> {
+    try {
+      console.log(`Changing password for user ${data.userId}`);
+      this.requiresPasswordChangeFlag = false;
+      return { success: true };
+    } catch (error) {
+      console.error('Change password API error:', error);
+      return {
+        success: false,
+        message: (error as Error).message || 'Password change failed due to API error',
+      };
+    }
   }
 }
 
-export const authService = new AuthService();
+export const _authService = new AuthService();

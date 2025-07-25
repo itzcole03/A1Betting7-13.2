@@ -52,6 +52,6 @@ export const useBettingSettings = () => {
     handleStakeChange,
     handleModelChange,
     handleConfidenceThresholdChange,
-    //     resetSettings
+    resetSettings,
   };
 };

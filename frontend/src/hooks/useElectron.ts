@@ -17,10 +17,11 @@ export const useElectron = () => {
       // Get platform
       setPlatform(window.electronAPI.platform);
 
-      // Set up menu listeners
+      // Set up menu listeners (if useMenuActions is not used separately)
+      // This might be redundant if useMenuActions is intended to be the sole handler
       window.electronAPI.onMenuAction((event, data) => {
-        // Handle menu actions
-        console.log('Menu action:', event, data);
+        // Handle menu actions (consider dispatching to a centralized reducer or context)
+        console.log('Menu action from useElectron:', event, data);
       });
     }
 
@@ -32,7 +33,6 @@ export const useElectron = () => {
   }, []);
 
   const showSaveDialog = useCallback(
-    // @ts-expect-error TS(2503): Cannot find namespace 'Electron'.
     async (options: Electron.SaveDialogOptions) => {
       if (!isElectron) return null;
       return await window.electronAPI.showSaveDialog(options);
@@ -41,7 +41,6 @@ export const useElectron = () => {
   );
 
   const showOpenDialog = useCallback(
-    // @ts-expect-error TS(2503): Cannot find namespace 'Electron'.
     async (options: Electron.OpenDialogOptions) => {
       if (!isElectron) return null;
       return await window.electronAPI.showOpenDialog(options);
@@ -50,7 +49,6 @@ export const useElectron = () => {
   );
 
   const showMessageBox = useCallback(
-    // @ts-expect-error TS(2503): Cannot find namespace 'Electron'.
     async (options: Electron.MessageBoxOptions) => {
       if (!isElectron) return null;
       return await window.electronAPI.showMessageBox(options);
@@ -95,7 +93,7 @@ export const useElectron = () => {
   // Store API wrapper
   const store = {
     set: useCallback(
-      (key: string, value: any) => {
+      (key: string, value: unknown) => {
         if (isElectron) {
           window.storeAPI.set(key, value);
         } else {
@@ -106,7 +104,7 @@ export const useElectron = () => {
     ),
 
     get: useCallback(
-      (key: string, defaultValue: any = null) => {
+      (key: string, defaultValue: unknown = null) => {
         if (isElectron) {
           return window.storeAPI.get(key, defaultValue);
         } else {
@@ -173,7 +171,7 @@ export const useMenuActions = () => {
     }) => {
       if (!isElectron) return;
 
-      const handleMenuAction = (event: any, data?: any) => {
+      const handleMenuAction = (event: { type: string; data?: any; }, data?: any) => {
         switch (event.type) {
           case 'menu-new-analysis':
             handlers.onNewAnalysis?.();
@@ -202,6 +200,7 @@ export const useMenuActions = () => {
         }
       };
 
+      // @ts-expect-error TS(2345): Argument of type '(event: { type: string; data?: any; }, data?: any) => void' is not assignable to parameter of type '(event: unknown, data?: unknown) => void'.
       window.electronAPI.onMenuAction(handleMenuAction);
 
       return () => {

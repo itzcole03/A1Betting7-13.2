@@ -17,5 +17,5 @@ interface SkeletonLoaderProps {
  * A simple, reusable skeleton loader component to indicate loading states.
  * Supports different shapes, sizes, and counts.
  */
-declare const SkeletonLoader: React.FC<SkeletonLoaderProps>;
+declare const _SkeletonLoader: React.FC<SkeletonLoaderProps>;
 export default SkeletonLoader;

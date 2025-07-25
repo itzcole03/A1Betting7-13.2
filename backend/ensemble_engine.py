@@ -1012,7 +1012,7 @@ class UltraAdvancedEnsembleEngine:
         while True:
             try:
                 # RESOLVED: implement dynamic rebalancing logic
-                
+
                 # e.g., update default_config.base_models or thresholds
                 await asyncio.sleep(interval)
             except Exception as e:  # pylint: disable=broad-exception-caught
@@ -1025,7 +1025,7 @@ class UltraAdvancedEnsembleEngine:
         while True:
             try:
                 # RESOLVED: collect and push performance metrics
-                
+
                 # e.g., push to Prometheus or external monitoring
                 await asyncio.sleep(interval)
             except Exception as e:  # pylint: disable=broad-exception-caught
@@ -1037,7 +1037,7 @@ class UltraAdvancedEnsembleEngine:
         interval = config_manager.get("meta_learning_interval_hours", 24) * 3600
         while True:
             try:
-                
+
                 await self.meta_learner.train_meta_learner(list(self.prediction_cache))
                 await asyncio.sleep(interval)
             except Exception as e:  # pylint: disable=broad-exception-caught
@@ -1126,8 +1126,14 @@ class UltraAdvancedEnsembleEngine:
                     zip(feature_names, model.feature_importances_)
                 )
 
-            # SHAP values (stub)
-            shap_values = {}
+            # SHAP values
+            shap_values = await self._calculate_shap_values(
+                model, feature_array, feature_names
+            )
+            # LIME values
+            lime_values = await self._calculate_lime_values(
+                model, feature_array, feature_names
+            )
 
             return PredictionOutput(
                 model_name=model_name,
@@ -1140,6 +1146,7 @@ class UltraAdvancedEnsembleEngine:
                 prediction_probability=uncertainty_metrics["confidence"],
                 feature_importance=feature_importance,
                 shap_values=shap_values,
+                lime_values=lime_values,
                 uncertainty_metrics=uncertainty_metrics,
                 model_agreement=1.0,  # Will be calculated at ensemble level
                 prediction_context=context,
@@ -1290,9 +1297,35 @@ class UltraAdvancedEnsembleEngine:
     async def _calculate_shap_values(
         self, model: Any, X: np.ndarray, feature_names: List[str]
     ) -> Dict[str, float]:
-        """Stub for SHAP value calculation"""
-        # RESOLVED: integrate SHAP explainer for detailed explainability
-        return {}
+        """Calculate SHAP values for the given model and input"""
+        import shap
+
+        try:
+            explainer = shap.Explainer(model, X)
+            shap_vals = explainer(X)
+            # Aggregate mean absolute SHAP value per feature
+            mean_shap = dict(zip(feature_names, shap_vals.abs.mean(0).tolist()))
+            return mean_shap
+        except Exception as e:
+            logger.warning(f"SHAP calculation failed: {e}")
+            return {}
+
+    async def _calculate_lime_values(
+        self, model: Any, X: np.ndarray, feature_names: List[str]
+    ) -> Dict[str, float]:
+        """Calculate LIME values for the given model and input"""
+        from lime.lime_tabular import LimeTabularExplainer
+
+        try:
+            explainer = LimeTabularExplainer(
+                X, feature_names=feature_names, verbose=False, mode="regression"
+            )
+            lime_exp = explainer.explain_instance(X[0], model.predict)
+            lime_vals = dict(lime_exp.as_list())
+            return lime_vals
+        except Exception as e:
+            logger.warning(f"LIME calculation failed: {e}")
+            return {}
 
     async def get_ensemble_health(self) -> Dict[str, Any]:
         """Get comprehensive ensemble health metrics"""

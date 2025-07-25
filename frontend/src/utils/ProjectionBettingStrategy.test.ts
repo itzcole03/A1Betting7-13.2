@@ -1,10 +1,13 @@
-// @ts-expect-error TS(2307): Cannot find module '@/core/PredictionEngine' or it... Remove this comment to see the full error message
-import { Recommendation } from '@/core/PredictionEngine';
-// @ts-expect-error TS(2614): Module '"./ProjectionBettingStrategy"' has no expo... Remove this comment to see the full error message
-import { ProjectionPlugin } from './ProjectionBettingStrategy';
+import { Recommendation } from './PredictionEngine';
+import { ProjectionBettingStrategy } from './ProjectionBettingStrategy';
+
+interface ProjectionPlugin {
+  statType: string;
+  evaluate: (projection: unknown, config: unknown) => Recommendation[];
+}
 
 describe('ProjectionBettingStrategy', () => {
-  const baseConfig = {
+  const _baseConfig = {
     minConfidence: 0.5,
     minEdge: 0.05,
     maxRisk: 0.2,
@@ -12,7 +15,7 @@ describe('ProjectionBettingStrategy', () => {
     useAdvancedStats: false,
   };
 
-  const sampleProjections = {
+  const _sampleProjections = {
     player1: {
       confidence: 0.7,
       stats: {
@@ -47,25 +50,25 @@ describe('ProjectionBettingStrategy', () => {
     },
   };
 
-  const sampleData = {
+  const _sampleData = {
     historical: [],
     market: [],
     correlations: [],
-    metadata: {} as Record<string, any>,
-    projections: sampleProjections,
+    metadata: {} as Record<string, unknown>,
+    projections: _sampleProjections,
     odds: {
       player1: { movement: { magnitude: 0.2 } },
       player2: { movement: { magnitude: 0.6 } },
     },
-    sentiment: [{} as Record<string, any>, {} as Record<string, any>],
+    sentiment: [{} as Record<string, unknown>, {} as Record<string, unknown>],
     injuries: { player1: { impact: 0.1 }, player2: { impact: 0.5 } },
-    trends: { player1: {} as Record<string, any>, player2: {} as Record<string, any> },
+    trends: { player1: {} as Record<string, unknown>, player2: {} as Record<string, unknown> },
     timestamp: Date.now(),
   };
 
   it('should produce a valid decision and recommendations', async () => {
     // Define a mock decision object for testing
-    const decision = {
+    const _decision = {
       recommendations: [
         {
           id: 'rec-1',
@@ -79,27 +82,27 @@ describe('ProjectionBettingStrategy', () => {
         risk_reasoning: ['Low risk'],
       },
     };
-    expect(decision).toHaveProperty('recommendations');
-    expect(Array.isArray(decision.recommendations)).toBe(true);
-    expect(decision.recommendations.length).toBeGreaterThan(0);
-    expect(decision.analysis).toHaveProperty('risk_reasoning');
-    expect(Array.isArray(decision.analysis.risk_reasoning)).toBe(true);
+    expect(_decision).toHaveProperty('recommendations');
+    expect(Array.isArray(_decision.recommendations)).toBe(true);
+    expect(_decision.recommendations.length).toBeGreaterThan(0);
+    expect(_decision.analysis).toHaveProperty('risk_reasoning');
+    expect(Array.isArray(_decision.analysis.risk_reasoning)).toBe(true);
   });
 
   it('should filter out low-confidence projections', async () => {
     // Define a mock decision object with no recommendations
-    const decision = {
+    const _decision = {
       recommendations: [],
       analysis: { risk_reasoning: [] },
     };
-    expect(decision.recommendations.length).toBe(0);
+    expect(_decision.recommendations.length).toBe(0);
   });
 
   it('should allow plugin extension for new stat types (type-safe)', async () => {
-    const customPlugin: ProjectionPlugin = {
+    const _customPlugin: ProjectionPlugin = {
       statType: 'points',
-      evaluate: (projection: any, config: any) => {
-        if (projection.player === 'player1') {
+      evaluate: (projection: unknown, config: unknown) => {
+        if ((projection as { player: string }).player === 'player1') {
           return [
             {
               id: 'custom-1',
@@ -114,7 +117,7 @@ describe('ProjectionBettingStrategy', () => {
       },
     };
     // Simulate plugin output
-    const decision = {
+    const _decision = {
       recommendations: [
         {
           id: 'custom-1',
@@ -126,11 +129,11 @@ describe('ProjectionBettingStrategy', () => {
       ],
       analysis: { risk_reasoning: [] },
     };
-    expect(decision.recommendations.some((r: any) => r.id === 'custom-1')).toBe(true);
+    expect((_decision.recommendations as Recommendation[]).some((r) => r.id === 'custom-1')).toBe(true);
   });
 
   it('should memoize edge calculations for identical recommendations', () => {
-    const rec: Recommendation = {
+    const _rec: Recommendation = {
       id: 'rec-1',
       type: 'OVER',
       confidence: 0.7,
@@ -138,8 +141,8 @@ describe('ProjectionBettingStrategy', () => {
       supporting_data: { historical_data: [], market_data: [], correlation_data: [] },
     };
     // Simulate memoization
-    const edge1 = 0.15;
-    const edge2 = 0.15;
-    expect(edge1).toBe(edge2);
+    const _edge1 = 0.15;
+    const _edge2 = 0.15;
+    expect(_edge1).toBe(_edge2);
   });
 });

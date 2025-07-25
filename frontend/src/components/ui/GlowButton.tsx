@@ -24,17 +24,17 @@ interface GlowButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
   className?: string;
 }
 
-const getVariantClasses = (variant: string, glowIntensity: string = 'medium') => {
-  const intensityMap = {
+const _getVariantClasses = (variant: string, glowIntensity: string = 'medium') => {
+  const _intensityMap = {
     subtle: { shadow: 'shadow-md', glow: '10' },
     medium: { shadow: 'shadow-lg', glow: '20' },
     intense: { shadow: 'shadow-xl', glow: '30' },
     extreme: { shadow: 'shadow-2xl', glow: '50' },
   };
 
-  const intensity = intensityMap[glowIntensity as keyof typeof intensityMap] || intensityMap.medium;
+  const _intensity = intensityMap[glowIntensity as keyof typeof intensityMap] || intensityMap.medium;
 
-  const variants = {
+  const _variants = {
     default: `bg-gray-600 text-white border border-gray-500 hover:bg-gray-500 ${intensity.shadow} shadow-gray-500/${intensity.glow}`,
     primary: `bg-blue-600 text-white border border-blue-500 hover:bg-blue-500 ${intensity.shadow} shadow-blue-500/${intensity.glow}`,
     secondary: `bg-purple-600 text-white border border-purple-500 hover:bg-purple-500 ${intensity.shadow} shadow-purple-500/${intensity.glow}`,
@@ -49,8 +49,8 @@ const getVariantClasses = (variant: string, glowIntensity: string = 'medium') =>
   return variants[variant as keyof typeof variants] || variants.default;
 };
 
-const getSizeClasses = (size: string) => {
-  const sizes = {
+const _getSizeClasses = (size: string) => {
+  const _sizes = {
     xs: 'px-2 py-1 text-xs',
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2 text-base',
@@ -60,7 +60,7 @@ const getSizeClasses = (size: string) => {
   return sizes[size as keyof typeof sizes] || sizes.md;
 };
 
-export const GlowButton: React.FC<GlowButtonProps> = ({
+export const _GlowButton: React.FC<GlowButtonProps> = ({
   variant = 'default',
   size = 'md',
   glowIntensity = 'medium',

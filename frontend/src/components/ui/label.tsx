@@ -10,7 +10,7 @@ export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> 
   disabled?: boolean;
 }
 
-export const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
+export const _Label = React.forwardRef<HTMLLabelElement, LabelProps>(
   (
     {
       className = '',
@@ -24,20 +24,20 @@ export const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
     },
     ref
   ) => {
-    const sizeClasses = {
+    const _sizeClasses = {
       sm: 'text-xs',
       md: 'text-sm',
       lg: 'text-base',
     };
 
-    const variantClasses = {
+    const _variantClasses = {
       default: 'text-gray-300 font-medium',
       cyber: 'text-cyan-400 font-semibold uppercase tracking-wider',
       required: 'text-gray-300 font-medium',
       optional: 'text-gray-400 font-normal',
     };
 
-    const baseClasses = `
+    const _baseClasses = `
       block transition-colors duration-200
       ${sizeClasses[size]}
       ${variantClasses[variant]}
@@ -45,7 +45,7 @@ export const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
       ${className}
     `;
 
-    const labelVariants = {
+    const _labelVariants = {
       default: { scale: 1, color: variantClasses[variant] },
       hover: { scale: variant === 'cyber' ? 1.02 : 1 },
     };

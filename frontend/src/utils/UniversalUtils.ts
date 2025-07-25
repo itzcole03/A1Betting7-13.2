@@ -3,11 +3,11 @@
 // ============================================================================
 
 // Format utilities;
-export const formatters = {
-  currency: (amount: number, _currency = 'USD') => {
+export const _formatters = {
+  currency: (amount: number, currency = 'USD') => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      //       currency
+      currency,
     }).format(amount);
   },
 
@@ -23,18 +23,18 @@ export const formatters = {
   },
 
   date: (date: Date | string, format = 'short') => {
-    const d = typeof date === 'string' ? new Date(date) : date;
+    const _d = typeof date === 'string' ? new Date(date) : date;
     return new Intl.DateTimeFormat('en-US', {
-      dateStyle: format as any,
+      dateStyle: format as 'short' | 'medium' | 'long' | 'full',
       timeStyle: format === 'full' ? 'short' : undefined,
-    }).format(d);
+    }).format(_d);
   },
 
   time: (date: Date | string) => {
-    const d = typeof date === 'string' ? new Date(date) : date;
+    const _d = typeof date === 'string' ? new Date(date) : date;
     return new Intl.DateTimeFormat('en-US', {
       timeStyle: 'short',
-    }).format(d);
+    }).format(_d);
   },
 
   compact: (value: number) => {
@@ -46,7 +46,7 @@ export const formatters = {
 };
 
 // Analytics utilities;
-export const analytics = {
+export const _analytics = {
   calculateWinRate: (wins: number, total: number) => {
     return total > 0 ? wins / total : 0;
   },
@@ -88,7 +88,7 @@ export const analytics = {
 };
 
 // Validation utilities;
-export const validators = {
+export const _validators = {
   email: (email: string) => {
     const regex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
     return regex.test(email);
@@ -120,7 +120,7 @@ export const validators = {
 };
 
 // Color utilities;
-export const colors = {
+export const _colors = {
   getConfidenceColor: (confidence: number) => {
     if (confidence >= 80) return '#06ffa5';
     if (confidence >= 60) return '#fbbf24';
@@ -153,83 +153,86 @@ export const colors = {
 };
 
 // Storage utilities;
-export const storage = {
-  set: (key: string, value: any) => {
+export const _storage = {
+  set: (key: string, value: unknown) => {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      window.localStorage.setItem(key, JSON.stringify(value));
       return true;
     } catch (error) {
-      // console statement removed
       return false;
     }
   },
 
-  get: (key: string, defaultValue: any = null) => {
+  get: (key: string, defaultValue: unknown = null) => {
     try {
-      const item = localStorage.getItem(key);
+      const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : defaultValue;
     } catch (error) {
-      // console statement removed
       return defaultValue;
     }
   },
 
   remove: (key: string) => {
     try {
-      localStorage.removeItem(key);
+      window.localStorage.removeItem(key);
       return true;
     } catch (error) {
-      // console statement removed
       return false;
     }
   },
 
   clear: () => {
     try {
-      localStorage.clear();
+      window.localStorage.clear();
       return true;
     } catch (error) {
-      // console statement removed
       return false;
     }
   },
 };
 
 // Debounce utility;
-export const debounce = <T extends (...args: any[]) => any>(
+export const _debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,
-  wait: number
+  wait: number,
+  immediate = false
 ): ((...args: Parameters<T>) => void) => {
-  let timeout: NodeJS.Timeout;
+  let timeout: ReturnType<typeof setTimeout> | null = null;
   return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
+    if (timeout) clearTimeout(timeout);
+    if (immediate && !timeout) {
+      func(...args);
+    }
+    timeout = setTimeout(() => {
+      if (!immediate) func(...args);
+      timeout = null;
+    }, wait);
   };
 };
 
 // Throttle utility;
-export const throttle = <T extends (...args: any[]) => any>(
+export const _throttle = <T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): ((...args: Parameters<T>) => void) => {
-  let inThrottle = false;
+  let lastCall = 0;
   return (...args: Parameters<T>) => {
-    if (!inThrottle) {
+    const now = Date.now();
+    if (now - lastCall >= limit) {
       func(...args);
-      inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
+      lastCall = now;
     }
   };
 };
 
 // Array utilities;
-export const arrayUtils = {
+export const _arrayUtils = {
   chunk: <T>(array: T[], size: number): T[][] => {
-    const chunks: T[][] = [];
-    for (let i = 0; i < array.length; i += size) {
-      chunks.push(array.slice(i, i + size));
+    const _chunks: T[][] = [];
+    for (let _i = 0; _i < array.length; _i += size) {
+      _chunks.push(array.slice(_i, _i + size));
     }
-    return chunks;
+    return _chunks;
   },
 
   unique: <T>(array: T[]): T[] => {
@@ -237,89 +240,86 @@ export const arrayUtils = {
   },
 
   groupBy: <T>(array: T[], key: keyof T): Record<string, T[]> => {
-    return array.reduce(
-      (groups, item) => {
-        const group = String(item[key]);
-        return {
-          ...groups,
-          [group]: [...(groups[group] || []), item],
-        };
-      },
-      {} as Record<string, T[]>
-    );
+    return array.reduce((groups, item) => {
+      const _group = String(item[key]);
+      return {
+        ...groups,
+        [_group]: [...(groups[_group] || []), item],
+      };
+    }, {} as Record<string, T[]>);
   },
 
   sortBy: <T>(array: T[], key: keyof T, direction: 'asc' | 'desc' = 'asc'): T[] => {
     return [...array].sort((a, b) => {
-      const aVal = a[key];
-      const bVal = b[key];
-      if (aVal < bVal) return direction === 'asc' ? -1 : 1;
-      if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+      const _aVal = a[key];
+      const _bVal = b[key];
+      if (_aVal < _bVal) return direction === 'asc' ? -1 : 1;
+      if (_aVal > _bVal) return direction === 'asc' ? 1 : -1;
       return 0;
     });
   },
 };
 
 // URL utilities;
-export const url = {
+export const _url = {
   getParams: (): Record<string, string> => {
-    const result: Record<string, string> = {};
-    const params = new URLSearchParams(window.location.search);
-    params.forEach((value, key) => {
-      result[key] = value;
+    const _result: Record<string, string> = {};
+    const _params = new URLSearchParams(window.location.search);
+    _params.forEach((value, key) => {
+      _result[key] = value;
     });
-    return result;
+    return _result;
   },
 
   setParam: (key: string, value: string) => {
-    const url = new URL(window.location.href);
-    url.searchParams.set(key, value);
-    window.history.replaceState({}, '', url.toString());
+    const _url = new URL(window.location.href);
+    _url.searchParams.set(key, value);
+    window.history.replaceState({}, '', _url.toString());
   },
 
   removeParam: (key: string) => {
-    const url = new URL(window.location.href);
-    url.searchParams.delete(key);
-    window.history.replaceState({}, '', url.toString());
+    const _url = new URL(window.location.href);
+    _url.searchParams.delete(key);
+    window.history.replaceState({}, '', _url.toString());
   },
 };
 
 // Device utilities;
-export const device = {
+export const _device = {
   isMobile: () => window.innerWidth <= 768,
   isTablet: () => window.innerWidth > 768 && window.innerWidth <= 1024,
   isDesktop: () => window.innerWidth > 1024,
 
   getBreakpoint: () => {
-    const width = window.innerWidth;
-    if (width <= 640) return 'sm';
-    if (width <= 768) return 'md';
-    if (width <= 1024) return 'lg';
-    if (width <= 1280) return 'xl';
+    const _width = window.innerWidth;
+    if (_width <= 640) return 'sm';
+    if (_width <= 768) return 'md';
+    if (_width <= 1024) return 'lg';
+    if (_width <= 1280) return 'xl';
     return '2xl';
   },
 };
 
 // Safe number utility
-export function safeNumber(val: any, fallback: number = 0): number {
-  if (typeof val === 'number' && !isNaN(val) && isFinite(val)) return val;
-  if (typeof val === 'string') {
-    const n = Number(val);
-    if (!isNaN(n) && isFinite(n)) return n;
+export function safeNumber(_val: unknown, _fallback: number = 0): number {
+  if (typeof _val === 'number' && !isNaN(_val) && isFinite(_val)) return _val;
+  if (typeof _val === 'string') {
+    const _n = Number(_val);
+    if (!isNaN(_n) && isFinite(_n)) return _n;
   }
-  return fallback;
+  return _fallback;
 }
 
 // Export everything as default object for convenience;
 export default {
-  formatters,
-  analytics,
-  validators,
-  colors,
-  storage,
-  debounce,
-  throttle,
-  arrayUtils,
-  url,
-  //   device
+  _formatters,
+  _analytics,
+  _validators,
+  _colors,
+  _storage,
+  _debounce,
+  _throttle,
+  _arrayUtils,
+  _url,
+  _device,
 };

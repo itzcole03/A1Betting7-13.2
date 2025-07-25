@@ -9,5 +9,5 @@ interface GlassCardProps {
   neonColor?: string;
 }
 
-declare const GlassCard: React.FC<GlassCardProps>;
+declare const _GlassCard: React.FC<GlassCardProps>;
 export default GlassCard;

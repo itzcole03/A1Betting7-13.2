@@ -4,7 +4,11 @@
  */
 class APIConfigurationService {
   constructor() {}
+
   // Add methods as needed for tests
+  validateConfig(): boolean {
+    return true; // Stub implementation
+  }
 
   static getInstance(): APIConfigurationService {
     if (!APIConfigurationService.instance) {

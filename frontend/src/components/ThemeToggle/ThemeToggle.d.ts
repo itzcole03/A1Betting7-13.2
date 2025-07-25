@@ -1,2 +1,2 @@
-declare const ThemeToggle: () => import('react/jsx-runtime').JSX.Element;
+declare const _ThemeToggle: () => import('react/jsx-runtime').JSX.Element;
 export default ThemeToggle;

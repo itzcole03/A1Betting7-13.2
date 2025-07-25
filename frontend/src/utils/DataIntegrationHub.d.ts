@@ -57,7 +57,7 @@ export declare class DataIntegrationHub {
   private constructor();
   static getInstance(): DataIntegrationHub;
   private initializeIntegratedData;
-  registerDataSource(source: DataSource<any>): void;
+  registerDataSource(source: DataSource<unknown>): void;
   startRealTimeSync(): Promise<void>;
   stopRealTimeSync(): void;
   setSyncInterval(milliseconds: number): void;

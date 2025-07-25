@@ -23,7 +23,7 @@ export interface PredictionRequest {
   require_explanations?: boolean;
   risk_tolerance?: number;
   bankroll?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ModelPrediction {
@@ -214,7 +214,7 @@ class EnhancedApiService {
   // UTILITY METHODS;
   // ============================================================================
 
-  private shouldRetry(error: any): boolean {
+  private shouldRetry(error: unknown): boolean {
     // Retry on network errors, timeouts, and 5xx server errors;
     return (
       !error.response ||
@@ -228,10 +228,10 @@ class EnhancedApiService {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  private handleApiError(error: any, context: string): never {
+  private handleApiError(error: unknown, context: string): never {
     // console statement removed
-    const message = error?.message || 'Unknown error';
-    const status = error?.response?.status || 'N/A';
+    const _message = error?.message || 'Unknown error';
+    const _status = error?.response?.status || 'N/A';
     throw new Error(`${context} failed: ${message} (Status: ${status})`);
   }
 
@@ -241,7 +241,7 @@ class EnhancedApiService {
 
   async getPrediction(request: PredictionRequest): Promise<PredictionResponse> {
     try {
-      const response: AxiosResponse<PredictionResponse> = await this.api.post(
+      const _response: AxiosResponse<PredictionResponse> = await this.api.post(
         '/api/v2/predict',
         request
       );
@@ -251,9 +251,9 @@ class EnhancedApiService {
     }
   }
 
-  async getModelStatus(): Promise<any> {
+  async getModelStatus(): Promise<unknown> {
     try {
-      const response: AxiosResponse<any> = await this.api.get('/api/v2/model-status');
+      const _response: AxiosResponse<unknown> = await this.api.get('/api/v2/model-status');
       return response.data;
     } catch (error) {
       this.handleApiError(error, 'Model status request');
@@ -266,10 +266,10 @@ class EnhancedApiService {
 
   async getBettingOpportunities(sport?: string, limit: number = 10): Promise<BettingOpportunity[]> {
     try {
-      const params = new URLSearchParams();
+      const _params = new URLSearchParams();
       if (sport) params.append('sport', sport);
       params.append('limit', limit.toString());
-      const response: AxiosResponse<BettingOpportunity[]> = await this.api.get(
+      const _response: AxiosResponse<BettingOpportunity[]> = await this.api.get(
         `/api/betting-opportunities?${params.toString()}`
       );
       return response.data;
@@ -280,7 +280,7 @@ class EnhancedApiService {
 
   async getArbitrageOpportunities(limit: number = 5): Promise<ArbitrageOpportunity[]> {
     try {
-      const response: AxiosResponse<ArbitrageOpportunity[]> = await this.api.get(
+      const _response: AxiosResponse<ArbitrageOpportunity[]> = await this.api.get(
         `/api/arbitrage-opportunities?limit=${limit}`
       );
       return response.data;
@@ -295,7 +295,7 @@ class EnhancedApiService {
 
   async getTransactions(): Promise<{ transactions: Transaction[]; total_count: number }> {
     try {
-      const response: AxiosResponse<{ transactions: Transaction[]; total_count: number }> =
+      const _response: AxiosResponse<{ transactions: Transaction[]; total_count: number }> =
         await this.api.get('/api/v2/transactions');
       return response.data;
     } catch (error) {
@@ -305,8 +305,9 @@ class EnhancedApiService {
 
   async getRiskProfiles(): Promise<{ profiles: RiskProfile[] }> {
     try {
-      const response: AxiosResponse<{ profiles: RiskProfile[] }> =
-        await this.api.get('/api/v2/risk-profiles');
+      const _response: AxiosResponse<{ profiles: RiskProfile[] }> = await this.api.get(
+        '/api/v2/risk-profiles'
+      );
       return response.data;
     } catch (error) {
       this.handleApiError(error, 'Risk profiles request');
@@ -315,7 +316,7 @@ class EnhancedApiService {
 
   async getActiveBets(): Promise<{ active_bets: ActiveBet[]; total_count: number }> {
     try {
-      const response: AxiosResponse<{ active_bets: ActiveBet[]; total_count: number }> =
+      const _response: AxiosResponse<{ active_bets: ActiveBet[]; total_count: number }> =
         await this.api.get('/api/v2/active-bets');
       return response.data;
     } catch (error) {
@@ -327,18 +328,20 @@ class EnhancedApiService {
   // SYSTEM HEALTH;
   // ============================================================================
 
-  async getHealthStatus(): Promise<any> {
+  async getHealthStatus(): Promise<unknown> {
     try {
-      const response: AxiosResponse<any> = await this.api.get('/api/v2/health');
+      const _response: AxiosResponse<unknown> = await this.api.get('/api/v2/health');
       return response.data;
     } catch (error) {
       this.handleApiError(error, 'Health check request');
     }
   }
 
-  async getPredictionEngineHealth(): Promise<any> {
+  async getPredictionEngineHealth(): Promise<unknown> {
     try {
-      const response: AxiosResponse<any> = await this.api.get('/api/v2/prediction-engine-health');
+      const _response: AxiosResponse<unknown> = await this.api.get(
+        '/api/v2/prediction-engine-health'
+      );
       return response.data;
     } catch (error) {
       this.handleApiError(error, 'Prediction engine health check');
@@ -350,21 +353,21 @@ class EnhancedApiService {
   // ============================================================================
 
   // Subscribe to real-time updates via WebSocket
-  subscribeToUpdates(onMessage: (data: any) => void): WebSocket | null {
+  subscribeToUpdates(onMessage: (data: unknown) => void): WebSocket | null {
     try {
       // Replace with actual WebSocket URL if backend supports it
       // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-      const wsUrl = (import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws/updates');
-      const ws = new WebSocket(wsUrl);
-      ws.onmessage = (event) => {
+      const _wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws/updates';
+      const _ws = new WebSocket(wsUrl);
+      ws.onmessage = event => {
         try {
-          const data = JSON.parse(event.data);
+          const _data = JSON.parse(event.data);
           onMessage(data);
         } catch (err) {
           console.error('WebSocket message parse error', err);
         }
       };
-      ws.onerror = (err) => {
+      ws.onerror = err => {
         console.error('WebSocket error', err);
       };
       return ws;
@@ -379,10 +382,10 @@ class EnhancedApiService {
   // ============================================================================
 
   // Batch prediction API call
-  async getBatchPredictions(payload: any): Promise<any> {
+  async getBatchPredictions(payload: unknown): Promise<unknown> {
     try {
       // Replace with actual endpoint if available
-      const response = await this.api.post('/v2/batch-predict', payload);
+      const _response = await this.api.post('/v2/batch-predict', payload);
       return response.data;
     } catch (error) {
       // TODO: Implement actual batch prediction logic if endpoint is not available
@@ -395,9 +398,9 @@ class EnhancedApiService {
   // ANALYTICS AND REPORTING;
   // ============================================================================
 
-  async getPerformanceMetrics(timeframe: string = '7d'): Promise<any> {
+  async getPerformanceMetrics(timeframe: string = '7d'): Promise<unknown> {
     try {
-      const response: AxiosResponse<any> = await this.api.get(
+      const _response: AxiosResponse<unknown> = await this.api.get(
         `/api/v2/performance-metrics?timeframe=${timeframe}`
       );
       return response.data;
@@ -408,9 +411,9 @@ class EnhancedApiService {
     }
   }
 
-  async getMarketAnalytics(sport?: string): Promise<any> {
+  async getMarketAnalytics(sport?: string): Promise<unknown> {
     try {
-      const response: AxiosResponse<any> = await this.api.get(
+      const _response: AxiosResponse<unknown> = await this.api.get(
         `/api/v2/market-analytics${sport ? `?sport=${sport}` : ''}`
       );
       return response.data;
@@ -426,5 +429,5 @@ class EnhancedApiService {
 // SINGLETON EXPORT;
 // ============================================================================
 
-export const apiService = new EnhancedApiService();
+export const _apiService = new EnhancedApiService();
 export default apiService;

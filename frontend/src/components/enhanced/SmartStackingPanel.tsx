@@ -26,7 +26,7 @@ interface SmartStackingPanelProps {
   selectedBets: Set<string>;
 }
 
-const SmartStackingPanel: React.FC<SmartStackingPanelProps> = ({
+const _SmartStackingPanel: React.FC<SmartStackingPanelProps> = ({
   suggestions,
   correlationMatrix,
   predictions,
@@ -36,19 +36,19 @@ const SmartStackingPanel: React.FC<SmartStackingPanelProps> = ({
   const [activeTab, setActiveTab] = useState<'suggestions' | 'correlations'>('suggestions');
   const [selectedStack, setSelectedStack] = useState<StackSuggestion | null>(null);
 
-  const getCorrelationColor = (correlation: number) => {
+  const _getCorrelationColor = (correlation: number) => {
     if (correlation > 0.7) return 'text-red-400';
     if (correlation > 0.4) return 'text-yellow-400';
     return 'text-green-400';
   };
 
-  const getCorrelationBg = (correlation: number) => {
+  const _getCorrelationBg = (correlation: number) => {
     if (correlation > 0.7) return 'bg-red-500/20';
     if (correlation > 0.4) return 'bg-yellow-500/20';
     return 'bg-green-500/20';
   };
 
-  const getRiskColor = (riskLevel: string) => {
+  const _getRiskColor = (riskLevel: string) => {
     switch (riskLevel) {
       case 'low':
         return 'text-green-400';
@@ -61,8 +61,8 @@ const SmartStackingPanel: React.FC<SmartStackingPanelProps> = ({
     }
   };
 
-  const handleStackSelect = (suggestion: StackSuggestion) => {
-    const playerIds = suggestion.players
+  const _handleStackSelect = (suggestion: StackSuggestion) => {
+    const _playerIds = suggestion.players
       .map(playerName => predictions.find(p => p.player_name === playerName)?.id)
       .filter(Boolean) as string[];
 
@@ -204,8 +204,8 @@ const SmartStackingPanel: React.FC<SmartStackingPanelProps> = ({
                   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='space-y-2 mb-3'>
                     {suggestion.players.map((playerName, playerIndex) => {
-                      const prediction = predictions.find(p => p.player_name === playerName);
-                      const isSelected = prediction && selectedBets.has(prediction.id);
+                      const _prediction = predictions.find(p => p.player_name === playerName);
+                      const _isSelected = prediction && selectedBets.has(prediction.id);
 
                       return (
                         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -376,7 +376,7 @@ const SmartStackingPanel: React.FC<SmartStackingPanelProps> = ({
                               {playerA.split(' ')[0]}
                             </td>
                             {correlationMatrix.players.map((playerB, j) => {
-                              const correlation = correlationMatrix.matrix[i][j];
+                              const _correlation = correlationMatrix.matrix[i][j];
                               return (
                                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                                 <td key={j} className='p-2 text-center'>

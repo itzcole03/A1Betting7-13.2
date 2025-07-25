@@ -9,7 +9,7 @@ import './A1BettingPreview.css';
  *
  * @returns {JSX.Element} Social intelligence UI
  */
-const SocialTab: React.FC = (): JSX.Element => (
+const _SocialTab: React.FC = (): JSX.Element => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div className='social-tab' role='tabpanel' aria-label='Social Intelligence'>
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

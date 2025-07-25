@@ -1,0 +1,11 @@
+import { ShapExplainerService } from '../../../services/analytics/ShapExplainerService';
+import { ShapAnalysisResult } from '../../../types/analytics';
+
+describe('ShapExplainerService', () => {
+  it('returns feature importances', async () => {
+    const _mockData = { features: [1, 2, 3], values: [0.5, 0.3, 0.2] };
+    const _result: ShapAnalysisResult = (await ShapExplainerService.explainPrediction(_mockData as any, _mockData as any)) as ShapAnalysisResult;
+    expect(_result.featureImportances).toBeDefined();
+    expect(Array.isArray(_result.featureImportances)).toBe(true);
+  });
+});

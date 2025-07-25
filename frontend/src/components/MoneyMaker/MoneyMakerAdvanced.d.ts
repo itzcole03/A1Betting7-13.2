@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const MoneyMakerAdvanced: React.FC;
+declare const _MoneyMakerAdvanced: React.FC;
 export default MoneyMakerAdvanced;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-const EnhancedLockedBetsPage: React.FC = () => {
+const _EnhancedLockedBetsPage: React.FC = () => {
   const [enhancedPredictions] = useState([]);
   const [selectedBets] = useState(new Set());
   const [cardsToShow] = useState(9);
@@ -10,7 +10,7 @@ const EnhancedLockedBetsPage: React.FC = () => {
       {/* Example: */}
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='main-content'>
-        {enhancedPredictions.slice(0, cardsToShow).map((bet: any) => {
+        {enhancedPredictions.slice(0, cardsToShow).map((bet: unknown) => {
           // Card class and other variables can be inlined or removed if not used in JSX
           return (
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

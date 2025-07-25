@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const Dashboard: React.FC;
+declare const _Dashboard: React.FC;
 export default Dashboard;

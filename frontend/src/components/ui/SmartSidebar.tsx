@@ -55,8 +55,8 @@ interface SmartSidebarProps {
   onContextUpdate?: (context: Partial<SmartContext>) => void;
 }
 
-const getCategoryIcon = (category: string) => {
-  const icons = {
+const _getCategoryIcon = (category: string) => {
+  const _icons = {
     betting: '🎯',
     analytics: '📊',
     account: '👤',
@@ -67,8 +67,8 @@ const getCategoryIcon = (category: string) => {
   return icons[category as keyof typeof icons] || '📄';
 };
 
-const getBadgeColor = (type: string, variant: string = 'default') => {
-  const colors = {
+const _getBadgeColor = (type: string, variant: string = 'default') => {
+  const _colors = {
     default: {
       new: 'bg-green-100 text-green-700',
       hot: 'bg-red-100 text-red-700',
@@ -90,11 +90,11 @@ const getBadgeColor = (type: string, variant: string = 'default') => {
     : colors.default[type as keyof typeof colors.default] || colors.default.ai;
 };
 
-const sortItemsBySmartness = (items: SmartNavItem[], context: SmartContext) => {
+const _sortItemsBySmartness = (items: SmartNavItem[], context: SmartContext) => {
   return [...items].sort((a, b) => {
     // Calculate smart score for each item
-    const getSmartScore = (item: SmartNavItem) => {
-      let score = 0;
+    const _getSmartScore = (item: SmartNavItem) => {
+      let _score = 0;
 
       // Base priority
       score += item.priority * 10;
@@ -104,7 +104,7 @@ const sortItemsBySmartness = (items: SmartNavItem[], context: SmartContext) => {
 
       // Recent access bonus
       if (item.lastAccessed) {
-        const daysSinceAccess = (Date.now() - item.lastAccessed.getTime()) / (1000 * 60 * 60 * 24);
+        const _daysSinceAccess = (Date.now() - item.lastAccessed.getTime()) / (1000 * 60 * 60 * 24);
         score += Math.max(20 - daysSinceAccess, 0);
       }
 
@@ -134,14 +134,14 @@ const sortItemsBySmartness = (items: SmartNavItem[], context: SmartContext) => {
   });
 };
 
-const getTimeBasedGreeting = () => {
-  const hour = new Date().getHours();
+const _getTimeBasedGreeting = () => {
+  const _hour = new Date().getHours();
   if (hour < 12) return '🌅 Good morning';
   if (hour < 18) return '☀️ Good afternoon';
   return '🌙 Good evening';
 };
 
-export const SmartSidebar: React.FC<SmartSidebarProps> = ({
+export const _SmartSidebar: React.FC<SmartSidebarProps> = ({
   items,
   context,
   variant = 'default',
@@ -162,11 +162,11 @@ export const SmartSidebar: React.FC<SmartSidebarProps> = ({
   // Update smart items based on context
   useEffect(() => {
     if (adaptiveMode) {
-      const sorted = sortItemsBySmartness(items, context);
+      const _sorted = sortItemsBySmartness(items, context);
       setSmartItems(sorted);
 
       // Generate AI suggestions
-      const suggestions = sorted
+      const _suggestions = sorted
         .filter(
           item => item.aiRecommended || (item.contextualRelevance && item.contextualRelevance > 0.7)
         )
@@ -174,7 +174,7 @@ export const SmartSidebar: React.FC<SmartSidebarProps> = ({
       setAiSuggestions(suggestions);
 
       // Generate quick actions based on recent activity
-      const quick = sorted
+      const _quick = sorted
         .filter(
           item =>
             context.recentActivity.includes(item.id) ||
@@ -187,9 +187,9 @@ export const SmartSidebar: React.FC<SmartSidebarProps> = ({
     }
   }, [items, context, adaptiveMode]);
 
-  const handleItemClick = (item: SmartNavItem) => {
+  const _handleItemClick = (item: SmartNavItem) => {
     // Update usage stats
-    const updatedItem = {
+    const _updatedItem = {
       ...item,
       usageCount: item.usageCount + 1,
       lastAccessed: new Date(),
@@ -204,8 +204,8 @@ export const SmartSidebar: React.FC<SmartSidebarProps> = ({
     item.onClick?.();
   };
 
-  const toggleCategory = (category: string) => {
-    const newExpanded = new Set(expandedCategories);
+  const _toggleCategory = (category: string) => {
+    const _newExpanded = new Set(expandedCategories);
     if (newExpanded.has(category)) {
       newExpanded.delete(category);
     } else {
@@ -214,7 +214,7 @@ export const SmartSidebar: React.FC<SmartSidebarProps> = ({
     setExpandedCategories(newExpanded);
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border-r border-gray-200 shadow-sm',
     cyber:
       'bg-slate-900/95 border-r border-cyan-500/30 shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -223,7 +223,7 @@ export const SmartSidebar: React.FC<SmartSidebarProps> = ({
   };
 
   // Group items by category
-  const categorizedItems = smartItems.reduce(
+  const _categorizedItems = smartItems.reduce(
     (acc, item) => {
       if (!acc[item.category]) {
         acc[item.category] = [];
@@ -461,7 +461,7 @@ interface SmartNavItemComponentProps {
   onClick: (item: SmartNavItem) => void;
 }
 
-const SmartNavItemComponent: React.FC<SmartNavItemComponentProps> = ({
+const _SmartNavItemComponent: React.FC<SmartNavItemComponentProps> = ({
   item,
   variant,
   collapsed,

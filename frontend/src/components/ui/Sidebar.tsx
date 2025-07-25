@@ -37,10 +37,10 @@ interface SidebarProps {
   onCollapse?: (collapsed: boolean) => void;
 }
 
-const getWidthClasses = (width: string, collapsed: boolean = false) => {
+const _getWidthClasses = (width: string, collapsed: boolean = false) => {
   if (collapsed) return 'w-16';
 
-  const widths = {
+  const _widths = {
     sm: 'w-48',
     md: 'w-64',
     lg: 'w-80',
@@ -49,8 +49,8 @@ const getWidthClasses = (width: string, collapsed: boolean = false) => {
   return widths[width as keyof typeof widths] || widths.md;
 };
 
-const getVariantClasses = (variant: string) => {
-  const variants = {
+const _getVariantClasses = (variant: string) => {
+  const _variants = {
     default: 'bg-white border-r border-gray-200 shadow-sm',
     cyber:
       'bg-slate-900/95 border-r border-cyan-500/30 shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -61,7 +61,7 @@ const getVariantClasses = (variant: string) => {
   return variants[variant as keyof typeof variants] || variants.default;
 };
 
-export const Sidebar: React.FC<SidebarProps> = ({
+export const _Sidebar: React.FC<SidebarProps> = ({
   sections,
   variant = 'default',
   position = 'left',
@@ -80,18 +80,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   );
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
-  const isCollapsed = collapsible ? localCollapsed : false;
+  const _isCollapsed = collapsible ? localCollapsed : false;
 
-  const handleCollapse = () => {
-    const newCollapsed = !localCollapsed;
+  const _handleCollapse = () => {
+    const _newCollapsed = !localCollapsed;
     setLocalCollapsed(newCollapsed);
     onCollapse?.(newCollapsed);
   };
 
-  const toggleSection = (sectionId: string) => {
+  const _toggleSection = (sectionId: string) => {
     if (isCollapsed) return;
 
-    const newExpanded = new Set(expandedSections);
+    const _newExpanded = new Set(expandedSections);
     if (newExpanded.has(sectionId)) {
       newExpanded.delete(sectionId);
     } else {
@@ -100,10 +100,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setExpandedSections(newExpanded);
   };
 
-  const toggleItem = (itemId: string) => {
+  const _toggleItem = (itemId: string) => {
     if (isCollapsed) return;
 
-    const newExpanded = new Set(expandedItems);
+    const _newExpanded = new Set(expandedItems);
     if (newExpanded.has(itemId)) {
       newExpanded.delete(itemId);
     } else {
@@ -112,7 +112,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setExpandedItems(newExpanded);
   };
 
-  const handleItemClick = (item: SidebarItem) => {
+  const _handleItemClick = (item: SidebarItem) => {
     if (item.disabled) return;
 
     if (item.children && item.children.length > 0) {
@@ -270,7 +270,7 @@ interface SidebarItemComponentProps {
   level: number;
 }
 
-const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
+const _SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
   item,
   variant,
   collapsed,
@@ -280,8 +280,8 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
   onClick,
   level,
 }) => {
-  const hasChildren = item.children && item.children.length > 0;
-  const paddingLeft = collapsed ? 'pl-2' : `pl-${4 + level * 4}`;
+  const _hasChildren = item.children && item.children.length > 0;
+  const _paddingLeft = collapsed ? 'pl-2' : `pl-${4 + level * 4}`;
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

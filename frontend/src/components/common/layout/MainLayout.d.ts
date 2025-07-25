@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const MainLayout: React.FC;
+declare const _MainLayout: React.FC;
 export default MainLayout;

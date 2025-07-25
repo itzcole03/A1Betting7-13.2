@@ -1,5 +1,5 @@
 interface ConfigStore {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export class UnifiedConfig {
@@ -39,10 +39,10 @@ export class UnifiedConfig {
   }
 
   get<T>(key: string, defaultValue?: T): T {
-    const keys = key.split('.');
-    let value = this.config;
+    const _keys = key.split('.');
+    let _value = this.config;
 
-    for (const k of keys) {
+    for (const _k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
@@ -53,12 +53,12 @@ export class UnifiedConfig {
     return value as T;
   }
 
-  set(key: string, value: any): void {
-    const keys = key.split('.');
-    let current = this.config;
+  set(key: string, value: unknown): void {
+    const _keys = key.split('.');
+    let _current = this.config;
 
-    for (let i = 0; i < keys.length - 1; i++) {
-      const k = keys[i];
+    for (let _i = 0; i < keys.length - 1; i++) {
+      const _k = keys[i];
       if (!(k in current) || typeof current[k] !== 'object') {
         current[k] = {};
       }
@@ -69,10 +69,10 @@ export class UnifiedConfig {
   }
 
   has(key: string): boolean {
-    const keys = key.split('.');
-    let value = this.config;
+    const _keys = key.split('.');
+    let _value = this.config;
 
-    for (const k of keys) {
+    for (const _k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
@@ -84,11 +84,11 @@ export class UnifiedConfig {
   }
 
   delete(key: string): void {
-    const keys = key.split('.');
-    let current = this.config;
+    const _keys = key.split('.');
+    let _current = this.config;
 
-    for (let i = 0; i < keys.length - 1; i++) {
-      const k = keys[i];
+    for (let _i = 0; i < keys.length - 1; i++) {
+      const _k = keys[i];
       if (!(k in current) || typeof current[k] !== 'object') {
         return;
       }
@@ -110,10 +110,10 @@ export class UnifiedConfig {
     this.config = this.deepMerge(this.config, newConfig);
   }
 
-  private deepMerge(target: any, source: any): any {
-    const result = { ...target };
+  private deepMerge(target: unknown, source: unknown): unknown {
+    const _result = { ...target };
 
-    for (const key in source) {
+    for (const _key in source) {
       if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
         result[key] = this.deepMerge(result[key] || {}, source[key]);
       } else {
@@ -130,4 +130,4 @@ export class UnifiedConfig {
   }
 }
 
-export const unifiedConfig = UnifiedConfig.getInstance();
+export const _unifiedConfig = UnifiedConfig.getInstance();

@@ -7,7 +7,7 @@ interface SwitchProps {
   className?: string;
 }
 
-export const Switch: React.FC<SwitchProps> = ({
+export const _Switch: React.FC<SwitchProps> = ({
   checked,
   onCheckedChange,
   disabled = false,

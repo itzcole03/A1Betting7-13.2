@@ -45,8 +45,8 @@ interface ServiceStatusIndicatorsProps {
   onRefresh?: () => void;
 }
 
-const getStatusColor = (status: string, variant: string = 'default') => {
-  const colors = {
+const _getStatusColor = (status: string, variant: string = 'default') => {
+  const _colors = {
     default: {
       online: 'text-green-600 bg-green-100 border-green-200',
       offline: 'text-red-600 bg-red-100 border-red-200',
@@ -70,8 +70,8 @@ const getStatusColor = (status: string, variant: string = 'default') => {
     : colors.default[status as keyof typeof colors.default] || colors.default.offline;
 };
 
-const getStatusIcon = (status: string) => {
-  const icons = {
+const _getStatusIcon = (status: string) => {
+  const _icons = {
     online: '●',
     offline: '●',
     degraded: '⚠',
@@ -82,8 +82,8 @@ const getStatusIcon = (status: string) => {
   return icons[status as keyof typeof icons] || '?';
 };
 
-const getCategoryIcon = (category: string) => {
-  const icons = {
+const _getCategoryIcon = (category: string) => {
+  const _icons = {
     core: '🏗️',
     data: '📊',
     external: '🌐',
@@ -93,27 +93,27 @@ const getCategoryIcon = (category: string) => {
   return icons[category as keyof typeof icons] || '⚙️';
 };
 
-const formatUptime = (uptime: number) => {
+const _formatUptime = (uptime: number) => {
   return `${uptime.toFixed(2)}%`;
 };
 
-const formatResponseTime = (time: number) => {
+const _formatResponseTime = (time: number) => {
   if (time < 1000) return `${time}ms`;
   return `${(time / 1000).toFixed(1)}s`;
 };
 
-const formatTimeAgo = (date: Date) => {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
+const _formatTimeAgo = (date: Date) => {
+  const _now = new Date();
+  const _diffMs = now.getTime() - date.getTime();
+  const _diffMins = Math.floor(diffMs / 60000);
+  const _diffHours = Math.floor(diffMs / 3600000);
 
   if (diffMins < 1) return 'Just now';
   if (diffMins < 60) return `${diffMins}m ago`;
   return `${diffHours}h ago`;
 };
 
-export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = ({
+export const _ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = ({
   services,
   variant = 'default',
   layout = 'list',
@@ -129,7 +129,7 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
   // Group services by category
-  const groupedServices = showCategories
+  const _groupedServices = showCategories
     ? services.reduce(
         (groups, service) => {
           if (!groups[service.category]) {
@@ -142,8 +142,8 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
       )
     : null;
 
-  const toggleGroup = (category: string) => {
-    const newCollapsed = new Set(collapsedGroups);
+  const _toggleGroup = (category: string) => {
+    const _newCollapsed = new Set(collapsedGroups);
     if (newCollapsed.has(category)) {
       newCollapsed.delete(category);
     } else {
@@ -152,7 +152,7 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
     setCollapsedGroups(newCollapsed);
   };
 
-  const handleRefresh = () => {
+  const _handleRefresh = () => {
     setLastRefresh(new Date());
     onRefresh?.();
   };
@@ -161,14 +161,14 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
   React.useEffect(() => {
     if (!autoRefresh) return;
 
-    const interval = setInterval(() => {
+    const _interval = setInterval(() => {
       handleRefresh();
     }, refreshInterval * 1000);
 
     return () => clearInterval(interval);
   }, [autoRefresh, refreshInterval]);
 
-  const overallStatus =
+  const _overallStatus =
     services.length > 0
       ? services.every(s => s.status === 'online')
         ? 'online'
@@ -177,7 +177,7 @@ export const ServiceStatusIndicators: React.FC<ServiceStatusIndicatorsProps> = (
           : 'warning'
       : 'unknown';
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-lg shadow-sm',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -360,7 +360,7 @@ interface ServiceItemProps {
   onClick?: (service: ServiceStatus) => void;
 }
 
-const ServiceItem: React.FC<ServiceItemProps> = ({ service, variant, showMetrics, onClick }) => {
+const _ServiceItem: React.FC<ServiceItemProps> = ({ service, variant, showMetrics, onClick }) => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div
@@ -422,7 +422,7 @@ interface ServiceCardProps {
   onClick?: (service: ServiceStatus) => void;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ service, variant, showMetrics, onClick }) => {
+const _ServiceCard: React.FC<ServiceCardProps> = ({ service, variant, showMetrics, onClick }) => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div

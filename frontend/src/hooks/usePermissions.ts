@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
-// @ts-expect-error TS(6142): Module '../contexts/AuthContext' was resolved to '... Remove this comment to see the full error message
 import { useAuth } from '../contexts/AuthContext';
 import {
-  permissionService,
+  _permissionService,
   Permission,
   Role,
   UserPermissions,
@@ -11,7 +10,8 @@ import {
 /**
  * Custom hook for permission-based access control
  */
-export const usePermissions = () => {
+
+export const _usePermissions = () => {
   const { user, isAdmin, isAuthenticated } = useAuth();
 
   const userPermissions = useMemo((): UserPermissions | null => {
@@ -19,7 +19,7 @@ export const usePermissions = () => {
 
     // Special handling for Cole Madison - grant super admin
     if (user.email?.toLowerCase().includes('cole') || user.email?.toLowerCase().includes('admin')) {
-      return permissionService.getColePermissions();
+      return _permissionService.getColePermissions();
     }
 
     // Create permissions based on user data
@@ -40,7 +40,7 @@ export const usePermissions = () => {
       roles.push('trader');
     }
 
-    return permissionService.createUserPermissions(
+    return _permissionService.createUserPermissions(
       user.id,
       user.email,
       roles,
@@ -52,22 +52,22 @@ export const usePermissions = () => {
 
   const hasPermission = (permission: Permission): boolean => {
     if (!userPermissions) return false;
-    return permissionService.hasPermission(userPermissions, permission);
+    return _permissionService.hasPermission(userPermissions, permission);
   };
 
   const hasAnyPermission = (permissions: Permission[]): boolean => {
     if (!userPermissions) return false;
-    return permissionService.hasAnyPermission(userPermissions, permissions);
+    return _permissionService.hasAnyPermission(userPermissions, permissions);
   };
 
   const hasAllPermissions = (permissions: Permission[]): boolean => {
     if (!userPermissions) return false;
-    return permissionService.hasAllPermissions(userPermissions, permissions);
+    return _permissionService.hasAllPermissions(userPermissions, permissions);
   };
 
   const canManageUser = (targetRoles: Role[]): boolean => {
     if (!userPermissions) return false;
-    return permissionService.canManageUser(userPermissions, targetRoles);
+    return _permissionService.canManageUser(userPermissions, targetRoles);
   };
 
   const getUserRoles = (): Role[] => {
@@ -76,12 +76,12 @@ export const usePermissions = () => {
 
   const getHighestRole = (): Role | null => {
     if (!userPermissions) return null;
-    return permissionService.getHighestRole(userPermissions.roles);
+    return _permissionService.getHighestRole(userPermissions.roles);
   };
 
   const getAllPermissions = (): Permission[] => {
     if (!userPermissions) return [];
-    return permissionService.getAllPermissions(userPermissions);
+    return _permissionService.getAllPermissions(userPermissions);
   };
 
   const isSuperAdmin = (): boolean => {
@@ -139,4 +139,4 @@ export const usePermissions = () => {
   };
 };
 
-export default usePermissions;
+export default _usePermissions;

@@ -8,7 +8,7 @@ interface ChartDataPoint {
   y: number;
   label?: string;
   color?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface ChartSeries {
@@ -23,7 +23,7 @@ interface ChartSeries {
 interface ChartError {
   type: 'data' | 'render' | 'network' | 'validation';
   message: string;
-  details?: any;
+  details?: unknown;
   timestamp: Date;
 }
 
@@ -63,8 +63,8 @@ interface ChartState {
   panOffset: { x: number; y: number };
 }
 
-const validateChartData = (data: ChartSeries[]): { isValid: boolean; errors: string[] } => {
-  const errors: string[] = [];
+const _validateChartData = (data: ChartSeries[]): { isValid: boolean; errors: string[] } => {
+  const _errors: string[] = [];
 
   if (!Array.isArray(data)) {
     errors.push('Data must be an array');
@@ -103,7 +103,7 @@ const validateChartData = (data: ChartSeries[]): { isValid: boolean; errors: str
   return { isValid: errors.length === 0, errors };
 };
 
-const sanitizeData = (data: ChartSeries[]): ChartSeries[] => {
+const _sanitizeData = (data: ChartSeries[]): ChartSeries[] => {
   return data
     .map(series => ({
       ...series,
@@ -118,12 +118,12 @@ const sanitizeData = (data: ChartSeries[]): ChartSeries[] => {
     .filter(series => series.data.length > 0);
 };
 
-const calculateScales = (data: ChartSeries[], width: number, height: number, padding = 40) => {
-  const allPoints = data.flatMap(series => series.data);
+const _calculateScales = (data: ChartSeries[], width: number, height: number, padding = 40) => {
+  const _allPoints = data.flatMap(series => series.data);
 
   if (allPoints.length === 0) {
     return {
-      xScale: (x: any) => padding,
+      xScale: (x: unknown) => padding,
       yScale: (y: number) => height - padding,
       xMin: 0,
       xMax: 1,
@@ -132,16 +132,16 @@ const calculateScales = (data: ChartSeries[], width: number, height: number, pad
     };
   }
 
-  const xValues = allPoints.map(p => (typeof p.x === 'number' ? p.x : 0));
-  const yValues = allPoints.map(p => p.y);
+  const _xValues = allPoints.map(p => (typeof p.x === 'number' ? p.x : 0));
+  const _yValues = allPoints.map(p => p.y);
 
-  const xMin = Math.min(...xValues);
-  const xMax = Math.max(...xValues);
-  const yMin = Math.min(...yValues, 0); // Include 0 in range
-  const yMax = Math.max(...yValues);
+  const _xMin = Math.min(...xValues);
+  const _xMax = Math.max(...xValues);
+  const _yMin = Math.min(...yValues, 0); // Include 0 in range
+  const _yMax = Math.max(...yValues);
 
-  const xRange = xMax - xMin || 1;
-  const yRange = yMax - yMin || 1;
+  const _xRange = xMax - xMin || 1;
+  const _yRange = yMax - yMin || 1;
 
   return {
     xScale: (x: number) => ((x - xMin) / xRange) * (width - 2 * padding) + padding,
@@ -153,9 +153,9 @@ const calculateScales = (data: ChartSeries[], width: number, height: number, pad
   };
 };
 
-const createSafePath = (
+const _createSafePath = (
   points: ChartDataPoint[],
-  xScale: (x: any) => number,
+  xScale: (x: unknown) => number,
   yScale: (y: number) => number
 ): string => {
   if (points.length === 0) return '';
@@ -163,8 +163,8 @@ const createSafePath = (
   try {
     return points
       .map((point, index) => {
-        const x = xScale(typeof point.x === 'number' ? point.x : index);
-        const y = yScale(point.y);
+        const _x = xScale(typeof point.x === 'number' ? point.x : index);
+        const _y = yScale(point.y);
 
         // Ensure coordinates are valid
         if (!isFinite(x) || !isFinite(y)) {
@@ -181,7 +181,7 @@ const createSafePath = (
   }
 };
 
-export const SafeChart: React.FC<SafeChartProps> = ({
+export const _SafeChart: React.FC<SafeChartProps> = ({
   data,
   type = 'line',
   variant = 'default',
@@ -216,7 +216,7 @@ export const SafeChart: React.FC<SafeChartProps> = ({
     panOffset: { x: 0, y: 0 },
   });
 
-  const svgRef = useRef<SVGSVGElement>(null);
+  const _svgRef = useRef<SVGSVGElement>(null);
   const [hoveredPoint, setHoveredPoint] = useState<{
     point: ChartDataPoint;
     series: ChartSeries;
@@ -228,10 +228,10 @@ export const SafeChart: React.FC<SafeChartProps> = ({
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const validation = validateChartData(data);
+      const _validation = validateChartData(data);
 
       if (!validation.isValid) {
-        const error: ChartError = {
+        const _error: ChartError = {
           type: 'validation',
           message: `Data validation failed: ${validation.errors.join(', ')}`,
           details: validation.errors,
@@ -249,7 +249,7 @@ export const SafeChart: React.FC<SafeChartProps> = ({
         return;
       }
 
-      const validatedData = sanitizeData(data);
+      const _validatedData = sanitizeData(data);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -260,7 +260,7 @@ export const SafeChart: React.FC<SafeChartProps> = ({
 
       onDataLoad?.(validatedData);
     } catch (error) {
-      const chartError: ChartError = {
+      const _chartError: ChartError = {
         type: 'data',
         message: error instanceof Error ? error.message : 'Unknown data processing error',
         details: error,
@@ -278,7 +278,7 @@ export const SafeChart: React.FC<SafeChartProps> = ({
   }, [data, onError, onDataLoad]);
 
   // Retry mechanism
-  const handleRetry = () => {
+  const _handleRetry = () => {
     if (state.retryCount >= maxRetries) return;
 
     setState(prev => ({
@@ -291,14 +291,14 @@ export const SafeChart: React.FC<SafeChartProps> = ({
     // Simulate retry delay
     setTimeout(() => {
       try {
-        const validatedData = sanitizeData(data);
+        const _validatedData = sanitizeData(data);
         setState(prev => ({
           ...prev,
           isLoading: false,
           validatedData,
         }));
       } catch (error) {
-        const chartError: ChartError = {
+        const _chartError: ChartError = {
           type: 'data',
           message: 'Retry failed',
           details: error,
@@ -314,33 +314,33 @@ export const SafeChart: React.FC<SafeChartProps> = ({
     }, 1000);
   };
 
-  const scales = useMemo(
+  const _scales = useMemo(
     () => calculateScales(state.validatedData, width, height),
     [state.validatedData, width, height]
   );
 
-  const handleMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
+  const _handleMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
     if (!showTooltip || state.validatedData.length === 0) return;
 
-    const svgRect = svgRef.current?.getBoundingClientRect();
+    const _svgRect = svgRef.current?.getBoundingClientRect();
     if (!svgRect) return;
 
-    const x = event.clientX - svgRect.left;
-    const y = event.clientY - svgRect.top;
+    const _x = event.clientX - svgRect.left;
+    const _y = event.clientY - svgRect.top;
 
     // Find closest point
-    let closestPoint: ChartDataPoint | null = null;
-    let closestSeries: ChartSeries | null = null;
-    let minDistance = Infinity;
+    let _closestPoint: ChartDataPoint | null = null;
+    let _closestSeries: ChartSeries | null = null;
+    let _minDistance = Infinity;
 
     state.validatedData.forEach(series => {
       if (!series.visible) return;
 
       series.data.forEach(point => {
         try {
-          const pointX = scales.xScale(typeof point.x === 'number' ? point.x : 0);
-          const pointY = scales.yScale(point.y);
-          const distance = Math.sqrt((x - pointX) ** 2 + (y - pointY) ** 2);
+          const _pointX = scales.xScale(typeof point.x === 'number' ? point.x : 0);
+          const _pointY = scales.yScale(point.y);
+          const _distance = Math.sqrt((x - pointX) ** 2 + (y - pointY) ** 2);
 
           if (distance < minDistance && distance < 20) {
             minDistance = distance;
@@ -364,7 +364,7 @@ export const SafeChart: React.FC<SafeChartProps> = ({
     }
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-lg shadow-sm',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -510,7 +510,7 @@ export const SafeChart: React.FC<SafeChartProps> = ({
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <g className='opacity-30'>
               {Array.from({ length: 6 }, (_, i) => {
-                const x = 40 + (i * (width - 80)) / 5;
+                const _x = 40 + (i * (width - 80)) / 5;
                 return (
                   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <line
@@ -526,7 +526,7 @@ export const SafeChart: React.FC<SafeChartProps> = ({
               })}
 
               {Array.from({ length: 6 }, (_, i) => {
-                const y = 40 + (i * (height - 80)) / 5;
+                const _y = 40 + (i * (height - 80)) / 5;
                 return (
                   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <line
@@ -547,7 +547,7 @@ export const SafeChart: React.FC<SafeChartProps> = ({
           {state.validatedData
             .filter(s => s.visible)
             .map(series => {
-              const path = createSafePath(series.data, scales.xScale, scales.yScale);
+              const _path = createSafePath(series.data, scales.xScale, scales.yScale);
 
               return (
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -579,8 +579,8 @@ export const SafeChart: React.FC<SafeChartProps> = ({
                   {/* Points */}
                   {series.data.map((point, index) => {
                     try {
-                      const x = scales.xScale(typeof point.x === 'number' ? point.x : index);
-                      const y = scales.yScale(point.y);
+                      const _x = scales.xScale(typeof point.x === 'number' ? point.x : index);
+                      const _y = scales.yScale(point.y);
 
                       if (!isFinite(x) || !isFinite(y)) return null;
 

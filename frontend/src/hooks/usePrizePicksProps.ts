@@ -8,9 +8,9 @@ export function usePrizePicksProps(): UsePrizePicksPropsResult {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
+    let _isMounted = true;
     // @ts-expect-error TS(2554): Expected 0 arguments, but got 1.
-    const service = new PrizePicksApiService({ baseURL: '/api/prizepicks' });
+    const _service = new PrizePicksApiService({ baseURL: '/api/prizepicks' });
     setLoading(true);
     setError(null);
     service

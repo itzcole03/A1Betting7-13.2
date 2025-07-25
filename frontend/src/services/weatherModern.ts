@@ -15,7 +15,7 @@ export class WeatherService {
   /**
    * Get current weather for a location;
    */
-  async getCurrentWeather(location: string): Promise<any> {
+  async getCurrentWeather(location: string): Promise<unknown> {
     // TODO: Integrate with real weather API endpoints for current, historical, and alerts
     throw new Error('Weather API integration not implemented.');
   }
@@ -24,7 +24,7 @@ export class WeatherService {
    * Get historical weather data;
    */
 
-  async getHistoricalWeather(location: string, date: string): Promise<any> {
+  async getHistoricalWeather(location: string, date: string): Promise<unknown> {
     // TODO: Replace with real API call
     throw new Error('Historical weather API integration not implemented.');
   }
@@ -33,7 +33,7 @@ export class WeatherService {
    * Get weather alerts for a location;
    */
 
-  async getWeatherAlerts(location: string): Promise<any> {
+  async getWeatherAlerts(location: string): Promise<unknown> {
     // TODO: Replace with real API call
     throw new Error('Weather alerts API integration not implemented.');
   }
@@ -48,4 +48,4 @@ export class WeatherService {
 }
 
 // Export singleton instance;
-export const weatherService = new WeatherService();
+export const _weatherService = new WeatherService();

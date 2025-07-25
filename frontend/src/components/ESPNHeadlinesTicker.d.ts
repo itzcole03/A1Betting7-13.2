@@ -1,2 +1,2 @@
 import React from 'react.ts';
-export declare const ESPNHeadlinesTicker: React.FC;
+export declare const _ESPNHeadlinesTicker: React.FC;

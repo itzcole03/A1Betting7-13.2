@@ -68,15 +68,15 @@ export class SentimentEnhancedAnalyzer implements Analyzer<AnalysisInput, Enhanc
   }
 
   public async analyze(input: AnalysisInput): Promise<EnhancedAnalysis[]> {
-    const traceId = this.performanceMonitor.startTrace('sentiment-enhanced-analysis');
+    const _traceId = this.performanceMonitor.startTrace('sentiment-enhanced-analysis');
 
     try {
-      const enhancedAnalyses = input.projectionAnalysis.map(projection => {
-        const sentiment = this.findPlayerSentiment(projection.player, input.sentimentData);
-        const odds = this.findPlayerOdds(projection.player, input.oddsData);
-        const injuries = this.findPlayerInjuries(projection.player, input.sportsRadarData);
+      const _enhancedAnalyses = input.projectionAnalysis.map(projection => {
+        const _sentiment = this.findPlayerSentiment(projection.player, input.sentimentData);
+        const _odds = this.findPlayerOdds(projection.player, input.oddsData);
+        const _injuries = this.findPlayerInjuries(projection.player, input.sportsRadarData);
 
-        const enhancedConfidence = this.calculateEnhancedConfidence(
+        const _enhancedConfidence = this.calculateEnhancedConfidence(
           projection.confidence,
           sentiment,
           odds,
@@ -125,7 +125,7 @@ export class SentimentEnhancedAnalyzer implements Analyzer<AnalysisInput, Enhanc
   }
 
   public async confidence(input: AnalysisInput): Promise<number> {
-    const analyses = await this.analyze(input);
+    const _analyses = await this.analyze(input);
     return analyses.reduce((acc, analysis) => acc + analysis.confidence, 0) / analyses.length;
   }
 
@@ -140,12 +140,12 @@ export class SentimentEnhancedAnalyzer implements Analyzer<AnalysisInput, Enhanc
     player: string,
     sportsData: SportsRadarData
   ): Array<{ player: string; status: string; type: string }> {
-    const injuries: Array<{ player: string; status: string; type: string }> = [];
+    const _injuries: Array<{ player: string; status: string; type: string }> = [];
 
-    sportsData.games.forEach((game: any) => {
-      game.players.forEach((p: any) => {
+    sportsData.games.forEach((game: unknown) => {
+      game.players.forEach((p: unknown) => {
         if (p.name === player) {
-          p.injuries.forEach((injury: any) => {
+          p.injuries.forEach((injury: unknown) => {
             injuries.push({
               player: p.name,
               status: injury.status,
@@ -181,7 +181,7 @@ export class SentimentEnhancedAnalyzer implements Analyzer<AnalysisInput, Enhanc
     odds?: unknown,
     injuries: Array<{ player: string; status: string; type: string }> = []
   ): number {
-    let confidence = baseConfidence;
+    let _confidence = baseConfidence;
 
     // Apply sentiment adjustment
     if (sentiment) {
@@ -195,7 +195,7 @@ export class SentimentEnhancedAnalyzer implements Analyzer<AnalysisInput, Enhanc
 
     // Apply injury adjustment
     if (injuries.length > 0) {
-      const injuryImpact = injuries.reduce(
+      const _injuryImpact = injuries.reduce(
         (acc, injury) => acc + this.calculateInjuryImpact(injury),
         0
       );

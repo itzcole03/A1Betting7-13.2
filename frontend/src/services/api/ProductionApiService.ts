@@ -25,7 +25,7 @@ interface CacheEntry<T> {
 
 export class ProductionApiService {
   private config: ApiConfig;
-  private cache = new Map<string, CacheEntry<any>>();
+  private cache = new Map<string, CacheEntry<unknown>>();
   private abortControllers = new Map<string, AbortController>();
 
   constructor(config: Partial<ApiConfig> = {}) {
@@ -39,7 +39,7 @@ export class ProductionApiService {
     };
   }
 
-  private generateCacheKey(endpoint: string, params?: Record<string, any>): string {
+  private generateCacheKey(endpoint: string, params?: Record<string, unknown>): string {
     return `${endpoint}:${JSON.stringify(params || {})}`;
   }
 
@@ -48,7 +48,7 @@ export class ProductionApiService {
   }
 
   private getFromCache<T>(key: string): T | null {
-    const entry = this.cache.get(key);
+    const _entry = this.cache.get(key);
     if (entry && this.isValidCacheEntry(entry)) {
       return entry.data;
     }
@@ -71,14 +71,14 @@ export class ProductionApiService {
     options: RequestInit = {},
     retries: number = this.config.retries
   ): Promise<T> {
-    let lastError: Error;
-    for (let attempt = 0; attempt <= retries; attempt++) {
+    let _lastError: Error;
+    for (let _attempt = 0; attempt <= retries; attempt++) {
       try {
-        const requestId = `${Date.now()}-${Math.random()}`;
-        const controller = new AbortController();
+        const _requestId = `${Date.now()}-${Math.random()}`;
+        const _controller = new AbortController();
         this.abortControllers.set(requestId, controller);
-        const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
-        const response = await fetch(url, {
+        const _timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
+        const _response = await fetch(url, {
           ...options,
           signal: controller.signal,
         });
@@ -103,23 +103,23 @@ export class ProductionApiService {
 
   async get<T>(
     endpoint: string,
-    params?: Record<string, any>,
+    params?: Record<string, unknown>,
     options: { cache?: boolean; cacheTtl?: number } = {}
   ): Promise<ApiResponse<T>> {
     try {
       const { cache = true, cacheTtl = 300000 } = options;
       // Construct URL
-      const url = new URL(this.config.baseUrl + endpoint);
+      const _url = new URL(this.config.baseUrl + endpoint);
       if (params) {
         Object.entries(params).forEach(([key, value]) => {
           url.searchParams.append(key, String(value));
         });
       }
       // Generate cache key
-      const cacheKey = this.generateCacheKey(endpoint, params);
+      const _cacheKey = this.generateCacheKey(endpoint, params);
       // Check cache first
       if (cache) {
-        const cachedData = this.getFromCache<T>(cacheKey);
+        const _cachedData = this.getFromCache<T>(cacheKey);
         if (cachedData) {
           return {
             success: true,
@@ -130,7 +130,7 @@ export class ProductionApiService {
         }
       }
       // Fetch data
-      const data = await this.fetchWithRetry<T>(url.toString(), {}, this.config.retries);
+      const _data = await this.fetchWithRetry<T>(url.toString(), {}, this.config.retries);
       // Cache successful responses
       if (cache) {
         this.setCache(cacheKey, data, cacheTtl);
@@ -151,12 +151,12 @@ export class ProductionApiService {
 
   async post<T>(
     endpoint: string,
-    body?: any,
+    body?: unknown,
     headers?: Record<string, string>
   ): Promise<ApiResponse<T>> {
     try {
-      const url = new URL(this.config.baseUrl + endpoint);
-      const data = await this.fetchWithRetry<T>(
+      const _url = new URL(this.config.baseUrl + endpoint);
+      const _data = await this.fetchWithRetry<T>(
         url.toString(),
         {
           method: 'POST',
@@ -184,12 +184,12 @@ export class ProductionApiService {
 
   async put<T>(
     endpoint: string,
-    body?: any,
+    body?: unknown,
     headers?: Record<string, string>
   ): Promise<ApiResponse<T>> {
     try {
-      const url = new URL(this.config.baseUrl + endpoint);
-      const data = await this.fetchWithRetry<T>(
+      const _url = new URL(this.config.baseUrl + endpoint);
+      const _data = await this.fetchWithRetry<T>(
         url.toString(),
         {
           method: 'PUT',
@@ -217,8 +217,8 @@ export class ProductionApiService {
 
   async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
     try {
-      const url = new URL(this.config.baseUrl + endpoint);
-      const data = await this.fetchWithRetry<T>(
+      const _url = new URL(this.config.baseUrl + endpoint);
+      const _data = await this.fetchWithRetry<T>(
         url.toString(),
         {
           method: 'DELETE',
@@ -263,7 +263,7 @@ export class ProductionApiService {
   // Health check endpoint;
   async healthCheck(): Promise<boolean> {
     try {
-      const response = await this.get<SystemHealth>('/health', undefined, { cache: false });
+      const _response = await this.get<SystemHealth>('/health', undefined, { cache: false });
       return response.success && response.data?.status === 'online';
     } catch (error) {
       return false;
@@ -272,7 +272,7 @@ export class ProductionApiService {
 }
 
 // Create singleton instance;
-export const productionApiService = new ProductionApiService();
+export const _productionApiService = new ProductionApiService();
 
 // Specific API endpoints with proper typing;
 export interface User {
@@ -307,7 +307,7 @@ export interface SystemHealth {
 }
 
 // Typed API methods;
-export const api = {
+export const _api = {
   // User endpoints;
   async getUser(userId: string): Promise<ApiResponse<User>> {
     return productionApiService.get<User>(`/users/${userId}`);
@@ -319,7 +319,7 @@ export const api = {
 
   // Prediction endpoints;
   async getPredictions(sport?: string, league?: string): Promise<ApiResponse<Prediction[]>> {
-    const params: Record<string, any> = {};
+    const _params: Record<string, unknown> = {};
     if (sport) params.sport = sport;
     if (league) params.league = league;
     return productionApiService.get<Prediction[]>('/predictions', params);
@@ -353,37 +353,37 @@ export const api = {
   async getPrizePicksProps(params: {
     sport?: string;
     minConfidence?: number;
-  }): Promise<ApiResponse<any[]>> {
-    return productionApiService.get<any[]>('/api/prizepicks/props', params);
+  }): Promise<ApiResponse<unknown[]>> {
+    return productionApiService.get<unknown[]>('/api/prizepicks/props', params);
   },
 
   async getPrizePicksRecommendations(params: {
     sport?: string;
     strategy?: string;
     minConfidence?: number;
-  }): Promise<ApiResponse<any[]>> {
-    return productionApiService.get<any[]>('/api/prizepicks/recommendations', params);
+  }): Promise<ApiResponse<unknown[]>> {
+    return productionApiService.get<unknown[]>('/api/prizepicks/recommendations', params);
   },
 
   // Money Maker Pro endpoints;
   async getBettingOpportunities(params?: {
     sport?: string;
     minEdge?: number;
-  }): Promise<ApiResponse<any[]>> {
-    return productionApiService.get<any[]>('/api/betting-opportunities', params);
+  }): Promise<ApiResponse<unknown[]>> {
+    return productionApiService.get<unknown[]>('/api/betting-opportunities', params);
   },
 
-  async getArbitrageOpportunities(): Promise<ApiResponse<any[]>> {
-    return productionApiService.get<any[]>('/api/arbitrage-opportunities');
+  async getArbitrageOpportunities(): Promise<ApiResponse<unknown[]>> {
+    return productionApiService.get<unknown[]>('/api/arbitrage-opportunities');
   },
 
-  async getPortfolioAnalysis(userId: string): Promise<ApiResponse<any>> {
-    return productionApiService.get<any>(`/api/portfolio/${userId}/analysis`);
+  async getPortfolioAnalysis(userId: string): Promise<ApiResponse<unknown>> {
+    return productionApiService.get<unknown>(`/api/portfolio/${userId}/analysis`);
   },
 
   // PropOllama chat endpoint;
-  async sendChatMessage(message: string, context?: any): Promise<ApiResponse<any>> {
-    return productionApiService.post<any>('/api/propollama/chat', {
+  async sendChatMessage(message: string, context?: unknown): Promise<ApiResponse<unknown>> {
+    return productionApiService.post<unknown>('/api/propollama/chat', {
       message,
       //       context
     });

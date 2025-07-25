@@ -68,7 +68,7 @@ interface UnifiedUIProps {
   onNotificationAction?: (notificationId: string, actionIndex: number) => void;
 }
 
-const themes: Record<string, UITheme> = {
+const _themes: Record<string, UITheme> = {
   light: {
     name: 'Light',
     primary: 'bg-blue-600 text-white',
@@ -104,10 +104,10 @@ const themes: Record<string, UITheme> = {
   },
 };
 
-const getVariantClasses = (variant: string, theme: UITheme) => {
-  const baseClasses = cn('min-h-screen transition-all duration-300', theme.background, theme.text);
+const _getVariantClasses = (variant: string, theme: UITheme) => {
+  const _baseClasses = cn('min-h-screen transition-all duration-300', theme.background, theme.text);
 
-  const variantSpecific = {
+  const _variantSpecific = {
     default: '',
     cyber: 'relative overflow-hidden',
     minimal: 'bg-white text-gray-900',
@@ -118,7 +118,7 @@ const getVariantClasses = (variant: string, theme: UITheme) => {
   return cn(baseClasses, variantSpecific[variant as keyof typeof variantSpecific]);
 };
 
-export const UnifiedUI: React.FC<UnifiedUIProps> = ({
+export const _UnifiedUI: React.FC<UnifiedUIProps> = ({
   children,
   variant = 'default',
   initialTheme = 'light',
@@ -158,8 +158,8 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
   // Theme detection for auto mode
   useEffect(() => {
     if (initialTheme === 'auto') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = (e: MediaQueryListEvent) => {
+      const _mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const _handleChange = (e: MediaQueryListEvent) => {
         updateUIState({ theme: themes[e.matches ? 'dark' : 'light'] });
       };
 
@@ -174,7 +174,7 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
   useEffect(() => {
     if (!enableKeyboardShortcuts) return;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const _handleKeyDown = (e: KeyboardEvent) => {
       // Prevent shortcuts when typing in inputs
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
@@ -228,19 +228,19 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
     uiState.focusMode,
   ]);
 
-  const updateUIState = (updates: Partial<UIState>) => {
+  const _updateUIState = (updates: Partial<UIState>) => {
     setUIState(prev => {
-      const newState = { ...prev, ...updates };
+      const _newState = { ...prev, ...updates };
       onStateChange?.(updates);
       return newState;
     });
   };
 
-  const toggleSidebar = () => {
+  const _toggleSidebar = () => {
     updateUIState({ sidebarCollapsed: !uiState.sidebarCollapsed });
   };
 
-  const toggleFullscreen = () => {
+  const _toggleFullscreen = () => {
     if (!enableFullscreen) return;
 
     if (!uiState.fullscreen) {
@@ -251,22 +251,22 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
     updateUIState({ fullscreen: !uiState.fullscreen });
   };
 
-  const toggleFocusMode = () => {
+  const _toggleFocusMode = () => {
     if (!enableFocusMode) return;
     updateUIState({ focusMode: !uiState.focusMode });
   };
 
-  const cycleTheme = () => {
+  const _cycleTheme = () => {
     if (!enableThemeToggle) return;
 
-    const themeNames = Object.keys(themes);
-    const currentIndex = themeNames.findIndex(name => themes[name].name === uiState.theme.name);
-    const nextIndex = (currentIndex + 1) % themeNames.length;
+    const _themeNames = Object.keys(themes);
+    const _currentIndex = themeNames.findIndex(name => themes[name].name === uiState.theme.name);
+    const _nextIndex = (currentIndex + 1) % themeNames.length;
     updateUIState({ theme: themes[themeNames[nextIndex]] });
   };
 
-  const addNotification = (notification: Omit<UINotification, 'id'>) => {
-    const newNotification: UINotification = {
+  const _addNotification = (notification: Omit<UINotification, 'id'>) => {
+    const _newNotification: UINotification = {
       ...notification,
       id: Date.now().toString(),
     };
@@ -282,14 +282,14 @@ export const UnifiedUI: React.FC<UnifiedUIProps> = ({
     }
   };
 
-  const removeNotification = (id: string) => {
+  const _removeNotification = (id: string) => {
     updateUIState({
       notifications: uiState.notifications.filter(n => n.id !== id),
     });
   };
 
-  const handleNotificationAction = (notificationId: string, actionIndex: number) => {
-    const notification = uiState.notifications.find(n => n.id === notificationId);
+  const _handleNotificationAction = (notificationId: string, actionIndex: number) => {
+    const _notification = uiState.notifications.find(n => n.id === notificationId);
     if (notification?.actions?.[actionIndex]) {
       notification.actions[actionIndex].onClick();
       onNotificationAction?.(notificationId, actionIndex);

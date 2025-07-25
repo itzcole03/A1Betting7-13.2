@@ -91,7 +91,7 @@ interface APIEndpoint {
   uptime: number;
 }
 
-const AdminPanel: React.FC = () => {
+const _AdminPanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [users, setUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -106,11 +106,11 @@ const AdminPanel: React.FC = () => {
 
   useEffect(() => {
     loadSystemData();
-    const interval = setInterval(loadSystemData, 30000); // Refresh every 30 seconds
+    const _interval = setInterval(loadSystemData, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
   }, []);
 
-  const loadSystemData = async () => {
+  const _loadSystemData = async () => {
     setIsLoading(true);
     try {
       // Simulate API calls
@@ -122,11 +122,11 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const loadUsers = async () => {
+  const _loadUsers = async () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const mockUsers: User[] = [
+    const _mockUsers: User[] = [
       {
         id: 'user-001',
         username: 'pro_bettor_2024',
@@ -201,11 +201,11 @@ const AdminPanel: React.FC = () => {
     setUsers(mockUsers);
   };
 
-  const loadSystemMetrics = async () => {
+  const _loadSystemMetrics = async () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    const mockMetrics: SystemMetrics = {
+    const _mockMetrics: SystemMetrics = {
       uptime: 99.7,
       activeUsers: 1847,
       apiCalls: 847320,
@@ -221,11 +221,11 @@ const AdminPanel: React.FC = () => {
     setSystemMetrics(mockMetrics);
   };
 
-  const loadAPIEndpoints = async () => {
+  const _loadAPIEndpoints = async () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 600));
 
-    const mockEndpoints: APIEndpoint[] = [
+    const _mockEndpoints: APIEndpoint[] = [
       {
         name: 'User Authentication',
         path: '/api/auth',
@@ -281,11 +281,11 @@ const AdminPanel: React.FC = () => {
     setApiEndpoints(mockEndpoints);
   };
 
-  const updateUserStatus = async (userId: string, status: User['status']) => {
+  const _updateUserStatus = async (userId: string, status: User['status']) => {
     setUsers(prev => prev.map(user => (user.id === userId ? { ...user, status } : user)));
   };
 
-  const bulkUpdateUsers = async (action: string) => {
+  const _bulkUpdateUsers = async (action: string) => {
     if (selectedUsers.length === 0) return;
 
     switch (action) {
@@ -303,19 +303,19 @@ const AdminPanel: React.FC = () => {
     setSelectedUsers([]);
   };
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch =
+  const _filteredUsers = users.filter(user => {
+    const _matchesSearch =
       user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
-    const matchesPlan = planFilter === 'all' || user.subscription.plan === planFilter;
+    const _matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+    const _matchesPlan = planFilter === 'all' || user.subscription.plan === planFilter;
 
     return matchesSearch && matchesStatus && matchesPlan;
   });
 
-  const getStatusColor = (status: string) => {
+  const _getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
         return 'text-green-400 bg-green-400/10';
@@ -330,7 +330,7 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const getPlanColor = (plan: string) => {
+  const _getPlanColor = (plan: string) => {
     switch (plan) {
       case 'elite':
         return 'text-purple-400 bg-purple-400/10';
@@ -343,7 +343,7 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const getHealthStatusColor = (status: string) => {
+  const _getHealthStatusColor = (status: string) => {
     switch (status) {
       case 'healthy':
         return 'text-green-400';
@@ -356,13 +356,13 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const formatUptime = (uptime: number) => {
-    const days = Math.floor((uptime * 365) / 100);
-    const hours = Math.floor(((uptime * 365 * 24) / 100) % 24);
+  const _formatUptime = (uptime: number) => {
+    const _days = Math.floor((uptime * 365) / 100);
+    const _hours = Math.floor(((uptime * 365 * 24) / 100) % 24);
     return `${days}d ${hours}h`;
   };
 
-  const tabs = [
+  const _tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'users', label: 'User Management', icon: Users },
     { id: 'system', label: 'System Health', icon: Activity },
@@ -370,7 +370,7 @@ const AdminPanel: React.FC = () => {
     { id: 'settings', label: 'System Settings', icon: Settings },
   ];
 
-  const renderOverview = () => (
+  const _renderOverview = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       {/* Key Metrics */}
@@ -649,7 +649,7 @@ const AdminPanel: React.FC = () => {
     </div>
   );
 
-  const renderUserManagement = () => (
+  const _renderUserManagement = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       {/* User Management Header */}
@@ -980,7 +980,7 @@ const AdminPanel: React.FC = () => {
     </div>
   );
 
-  const renderSystemHealth = () => (
+  const _renderSystemHealth = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -1149,7 +1149,7 @@ const AdminPanel: React.FC = () => {
     </div>
   );
 
-  const renderAPIStatus = () => (
+  const _renderAPIStatus = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='space-y-6'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -1253,7 +1253,7 @@ const AdminPanel: React.FC = () => {
     </div>
   );
 
-  const renderTabContent = () => {
+  const _renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
         return renderOverview();

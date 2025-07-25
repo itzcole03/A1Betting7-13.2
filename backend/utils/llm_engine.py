@@ -155,19 +155,22 @@ class EnhancedConfig(BaseSettings):
     llm_timeout: int = 60
     llm_batch_size: int = 5
     llm_models_cache_ttl: int = 300
-    llm_default_model: str = "llama3:8b"
+    llm_default_model: str = "llama3:latest"
     available_models: List[str] = Field(default_factory=list)
     embedding_models: List[str] = Field(default_factory=list)
     generation_models: List[str] = Field(default_factory=list)
     model_preferences: Dict[str, List[str]] = Field(
         default_factory=lambda: {
-            "generation": ["llama3:8b", "closex/neuraldaredevil-8b-abliterated:latest"],
-            "embedding": ["nomic-embed-text:v1.5"],
-            "sports_analysis": [
-                "llama3:8b",
+            "generation": [
+                "llama3:latest",
                 "closex/neuraldaredevil-8b-abliterated:latest",
             ],
-            "conversation": ["llama3:8b"],
+            "embedding": ["nomic-embed-text:v1.5"],
+            "sports_analysis": [
+                "llama3:latest",
+                "closex/neuraldaredevil-8b-abliterated:latest",
+            ],
+            "conversation": ["llama3:latest"],
         }
     )
     odds_api_key: Optional[str] = None
@@ -253,7 +256,7 @@ class EnhancedConfigManager:
         # Fallback to first available model or default
         if available:
             return available[0]
-        return self.config.llm_default_model or "llama3:8b"
+        return self.config.llm_default_model or "llama3:latest"
 
 
 config_manager = EnhancedConfigManager()
@@ -347,14 +350,6 @@ class OllamaClient(BaseLLMClient):
             )
             curl_cmd = [
                 "curl",
-                "-s",
-                "-o",
-                "-",
-                "-w",
-                "%{http_code}",
-                "-X",
-                "POST",
-                f"{self.base}/api/generate",
                 "-H",
                 "Content-Type: application/json",
                 "-H",
@@ -723,29 +718,11 @@ class OllamaClient(BaseLLMClient):
             return f"Error analyzing prop bet: {str(e)}"
 
     def select_model(self, task: str) -> str:
-        """Select the best model for a specific task"""
-        # Get the best model from config manager
-        model = config_manager.get_best_model(task)
-
-        # Fallback to available models if preferred not found
-        if model not in self.available_models and self.available_models:
-            if task == "embed" or task == "embedding":
-                # Look for embedding models
-                embed_models = [
-                    m for m in self.available_models if "embed" in m.lower()
-                ]
-                if embed_models:
-                    return embed_models[0]
-            else:
-                # Look for generation models (non-embedding)
-                gen_models = [
-                    m for m in self.available_models if "embed" not in m.lower()
-                ]
-                if gen_models:
-                    return gen_models[0]
-
-        # Final fallback
-        return model or "llama3:8b"
+        """ALWAYS return 'llama3:latest' for any task, with explicit logging."""
+        logger.info(
+            f"[OllamaClient.select_model] Forcing model to: llama3:latest for task: {task}"
+        )
+        return "llama3:latest"
 
 
 class LMStudioClient(BaseLLMClient):
@@ -886,11 +863,21 @@ class LLMEngine:
             # Get models from client
             self.models = await self.client.list_models()
 
-            # Update task mappings with better model selection
+            # Always ensure llama3:latest is present if healthy
+            if hasattr(self.client, "model_health"):
+                health = getattr(self.client, "model_health", {})
+                if (
+                    health.get("llama3:latest", None)
+                    and getattr(health["llama3:latest"], "status", None) == "ready"
+                ):
+                    if "llama3:latest" not in self.models:
+                        self.models.append("llama3:latest")
             self.task_model_map["embed"] = self._choose_embedding_model()
             self.task_model_map["generation"] = self._choose_generation_model()
             self.task_model_map["sports_analysis"] = self._choose_sports_model()
-            self.task_model_map["conversation"] = self._choose_conversation_model()
+            self.task_model_map["conversation"] = (
+                "llama3:latest"  # Always prefer llama3:latest for conversation
+            )
 
             self.last_model_refresh = time.time()
             self.is_initialized = True
@@ -901,12 +888,12 @@ class LLMEngine:
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error(f"LLM discovery failed: {e}")
             # Set fallback models
-            self.models = ["llama3:8b"]
+            self.models = ["llama3:latest"]
             self.task_model_map = {
                 "embed": "nomic-embed-text:v1.5",
-                "generation": "llama3:8b",
-                "sports_analysis": "llama3:8b",
-                "conversation": "llama3:8b",
+                "generation": "llama3:latest",
+                "sports_analysis": "llama3:latest",
+                "conversation": "llama3:latest",
             }
 
     def _choose_embedding_model(self) -> str:
@@ -930,12 +917,15 @@ class LLMEngine:
             if "embed" not in m.lower():
                 return m
 
-        return self.models[0] if self.models else "llama3:8b"
+        return self.models[0] if self.models else "llama3:latest"
 
     def _choose_sports_model(self) -> str:
         """Choose the best model for sports analysis."""
         # For sports analysis, prefer models that are good at reasoning
-        sports_preferred = ["llama3:8b", "closex/neuraldaredevil-8b-abliterated:latest"]
+        sports_preferred = [
+            "llama3:latest",
+            "closex/neuraldaredevil-8b-abliterated:latest",
+        ]
 
         for preferred in sports_preferred:
             if preferred in self.models:
@@ -954,16 +944,17 @@ class LLMEngine:
         return self._choose_generation_model()
 
     def _get_task_model(self, task: str) -> str:
-        """Return default override or engine-chosen model for task."""
-        # Use runtime override if provided
-        if self.default_override:
-            return self.default_override
-        # Fallback to initial task mapping
-        return self.task_model_map.get(task, "")
+        """ALWAYS return 'llama3:latest' for all tasks, ignoring override and mapping."""
+        return "llama3:latest"
 
     def set_default_model(self, model_name: Optional[str]) -> None:
         """Set or clear the runtime default model override."""
-        if model_name and model_name not in self.models:
+        # Allow llama3:latest even if not in models list
+        if (
+            model_name
+            and model_name != "llama3:latest"
+            and model_name not in self.models
+        ):
             raise ValueError(f"Model '{model_name}' not available: {self.models}")
         self.default_override = model_name
 
@@ -1033,6 +1024,9 @@ class LLMEngine:
         self, user_message: str, context: Optional[Dict[str, Any]] = None
     ) -> str:
         """Handle conversational betting advice like PropGPT."""
+        import logging
+
+        logger = logging.getLogger("ollama_client")
         context_info = ""
         if context:
             context_info = f"Current context: {context}"
@@ -1047,7 +1041,20 @@ class LLMEngine:
         Focus on actionable insights. Keep responses concise and valuable.
         """
 
-        return await self.generate_text(prompt, max_tokens=250, temperature=0.4)
+        logger.info(f"[chat_response] Sending prompt to Ollama: {prompt}")
+        try:
+            response = await self.generate(
+                prompt,
+                max_tokens=100,  # Lowered to avoid hanging issues
+                temperature=0.4,
+                priority=1,
+                timeout=30,
+            )
+            logger.info(f"[chat_response] Received response from Ollama: {response}")
+            return response
+        except Exception as e:
+            logger.error(f"[chat_response] Error during Ollama request: {e}")
+            raise
 
     async def generate_tooltip_explanation(
         self, term: str, betting_context: str = ""

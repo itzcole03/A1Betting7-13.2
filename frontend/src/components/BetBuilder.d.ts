@@ -1,2 +1,2 @@
 import React from 'react.ts';
-export declare const BetBuilder: React.FC;
+export declare const _BetBuilder: React.FC;

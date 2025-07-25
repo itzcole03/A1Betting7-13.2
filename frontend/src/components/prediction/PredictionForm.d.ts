@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const PredictionForm: React.FC;
+declare const _PredictionForm: React.FC;
 export default PredictionForm;

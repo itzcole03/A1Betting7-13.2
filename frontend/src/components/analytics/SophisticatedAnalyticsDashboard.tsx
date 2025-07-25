@@ -160,14 +160,14 @@ export function SophisticatedAnalyticsDashboard() {
     errorRate: 0.23,
   });
 
-  const handleRefresh = async () => {
+  const _handleRefresh = async () => {
     setRefreshing(true);
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     setRefreshing(false);
   };
 
-  const getPerformanceColor = (value: number, isGood: boolean = true) => {
+  const _getPerformanceColor = (value: number, isGood: boolean = true) => {
     if (isGood) {
       if (value >= 85) return 'text-green-600';
       if (value >= 70) return 'text-yellow-600';
@@ -179,7 +179,7 @@ export function SophisticatedAnalyticsDashboard() {
     }
   };
 
-  const getHealthIcon = (value: number, threshold: number = 80) => {
+  const _getHealthIcon = (value: number, threshold: number = 80) => {
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     if (value >= threshold) return <AlertTriangle className='h-4 w-4 text-red-600' />;
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

@@ -8,5 +8,5 @@ interface BettingCardProps {
   time?: string;
   onClick?: () => void;
 }
-declare const BettingCard: React.FC<BettingCardProps>;
+declare const _BettingCard: React.FC<BettingCardProps>;
 export default BettingCard;

@@ -9,5 +9,5 @@ export declare class PrizePicksAdapterImpl {
   fetchPlayers(params: { sports: string[0] }): Promise<PrizePicksPlayer[0]>;
   fetchLines(params: { propIds: string[0] }): Promise<PrizePicksLines[0]>;
 }
-export declare const prizePicksAdapter: PrizePicksAdapterImpl;
+export declare const _prizePicksAdapter: PrizePicksAdapterImpl;
 export default prizePicksAdapter;

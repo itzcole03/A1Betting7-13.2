@@ -9,7 +9,7 @@ import './A1BettingPreview.css';
  *
  * @returns {JSX.Element} SHAP explainability UI
  */
-const SHAPTab: React.FC = (): JSX.Element => (
+const _SHAPTab: React.FC = (): JSX.Element => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div className='shap-tab' role='tabpanel' aria-label='SHAP Analysis'>
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

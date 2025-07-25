@@ -1,5 +1,5 @@
 ﻿import React from 'react.ts';
-export declare const WebSocketMessageTypes: {
+export declare const _WebSocketMessageTypes: {
   readonly PING: 'ping';
   readonly PONG: 'pong';
   readonly CLIENT_AUTH: 'client_auth';
@@ -14,5 +14,5 @@ export declare const WebSocketMessageTypes: {
 };
 export type KnownWebSocketMessageType =
   (typeof WebSocketMessageTypes)[keyof typeof WebSocketMessageTypes];
-declare const EntryTracking: React.FC;
+declare const _EntryTracking: React.FC;
 export default EntryTracking;

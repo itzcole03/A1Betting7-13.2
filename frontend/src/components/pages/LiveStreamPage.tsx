@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ExternalLink, Tv, Monitor, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-const LiveStreamPage: React.FC = () => {
+const _LiveStreamPage: React.FC = () => {
   const [streamUrl, setStreamUrl] = useState('https://the.streameast.app');
   const [isLoading, setIsLoading] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
@@ -12,18 +12,18 @@ const LiveStreamPage: React.FC = () => {
     toast.success('📺 Live stream loaded');
   }, []);
 
-  const handleReload = () => {
+  const _handleReload = () => {
     setIsLoading(true);
     // Force iframe reload by changing the key
-    const iframe = document.getElementById('stream-iframe') as HTMLIFrameElement;
+    const _iframe = document.getElementById('stream-iframe') as HTMLIFrameElement;
     if (iframe) {
       iframe.src = iframe.src;
     }
     setTimeout(() => setIsLoading(false), 2000);
   };
 
-  const handleFullscreen = () => {
-    const iframe = document.getElementById('stream-iframe') as HTMLIFrameElement;
+  const _handleFullscreen = () => {
+    const _iframe = document.getElementById('stream-iframe') as HTMLIFrameElement;
     if (iframe) {
       if (!isFullscreen) {
         if (iframe.requestFullscreen) {
@@ -38,7 +38,7 @@ const LiveStreamPage: React.FC = () => {
     }
   };
 
-  const openInNewTab = () => {
+  const _openInNewTab = () => {
     window.open(streamUrl, '_blank', 'noopener,noreferrer');
   };
 

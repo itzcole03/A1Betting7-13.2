@@ -2,7 +2,7 @@
 interface BettingConfig {
   minConfidence: number;
   maxStakePercentage: number;
-  riskProfile: any;
+  riskProfile: unknown;
   autoRefresh: boolean;
   refreshInterval: number;
 }
@@ -24,10 +24,10 @@ declare class UnifiedBettingService {
   private calculateWinRate;
   private calculateAverageOdds;
   private calculateROI;
-  getBettingOpportunities(): Promise<any[]>;
-  placeBet(bet: any): Promise<boolean>;
-  getBettingMetrics(): Promise<any>;
-  getBetHistory(): Promise<any[]>;
+  getBettingOpportunities(): Promise<unknown[]>;
+  placeBet(bet: unknown): Promise<boolean>;
+  getBettingMetrics(): Promise<unknown>;
+  getBetHistory(): Promise<unknown[]>;
   setConfig(newConfig: Partial<BettingConfig>): void;
   getConfig(): BettingConfig;
   private emit;

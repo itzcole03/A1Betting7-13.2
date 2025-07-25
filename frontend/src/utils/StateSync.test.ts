@@ -7,9 +7,9 @@ test('should test state sync, context integration, etc.', () => {
 });
 
 describe('State Synchronization', () => {
-  // let store: any; // Use any to avoid 'unknown' errors in assertions;
-  // let stateManager: UnifiedStateManager;
-  // let eventBus: EventBus;
+  // let _store: any; // Use any to avoid 'unknown' errors in assertions;
+  // let _stateManager: UnifiedStateManager;
+  // let _eventBus: EventBus;
 
   // beforeEach(() => {
   //   store = useStore.getState();

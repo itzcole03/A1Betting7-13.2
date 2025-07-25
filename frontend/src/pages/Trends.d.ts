@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const Trends: React.FC;
+declare const _Trends: React.FC;
 export default Trends;

@@ -76,7 +76,7 @@ interface TrendingTopic {
   impact: 'high' | 'medium' | 'low';
 }
 
-const SocialIntelligence: React.FC = () => {
+const _SocialIntelligence: React.FC = () => {
   const [sentimentData, setSentimentData] = useState<Record<string, SentimentData>>({});
   const [recentPosts, setRecentPosts] = useState<SocialPost[]>([]);
   const [influencers, setInfluencers] = useState<InfluencerInsight[]>([]);
@@ -87,16 +87,16 @@ const SocialIntelligence: React.FC = () => {
 
   useEffect(() => {
     loadSocialData();
-    const interval = setInterval(loadSocialData, 300000); // Update every 5 minutes
+    const _interval = setInterval(loadSocialData, 300000); // Update every 5 minutes
     return () => clearInterval(interval);
   }, [selectedGame, timeRange]);
 
-  const loadSocialData = async () => {
+  const _loadSocialData = async () => {
     setIsAnalyzing(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      const mockSentiment: Record<string, SentimentData> = {
+      const _mockSentiment: Record<string, SentimentData> = {
         'Lakers vs Warriors': {
           overall: 0.72,
           positive: 68,
@@ -126,7 +126,7 @@ const SocialIntelligence: React.FC = () => {
         },
       };
 
-      const mockPosts: SocialPost[] = [
+      const _mockPosts: SocialPost[] = [
         {
           id: 'post-001',
           platform: 'twitter',
@@ -169,7 +169,7 @@ const SocialIntelligence: React.FC = () => {
         },
       ];
 
-      const mockInfluencers: InfluencerInsight[] = [
+      const _mockInfluencers: InfluencerInsight[] = [
         {
           id: 'inf-001',
           name: 'SportsBetKing',
@@ -212,7 +212,7 @@ const SocialIntelligence: React.FC = () => {
         },
       ];
 
-      const mockTrending: TrendingTopic[] = [
+      const _mockTrending: TrendingTopic[] = [
         {
           id: 'trend-001',
           keyword: 'LeBron injury concern',
@@ -256,13 +256,13 @@ const SocialIntelligence: React.FC = () => {
     }
   };
 
-  const getSentimentColor = (sentiment: number) => {
+  const _getSentimentColor = (sentiment: number) => {
     if (sentiment > 0.6) return 'text-green-400';
     if (sentiment > 0.4) return 'text-yellow-400';
     return 'text-red-400';
   };
 
-  const getPlatformIcon = (platform: string) => {
+  const _getPlatformIcon = (platform: string) => {
     switch (platform) {
       case 'twitter':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -282,7 +282,7 @@ const SocialIntelligence: React.FC = () => {
     }
   };
 
-  const getImpactColor = (impact: string) => {
+  const _getImpactColor = (impact: string) => {
     switch (impact) {
       case 'high':
         return 'text-red-400 bg-red-500/20';
@@ -295,7 +295,7 @@ const SocialIntelligence: React.FC = () => {
     }
   };
 
-  const games = Object.keys(sentimentData);
+  const _games = Object.keys(sentimentData);
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

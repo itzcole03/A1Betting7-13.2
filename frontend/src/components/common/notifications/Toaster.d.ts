@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const Toaster: React.FC;
+declare const _Toaster: React.FC;
 export default Toaster;

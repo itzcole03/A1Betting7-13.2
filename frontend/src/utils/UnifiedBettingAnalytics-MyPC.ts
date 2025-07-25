@@ -40,8 +40,8 @@ export enum DataSource {
 }
 
 // Minimal internal mock for dataService
-const dataService = {
-  on: (event: string, handler: (data: any) => void) => {},
+const _dataService = {
+  on: (event: string, handler: (data: unknown) => void) => {},
   fetchData: async (source: DataSource, endpoint: string) => ({}),
 };
 
@@ -80,10 +80,10 @@ export class UnifiedBettingAnalytics extends EventEmitter {
 
   private calculateKellyCriterion(probability: number, odds: number): number {
     // Kelly formula: f* = (bp - q)/b, b = odds-1, p = probability, q = 1-p
-    const b = odds - 1;
-    const p = probability;
-    const q = 1 - p;
-    const kelly = b > 0 ? (b * p - q) / b : 0;
+    const _b = odds - 1;
+    const _p = probability;
+    const _q = 1 - p;
+    const _kelly = b > 0 ? (b * p - q) / b : 0;
     return Math.max(0, Math.min(kelly, 0.1)); // Cap at 10% of bankroll
   }
 
@@ -94,19 +94,19 @@ export class UnifiedBettingAnalytics extends EventEmitter {
   ): Promise<BettingAnalysis> {
     try {
       // Fetch latest market data;
-      const marketData = await this.dataService.fetchData(
+      const _marketData = await this.dataService.fetchData(
         DataSource.PRIZEPICKS,
         `/markets/${market}`
       );
       // Get prediction from model;
-      const prediction = await this.generatePrediction(market, marketData);
+      const _prediction = await this.generatePrediction(market, marketData);
       // Calculate optimal stake using Kelly Criterion;
-      const recommendedStake = this.calculateKellyCriterion(prediction.probability, odds);
+      const _recommendedStake = this.calculateKellyCriterion(prediction.probability, odds);
       // Assess risk factors;
-      const riskFactors = this.assessRiskFactors(marketData, prediction);
+      const _riskFactors = this.assessRiskFactors(marketData, prediction);
       // Find hedging opportunities;
-      const hedging = await this.findHedgingOpportunities(market, odds);
-      const analysis: BettingAnalysis = {
+      const _hedging = await this.findHedgingOpportunities(market, odds);
+      const _analysis: BettingAnalysis = {
         predictionConfidence: prediction.probability,
         recommendedStake: recommendedStake * stake,
         expectedValue: (prediction.probability * odds - 1) * stake,
@@ -137,12 +137,12 @@ export class UnifiedBettingAnalytics extends EventEmitter {
   }> {
     try {
       // Construct a PlayerProp-like object if needed;
-      const prop = {
+      const _prop = {
         player: { id: data.playerId || market },
         type: data.metric || market,
         ...data,
       };
-      const predictionData = await PredictionEngine.getInstance().predict(prop);
+      const _predictionData = await PredictionEngine.getInstance().predict(prop);
       return {
         probability: predictionData.value,
         confidence: predictionData.confidence,
@@ -151,13 +151,13 @@ export class UnifiedBettingAnalytics extends EventEmitter {
           typeof predictionData.analysis === 'object' &&
           predictionData.analysis &&
           'shap_values' in predictionData.analysis
-            ? (predictionData.analysis as any).shap_values
+            ? (predictionData.analysis as unknown).shap_values
             : undefined,
         expectedValue:
           typeof predictionData.analysis?.meta_analysis === 'object' &&
           predictionData.analysis?.meta_analysis &&
           'expected_value' in predictionData.analysis.meta_analysis
-            ? (predictionData.analysis.meta_analysis as any).expected_value
+            ? (predictionData.analysis.meta_analysis as unknown).expected_value
             : undefined,
         modelMeta: predictionData.metadata,
       };
@@ -171,7 +171,7 @@ export class UnifiedBettingAnalytics extends EventEmitter {
     marketData: Record<string, unknown>,
     prediction: Record<string, unknown>
   ): string[] {
-    const factors: string[] = [];
+    const _factors: string[] = [];
 
     // Market volatility check;
     if (
@@ -214,14 +214,14 @@ export class UnifiedBettingAnalytics extends EventEmitter {
     originalOdds: number
   ): Promise<Array<{ market: string; odds: number; recommendedStake: number }>> {
     try {
-      const relatedMarkets = await this.dataService.fetchData(
+      const _relatedMarkets = await this.dataService.fetchData(
         DataSource.ODDS_API,
         `/related-markets/${market}`
       );
       if (!Array.isArray(relatedMarkets)) return [];
       return relatedMarkets
-        .filter((m: any) => m.odds < originalOdds)
-        .map((m: any) => ({
+        .filter((m: unknown) => m.odds < originalOdds)
+        .map((m: unknown) => ({
           market: m.id,
           odds: m.odds,
           recommendedStake: this.calculateHedgeStake(originalOdds, m.odds),
@@ -235,10 +235,10 @@ export class UnifiedBettingAnalytics extends EventEmitter {
   private calculateHedgeStake(originalOdds: number, hedgeOdds: number): number {
     // Kelly formula for hedging;
     // f* = (bp - q)/b, b = hedgeOdds-1, p = 1/originalOdds, q = 1-p;
-    const b = hedgeOdds - 1;
-    const p = 1 / originalOdds;
-    const q = 1 - p;
-    const kelly = b > 0 ? (b * p - q) / b : 0;
+    const _b = hedgeOdds - 1;
+    const _p = 1 / originalOdds;
+    const _q = 1 - p;
+    const _kelly = b > 0 ? (b * p - q) / b : 0;
     return Math.max(0, Math.min(kelly, 0.2)); // Cap at 20% stake for safety;
   }
 

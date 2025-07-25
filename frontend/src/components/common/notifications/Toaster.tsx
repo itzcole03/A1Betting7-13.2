@@ -1,7 +1,7 @@
 import React from 'react';
 import { toast, Toaster as HotToaster } from 'react-hot-toast';
 
-export const Toaster: React.FC = () => {
+export const _Toaster: React.FC = () => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <HotToaster
@@ -39,7 +39,7 @@ export const Toaster: React.FC = () => {
   );
 };
 
-export const showToast = {
+export const _showToast = {
   success: (message: string) => toast.success(message),
   error: (message: string) => toast.error(message),
   info: (message: string) => toast(message),

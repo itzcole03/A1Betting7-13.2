@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const NotFound: React.FC;
+declare const _NotFound: React.FC;
 export default NotFound;

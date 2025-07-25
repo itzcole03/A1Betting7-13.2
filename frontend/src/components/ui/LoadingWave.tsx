@@ -8,20 +8,20 @@ interface LoadingWaveProps {
   className?: string;
 }
 
-export const LoadingWave: React.FC<LoadingWaveProps> = ({
+export const _LoadingWave: React.FC<LoadingWaveProps> = ({
   size = 'md',
   variant = 'default',
   text = 'Loading...',
   className = '',
 }) => {
-  const sizeConfig = {
+  const _sizeConfig = {
     sm: { dots: 'w-2 h-2', container: 'h-8', text: 'text-sm', spacing: 'space-x-1' },
     md: { dots: 'w-3 h-3', container: 'h-12', text: 'text-base', spacing: 'space-x-2' },
     lg: { dots: 'w-4 h-4', container: 'h-16', text: 'text-lg', spacing: 'space-x-3' },
     xl: { dots: 'w-6 h-6', container: 'h-20', text: 'text-xl', spacing: 'space-x-4' },
   };
 
-  const variantConfig = {
+  const _variantConfig = {
     default: {
       gradient: 'from-blue-400 to-cyan-500',
       glow: 'shadow-[0_0_10px_rgba(59,130,246,0.5)]',
@@ -40,15 +40,15 @@ export const LoadingWave: React.FC<LoadingWaveProps> = ({
     },
   };
 
-  const sizeConf = sizeConfig[size];
-  const variantConf = variantConfig[variant];
+  const _sizeConf = sizeConfig[size];
+  const _variantConf = variantConfig[variant];
 
-  const dotVariants = {
+  const _dotVariants = {
     start: { y: '0%' },
     end: { y: '100%' },
   };
 
-  const dotTransition = {
+  const _dotTransition = {
     duration: 0.5,
     repeat: Infinity,
     repeatType: 'reverse' as const,
@@ -106,19 +106,19 @@ export const LoadingWave: React.FC<LoadingWaveProps> = ({
   );
 };
 
-export const LoadingSpinner: React.FC<LoadingWaveProps> = ({
+export const _LoadingSpinner: React.FC<LoadingWaveProps> = ({
   size = 'md',
   variant = 'default',
   className = '',
 }) => {
-  const sizeConfig = {
+  const _sizeConfig = {
     sm: 'w-4 h-4',
     md: 'w-8 h-8',
     lg: 'w-12 h-12',
     xl: 'w-16 h-16',
   };
 
-  const variantConfig = {
+  const _variantConfig = {
     default: 'border-blue-500',
     cyber: 'border-cyan-400',
     quantum: 'border-purple-500',
@@ -143,19 +143,19 @@ export const LoadingSpinner: React.FC<LoadingWaveProps> = ({
   );
 };
 
-export const LoadingPulse: React.FC<LoadingWaveProps> = ({
+export const _LoadingPulse: React.FC<LoadingWaveProps> = ({
   size = 'md',
   variant = 'default',
   className = '',
 }) => {
-  const sizeConfig = {
+  const _sizeConfig = {
     sm: 'w-8 h-8',
     md: 'w-12 h-12',
     lg: 'w-16 h-16',
     xl: 'w-20 h-20',
   };
 
-  const variantConfig = {
+  const _variantConfig = {
     default: {
       gradient: 'from-blue-400 to-cyan-500',
       glow: 'shadow-[0_0_20px_rgba(59,130,246,0.5)]',
@@ -174,7 +174,7 @@ export const LoadingPulse: React.FC<LoadingWaveProps> = ({
     },
   };
 
-  const variantConf = variantConfig[variant];
+  const _variantConf = variantConfig[variant];
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

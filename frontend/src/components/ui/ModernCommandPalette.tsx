@@ -14,7 +14,7 @@ interface Command {
   action: () => void | Promise<void>;
   disabled?: boolean;
   priority?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface CommandCategory {
@@ -59,7 +59,7 @@ interface ModernCommandPaletteProps {
   onQueryChange?: (query: string) => void;
 }
 
-const defaultCategories: CommandCategory[] = [
+const _defaultCategories: CommandCategory[] = [
   { id: 'navigation', name: 'Navigation', icon: '🧭', color: 'blue' },
   { id: 'betting', name: 'Betting', icon: '🎯', color: 'green' },
   { id: 'account', name: 'Account', icon: '👤', color: 'purple' },
@@ -68,11 +68,11 @@ const defaultCategories: CommandCategory[] = [
   { id: 'tools', name: 'Tools', icon: '🛠️', color: 'cyan' },
 ];
 
-const fuzzyMatch = (query: string, text: string): number => {
+const _fuzzyMatch = (query: string, text: string): number => {
   if (!query) return 1;
 
-  const queryLower = query.toLowerCase();
-  const textLower = text.toLowerCase();
+  const _queryLower = query.toLowerCase();
+  const _textLower = text.toLowerCase();
 
   // Exact match gets highest score
   if (textLower.includes(queryLower)) {
@@ -80,10 +80,10 @@ const fuzzyMatch = (query: string, text: string): number => {
   }
 
   // Fuzzy matching - check if all query characters appear in order
-  let queryIndex = 0;
-  let score = 0;
+  let _queryIndex = 0;
+  let _score = 0;
 
-  for (let i = 0; i < textLower.length && queryIndex < queryLower.length; i++) {
+  for (let _i = 0; i < textLower.length && queryIndex < queryLower.length; i++) {
     if (textLower[i] === queryLower[queryIndex]) {
       score += 1;
       queryIndex++;
@@ -93,11 +93,11 @@ const fuzzyMatch = (query: string, text: string): number => {
   return queryIndex === queryLower.length ? score / textLower.length : 0;
 };
 
-const formatShortcut = (shortcut: string[]): string => {
+const _formatShortcut = (shortcut: string[]): string => {
   return shortcut
     .map(key => {
       // Convert common key names to symbols
-      const keyMap: Record<string, string> = {
+      const _keyMap: Record<string, string> = {
         cmd: '⌘',
         ctrl: 'Ctrl',
         alt: '⌥',
@@ -119,7 +119,7 @@ const formatShortcut = (shortcut: string[]): string => {
     .join(' + ');
 };
 
-export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
+export const _ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
   commands,
   categories = defaultCategories,
   isOpen,
@@ -146,28 +146,28 @@ export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
     favoriteCommands: [],
   });
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
+  const _inputRef = useRef<HTMLInputElement>(null);
+  const _listRef = useRef<HTMLDivElement>(null);
   const [isListening, setIsListening] = useState(false);
 
   // Filtered and sorted commands
-  const filteredCommands = useMemo(() => {
+  const _filteredCommands = useMemo(() => {
     if (!state.query && !showRecents && !showFavorites) {
       return commands.slice(0, maxResults);
     }
 
-    let filtered = commands;
+    let _filtered = commands;
 
     if (state.query) {
       filtered = commands.filter(command => {
         if (enableFuzzySearch) {
-          const titleScore = fuzzyMatch(state.query, command.title);
-          const descScore = command.description ? fuzzyMatch(state.query, command.description) : 0;
-          const keywordScore = Math.max(...command.keywords.map(k => fuzzyMatch(state.query, k)));
+          const _titleScore = fuzzyMatch(state.query, command.title);
+          const _descScore = command.description ? fuzzyMatch(state.query, command.description) : 0;
+          const _keywordScore = Math.max(...command.keywords.map(k => fuzzyMatch(state.query, k)));
 
           return titleScore > 0 || descScore > 0 || keywordScore > 0;
         } else {
-          const query = state.query.toLowerCase();
+          const _query = state.query.toLowerCase();
           return (
             command.title.toLowerCase().includes(query) ||
             command.description?.toLowerCase().includes(query) ||
@@ -178,14 +178,14 @@ export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
 
       // Sort by relevance
       filtered.sort((a, b) => {
-        const aScore = enableFuzzySearch
+        const _aScore = enableFuzzySearch
           ? Math.max(
               fuzzyMatch(state.query, a.title),
               a.description ? fuzzyMatch(state.query, a.description) : 0,
               ...a.keywords.map(k => fuzzyMatch(state.query, k))
             )
           : 1;
-        const bScore = enableFuzzySearch
+        const _bScore = enableFuzzySearch
           ? Math.max(
               fuzzyMatch(state.query, b.title),
               b.description ? fuzzyMatch(state.query, b.description) : 0,
@@ -194,10 +194,10 @@ export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
           : 1;
 
         // Factor in priority and recent usage
-        const aPriority =
+        const _aPriority =
           (a.priority || 0) +
           (state.recentCommands.find(r => r.commandId === a.id)?.frequency || 0) * 0.1;
-        const bPriority =
+        const _bPriority =
           (b.priority || 0) +
           (state.recentCommands.find(r => r.commandId === b.id)?.frequency || 0) * 0.1;
 
@@ -217,10 +217,10 @@ export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
   ]);
 
   // Group commands by category
-  const groupedCommands = useMemo(() => {
+  const _groupedCommands = useMemo(() => {
     if (!showCategories) return { All: filteredCommands };
 
-    const grouped = filteredCommands.reduce(
+    const _grouped = filteredCommands.reduce(
       (acc, command) => {
         if (!acc[command.category]) {
           acc[command.category] = [];
@@ -238,7 +238,7 @@ export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const _handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
@@ -294,14 +294,14 @@ export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
   // Scroll selected item into view
   useEffect(() => {
     if (listRef.current) {
-      const selectedElement = listRef.current.children[state.selectedIndex] as HTMLElement;
+      const _selectedElement = listRef.current.children[state.selectedIndex] as HTMLElement;
       if (selectedElement) {
         selectedElement.scrollIntoView({ block: 'nearest' });
       }
     }
   }, [state.selectedIndex]);
 
-  const executeCommand = async (command: Command) => {
+  const _executeCommand = async (command: Command) => {
     if (command.disabled) return;
 
     setState(prev => ({ ...prev, loading: true }));
@@ -311,8 +311,8 @@ export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
 
       // Update recent commands
       setState(prev => {
-        const existingRecent = prev.recentCommands.find(r => r.commandId === command.id);
-        const updatedRecents = existingRecent
+        const _existingRecent = prev.recentCommands.find(r => r.commandId === command.id);
+        const _updatedRecents = existingRecent
           ? prev.recentCommands.map(r =>
               r.commandId === command.id
                 ? { ...r, timestamp: new Date(), frequency: r.frequency + 1 }
@@ -338,19 +338,19 @@ export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
     }
   };
 
-  const executeSelectedCommand = () => {
-    const command = filteredCommands[state.selectedIndex];
+  const _executeSelectedCommand = () => {
+    const _command = filteredCommands[state.selectedIndex];
     if (command) {
       executeCommand(command);
     }
   };
 
-  const handleQueryChange = (query: string) => {
+  const _handleQueryChange = (query: string) => {
     setState(prev => ({ ...prev, query, selectedIndex: 0 }));
     onQueryChange?.(query);
   };
 
-  const toggleFavorite = (commandId: string) => {
+  const _toggleFavorite = (commandId: string) => {
     setState(prev => ({
       ...prev,
       favoriteCommands: prev.favoriteCommands.includes(commandId)
@@ -360,17 +360,17 @@ export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
   };
 
   // Voice search
-  const startVoiceSearch = () => {
+  const _startVoiceSearch = () => {
     if (!enableVoiceSearch || !('webkitSpeechRecognition' in window)) return;
 
-    const recognition = new (window as any).webkitSpeechRecognition();
+    const _recognition = new (window as unknown).webkitSpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = 'en-US';
 
     recognition.onstart = () => setIsListening(true);
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
+    recognition.onresult = (event: unknown) => {
+      const _transcript = event.results[0][0].transcript;
       handleQueryChange(transcript);
     };
     recognition.onend = () => setIsListening(false);
@@ -381,7 +381,7 @@ export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
 
   if (!isOpen) return null;
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-xl shadow-2xl',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-xl shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -492,7 +492,7 @@ export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
                 Recent
               </div>
               {state.recentCommands.slice(0, 3).map(recent => {
-                const command = commands.find(c => c.id === recent.commandId);
+                const _command = commands.find(c => c.id === recent.commandId);
                 if (!command) return null;
 
                 return (
@@ -516,7 +516,7 @@ export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
           {Object.entries(groupedCommands).map(([categoryId, categoryCommands], groupIndex) => {
             if (categoryCommands.length === 0) return null;
 
-            const category = categories.find(c => c.id === categoryId);
+            const _category = categories.find(c => c.id === categoryId);
 
             return (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -546,7 +546,7 @@ export const ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
 
                 {/* Commands */}
                 {categoryCommands.map((command, index) => {
-                  const globalIndex =
+                  const _globalIndex =
                     Object.entries(groupedCommands)
                       .slice(0, groupIndex)
                       .reduce((acc, [, cmds]) => acc + cmds.length, 0) + index;
@@ -639,7 +639,7 @@ interface CommandItemProps {
   onToggleFavorite: (commandId: string) => void;
 }
 
-const CommandItem: React.FC<CommandItemProps> = ({
+const _CommandItem: React.FC<CommandItemProps> = ({
   command,
   variant,
   isSelected,

@@ -27,7 +27,7 @@ interface CacheManagerState {
   comparisonData: Map<string, PredictionComparison>;
 }
 
-export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => {
+export const _usePredictionCacheManager = (options: CacheManagerOptions = {}) => {
   const {
     autoRefresh = true,
     refreshInterval = 30000,
@@ -43,18 +43,18 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
   });
 
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const cleanupIntervalRef = useRef<NodeJS.Timeout>();
-  const refreshIntervalRef = useRef<NodeJS.Timeout>();
+  const _cleanupIntervalRef = useRef<NodeJS.Timeout>();
+  const _refreshIntervalRef = useRef<NodeJS.Timeout>();
 
   /**
    * Store predictions with intelligent comparison
    */
-  const storePredictions = useCallback(
+  const _storePredictions = useCallback(
     (projections: PrizePicksProjection[]): PredictionComparison[] => {
-      const comparisons: PredictionComparison[] = [];
+      const _comparisons: PredictionComparison[] = [];
 
-      for (const projection of projections) {
-        const cachedPrediction: CachedPrediction = {
+      for (const _projection of projections) {
+        const _cachedPrediction: CachedPrediction = {
           id: projection.id,
           player_name: projection.player_name,
           stat_type: projection.stat_type,
@@ -66,7 +66,7 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
           game_time: projection.start_time,
         };
 
-        const comparison = predictionCache.storePrediction(cachedPrediction);
+        const _comparison = predictionCache.storePrediction(cachedPrediction);
         comparisons.push(comparison);
 
         if (enableComparison) {
@@ -86,7 +86,7 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
   /**
    * Get cached prediction with freshness check
    */
-  const getCachedPrediction = useCallback(
+  const _getCachedPrediction = useCallback(
     (player_name: string, stat_type: string, line: number): CachedPrediction | null => {
       return predictionCache.getCurrentPrediction(player_name, stat_type, line);
     },
@@ -96,12 +96,12 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
   /**
    * Get prediction comparison data
    */
-  const getPredictionComparison = useCallback(
+  const _getPredictionComparison = useCallback(
     (projection: PrizePicksProjection): PredictionComparison | null => {
       if (!enableComparison) return null;
 
       // First check in-memory comparison data
-      const cached = cacheState.comparisonData.get(projection.id);
+      const _cached = cacheState.comparisonData.get(projection.id);
       if (cached) return cached;
 
       // Fall back to cache service
@@ -117,7 +117,7 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
   /**
    * Store AI explanation with caching
    */
-  const storeAiExplanation = useCallback((propId: string, explanation: any): void => {
+  const _storeAiExplanation = useCallback((propId: string, explanation: unknown): void => {
     predictionCache.storeAiExplanation(propId, explanation);
 
     // Also store in localStorage for persistence
@@ -127,9 +127,9 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
   /**
    * Get AI explanation with cache fallback
    */
-  const getAiExplanation = useCallback((propId: string): any | null => {
+  const _getAiExplanation = useCallback((propId: string): unknown | null => {
     // First try memory cache
-    let explanation = predictionCache.getAiExplanation(propId);
+    let _explanation = predictionCache.getAiExplanation(propId);
 
     // Fall back to localStorage
     if (!explanation) {
@@ -146,12 +146,12 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
   /**
    * Check if data needs refreshing
    */
-  const needsRefresh = useCallback(
+  const _needsRefresh = useCallback(
     (projections: PrizePicksProjection[]): string[] => {
-      const staleIds: string[] = [];
+      const _staleIds: string[] = [];
 
-      for (const projection of projections) {
-        const cached = predictionCache.getCurrentPrediction(
+      for (const _projection of projections) {
+        const _cached = predictionCache.getCurrentPrediction(
           projection.player_name,
           projection.stat_type,
           projection.line_score
@@ -162,7 +162,7 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
           continue;
         }
 
-        const age = Date.now() - new Date(cached.timestamp).getTime();
+        const _age = Date.now() - new Date(cached.timestamp).getTime();
         if (age > maxStaleness) {
           staleIds.push(projection.id);
         }
@@ -176,7 +176,7 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
   /**
    * Force refresh of stale predictions
    */
-  const refreshStalePredictions = useCallback((): Promise<void> => {
+  const _refreshStalePredictions = useCallback((): Promise<void> => {
     return new Promise(resolve => {
       setRefreshTrigger(prev => prev + 1);
       setTimeout(resolve, 100); // Small delay to ensure state update
@@ -186,9 +186,9 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
   /**
    * Update cache metrics
    */
-  const updateCacheMetrics = useCallback((): void => {
-    const metrics = predictionCache.getCacheMetrics();
-    const stalePredictions = predictionCache.getStaleRecommendations();
+  const _updateCacheMetrics = useCallback((): void => {
+    const _metrics = predictionCache.getCacheMetrics();
+    const _stalePredictions = predictionCache.getStaleRecommendations();
 
     setCacheState(prev => ({
       ...prev,
@@ -200,9 +200,9 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
   /**
    * Perform cache cleanup
    */
-  const performCleanup = useCallback((): number => {
-    const memoryCleanedCount = predictionCache.cleanExpiredEntries();
-    const storageCleanedCount = StorageUtils.cleanExpired();
+  const _performCleanup = useCallback((): number => {
+    const _memoryCleanedCount = predictionCache.cleanExpiredEntries();
+    const _storageCleanedCount = StorageUtils.cleanExpired();
 
     setCacheState(prev => ({
       ...prev,
@@ -217,7 +217,7 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
   /**
    * Update prediction accuracy after actual game result
    */
-  const updateAccuracy = useCallback(
+  const _updateAccuracy = useCallback(
     (player_name: string, stat_type: string, line: number, actualResult: number): void => {
       predictionCache.updatePredictionAccuracy(player_name, stat_type, line, actualResult);
       updateCacheMetrics();
@@ -228,21 +228,21 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
   /**
    * Get accuracy trend for player/stat combination
    */
-  const getAccuracyTrend = useCallback((player_name: string, stat_type: string) => {
+  const _getAccuracyTrend = useCallback((player_name: string, stat_type: string) => {
     return predictionCache.getAccuracyTrend(player_name, stat_type);
   }, []);
 
   /**
    * Get fresh high-confidence predictions
    */
-  const getFreshPredictions = useCallback((): string[] => {
+  const _getFreshPredictions = useCallback((): string[] => {
     return predictionCache.getFreshPredictions();
   }, []);
 
   /**
    * Get enhanced projection with cache data
    */
-  const getEnhancedProjection = useCallback(
+  const _getEnhancedProjection = useCallback(
     (
       projection: PrizePicksProjection
     ): PrizePicksProjection & {
@@ -250,18 +250,18 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
       comparison?: PredictionComparison;
       freshness_score: number;
     } => {
-      const cached = getCachedPrediction(
+      const _cached = getCachedPrediction(
         projection.player_name,
         projection.stat_type,
         projection.line_score
       );
-      const comparison = getPredictionComparison(projection);
+      const _comparison = getPredictionComparison(projection);
 
-      let cache_status: 'fresh' | 'stale' | 'missing' = 'missing';
-      let freshness_score = 0;
+      let _cache_status: 'fresh' | 'stale' | 'missing' = 'missing';
+      let _freshness_score = 0;
 
       if (cached) {
-        const age = Date.now() - new Date(cached.timestamp).getTime();
+        const _age = Date.now() - new Date(cached.timestamp).getTime();
         freshness_score = Math.max(0, 100 - (age / maxStaleness) * 100);
 
         if (age < maxStaleness / 2) {
@@ -284,13 +284,13 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
   /**
    * Get cache health score
    */
-  const getCacheHealthScore = useCallback((): number => {
-    const metrics = cacheState.metrics;
+  const _getCacheHealthScore = useCallback((): number => {
+    const _metrics = cacheState.metrics;
 
     // Combine accuracy, hit rate, and freshness
-    const accuracyScore = metrics.overall_accuracy || 0;
-    const hitRateScore = metrics.cache_hit_rate || 0;
-    const freshnessScore = 100 - (metrics.staleness_score || 0);
+    const _accuracyScore = metrics.overall_accuracy || 0;
+    const _hitRateScore = metrics.cache_hit_rate || 0;
+    const _freshnessScore = 100 - (metrics.staleness_score || 0);
 
     return accuracyScore * 0.4 + hitRateScore * 0.3 + freshnessScore * 0.3;
   }, [cacheState.metrics]);
@@ -360,17 +360,17 @@ export const usePredictionCacheManager = (options: CacheManagerOptions = {}) => 
 /**
  * Helper function to determine recommendation from projection
  */
-function getRecommendation(projection: PrizePicksProjection): string {
+function getRecommendation(_projection: PrizePicksProjection): string {
   if (!projection.ml_prediction) return 'HOLD';
 
-  const prediction = projection.ml_prediction.prediction;
-  const line = projection.line_score;
-  const confidence = projection.confidence;
+  const _prediction = projection.ml_prediction.prediction;
+  const _line = projection.line_score;
+  const _confidence = projection.confidence;
 
   if (confidence < 70) return 'PASS';
 
-  const diff = Math.abs(prediction - line);
-  const threshold = line * 0.1; // 10% threshold
+  const _diff = Math.abs(prediction - line);
+  const _threshold = line * 0.1; // 10% threshold
 
   if (diff < threshold) return 'PASS';
 

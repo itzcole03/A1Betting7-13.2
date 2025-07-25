@@ -84,7 +84,7 @@ export interface EnhancedPropCardProps {
   showStats?: boolean;
 }
 
-export const EnhancedPropCard: React.FC<EnhancedPropCardProps> = ({
+export const _EnhancedPropCard: React.FC<EnhancedPropCardProps> = ({
   prop,
   variant = 'default',
   onSelect,
@@ -92,7 +92,7 @@ export const EnhancedPropCard: React.FC<EnhancedPropCardProps> = ({
   showAnalysis = true,
   showStats = true,
 }) => {
-  const getConfidenceColor = (confidence: number) => {
+  const _getConfidenceColor = (confidence: number) => {
     if (confidence >= 80)
       return 'text-emerald-400 bg-gradient-to-r from-emerald-500/20 to-green-500/20 border-emerald-500/30';
     if (confidence >= 65)
@@ -100,7 +100,7 @@ export const EnhancedPropCard: React.FC<EnhancedPropCardProps> = ({
     return 'text-orange-400 bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/30';
   };
 
-  const getTrendIcon = (trend: string) => {
+  const _getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'up':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -114,7 +114,7 @@ export const EnhancedPropCard: React.FC<EnhancedPropCardProps> = ({
     }
   };
 
-  const getRecommendationColor = (recommendation: string) => {
+  const _getRecommendationColor = (recommendation: string) => {
     switch (recommendation) {
       case 'over':
         return 'text-emerald-400 bg-gradient-to-br from-emerald-500/20 to-green-500/20 border-emerald-500/40';
@@ -125,7 +125,7 @@ export const EnhancedPropCard: React.FC<EnhancedPropCardProps> = ({
     }
   };
 
-  const cardVariants = {
+  const _cardVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
     visible: {
       opacity: 1,
@@ -146,7 +146,7 @@ export const EnhancedPropCard: React.FC<EnhancedPropCardProps> = ({
     },
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default:
       'bg-gradient-to-br from-slate-800/60 via-slate-800/40 to-slate-900/60 border-slate-700/50 p-6 backdrop-blur-xl shadow-xl',
     cyber:
@@ -492,7 +492,7 @@ export const EnhancedPropCard: React.FC<EnhancedPropCardProps> = ({
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex space-x-2'>
                 {prop.stats.recent.last5.map((value, index) => {
-                  const isOver = value > prop.prop.line;
+                  const _isOver = value > prop.prop.line;
                   return (
                     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div

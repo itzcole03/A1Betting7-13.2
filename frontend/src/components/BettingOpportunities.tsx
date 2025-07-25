@@ -2,7 +2,7 @@ import React from 'react';
 // @ts-expect-error TS(6142): Module './Card' was resolved to 'C:/Users/bcmad/Do... Remove this comment to see the full error message
 import { Card, CardContent, CardHeader } from './Card';
 
-const mockOpportunities = [
+const _mockOpportunities = [
   { id: '1', event: 'Team A vs Team B', market: 'Moneyline', odds: 2.1, value: 'High' },
   { id: '2', event: 'Team C vs Team D', market: 'Spread', odds: 1.95, value: 'Medium' },
   { id: '3', event: 'Team E vs Team F', market: 'Total', odds: 2.3, value: 'Low' },
@@ -14,7 +14,7 @@ const mockOpportunities = [
  * Modern, accessible display of top betting opportunities for the A1Betting platform.
  * Shows event, market, odds, and value rating.
  */
-export const BettingOpportunities: React.FC = () => {
+export const _BettingOpportunities: React.FC = () => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <Card className='max-w-2xl mx-auto'>

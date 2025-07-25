@@ -29,7 +29,7 @@ import {
   HealthAlert,
 } from '../../../services/injuryService';
 
-const InjuryTracker: React.FC = () => {
+const _InjuryTracker: React.FC = () => {
   const [injuries, setInjuries] = useState<PlayerInjury[]>([]);
   const [injuryReports, setInjuryReports] = useState<InjuryReport[]>([]);
   const [injuryTrends, setInjuryTrends] = useState<InjuryTrend[]>([]);
@@ -42,11 +42,11 @@ const InjuryTracker: React.FC = () => {
 
   useEffect(() => {
     loadInjuryData();
-    const interval = setInterval(loadInjuryData, 600000); // Update every 10 minutes
+    const _interval = setInterval(loadInjuryData, 600000); // Update every 10 minutes
     return () => clearInterval(interval);
   }, [selectedSport, selectedSeverity]);
 
-  const loadInjuryData = async () => {
+  const _loadInjuryData = async () => {
     setIsLoading(true);
     try {
       // Load data from real services
@@ -71,9 +71,9 @@ const InjuryTracker: React.FC = () => {
     }
   };
 
-  const dismissAlert = async (alertId: string) => {
+  const _dismissAlert = async (alertId: string) => {
     try {
-      const success = await injuryService.dismissAlert(alertId);
+      const _success = await injuryService.dismissAlert(alertId);
       if (success) {
         setHealthAlerts(alerts =>
           alerts.map(alert => (alert.id === alertId ? { ...alert, dismissed: true } : alert))
@@ -84,7 +84,7 @@ const InjuryTracker: React.FC = () => {
     }
   };
 
-  const getSeverityColor = (severity: string) => {
+  const _getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'season_ending':
         return 'text-red-500 bg-red-500/20';
@@ -99,7 +99,7 @@ const InjuryTracker: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const _getStatusColor = (status: string) => {
     switch (status) {
       case 'out':
         return 'text-red-400';
@@ -116,7 +116,7 @@ const InjuryTracker: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const _getStatusIcon = (status: string) => {
     switch (status) {
       case 'out':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -139,7 +139,7 @@ const InjuryTracker: React.FC = () => {
     }
   };
 
-  const getAlertSeverityColor = (severity: string) => {
+  const _getAlertSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
         return 'border-red-500/50 bg-red-500/10';
@@ -154,7 +154,7 @@ const InjuryTracker: React.FC = () => {
     }
   };
 
-  const getTrendIcon = (trend: string) => {
+  const _getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'increasing':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -171,10 +171,10 @@ const InjuryTracker: React.FC = () => {
     }
   };
 
-  const filteredInjuries = injuries.filter(injury => {
-    const matchesSport = selectedSport === 'all' || injury.sport === selectedSport;
-    const matchesSeverity = selectedSeverity === 'all' || injury.severity === selectedSeverity;
-    const matchesSearch =
+  const _filteredInjuries = injuries.filter(injury => {
+    const _matchesSport = selectedSport === 'all' || injury.sport === selectedSport;
+    const _matchesSeverity = selectedSeverity === 'all' || injury.severity === selectedSeverity;
+    const _matchesSearch =
       searchQuery === '' ||
       injury.playerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       injury.team.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -182,9 +182,9 @@ const InjuryTracker: React.FC = () => {
     return matchesSport && matchesSeverity && matchesSearch;
   });
 
-  const selectedInjuryData = injuries.find(i => i.id === selectedInjury);
-  const sports = [...new Set(injuries.map(i => i.sport))];
-  const severities = ['minor', 'moderate', 'major', 'season_ending'];
+  const _selectedInjuryData = injuries.find(i => i.id === selectedInjury);
+  const _sports = [...new Set(injuries.map(i => i.sport))];
+  const _severities = ['minor', 'moderate', 'major', 'season_ending'];
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

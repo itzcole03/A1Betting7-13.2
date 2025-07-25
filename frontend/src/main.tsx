@@ -1,11 +1,8 @@
 /// <reference types="node" />
 /// <reference types="react" />
-// Polyfill NodeJS globals for browser
-declare var process: any;
-declare var global: any;
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import AppStreamlined from './AppStreamlined';
+import App from './App'; // Change to import the correct App component
 import { logger } from './utils/logger';
 import './utils/tracing';
 
@@ -23,8 +20,7 @@ import './styles/quantum-styles.css';
 logger.info(
   '🚀 A1Betting Platform Loading - Production Mode',
   {
-    // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-    environment: import.meta.env.MODE,
+    environment: process.env.NODE_ENV, // Jest-compatible
     timestamp: new Date().toISOString(),
     userAgent: navigator.userAgent,
   },
@@ -107,6 +103,7 @@ window.addEventListener('unhandledrejection', event => {
 
   // Properly serialize the error reason;
   const errorDetails = {
+    // Removed underscore
     reasonType: typeof event.reason,
     reasonString: String(event.reason),
     message: event.reason?.message || 'No message',
@@ -132,20 +129,12 @@ window.addEventListener('unhandledrejection', event => {
   event.preventDefault();
 });
 
-const rootElement = document.getElementById('root');
+const rootElement = document.getElementById('root'); // Removed underscore
 if (!rootElement) throw new Error('Failed to find the root element');
 
-const root = ReactDOM.createRoot(rootElement);
+const root = ReactDOM.createRoot(rootElement); // Removed underscore
 root.render(
   <React.StrictMode>
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this
-    comment to see the full error message
-    <AppStreamlined />
+    <App /> {/* Render the correct App component */}
   </React.StrictMode>
 );
-
-// Sentry.init({
-//   dsn: 'https://examplePublicKey@o0.ingest.sentry.io/0', // Replace with your Sentry DSN
-//   integrations: [new BrowserTracing()],
-//   tracesSampleRate: 1.0,
-// });

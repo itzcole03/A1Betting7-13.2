@@ -1,2 +1,2 @@
 import React from 'react.ts';
-export declare const ErrorLogs: React.FC;
+export declare const _ErrorLogs: React.FC;

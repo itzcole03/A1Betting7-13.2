@@ -64,7 +64,7 @@ interface SportAlert {
   dismissed: boolean;
 }
 
-const SportsManager: React.FC = () => {
+const _SportsManager: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedSeason, setSelectedSeason] = useState<string>('active');
   const [searchQuery, setSearchQuery] = useState('');
@@ -82,20 +82,20 @@ const SportsManager: React.FC = () => {
   useEffect(() => {
     loadSportsData();
     loadFavorites();
-    const interval = setInterval(loadSportsData, 60000); // Update every minute
+    const _interval = setInterval(loadSportsData, 60000); // Update every minute
     return () => clearInterval(interval);
   }, []);
 
-  const loadSportsData = async () => {
+  const _loadSportsData = async () => {
     setIsLoading(true);
     try {
       // Generate comprehensive performance data for all sports
-      const mockPerformance: SportPerformance[] = SPORTS_CONFIG.map(sport => {
-        const winRate = 60 + Math.random() * 35;
-        const roi = 5 + Math.random() * 45;
-        const totalBets = Math.floor(Math.random() * 500) + 50;
-        const activeBets = Math.floor(Math.random() * 50) + 5;
-        const profit = (Math.random() - 0.2) * 10000;
+      const _mockPerformance: SportPerformance[] = SPORTS_CONFIG.map(sport => {
+        const _winRate = 60 + Math.random() * 35;
+        const _roi = 5 + Math.random() * 45;
+        const _totalBets = Math.floor(Math.random() * 500) + 50;
+        const _activeBets = Math.floor(Math.random() * 50) + 5;
+        const _profit = (Math.random() - 0.2) * 10000;
 
         return {
           sportId: sport.id,
@@ -122,15 +122,15 @@ const SportsManager: React.FC = () => {
       });
 
       // Generate alerts for sports
-      const mockAlerts: SportAlert[] = SPORTS_CONFIG.slice(0, 8).map((sport, index) => ({
+      const _mockAlerts: SportAlert[] = SPORTS_CONFIG.slice(0, 8).map((sport, index) => ({
         id: `alert-${sport.id}-${index}`,
         sportId: sport.id,
         type: ['opportunity', 'performance', 'news', 'injury', 'weather'][
           Math.floor(Math.random() * 5)
-        ] as any,
+        ] as unknown,
         title: generateAlertTitle(sport.id),
         message: generateAlertMessage(),
-        severity: ['low', 'medium', 'high', 'critical'][Math.floor(Math.random() * 4)] as any,
+        severity: ['low', 'medium', 'high', 'critical'][Math.floor(Math.random() * 4)] as unknown,
         timestamp: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000),
         actionRequired: Math.random() > 0.7,
         dismissed: false,
@@ -145,20 +145,20 @@ const SportsManager: React.FC = () => {
     }
   };
 
-  const loadFavorites = () => {
-    const saved = localStorage.getItem('a1betting-favorite-sports');
+  const _loadFavorites = () => {
+    const _saved = localStorage.getItem('a1betting-favorite-sports');
     if (saved) {
       setFavorites(new Set(JSON.parse(saved)));
     }
   };
 
-  const saveFavorites = (newFavorites: Set<string>) => {
+  const _saveFavorites = (newFavorites: Set<string>) => {
     setFavorites(newFavorites);
     localStorage.setItem('a1betting-favorite-sports', JSON.stringify(Array.from(newFavorites)));
   };
 
-  const toggleFavorite = (sportId: string) => {
-    const newFavorites = new Set(favorites);
+  const _toggleFavorite = (sportId: string) => {
+    const _newFavorites = new Set(favorites);
     if (newFavorites.has(sportId)) {
       newFavorites.delete(sportId);
     } else {
@@ -167,8 +167,8 @@ const SportsManager: React.FC = () => {
     saveFavorites(newFavorites);
   };
 
-  const toggleSportSelection = (sportId: string) => {
-    const newSelected = new Set(selectedSports);
+  const _toggleSportSelection = (sportId: string) => {
+    const _newSelected = new Set(selectedSports);
     if (newSelected.has(sportId)) {
       newSelected.delete(sportId);
     } else {
@@ -177,8 +177,8 @@ const SportsManager: React.FC = () => {
     setSelectedSports(newSelected);
   };
 
-  const toggleExpanded = (sportId: string) => {
-    const newExpanded = new Set(expandedSports);
+  const _toggleExpanded = (sportId: string) => {
+    const _newExpanded = new Set(expandedSports);
     if (newExpanded.has(sportId)) {
       newExpanded.delete(sportId);
     } else {
@@ -187,14 +187,14 @@ const SportsManager: React.FC = () => {
     setExpandedSports(newExpanded);
   };
 
-  const dismissAlert = (alertId: string) => {
+  const _dismissAlert = (alertId: string) => {
     setAlerts(prev =>
       prev.map(alert => (alert.id === alertId ? { ...alert, dismissed: true } : alert))
     );
   };
 
-  const generateGameName = (sport: string): string => {
-    const games = {
+  const _generateGameName = (sport: string): string => {
+    const _games = {
       NBA: ['Lakers vs Warriors', 'Celtics vs Heat', 'Nuggets vs Suns'],
       NFL: ['Chiefs vs Bills', 'Cowboys vs Packers', 'Rams vs 49ers'],
       MLB: ['Yankees vs Red Sox', 'Dodgers vs Giants', 'Astros vs Rangers'],
@@ -208,12 +208,12 @@ const SportsManager: React.FC = () => {
       Boxing: ['Fury vs Wilder 4', 'Canelo vs Benavidez', 'Joshua vs Fury'],
       Formula1: ['Monaco GP', 'British GP', 'US GP'],
     };
-    const sportGames = games[sport as keyof typeof games] || ['Game 1', 'Game 2'];
+    const _sportGames = games[sport as keyof typeof games] || ['Game 1', 'Game 2'];
     return sportGames[Math.floor(Math.random() * sportGames.length)];
   };
 
-  const generateAlertTitle = (sport: string): string => {
-    const titles = [
+  const _generateAlertTitle = (sport: string): string => {
+    const _titles = [
       `High-value opportunity in ${sport}`,
       `Performance alert for ${sport}`,
       `Breaking news in ${sport}`,
@@ -223,8 +223,8 @@ const SportsManager: React.FC = () => {
     return titles[Math.floor(Math.random() * titles.length)];
   };
 
-  const generateAlertMessage = (): string => {
-    const messages = [
+  const _generateAlertMessage = (): string => {
+    const _messages = [
       'Multiple arbitrage opportunities detected with 15%+ ROI',
       'Win rate dropped below 70% threshold in last 48 hours',
       'Major trade/signing affects team odds significantly',
@@ -234,15 +234,15 @@ const SportsManager: React.FC = () => {
     return messages[Math.floor(Math.random() * messages.length)];
   };
 
-  const getFilteredSports = () => {
-    let filtered = SPORTS_CONFIG;
+  const _getFilteredSports = () => {
+    let _filtered = SPORTS_CONFIG;
 
     // Category filter
     if (selectedCategory !== 'all') {
       if (selectedCategory === 'favorites') {
         filtered = filtered.filter(sport => favorites.has(sport.id));
       } else {
-        filtered = getSportsByCategory(selectedCategory as any);
+        filtered = getSportsByCategory(selectedCategory as unknown);
       }
     }
 
@@ -267,8 +267,8 @@ const SportsManager: React.FC = () => {
 
     // Sort
     filtered.sort((a, b) => {
-      const perfA = performanceData.find(p => p.sportId === a.id);
-      const perfB = performanceData.find(p => p.sportId === b.id);
+      const _perfA = performanceData.find(p => p.sportId === a.id);
+      const _perfB = performanceData.find(p => p.sportId === b.id);
 
       switch (sortBy) {
         case 'alphabetical':
@@ -287,7 +287,7 @@ const SportsManager: React.FC = () => {
     return filtered;
   };
 
-  const getTrendIcon = (trend: string) => {
+  const _getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'up':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -301,7 +301,7 @@ const SportsManager: React.FC = () => {
     }
   };
 
-  const getAlertIcon = (type: string) => {
+  const _getAlertIcon = (type: string) => {
     switch (type) {
       case 'opportunity':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -324,7 +324,7 @@ const SportsManager: React.FC = () => {
     }
   };
 
-  const getAlertColor = (severity: string) => {
+  const _getAlertColor = (severity: string) => {
     switch (severity) {
       case 'critical':
         return 'border-red-500/50 bg-red-500/10 text-red-400';
@@ -337,8 +337,8 @@ const SportsManager: React.FC = () => {
     }
   };
 
-  const filteredSports = getFilteredSports();
-  const activeAlerts = alerts.filter(alert => !alert.dismissed);
+  const _filteredSports = getFilteredSports();
+  const _activeAlerts = alerts.filter(alert => !alert.dismissed);
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -377,7 +377,7 @@ const SportsManager: React.FC = () => {
           <select
             id='sportsmanager-sort-select'
             value={sortBy}
-            onChange={e => setSortBy(e.target.value as any)}
+            onChange={e => setSortBy(e.target.value as unknown)}
             className='px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
           >
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -540,11 +540,11 @@ const SportsManager: React.FC = () => {
         className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
       >
         {filteredSports.map((sport, index) => {
-          const performance = performanceData.find(p => p.sportId === sport.id);
-          const sportAlerts = alerts.filter(a => a.sportId === sport.id && !a.dismissed);
-          const isExpanded = expandedSports.has(sport.id);
-          const isFavorite = favorites.has(sport.id);
-          const isSelected = selectedSports.has(sport.id);
+          const _performance = performanceData.find(p => p.sportId === sport.id);
+          const _sportAlerts = alerts.filter(a => a.sportId === sport.id && !a.dismissed);
+          const _isExpanded = expandedSports.has(sport.id);
+          const _isFavorite = favorites.has(sport.id);
+          const _isSelected = selectedSports.has(sport.id);
 
           return (
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

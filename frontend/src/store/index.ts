@@ -3,31 +3,31 @@ import { create } from 'zustand';
 
 interface AppState {
   // User state;
-  user: any | null;
-  setUser: (user: any | null) => void;
+  user: unknown | null;
+  setUser: (user: unknown | null) => void;
 
   // Bets state;
-  bets: any[];
-  addBet: (bet: any) => void;
+  bets: unknown[];
+  addBet: (bet: unknown) => void;
   removeBet: (betId: string) => void;
-  updateBet: (betId: string, updates: Partial<any>) => void;
+  updateBet: (betId: string, updates: Partial<unknown>) => void;
 
   // Props state;
-  props: any[];
-  setProps: (props: any[]) => void;
-  updateProp: (propId: string, updates: Partial<any>) => void;
+  props: unknown[];
+  setProps: (props: unknown[]) => void;
+  updateProp: (propId: string, updates: Partial<unknown>) => void;
 
   // Stats state;
-  stats: any | null;
-  setStats: (stats: any | null) => void;
+  stats: unknown | null;
+  setStats: (stats: unknown | null) => void;
 
   // Performance state;
-  performance: any[];
-  setPerformance: (data: any[]) => void;
+  performance: unknown[];
+  setPerformance: (data: unknown[]) => void;
 
   // News state;
-  headlines: any[];
-  setHeadlines: (headlines: any[]) => void;
+  headlines: unknown[];
+  setHeadlines: (headlines: unknown[]) => void;
 
   // UI state;
   isDarkMode: boolean;
@@ -40,7 +40,7 @@ interface AppState {
   setSelectedLeague: (league: string) => void;
 }
 
-export const useStore = create<AppState>(set => ({
+export const _useStore = create<AppState>(set => ({
   // User state;
   user: null,
   setUser: user => set({ user }),

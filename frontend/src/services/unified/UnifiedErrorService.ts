@@ -23,7 +23,7 @@ export interface ErrorDetails {
   code?: string;
   category: ErrorCategory;
   severity: ErrorSeverity;
-  context: any;
+  context: unknown;
   timestamp: Date;
   stack?: string;
   resolved: boolean;
@@ -51,16 +51,16 @@ export class UnifiedErrorService extends BaseService {
 
   reportError(
     error: Error | string,
-    context: any = {},
+    context: unknown = {},
     category: ErrorCategory = ErrorCategory.UNKNOWN,
     severity: ErrorSeverity = ErrorSeverity.MEDIUM
   ): string {
-    const errorId = `error_${++this.errorCounter}_${Date.now()}`;
+    const _errorId = `error_${++this.errorCounter}_${Date.now()}`;
 
-    const errorDetails: ErrorDetails = {
+    const _errorDetails: ErrorDetails = {
       id: errorId,
       message: typeof error === 'string' ? error : error.message,
-      code: (error as any)?.code || 'UNKNOWN_ERROR',
+      code: (error as unknown)?.code || 'UNKNOWN_ERROR',
       category,
       severity,
       context,
@@ -90,15 +90,15 @@ export class UnifiedErrorService extends BaseService {
 
   async retryOperation<T>(
     operation: () => Promise<T>,
-    context: any = {},
+    context: unknown = {},
     category: ErrorCategory = ErrorCategory.NETWORK
   ): Promise<T> {
-    let lastError: Error | null = null;
+    let _lastError: Error | null = null;
 
-    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+    for (let _attempt = 0; attempt <= this.maxRetries; attempt++) {
       try {
         if (attempt > 0) {
-          const delay = this.retryDelays[Math.min(attempt - 1, this.retryDelays.length - 1)];
+          const _delay = this.retryDelays[Math.min(attempt - 1, this.retryDelays.length - 1)];
           await this.delay(delay);
           this.logger.info('Retrying operation', { attempt, delay, context });
         }
@@ -109,7 +109,7 @@ export class UnifiedErrorService extends BaseService {
 
         if (attempt === this.maxRetries) {
           // Final attempt failed
-          const errorId = this.reportError(
+          const _errorId = this.reportError(
             lastError,
             { ...context, totalAttempts: attempt + 1 },
             category,
@@ -125,7 +125,7 @@ export class UnifiedErrorService extends BaseService {
   }
 
   resolveError(errorId: string, resolution?: string): boolean {
-    const error = this.errors.get(errorId);
+    const _error = this.errors.get(errorId);
     if (!error) {
       this.logger.warn('Attempted to resolve non-existent error', { errorId });
       return false;
@@ -153,7 +153,7 @@ export class UnifiedErrorService extends BaseService {
       since?: Date;
     } = {}
   ): ErrorDetails[] {
-    const allErrors = Array.from(this.errors.values());
+    const _allErrors = Array.from(this.errors.values());
 
     return allErrors.filter(error => {
       if (filters.category && error.category !== filters.category) return false;
@@ -170,9 +170,9 @@ export class UnifiedErrorService extends BaseService {
     byCategory: Record<ErrorCategory, number>;
     bySeverity: Record<ErrorSeverity, number>;
   } {
-    const errors = Array.from(this.errors.values());
+    const _errors = Array.from(this.errors.values());
 
-    const stats = {
+    const _stats = {
       total: errors.length,
       resolved: errors.filter(e => e.resolved).length,
       byCategory: {} as Record<ErrorCategory, number>,
@@ -193,7 +193,7 @@ export class UnifiedErrorService extends BaseService {
   }
 
   clearErrors(olderThan?: Date): number {
-    let cleared = 0;
+    let _cleared = 0;
 
     for (const [id, error] of this.errors.entries()) {
       if (!olderThan || error.timestamp < olderThan) {
@@ -213,19 +213,19 @@ export class UnifiedErrorService extends BaseService {
   }
 
   // Helper methods for common error categories
-  reportNetworkError(error: Error, context: any = {}): string {
+  reportNetworkError(error: Error, context: unknown = {}): string {
     return this.reportError(error, context, ErrorCategory.NETWORK, ErrorSeverity.MEDIUM);
   }
 
-  reportValidationError(message: string, context: any = {}): string {
+  reportValidationError(message: string, context: unknown = {}): string {
     return this.reportError(message, context, ErrorCategory.VALIDATION, ErrorSeverity.LOW);
   }
 
-  reportAuthError(error: Error, context: any = {}): string {
+  reportAuthError(error: Error, context: unknown = {}): string {
     return this.reportError(error, context, ErrorCategory.AUTHENTICATION, ErrorSeverity.HIGH);
   }
 
-  reportCriticalError(error: Error, context: any = {}): string {
+  reportCriticalError(error: Error, context: unknown = {}): string {
     return this.reportError(error, context, ErrorCategory.SYSTEM, ErrorSeverity.CRITICAL);
   }
 }

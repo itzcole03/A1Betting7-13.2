@@ -12,10 +12,10 @@ export declare class MarketIntelligenceModel extends BaseModel {
   private historicalMetrics;
   private readonly MAX_HISTORY;
   constructor(config: ModelConfig);
-  predict(data: any): Promise<ModelPrediction>;
+  predict(data: unknown): Promise<ModelPrediction>;
   update(data: unknown): Promise<void>;
-  train(data: any): Promise<void>;
-  evaluate(data: any): Promise<ModelMetrics>;
+  train(data: unknown): Promise<void>;
+  evaluate(data: unknown): Promise<ModelMetrics>;
   save(path: string): Promise<void>;
   load(path: string): Promise<void>;
   private extractMarketMetrics;

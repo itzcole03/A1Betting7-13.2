@@ -1,5 +1,4 @@
-// @ts-expect-error TS(2307): Cannot find module '@/types/core.js' or its corres... Remove this comment to see the full error message
-import { ComponentMetrics, PerformanceMetrics } from '@/types/core.js';
+import { ComponentMetrics, PerformanceMetrics } from '../../types/core';
 import { ErrorHandler } from './ErrorHandler.js';
 
 interface MetricData {
@@ -13,27 +12,27 @@ export class PerformanceMonitor {
    * Start a new performance trace (using browser Performance API)
    */
   public startTrace(name: string, metadata?: Record<string, unknown>): string {
-    const mark = `${name}-start-${Date.now()}`;
-    performance.mark(mark);
-    return mark;
+    const _mark = `${name}-start-${Date.now()}`;
+    performance.mark(_mark);
+    return _mark;
   }
 
   /**
    * Start a new span within a trace;
    */
   public startSpan(traceId: string, name: string, metadata?: Record<string, unknown>): string {
-    const mark = `${traceId}-${name}-span-${Date.now()}`;
-    performance.mark(mark);
-    return mark;
+    const _mark = `${traceId}-${name}-span-${Date.now()}`;
+    performance.mark(_mark);
+    return _mark;
   }
 
   /**
    * End a span and log duration;
    */
   public endSpan(spanId: string, error?: Error): void {
-    const endMark = `${spanId}-end-${Date.now()}`;
-    performance.mark(endMark);
-    performance.measure(spanId, spanId, endMark);
+    const _endMark = `${spanId}-end-${Date.now()}`;
+    performance.mark(_endMark);
+    performance.measure(spanId, spanId, _endMark);
     if (error) {
       // Optionally log error
     }
@@ -43,9 +42,9 @@ export class PerformanceMonitor {
    * End a trace and log duration;
    */
   public endTrace(traceId: string, error?: Error): void {
-    const endMark = `${traceId}-end-${Date.now()}`;
-    performance.mark(endMark);
-    performance.measure(traceId, traceId, endMark);
+    const _endMark = `${traceId}-end-${Date.now()}`;
+    performance.mark(_endMark);
+    performance.measure(traceId, traceId, _endMark);
     if (error) {
       // Optionally log error
     }
@@ -77,23 +76,23 @@ export class PerformanceMonitor {
 
   public trackMetric(name: string, value: number, metadata?: Record<string, unknown>): void {
     try {
-      const metricData: MetricData = {
+      const _metricData: MetricData = {
         value,
         timestamp: Date.now(),
         // metadata
       };
 
-      let metricsArr = this.metrics.get(name);
-      if (!metricsArr) {
-        metricsArr = [];
-        this.metrics.set(name, metricsArr);
+      let _metricsArr = this.metrics.get(name);
+      if (!_metricsArr) {
+        _metricsArr = [];
+        this.metrics.set(name, _metricsArr);
       }
 
-      metricsArr.push(metricData);
+      _metricsArr.push(_metricData);
 
       // Keep only the last maxMetricsPerType metrics;
-      if (metricsArr.length > this.maxMetricsPerType) {
-        metricsArr.shift();
+      if (_metricsArr.length > this.maxMetricsPerType) {
+        _metricsArr.shift();
       }
     } catch (error) {
       this.errorHandler.handleError(error as Error, 'performance_monitoring');
@@ -105,15 +104,15 @@ export class PerformanceMonitor {
   }
 
   public getAverageMetric(name: string, timeWindow?: number): number {
-    const metricsArr = this.metrics.get(name) || [];
-    if (metricsArr.length === 0) return 0;
-    const now = Date.now();
-    const relevantMetrics = timeWindow
-      ? metricsArr.filter(m => now - m.timestamp <= timeWindow)
-      : metricsArr;
-    if (relevantMetrics.length === 0) return 0;
-    const sum = relevantMetrics.reduce((acc, m) => acc + m.value, 0);
-    return sum / relevantMetrics.length;
+    const _metricsArr = this.metrics.get(name) || [];
+    if (_metricsArr.length === 0) return 0;
+    const _now = Date.now();
+    const _relevantMetrics = timeWindow
+      ? _metricsArr.filter(m => _now - m.timestamp <= timeWindow)
+      : _metricsArr;
+    if (_relevantMetrics.length === 0) return 0;
+    const _sum = _relevantMetrics.reduce((acc, m) => acc + m.value, 0);
+    return _sum / _relevantMetrics.length;
   }
 
   public clearMetrics(name?: string): void {
@@ -172,43 +171,38 @@ export class PerformanceMonitor {
 
   private async collectMetrics(): Promise<void> {
     try {
-      const metrics = await this.gatherMetrics();
-      this.updateMetrics(metrics);
-      this.addToHistory(metrics);
+      const _metrics = await this.gatherMetrics();
+      this.updateMetrics(_metrics);
+      this.addToHistory(_metrics);
     } catch (error) {
       // console statement removed
     }
   }
 
   private async gatherMetrics(): Promise<PerformanceMetrics> {
-    const metrics = this.initializeMetrics();
-    metrics.timestamp = Date.now();
+    const _metrics = this.initializeMetrics();
+    _metrics.timestamp = Date.now();
     // Collect CPU metrics;
     if (performance.now) {
-      const start = performance.now();
+      const _start = performance.now();
       await new Promise(resolve => setTimeout(resolve, 0));
-      const end = performance.now();
-      metrics.cpu.usage = (end - start) / 1000;
+      const _end = performance.now();
+      _metrics.cpu.usage = (_end - _start) / 1000;
     }
     // Collect memory metrics;
-    // @ts-expect-error TS(2339): Property 'memory' does not exist on type 'Performa... Remove this comment to see the full error message
     if (performance.memory) {
-      metrics.memory = {
-        // @ts-expect-error TS(2339): Property 'memory' does not exist on type 'Performa... Remove this comment to see the full error message
+      _metrics.memory = {
         total: performance.memory.totalJSHeapSize,
-        // @ts-expect-error TS(2339): Property 'memory' does not exist on type 'Performa... Remove this comment to see the full error message
         used: performance.memory.usedJSHeapSize,
-        // @ts-expect-error TS(2339): Property 'memory' does not exist on type 'Performa... Remove this comment to see the full error message
         free: performance.memory.totalJSHeapSize - performance.memory.usedJSHeapSize,
         swap: 0,
       };
     }
     // Collect network metrics;
     if (navigator.connection) {
-      // @ts-expect-error TS(2339): Property 'rtt' does not exist on type 'NetworkInfo... Remove this comment to see the full error message
-      metrics.network.latency = navigator.connection.rtt || 0;
+      _metrics.network.latency = navigator.connection.rtt || 0;
     }
-    return metrics;
+    return _metrics;
   }
 
   private updateMetrics(metrics: PerformanceMetrics): void {
@@ -227,7 +221,7 @@ export class PerformanceMonitor {
   }
 
   public updateComponentMetrics(componentId: string, metrics: Partial<ComponentMetrics>): void {
-    const currentMetrics = this.componentMetrics.get(componentId) || {
+    const _currentMetrics = this.componentMetrics.get(componentId) || {
       renderCount: 0,
       renderTime: 0,
       memoryUsage: 0,
@@ -236,7 +230,7 @@ export class PerformanceMonitor {
     };
 
     this.componentMetrics.set(componentId, {
-      ...currentMetrics,
+      ..._currentMetrics,
       ...metrics,
       lastUpdate: Date.now(),
     });
@@ -251,50 +245,50 @@ export class PerformanceMonitor {
   }
 
   public getAverageMetrics(minutes: number = 5): PerformanceMetrics {
-    const now = Date.now();
-    const msWindow = minutes * 60 * 1000;
-    const recentMetrics = this.history.filter(m => now - m.timestamp <= msWindow);
-    if (recentMetrics.length === 0) {
+    const _now = Date.now();
+    const _msWindow = minutes * 60 * 1000;
+    const _recentMetrics = this.history.filter(m => _now - m.timestamp <= _msWindow);
+    if (_recentMetrics.length === 0) {
       return this.initializeMetrics();
     }
     return {
       timestamp: Date.now(),
       cpu: {
-        usage: this.average(recentMetrics.map(m => m.cpu.usage)),
+        usage: this.average(_recentMetrics.map(m => m.cpu.usage)),
         cores: this.metrics.get('system')?.find(m => m.metadata?.type === 'cpu')?.value || 4,
-        temperature: this.average(recentMetrics.map(m => m.cpu.temperature)),
+        temperature: this.average(_recentMetrics.map(m => m.cpu.temperature)),
       },
       memory: {
-        total: this.average(recentMetrics.map(m => m.memory.total)),
-        used: this.average(recentMetrics.map(m => m.memory.used)),
-        free: this.average(recentMetrics.map(m => m.memory.free)),
-        swap: this.average(recentMetrics.map(m => m.memory.swap)),
+        total: this.average(_recentMetrics.map(m => m.memory.total)),
+        used: this.average(_recentMetrics.map(m => m.memory.used)),
+        free: this.average(_recentMetrics.map(m => m.memory.free)),
+        swap: this.average(_recentMetrics.map(m => m.memory.swap)),
       },
       network: {
-        bytesIn: this.average(recentMetrics.map(m => m.network.bytesIn)),
-        bytesOut: this.average(recentMetrics.map(m => m.network.bytesOut)),
-        connections: this.average(recentMetrics.map(m => m.network.connections)),
-        latency: this.average(recentMetrics.map(m => m.network.latency)),
+        bytesIn: this.average(_recentMetrics.map(m => m.network.bytesIn)),
+        bytesOut: this.average(_recentMetrics.map(m => m.network.bytesOut)),
+        connections: this.average(_recentMetrics.map(m => m.network.connections)),
+        latency: this.average(_recentMetrics.map(m => m.network.latency)),
       },
       disk: {
-        total: this.average(recentMetrics.map(m => m.disk.total)),
-        used: this.average(recentMetrics.map(m => m.disk.used)),
-        free: this.average(recentMetrics.map(m => m.disk.free)),
-        iops: this.average(recentMetrics.map(m => m.disk.iops)),
+        total: this.average(_recentMetrics.map(m => m.disk.total)),
+        used: this.average(_recentMetrics.map(m => m.disk.used)),
+        free: this.average(_recentMetrics.map(m => m.disk.free)),
+        iops: this.average(_recentMetrics.map(m => m.disk.iops)),
       },
       responseTime: {
-        avg: this.average(recentMetrics.map(m => m.responseTime.avg)),
-        p95: this.average(recentMetrics.map(m => m.responseTime.p95)),
-        p99: this.average(recentMetrics.map(m => m.responseTime.p99)),
+        avg: this.average(_recentMetrics.map(m => m.responseTime.avg)),
+        p95: this.average(_recentMetrics.map(m => m.responseTime.p95)),
+        p99: this.average(_recentMetrics.map(m => m.responseTime.p99)),
       },
       throughput: {
-        requestsPerSecond: this.average(recentMetrics.map(m => m.throughput.requestsPerSecond)),
+        requestsPerSecond: this.average(_recentMetrics.map(m => m.throughput.requestsPerSecond)),
         transactionsPerSecond: this.average(
-          recentMetrics.map(m => m.throughput.transactionsPerSecond)
+          _recentMetrics.map(m => m.throughput.transactionsPerSecond)
         ),
       },
-      errorRate: this.average(recentMetrics.map(m => m.errorRate)),
-      uptime: this.average(recentMetrics.map(m => m.uptime)),
+      errorRate: this.average(_recentMetrics.map(m => m.errorRate)),
+      uptime: this.average(_recentMetrics.map(m => m.uptime)),
     };
   }
 

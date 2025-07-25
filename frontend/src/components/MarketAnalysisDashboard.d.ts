@@ -5,5 +5,5 @@ interface MarketAnalysisDashboardProps {
   refreshInterval?: number;
   showAdvancedMetrics?: boolean;
 }
-export declare const MarketAnalysisDashboard: React.FC<MarketAnalysisDashboardProps>;
+export declare const _MarketAnalysisDashboard: React.FC<MarketAnalysisDashboardProps>;
 export default MarketAnalysisDashboard;

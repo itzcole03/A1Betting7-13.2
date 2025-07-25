@@ -8,8 +8,8 @@ interface SmartControl {
   type: 'button' | 'toggle' | 'dropdown' | 'slider' | 'input' | 'badge';
   label: string;
   icon?: string;
-  value?: any;
-  options?: Array<{ label: string; value: any; icon?: string }>;
+  value?: unknown;
+  options?: Array<{ label: string; value: unknown; icon?: string }>;
   category: 'primary' | 'secondary' | 'filter' | 'view' | 'action' | 'ai';
   priority: number; // 1-10, higher = more visible
   contextual?: boolean; // Shows only in relevant contexts
@@ -23,7 +23,7 @@ interface SmartControl {
     count?: number;
     pulse?: boolean;
   };
-  onChange?: (value: any) => void;
+  onChange?: (value: unknown) => void;
   onClick?: () => void;
 }
 
@@ -38,7 +38,7 @@ interface ControlGroup {
 interface SmartContext {
   currentView: string;
   selectedItems: string[];
-  filters: Record<string, any>;
+  filters: Record<string, unknown>;
   userPreferences: {
     preferredControls: string[];
     hiddenControls: string[];
@@ -63,12 +63,12 @@ interface SmartControlsBarProps {
   showShortcuts?: boolean;
   compactMode?: boolean;
   className?: string;
-  onControlChange?: (control: SmartControl, value: any) => void;
+  onControlChange?: (control: SmartControl, value: unknown) => void;
   onContextUpdate?: (context: Partial<SmartContext>) => void;
 }
 
-const getControlIcon = (type: string) => {
-  const icons = {
+const _getControlIcon = (type: string) => {
+  const _icons = {
     button: '🔘',
     toggle: '🔄',
     dropdown: '📋',
@@ -79,8 +79,8 @@ const getControlIcon = (type: string) => {
   return icons[type as keyof typeof icons] || '⚙️';
 };
 
-const getCategoryColor = (category: string, variant: string = 'default') => {
-  const colors = {
+const _getCategoryColor = (category: string, variant: string = 'default') => {
+  const _colors = {
     default: {
       primary: 'bg-blue-500 text-white',
       secondary: 'bg-gray-500 text-white',
@@ -104,10 +104,10 @@ const getCategoryColor = (category: string, variant: string = 'default') => {
     : colors.default[category as keyof typeof colors.default] || colors.default.secondary;
 };
 
-const sortControlsByPriority = (controls: SmartControl[], context: SmartContext) => {
+const _sortControlsByPriority = (controls: SmartControl[], context: SmartContext) => {
   return [...controls].sort((a, b) => {
-    let scoreA = a.priority * 10;
-    let scoreB = b.priority * 10;
+    let _scoreA = a.priority * 10;
+    let _scoreB = b.priority * 10;
 
     // Boost AI suggested controls
     if (a.aiSuggested) scoreA += 20;
@@ -125,7 +125,7 @@ const sortControlsByPriority = (controls: SmartControl[], context: SmartContext)
   });
 };
 
-export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
+export const _SmartControlsBar: React.FC<SmartControlsBarProps> = ({
   controls,
   groups,
   context,
@@ -147,7 +147,7 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
   // Update smart controls based on context
   useEffect(() => {
     if (smartMode) {
-      const filtered = controls.filter(control => {
+      const _filtered = controls.filter(control => {
         // Hide controls marked as hidden
         if (context.userPreferences.hiddenControls.includes(control.id)) {
           return false;
@@ -161,14 +161,14 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
         return true;
       });
 
-      const sorted = sortControlsByPriority(filtered, context);
+      const _sorted = sortControlsByPriority(filtered, context);
       setSmartControls(sorted);
     } else {
       setSmartControls(controls);
     }
   }, [controls, context, smartMode]);
 
-  const handleControlChange = (control: SmartControl, value: any) => {
+  const _handleControlChange = (control: SmartControl, value: unknown) => {
     onControlChange?.(control, value);
     control.onChange?.(value);
 
@@ -183,7 +183,7 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
     }
   };
 
-  const handleControlClick = (control: SmartControl) => {
+  const _handleControlClick = (control: SmartControl) => {
     control.onClick?.();
 
     // Track usage for AI recommendations
@@ -195,8 +195,8 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
     });
   };
 
-  const toggleGroup = (groupId: string) => {
-    const newCollapsed = new Set(collapsedGroups);
+  const _toggleGroup = (groupId: string) => {
+    const _newCollapsed = new Set(collapsedGroups);
     if (newCollapsed.has(groupId)) {
       newCollapsed.delete(groupId);
     } else {
@@ -205,14 +205,14 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
     setCollapsedGroups(newCollapsed);
   };
 
-  const positionClasses = {
+  const _positionClasses = {
     top: 'top-0 left-0 right-0 border-b',
     bottom: 'bottom-0 left-0 right-0 border-t',
     left: 'top-0 bottom-0 left-0 border-r',
     right: 'top-0 bottom-0 right-0 border-l',
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border-gray-200 shadow-sm',
     cyber: 'bg-slate-900/95 border-cyan-500/30 shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
     compact: 'bg-gray-50 border-gray-200',
@@ -220,7 +220,7 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
     adaptive: 'bg-gradient-to-r from-white to-gray-50 border-gray-200 shadow-md',
   };
 
-  const layoutClasses = {
+  const _layoutClasses = {
     horizontal: 'flex flex-row items-center space-x-2',
     vertical: 'flex flex-col space-y-2',
     grid: 'grid grid-cols-auto gap-2',
@@ -228,13 +228,13 @@ export const SmartControlsBar: React.FC<SmartControlsBarProps> = ({
   };
 
   // Filter controls by category
-  const filteredControls =
+  const _filteredControls =
     activeCategory === 'all'
       ? smartControls
       : smartControls.filter(control => control.category === activeCategory);
 
   // Get unique categories
-  const categories = Array.from(new Set(smartControls.map(control => control.category)));
+  const _categories = Array.from(new Set(smartControls.map(control => control.category)));
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -404,11 +404,11 @@ interface SmartControlComponentProps {
   variant: string;
   compactMode: boolean;
   showShortcuts: boolean;
-  onChange: (control: SmartControl, value: any) => void;
+  onChange: (control: SmartControl, value: unknown) => void;
   onClick: (control: SmartControl) => void;
 }
 
-const SmartControlComponent: React.FC<SmartControlComponentProps> = ({
+const _SmartControlComponent: React.FC<SmartControlComponentProps> = ({
   control,
   variant,
   compactMode,
@@ -418,19 +418,19 @@ const SmartControlComponent: React.FC<SmartControlComponentProps> = ({
 }) => {
   const [localValue, setLocalValue] = useState(control.value);
 
-  const handleChange = (value: any) => {
+  const _handleChange = (value: unknown) => {
     setLocalValue(value);
     onChange(control, value);
   };
 
-  const baseClasses = cn(
+  const _baseClasses = cn(
     'relative inline-flex items-center space-x-2 transition-all duration-200',
     control.disabled && 'opacity-50 cursor-not-allowed',
     control.aiSuggested && variant === 'cyber' && 'animate-pulse',
     compactMode ? 'p-1 text-xs' : 'p-2 text-sm'
   );
 
-  const buttonClasses = cn(
+  const _buttonClasses = cn(
     baseClasses,
     'rounded border',
     getCategoryColor(control.category, variant),

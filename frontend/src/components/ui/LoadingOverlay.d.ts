@@ -4,5 +4,5 @@ interface LoadingOverlayProps {
   subMessage?: string;
   show?: boolean;
 }
-export declare const LoadingOverlay: React.FC<LoadingOverlayProps>;
+export declare const _LoadingOverlay: React.FC<LoadingOverlayProps>;
 export default LoadingOverlay;

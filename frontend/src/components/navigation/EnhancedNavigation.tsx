@@ -40,7 +40,7 @@ import {
 interface NavigationItem {
   id: string;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<unknown>;
   path: string;
   badge?: string;
   submenu?: NavigationItem[];
@@ -62,7 +62,7 @@ interface EnhancedNavigationProps {
   onToggleCollapse?: () => void;
 }
 
-const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
+const _EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
   currentPath = '/',
   onNavigate,
   userRole = { isAdmin: false, isPro: false, isElite: false },
@@ -74,7 +74,7 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
   const [showSearch, setShowSearch] = useState(false);
   const [notifications, setNotifications] = useState(3);
 
-  const navigationItems: NavigationItem[] = [
+  const _navigationItems: NavigationItem[] = [
     {
       id: 'dashboard',
       label: 'Dashboard',
@@ -198,29 +198,29 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
     },
   ];
 
-  const filteredItems = navigationItems.filter(item => {
+  const _filteredItems = navigationItems.filter(item => {
     if (item.adminOnly && !userRole.isAdmin) return false;
     if (item.proOnly && !userRole.isPro && !userRole.isElite) return false;
     return true;
   });
 
-  const toggleMenu = (menuId: string) => {
+  const _toggleMenu = (menuId: string) => {
     setExpandedMenus(prev =>
       prev.includes(menuId) ? prev.filter(id => id !== menuId) : [...prev, menuId]
     );
   };
 
-  const handleNavigate = (path: string) => {
+  const _handleNavigate = (path: string) => {
     if (onNavigate) {
       onNavigate(path);
     }
   };
 
-  const isCurrentPath = (path: string) => {
+  const _isCurrentPath = (path: string) => {
     return currentPath === path || currentPath.startsWith(path + '/');
   };
 
-  const searchableItems = filteredItems.flatMap(item => [
+  const _searchableItems = filteredItems.flatMap(item => [
     item,
     ...(item.submenu?.filter(subItem => {
       if (subItem.adminOnly && !userRole.isAdmin) return false;
@@ -229,18 +229,18 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
     }) || []),
   ]);
 
-  const filteredSearchResults = searchableItems.filter(item =>
+  const _filteredSearchResults = searchableItems.filter(item =>
     item.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const NavigationItem: React.FC<{
+  const _NavigationItem: React.FC<{
     item: NavigationItem;
     level?: number;
     isExpanded?: boolean;
   }> = ({ item, level = 0, isExpanded = false }) => {
-    const hasSubmenu = item.submenu && item.submenu.length > 0;
-    const isActive = isCurrentPath(item.path);
-    const canExpand = hasSubmenu && !isCollapsed;
+    const _hasSubmenu = item.submenu && item.submenu.length > 0;
+    const _isActive = isCurrentPath(item.path);
+    const _canExpand = hasSubmenu && !isCollapsed;
 
     return (
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

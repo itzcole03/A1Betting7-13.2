@@ -6,4 +6,4 @@ export interface BettingButtonGroupProps {
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
 }
-export declare const BettingButtonGroup: React.FC<BettingButtonGroupProps>;
+export declare const _BettingButtonGroup: React.FC<BettingButtonGroupProps>;

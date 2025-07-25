@@ -1,5 +1,5 @@
-// @ts-expect-error TS(2305): Module '"../../unified/UnifiedConfig"' has no expo... Remove this comment to see the full error message
-import { UnifiedConfig } from '../../unified/UnifiedConfig';
+import { UnifiedConfig } from '../../core/UnifiedConfig';
+import { SocialSentimentService } from '../SocialSentimentService';
 
 describe('SocialSentimentService', () => {
   beforeEach(() => {
@@ -7,15 +7,16 @@ describe('SocialSentimentService', () => {
   });
 
   it('is a singleton', () => {
-    // @ts-expect-error TS(2304): Cannot find name 'a'.
-    expect(a).toBe(b);
+    const _service1 = SocialSentimentService.getInstance();
+    const _service2 = SocialSentimentService.getInstance();
+    expect(_service1).toBe(_service2);
   });
 
   it('throws if feature is disabled', async () => {
     UnifiedConfig.getInstance().set('enableSocialSentiment', false);
 
-    // @ts-expect-error TS(2304): Cannot find name 'service'.
-    await expect(service.getSentimentAnalysis()).rejects.toThrow(
+    const _service = SocialSentimentService.getInstance();
+    await expect(_service.getSentimentAnalysis()).rejects.toThrow(
       'Social Sentiment feature is disabled by config.'
     );
   });
@@ -23,7 +24,7 @@ describe('SocialSentimentService', () => {
   it('throws not implemented if enabled', async () => {
     UnifiedConfig.getInstance().set('enableSocialSentiment', true);
 
-    // @ts-expect-error TS(2304): Cannot find name 'service'.
-    await expect(service.getSentimentAnalysis()).rejects.toThrow('not implemented');
+    const _service = SocialSentimentService.getInstance();
+    await expect(_service.getSentimentAnalysis()).rejects.toThrow('not implemented');
   });
 });

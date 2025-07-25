@@ -5,5 +5,5 @@ interface SkeletonProps {
   height?: string | number;
   rounded?: string;
 }
-export declare const Skeleton: React.FC<SkeletonProps>;
+export declare const _Skeleton: React.FC<SkeletonProps>;
 export default Skeleton;

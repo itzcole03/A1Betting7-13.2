@@ -14,8 +14,8 @@ interface ActivityUser {
 interface ActivityData {
   value?: number | string;
   oldValue?: number | string;
-  details?: Record<string, any>;
-  metadata?: Record<string, any>;
+  details?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 }
 
 interface ActivityItem {
@@ -77,8 +77,8 @@ interface ModernActivityFeedProps {
   onRefresh?: () => void;
 }
 
-const getActivityIcon = (type: string) => {
-  const icons = {
+const _getActivityIcon = (type: string) => {
+  const _icons = {
     bet_placed: '🎯',
     bet_won: '🎉',
     bet_lost: '😞',
@@ -93,8 +93,8 @@ const getActivityIcon = (type: string) => {
   return icons[type as keyof typeof icons] || '📋';
 };
 
-const getActivityColor = (type: string, variant: string = 'default') => {
-  const colors = {
+const _getActivityColor = (type: string, variant: string = 'default') => {
+  const _colors = {
     default: {
       bet_placed: 'text-blue-600 bg-blue-50 border-blue-200',
       bet_won: 'text-green-600 bg-green-50 border-green-200',
@@ -126,8 +126,8 @@ const getActivityColor = (type: string, variant: string = 'default') => {
     : colors.default[type as keyof typeof colors.default] || colors.default.custom;
 };
 
-const getPriorityIndicator = (priority: string, variant: string = 'default') => {
-  const indicators = {
+const _getPriorityIndicator = (priority: string, variant: string = 'default') => {
+  const _indicators = {
     default: {
       urgent: 'bg-red-500 animate-pulse',
       high: 'bg-orange-500',
@@ -147,12 +147,12 @@ const getPriorityIndicator = (priority: string, variant: string = 'default') => 
     : indicators.default[priority as keyof typeof indicators.default] || indicators.default.low;
 };
 
-const formatTimeAgo = (date: Date): string => {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
+const _formatTimeAgo = (date: Date): string => {
+  const _now = new Date();
+  const _diffMs = now.getTime() - date.getTime();
+  const _diffMins = Math.floor(diffMs / 60000);
+  const _diffHours = Math.floor(diffMs / 3600000);
+  const _diffDays = Math.floor(diffMs / 86400000);
 
   if (diffMins < 1) return 'Just now';
   if (diffMins < 60) return `${diffMins}m ago`;
@@ -161,7 +161,7 @@ const formatTimeAgo = (date: Date): string => {
   return date.toLocaleDateString();
 };
 
-const formatValue = (value: number | string): string => {
+const _formatValue = (value: number | string): string => {
   if (typeof value === 'number') {
     if (Math.abs(value) >= 1000000) {
       return (value / 1000000).toFixed(1) + 'M';
@@ -174,7 +174,7 @@ const formatValue = (value: number | string): string => {
   return String(value);
 };
 
-export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
+export const _ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
   activities,
   variant = 'default',
   layout = 'list',
@@ -200,11 +200,11 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
   const [groupedActivities, setGroupedActivities] = useState<Record<string, ActivityItem[]>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [newActivitiesCount, setNewActivitiesCount] = useState(0);
-  const feedRef = useRef<HTMLDivElement>(null);
+  const _feedRef = useRef<HTMLDivElement>(null);
 
   // Filter and group activities
   useEffect(() => {
-    let filtered = activities;
+    let _filtered = activities;
 
     // Apply filters
     if (currentFilter.types?.length) {
@@ -232,7 +232,7 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
 
     // Apply search
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+      const _query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         a =>
           a.action.toLowerCase().includes(query) ||
@@ -249,9 +249,9 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
 
     // Group activities
     if (showGrouping && groupBy !== 'none') {
-      const grouped = filtered.reduce(
+      const _grouped = filtered.reduce(
         (groups, activity) => {
-          let key: string;
+          let _key: string;
 
           switch (groupBy) {
             case 'date':
@@ -287,7 +287,7 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
   useEffect(() => {
     if (!autoRefresh) return;
 
-    const interval = setInterval(() => {
+    const _interval = setInterval(() => {
       onRefresh?.();
     }, refreshInterval * 1000);
 
@@ -301,20 +301,20 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
     }
   }, [activities.length, filteredActivities.length, showRealTimeUpdates]);
 
-  const handleFilterChange = (newFilter: Partial<ActivityFilter>) => {
-    const updatedFilter = { ...currentFilter, ...newFilter };
+  const _handleFilterChange = (newFilter: Partial<ActivityFilter>) => {
+    const _updatedFilter = { ...currentFilter, ...newFilter };
     setCurrentFilter(updatedFilter);
     onFilterChange?.(updatedFilter);
   };
 
-  const handleRefresh = () => {
+  const _handleRefresh = () => {
     setIsLoading(true);
     setNewActivitiesCount(0);
     onRefresh?.();
     setTimeout(() => setIsLoading(false), 1000);
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-lg shadow-sm',
     cyber:
       'bg-slate-900/95 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/20 backdrop-blur-md',
@@ -323,7 +323,7 @@ export const ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
     timeline: 'bg-white border-l-4 border-blue-500 shadow-sm',
   };
 
-  const displayActivities =
+  const _displayActivities =
     showGrouping && groupBy !== 'none'
       ? groupedActivities
       : { 'All Activities': filteredActivities };
@@ -585,7 +585,7 @@ interface ActivityItemComponentProps {
   onUserClick?: (user: ActivityUser) => void;
 }
 
-const ActivityItemComponent: React.FC<ActivityItemComponentProps> = ({
+const _ActivityItemComponent: React.FC<ActivityItemComponentProps> = ({
   activity,
   variant,
   layout,

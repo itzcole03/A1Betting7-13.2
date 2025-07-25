@@ -1,2 +1,2 @@
 import React from 'react.ts';
-export declare const BettingSettingsPanel: React.FC;
+export declare const _BettingSettingsPanel: React.FC;

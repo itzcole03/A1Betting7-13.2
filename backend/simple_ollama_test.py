@@ -19,11 +19,11 @@ async def test_ollama_models():
         models = response.json()
         assert "models" in models, "No models found in response"
 
-        # Test generation with llama3:8b
+        # Test generation with llama3:latest
         gen_response = await client.post(
             "http://localhost:11434/api/generate",
             json={
-                "model": "llama3:8b",
+                "model": "llama3:latest",
                 "prompt": "You are PropOllama, a sports betting AI assistant. Briefly introduce yourself and mention your expertise in sports analysis.",
                 "stream": False,
                 "options": {"num_predict": 100, "temperature": 0.7},

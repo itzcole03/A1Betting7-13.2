@@ -48,7 +48,7 @@ export declare class UnifiedAnalyticsService extends BaseService {
     Array<{
       type: 'prediction' | 'bet' | 'alert';
       timestamp: string;
-      data: any;
+      data: unknown;
     }>
   >;
   getFeatureImportance(

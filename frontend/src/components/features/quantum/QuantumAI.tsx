@@ -73,7 +73,7 @@ interface QuantumMetrics {
   energyEfficiency: number;
 }
 
-const QuantumAI: React.FC = () => {
+const _QuantumAI: React.FC = () => {
   const [quantumMetrics, setQuantumMetrics] = useState<QuantumMetrics | null>(null);
   const [quantumPredictions, setQuantumPredictions] = useState<QuantumPrediction[]>([]);
   const [activeCircuits, setActiveCircuits] = useState<QuantumCircuit[]>([]);
@@ -83,16 +83,16 @@ const QuantumAI: React.FC = () => {
 
   useEffect(() => {
     loadQuantumData();
-    const interval = setInterval(updateQuantumStates, 2000);
+    const _interval = setInterval(updateQuantumStates, 2000);
     return () => clearInterval(interval);
   }, []);
 
-  const loadQuantumData = async () => {
+  const _loadQuantumData = async () => {
     setIsProcessing(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 3000));
 
-      const mockMetrics: QuantumMetrics = {
+      const _mockMetrics: QuantumMetrics = {
         totalQubits: 127,
         entangledPairs: 45,
         coherenceTime: 247.3,
@@ -103,7 +103,7 @@ const QuantumAI: React.FC = () => {
         energyEfficiency: 98.7,
       };
 
-      const mockPredictions: QuantumPrediction[] = [
+      const _mockPredictions: QuantumPrediction[] = [
         {
           id: 'q-pred-001',
           gameId: 'Lakers vs Warriors',
@@ -174,7 +174,7 @@ const QuantumAI: React.FC = () => {
         },
       ];
 
-      const mockCircuits: QuantumCircuit[] = [
+      const _mockCircuits: QuantumCircuit[] = [
         {
           id: 'circuit-1',
           name: 'Player Performance Entangler',
@@ -217,7 +217,7 @@ const QuantumAI: React.FC = () => {
     }
   };
 
-  const updateQuantumStates = () => {
+  const _updateQuantumStates = () => {
     setQuantumPredictions(prev =>
       prev.map(pred => ({
         ...pred,
@@ -231,7 +231,7 @@ const QuantumAI: React.FC = () => {
     );
   };
 
-  const runQuantumSimulation = async () => {
+  const _runQuantumSimulation = async () => {
     setIsProcessing(true);
     setSystemStatus('calibrating');
 
@@ -246,13 +246,13 @@ const QuantumAI: React.FC = () => {
     }
   };
 
-  const getQuantumAdvantageColor = (advantage: number) => {
+  const _getQuantumAdvantageColor = (advantage: number) => {
     if (advantage > 0.1) return 'text-green-400';
     if (advantage > 0.05) return 'text-yellow-400';
     return 'text-red-400';
   };
 
-  const getSystemStatusColor = (status: string) => {
+  const _getSystemStatusColor = (status: string) => {
     switch (status) {
       case 'online':
         return 'text-green-400 bg-green-500/20';
@@ -265,7 +265,7 @@ const QuantumAI: React.FC = () => {
     }
   };
 
-  const selectedPredictionData = quantumPredictions.find(p => p.id === selectedPrediction);
+  const _selectedPredictionData = quantumPredictions.find(p => p.id === selectedPrediction);
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

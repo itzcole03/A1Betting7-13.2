@@ -7,8 +7,7 @@ export enum WebSocketConnectionState {
   CONNECTED = 'connected',
   RECONNECTING = 'reconnecting',
   ERROR = 'error',
-import { ErrorHandler } from '../../unified/ErrorHandler';
-import { BaseService } from './BaseService';
+}
 
 /**
  * Enum for WebSocket connection states.
@@ -20,7 +19,6 @@ interface WebSocketMessage {
   id?: string;
 }
 
-
 /**
  * Interface for WebSocket messages.
  */
@@ -29,7 +27,6 @@ interface SubscriptionHandler {
   type: string;
   callback: (data: any) => void;
 }
-
 
 /**
  * Interface for subscription handlers.
@@ -40,10 +37,10 @@ export class UnifiedWebSocketService extends BaseService {
   private connectionState: WebSocketConnectionState = WebSocketConnectionState.DISCONNECTED;
   private subscriptions: Map<string, SubscriptionHandler> = new Map();
 
-/**
- * Singleton WebSocket service for unified real-time communication.
- * Handles connection, reconnection, subscriptions, and message queueing.
- */
+  /**
+   * Singleton WebSocket service for unified real-time communication.
+   * Handles connection, reconnection, subscriptions, and message queueing.
+   */
   private messageQueue: WebSocketMessage[] = [];
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
@@ -63,7 +60,7 @@ export class UnifiedWebSocketService extends BaseService {
   }
 
   async connect(url?: string): Promise<void> {
-    const wsUrl = url || this.getWebSocketUrl();
+    const _wsUrl = url || this.getWebSocketUrl();
 
     if (this.connectionState === WebSocketConnectionState.CONNECTED) {
       this.logger.info('WebSocket already connected');
@@ -92,13 +89,13 @@ export class UnifiedWebSocketService extends BaseService {
           }
         }
 
-        this.ws = new WebSocket(wsUrl);
+        this.ws = new WebSocket(_wsUrl);
 
         this.ws.onopen = () => {
           this.setConnectionState(WebSocketConnectionState.CONNECTED);
           this.reconnectAttempts = 0;
           this.processMessageQueue();
-          this.logger.info('WebSocket connected', { url: wsUrl });
+          this.logger.info('WebSocket connected', { url: _wsUrl });
           resolve();
         };
 
@@ -125,8 +122,8 @@ export class UnifiedWebSocketService extends BaseService {
 
           // Use enhanced error handling for WebSocket errors
           try {
-            const errorHandler = ErrorHandler.getInstance();
-            errorHandler.handleWebSocketError(
+            const _errorHandler = ErrorHandler.getInstance();
+            _errorHandler.handleWebSocketError(
               new Error('WebSocket connection failed'),
               'connection'
             );
@@ -156,8 +153,8 @@ export class UnifiedWebSocketService extends BaseService {
 
             // Use enhanced error handling for timeout
             try {
-              const errorHandler = ErrorHandler.getInstance();
-              errorHandler.handleWebSocketError(
+              const _errorHandler = ErrorHandler.getInstance();
+              _errorHandler.handleWebSocketError(
                 new Error('WebSocket connection timeout'),
                 'timeout'
               );
@@ -180,9 +177,9 @@ export class UnifiedWebSocketService extends BaseService {
   disconnect(): void {
     if (this.ws) {
       // Check WebSocket state before closing
-      const readyState = this.ws.readyState;
+      const _readyState = this.ws.readyState;
 
-      if (readyState === WebSocket.OPEN || readyState === WebSocket.CONNECTING) {
+      if (_readyState === WebSocket.OPEN || _readyState === WebSocket.CONNECTING) {
         try {
           this.ws.close(1000, 'Client disconnect');
         } catch (error) {
@@ -200,10 +197,10 @@ export class UnifiedWebSocketService extends BaseService {
   }
 
   subscribe(messageType: string, callback: (data: any) => void): string {
-    const subscriptionId = `sub_${++this.subscriptionCounter}_${Date.now()}`;
+    const _subscriptionId = `sub_${++this.subscriptionCounter}_${Date.now()}`;
 
-    this.subscriptions.set(subscriptionId, {
-      id: subscriptionId,
+    this.subscriptions.set(_subscriptionId, {
+      id: _subscriptionId,
       type: messageType,
       callback,
     });
@@ -214,21 +211,21 @@ export class UnifiedWebSocketService extends BaseService {
         type: 'subscribe',
         data: { messageType },
         timestamp: Date.now(),
-        id: subscriptionId,
+        id: _subscriptionId,
       });
     }
 
     this.logger.debug('WebSocket subscription added', {
-      subscriptionId,
+      subscriptionId: _subscriptionId,
       messageType,
     });
 
-    return subscriptionId;
+    return _subscriptionId;
   }
 
   unsubscribe(subscriptionId: string): void {
-    const subscription = this.subscriptions.get(subscriptionId);
-    if (!subscription) {
+    const _subscription = this.subscriptions.get(subscriptionId);
+    if (!_subscription) {
       this.logger.warn('Attempted to unsubscribe from non-existent subscription', {
         subscriptionId,
       });
@@ -238,10 +235,10 @@ export class UnifiedWebSocketService extends BaseService {
     this.subscriptions.delete(subscriptionId);
 
     // Send unsubscribe message if connected
-    if (this.connectionState === WebSocketConnectionState.CONNECTED) {
+    if (this.connectionState === WebSocketConnectionState.CONNECTED && _subscription) {
       this.sendMessage({
         type: 'unsubscribe',
-        data: { messageType: subscription.type },
+        data: { messageType: _subscription.type },
         timestamp: Date.now(),
         id: subscriptionId,
       });
@@ -249,7 +246,7 @@ export class UnifiedWebSocketService extends BaseService {
 
     this.logger.debug('WebSocket subscription removed', {
       subscriptionId,
-      messageType: subscription.type,
+      messageType: _subscription ? _subscription.type : undefined,
     });
   }
 
@@ -278,7 +275,7 @@ export class UnifiedWebSocketService extends BaseService {
   }
 
   private setConnectionState(state: WebSocketConnectionState): void {
-    const oldState = this.connectionState;
+    const _oldState = this.connectionState;
     this.connectionState = state;
 
     if (oldState !== state) {
@@ -288,12 +285,12 @@ export class UnifiedWebSocketService extends BaseService {
 
   private handleMessage(event: MessageEvent): void {
     try {
-      const message: WebSocketMessage = JSON.parse(event.data);
+      const _message: WebSocketMessage = JSON.parse(event.data);
 
       this.logger.debug('WebSocket message received', { type: message.type });
 
       // Notify specific subscribers
-      for (const subscription of this.subscriptions.values()) {
+      for (const _subscription of this.subscriptions.values()) {
         if (subscription.type === message.type || subscription.type === '*') {
           try {
             subscription.callback(message.data);
@@ -316,7 +313,7 @@ export class UnifiedWebSocketService extends BaseService {
 
   private processMessageQueue(): void {
     while (this.messageQueue.length > 0) {
-      const message = this.messageQueue.shift();
+      const _message = this.messageQueue.shift();
       if (message) {
         this.sendMessage(message);
       }
@@ -333,7 +330,7 @@ export class UnifiedWebSocketService extends BaseService {
     this.setConnectionState(WebSocketConnectionState.RECONNECTING);
     this.reconnectAttempts++;
 
-    const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
+    const _delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
     this.logger.info('Attempting WebSocket reconnection', {
       attempt: this.reconnectAttempts,
@@ -351,8 +348,8 @@ export class UnifiedWebSocketService extends BaseService {
   private getWebSocketUrl(): string {
     // Always use backend port, never frontend's own port
     // Build WebSocket URL from environment variables for best practice
-    const host = import.meta.env.VITE_API_HOST || 'localhost';
-    const port = import.meta.env.VITE_API_PORT || '8000';
+    const _host = import.meta.env.VITE_API_HOST || 'localhost';
+    const _port = import.meta.env.VITE_API_PORT || '8000';
     return import.meta.env.VITE_WS_URL || `ws://${host}:${port}/ws`;
   }
 

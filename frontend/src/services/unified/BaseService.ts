@@ -1,28 +1,28 @@
-import { UnifiedLogger } from './UnifiedLogger';
-import { UnifiedCache } from './UnifiedCache';
-import { UnifiedConfig } from './UnifiedConfig';
 import type { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import axios from 'axios';
+import { UnifiedCache } from './UnifiedCache';
+import { UnifiedConfig } from './UnifiedConfig';
+import { UnifiedLogger } from './UnifiedLogger';
 // @ts-expect-error TS(2305): Module '"./UnifiedServiceRegistry"' has no exporte... Remove this comment to see the full error message
 import { UnifiedServiceRegistry } from './UnifiedServiceRegistry';
 
 // Browser-compatible EventEmitter;
 class EventEmitter {
-  private events: { [key: string]: Array<(...args: any[]) => void> } = {};
+  private events: { [key: string]: Array<(...args: unknown[]) => void> } = {};
 
-  on(event: string, listener: (...args: any[]) => void) {
+  on(event: string, listener: (...args: unknown[]) => void) {
     if (!this.events[event]) {
       this.events[event] = [];
     }
     this.events[event].push(listener);
   }
 
-  off(event: string, listener: (...args: any[]) => void) {
+  off(event: string, listener: (...args: unknown[]) => void) {
     if (!this.events[event]) return;
     this.events[event] = this.events[event].filter(l => l !== listener);
   }
 
-  emit(event: string, ...args: any[]) {
+  emit(event: string, ...args: unknown[]) {
     if (!this.events[event]) return;
     this.events[event].forEach(listener => listener(...args));
   }
@@ -31,7 +31,7 @@ class EventEmitter {
 export interface ServiceError {
   code: string;
   source: string;
-  details?: any;
+  details?: unknown;
 }
 
 export abstract class BaseService extends EventEmitter {
@@ -63,13 +63,9 @@ export abstract class BaseService extends EventEmitter {
 
   private setupInterceptors(): void {
     this.api.interceptors.request.use(
-      // @ts-expect-error TS(2304): Cannot find name 'InternalAxiosRequestConfig'.
-      (config: InternalAxiosRequestConfig) => {
-        // @ts-expect-error TS(2304): Cannot find name 'token'.
-        if (token) {
-          // @ts-expect-error TS(2304): Cannot find name 'token'.
-          config.headers.Authorization = `Bearer ${token}`;
-        }
+      (config: any) => {
+        // If you want to add an Authorization header, pass the token as a parameter or get it from config
+        // Example: if (config.headers && config.headers.AuthorizationToken)
         return config;
       },
       (error: AxiosError) => {
@@ -89,17 +85,19 @@ export abstract class BaseService extends EventEmitter {
     );
   }
 
-  protected handleError(error: any, serviceError: ServiceError): void {
-    // @ts-expect-error TS(2554): Expected 1-2 arguments, but got 3.
-    this.logger.error(`Error in ${serviceError.source}: ${error.message}`, this.name, {
-      error,
-      //       serviceError
-    });
+  protected handleError(error: unknown, serviceError: ServiceError): void {
+    let errorMsg = '';
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      errorMsg = (error as any).message;
+    } else {
+      errorMsg = String(error);
+    }
+    this.logger.error(`Error in ${serviceError.source}: ${errorMsg}`);
 
     // Emit error event;
     this.serviceRegistry.emit('error', {
       ...serviceError,
-      error: error.message,
+      error: errorMsg,
       timestamp: Date.now(),
     });
   }
@@ -109,7 +107,8 @@ export abstract class BaseService extends EventEmitter {
     maxRetries: number = 3,
     delay: number = 1000
   ): Promise<T> {
-    let lastError: any;
+    let _lastError: unknown;
+    let lastError: unknown;
     for (let i = 0; i < maxRetries; i++) {
       try {
         return await operation();
@@ -128,12 +127,11 @@ export abstract class BaseService extends EventEmitter {
   }
 
   protected async withCache<T>(key: string, operation: () => Promise<T>, ttl?: number): Promise<T> {
-    // @ts-expect-error TS(2552): Cannot find name 'cached'. Did you mean 'Cache'?
-    if (cached) return cached;
+    const cached = this.cache.get(key);
+    if (typeof cached !== 'undefined' && cached !== null) return cached as T;
 
-    // @ts-expect-error TS(2304): Cannot find name 'result'.
+    const result = await operation();
     this.cache.set(key, result, ttl);
-    // @ts-expect-error TS(2304): Cannot find name 'result'.
     return result;
   }
 

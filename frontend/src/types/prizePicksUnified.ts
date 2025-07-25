@@ -394,9 +394,10 @@ export interface PrizePicksEntry {
 
 // ===== TYPE GUARDS =====
 
-export function isPrizePicksProjection(obj: any): obj is PrizePicksProjection {
+export function isPrizePicksProjection(_obj: unknown): _obj is PrizePicksProjection {
+  const obj = _obj as Record<string, unknown>; // Cast to a record to allow property access
   return (
-    obj &&
+    obj !== null &&
     typeof obj === 'object' &&
     typeof obj.id === 'string' &&
     typeof obj.player_name === 'string' &&
@@ -405,9 +406,10 @@ export function isPrizePicksProjection(obj: any): obj is PrizePicksProjection {
   );
 }
 
-export function isLegacyPlayerProp(obj: any): obj is PlayerProp {
+export function isLegacyPlayerProp(_obj: unknown): _obj is PlayerProp {
+  const obj = _obj as Record<string, unknown>; // Cast to a record to allow property access
   return (
-    obj &&
+    obj !== null &&
     typeof obj === 'object' &&
     typeof obj.playerId === 'string' &&
     typeof obj.playerName === 'string'
@@ -416,52 +418,52 @@ export function isLegacyPlayerProp(obj: any): obj is PlayerProp {
 
 // ===== TRANSFORMATION UTILITIES =====
 
-export function transformToProjection(prop: PlayerProp | PrizePicksProps): PrizePicksProjection {
-  return {
-    // @ts-expect-error TS(2783): 'id' is specified more than once, so this usage wi... Remove this comment to see the full error message
-    id: prop.id,
-    // @ts-expect-error TS(2551): Property 'player_id' does not exist on type 'Prize... Remove this comment to see the full error message
-    player_id: (prop as any).playerId || prop.player_id,
-    // @ts-expect-error TS(2551): Property 'player_name' does not exist on type 'Pri... Remove this comment to see the full error message
-    player_name: (prop as any).playerName || prop.player_name,
-    // @ts-expect-error TS(2783): 'team' is specified more than once, so this usage ... Remove this comment to see the full error message
-    team: prop.team,
-    // @ts-expect-error TS(2783): 'position' is specified more than once, so this us... Remove this comment to see the full error message
-    position: prop.position || '',
-    // @ts-expect-error TS(2783): 'league' is specified more than once, so this usag... Remove this comment to see the full error message
-    league: prop.league || '',
-    // @ts-expect-error TS(2783): 'sport' is specified more than once, so this usage... Remove this comment to see the full error message
-    sport: prop.sport || '',
-    // @ts-expect-error TS(2783): 'stat_type' is specified more than once, so this u... Remove this comment to see the full error message
-    stat_type: (prop as any).statType || prop.stat_type,
-    // @ts-expect-error TS(2783): 'line_score' is specified more than once, so this ... Remove this comment to see the full error message
-    line_score: (prop as any).line || prop.line_score,
-    // @ts-expect-error TS(2783): 'over_odds' is specified more than once, so this u... Remove this comment to see the full error message
-    over_odds: (prop as any).overOdds || prop.over_odds || -110,
-    // @ts-expect-error TS(2783): 'under_odds' is specified more than once, so this ... Remove this comment to see the full error message
-    under_odds: (prop as any).underOdds || prop.under_odds || -110,
-    // @ts-expect-error TS(2783): 'start_time' is specified more than once, so this ... Remove this comment to see the full error message
-    start_time: (prop as any).startTime || prop.start_time || new Date().toISOString(),
-    // @ts-expect-error TS(2783): 'status' is specified more than once, so this usag... Remove this comment to see the full error message
-    status: prop.status || 'active',
-    // @ts-expect-error TS(2783): 'description' is specified more than once, so this... Remove this comment to see the full error message
-    description: prop.description || '',
-    // @ts-expect-error TS(2783): 'rank' is specified more than once, so this usage ... Remove this comment to see the full error message
-    rank: prop.rank || 0,
-    // @ts-expect-error TS(2783): 'is_promo' is specified more than once, so this us... Remove this comment to see the full error message
-    is_promo: prop.is_promo || false,
-    // @ts-expect-error TS(2783): 'confidence' is specified more than once, so this ... Remove this comment to see the full error message
-    confidence: prop.confidence || 75,
-    // @ts-expect-error TS(2783): 'market_efficiency' is specified more than once, s... Remove this comment to see the full error message
-    market_efficiency: prop.market_efficiency || 0.1,
-    ...prop, // Spread remaining properties
+export function transformToProjection(_prop: PlayerProp | PrizePicksProps): PrizePicksProjection {
+  // Start with the base properties from PrizePicksProjection, handling common aliases
+  const _transformed: PrizePicksProjection = {
+    // Initialize all required properties first, using direct property or alias with fallback
+    id: _prop.id,
+    player_id: ('playerId' in _prop && _prop.playerId) ? _prop.playerId : ('player_id' in _prop ? _prop.player_id : ''),
+    player_name: ('playerName' in _prop && _prop.playerName) ? _prop.playerName : ('player_name' in _prop ? _prop.player_name : ''),
+    team: _prop.team || '',
+    position: _prop.position || '',
+    league: _prop.league || '',
+    sport: _prop.sport || '',
+    stat_type: ('statType' in _prop && _prop.statType) ? _prop.statType : ('stat_type' in _prop ? _prop.stat_type : ''),
+    line_score: ('line' in _prop && _prop.line) ? _prop.line : ('line_score' in _prop ? _prop.line_score : 0),
+    over_odds: ('overOdds' in _prop && _prop.overOdds) ? _prop.overOdds : ('over_odds' in _prop ? _prop.over_odds : -110),
+    under_odds: ('underOdds' in _prop && _prop.underOdds) ? _prop.underOdds : ('under_odds' in _prop ? _prop.under_odds : -110),
+    start_time: ('startTime' in _prop && _prop.startTime) ? _prop.startTime : ('start_time' in _prop ? _prop.start_time : new Date().toISOString()),
+    status: _prop.status || 'active',
+    description: _prop.description || '',
+    rank: _prop.rank || 0,
+    is_promo: _prop.is_promo || false,
+    confidence: _prop.confidence || 75,
+    market_efficiency: _prop.market_efficiency || 0.1,
+
+    // Spread any remaining properties from the original _prop, allowing them to override if they exist.
+    // This handles other optional fields and ensures all properties from the original are carried over.
+    ..._prop as any,
   };
+
+  // Remove legacy aliases if they exist in the final transformed object
+  if (('_prop' as any).playerId in _transformed) delete (_transformed as any).playerId;
+  if (('_prop' as any).playerName in _transformed) delete (_transformed as any).playerName;
+  if (('_prop' as any).statType in _transformed) delete (_transformed as any).statType;
+  if (('_prop' as any).line in _transformed) delete (_transformed as any).line;
+  if (('_prop' as any).overOdds in _transformed) delete (_transformed as any).overOdds;
+  if (('_prop' as any).underOdds in _transformed) delete (_transformed as any).underOdds;
+  if (('_prop' as any).startTime in _transformed) delete (_transformed as any).startTime;
+  if (('_prop' as any).over in _transformed) delete (_transformed as any).over;
+  if (('_prop' as any).under in _transformed) delete (_transformed as any).under;
+
+  return _transformed;
 }
 
-export function transformToPlayerProp(projection: PrizePicksProjection): PlayerProp {
+export function transformToPlayerProp(_projection: PrizePicksProjection): PlayerProp {
   return {
-    ...projection,
-    playerId: projection.player_id,
-    playerName: projection.player_name,
+    ..._projection,
+    playerId: _projection.player_id,
+    playerName: _projection.player_name,
   } as PlayerProp;
 }

@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const PrizePicksPageEnhanced: React.FC;
+declare const _PrizePicksPageEnhanced: React.FC;
 export default PrizePicksPageEnhanced;

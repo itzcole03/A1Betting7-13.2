@@ -1,0 +1,17 @@
+{
+  "extends": "./frontend/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "module": "esnext",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "noEmit": true,
+    "isolatedModules": false
+  },
+  "include": [
+    "frontend/src",
+    "frontend/src/components/**/*.tsx",
+    "frontend/src/test/**/*.ts",
+    "frontend/src/test/**/*.tsx"
+  ]
+}

@@ -1,4 +1,7 @@
 """A1Betting Main Application
+# ARCHIVED: Legacy main_integrated.py variant. See minimal_test_app.py for the unified backend entry point.
+
+"""A1Betting Main Application
 Complete FastAPI application with full frontend integration.
 """
 

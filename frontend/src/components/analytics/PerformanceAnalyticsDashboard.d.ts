@@ -4,5 +4,5 @@ interface PerformanceAnalyticsDashboardProps {
   timeRange?: '7d' | '30d' | '90d' | '1y' | 'all';
   showAdvancedMetrics?: boolean;
 }
-export declare const PerformanceAnalyticsDashboard: React.FC<PerformanceAnalyticsDashboardProps>;
+export declare const _PerformanceAnalyticsDashboard: React.FC<PerformanceAnalyticsDashboardProps>;
 export default PerformanceAnalyticsDashboard;

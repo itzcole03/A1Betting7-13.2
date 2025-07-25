@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SimpleSettingsPage: React.FC = () => {
+const _SimpleSettingsPage: React.FC = () => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 p-6'>

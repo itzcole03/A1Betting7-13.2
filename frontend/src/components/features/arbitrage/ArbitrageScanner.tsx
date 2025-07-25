@@ -59,7 +59,7 @@ interface ArbitrageStats {
   avgDuration: number;
 }
 
-const ArbitrageScanner: React.FC = () => {
+const _ArbitrageScanner: React.FC = () => {
   const [opportunities, setOpportunities] = useState<ArbitrageOpportunity[]>([]);
   const [stats, setStats] = useState<ArbitrageStats | null>(null);
   const [isScanning, setIsScanning] = useState(false);
@@ -74,16 +74,16 @@ const ArbitrageScanner: React.FC = () => {
 
   useEffect(() => {
     loadArbitrageData();
-    const interval = setInterval(loadArbitrageData, 30000); // Refresh every 30 seconds
+    const _interval = setInterval(loadArbitrageData, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
   }, [filters]);
 
-  const loadArbitrageData = async () => {
+  const _loadArbitrageData = async () => {
     setIsScanning(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      const mockOpportunities: ArbitrageOpportunity[] = [
+      const _mockOpportunities: ArbitrageOpportunity[] = [
         {
           id: 'arb-001',
           sport: 'Basketball',
@@ -158,7 +158,7 @@ const ArbitrageScanner: React.FC = () => {
         },
       ];
 
-      const mockStats: ArbitrageStats = {
+      const _mockStats: ArbitrageStats = {
         totalOpportunities: 47,
         activeOpportunities: mockOpportunities.length,
         avgProfit: 2.4,
@@ -177,7 +177,7 @@ const ArbitrageScanner: React.FC = () => {
     }
   };
 
-  const copyToClipboard = async (text: string, id: string) => {
+  const _copyToClipboard = async (text: string, id: string) => {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedId(id);
@@ -187,7 +187,7 @@ const ArbitrageScanner: React.FC = () => {
     }
   };
 
-  const getDifficultyColor = (difficulty: string) => {
+  const _getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'easy':
         return 'text-green-400 bg-green-500/20';
@@ -200,15 +200,15 @@ const ArbitrageScanner: React.FC = () => {
     }
   };
 
-  const getTimeColor = (minutes: number) => {
+  const _getTimeColor = (minutes: number) => {
     if (minutes < 5) return 'text-red-400';
     if (minutes < 15) return 'text-yellow-400';
     return 'text-green-400';
   };
 
-  const formatTimeRemaining = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+  const _formatTimeRemaining = (minutes: number) => {
+    const _hours = Math.floor(minutes / 60);
+    const _mins = minutes % 60;
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
   };
 

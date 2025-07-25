@@ -11,7 +11,7 @@ interface SelectOption {
   image?: string;
   disabled?: boolean;
   group?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface SelectGroup {
@@ -52,8 +52,8 @@ interface StyledSelectProps {
   onClose?: () => void;
 }
 
-const getSizeClasses = (size: string) => {
-  const sizes = {
+const _getSizeClasses = (size: string) => {
+  const _sizes = {
     sm: {
       trigger: 'h-8 px-2 text-sm',
       option: 'px-2 py-1.5 text-sm',
@@ -74,11 +74,11 @@ const getSizeClasses = (size: string) => {
   return sizes[size as keyof typeof sizes] || sizes.md;
 };
 
-const getVariantClasses = (
+const _getVariantClasses = (
   variant: string,
   state: { error?: boolean; success?: boolean; disabled?: boolean }
 ) => {
-  const variants = {
+  const _variants = {
     default: {
       trigger: cn(
         'bg-white border border-gray-300 rounded-md shadow-sm',
@@ -144,11 +144,11 @@ const getVariantClasses = (
   return variants[variant as keyof typeof variants] || variants.default;
 };
 
-const isOptionGroup = (item: SelectOption | SelectGroup): item is SelectGroup => {
+const _isOptionGroup = (item: SelectOption | SelectGroup): item is SelectGroup => {
   return 'options' in item;
 };
 
-const flattenOptions = (items: (SelectOption | SelectGroup)[]): SelectOption[] => {
+const _flattenOptions = (items: (SelectOption | SelectGroup)[]): SelectOption[] => {
   return items.reduce((acc, item) => {
     if (isOptionGroup(item)) {
       return [...acc, ...item.options];
@@ -157,10 +157,10 @@ const flattenOptions = (items: (SelectOption | SelectGroup)[]): SelectOption[] =
   }, [] as SelectOption[]);
 };
 
-const filterOptions = (options: SelectOption[], query: string): SelectOption[] => {
+const _filterOptions = (options: SelectOption[], query: string): SelectOption[] => {
   if (!query.trim()) return options;
 
-  const searchTerm = query.toLowerCase();
+  const _searchTerm = query.toLowerCase();
   return options.filter(
     option =>
       option.label.toLowerCase().includes(searchTerm) ||
@@ -169,7 +169,7 @@ const filterOptions = (options: SelectOption[], query: string): SelectOption[] =
   );
 };
 
-export const StyledSelect: React.FC<StyledSelectProps> = ({
+export const _StyledSelect: React.FC<StyledSelectProps> = ({
   options,
   value,
   defaultValue,
@@ -208,21 +208,21 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [focusedIndex, setFocusedIndex] = useState(-1);
 
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const _triggerRef = useRef<HTMLButtonElement>(null);
+  const _dropdownRef = useRef<HTMLDivElement>(null);
+  const _searchInputRef = useRef<HTMLInputElement>(null);
 
-  const sizeClasses = getSizeClasses(size);
-  const variantClasses = getVariantClasses(variant, { error, success, disabled });
+  const _sizeClasses = getSizeClasses(size);
+  const _variantClasses = getVariantClasses(variant, { error, success, disabled });
 
   // Flatten options for easier processing
-  const flatOptions = flattenOptions(options);
+  const _flatOptions = flattenOptions(options);
 
   // Filter options based on search
-  const filteredOptions = searchable ? filterOptions(flatOptions, searchQuery) : flatOptions;
+  const _filteredOptions = searchable ? filterOptions(flatOptions, searchQuery) : flatOptions;
 
   // Add custom value option if enabled and query doesn't match existing options
-  const customValueOption: SelectOption | null =
+  const _customValueOption: SelectOption | null =
     allowCustomValues &&
     searchQuery.trim() &&
     !filteredOptions.some(opt => opt.label.toLowerCase() === searchQuery.toLowerCase())
@@ -233,19 +233,19 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
         }
       : null;
 
-  const displayOptions = customValueOption
+  const _displayOptions = customValueOption
     ? [customValueOption, ...filteredOptions]
     : filteredOptions;
 
   // Get current selection for display
-  const currentValue = value !== undefined ? value : internalValue;
-  const selectedOptions = multiple
+  const _currentValue = value !== undefined ? value : internalValue;
+  const _selectedOptions = multiple
     ? flatOptions.filter(opt => Array.isArray(currentValue) && currentValue.includes(opt.value))
     : flatOptions.find(opt => opt.value === currentValue);
 
   // Handle outside clicks
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const _handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node) &&
@@ -264,7 +264,7 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
 
   // Handle keyboard navigation
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const _handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
 
       switch (e.key) {
@@ -300,27 +300,27 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
     }
   }, [isOpen, searchable]);
 
-  const handleOpen = () => {
+  const _handleOpen = () => {
     if (disabled || loading) return;
     setIsOpen(true);
     setFocusedIndex(-1);
     onOpen?.();
   };
 
-  const handleClose = () => {
+  const _handleClose = () => {
     setIsOpen(false);
     setSearchQuery('');
     setFocusedIndex(-1);
     onClose?.();
   };
 
-  const handleSelect = (option: SelectOption) => {
+  const _handleSelect = (option: SelectOption) => {
     if (option.disabled) return;
 
-    let newValue: string | number | (string | number)[];
+    let _newValue: string | number | (string | number)[];
 
     if (multiple) {
-      const currentArray = Array.isArray(currentValue) ? currentValue : [];
+      const _currentArray = Array.isArray(currentValue) ? currentValue : [];
       if (currentArray.includes(option.value)) {
         newValue = currentArray.filter(v => v !== option.value);
       } else {
@@ -338,26 +338,26 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
     onChange?.(newValue);
   };
 
-  const handleClear = (e: React.MouseEvent) => {
+  const _handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const newValue = multiple ? [] : '';
+    const _newValue = multiple ? [] : '';
     setInternalValue(newValue);
     onChange?.(newValue);
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
+  const _handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const _query = e.target.value;
     setSearchQuery(query);
     setFocusedIndex(-1);
     onSearch?.(query);
   };
 
-  const renderOption = (option: SelectOption, index: number) => {
-    const isSelected = multiple
+  const _renderOption = (option: SelectOption, index: number) => {
+    const _isSelected = multiple
       ? Array.isArray(currentValue) && currentValue.includes(option.value)
       : currentValue === option.value;
 
-    const isFocused = index === focusedIndex;
+    const _isFocused = index === focusedIndex;
 
     return (
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -418,7 +418,7 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
     );
   };
 
-  const hasValue = multiple
+  const _hasValue = multiple
     ? Array.isArray(currentValue) && currentValue.length > 0
     : currentValue !== '' && currentValue !== undefined;
 

@@ -6,8 +6,8 @@ export function useStrategyEngineData() {
   const [recommendations, setRecommendations] = useState<StrategyRecommendation[0]>([0]);
 
   useEffect(() => {
-    const handler = (rec: StrategyRecommendation) => {
-      setRecommendations((prev: any) => {
+    const _handler = (rec: StrategyRecommendation) => {
+      setRecommendations((prev: unknown) => {
         // Replace if strategyId exists, else add;
 
         // @ts-expect-error TS(2304): Cannot find name 'idx'.

@@ -1,5 +1,4 @@
 import React from 'react';
-// @ts-expect-error TS(6142): Module './PropOllama' was resolved to 'C:/Users/bc... Remove this comment to see the full error message
 import { PropOllamaMessage } from './PropOllama';
 
 interface MessageProps {
@@ -8,15 +7,13 @@ interface MessageProps {
   onSuggestionClick?: (suggestion: string) => void;
 }
 
-const Message: React.FC<MessageProps> = ({ message, variant, onSuggestionClick }) => {
+const _Message: React.FC<MessageProps> = ({ message, variant, onSuggestionClick }) => {
   return (
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div
       className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
       role='listitem'
       aria-label={message.type === 'user' ? 'User message' : 'AI message'}
     >
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className={`max-w-4xl rounded-lg p-4 ${
           message.type === 'user'
@@ -28,9 +25,7 @@ const Message: React.FC<MessageProps> = ({ message, variant, onSuggestionClick }
             : 'bg-gray-50 border border-gray-200 dark:bg-gray-800 dark:border-gray-700'
         }`}
       >
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-start space-x-3'>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
             className={`text-lg ${
               message.type === 'user'
@@ -44,24 +39,18 @@ const Message: React.FC<MessageProps> = ({ message, variant, onSuggestionClick }
           >
             {message.type === 'user' ? '👤' : '🤖'}
           </div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex-1'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`prose prose-sm max-w-none ${variant === 'cyber' ? 'prose-invert' : ''}`}
             >
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='whitespace-pre-wrap'>{message.content}</div>
             </div>
             {/* AI Message Features */}
             {message.type === 'ai' && (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='mt-4 space-y-3'>
                 {/* Confidence Score */}
                 {message.confidence && (
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div className='flex items-center space-x-2'>
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span
                       className={`text-xs font-medium ${
                         variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600'
@@ -69,7 +58,6 @@ const Message: React.FC<MessageProps> = ({ message, variant, onSuggestionClick }
                     >
                       Confidence:
                     </span>
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className={`px-2 py-1 rounded-full text-xs font-bold ${
                         message.confidence >= 80
@@ -91,9 +79,7 @@ const Message: React.FC<MessageProps> = ({ message, variant, onSuggestionClick }
                 )}
                 {/* Suggestions */}
                 {message.suggestions && message.suggestions.length > 0 && (
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div>
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span
                       className={`text-xs font-medium ${
                         variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600'
@@ -101,10 +87,8 @@ const Message: React.FC<MessageProps> = ({ message, variant, onSuggestionClick }
                     >
                       Quick Actions:
                     </span>
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='flex flex-wrap gap-2 mt-2'>
                       {message.suggestions.map((suggestion, idx) => (
-                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <button
                           key={idx}
                           onClick={() => onSuggestionClick && onSuggestionClick(suggestion)}
@@ -123,7 +107,6 @@ const Message: React.FC<MessageProps> = ({ message, variant, onSuggestionClick }
                 )}
               </div>
             )}
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`text-xs mt-2 ${variant === 'cyber' ? 'text-gray-500' : 'text-gray-400'}`}
             >
@@ -136,4 +119,4 @@ const Message: React.FC<MessageProps> = ({ message, variant, onSuggestionClick }
   );
 };
 
-export default Message;
+export default _Message;

@@ -18,8 +18,8 @@ import toast from 'react-hot-toast';
  * - Comprehensive filtering and search
  * - Professional cyber-themed design
  */
-const PrizePicksTab: React.FC = () => {
-  const handleLineupGenerated = (lineup: any) => {
+const _PrizePicksTab: React.FC = () => {
+  const _handleLineupGenerated = (lineup: unknown) => {
     console.log('✅ Lineup optimized:', lineup);
     toast.success(`Lineup optimized! Expected payout: ${lineup.expected_payout.toFixed(2)}x`, {
       duration: 4000,
@@ -27,7 +27,7 @@ const PrizePicksTab: React.FC = () => {
     });
   };
 
-  const handleBetPlaced = (lineup: any) => {
+  const _handleBetPlaced = (lineup: unknown) => {
     console.log('🎯 Bet placed:', lineup);
     toast.success(
       `Bet placed successfully! Expected payout: ${lineup.expected_payout.toFixed(2)}x`,

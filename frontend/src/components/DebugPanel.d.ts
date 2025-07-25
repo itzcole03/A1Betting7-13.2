@@ -1,2 +1,2 @@
 import React from 'react.ts';
-export declare const DebugPanel: React.FC;
+export declare const _DebugPanel: React.FC;

@@ -1,2 +1,2 @@
 import React from 'react.ts';
-export declare const BetSimulationTool: React.FC;
+export declare const _BetSimulationTool: React.FC;

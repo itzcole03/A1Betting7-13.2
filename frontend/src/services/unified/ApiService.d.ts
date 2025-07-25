@@ -16,10 +16,10 @@ export interface ApiServiceEvents {
   response: (response: ApiResponse<unknown>) => void;
 }
 export declare abstract class BaseApiService extends EventEmitter<ApiServiceEvents> {
-  protected readonly client: any;
+  protected readonly client: unknown;
   protected readonly config: ApiServiceConfig;
   constructor(config: ApiServiceConfig);
-  protected abstract initializeClient(): any;
+  protected abstract initializeClient(): unknown;
   protected abstract handleError(error: Error): void;
   protected abstract handleResponse<T>(response: ApiResponse<T>): void;
   abstract get<T>(endpoint: string, params?: Record<string, unknown>): Promise<T>;

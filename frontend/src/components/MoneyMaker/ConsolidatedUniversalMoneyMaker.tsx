@@ -56,7 +56,7 @@ export interface ConsolidatedMoneyMakerProps {
  * ✅ Auto-execution and emergency stop functionality;
  * ✅ Comprehensive logging and alert systems;
  */
-export const ConsolidatedUniversalMoneyMaker: React.FC<ConsolidatedMoneyMakerProps> = ({
+export const _ConsolidatedUniversalMoneyMaker: React.FC<ConsolidatedMoneyMakerProps> = ({
   variant = 'advanced',
   features = {
     scanner: true,

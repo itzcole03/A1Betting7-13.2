@@ -63,8 +63,8 @@ interface VaRAnalysis {
   monteCarloSimulation: number[];
 }
 
-const RiskEngine: React.FC = () => {
-  const loadRiskData = React.useCallback(async () => {
+const _RiskEngine: React.FC = () => {
+  const _loadRiskData = React.useCallback(async () => {
     setIsAnalyzing(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -79,7 +79,7 @@ const RiskEngine: React.FC = () => {
 
   useEffect(() => {
     loadRiskData();
-    const interval = setInterval(loadRiskData, 60000); // Update every minute
+    const _interval = setInterval(loadRiskData, 60000); // Update every minute
     return () => clearInterval(interval);
   }, [loadRiskData]);
   const [alerts, setAlerts] = useState<RiskAlert[]>([]);
@@ -90,11 +90,11 @@ const RiskEngine: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [expandedAlert, setExpandedAlert] = useState<string | null>(null);
 
-  const dismissAlert = (alertId: string) => {
+  const _dismissAlert = (alertId: string) => {
     setAlerts(alerts.map(alert => (alert.id === alertId ? { ...alert, dismissed: true } : alert)));
   };
 
-  const getSeverityColor = (severity: string) => {
+  const _getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
         return 'border-red-500/50 bg-red-500/10 text-red-400';
@@ -109,7 +109,7 @@ const RiskEngine: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const _getStatusColor = (status: string) => {
     switch (status) {
       case 'safe':
         return 'text-green-400';
@@ -122,7 +122,7 @@ const RiskEngine: React.FC = () => {
     }
   };
 
-  const getTrendIcon = (trend: string) => {
+  const _getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'up':
         return <TrendingDown className='w-4 h-4 text-red-400 rotate-180' />;
@@ -135,17 +135,17 @@ const RiskEngine: React.FC = () => {
     }
   };
 
-  const getCorrelationRisk = (correlation: number) => {
-    const abs = Math.abs(correlation);
+  const _getCorrelationRisk = (correlation: number) => {
+    const _abs = Math.abs(correlation);
     if (abs > 0.8) return 'high';
     if (abs > 0.5) return 'medium';
     return 'low';
   };
 
-  const filteredMetrics =
+  const _filteredMetrics =
     selectedCategory === 'all' ? metrics : metrics.filter(m => m.category === selectedCategory);
 
-  const categories = [...new Set(metrics.map(m => m.category))];
+  const _categories = [...new Set(metrics.map(m => m.category))];
 
   return (
     <Layout

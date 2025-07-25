@@ -8,10 +8,10 @@ export interface Recommendation {
 }
 
 export interface ExtendedIntegratedData {
-  odds?: Record<string, any>;
-  injuries?: Record<string, any>;
-  players?: any[];
-  games?: any[];
+  odds?: Record<string, unknown>;
+  injuries?: Record<string, unknown>;
+  players?: unknown[];
+  games?: unknown[];
 }
 
 export class ProjectionBettingStrategy {
@@ -24,7 +24,7 @@ export class ProjectionBettingStrategy {
     return true;
   }
 
-  private calculateRiskFactors(data: ExtendedIntegratedData): any {
+  private calculateRiskFactors(data: ExtendedIntegratedData): unknown {
     return {};
   }
 
@@ -39,11 +39,11 @@ export class ProjectionBettingStrategy {
     return 1.0;
   }
 
-  private calculateMarketVolatility(odds: Record<string, any>): number {
+  private calculateMarketVolatility(odds: Record<string, unknown>): number {
     return 0.1;
   }
 
-  private calculateInjuryRisk(injuries: Record<string, any>): number {
+  private calculateInjuryRisk(injuries: Record<string, unknown>): number {
     return 0.1;
   }
 }

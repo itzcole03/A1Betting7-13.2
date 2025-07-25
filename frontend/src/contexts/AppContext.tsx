@@ -1,3 +1,8 @@
+/**
+ * Global application context and provider for managing loading state, notifications, and user session.
+ *
+ * @module contexts/AppContext
+ */
 import React, { ReactNode, createContext, useContext, useState } from 'react';
 
 /**
@@ -15,29 +20,33 @@ export interface AppContextType {
   setLoading: (loading: boolean) => void;
   notification: string | null;
   setNotification: (msg: string | null) => void;
-  user: any;
-  setUser: (user: any) => void;
+  user: unknown;
+  setUser: (user: unknown) => void;
 }
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
+/**
+ * React context for global app state.
+ */
+const _AppContext = createContext<AppContextType | undefined>(undefined);
 
 /**
- * AppProvider
+ * AppProvider component.
  * Wrap your app with this provider to enable global app state.
- * @param {ReactNode} children
+ * @param {object} props - React children.
+ * @returns {JSX.Element} The provider component.
  */
-export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const _AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<unknown>(null);
 
   return (
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-    <AppContext.Provider
+    // Removed unused @ts-expect-error: JSX is supported in this environment
+    <_AppContext.Provider
       value={{ loading, setLoading, notification, setNotification, user, setUser }}
     >
       {children}
-    </AppContext.Provider>
+    </_AppContext.Provider>
   );
 };
 
@@ -45,8 +54,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
  * useAppContext
  * Access the global app context in any component.
  */
-export const useAppContext = () => {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('useAppContext must be used within AppProvider');
-  return ctx;
+export const _useAppContext = () => {
+  const _ctx = useContext(_AppContext);
+  if (!_ctx) throw new Error('useAppContext must be used within AppProvider');
+  return _ctx;
 };

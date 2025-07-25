@@ -2,7 +2,7 @@ import React from 'react';
 // @ts-expect-error TS(6142): Module './Card' was resolved to 'C:/Users/bcmad/Do... Remove this comment to see the full error message
 import { Card, CardContent, CardHeader } from './Card';
 
-const mockMetrics = [
+const _mockMetrics = [
   { label: 'API Latency', value: '92ms', color: 'text-green-400' },
   { label: 'ML Model Accuracy', value: '96.4%', color: 'text-cyan-400' },
   { label: 'Uptime', value: '99.99%', color: 'text-green-400' },
@@ -15,7 +15,7 @@ const mockMetrics = [
  * Modern, accessible display of key performance metrics for the A1Betting platform.
  * Shows API, ML, uptime, and build stats.
  */
-export const PerformanceMonitor: React.FC = () => {
+export const _PerformanceMonitor: React.FC = () => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <Card className='max-w-2xl mx-auto'>

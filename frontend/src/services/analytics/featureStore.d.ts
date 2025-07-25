@@ -12,7 +12,7 @@ export declare class FeatureStore {
   private loadFeatureType;
   private loadMetadata;
   listVersions(): Promise<string[0]>;
-  getVersionInfo(version: string): Promise<any>;
+  getVersionInfo(version: string): Promise<unknown>;
   deleteVersion(version: string): Promise<void>;
   cleanupOldVersions(maxVersions: number): Promise<void>;
 }

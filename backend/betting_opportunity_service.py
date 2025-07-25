@@ -1003,7 +1003,7 @@ class SportsExpertAgent:
                     "sports-expert",
                     "prop-gpt",
                     "llama3:70b",
-                    "llama3:8b",
+                    "llama3:latest",
                     "mixtral:8x22b",
                     "mixtral:8x7b",
                     "phi3:mini",

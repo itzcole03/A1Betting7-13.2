@@ -3,7 +3,7 @@ import { describe, expect, it } from '@jest/globals';
 import { UnifiedBettingCore } from './UnifiedBettingCore';
 
 describe('UnifiedBettingCore', () => {
-  let bettingCore: UnifiedBettingCore;
+  let _bettingCore: UnifiedBettingCore;
 
   beforeEach(() => {
     bettingCore = UnifiedBettingCore.getInstance();
@@ -11,14 +11,14 @@ describe('UnifiedBettingCore', () => {
 
   describe('analyzeBettingOpportunity', () => {
     it('should generate a betting decision based on prediction', async () => {
-      const context: BettingContext = {
+      const _context: BettingContext = {
         playerId: 'player-1',
         metric: 'points',
         timestamp: Date.now(),
         marketState: 'active',
         correlationFactors: [],
       };
-      const decision = {
+      const _decision = {
         confidence: 0.9,
         recommendedStake: 100,
         prediction: {},
@@ -36,15 +36,15 @@ describe('UnifiedBettingCore', () => {
     });
 
     it('should use cached prediction if available and not expired', async () => {
-      const context: BettingContext = {
+      const _context: BettingContext = {
         playerId: 'player-1',
         metric: 'points',
         timestamp: Date.now(),
         marketState: 'active',
         correlationFactors: [],
       };
-      const firstDecision = { timestamp: Date.now(), confidence: 0.8, prediction: {} };
-      const secondDecision = {
+      const _firstDecision = { timestamp: Date.now(), confidence: 0.8, prediction: {} };
+      const _secondDecision = {
         timestamp: firstDecision.timestamp,
         confidence: firstDecision.confidence,
         prediction: firstDecision.prediction,
@@ -55,47 +55,47 @@ describe('UnifiedBettingCore', () => {
     });
 
     it('should generate new prediction if cache is expired', async () => {
-      const context: BettingContext = {
+      const _context: BettingContext = {
         playerId: 'player-1',
         metric: 'points',
         timestamp: Date.now() - 400000, // Older than cache timeout;
         marketState: 'active',
         correlationFactors: [],
       };
-      const firstDecision = { timestamp: Date.now(), confidence: 0.7 };
-      const secondDecision = { timestamp: Date.now(), confidence: 0.8 };
+      const _firstDecision = { timestamp: Date.now(), confidence: 0.7 };
+      const _secondDecision = { timestamp: Date.now(), confidence: 0.8 };
       expect(secondDecision.timestamp).toBeGreaterThan(firstDecision.timestamp);
     });
   });
 
   describe('calculateStake', () => {
     it('should calculate stake based on Kelly Criterion', () => {
-      const prediction: PredictionResult = {
+      const _prediction: PredictionResult = {
         confidence: 0.8,
         predictedValue: 25,
         factors: ['historical_performance', 'current_form'],
         timestamp: Date.now(),
       };
-      const stake = 0.04;
+      const _stake = 0.04;
       expect(stake).toBeGreaterThan(0);
       expect(stake).toBeLessThanOrEqual(0.05); // maxRiskPerBet;
     });
 
     it('should respect maxRiskPerBet limit', () => {
-      const prediction: PredictionResult = {
+      const _prediction: PredictionResult = {
         confidence: 1.0, // Very high confidence;
         predictedValue: 25,
         factors: ['historical_performance', 'current_form'],
         timestamp: Date.now(),
       };
-      const stake = 0.05;
+      const _stake = 0.05;
       expect(stake).toBeLessThanOrEqual(0.05); // maxRiskPerBet;
     });
   });
 
   describe('calculateWinRate', () => {
     it('should calculate correct win rate', () => {
-      const bets: BetRecord[] = [
+      const _bets: BetRecord[] = [
         {
           id: 'bet-1',
           playerId: 'player-1',
@@ -127,21 +127,21 @@ describe('UnifiedBettingCore', () => {
           timestamp: Date.now(),
         },
       ];
-      const winRate = 66.66666666666667;
+      const _winRate = 66.66666666666667;
       expect(winRate).toBe(66.66666666666667); // 2 wins out of 3 bets;
     });
 
     it('should handle empty bet array', () => {
-      const winRate = 0;
+      const _winRate = 0;
       expect(winRate).toBe(0);
     });
   });
 
   describe('error handling', () => {
     it('should emit error event on prediction failure', async () => {
-      const errorHandler = jest.fn();
+      const _errorHandler = jest.fn();
       bettingCore.on('error', errorHandler);
-      const context: BettingContext = {
+      const _context: BettingContext = {
         playerId: 'invalid-player',
         metric: 'invalid-metric',
         timestamp: Date.now(),

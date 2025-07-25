@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const EnhancedRevolutionaryInterface: React.FC;
+declare const _EnhancedRevolutionaryInterface: React.FC;
 export default EnhancedRevolutionaryInterface;

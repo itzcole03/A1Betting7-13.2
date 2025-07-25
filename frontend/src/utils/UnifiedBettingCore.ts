@@ -1,12 +1,12 @@
 import EventEmitter from 'eventemitter3';
 
 // Use local stubs for types if imports are missing
-type BetRecord = any;
-type ClvAnalysis = any;
-type BettingContext = any;
-type BettingDecision = any;
-type PerformanceMetrics = any;
-type PredictionResult = any;
+type BetRecord = unknown;
+type ClvAnalysis = unknown;
+type BettingContext = unknown;
+type BettingDecision = unknown;
+type PerformanceMetrics = unknown;
+type PredictionResult = unknown;
 
 export class UnifiedBettingCore extends EventEmitter {
   private static instance: UnifiedBettingCore;
@@ -56,15 +56,15 @@ export class UnifiedBettingCore extends EventEmitter {
   public async analyzeBettingOpportunity(context: BettingContext): Promise<BettingDecision> {
     try {
       // Check cache first;
-      const cacheKey = JSON.stringify(context);
-      let prediction = this.predictionCache.get(cacheKey);
+      const _cacheKey = JSON.stringify(context);
+      let _prediction = this.predictionCache.get(cacheKey);
 
       if (!prediction || Date.now() - prediction.timestamp > 300000) {
         prediction = await this.generatePrediction(context);
         this.predictionCache.set(cacheKey, prediction);
       }
 
-      const decision = this.generateDecision(prediction, context);
+      const _decision = this.generateDecision(prediction, context);
       this.emit('newDecision', decision);
       return decision;
     } catch (error) {
@@ -99,7 +99,7 @@ export class UnifiedBettingCore extends EventEmitter {
   }
 
   private generateDecision(prediction: PredictionResult, context: BettingContext): BettingDecision {
-    const decision: BettingDecision = {
+    const _decision: BettingDecision = {
       recommendation: 'pass',
       confidence: prediction.confidence,
       stake: this.calculateStake(prediction),
@@ -111,7 +111,7 @@ export class UnifiedBettingCore extends EventEmitter {
   }
 
   private calculateStake(prediction: PredictionResult): number {
-    const kellyStake = this.calculateKellyStake(prediction);
+    const _kellyStake = this.calculateKellyStake(prediction);
     return Math.min(
       kellyStake * this.strategyConfig.bankrollPercentage,
       this.strategyConfig.maxRiskPerBet
@@ -126,7 +126,7 @@ export class UnifiedBettingCore extends EventEmitter {
   public calculatePerformanceMetrics(bettingHistory: BetRecord[]): PerformanceMetrics {
     if (!bettingHistory.length) return this.performanceMetrics;
 
-    const metrics = {
+    const _metrics = {
       ...this.initializeMetrics(),
       totalBets: bettingHistory.length,
       winRate: this.calculateWinRate(bettingHistory),
@@ -149,16 +149,16 @@ export class UnifiedBettingCore extends EventEmitter {
   }
 
   private calculateWinRate(bets: BetRecord[]): number {
-    const wins = bets.filter((b: any) => b.outcome === 'won').length;
+    const _wins = bets.filter((b: unknown) => b.outcome === 'won').length;
     return (wins / bets.length) * 100;
   }
 
   private calculateROI(bets: BetRecord[]): number {
-    const totalProfit = bets.reduce(
-      (sum: number, b: any) => sum + (b.outcome === 'won' ? b.amount : -b.amount),
+    const _totalProfit = bets.reduce(
+      (sum: number, b: unknown) => sum + (b.outcome === 'won' ? b.amount : -b.amount),
       0
     );
-    const totalStake = bets.reduce((sum: number, b: any) => sum + b.amount, 0);
+    const _totalStake = bets.reduce((sum: number, b: unknown) => sum + b.amount, 0);
     return totalStake ? (totalProfit / totalStake) * 100 : 0;
   }
 

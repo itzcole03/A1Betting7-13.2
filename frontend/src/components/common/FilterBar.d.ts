@@ -1,2 +1,2 @@
 import React from 'react.ts';
-export declare const FilterBar: React.FC;
+export declare const _FilterBar: React.FC;

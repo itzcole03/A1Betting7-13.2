@@ -6,7 +6,7 @@ import { useBetHistoryStore } from '@/store/slices/betHistorySlice';
 import React from 'react';
 import { safeNumber } from '../../utils/UniversalUtils';
 
-export const HistoricalPerformanceDashboard: React.FC = () => {
+export const _HistoricalPerformanceDashboard: React.FC = () => {
   // Get userHistory and modelHistory from the store
   const { userHistory, modelHistory } = useBetHistoryStore();
   return (
@@ -50,7 +50,7 @@ export const HistoricalPerformanceDashboard: React.FC = () => {
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <tbody>
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                {userHistory.entries.map((entry: any) => <tr key={entry.betId} className='border-b'>
+                {userHistory.entries.map((entry: unknown) => <tr key={entry.betId} className='border-b'>
                   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <td className='px-2 py-1'>{entry.date}</td>
                   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -113,7 +113,7 @@ export const HistoricalPerformanceDashboard: React.FC = () => {
               </thead>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <tbody>
-                {modelHistory.flatMap((mh: any) => mh.entries.map((entry: any, idx: any) => (
+                {modelHistory.flatMap((mh: unknown) => mh.entries.map((entry: unknown, idx: unknown) => (
                   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <tr key={mh.model + mh.market + idx} className='border-b'>
                     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

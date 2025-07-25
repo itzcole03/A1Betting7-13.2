@@ -22,4 +22,4 @@ export declare class WeatherService {
    */
   private getCachedData;
 }
-export declare const weatherService: WeatherService;
+export declare const _weatherService: WeatherService;

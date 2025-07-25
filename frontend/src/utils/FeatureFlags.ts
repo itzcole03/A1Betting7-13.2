@@ -1,9 +1,6 @@
-// @ts-expect-error TS(2307): Cannot find module '@/core/UnifiedConfigManager' o... Remove this comment to see the full error message
-import { UnifiedConfigManager } from '@/core/UnifiedConfigManager';
-// @ts-expect-error TS(2307): Cannot find module '@/core/UnifiedMonitor' or its ... Remove this comment to see the full error message
-import { UnifiedMonitor } from '@/core/UnifiedMonitor';
-// @ts-expect-error TS(2307): Cannot find module '@/unified/EventBus' or its cor... Remove this comment to see the full error message
-import { EventBus } from '@/unified/EventBus';
+import { UnifiedConfigManager } from '../../core/UnifiedConfigManager';
+import { UnifiedMonitor } from '../../core/UnifiedMonitor';
+import { EventBus } from '../../unified/EventBus';
 
 export interface Feature {
   id: string;
@@ -67,77 +64,77 @@ export class FeatureFlags {
   }
 
   public async initialize(): Promise<void> {
-    const trace = this.monitor.startTrace('feature-flags-init');
+    const _trace = this.monitor.startTrace('feature-flags-init');
 
     try {
-      const config = await this.configManager.getConfig();
+      const _config = await this.configManager.getConfig();
 
       // Initialize features
-      if (config.features) {
-        const featuresArray = Array.isArray(config.features)
-          ? config.features
-          : Object.values(config.features);
-        for (const feature of featuresArray) {
-          this.features.set(feature.id, feature);
+      if (_config.features) {
+        const _featuresArray = Array.isArray(_config.features)
+          ? _config.features
+          : Object.values(_config.features);
+        for (const _feature of _featuresArray) {
+          this.features.set(_feature.id, _feature);
         }
       }
 
       // Initialize experiments
-      if (config.experiments) {
-        const experimentsArray = Array.isArray(config.experiments)
-          ? config.experiments
-          : Object.values(config.experiments);
-        for (const experiment of experimentsArray) {
-          this.experiments.set(experiment.id, experiment);
+      if (_config.experiments) {
+        const _experimentsArray = Array.isArray(_config.experiments)
+          ? _config.experiments
+          : Object.values(_config.experiments);
+        for (const _experiment of _experimentsArray) {
+          this.experiments.set(_experiment.id, _experiment);
         }
       }
 
-      this.monitor.endTrace(trace);
+      this.monitor.endTrace(_trace);
       this.monitor.recordMetric('feature_flags_initialized', 1);
     } catch (error) {
-      this.monitor.endTrace(trace, error as Error);
+      this.monitor.endTrace(_trace, error as Error);
       this.monitor.recordMetric('feature_flags_init_error', 1);
       throw error;
     }
   }
 
   public isFeatureEnabled(featureId: string, context?: UserContext): boolean {
-    const feature = this.features.get(featureId);
-    if (!feature) return false;
+    const _feature = this.features.get(featureId);
+    if (!_feature) return false;
 
     // 1. Check dependencies
-    if (feature.dependencies && feature.dependencies.length > 0) {
-      for (const depId of feature.dependencies) {
-        const dep = this.features.get(depId);
-        if (!dep || !dep.enabled) {
+    if (_feature.dependencies && _feature.dependencies.length > 0) {
+      for (const _depId of _feature.dependencies) {
+        const _dep = this.features.get(_depId);
+        if (!_dep || !_dep.enabled) {
           return false;
         }
       }
     }
 
     // 2. Check rollout percentage (deterministic by userId)
-    if (feature.rolloutPercentage < 100 && context?.userId) {
-      const hash = this.hashString(context.userId);
-      if (hash >= feature.rolloutPercentage) {
+    if (_feature.rolloutPercentage < 100 && context?.userId) {
+      const _hash = this.hashString(context.userId);
+      if (_hash >= _feature.rolloutPercentage) {
         return false;
       }
     }
 
     // 3. (Optional) Check tags vs userGroups (if feature has tags and context has userGroups)
     if (
-      feature.tags &&
-      feature.tags.length > 0 &&
+      _feature.tags &&
+      _feature.tags.length > 0 &&
       context?.userGroups &&
       context.userGroups.length > 0
     ) {
-      const hasMatchingGroup = feature.tags.some(tag => context.userGroups.includes(tag));
-      if (!hasMatchingGroup) {
+      const _hasMatchingGroup = _feature.tags.some(tag => context.userGroups.includes(tag));
+      if (!_hasMatchingGroup) {
         return false;
       }
     }
 
     // 4. Feature enabled flag
-    return feature.enabled;
+    return _feature.enabled;
   }
 
   public getFeature(featureId: string): Feature | undefined {
@@ -165,12 +162,12 @@ export class FeatureFlags {
   }
 
   public updateExperiment(experimentId: string, updates: Partial<Experiment>): void {
-    const experiment = this.experiments.get(experimentId);
-    if (!experiment) {
+    const _experiment = this.experiments.get(experimentId);
+    if (!_experiment) {
       throw new Error('Experiment ' + experimentId + ' not found');
     }
     this.experiments.set(experimentId, {
-      ...experiment,
+      ..._experiment,
       ...updates,
     });
     this.monitor.recordMetric('experiment_updated', 1, {
@@ -183,8 +180,8 @@ export class FeatureFlags {
     if (!this.userAssignments.has(userId)) {
       this.userAssignments.set(userId, {});
     }
-    const userAssignments = this.userAssignments.get(userId)!;
-    userAssignments[experimentId] = variantId;
+    const _userAssignments = this.userAssignments.get(userId)!;
+    _userAssignments[experimentId] = variantId;
     this.monitor.recordMetric('user_assigned_to_variant', 1, {
       user_id: userId,
       experiment_id: experimentId,
@@ -204,12 +201,12 @@ export class FeatureFlags {
   }
 
   public updateFeature(featureId: string, updates: Partial<Feature>): void {
-    const feature = this.features.get(featureId);
-    if (!feature) {
+    const _feature = this.features.get(featureId);
+    if (!_feature) {
       throw new Error('Feature ' + featureId + ' not found');
     }
     this.features.set(featureId, {
-      ...feature,
+      ..._feature,
       ...updates,
     });
     this.monitor.recordMetric('feature_updated', 1, {
@@ -219,13 +216,13 @@ export class FeatureFlags {
   }
 
   private hashString(str: string): number {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash; // Convert to 32-bit integer
+    let _hash = 0;
+    for (let _i = 0; _i < str.length; _i++) {
+      const _char = str.charCodeAt(_i);
+      _hash = (_hash << 5) - _hash + _char;
+      _hash = _hash & _hash; // Convert to 32-bit integer
     }
-    return Math.abs(hash);
+    return Math.abs(_hash);
   }
 
   public registerFeature(feature: Feature): void {

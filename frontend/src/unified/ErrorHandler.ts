@@ -89,8 +89,8 @@ export class ErrorHandler {
    * Update error metrics for monitoring
    */
   private updateErrorMetrics(error: Error, context: string): void {
-    const key = `${context}_${error.name}`;
-    const existing = this.errorMetrics.get(key) || {
+    const _key = `${context}_${error.name}`;
+    const _existing = this.errorMetrics.get(key) || {
       count: 0,
       lastError: error,
       timestamp: Date.now(),
@@ -129,7 +129,7 @@ export class ErrorHandler {
    * @param listener - The listener function to remove
    */
   public removeErrorListener(listener: (error: Error, context: string) => void): void {
-    const index = this.errorListeners.indexOf(listener);
+    const _index = this.errorListeners.indexOf(listener);
     if (index !== -1) {
       this.errorListeners.splice(index, 1);
     }
@@ -154,10 +154,10 @@ export class ErrorHandler {
    * @param fn - Function to wrap
    * @param context - Context for error handling
    */
-  public wrapFunction<T extends (...args: any[]) => any>(fn: T, context: string): T {
-    return ((...args: any[]) => {
+  public wrapFunction<T extends (...args: unknown[]) => unknown>(fn: T, context: string): T {
+    return ((...args: unknown[]) => {
       try {
-        const result = fn(...args);
+        const _result = fn(...args);
         // Handle async functions
         if (result && typeof result.catch === 'function') {
           return result.catch((error: Error) => {
@@ -180,14 +180,14 @@ export class ErrorHandler {
    */
   public handleWebSocketError(error: Error, context: string = 'websocket_operation'): void {
     // Check if this is a known non-critical WebSocket error
-    const nonCriticalErrors = [
+    const _nonCriticalErrors = [
       'WebSocket closed without opened',
       'WebSocket connection timeout',
       'WebSocket connection failed',
       'Connection refused',
     ];
 
-    const isNonCritical = nonCriticalErrors.some(
+    const _isNonCritical = nonCriticalErrors.some(
       pattern => error.message?.includes(pattern) || error.toString().includes(pattern)
     );
 
@@ -231,5 +231,5 @@ export class ErrorHandler {
 }
 
 // Create and export a default instance
-const errorHandler = ErrorHandler.getInstance();
+const _errorHandler = ErrorHandler.getInstance();
 export default errorHandler;

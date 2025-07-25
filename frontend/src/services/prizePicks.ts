@@ -20,7 +20,7 @@ export interface EnhancedPrediction {
 
 export interface PropOllamaRequest {
   message: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   analysisType?: string;
   sport?: string;
 }
@@ -32,7 +32,7 @@ export interface PropOllamaResponse {
   model_used: string;
   response_time: number;
   analysis_type: string;
-  shap_explanation?: Record<string, any>;
+  shap_explanation?: Record<string, unknown>;
 }
 
 class PrizePicksService {
@@ -43,7 +43,7 @@ class PrizePicksService {
    */
   async getEnhancedPredictions(): Promise<EnhancedPrediction[]> {
     try {
-      const response = await ApiService.get<EnhancedPrediction[]>(
+      const _response = await ApiService.get<EnhancedPrediction[]>(
         `${this.baseEndpoint}/predictions/prizepicks/enhanced`,
         {
           cache: true,
@@ -62,7 +62,7 @@ class PrizePicksService {
    */
   async getLiveProps(): Promise<PlayerProp[]> {
     try {
-      const response = await ApiService.get<any[]>(`/api/prizepicks/props`, { cache: false });
+      const _response = await ApiService.get<unknown[]>(`/api/prizepicks/props`, { cache: false });
       // Transform backend data to PlayerProp[]
       return response.data.map((prop, index) => {
         // @ts-expect-error TS(2352): Conversion of type '{ id: any; playerId: any; play... Remove this comment to see the full error message
@@ -110,19 +110,19 @@ class PrizePicksService {
   transformToPlayerProps(predictions: EnhancedPrediction[]): PlayerProp[] {
     return predictions.map((pred, index) => {
       // Extract player name and stat from event/prediction
-      const eventParts = pred.event.split(' - ');
-      const playerName = eventParts[0] || `Player ${index + 1}`;
-      const statType = eventParts[1] || pred.prediction.split(' ')[0] || 'Points';
+      const _eventParts = pred.event.split(' - ');
+      const _playerName = eventParts[0] || `Player ${index + 1}`;
+      const _statType = eventParts[1] || pred.prediction.split(' ')[0] || 'Points';
 
       // Extract line value from prediction (e.g., "Points O/U 25.5" -> 25.5)
-      const lineMatch = pred.prediction.match(/(\d+\.?\d*)/);
-      const line = lineMatch ? parseFloat(lineMatch[1]) : 25.0;
+      const _lineMatch = pred.prediction.match(/(\d+\.?\d*)/);
+      const _line = lineMatch ? parseFloat(lineMatch[1]) : 25.0;
 
       // Generate realistic projection based on confidence and expected value
-      const projection = line + pred.expected_value * line * 0.1;
+      const _projection = line + pred.expected_value * line * 0.1;
 
       // Extract team from sport context or use default
-      const team = this.extractTeamFromSport(pred.sport) || 'TBD';
+      const _team = this.extractTeamFromSport(pred.sport) || 'TBD';
 
       // @ts-expect-error TS(2352): Conversion of type '{ id: string; playerId: string... Remove this comment to see the full error message
       return {
@@ -165,7 +165,7 @@ class PrizePicksService {
    */
   async chatWithPropOllama(request: PropOllamaRequest): Promise<PropOllamaResponse> {
     try {
-      const response = await ApiService.post<PropOllamaResponse>(
+      const _response = await ApiService.post<PropOllamaResponse>(
         `${this.baseEndpoint}/propollama/chat`,
         request,
         {
@@ -184,7 +184,7 @@ class PrizePicksService {
    */
   async getPropOllamaStatus() {
     try {
-      const response = await ApiService.get(`${this.baseEndpoint}/propollama/status`);
+      const _response = await ApiService.get(`${this.baseEndpoint}/propollama/status`);
       return response.data;
     } catch (error) {
       console.error('Failed to get PropOllama status:', error);
@@ -197,7 +197,7 @@ class PrizePicksService {
    */
   async getBackendHealth() {
     try {
-      const response = await ApiService.get('/health');
+      const _response = await ApiService.get('/health');
       return response.data;
     } catch (error) {
       console.error('Backend health check failed:', error);
@@ -210,7 +210,7 @@ class PrizePicksService {
    */
   async getTrainingStatus() {
     try {
-      const response = await ApiService.get('/status/training');
+      const _response = await ApiService.get('/status/training');
       return response.data;
     } catch (error) {
       console.error('Failed to get training status:', error);
@@ -224,7 +224,7 @@ class PrizePicksService {
   async getPrizePicksData(): Promise<{
     props: PlayerProp[];
     stats: PrizePicksStats;
-    backendStatus: any;
+    backendStatus: unknown;
   }> {
     try {
       // Fetch all data in parallel
@@ -235,10 +235,10 @@ class PrizePicksService {
       ]);
 
       // Transform predictions to PlayerProps
-      const props = this.transformToPlayerProps(predictions);
+      const _props = this.transformToPlayerProps(predictions);
 
       // Generate stats based on real backend data
-      const stats: PrizePicksStats = {
+      const _stats: PrizePicksStats = {
         totalLineups: 247 + Math.floor(Math.random() * 50), // Increment over time
         winRate: Math.min(
           95,
@@ -272,7 +272,7 @@ class PrizePicksService {
 
   // Helper methods
   private extractTeamFromSport(sport: string): string {
-    const teamMappings: Record<string, string[]> = {
+    const _teamMappings: Record<string, string[]> = {
       basketball: ['LAL', 'GSW', 'BOS', 'MIA', 'DEN', 'PHX'],
       football: ['KC', 'BUF', 'DAL', 'SF', 'PHI', 'MIA'],
       baseball: ['LAD', 'NYY', 'HOU', 'ATL', 'NYM', 'SD'],
@@ -284,12 +284,12 @@ class PrizePicksService {
       esports: ['T1', 'NAVI', 'SEN', 'FAZE'],
     };
 
-    const teams = teamMappings[sport] || teamMappings.basketball;
+    const _teams = teamMappings[sport] || teamMappings.basketball;
     return teams[Math.floor(Math.random() * teams.length)];
   }
 
   private getPositionFromSport(sport: string): string {
-    const positionMappings: Record<string, string[]> = {
+    const _positionMappings: Record<string, string[]> = {
       basketball: ['PG', 'SG', 'SF', 'PF', 'C'],
       football: ['QB', 'RB', 'WR', 'TE', 'K'],
       baseball: ['P', 'C', '1B', '2B', '3B', 'SS', 'OF'],
@@ -301,12 +301,12 @@ class PrizePicksService {
       esports: ['TOP', 'JNG', 'MID', 'ADC', 'SUP'],
     };
 
-    const positions = positionMappings[sport] || positionMappings.basketball;
+    const _positions = positionMappings[sport] || positionMappings.basketball;
     return positions[Math.floor(Math.random() * positions.length)];
   }
 
   private generateMatchup(sport: string): string {
-    const matchups: Record<string, string[]> = {
+    const _matchups: Record<string, string[]> = {
       basketball: ['vs GSW', '@ BOS', 'vs MIA', '@ DEN', 'vs PHX'],
       football: ['vs BUF', '@ DAL', 'vs SF', '@ PHI', 'vs MIA'],
       baseball: ['vs NYY', '@ HOU', 'vs ATL', '@ NYM', 'vs SD'],
@@ -318,7 +318,7 @@ class PrizePicksService {
       esports: ['vs NAVI', '@ Worlds'],
     };
 
-    const options = matchups[sport] || matchups.basketball;
+    const _options = matchups[sport] || matchups.basketball;
     return options[Math.floor(Math.random() * options.length)];
   }
 

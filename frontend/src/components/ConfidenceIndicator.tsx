@@ -4,8 +4,8 @@ interface ConfidenceIndicatorProps {
   confidence: number;
 }
 
-const ConfidenceIndicator: React.FC<ConfidenceIndicatorProps> = ({ confidence }) => {
-  const getColor = () => {
+const _ConfidenceIndicator: React.FC<ConfidenceIndicatorProps> = ({ confidence }) => {
+  const _getColor = () => {
     if (confidence >= 0.85) return 'bg-green-500';
     if (confidence >= 0.7) return 'bg-yellow-400';
     return 'bg-red-400';

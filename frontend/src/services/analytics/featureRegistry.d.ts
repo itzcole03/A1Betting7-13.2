@@ -9,11 +9,11 @@ export declare class FeatureRegistry {
   registerFeatures(features: EngineeredFeatures, version: string): Promise<void>;
   getFeatures(version: string): Promise<EngineeredFeatures>;
   listVersions(): Promise<string[0]>;
-  getVersionInfo(version: string): Promise<any>;
+  getVersionInfo(version: string): Promise<unknown>;
   deleteVersion(version: string): Promise<void>;
   cleanupOldVersions(maxVersions: number): Promise<void>;
   private validateFeatures;
-  getFeatureStats(version: string): Promise<any>;
+  getFeatureStats(version: string): Promise<unknown>;
   private calculateNumericalStats;
   private calculateCategoricalStats;
   private calculateTemporalStats;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const EvolutionaryInsights: React.FC = () => (
+const _EvolutionaryInsights: React.FC = () => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div
     style={{

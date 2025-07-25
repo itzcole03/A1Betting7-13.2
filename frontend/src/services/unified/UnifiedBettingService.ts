@@ -4,7 +4,7 @@ import { UnifiedWebSocketService } from './UnifiedWebSocketService';
 interface BettingConfig {
   minConfidence: number;
   maxStakePercentage: number;
-  riskProfile: any;
+  riskProfile: unknown;
   autoRefresh: boolean;
   refreshInterval: number;
 }
@@ -42,41 +42,41 @@ export class UnifiedBettingService extends BaseService {
     this.wsService.on('bet_result', this.handleBetResult.bind(this));
   }
 
-  private handleOddsUpdate(data: any): void {
+  private handleOddsUpdate(data: unknown): void {
     this.emit('odds_updated', data);
   }
 
-  private handleBettingOpportunities(data: any): void {
-    const validatedOpportunities = this.validateBettingOpportunities(data);
+  private handleBettingOpportunities(data: unknown): void {
+    const _validatedOpportunities = this.validateBettingOpportunities(data);
     this.emit('opportunities_updated', validatedOpportunities);
   }
 
-  private handleBetResult(data: any): void {
+  private handleBetResult(data: unknown): void {
     this.updateBettingMetrics(data);
     this.emit('bet_result', data);
   }
 
-  private validateBettingOpportunities(opportunities: any[]): any[] {
+  private validateBettingOpportunities(opportunities: unknown[]): unknown[] {
     return opportunities.filter(opp => {
-      const confidence = this.calculateOpportunityConfidence(opp);
+      const _confidence = this.calculateOpportunityConfidence(opp);
       return confidence >= this.config.minConfidence;
     });
   }
 
-  private calculateOpportunityConfidence(opportunity: any): number {
+  private calculateOpportunityConfidence(opportunity: unknown): number {
     // Simple confidence calculation based on odds and market analysis
     const { odds, marketDepth, volume } = opportunity;
-    const baseConfidence = Math.min(1, (marketDepth * volume) / 1000);
-    const oddsConfidence = Math.min(1, 1 / odds);
+    const _baseConfidence = Math.min(1, (marketDepth * volume) / 1000);
+    const _oddsConfidence = Math.min(1, 1 / odds);
     return (baseConfidence + oddsConfidence) / 2;
   }
 
-  private updateBettingMetrics(betResult: any): void {
+  private updateBettingMetrics(betResult: unknown): void {
     // Update internal metrics tracking
     this.emit('metrics_updated', this.calculateMetrics());
   }
 
-  private calculateMetrics(): any {
+  private calculateMetrics(): unknown {
     return {
       winRate: this.calculateWinRate(),
       averageOdds: this.calculateAverageOdds(),
@@ -101,9 +101,9 @@ export class UnifiedBettingService extends BaseService {
     return 0.15;
   }
 
-  async getBettingOpportunities(): Promise<any[]> {
+  async getBettingOpportunities(): Promise<unknown[]> {
     try {
-      const response = await this.get<any[]>(`${this.apiUrl}/opportunities`);
+      const _response = await this.get<unknown[]>(`${this.apiUrl}/opportunities`);
       return this.validateBettingOpportunities(response);
     } catch (error) {
       this.logger.error('Failed to fetch betting opportunities', error);
@@ -111,7 +111,7 @@ export class UnifiedBettingService extends BaseService {
     }
   }
 
-  async placeBet(bet: any): Promise<boolean> {
+  async placeBet(bet: unknown): Promise<boolean> {
     try {
       await this.post(`${this.apiUrl}/place`, bet);
       this.logger.info('Bet placed successfully', { betId: bet.id });
@@ -122,9 +122,9 @@ export class UnifiedBettingService extends BaseService {
     }
   }
 
-  async getBettingMetrics(): Promise<any> {
+  async getBettingMetrics(): Promise<unknown> {
     try {
-      const response = await this.get(`${this.apiUrl}/metrics`);
+      const _response = await this.get(`${this.apiUrl}/metrics`);
       return response;
     } catch (error) {
       this.logger.error('Failed to fetch betting metrics', error);
@@ -132,9 +132,9 @@ export class UnifiedBettingService extends BaseService {
     }
   }
 
-  async getBetHistory(): Promise<any[]> {
+  async getBetHistory(): Promise<unknown[]> {
     try {
-      const response = await this.get<any[]>(`${this.apiUrl}/history`);
+      const _response = await this.get<unknown[]>(`${this.apiUrl}/history`);
       return response;
     } catch (error) {
       this.logger.error('Failed to fetch bet history', error);
@@ -151,7 +151,7 @@ export class UnifiedBettingService extends BaseService {
     return { ...this.config };
   }
 
-  private emit(event: string, data?: any): void {
+  private emit(event: string, data?: unknown): void {
     // Emit events through the EventEmitter interface
     super.emit(event, data);
   }

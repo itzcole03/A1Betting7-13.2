@@ -28,7 +28,7 @@ interface PortfolioOptimizerProps {
   isLoading?: boolean;
 }
 
-const PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
+const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
   metrics,
   predictions,
   onOptimize,
@@ -46,7 +46,7 @@ const PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
   // Auto-select top bets based on optimization mode
   useEffect(() => {
     if (predictions.length > 0) {
-      let sortedPredictions = [...predictions];
+      let _sortedPredictions = [...predictions];
 
       switch (optimizationMode) {
         case 'aggressive':
@@ -66,13 +66,13 @@ const PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
           );
       }
 
-      const topBets = sortedPredictions.slice(0, maxPositions).map(bet => bet.id);
+      const _topBets = sortedPredictions.slice(0, maxPositions).map(bet => bet.id);
       setSelectedBets(new Set(topBets));
     }
   }, [predictions, optimizationMode, maxPositions]);
 
-  const toggleBetSelection = (betId: string) => {
-    const newSelected = new Set(selectedBets);
+  const _toggleBetSelection = (betId: string) => {
+    const _newSelected = new Set(selectedBets);
     if (newSelected.has(betId)) {
       newSelected.delete(betId);
     } else {
@@ -81,25 +81,25 @@ const PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
     setSelectedBets(newSelected);
   };
 
-  const selectedPredictions = predictions.filter(bet => selectedBets.has(bet.id));
+  const _selectedPredictions = predictions.filter(bet => selectedBets.has(bet.id));
 
   // Calculate portfolio metrics for selected bets
-  const calculatePortfolioMetrics = () => {
+  const _calculatePortfolioMetrics = () => {
     if (selectedPredictions.length === 0) return null;
 
-    const totalEV = selectedPredictions.reduce((sum, bet) => sum + bet.expected_value, 0);
-    const avgConfidence =
+    const _totalEV = selectedPredictions.reduce((sum, bet) => sum + bet.expected_value, 0);
+    const _avgConfidence =
       selectedPredictions.reduce((sum, bet) => sum + bet.confidence, 0) /
       selectedPredictions.length;
-    const totalKelly = selectedPredictions.reduce((sum, bet) => sum + bet.kelly_fraction, 0);
-    const avgRisk =
+    const _totalKelly = selectedPredictions.reduce((sum, bet) => sum + bet.kelly_fraction, 0);
+    const _avgRisk =
       selectedPredictions.reduce((sum, bet) => sum + bet.risk_assessment.overall_risk, 0) /
       selectedPredictions.length;
 
     // Diversification score
-    const uniqueSports = new Set(selectedPredictions.map(bet => bet.sport)).size;
-    const uniqueTeams = new Set(selectedPredictions.map(bet => bet.team)).size;
-    const diversificationScore = (uniqueSports + uniqueTeams) / (2 * selectedPredictions.length);
+    const _uniqueSports = new Set(selectedPredictions.map(bet => bet.sport)).size;
+    const _uniqueTeams = new Set(selectedPredictions.map(bet => bet.team)).size;
+    const _diversificationScore = (uniqueSports + uniqueTeams) / (2 * selectedPredictions.length);
 
     return {
       totalExpectedValue: totalEV,
@@ -112,15 +112,15 @@ const PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
     };
   };
 
-  const currentMetrics = calculatePortfolioMetrics();
+  const _currentMetrics = calculatePortfolioMetrics();
 
-  const getRiskColor = (risk: number) => {
+  const _getRiskColor = (risk: number) => {
     if (risk < 0.3) return 'text-green-400';
     if (risk < 0.6) return 'text-yellow-400';
     return 'text-red-400';
   };
 
-  const getRiskLevel = (risk: number) => {
+  const _getRiskLevel = (risk: number) => {
     if (risk < 0.3) return 'LOW';
     if (risk < 0.6) return 'MEDIUM';
     return 'HIGH';
@@ -197,7 +197,7 @@ const PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
           <select
             id='po-optimization-mode'
             value={optimizationMode}
-            onChange={e => setOptimizationMode(e.target.value as any)}
+            onChange={e => setOptimizationMode(e.target.value as unknown)}
             className='w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500'
           >
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -325,8 +325,8 @@ const PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='max-h-64 overflow-y-auto space-y-2'>
           {predictions.slice(0, 10).map(bet => {
-            const isSelected = selectedBets.has(bet.id);
-            const kellyStake = bet.kelly_fraction * investmentAmount;
+            const _isSelected = selectedBets.has(bet.id);
+            const _kellyStake = bet.kelly_fraction * investmentAmount;
 
             return (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

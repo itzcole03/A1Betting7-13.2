@@ -13,11 +13,11 @@ export declare class AdvancedEnsembleModel extends BaseModel {
   constructor(config: AdvancedEnsembleConfig);
   private initializeModels;
   private createModel;
-  predict(data: any): Promise<any>;
+  predict(data: unknown): Promise<unknown>;
   private combinePredictions;
   private calculateConfidence;
-  train(data: any): Promise<void>;
-  evaluate(data: any): Promise<ModelMetrics>;
+  train(data: unknown): Promise<void>;
+  evaluate(data: unknown): Promise<ModelMetrics>;
   save(path: string): Promise<void>;
   load(path: string): Promise<void>;
 }

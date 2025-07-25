@@ -28,7 +28,7 @@ interface LiveFeedItem {
   type: 'success' | 'info' | 'warning' | 'alert';
 }
 
-const Dashboard: React.FC = () => {
+const _Dashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<Metric[]>([
     {
       label: 'Win Rate',
@@ -128,18 +128,18 @@ const Dashboard: React.FC = () => {
 
   // Simulate real-time updates
   useEffect(() => {
-    const interval = setInterval(() => {
+    const _interval = setInterval(() => {
       // Update metrics slightly
       setMetrics(prev =>
         prev.map(metric => {
           if (metric.label === 'Win Rate') {
-            const currentValue = parseFloat(metric.value.toString());
-            const newValue = (currentValue + (Math.random() - 0.5) * 0.2).toFixed(1);
+            const _currentValue = parseFloat(metric.value.toString());
+            const _newValue = (currentValue + (Math.random() - 0.5) * 0.2).toFixed(1);
             return { ...metric, value: `${newValue}%` };
           }
           if (metric.label === 'Live Opportunities') {
-            const currentValue = parseInt(metric.value.toString());
-            const change = Math.floor((Math.random() - 0.5) * 3);
+            const _currentValue = parseInt(metric.value.toString());
+            const _change = Math.floor((Math.random() - 0.5) * 3);
             return { ...metric, value: Math.max(1, currentValue + change) };
           }
           return metric;
@@ -150,12 +150,12 @@ const Dashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleRefresh = () => {
+  const _handleRefresh = () => {
     setIsRefreshing(true);
     setTimeout(() => {
       setIsRefreshing(false);
       // Add new feed item
-      const newFeedItem: LiveFeedItem = {
+      const _newFeedItem: LiveFeedItem = {
         id: Date.now().toString(),
         time: new Date().toLocaleTimeString('en-US', {
           hour12: false,
@@ -169,27 +169,27 @@ const Dashboard: React.FC = () => {
     }, 1500);
   };
 
-  const executeQuickBet = () => {
+  const _executeQuickBet = () => {
     console.log('Executing quick bet...');
     // Add implementation
   };
 
-  const runQuickArbitrage = () => {
+  const _runQuickArbitrage = () => {
     console.log('Running quick arbitrage...');
     // Add implementation
   };
 
-  const scanAllBooks = () => {
+  const _scanAllBooks = () => {
     console.log('Scanning all books...');
     // Add implementation
   };
 
-  const optimizePortfolio = () => {
+  const _optimizePortfolio = () => {
     console.log('Optimizing portfolio...');
     // Add implementation
   };
 
-  const executeBet = (betId: string) => {
+  const _executeBet = (betId: string) => {
     console.log('Executing bet:', betId);
     // Add implementation
   };

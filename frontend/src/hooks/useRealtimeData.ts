@@ -35,7 +35,7 @@ interface UseRealtimeDataResult<T> {
   data: T | null;
   isConnected: boolean;
   error: Error | null;
-  send: (message: any) => void;
+  send: (message: unknown) => void;
   subscribe: (channel: string) => void;
   unsubscribe: (channel: string) => void;
   reconnect: () => void;
@@ -100,15 +100,15 @@ export function useRealtimeData<T = RealtimeData>({
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const wsRef = useRef<WebSocket | null>(null);
-  const reconnectCountRef = useRef(0);
-  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const subscriptionsRef = useRef<Set<string>>(new Set(subscriptions));
+  const _wsRef = useRef<WebSocket | null>(null);
+  const _reconnectCountRef = useRef(0);
+  const _heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const _subscriptionsRef = useRef<Set<string>>(new Set(subscriptions));
 
   /**
    * Initialize default real-time data structure
    */
-  const initializeDefaultData = useCallback((): T => {
+  const _initializeDefaultData = useCallback((): T => {
     // @ts-expect-error TS(2352): Conversion of type '{ liveGames: number; predictio... Remove this comment to see the full error message
     return {
       liveGames: 0,
@@ -142,7 +142,7 @@ export function useRealtimeData<T = RealtimeData>({
   /**
    * Fetch initial data from REST API
    */
-  const fetchInitialData = useCallback(async () => {
+  const _fetchInitialData = useCallback(async () => {
     try {
       //       console.log('📊 Fetching initial real-time data from API...');
 
@@ -152,11 +152,11 @@ export function useRealtimeData<T = RealtimeData>({
         apiService.getPerformanceMetrics(),
       ]);
 
-      let combinedData = initializeDefaultData();
+      let _combinedData = initializeDefaultData();
 
       // Process health check data
       if (healthResponse.status === 'fulfilled') {
-        const healthData = healthResponse.value.data;
+        const _healthData = healthResponse.value.data;
         //         console.log('✅ Health data received:', healthData);
 
         combinedData = {
@@ -175,7 +175,7 @@ export function useRealtimeData<T = RealtimeData>({
 
       // Process analytics data
       if (analyticsResponse.status === 'fulfilled') {
-        const analyticsData = analyticsResponse.value.data;
+        const _analyticsData = analyticsResponse.value.data;
         //         console.log('✅ Analytics data received:', analyticsData);
 
         combinedData = {
@@ -188,7 +188,7 @@ export function useRealtimeData<T = RealtimeData>({
 
       // Process metrics data
       if (metricsResponse.status === 'fulfilled') {
-        const metricsData = metricsResponse.value.data;
+        const _metricsData = metricsResponse.value.data;
         //         console.log('✅ Metrics data received:', metricsData);
 
         combinedData = {
@@ -210,7 +210,7 @@ export function useRealtimeData<T = RealtimeData>({
   /**
    * Send heartbeat to keep connection alive
    */
-  const sendHeartbeat = useCallback(() => {
+  const _sendHeartbeat = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(
         JSON.stringify({
@@ -224,7 +224,7 @@ export function useRealtimeData<T = RealtimeData>({
   /**
    * Setup heartbeat interval
    */
-  const setupHeartbeat = useCallback(() => {
+  const _setupHeartbeat = useCallback(() => {
     if (heartbeatIntervalRef.current) {
       clearInterval(heartbeatIntervalRef.current);
     }
@@ -235,10 +235,10 @@ export function useRealtimeData<T = RealtimeData>({
   /**
    * Handle incoming WebSocket messages
    */
-  const handleMessage = useCallback(
+  const _handleMessage = useCallback(
     (event: MessageEvent) => {
       try {
-        const message: WebSocketMessage<any> = JSON.parse(event.data);
+        const _message: WebSocketMessage<unknown> = JSON.parse(event.data);
 
         // Update data based on message type
         switch (message.type) {
@@ -306,7 +306,7 @@ export function useRealtimeData<T = RealtimeData>({
   /**
    * Connect to WebSocket
    */
-  const connect = useCallback(() => {
+  const _connect = useCallback(() => {
     // Don't create new connection if one already exists and is connecting/open
     if (
       wsRef.current &&
@@ -378,13 +378,13 @@ export function useRealtimeData<T = RealtimeData>({
 
       wsRef.current.onerror = error => {
         //         console.error('❌ WebSocket error:', error);
-        const wsError = new Error('WebSocket connection error');
+        const _wsError = new Error('WebSocket connection error');
         setError(wsError);
         if (onError) onError(wsError);
       };
     } catch (error) {
       //       console.error('❌ Failed to create WebSocket connection:', error);
-      const connectionError = error instanceof Error ? error : new Error('Failed to connect');
+      const _connectionError = error instanceof Error ? error : new Error('Failed to connect');
       setError(connectionError);
       if (onError) onError(connectionError);
     }
@@ -402,14 +402,14 @@ export function useRealtimeData<T = RealtimeData>({
   /**
    * Disconnect WebSocket
    */
-  const disconnect = useCallback(() => {
+  const _disconnect = useCallback(() => {
     if (heartbeatIntervalRef.current) {
       clearInterval(heartbeatIntervalRef.current);
     }
 
     if (wsRef.current) {
       // Check WebSocket state before closing
-      const readyState = wsRef.current.readyState;
+      const _readyState = wsRef.current.readyState;
 
       if (readyState === WebSocket.OPEN || readyState === WebSocket.CONNECTING) {
         try {
@@ -429,7 +429,7 @@ export function useRealtimeData<T = RealtimeData>({
   /**
    * Send message through WebSocket
    */
-  const send = useCallback((message: any) => {
+  const _send = useCallback((message: unknown) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(message));
     } else {
@@ -440,7 +440,7 @@ export function useRealtimeData<T = RealtimeData>({
   /**
    * Subscribe to a channel
    */
-  const subscribe = useCallback(
+  const _subscribe = useCallback(
     (channel: string) => {
       subscriptionsRef.current.add(channel);
       send({ type: 'subscribe', channel });
@@ -451,7 +451,7 @@ export function useRealtimeData<T = RealtimeData>({
   /**
    * Unsubscribe from a channel
    */
-  const unsubscribe = useCallback(
+  const _unsubscribe = useCallback(
     (channel: string) => {
       subscriptionsRef.current.delete(channel);
       send({ type: 'unsubscribe', channel });
@@ -462,7 +462,7 @@ export function useRealtimeData<T = RealtimeData>({
   /**
    * Manual reconnection
    */
-  const reconnect = useCallback(() => {
+  const _reconnect = useCallback(() => {
     disconnect();
     reconnectCountRef.current = 0;
     connect();
@@ -493,7 +493,7 @@ export function useRealtimeData<T = RealtimeData>({
 
 // Export default hook with RealtimeData type
 // @ts-expect-error TS(2300): Duplicate identifier 'useRealtimeData'.
-export const useRealtimeData = () => useRealtimeData<RealtimeData>();
+export const _useRealtimeData = () => useRealtimeData<RealtimeData>();
 
 // Export types
 export type { RealtimeData, UseRealtimeDataOptions, UseRealtimeDataResult, WebSocketMessage };

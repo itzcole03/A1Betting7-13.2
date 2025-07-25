@@ -33,7 +33,7 @@ interface UserManagementProps {
   adminEmail: string;
 }
 
-const UserManagement: React.FC<UserManagementProps> = ({ authToken, adminEmail }) => {
+const _UserManagement: React.FC<UserManagementProps> = ({ authToken, adminEmail }) => {
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,13 +48,13 @@ const UserManagement: React.FC<UserManagementProps> = ({ authToken, adminEmail }
     loadUsers();
   }, []);
 
-  const loadUsers = async () => {
+  const _loadUsers = async () => {
     try {
       setLoading(true);
       setError(null);
 
       // In production, this would fetch from an API
-      const mockUsers: UserData[] = [
+      const _mockUsers: UserData[] = [
         {
           id: 'user_001',
           email: 'cole@example.com',
@@ -111,14 +111,14 @@ const UserManagement: React.FC<UserManagementProps> = ({ authToken, adminEmail }
     }
   };
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+  const _filteredUsers = users.filter(user => {
+    const _matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const _matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    const _matchesStatus = statusFilter === 'all' || user.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  const getStatusBadge = (status: UserData['status']) => {
+  const _getStatusBadge = (status: UserData['status']) => {
     switch (status) {
       case 'active':
         return (
@@ -150,7 +150,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ authToken, adminEmail }
     }
   };
 
-  const getRoleBadge = (role: UserData['role']) => {
+  const _getRoleBadge = (role: UserData['role']) => {
     return role === 'admin' ? (
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-400'>
@@ -168,7 +168,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ authToken, adminEmail }
     );
   };
 
-  const formatDate = (date?: Date) => {
+  const _formatDate = (date?: Date) => {
     if (!date) return 'Never';
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -323,7 +323,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ authToken, adminEmail }
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <select
               value={roleFilter}
-              onChange={e => setRoleFilter(e.target.value as any)}
+              onChange={e => setRoleFilter(e.target.value as unknown)}
               className='px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:border-cyber-primary'
             >
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -338,7 +338,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ authToken, adminEmail }
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <select
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value as any)}
+            onChange={e => setStatusFilter(e.target.value as unknown)}
             className='px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:border-cyber-primary'
           >
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

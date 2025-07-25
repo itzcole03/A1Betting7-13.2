@@ -26,8 +26,8 @@ interface EmptyStateProps {
   children?: React.ReactNode;
 }
 
-const getEmptyStateIcon = (context?: string) => {
-  const icons = {
+const _getEmptyStateIcon = (context?: string) => {
+  const _icons = {
     search: '🔍',
     data: '📊',
     file: '📄',
@@ -49,8 +49,8 @@ const getEmptyStateIcon = (context?: string) => {
   return icons[context as keyof typeof icons] || icons.default;
 };
 
-const getSizeClasses = (size: string) => {
-  const sizes = {
+const _getSizeClasses = (size: string) => {
+  const _sizes = {
     sm: {
       container: 'py-8 px-4',
       icon: 'text-4xl mb-3',
@@ -83,7 +83,7 @@ const getSizeClasses = (size: string) => {
   return sizes[size as keyof typeof sizes] || sizes.md;
 };
 
-export const EmptyState: React.FC<EmptyStateProps> = ({
+export const _EmptyState: React.FC<EmptyStateProps> = ({
   title,
   description,
   icon,
@@ -96,9 +96,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   className,
   children,
 }) => {
-  const sizeClasses = getSizeClasses(size);
+  const _sizeClasses = getSizeClasses(size);
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-gray-50 border border-gray-200 rounded-lg',
     cyber: 'bg-slate-900/50 border border-cyan-500/30 rounded-lg backdrop-blur-md',
     minimal: 'bg-transparent',
@@ -106,7 +106,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     centered: 'bg-white border border-gray-200 rounded-lg shadow-sm',
   };
 
-  const textClasses = {
+  const _textClasses = {
     default: {
       title: 'text-gray-900',
       description: 'text-gray-600',
@@ -129,9 +129,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     },
   };
 
-  const currentTextClasses = textClasses[variant] || textClasses.default;
+  const _currentTextClasses = textClasses[variant] || textClasses.default;
 
-  const renderIcon = () => {
+  const _renderIcon = () => {
     if (illustration) {
       return (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -168,7 +168,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     );
   };
 
-  const renderActions = () => {
+  const _renderActions = () => {
     if (actions.length === 0) return null;
 
     return (
@@ -300,7 +300,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 };
 
 // Pre-built empty state components for common scenarios
-export const NoDataEmptyState: React.FC<
+export const _NoDataEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'> & { dataType?: string }
 > = ({ dataType = 'data', ...props }) => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -312,7 +312,7 @@ export const NoDataEmptyState: React.FC<
   />
 );
 
-export const NoSearchResultsEmptyState: React.FC<
+export const _NoSearchResultsEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'> & { query?: string }
 > = ({ query, ...props }) => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -328,7 +328,7 @@ export const NoSearchResultsEmptyState: React.FC<
   />
 );
 
-export const ErrorEmptyState: React.FC<
+export const _ErrorEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'> & { error?: string }
 > = ({ error, ...props }) => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -340,7 +340,7 @@ export const ErrorEmptyState: React.FC<
   />
 );
 
-export const LoadingEmptyState: React.FC<
+export const _LoadingEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'>
 > = props => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -356,7 +356,7 @@ export const LoadingEmptyState: React.FC<
   />
 );
 
-export const NoNotificationsEmptyState: React.FC<
+export const _NoNotificationsEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'>
 > = props => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -368,7 +368,7 @@ export const NoNotificationsEmptyState: React.FC<
   />
 );
 
-export const NoBetsEmptyState: React.FC<
+export const _NoBetsEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'>
 > = props => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -388,7 +388,7 @@ export const NoBetsEmptyState: React.FC<
   />
 );
 
-export const NoHistoryEmptyState: React.FC<
+export const _NoHistoryEmptyState: React.FC<
   Omit<EmptyStateProps, 'title' | 'description' | 'icon'>
 > = props => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

@@ -25,7 +25,7 @@ export interface RealTimePrediction {
   primary_model: string;
   ensemble_models: string[];
   model_agreement: number;
-  shap_explanation: Record<string, any>;
+  shap_explanation: Record<string, unknown>;
   key_factors: string[];
   reasoning: string;
   expected_value: number;
@@ -82,8 +82,11 @@ class RealTimePredictionService {
    * Get backend URL with auto-discovery
    */
   private async getBackendUrl(): Promise<string> {
-    // @ts-expect-error TS(2304): Cannot find name 'backendDiscovery'.
-    return await backendDiscovery.getBackendUrl();
+    const _url = await discoverBackend();
+    if (!_url) {
+      throw new Error('Backend URL not discovered.');
+    }
+    return _url;
   }
 
   /**
@@ -94,41 +97,40 @@ class RealTimePredictionService {
     try {
       console.log('🎯 Fetching real-time predictions with auto-discovery...');
 
-      const baseUrl = await this.getBackendUrl();
-      console.log(`🔍 Using backend: ${baseUrl}`);
+      const _baseUrl = await this.getBackendUrl();
+      console.log(`🔍 Using backend: ${_baseUrl}`);
 
-      const params = new URLSearchParams();
-      if (request.sport) params.append('sport', request.sport);
-      if (request.limit) params.append('limit', request.limit.toString());
+      const _params = new URLSearchParams();
+      if (request.sport) _params.append('sport', request.sport);
+      if (request.limit) _params.append('limit', request.limit.toString());
 
       // Prepare headers
-      const headers: Record<string, string> = {};
-      if (userId) headers['user_id'] = userId;
+      const _headers: Record<string, string> = {};
+      if (userId) _headers['user_id'] = userId;
 
       // Try enhanced endpoint first (our current working endpoint)
-      let response: AxiosResponse<RealTimePrediction[]>;
+      let _response: AxiosResponse<RealTimePrediction[]>;
       try {
-        response = await axios.get(
-          `${baseUrl}/api/predictions/prizepicks/enhanced?${params.toString()}`,
-          { timeout: this.timeout, headers }
+        _response = await axios.get(
+          `${_baseUrl}/api/predictions/prizepicks/enhanced?${_params.toString()}`,
+          { timeout: this.timeout, headers: _headers }
         );
       } catch (enhancedError) {
         // Fallback to live endpoint
         console.log('🔄 Enhanced endpoint failed, trying live endpoint...');
-        response = await axios.get(
-          `${baseUrl}/api/predictions/prizepicks/live?${params.toString()}`,
-          { timeout: this.timeout, headers }
+        _response = await axios.get(
+          `${_baseUrl}/api/predictions/prizepicks/live?${_params.toString()}`,
+          { timeout: this.timeout, headers: _headers }
         );
       }
 
-      console.log(`✅ Received ${response.data.length} real-time predictions from ${baseUrl}`);
-      return response.data;
+      console.log(`✅ Received ${_response.data.length} real-time predictions from ${_baseUrl}`);
+      return _response.data;
     } catch (error) {
       console.error('❌ Error fetching live predictions:', error);
 
       // Force rediscovery on error
-      // @ts-expect-error TS(2304): Cannot find name 'backendDiscovery'.
-      backendDiscovery.forceRediscovery();
+      // backendDiscovery.forceRediscovery(); // Removed: not directly exposed, and getBackendUrl() implicitly rediscovers
 
       throw new Error('Unable to fetch predictions from any available backend');
     }
@@ -139,13 +141,13 @@ class RealTimePredictionService {
    */
   async getSystemHealth(): Promise<SystemHealth> {
     try {
-      const response: AxiosResponse<SystemHealth> = await axios.get(
-        // @ts-expect-error TS(2339): Property 'baseUrl' does not exist on type 'RealTim... Remove this comment to see the full error message
-        `${this.baseUrl}/api/predictions/prizepicks/health`,
+      const _baseUrl = await this.getBackendUrl();
+      const _response: AxiosResponse<SystemHealth> = await axios.get(
+        `${_baseUrl}/api/predictions/prizepicks/health`,
         { timeout: this.timeout }
       );
 
-      return response.data;
+      return _response.data;
     } catch (error) {
       //       console.error('❌ Error fetching system health:', error);
       throw new Error(
@@ -157,15 +159,15 @@ class RealTimePredictionService {
   /**
    * Get detailed explanation for a specific prediction
    */
-  async getPredictionExplanation(propId: string): Promise<Record<string, any>> {
+  async getPredictionExplanation(propId: string): Promise<Record<string, unknown>> {
     try {
-      const response: AxiosResponse<Record<string, any>> = await axios.get(
-        // @ts-expect-error TS(2339): Property 'baseUrl' does not exist on type 'RealTim... Remove this comment to see the full error message
-        `${this.baseUrl}/api/predictions/prizepicks/explain/${propId}`,
+      const _baseUrl = await this.getBackendUrl();
+      const _response: AxiosResponse<Record<string, unknown>> = await axios.get(
+        `${_baseUrl}/api/predictions/prizepicks/explain/${propId}`,
         { timeout: this.timeout }
       );
 
-      return response.data;
+      return _response.data;
     } catch (error) {
       //       console.error('❌ Error fetching prediction explanation:', error);
       throw new Error(
@@ -183,12 +185,12 @@ class RealTimePredictionService {
     timestamp: string;
   }> {
     try {
-      // @ts-expect-error TS(2339): Property 'baseUrl' does not exist on type 'RealTim... Remove this comment to see the full error message
-      const response = await axios.get(`${this.baseUrl}/api/predictions/prizepicks/models`, {
+      const _baseUrl = await this.getBackendUrl();
+      const _response = await axios.get(`${_baseUrl}/api/predictions/prizepicks/models`, {
         timeout: this.timeout,
       });
 
-      return response.data;
+      return _response.data;
     } catch (error) {
       //       console.error('❌ Error fetching model info:', error);
       throw new Error(
@@ -202,13 +204,13 @@ class RealTimePredictionService {
    */
   async getPredictionStats(): Promise<PredictionStats> {
     try {
-      const response: AxiosResponse<PredictionStats> = await axios.get(
-        // @ts-expect-error TS(2339): Property 'baseUrl' does not exist on type 'RealTim... Remove this comment to see the full error message
-        `${this.baseUrl}/api/predictions/prizepicks/stats`,
+      const _baseUrl = await this.getBackendUrl();
+      const _response: AxiosResponse<PredictionStats> = await axios.get(
+        `${_baseUrl}/api/predictions/prizepicks/stats`,
         { timeout: this.timeout }
       );
 
-      return response.data;
+      return _response.data;
     } catch (error) {
       //       console.error('❌ Error fetching prediction stats:', error);
       throw new Error(
@@ -222,14 +224,14 @@ class RealTimePredictionService {
    */
   async triggerModelTraining(): Promise<{ message: string; timestamp: string; status: string }> {
     try {
-      const response = await axios.post(
-        // @ts-expect-error TS(2339): Property 'baseUrl' does not exist on type 'RealTim... Remove this comment to see the full error message
-        `${this.baseUrl}/api/predictions/prizepicks/train`,
+      const _baseUrl = await this.getBackendUrl();
+      const _response = await axios.post(
+        `${_baseUrl}/api/predictions/prizepicks/train`,
         {},
         { timeout: this.timeout }
       );
 
-      return response.data;
+      return _response.data;
     } catch (error) {
       //       console.error('❌ Error triggering model training:', error);
       throw new Error(
@@ -243,10 +245,10 @@ class RealTimePredictionService {
    */
   async checkApiHealth(): Promise<boolean> {
     try {
-      // @ts-expect-error TS(2339): Property 'baseUrl' does not exist on type 'RealTim... Remove this comment to see the full error message
-      const response = await axios.get(`${this.baseUrl}/health`, { timeout: 5000 });
+      const _baseUrl = await this.getBackendUrl();
+      const _response = await axios.get(`${_baseUrl}/health`, { timeout: 5000 });
 
-      return response.status === 200;
+      return _response.status === 200;
     } catch (error) {
       //       console.warn('⚠️ Prediction API health check failed:', error);
       return false;
@@ -256,12 +258,12 @@ class RealTimePredictionService {
   /**
    * Get API root information
    */
-  async getApiInfo(): Promise<Record<string, any>> {
+  async getApiInfo(): Promise<Record<string, unknown>> {
     try {
-      // @ts-expect-error TS(2339): Property 'baseUrl' does not exist on type 'RealTim... Remove this comment to see the full error message
-      const response = await axios.get(`${this.baseUrl}/`, { timeout: this.timeout });
+      const _baseUrl = await this.getBackendUrl();
+      const _response = await axios.get(`${_baseUrl}/`, { timeout: this.timeout });
 
-      return response.data;
+      return _response.data;
     } catch (error) {
       //       console.error('❌ Error fetching API info:', error);
       throw new Error(
@@ -274,7 +276,7 @@ class RealTimePredictionService {
    * Helper method to format confidence level for display
    */
   formatConfidenceLevel(level: string): string {
-    const levels = {
+    const _levels = {
       very_low: 'Very Low',
       low: 'Low',
       medium: 'Medium',
@@ -282,14 +284,14 @@ class RealTimePredictionService {
       very_high: 'Very High',
     };
 
-    return levels[level as keyof typeof levels] || level;
+    return _levels[level as keyof typeof _levels] || level;
   }
 
   /**
    * Helper method to format recommendation for display
    */
   formatRecommendation(recommendation: string): string {
-    const recommendations = {
+    const _recommendations = {
       STRONG_BUY: 'Strong Buy',
       BUY: 'Buy',
       HOLD: 'Hold',
@@ -297,14 +299,14 @@ class RealTimePredictionService {
       STRONG_SELL: 'Strong Sell',
     };
 
-    return recommendations[recommendation as keyof typeof recommendations] || recommendation;
+    return _recommendations[recommendation as keyof typeof _recommendations] || recommendation;
   }
 
   /**
    * Helper method to get confidence color for UI
    */
   getConfidenceColor(level: string): string {
-    const colors = {
+    const _colors = {
       very_low: '#ef4444', // red-500
       low: '#f97316', // orange-500
       medium: '#eab308', // yellow-500
@@ -312,14 +314,14 @@ class RealTimePredictionService {
       very_high: '#16a34a', // green-600
     };
 
-    return colors[level as keyof typeof colors] || '#6b7280'; // gray-500
+    return _colors[level as keyof typeof _colors] || '#6b7280'; // gray-500
   }
 
   /**
    * Helper method to get recommendation color for UI
    */
   getRecommendationColor(recommendation: string): string {
-    const colors = {
+    const _colors = {
       STRONG_BUY: '#16a34a', // green-600
       BUY: '#22c55e', // green-500
       HOLD: '#eab308', // yellow-500
@@ -327,12 +329,12 @@ class RealTimePredictionService {
       STRONG_SELL: '#ef4444', // red-500
     };
 
-    return colors[recommendation as keyof typeof colors] || '#6b7280'; // gray-500
+    return _colors[recommendation as keyof typeof _colors] || '#6b7280'; // gray-500
   }
 }
 
 // Export singleton instance
-export const realTimePredictionService = new RealTimePredictionService();
+export const _realTimePredictionService = new RealTimePredictionService();
 
 // Export default for easier imports
-export default realTimePredictionService;
+export default _realTimePredictionService;

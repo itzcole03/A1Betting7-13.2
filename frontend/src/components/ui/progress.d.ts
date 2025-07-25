@@ -4,4 +4,4 @@ export interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   color?: string;
   className?: string;
 }
-export declare const Progress: React.FC<ProgressProps>;
+export declare const _Progress: React.FC<ProgressProps>;

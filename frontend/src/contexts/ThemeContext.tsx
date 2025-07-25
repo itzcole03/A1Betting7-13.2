@@ -1,3 +1,8 @@
+/**
+ * Theme context and provider for managing light/dark mode and toggling theme state.
+ *
+ * @module contexts/ThemeContext
+ */
 import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
 /**
@@ -13,14 +18,18 @@ export interface ThemeContextType {
   toggleTheme: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+/**
+ * React context for theme state and toggling.
+ */
+const _ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 /**
- * ThemeProvider
+ * ThemeProvider component.
  * Wrap your app with this provider to enable theme state and toggling.
- * @param {ReactNode} children
+ * @param {object} props - React children.
+ * @returns {JSX.Element} The provider component.
  */
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const _ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
@@ -33,13 +42,13 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     document.body.setAttribute('data-theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
+  const _toggleTheme = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
 
   return (
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    // Removed unused @ts-expect-error: JSX is supported in this environment
+    <_ThemeContext.Provider value={{ theme, setTheme, toggleTheme: _toggleTheme }}>
       {children}
-    </ThemeContext.Provider>
+    </_ThemeContext.Provider>
   );
 };
 
@@ -47,8 +56,8 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
  * useTheme
  * Access the theme context in any component.
  */
-export const useTheme = () => {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error('useTheme must be used within ThemeProvider');
-  return ctx;
+export const _useTheme = () => {
+  const _ctx = useContext(_ThemeContext);
+  if (!_ctx) throw new Error('useTheme must be used within ThemeProvider');
+  return _ctx;
 };

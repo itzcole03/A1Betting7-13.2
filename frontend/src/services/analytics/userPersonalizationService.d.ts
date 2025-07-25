@@ -38,4 +38,4 @@ export declare class UserPersonalizationService extends EventEmitter {
   private calculateClusterImpact;
   private calculateTotalImpact;
 }
-export declare const userPersonalizationService: UserPersonalizationService;
+export declare const _userPersonalizationService: UserPersonalizationService;

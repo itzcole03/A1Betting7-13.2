@@ -37,13 +37,13 @@ interface WeatherData {
   };
 }
 
-export const WeatherStation: React.FC = () => {
+export const _WeatherStation: React.FC = () => {
   const [weatherData, setWeatherData] = useState<WeatherData[]>([]);
   const [selectedGame, setSelectedGame] = useState<WeatherData | null>(null);
 
   useEffect(() => {
-    const generateWeatherData = (): WeatherData[] => {
-      const games = [
+    const _generateWeatherData = (): WeatherData[] => {
+      const _games = [
         { game: 'Chiefs vs Bills', sport: 'NFL', venue: 'Arrowhead Stadium', city: 'Kansas City' },
         { game: 'Yankees vs Red Sox', sport: 'MLB', venue: 'Yankee Stadium', city: 'New York' },
         { game: 'Lakers vs Warriors', sport: 'NBA', venue: 'Staples Center', city: 'Los Angeles' },
@@ -62,9 +62,9 @@ export const WeatherStation: React.FC = () => {
       ];
 
       return games.map((g, index) => {
-        const temp = 32 + Math.random() * 68;
-        const windSpeed = Math.random() * 25;
-        const humidity = 30 + Math.random() * 50;
+        const _temp = 32 + Math.random() * 68;
+        const _windSpeed = Math.random() * 25;
+        const _humidity = 30 + Math.random() * 50;
 
         return {
           gameId: `weather-${index}`,
@@ -105,12 +105,12 @@ export const WeatherStation: React.FC = () => {
       });
     };
 
-    const data = generateWeatherData();
+    const _data = generateWeatherData();
     setWeatherData(data);
     setSelectedGame(data[0]);
   }, []);
 
-  const getWeatherIcon = (condition: string) => {
+  const _getWeatherIcon = (condition: string) => {
     switch (condition.toLowerCase()) {
       case 'clear':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -137,7 +137,7 @@ export const WeatherStation: React.FC = () => {
     }
   };
 
-  const getImpactColor = (impact: string) => {
+  const _getImpactColor = (impact: string) => {
     switch (impact) {
       case 'high':
         return 'text-red-400 border-red-400';

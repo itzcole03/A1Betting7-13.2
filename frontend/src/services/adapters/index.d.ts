@@ -5,8 +5,8 @@
   static getInstance(): AdapterManager;
   private initializeAdapters;
   getAdapter<T>(name: string): T | undefined;
-  registerAdapter(name: string, adapter: any): void;
+  registerAdapter(name: string, adapter: unknown): void;
   isAdapterEnabled(name: string): boolean;
 }
-export declare const adapterManager: AdapterManager;
+export declare const _adapterManager: AdapterManager;
 export default adapterManager;

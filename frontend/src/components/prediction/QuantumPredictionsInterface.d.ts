@@ -1,3 +1,3 @@
 import React from 'react.ts';
-export declare const QuantumPredictionsInterface: React.FC;
+export declare const _QuantumPredictionsInterface: React.FC;
 export default QuantumPredictionsInterface;

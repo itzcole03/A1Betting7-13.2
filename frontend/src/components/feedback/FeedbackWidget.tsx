@@ -17,7 +17,7 @@ interface FeedbackData {
   timestamp: string;
 }
 
-const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
+const _FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
   trigger = 'general',
   feature,
   position = 'bottom-right',
@@ -32,21 +32,21 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
     feature,
   });
 
-  const positionClasses = {
+  const _positionClasses = {
     'bottom-right': 'bottom-4 right-4',
     'bottom-left': 'bottom-4 left-4',
     'top-right': 'top-4 right-4',
     'top-left': 'top-4 left-4',
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const _handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!feedback.message?.trim()) return;
 
     setIsSubmitting(true);
 
     try {
-      const feedbackData: FeedbackData = {
+      const _feedbackData: FeedbackData = {
         type: feedback.type as FeedbackData['type'],
         rating: feedback.rating || 0,
         message: feedback.message,
@@ -56,7 +56,7 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
         timestamp: new Date().toISOString(),
       };
 
-      const response = await fetch('/api/feedback', {
+      const _response = await fetch('/api/feedback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
     }
   };
 
-  const handleRatingClick = (rating: number) => {
+  const _handleRatingClick = (rating: number) => {
     setFeedback(prev => ({ ...prev, rating }));
   };
 
@@ -166,7 +166,7 @@ interface FeedbackModalProps {
   onRatingClick: (rating: number) => void;
 }
 
-const FeedbackModal: React.FC<FeedbackModalProps> = ({
+const _FeedbackModal: React.FC<FeedbackModalProps> = ({
   isSubmitted,
   isSubmitting,
   feedback,

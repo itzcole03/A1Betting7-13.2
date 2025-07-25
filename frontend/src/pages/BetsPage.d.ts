@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const BetsPage: React.FC;
+declare const _BetsPage: React.FC;
 export default BetsPage;

@@ -50,4 +50,4 @@ export declare class FeatureEngineeringService {
   private calculateLineupCoherence;
   private calculateMarketSentiment;
 }
-export declare const featureEngineeringService: FeatureEngineeringService;
+export declare const _featureEngineeringService: FeatureEngineeringService;

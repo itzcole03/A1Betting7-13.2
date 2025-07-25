@@ -38,10 +38,10 @@ export interface TabsContentProps {
 }
 
 // Context
-const TabsContext = createContext<TabsContextType | undefined>(undefined);
+const _TabsContext = createContext<TabsContextType | undefined>(undefined);
 
-const useTabsContext = () => {
-  const context = useContext(TabsContext);
+const _useTabsContext = () => {
+  const _context = useContext(TabsContext);
   if (!context) {
     throw new Error('Tabs components must be used within a Tabs provider');
   }
@@ -49,7 +49,7 @@ const useTabsContext = () => {
 };
 
 // Main Tabs Component
-export const Tabs: React.FC<TabsProps> = ({
+export const _Tabs: React.FC<TabsProps> = ({
   value: controlledValue,
   defaultValue = '',
   onValueChange,
@@ -60,16 +60,16 @@ export const Tabs: React.FC<TabsProps> = ({
 }) => {
   const [internalValue, setInternalValue] = useState(defaultValue);
 
-  const value = controlledValue ?? internalValue;
+  const _value = controlledValue ?? internalValue;
 
-  const handleValueChange = (newValue: string) => {
+  const _handleValueChange = (newValue: string) => {
     if (!controlledValue) {
       setInternalValue(newValue);
     }
     onValueChange?.(newValue);
   };
 
-  const contextValue: TabsContextType = {
+  const _contextValue: TabsContextType = {
     value,
     onValueChange: handleValueChange,
     orientation,
@@ -93,10 +93,10 @@ export const Tabs: React.FC<TabsProps> = ({
 };
 
 // Tabs List Component
-export const TabsList: React.FC<TabsListProps> = ({ children, className = '' }) => {
+export const _TabsList: React.FC<TabsListProps> = ({ children, className = '' }) => {
   const { orientation, variant } = useTabsContext();
 
-  const variantClasses = {
+  const _variantClasses = {
     default: `
       bg-slate-800/50 border border-slate-700/50 rounded-lg p-1
     `,
@@ -112,7 +112,7 @@ export const TabsList: React.FC<TabsListProps> = ({ children, className = '' }) 
     `,
   };
 
-  const orientationClasses = orientation === 'vertical' ? 'flex-col space-y-1' : 'flex space-x-1';
+  const _orientationClasses = orientation === 'vertical' ? 'flex-col space-y-1' : 'flex space-x-1';
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -131,16 +131,16 @@ export const TabsList: React.FC<TabsListProps> = ({ children, className = '' }) 
 };
 
 // Tabs Trigger Component
-export const TabsTrigger: React.FC<TabsTriggerProps> = ({
+export const _TabsTrigger: React.FC<TabsTriggerProps> = ({
   value,
   children,
   disabled = false,
   className = '',
 }) => {
   const { value: selectedValue, onValueChange, variant } = useTabsContext();
-  const isSelected = selectedValue === value;
+  const _isSelected = selectedValue === value;
 
-  const variantClasses = {
+  const _variantClasses = {
     default: isSelected
       ? 'bg-slate-700 text-white border-slate-600'
       : 'text-gray-400 hover:text-white hover:bg-slate-700/50',
@@ -155,7 +155,7 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({
       : 'bg-slate-700/50 text-gray-400 hover:text-white hover:bg-slate-600/50',
   };
 
-  const triggerVariants = {
+  const _triggerVariants = {
     inactive: { scale: 1, opacity: 0.8 },
     active: { scale: 1.02, opacity: 1 },
     hover: { scale: 1.01, opacity: 1 },
@@ -205,11 +205,11 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({
 };
 
 // Tabs Content Component
-export const TabsContent: React.FC<TabsContentProps> = ({ value, children, className = '' }) => {
+export const _TabsContent: React.FC<TabsContentProps> = ({ value, children, className = '' }) => {
   const { value: selectedValue } = useTabsContext();
-  const isSelected = selectedValue === value;
+  const _isSelected = selectedValue === value;
 
-  const contentVariants = {
+  const _contentVariants = {
     hidden: {
       opacity: 0,
       y: 10,

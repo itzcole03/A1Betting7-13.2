@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="4" failures="0" skipped="0" tests="4" time="2.287" timestamp="2025-07-21T13:20:01.440153-05:00" hostname="MSI"><testcase classname="" name="tests.test_meta_learning" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\tests\test_meta_learning.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\backend\tests\test_meta_learning.py:9: in &lt;module&gt;
+    from ultra_accuracy_engine import UltraAccuracyEngine
+..\backend\ultra_accuracy_engine.py:20: in &lt;module&gt;
+    import tensorflow as tf
+E   ModuleNotFoundError: No module named 'tensorflow'</error></testcase><testcase classname="" name="tests.test_nas_implementation" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\tests\test_nas_implementation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\backend\tests\test_nas_implementation.py:4: in &lt;module&gt;
+    from ultra_accuracy_engine import UltraAccuracyEngine
+..\backend\ultra_accuracy_engine.py:20: in &lt;module&gt;
+    import tensorflow as tf
+E   ModuleNotFoundError: No module named 'tensorflow'</error></testcase><testcase classname="" name="tests.test_quantum_ensemble" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\tests\test_quantum_ensemble.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\backend\tests\test_quantum_ensemble.py:2: in &lt;module&gt;
+    from backend.ultra_accuracy_engine import UltraAccuracyEngine
+..\backend\ultra_accuracy_engine.py:20: in &lt;module&gt;
+    import tensorflow as tf
+E   ModuleNotFoundError: No module named 'tensorflow'</error></testcase><testcase classname="" name="tests.test_real_metrics" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\tests\test_real_metrics.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\backend\tests\test_real_metrics.py:17: in &lt;module&gt;
+    from ultra_accuracy_engine import UltraAccuracyEngine, QuantumEnsemblePrediction
+..\backend\ultra_accuracy_engine.py:20: in &lt;module&gt;
+    import tensorflow as tf
+E   ModuleNotFoundError: No module named 'tensorflow'</error></testcase></testsuite></testsuites>

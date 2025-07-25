@@ -61,7 +61,7 @@ interface SportMetrics {
   isActive: boolean;
 }
 
-const EnhancedDashboard: React.FC = () => {
+const _EnhancedDashboard: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [liveOpportunities, setLiveOpportunities] = useState<LiveOpportunity[]>([]);
   const [sportMetrics, setSportMetrics] = useState<SportMetrics[]>([]);
@@ -88,15 +88,15 @@ const EnhancedDashboard: React.FC = () => {
 
   useEffect(() => {
     loadDashboardData();
-    const interval = setInterval(loadDashboardData, 30000); // Update every 30 seconds
+    const _interval = setInterval(loadDashboardData, 30000); // Update every 30 seconds
     return () => clearInterval(interval);
   }, [selectedTimeframe, filters]);
 
-  const loadDashboardData = async () => {
+  const _loadDashboardData = async () => {
     setIsRefreshing(true);
     try {
       // Generate comprehensive sport metrics
-      const mockSportMetrics: SportMetrics[] = SPORTS_CONFIG.map(sport => ({
+      const _mockSportMetrics: SportMetrics[] = SPORTS_CONFIG.map(sport => ({
         id: sport.id,
         name: sport.name,
         emoji: sport.emoji,
@@ -111,7 +111,7 @@ const EnhancedDashboard: React.FC = () => {
 
       // Generate live opportunities for all sports
       // @ts-expect-error TS(2322): Type '{ id: string; game: string; sport: string; t... Remove this comment to see the full error message
-      const mockOpportunities: LiveOpportunity[] = SPORTS_CONFIG.flatMap(sport =>
+      const _mockOpportunities: LiveOpportunity[] = SPORTS_CONFIG.flatMap(sport =>
         Array.from({ length: Math.floor(Math.random() * 3) + 1 }, (_, i) => ({
           id: `${sport.id}-opp-${i}`,
           game: generateGameName(sport.id),
@@ -136,8 +136,8 @@ const EnhancedDashboard: React.FC = () => {
     }
   };
 
-  const generateGameName = (sport: string): string => {
-    const teamNames: { [key: string]: string[] } = {
+  const _generateGameName = (sport: string): string => {
+    const _teamNames: { [key: string]: string[] } = {
       NBA: ['Lakers', 'Warriors', 'Celtics', 'Heat', 'Nuggets', 'Suns', 'Nets', 'Bucks'],
       NFL: ['Chiefs', 'Bills', 'Cowboys', 'Packers', 'Rams', 'Patriots', '49ers', 'Ravens'],
       MLB: ['Yankees', 'Dodgers', 'Red Sox', 'Giants', 'Cubs', 'Cardinals', 'Astros', 'Braves'],
@@ -167,7 +167,7 @@ const EnhancedDashboard: React.FC = () => {
       Formula1: ['Monaco GP', 'British GP', 'Italian GP', 'US GP', 'Abu Dhabi GP'],
     };
 
-    const teams = teamNames[sport] || ['Team A', 'Team B'];
+    const _teams = teamNames[sport] || ['Team A', 'Team B'];
     if (sport === 'Tennis' || sport === 'MMA' || sport === 'Boxing') {
       return teams[Math.floor(Math.random() * teams.length)];
     }
@@ -175,16 +175,16 @@ const EnhancedDashboard: React.FC = () => {
       return teams[Math.floor(Math.random() * teams.length)];
     }
 
-    const team1 = teams[Math.floor(Math.random() * teams.length)];
-    let team2 = teams[Math.floor(Math.random() * teams.length)];
+    const _team1 = teams[Math.floor(Math.random() * teams.length)];
+    let _team2 = teams[Math.floor(Math.random() * teams.length)];
     while (team2 === team1) {
       team2 = teams[Math.floor(Math.random() * teams.length)];
     }
     return `${team1} vs ${team2}`;
   };
 
-  const generateTags = (sport: string): string[] => {
-    const allTags = [
+  const _generateTags = (sport: string): string[] => {
+    const _allTags = [
       'High Value',
       'Live Betting',
       'Prime Time',
@@ -195,13 +195,13 @@ const EnhancedDashboard: React.FC = () => {
     return allTags.slice(0, Math.floor(Math.random() * 3) + 1);
   };
 
-  const getOverallMetrics = () => {
-    const totalActiveBets = sportMetrics.reduce((sum, sport) => sum + sport.activeBets, 0);
-    const totalBets = sportMetrics.reduce((sum, sport) => sum + sport.totalBets, 0);
-    const averageWinRate =
+  const _getOverallMetrics = () => {
+    const _totalActiveBets = sportMetrics.reduce((sum, sport) => sum + sport.activeBets, 0);
+    const _totalBets = sportMetrics.reduce((sum, sport) => sum + sport.totalBets, 0);
+    const _averageWinRate =
       sportMetrics.reduce((sum, sport) => sum + sport.winRate, 0) / sportMetrics.length;
-    const totalProfit = sportMetrics.reduce((sum, sport) => sum + sport.profit, 0);
-    const averageROI =
+    const _totalProfit = sportMetrics.reduce((sum, sport) => sum + sport.profit, 0);
+    const _averageROI =
       sportMetrics.reduce((sum, sport) => sum + sport.roi, 0) / sportMetrics.length;
 
     return {
@@ -213,7 +213,7 @@ const EnhancedDashboard: React.FC = () => {
     };
   };
 
-  const filteredOpportunities = liveOpportunities.filter(opp => {
+  const _filteredOpportunities = liveOpportunities.filter(opp => {
     if (filters.sports.length > 0 && !filters.sports.includes(opp.sport)) return false;
     if (
       filters.search &&
@@ -227,15 +227,15 @@ const EnhancedDashboard: React.FC = () => {
     return true;
   });
 
-  const filteredSportMetrics = sportMetrics.filter(sport => {
+  const _filteredSportMetrics = sportMetrics.filter(sport => {
     if (filters.sports.length > 0 && !filters.sports.includes(sport.id)) return false;
     if (filters.seasons.includes('active') && !sport.isActive) return false;
     return true;
   });
 
-  const overall = getOverallMetrics();
+  const _overall = getOverallMetrics();
 
-  const keyMetrics: MetricCard[] = [
+  const _keyMetrics: MetricCard[] = [
     {
       id: 'win-rate',
       title: 'Overall Win Rate',
@@ -306,7 +306,7 @@ const EnhancedDashboard: React.FC = () => {
     },
   ];
 
-  const getTrendIcon = (trend: string) => {
+  const _getTrendIcon = (trend: string) => {
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     if (trend === 'up') return <TrendingUp className='w-4 h-4 text-green-400' />;
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -332,7 +332,7 @@ const EnhancedDashboard: React.FC = () => {
           <select
             id='dashboard-timeframe-select'
             value={selectedTimeframe}
-            onChange={e => setSelectedTimeframe(e.target.value as any)}
+            onChange={e => setSelectedTimeframe(e.target.value as unknown)}
             className='px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-400'
           >
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -472,7 +472,7 @@ const EnhancedDashboard: React.FC = () => {
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
           {filteredSportMetrics.map((sport, index) => {
-            const sportColor = getSportColor(sport.id);
+            const _sportColor = getSportColor(sport.id);
             return (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <motion.div
@@ -482,7 +482,7 @@ const EnhancedDashboard: React.FC = () => {
                 transition={{ delay: 0.3 + index * 0.05 }}
                 className='p-4 bg-slate-900/50 rounded-lg border border-slate-700/50 hover:border-slate-600/50 transition-all cursor-pointer'
                 onClick={() => {
-                  const newSports = filters.sports.includes(sport.id)
+                  const _newSports = filters.sports.includes(sport.id)
                     ? filters.sports.filter(s => s !== sport.id)
                     : [...filters.sports, sport.id];
                   setFilters(prev => ({ ...prev, sports: newSports }));
@@ -586,7 +586,7 @@ const EnhancedDashboard: React.FC = () => {
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='space-y-4 max-h-96 overflow-y-auto'>
             {filteredOpportunities.slice(0, 8).map((opportunity, index) => {
-              const sportConfig = SPORTS_CONFIG.find(s => s.id === opportunity.sport);
+              const _sportConfig = SPORTS_CONFIG.find(s => s.id === opportunity.sport);
               return (
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <motion.div

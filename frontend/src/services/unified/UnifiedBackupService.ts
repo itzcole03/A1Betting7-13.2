@@ -30,12 +30,12 @@ export interface BackupResult {
 
 export class UnifiedBackupService {
   private static instance: UnifiedBackupService;
-  private logger: any;
-  private settings: any;
-  private errorService: any;
+  private logger: unknown;
+  private settings: unknown;
+  private errorService: unknown;
   private config: BackupConfig;
 
-  private constructor(registry: any) {
+  private constructor(registry: unknown) {
     // Stub static getInstance
     this.logger = { warn: () => {}, info: () => {}, error: () => {}, getInstance: () => ({}) };
     this.settings = { get: () => true, getInstance: () => ({ get: () => true }) };
@@ -43,7 +43,7 @@ export class UnifiedBackupService {
     this.config = this.loadConfig();
   }
 
-  public static getInstance(registry: any): UnifiedBackupService {
+  public static getInstance(registry: unknown): UnifiedBackupService {
     if (!UnifiedBackupService.instance) {
       UnifiedBackupService.instance = new UnifiedBackupService(registry);
     }
@@ -67,10 +67,10 @@ export class UnifiedBackupService {
 
   public async performBackup(): Promise<BackupResult> {
     // Stub undefined variables
-    const backupDir = this.config.backupPath || './backups';
-    const stats = { size: 0, isFile: () => true };
-    const errorMessage = '';
-    const execAsync = promisify(exec);
+    const _backupDir = this.config.backupPath || './backups';
+    const _stats = { size: 0, isFile: () => true };
+    const _errorMessage = '';
+    const _execAsync = promisify(exec);
     if (!this.config.enabled) {
       this.logger.warn('Backup service is disabled', 'backup');
       return {
@@ -85,7 +85,7 @@ export class UnifiedBackupService {
     try {
       await fs.mkdir(backupDir, { recursive: true });
 
-      const tasks: Promise<void>[] = [];
+      const _tasks: Promise<void>[] = [];
 
       if (this.config.includeDatabases) {
         tasks.push(this.backupDatabases(backupDir));
@@ -109,7 +109,7 @@ export class UnifiedBackupService {
         await this.encryptBackup(backupDir);
       }
 
-      const result: BackupResult = {
+      const _result: BackupResult = {
         success: true,
         timestamp: Date.now(),
         backupPath: backupDir,
@@ -133,11 +133,11 @@ export class UnifiedBackupService {
 
   private async backupDatabases(backupDir: string): Promise<void> {
     // Stub undefined variables
-    const dbBackupDir = backupDir + '/db';
-    const dbConfig = { postgres: null, redis: null };
-    const execAsync = promisify(exec);
-    const env = typeof process !== 'undefined' ? process.env : {};
-    const dumpFile = dbBackupDir + '/dump.sql';
+    const _dbBackupDir = backupDir + '/db';
+    const _dbConfig = { postgres: null, redis: null };
+    const _execAsync = promisify(exec);
+    const _env = typeof process !== 'undefined' ? process.env : {};
+    const _dumpFile = dbBackupDir + '/dump.sql';
     await fs.mkdir(dbBackupDir, { recursive: true });
 
     // Backup PostgreSQL;
@@ -163,8 +163,8 @@ export class UnifiedBackupService {
 
   private async backupFiles(backupDir: string): Promise<void> {
     // Stub undefined variables
-    const filesDir = backupDir + '/files';
-    const srcDir = filesDir + '/src';
+    const _filesDir = backupDir + '/files';
+    const _srcDir = filesDir + '/src';
     await fs.mkdir(filesDir, { recursive: true });
 
     // Backup configuration files;
@@ -180,18 +180,18 @@ export class UnifiedBackupService {
 
   private async backupLogs(backupDir: string): Promise<void> {
     // Stub undefined variables
-    const logsDir = backupDir + '/logs';
+    const _logsDir = backupDir + '/logs';
     await fs.mkdir(logsDir, { recursive: true });
     await this.copyDir('logs', logsDir);
   }
 
   private async copyDir(src: string, dest: string): Promise<void> {
     // Stub undefined variables
-    const entries: any[] = [];
-    const srcPath = src;
-    const destPath = dest;
+    const _entries: unknown[] = [];
+    const _srcPath = src;
+    const _destPath = dest;
     await fs.mkdir(dest, { recursive: true });
-    for (const entry of entries) {
+    for (const _entry of entries) {
       if (entry.isDirectory()) {
         await this.copyDir(srcPath, destPath);
       } else {
@@ -202,8 +202,8 @@ export class UnifiedBackupService {
 
   private async compressBackup(backupDir: string): Promise<void> {
     // Stub undefined variables
-    const archivePath = backupDir + '.tar.gz';
-    const execAsync = promisify(exec);
+    const _archivePath = backupDir + '.tar.gz';
+    const _execAsync = promisify(exec);
     await execAsync(
       `tar -czf ${archivePath} -C ${path.dirname(backupDir)} ${path.basename(backupDir)}`
     );
@@ -212,9 +212,9 @@ export class UnifiedBackupService {
 
   private async encryptBackup(backupDir: string): Promise<void> {
     // Stub undefined variables
-    const archivePath = backupDir + '.tar.gz';
-    const encryptedPath = backupDir + '.enc';
-    const execAsync = promisify(exec);
+    const _archivePath = backupDir + '.tar.gz';
+    const _encryptedPath = backupDir + '.enc';
+    const _execAsync = promisify(exec);
     if (!this.config.encryptionKey) {
       throw new Error('Encryption key is required for backup encryption');
     }
@@ -226,9 +226,9 @@ export class UnifiedBackupService {
 
   public async verifyBackup(backupPath: string): Promise<boolean> {
     // Stub undefined variables
-    const stats = { isFile: () => true };
-    const tempPath = backupPath + '.tmp';
-    const execAsync = promisify(exec);
+    const _stats = { isFile: () => true };
+    const _tempPath = backupPath + '.tmp';
+    const _execAsync = promisify(exec);
     try {
       if (!stats.isFile()) {
         throw new Error('Backup file not found');
@@ -247,7 +247,7 @@ export class UnifiedBackupService {
       this.logger.info('Backup verification successful', 'backup', { backupPath });
       return true;
     } catch (error) {
-      const errorMessage = '';
+      const _errorMessage = '';
       this.logger.error(`Backup verification failed: ${errorMessage}`, 'backup');
       return false;
     }
@@ -256,18 +256,18 @@ export class UnifiedBackupService {
   public async cleanupOldBackups(): Promise<void> {
     try {
       // Stub undefined variables
-      const entries: any[] = [];
-      const retentionMs = 0;
-      for (const entry of entries) {
-        const age = 0;
-        const entryPath = '';
+      const _entries: unknown[] = [];
+      const _retentionMs = 0;
+      for (const _entry of entries) {
+        const _age = 0;
+        const _entryPath = '';
         if (age > retentionMs) {
           await fs.rm(entryPath, { recursive: true, force: true });
           this.logger.info(`Deleted old backup: ${entry}`, 'backup');
         }
       }
     } catch (error) {
-      const errorMessage = '';
+      const _errorMessage = '';
       this.logger.error(`Failed to cleanup old backups: ${errorMessage}`, 'backup');
     }
   }

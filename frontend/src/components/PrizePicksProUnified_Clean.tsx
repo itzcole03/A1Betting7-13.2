@@ -7,7 +7,7 @@ import {
   PrizePicksProUnifiedProps,
 } from '../types/prizePicksUnified';
 
-export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
+export const _PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   variant = 'cyber',
   className = '',
   maxSelections = 6,
@@ -45,13 +45,13 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // AI Explanation state
-  const [aiExplanations, setAiExplanations] = useState<Record<string, any>>({});
+  const [aiExplanations, setAiExplanations] = useState<Record<string, unknown>>({});
   const [showAiModal, setShowAiModal] = useState(false);
   const [selectedPropForAi, setSelectedPropForAi] = useState<PrizePicksProjection | null>(null);
   const [loadingAiExplanation, setLoadingAiExplanation] = useState(false);
 
   // AI Explanation functions
-  const fetchAiExplanation = async (projection: PrizePicksProjection) => {
+  const _fetchAiExplanation = async (projection: PrizePicksProjection) => {
     if (aiExplanations[projection.id]) {
       setSelectedPropForAi(projection);
       setShowAiModal(true);
@@ -60,7 +60,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
 
     setLoadingAiExplanation(true);
     try {
-      const response = await fetch(`/api/prizepicks/props/${projection.id}/explain`, {
+      const _response = await fetch(`/api/prizepicks/props/${projection.id}/explain`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const _data = await response.json();
         setAiExplanations(prev => ({ ...prev, [projection.id]: data }));
         setSelectedPropForAi(projection);
         setShowAiModal(true);
@@ -85,12 +85,12 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   };
 
   // Fetch projections from backend
-  const fetchProjections = useCallback(async () => {
+  const _fetchProjections = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await fetch('/api/prizepicks/props/enhanced', {
+      const _response = await fetch('/api/prizepicks/props/enhanced', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -98,11 +98,11 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const _data = await response.json();
         console.log('✅ Fetched enhanced props:', data.length);
 
         // Transform backend data to match frontend expectations
-        const transformedData = data.map((prop: any) => ({
+        const _transformedData = data.map((prop: unknown) => ({
           id: prop.id || `prop_${Math.random()}`,
           player_id: prop.id || `player_${Math.random()}`,
           player_name: prop.player_name || 'Unknown Player',
@@ -146,7 +146,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
       setError(error instanceof Error ? error.message : 'Failed to fetch projections');
 
       // Fallback to mock data
-      const mockData = generateMockData();
+      const _mockData = generateMockData();
       setProjections(mockData);
     } finally {
       setIsLoading(false);
@@ -154,8 +154,8 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   }, []);
 
   // Generate mock data for fallback
-  const generateMockData = (): PrizePicksProjection[] => {
-    const mockPlayers = [
+  const _generateMockData = (): PrizePicksProjection[] => {
+    const _mockPlayers = [
       { name: 'LeBron James', team: 'LAL', position: 'F', sport: 'NBA', league: 'NBA' },
       { name: 'Stephen Curry', team: 'GSW', position: 'G', sport: 'NBA', league: 'NBA' },
       { name: 'Shohei Ohtani', team: 'LAD', position: 'DH', sport: 'MLB', league: 'MLB' },
@@ -163,17 +163,17 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
       { name: 'Connor McDavid', team: 'EDM', position: 'C', sport: 'NHL', league: 'NHL' },
     ];
 
-    const statTypes = {
+    const _statTypes = {
       NBA: ['Points', 'Assists', 'Rebounds', '3-Pointers'],
       MLB: ['Hits', 'Home Runs', 'RBIs', 'Strikeouts'],
       NHL: ['Goals', 'Assists', 'Points', 'Shots'],
     };
 
     return mockPlayers.map((player, index) => {
-      const availableStats = statTypes[player.sport as keyof typeof statTypes] || ['Points'];
-      const statType = availableStats[index % availableStats.length];
-      const line = 15 + Math.random() * 10;
-      const confidence = 70 + Math.random() * 25;
+      const _availableStats = statTypes[player.sport as keyof typeof statTypes] || ['Points'];
+      const _statType = availableStats[index % availableStats.length];
+      const _line = 15 + Math.random() * 10;
+      const _confidence = 70 + Math.random() * 25;
 
       return {
         id: `mock_${index}`,
@@ -213,17 +213,17 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   };
 
   // Filter and sort projections
-  const filteredProjections = useMemo(() => {
-    let filtered = projections.filter(projection => {
-      const matchesSport =
+  const _filteredProjections = useMemo(() => {
+    let _filtered = projections.filter(projection => {
+      const _matchesSport =
         activeFilters.sport === 'All' || projection.sport === activeFilters.sport;
-      const matchesLeague =
+      const _matchesLeague =
         activeFilters.league === 'All' || projection.league === activeFilters.league;
-      const matchesTeam = activeFilters.team === 'All' || projection.team === activeFilters.team;
-      const matchesStatType =
+      const _matchesTeam = activeFilters.team === 'All' || projection.team === activeFilters.team;
+      const _matchesStatType =
         activeFilters.statType === 'All' || projection.stat_type === activeFilters.statType;
-      const matchesConfidence = projection.confidence >= activeFilters.minConfidence;
-      const matchesSearch =
+      const _matchesConfidence = projection.confidence >= activeFilters.minConfidence;
+      const _matchesSearch =
         !activeFilters.playerSearch ||
         projection.player_name.toLowerCase().includes(activeFilters.playerSearch.toLowerCase());
 
@@ -239,8 +239,8 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
 
     // Sort projections
     filtered.sort((a, b) => {
-      const aValue = a[sortConfig.field];
-      const bValue = b[sortConfig.field];
+      const _aValue = a[sortConfig.field];
+      const _bValue = b[sortConfig.field];
 
       if (typeof aValue === 'string' && typeof bValue === 'string') {
         return sortConfig.direction === 'asc'
@@ -248,8 +248,8 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
           : bValue.localeCompare(aValue);
       }
 
-      const aNum = Number(aValue) || 0;
-      const bNum = Number(bValue) || 0;
+      const _aNum = Number(aValue) || 0;
+      const _bNum = Number(bValue) || 0;
       return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
     });
 
@@ -257,7 +257,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   }, [projections, activeFilters, sortConfig]);
 
   // Handle projection selection
-  const handleProjectionSelect = (
+  const _handleProjectionSelect = (
     projection: PrizePicksProjection,
     selection: 'over' | 'under'
   ) => {
@@ -266,14 +266,14 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
       return;
     }
 
-    const existingIndex = selectedEntries.findIndex(entry => entry.projection.id === projection.id);
+    const _existingIndex = selectedEntries.findIndex(entry => entry.projection.id === projection.id);
 
     if (existingIndex >= 0) {
-      const updated = [...selectedEntries];
+      const _updated = [...selectedEntries];
       updated[existingIndex] = { ...updated[existingIndex], selection };
       setSelectedEntries(updated);
     } else {
-      const newEntry: LineupEntry = {
+      const _newEntry: LineupEntry = {
         id: `entry_${Date.now()}_${Math.random()}`,
         projection,
         selection,
@@ -287,16 +287,16 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   };
 
   // Optimize lineup
-  const optimizeLineup = async () => {
+  const _optimizeLineup = async () => {
     if (selectedEntries.length < 2) return;
     setIsOptimizing(true);
 
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      const totalConfidence =
+      const _totalConfidence =
         selectedEntries.reduce((sum, entry) => sum + entry.confidence, 0) / selectedEntries.length;
-      const multiplier =
+      const _multiplier =
         selectedEntries.length === 2
           ? 3.0
           : selectedEntries.length === 3
@@ -307,7 +307,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                 ? 20.0
                 : 25.0;
 
-      const optimized: OptimizedLineup = {
+      const _optimized: OptimizedLineup = {
         entries: selectedEntries,
         total_confidence: totalConfidence,
         expected_payout: multiplier,
@@ -337,12 +337,12 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   useEffect(() => {
     fetchProjections();
     if (autoRefresh) {
-      const interval = setInterval(fetchProjections, refreshInterval);
+      const _interval = setInterval(fetchProjections, refreshInterval);
       return () => clearInterval(interval);
     }
   }, [fetchProjections, autoRefresh, refreshInterval]);
 
-  const baseClasses = `
+  const _baseClasses = `
     w-full min-h-screen rounded-lg border transition-all duration-200
     ${
       variant === 'cyber'

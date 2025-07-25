@@ -3,5 +3,5 @@ interface WhatIfSimulatorProps {
   eventId?: string;
   playerId?: string;
 }
-export declare const WhatIfSimulator: React.FC<WhatIfSimulatorProps>;
+export declare const _WhatIfSimulator: React.FC<WhatIfSimulatorProps>;
 export default WhatIfSimulator;

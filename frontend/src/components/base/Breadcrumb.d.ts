@@ -12,4 +12,4 @@ export interface BreadcrumbProps {
   itemClassName?: string;
   separatorClassName?: string;
 }
-export declare const Breadcrumb: React.FC<BreadcrumbProps>;
+export declare const _Breadcrumb: React.FC<BreadcrumbProps>;

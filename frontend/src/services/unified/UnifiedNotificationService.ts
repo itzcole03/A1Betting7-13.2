@@ -13,13 +13,13 @@ export interface Notification {
   title?: string;
   timestamp: number;
   read: boolean;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 }
 
 export interface NotificationOptions {
   title?: string;
   duration?: number;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   sound?: boolean;
   priority?: 'low' | 'normal' | 'high';
 }
@@ -33,11 +33,11 @@ export class UnifiedNotificationService extends BaseService {
   constructor(registry: UnifiedServiceRegistry) {
     super('notification', registry);
     // Stub undefined variables
-    const errorService = {} as any;
-    const stateService = {
-      setState: (state: any) => {},
+    const _errorService = {} as unknown;
+    const _stateService = {
+      setState: (state: unknown) => {},
       getState: () => ({ notifications: [], settings: { sound: false } }),
-    } as any;
+    } as unknown;
     if (!errorService || !stateService) {
       throw new Error('Required services not found in registry');
     }
@@ -47,18 +47,18 @@ export class UnifiedNotificationService extends BaseService {
 
   notifyUser(
     notification: Omit<Notification, 'id' | 'timestamp' | 'read'>,
-    options: NotificationOptions = {} as any
+    options: NotificationOptions = {} as unknown
   ): void {
     try {
-      const newNotification: Notification = {
+      const _newNotification: Notification = {
         ...notification,
         id: this.generateId(),
         timestamp: Date.now(),
         read: false,
       };
       // Add to state;
-      const currentNotifications: Notification[] = [];
-      const updatedNotifications = [newNotification, ...currentNotifications].slice(
+      const _currentNotifications: Notification[] = [];
+      const _updatedNotifications = [newNotification, ...currentNotifications].slice(
         0,
         this.maxNotifications
       );
@@ -85,8 +85,8 @@ export class UnifiedNotificationService extends BaseService {
 
   dismissNotification(notificationId: string): void {
     try {
-      const currentNotifications: Notification[] = [];
-      const updatedNotifications = currentNotifications.filter(
+      const _currentNotifications: Notification[] = [];
+      const _updatedNotifications = currentNotifications.filter(
         notification => notification.id !== notificationId
       );
       this.stateService.setState({ notifications: updatedNotifications });
@@ -102,8 +102,8 @@ export class UnifiedNotificationService extends BaseService {
 
   markAsRead(notificationId: string): void {
     try {
-      const currentNotifications: Notification[] = [];
-      const updatedNotifications = currentNotifications.map(notification =>
+      const _currentNotifications: Notification[] = [];
+      const _updatedNotifications = currentNotifications.map(notification =>
         notification.id === notificationId ? { ...notification, read: true } : notification
       );
       this.stateService.setState({ notifications: updatedNotifications });
@@ -132,7 +132,7 @@ export class UnifiedNotificationService extends BaseService {
 
   getUnreadCount(): number {
     try {
-      return this.stateService.getState().notifications.filter((notification: any) => !notification.read)
+      return this.stateService.getState().notifications.filter((notification: unknown) => !notification.read)
         .length;
     } catch (error) {
       // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
@@ -151,7 +151,7 @@ export class UnifiedNotificationService extends BaseService {
 
   private playNotificationSound(type: Notification['type']): void {
     try {
-      const audio = { src: '', play: async () => {} } as any;
+      const _audio = { src: '', play: async () => {} } as unknown;
       switch (type) {
         case 'success':
           audio.src = '/sounds/success.mp3';
@@ -165,7 +165,7 @@ export class UnifiedNotificationService extends BaseService {
         default:
           audio.src = '/sounds/info.mp3';
       }
-      audio.play().catch((error: any) => {
+      audio.play().catch((error: unknown) => {
         // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
         this.errorService.handleError(error, {
           code: 'NOTIFICATION_ERROR',
@@ -184,7 +184,7 @@ export class UnifiedNotificationService extends BaseService {
   }
 
   notify(type: NotificationType, message: string): void {
-    const notification: Notification = {
+    const _notification: Notification = {
       id: Math.random().toString(36).substr(2, 9),
       type,
       message,
@@ -192,7 +192,7 @@ export class UnifiedNotificationService extends BaseService {
       read: false,
     };
     // Stub undefined logger
-    const logger = { info: (...args: any[]) => {} };
+    const _logger = { info: (...args: unknown[]) => {} };
     // Log notification;
     logger.info(`Notification [${type}]: ${message}`);
   }

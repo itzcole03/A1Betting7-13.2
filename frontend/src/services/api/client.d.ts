@@ -19,12 +19,12 @@ declare class ApiClient {
   patch<T>(endpoint: string, data?: unknown, config?: ApiRequestConfig): Promise<ApiResponse<T>>;
   delete<T>(endpoint: string, config?: ApiRequestConfig): Promise<ApiResponse<T>>;
 }
-export declare const apiClient: ApiClient;
-export declare const get: <T>(
+export declare const _apiClient: ApiClient;
+export declare const _get: <T>(
   endpoint: string,
   config?: ApiRequestConfig
 ) => Promise<ApiResponse<T>>;
-export declare const post: <T>(
+export declare const _post: <T>(
   endpoint: string,
   data?: unknown,
   config?: ApiRequestConfig

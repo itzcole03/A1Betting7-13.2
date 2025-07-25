@@ -5,7 +5,7 @@ import './A1BettingPreview.css';
  * QuantumAITab - Displays quantum-enhanced AI analytics, predictions, and multiverse analysis.
  * Used as the Quantum AI tab in A1BettingPreview.
  */
-const QuantumAITab: React.FC = () => (
+const _QuantumAITab: React.FC = () => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div className='quantumai-tab'>
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

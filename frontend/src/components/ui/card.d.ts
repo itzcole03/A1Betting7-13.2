@@ -1,20 +1,20 @@
 ﻿import * as React from 'react.ts';
-declare const Card: React.ForwardRefExoticComponent<
+declare const _Card: React.ForwardRefExoticComponent<
   React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>
 >;
-declare const CardHeader: React.ForwardRefExoticComponent<
+declare const _CardHeader: React.ForwardRefExoticComponent<
   React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>
 >;
-declare const CardTitle: React.ForwardRefExoticComponent<
+declare const _CardTitle: React.ForwardRefExoticComponent<
   React.HTMLAttributes<HTMLHeadingElement> & React.RefAttributes<HTMLParagraphElement>
 >;
-declare const CardDescription: React.ForwardRefExoticComponent<
+declare const _CardDescription: React.ForwardRefExoticComponent<
   React.HTMLAttributes<HTMLParagraphElement> & React.RefAttributes<HTMLParagraphElement>
 >;
-declare const CardContent: React.ForwardRefExoticComponent<
+declare const _CardContent: React.ForwardRefExoticComponent<
   React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>
 >;
-declare const CardFooter: React.ForwardRefExoticComponent<
+declare const _CardFooter: React.ForwardRefExoticComponent<
   React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>
 >;
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent };

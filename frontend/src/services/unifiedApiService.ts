@@ -6,62 +6,80 @@
  */
 
 import {
+  CorrelationMatrix,
   EnhancedBetsResponse,
-  PortfolioMetrics,
-  AIInsights,
   LiveGameContext,
   MultiPlatformOpportunity,
   PortfolioAnalysis,
+  PortfolioMetrics,
   StackSuggestion,
-  CorrelationMatrix,
 } from '../types/enhancedBetting';
 
-// @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { VITE_API_URL } from '../constants';
+function getApiUrl() {
+  return VITE_API_URL || 'http://localhost:8000';
+}
+
+type FetchImpl = typeof fetch;
 
 class UnifiedApiService {
   private baseUrl: string;
   private timeout: number;
+  private fetchImpl: FetchImpl;
 
-  constructor() {
-    this.baseUrl = `${API_URL}/api/unified`;
+  constructor(fetchImpl?: FetchImpl) {
+    const apiUrl = getApiUrl();
+    this.baseUrl = `${apiUrl}/api/unified`;
     this.timeout = 5000; // 5 seconds
-    console.log('[A1BETTING FRONTEND] Using backend:', API_URL);
+    this.fetchImpl =
+      fetchImpl ||
+      (typeof fetch !== 'undefined'
+        ? fetch.bind(window)
+        : ((() => {
+            throw new Error('No fetch implementation available');
+          }) as any));
+    console.log('[REAL UnifiedApiService] CONSTRUCTOR CALLED - using backend:', apiUrl);
   }
 
   private async fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    const _controller = new AbortController();
+    const _timeoutId = setTimeout(() => _controller.abort(), this.timeout);
 
     try {
-      const response = await fetch(url, {
+      console.log('[fetchWithTimeout] Fetching:', url, options);
+      const _response = await this.fetchImpl(url, {
         ...options,
-        signal: controller.signal,
+        signal: _controller.signal,
         headers: {
           'Content-Type': 'application/json',
           ...options.headers,
         },
       });
 
-      clearTimeout(timeoutId);
+      clearTimeout(_timeoutId);
 
-      // Check if response is HTML instead of JSON
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('text/html')) {
+      const _contentType = _response.headers.get('content-type');
+      console.log('[fetchWithTimeout] Response:', {
+        url,
+        status: _response.status,
+        statusText: _response.statusText,
+        contentType: _contentType,
+      });
+
+      if (_contentType && _contentType.includes('text/html')) {
+        const _text = await _response.text();
         console.debug(
-          `API endpoint ${url} returned HTML instead of JSON - likely a 404 or error page`
+          `API endpoint ${url} returned HTML instead of JSON - likely a 404 or error page. Body:`,
+          _text
         );
         throw new Error('API_UNAVAILABLE');
       }
 
-      return response;
+      return _response;
     } catch (error) {
-      clearTimeout(timeoutId);
-      // Convert network errors to a more descriptive error
-      if (error instanceof Error && error.name === 'TypeError' && error.message.includes('fetch')) {
-        throw new Error('API_UNAVAILABLE');
-      }
-      throw error;
+      clearTimeout(_timeoutId);
+      console.error('[fetchWithTimeout] Error fetching', url, error);
+      throw new Error('API_UNAVAILABLE');
     }
   }
 
@@ -77,49 +95,45 @@ class UnifiedApiService {
       max_results?: number;
     } = {}
   ): Promise<EnhancedBetsResponse> {
-    try {
-      const searchParams = new URLSearchParams();
+    // eslint-disable-next-line no-console
+    console.log('[REAL] getEnhancedBets called [REAL SERVICE]');
+    const _searchParams = new URLSearchParams();
 
-      if (params.sport) searchParams.append('sport', params.sport);
-      if (params.min_confidence)
-        searchParams.append('min_confidence', params.min_confidence.toString());
-      if (params.include_ai_insights !== undefined)
-        searchParams.append('include_ai_insights', params.include_ai_insights.toString());
-      if (params.include_portfolio_optimization !== undefined)
-        searchParams.append(
-          'include_portfolio_optimization',
-          params.include_portfolio_optimization.toString()
-        );
-      if (params.max_results) searchParams.append('max_results', params.max_results.toString());
+    if (params.sport) _searchParams.append('sport', params.sport);
+    if (params.min_confidence)
+      _searchParams.append('min_confidence', params.min_confidence.toString());
+    if (params.include_ai_insights !== undefined)
+      _searchParams.append('include_ai_insights', params.include_ai_insights.toString());
+    if (params.include_portfolio_optimization !== undefined)
+      _searchParams.append(
+        'include_portfolio_optimization',
+        params.include_portfolio_optimization.toString()
+      );
+    if (params.max_results) _searchParams.append('max_results', params.max_results.toString());
 
-      const response = await this.fetchWithTimeout(`${this.baseUrl}/enhanced-bets?${searchParams}`);
+    const _response = await this.fetchWithTimeout(`${this.baseUrl}/enhanced-bets?${_searchParams}`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch enhanced bets: ${response.status} ${response.statusText}`);
-      }
-
-      return await this.safeJsonParse(response);
-    } catch (error) {
-      console.debug('Enhanced bets API unavailable, using fallback data');
-
-      // Return fallback data when API is not available
-      return this.getFallbackEnhancedBets(params);
+    if (!_response.ok) {
+      throw new Error(`Failed to fetch enhanced bets: ${_response.status} ${_response.statusText}`);
     }
+
+    return (await this.safeJsonParse(_response)) as EnhancedBetsResponse;
   }
 
   /**
    * Fallback enhanced bets data when API is unavailable
    */
-  private getFallbackEnhancedBets(params: any): EnhancedBetsResponse {
-    const mockPredictions = [
+  private getFallbackEnhancedBets(): EnhancedBetsResponse {
+    const _mockPredictions = [
       {
+        source: 'fallback',
         id: 'fallback_1',
         player_name: 'Aaron Judge',
         team: 'NYY',
         sport: 'MLB',
         stat_type: 'Home Runs',
         line: 1.5,
-        recommendation: 'OVER',
+        recommendation: 'OVER' as 'OVER',
         confidence: 87.3,
         expected_value: 0.124,
         expected_return: 0.124,
@@ -143,11 +157,25 @@ class UnifiedApiService {
           weather_conditions: 0.15,
         },
         shap_explanation: {
+          baseline: 0.5,
+          features: {
+            recent_performance: 0.35,
+            matchup_advantage: 0.28,
+            historical_avg: 0.22,
+            weather_conditions: 0.15,
+            team_pace: 0,
+          },
+          prediction: 87.3,
+          top_factors: [
+            ['Recent form', 0.35] as [string, number],
+            ['Matchup', 0.28] as [string, number],
+            ['Historical', 0.22] as [string, number],
+          ],
           explanation: 'Strong recent performance and favorable matchup drive high confidence.',
           key_factors: [
-            ['Recent form', 0.35],
-            ['Matchup', 0.28],
-            ['Historical', 0.22],
+            ['Recent form', 0.35] as [string, number],
+            ['Matchup', 0.28] as [string, number],
+            ['Historical', 0.22] as [string, number],
           ],
         },
         risk_assessment: {
@@ -155,17 +183,19 @@ class UnifiedApiService {
           confidence_risk: 0.13,
           volatility_risk: 0.18,
           market_risk: 0.15,
-          risk_level: 'low',
+          line_risk: 0.12,
+          risk_level: 'low' as 'low',
         },
       },
       {
+        source: 'fallback',
         id: 'fallback_2',
         player_name: 'Mookie Betts',
         team: 'LAD',
         sport: 'MLB',
         stat_type: 'Total Bases',
         line: 2.5,
-        recommendation: 'OVER',
+        recommendation: 'UNDER' as 'UNDER',
         confidence: 82.1,
         expected_value: 0.098,
         expected_return: 0.098,
@@ -189,11 +219,25 @@ class UnifiedApiService {
           team_pace: 0.14,
         },
         shap_explanation: {
+          baseline: 0.5,
+          features: {
+            recent_performance: 0.42,
+            matchup_advantage: 0.24,
+            historical_avg: 0.2,
+            team_pace: 0.14,
+            weather_conditions: 0,
+          },
+          prediction: 82.1,
+          top_factors: [
+            ['Recent form', 0.42] as [string, number],
+            ['Matchup', 0.24] as [string, number],
+            ['Historical', 0.2] as [string, number],
+          ],
           explanation: 'Consistent performer with good matchup fundamentals.',
           key_factors: [
-            ['Recent form', 0.42],
-            ['Matchup', 0.24],
-            ['Historical', 0.2],
+            ['Recent form', 0.42] as [string, number],
+            ['Matchup', 0.24] as [string, number],
+            ['Historical', 0.2] as [string, number],
           ],
         },
         risk_assessment: {
@@ -201,17 +245,17 @@ class UnifiedApiService {
           confidence_risk: 0.18,
           volatility_risk: 0.22,
           market_risk: 0.19,
-          risk_level: 'medium',
+          line_risk: 0.15,
+          risk_level: 'medium' as 'medium',
         },
       },
     ];
 
     return {
       success: true,
-      // @ts-expect-error TS(2322): Type '({ id: string; player_name: string; team: st... Remove this comment to see the full error message
-      enhanced_bets: mockPredictions,
-      predictions: mockPredictions, // Keep both for compatibility
-      total_predictions: mockPredictions.length,
+      enhanced_bets: _mockPredictions,
+      predictions: _mockPredictions, // Keep both for compatibility
+      total_predictions: _mockPredictions.length,
       portfolio_metrics: {
         total_expected_value: 0.222,
         total_risk_score: 0.27,
@@ -294,30 +338,45 @@ class UnifiedApiService {
     } = {}
   ): Promise<{
     portfolio_metrics: PortfolioMetrics;
-    optimization_recommendations: any[];
-    risk_assessment: any;
+    optimization_recommendations: unknown[];
+    risk_assessment: unknown;
     status: string;
   }> {
     try {
-      const searchParams = new URLSearchParams();
+      const _searchParams = new URLSearchParams();
 
-      if (params.sport) searchParams.append('sport', params.sport);
+      if (params.sport) _searchParams.append('sport', params.sport);
       if (params.min_confidence)
-        searchParams.append('min_confidence', params.min_confidence.toString());
+        _searchParams.append('min_confidence', params.min_confidence.toString());
       if (params.max_positions)
-        searchParams.append('max_positions', params.max_positions.toString());
+        _searchParams.append('max_positions', params.max_positions.toString());
 
-      const response = await this.fetchWithTimeout(
-        `${this.baseUrl}/portfolio-optimization?${searchParams}`
-      );
+      const url = `${this.baseUrl}/portfolio-optimization?${_searchParams}`;
+      console.log('[getPortfolioOptimization] Fetching:', url);
+      const _response = await this.fetchWithTimeout(url);
 
-      if (!response.ok) {
+      if (!_response.ok) {
+        const _text = await _response.text();
+        console.error(
+          '[getPortfolioOptimization] Non-OK response:',
+          _response.status,
+          _response.statusText,
+          'Body:',
+          _text
+        );
         throw new Error(
-          `Failed to fetch portfolio optimization: ${response.status} ${response.statusText}`
+          `Failed to fetch portfolio optimization: ${_response.status} ${_response.statusText}`
         );
       }
 
-      return await this.safeJsonParse(response);
+      const _json = await this.safeJsonParse(_response);
+      console.log('[getPortfolioOptimization] Response JSON:', _json);
+      return _json as {
+        portfolio_metrics: PortfolioMetrics;
+        optimization_recommendations: unknown[];
+        risk_assessment: unknown;
+        status: string;
+      };
     } catch (error) {
       console.warn('Portfolio optimization API unavailable, using fallback data:', error);
 
@@ -358,7 +417,7 @@ class UnifiedApiService {
     betIds: string[],
     investmentAmount: number = 1000
   ): Promise<PortfolioAnalysis> {
-    const response = await this.fetchWithTimeout(
+    const _response = await this.fetchWithTimeout(
       `${this.baseUrl}/portfolio/analyze?investment_amount=${investmentAmount}`,
       {
         method: 'POST',
@@ -366,11 +425,11 @@ class UnifiedApiService {
       }
     );
 
-    if (!response.ok) {
-      throw new Error(`Failed to analyze portfolio: ${response.status} ${response.statusText}`);
+    if (!_response.ok) {
+      throw new Error(`Failed to analyze portfolio: ${_response.status} ${_response.statusText}`);
     }
 
-    return response.json();
+    return _response.json();
   }
 
   /**
@@ -389,7 +448,7 @@ class UnifiedApiService {
       confidence: number;
       quantum_analysis: string;
       neural_patterns: string[];
-      shap_explanation: any;
+      shap_explanation: unknown;
       risk_factors: string[];
       opportunity_score: number;
       market_edge: number;
@@ -410,19 +469,21 @@ class UnifiedApiService {
       recommendation: string;
     };
   }> {
-    const searchParams = new URLSearchParams();
+    // eslint-disable-next-line no-console
+    console.log('[REAL] getAIInsights called');
+    const _searchParams = new URLSearchParams();
 
-    if (params.sport) searchParams.append('sport', params.sport);
+    if (params.sport) _searchParams.append('sport', params.sport);
     if (params.min_confidence)
-      searchParams.append('min_confidence', params.min_confidence.toString());
+      _searchParams.append('min_confidence', params.min_confidence.toString());
 
-    const response = await this.fetchWithTimeout(`${this.baseUrl}/ai-insights?${searchParams}`);
+    const _response = await this.fetchWithTimeout(`${this.baseUrl}/ai-insights?${_searchParams}`);
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch AI insights: ${response.status} ${response.statusText}`);
+    if (!_response.ok) {
+      throw new Error(`Failed to fetch AI insights: ${_response.status} ${_response.statusText}`);
     }
 
-    return response.json();
+    return _response.json();
   }
 
   /**
@@ -433,26 +494,32 @@ class UnifiedApiService {
     includeBettingOpportunities: boolean = true
   ): Promise<{
     live_context: LiveGameContext;
-    relevant_bets: any[];
-    live_opportunities: any[];
-    alerts: any[];
+    relevant_bets: unknown[];
+    live_opportunities: unknown[];
+    alerts: unknown[];
     next_update: string;
   }> {
     try {
-      const searchParams = new URLSearchParams();
-      searchParams.append('include_betting_opportunities', includeBettingOpportunities.toString());
+      const _searchParams = new URLSearchParams();
+      _searchParams.append('include_betting_opportunities', includeBettingOpportunities.toString());
 
-      const response = await this.fetchWithTimeout(
-        `${this.baseUrl}/live-context/${gameId}?${searchParams}`
+      const _response = await this.fetchWithTimeout(
+        `${this.baseUrl}/live-context/${gameId}?${_searchParams}`
       );
 
-      if (!response.ok) {
+      if (!_response.ok) {
         throw new Error(
-          `Failed to fetch live game context: ${response.status} ${response.statusText}`
+          `Failed to fetch live game context: ${_response.status} ${_response.statusText}`
         );
       }
 
-      return await this.safeJsonParse(response);
+      return (await this.safeJsonParse(_response)) as {
+        live_context: LiveGameContext;
+        relevant_bets: unknown[];
+        live_opportunities: unknown[];
+        alerts: unknown[];
+        next_update: string;
+      };
     } catch (error) {
       console.warn('Live game context API unavailable, using fallback data:', error);
 
@@ -506,7 +573,7 @@ class UnifiedApiService {
     } = {}
   ): Promise<{
     multi_platform_opportunities: MultiPlatformOpportunity[];
-    arbitrage_opportunities: any[];
+    arbitrage_opportunities: unknown[];
     platform_summary: {
       total_platforms: number;
       opportunities_found: number;
@@ -515,44 +582,46 @@ class UnifiedApiService {
     };
     recommendations: string[];
   }> {
-    const searchParams = new URLSearchParams();
+    const _searchParams = new URLSearchParams();
 
-    if (params.sport) searchParams.append('sport', params.sport);
+    if (params.sport) _searchParams.append('sport', params.sport);
     if (params.min_confidence)
-      searchParams.append('min_confidence', params.min_confidence.toString());
+      _searchParams.append('min_confidence', params.min_confidence.toString());
     if (params.include_arbitrage !== undefined)
-      searchParams.append('include_arbitrage', params.include_arbitrage.toString());
+      _searchParams.append('include_arbitrage', params.include_arbitrage.toString());
 
-    const response = await this.fetchWithTimeout(`${this.baseUrl}/multi-platform?${searchParams}`);
+    const _response = await this.fetchWithTimeout(
+      `${this.baseUrl}/multi-platform?${_searchParams}`
+    );
 
-    if (!response.ok) {
+    if (!_response.ok) {
       throw new Error(
-        `Failed to fetch multi-platform opportunities: ${response.status} ${response.statusText}`
+        `Failed to fetch multi-platform opportunities: ${_response.status} ${_response.statusText}`
       );
     }
 
-    return response.json();
+    return _response.json();
   }
 
   /**
    * Safe JSON parsing that detects HTML responses
    */
-  private async safeJsonParse(response: Response): Promise<any> {
-    const responseText = await response.text();
+  private async safeJsonParse(response: Response): Promise<unknown> {
+    const _responseText = await response.text();
 
     // Check if response is HTML
     if (
-      responseText.trim().startsWith('<!DOCTYPE') ||
-      responseText.trim().startsWith('<html') ||
-      responseText.includes('<title>')
+      _responseText.trim().startsWith('<!DOCTYPE') ||
+      _responseText.trim().startsWith('<html') ||
+      _responseText.includes('<title>')
     ) {
       throw new Error('API returned HTML instead of JSON - endpoint not available');
     }
 
     try {
-      return JSON.parse(responseText);
+      return JSON.parse(_responseText);
     } catch (error) {
-      console.error('JSON parse error. Response text:', responseText);
+      console.error('JSON parse error. Response text:', _responseText);
       throw new Error('Invalid JSON response from API');
     }
   }
@@ -562,10 +631,10 @@ class UnifiedApiService {
    */
   async checkConnectivity(): Promise<boolean> {
     try {
-      const response = await this.fetchWithTimeout(`${this.baseUrl}/health`, {
+      const _response = await this.fetchWithTimeout(`${this.baseUrl}/health`, {
         method: 'GET',
       });
-      return response.ok;
+      return _response.ok;
     } catch (error) {
       console.warn('API connectivity check failed:', error);
       return false;
@@ -591,19 +660,19 @@ class UnifiedApiService {
     overall_status: string;
     capabilities: string[];
   }> {
-    const response = await this.fetchWithTimeout(`${this.baseUrl}/health`);
+    const _response = await this.fetchWithTimeout(`${this.baseUrl}/health`);
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch health status: ${response.status} ${response.statusText}`);
+    if (!_response.ok) {
+      throw new Error(`Failed to fetch health status: ${_response.status} ${_response.statusText}`);
     }
 
-    return response.json();
+    return _response.json();
   }
 
   /**
    * Generate stacking suggestions based on current predictions
    */
-  async generateStackingSuggestions(predictions: any[]): Promise<{
+  async generateStackingSuggestions(predictions: unknown[]): Promise<{
     suggestions: StackSuggestion[];
     correlationMatrix: CorrelationMatrix;
   }> {
@@ -622,7 +691,7 @@ class UnifiedApiService {
     }
 
     // Group by team for team stacks
-    const teamGroups = predictions.reduce((groups: Record<string, any[]>, pred) => {
+    const teamGroups = (predictions as any[]).reduce((groups: Record<string, any[]>, pred) => {
       if (!groups[pred.team]) groups[pred.team] = [];
       groups[pred.team].push(pred);
       return groups;
@@ -637,18 +706,22 @@ class UnifiedApiService {
 
         suggestions.push({
           type: 'team',
-          players: teamPreds.map(p => p.player_name),
+          players: teamPreds.map((p: any) => p.player_name),
           correlation_score: avgCorrelation,
           synergy_rating: avgSynergy,
           expected_boost: expectedBoost,
           risk_level: avgCorrelation > 0.8 ? 'high' : avgCorrelation > 0.6 ? 'medium' : 'low',
-          explanation: `Strong ${team} team correlation with ${teamPreds.length} players showing positive synergy. Expected ${expectedBoost.toFixed(1)}% performance boost when stacked together.`,
+          explanation: `Strong ${team} team correlation with ${
+            teamPreds.length
+          } players showing positive synergy. Expected ${expectedBoost.toFixed(
+            1
+          )}% performance boost when stacked together.`,
         });
       }
     });
 
     // Group by sport for game stacks
-    const sportGroups = predictions.reduce((groups: Record<string, any[]>, pred) => {
+    const sportGroups = (predictions as any[]).reduce((groups: Record<string, any[]>, pred) => {
       if (!groups[pred.sport]) groups[pred.sport] = [];
       groups[pred.sport].push(pred);
       return groups;
@@ -662,7 +735,7 @@ class UnifiedApiService {
 
         suggestions.push({
           type: 'game',
-          players: sportPreds.slice(0, 3).map(p => p.player_name),
+          players: sportPreds.slice(0, 3).map((p: any) => p.player_name),
           correlation_score: avgCorrelation,
           synergy_rating: avgSynergy,
           expected_boost: expectedBoost,
@@ -673,16 +746,16 @@ class UnifiedApiService {
     });
 
     // Generate correlation matrix
-    const playerNames = predictions.slice(0, 5).map(p => p.player_name); // Limit to first 5 for demo
+    const playerNames = (predictions as any[]).slice(0, 5).map((p: any) => p.player_name); // Limit to first 5 for demo
     correlationMatrix.players = playerNames;
 
     // Generate mock correlation matrix
-    correlationMatrix.matrix = playerNames.map((playerA, i) =>
-      playerNames.map((playerB, j) => {
+    correlationMatrix.matrix = playerNames.map((playerA: string, i: number) =>
+      playerNames.map((playerB: string, j: number) => {
         if (i === j) return 1.0;
 
-        const predA = predictions.find(p => p.player_name === playerA);
-        const predB = predictions.find(p => p.player_name === playerB);
+        const predA = (predictions as any[]).find((p: any) => p.player_name === playerA);
+        const predB = (predictions as any[]).find((p: any) => p.player_name === playerB);
 
         let correlation = 0.1 + Math.random() * 0.3; // Base correlation
 
@@ -724,5 +797,4 @@ class UnifiedApiService {
   }
 }
 
-export const unifiedApiService = new UnifiedApiService();
-export default unifiedApiService;
+export const createUnifiedApiService = (fetchImpl?: FetchImpl) => new UnifiedApiService(fetchImpl);

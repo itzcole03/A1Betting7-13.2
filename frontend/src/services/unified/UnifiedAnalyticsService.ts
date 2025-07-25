@@ -1,5 +1,4 @@
-// @ts-expect-error TS(2307): Cannot find module '@/types/core' or its correspon... Remove this comment to see the full error message
-import { PerformanceMetrics, RiskProfile } from '@/types/core';
+import { PerformanceMetrics, RiskProfile } from '../../types/core';
 // TrendDelta type for analytics trend API
 export interface TrendDelta {
   trend: number;
@@ -8,6 +7,11 @@ export interface TrendDelta {
   confidence: number;
 }
 import { BaseService } from './BaseService';
+import { _masterServiceRegistry } from '../MasterServiceRegistry'; // Import the instance
+import { UnifiedStateService } from './UnifiedStateService';
+import { UnifiedBettingService } from './UnifiedBettingService';
+import { UnifiedPredictionService } from './UnifiedPredictionService';
+import { UnifiedErrorService } from './UnifiedErrorService';
 
 export interface RecentActivity {
   id: string;
@@ -21,13 +25,13 @@ export interface RecentActivity {
 
 export class UnifiedAnalyticsService extends BaseService {
   private static instance: UnifiedAnalyticsService;
-  private static registry: any;
-  private stateService: any;
-  private bettingService: any;
-  private predictionService: any;
-  private errorService: any;
+  private static registry: unknown;
+  private stateService: UnifiedStateService;
+  private bettingService: UnifiedBettingService;
+  private predictionService: UnifiedPredictionService;
+  private errorService: UnifiedErrorService;
 
-  static getInstance(registry?: any): UnifiedAnalyticsService {
+  static getInstance(registry?: typeof _masterServiceRegistry): UnifiedAnalyticsService {
     console.log(
       '[DEBUG] UnifiedAnalyticsService.getInstance called with registry:',
       registry,
@@ -41,26 +45,21 @@ export class UnifiedAnalyticsService extends BaseService {
     return UnifiedAnalyticsService.instance;
   }
 
-  constructor(registry: any) {
+  constructor(registry: typeof _masterServiceRegistry) {
     console.log(
       '[DEBUG] UnifiedAnalyticsService.constructor called with registry:',
       registry,
       registry ? Object.keys(registry) : null
     );
-    if (registry && registry.config) {
-      console.log('[DEBUG] registry.config:', registry.config);
-      if (typeof registry.config.getApiUrl !== 'function') {
-        console.warn(
-          '[WARN] registry.config.getApiUrl is not a function:',
-          registry.config.getApiUrl
-        );
-      }
+    if (registry && registry.configuration) {
+      console.log('[DEBUG] registry.configuration:', registry.configuration);
+      // Removed conditional check for getApiUrl as it's not directly on config
     }
     super('analytics', registry);
-    this.stateService = registry.getService('state') as any;
-    this.bettingService = registry.getService('betting') as any;
-    this.predictionService = registry.getService('prediction') as any;
-    this.errorService = registry.getService('error') as any;
+    this.stateService = registry.getService<UnifiedStateService>('state')!;
+    this.bettingService = registry.getService<UnifiedBettingService>('betting')!;
+    this.predictionService = registry.getService<UnifiedPredictionService>('predictions')!;
+    this.errorService = registry.getService<UnifiedErrorService>('errors')!;
   }
 
   // Renamed to avoid duplicate member error;
@@ -69,10 +68,10 @@ export class UnifiedAnalyticsService extends BaseService {
     marketId: string,
     selectionId: string
   ): Promise<PerformanceMetrics> {
-    const response = await this.api.get(`/analytics/performance`, {
+    const _response = await this.api.get(`/analytics/performance`, {
       params: { eventId, marketId, selectionId },
     });
-    return response.data;
+    return _response.data;
   }
 
   async getTrendDelta(
@@ -81,10 +80,10 @@ export class UnifiedAnalyticsService extends BaseService {
     selectionId: string,
     period: 'day' | 'week' | 'month'
   ): Promise<TrendDelta> {
-    const response = await this.api.get(`/analytics/trend`, {
+    const _response = await this.api.get(`/analytics/trend`, {
       params: { eventId, marketId, selectionId, period },
     });
-    return response.data;
+    return _response.data;
   }
 
   async getRiskProfile(
@@ -92,28 +91,28 @@ export class UnifiedAnalyticsService extends BaseService {
     marketId: string,
     selectionId: string
   ): Promise<RiskProfile> {
-    const response = await this.api.get(`/analytics/risk`, {
+    const _response = await this.api.get(`/analytics/risk`, {
       params: { eventId, marketId, selectionId },
     });
-    return response.data;
+    return _response.data;
   }
 
   async getExplainabilityMap(
     eventId: string,
     marketId: string,
     selectionId: string
-  ): Promise<any[]> {
-    const response = await this.api.get(`/analytics/explainability`, {
+  ): Promise<unknown[]> {
+    const _response = await this.api.get(`/analytics/explainability`, {
       params: { eventId, marketId, selectionId },
     });
-    return response.data;
+    return _response.data;
   }
 
-  async getModelMetadata(eventId: string, marketId: string, selectionId: string): Promise<any> {
-    const response = await this.api.get(`/analytics/model`, {
+  async getModelMetadata(eventId: string, marketId: string, selectionId: string): Promise<unknown> {
+    const _response = await this.api.get(`/analytics/model`, {
       params: { eventId, marketId, selectionId },
     });
-    return response.data;
+    return _response.data;
   }
 
   // Renamed to avoid duplicate member error;
@@ -122,11 +121,11 @@ export class UnifiedAnalyticsService extends BaseService {
     marketId: string,
     selectionId: string,
     limit: number = 10
-  ): Promise<any[]> {
-    const response = await this.api.get(`/analytics/activity`, {
+  ): Promise<unknown[]> {
+    const _response = await this.api.get(`/analytics/activity`, {
       params: { eventId, marketId, selectionId, limit },
     });
-    return response.data;
+    return _response.data;
   }
 
   async getFeatureImportance(
@@ -134,10 +133,10 @@ export class UnifiedAnalyticsService extends BaseService {
     marketId: string,
     selectionId: string
   ): Promise<Array<{ feature: string; importance: number; direction: 'positive' | 'negative' }>> {
-    const response = await this.api.get(`/analytics/features`, {
+    const _response = await this.api.get(`/analytics/features`, {
       params: { eventId, marketId, selectionId },
     });
-    return response.data;
+    return _response.data;
   }
 
   async getConfidenceInterval(
@@ -145,10 +144,10 @@ export class UnifiedAnalyticsService extends BaseService {
     marketId: string,
     selectionId: string
   ): Promise<{ lower: number; upper: number; confidence: number }> {
-    const response = await this.api.get(`/analytics/confidence`, {
+    const _response = await this.api.get(`/analytics/confidence`, {
       params: { eventId, marketId, selectionId },
     });
-    return response.data;
+    return _response.data;
   }
 
   async getModelPerformance(
@@ -162,10 +161,10 @@ export class UnifiedAnalyticsService extends BaseService {
     f1Score: number;
     confusionMatrix: number[][];
   }> {
-    const response = await this.api.get(`/analytics/model-performance`, {
+    const _response = await this.api.get(`/analytics/model-performance`, {
       params: { eventId, marketId, selectionId },
     });
-    return response.data;
+    return _response.data;
   }
 
   async getBettingStats(
@@ -181,10 +180,10 @@ export class UnifiedAnalyticsService extends BaseService {
     averageOdds: number;
     averageStake: number;
   }> {
-    const response = await this.api.get(`/analytics/betting-stats`, {
+    const _response = await this.api.get(`/analytics/betting-stats`, {
       params: { eventId, marketId, selectionId },
     });
-    return response.data;
+    return _response.data;
   }
 
   async getMarketEfficiency(
@@ -192,10 +191,10 @@ export class UnifiedAnalyticsService extends BaseService {
     marketId: string,
     selectionId: string
   ): Promise<{ efficiency: number; bias: number; volatility: number; liquidity: number }> {
-    const response = await this.api.get(`/analytics/market-efficiency`, {
+    const _response = await this.api.get(`/analytics/market-efficiency`, {
       params: { eventId, marketId, selectionId },
     });
-    return response.data;
+    return _response.data;
   }
 
   async getPerformanceMetrics(
@@ -203,23 +202,23 @@ export class UnifiedAnalyticsService extends BaseService {
   ): Promise<PerformanceMetrics> {
     try {
       // Stub for getBets and getPredictions
-      const bets: any[] = [];
-      const predictions: any[] = [];
+      const _bets: unknown[] = [];
+      const _predictions: unknown[] = [];
       // Stub for calculateStreaks
-      const bestStreak = 0;
-      const currentStreak = 0;
+      const _bestStreak = 0;
+      const _currentStreak = 0;
       // Stub for metrics
-      const totalBets = 0;
-      const activeBets = 0;
-      const winRate = 0;
-      const profitLoss = 0;
-      const accuracy = 0;
+      const _totalBets = 0;
+      const _activeBets = 0;
+      const _winRate = 0;
+      const _profitLoss = 0;
+      const _accuracy = 0;
       // Return all required fields for PerformanceMetrics
       return {
-        totalBets,
-        winRate,
+        totalBets: _totalBets,
+        winRate: _winRate,
         roi: 0,
-        profitLoss,
+        profitLoss: _profitLoss,
         clvAverage: 0,
         edgeRetention: 0,
         kellyMultiplier: 0,
@@ -274,43 +273,43 @@ export class UnifiedAnalyticsService extends BaseService {
     }
   }
 
-  async getRecentActivity(limit: number = 10): Promise<any[]> {
+  async getRecentActivity(limit: number = 10): Promise<RecentActivity[]> {
     try {
-      const [bets, predictions, opportunities] = await Promise.all([
-        this.bettingService.getRecentBets(limit),
-        this.predictionService.getRecentPredictions(limit),
-        this.predictionService.getRecentOpportunities(limit),
+      const [_bets, _predictions, _opportunities] = await Promise.all([
+        (this.bettingService as any).getRecentBets(limit),
+        (this.predictionService as any).getRecentPredictions(limit),
+        (this.predictionService as any).getRecentOpportunities(limit),
       ]);
 
-      const activities: any[] = [
-        ...bets.map((bet: any) => ({
-          id: bet.id,
+      const _activities: RecentActivity[] = [
+        ...(_bets as any[]).map((_bet: any) => ({
+          id: _bet.id,
           type: 'bet' as const,
-          description: `Bet placed on ${bet.event}`,
-          amount: bet.amount,
-          odds: bet.odds,
-          timestamp: bet.timestamp,
-          status: bet.status,
+          description: `Bet placed on ${_bet.event}`,
+          amount: _bet.amount,
+          odds: _bet.odds,
+          timestamp: _bet.timestamp,
+          status: _bet.status,
         })),
-        ...predictions.map((pred: any) => ({
-          id: pred.id,
+        ...(_predictions as any[]).map((_pred: any) => ({
+          id: _pred.id,
           type: 'prediction' as const,
-          description: `Prediction for ${pred.event}`,
-          timestamp: pred.timestamp,
-          status: pred.status,
+          description: `Prediction for ${_pred.event}`,
+          timestamp: _pred.timestamp,
+          status: _pred.status,
         })),
-        ...opportunities.map((opp: any) => ({
-          id: opp.id,
+        ...(_opportunities as any[]).map((_opp: any) => ({
+          id: _opp.id,
           type: 'opportunity' as const,
-          description: `Opportunity detected for ${opp.event}`,
-          timestamp: opp.timestamp,
-          status: opp.status,
+          description: `Opportunity detected for ${_opp.event}`,
+          timestamp: _opp.timestamp,
+          status: _opp.status,
         })),
       ];
 
-      return activities.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
+      return _activities.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
     } catch (error) {
-      this.errorService.handleError(error, {
+      (this.errorService as any).handleError(error, {
         code: 'ANALYTICS_ERROR',
         source: 'UnifiedAnalyticsService',
         details: { method: 'getRecentActivity', limit },
@@ -319,60 +318,70 @@ export class UnifiedAnalyticsService extends BaseService {
     }
   }
 
-  private calculateWinRate(bets: any[]): number {
+  private calculateWinRate(bets: { status: string }[]): number {
     if (bets.length === 0) return 0;
-    const wonBets = 0;
-    return (wonBets / bets.length) * 100;
+    const _wonBets = bets.filter(b => b.status === 'won').length;
+    return (_wonBets / bets.length) * 100;
   }
 
-  private calculateProfitLoss(bets: any[]): number {
-    let profitLoss = 0;
-    return bets.reduce((total: number, bet: any) => {
+  private calculateProfitLoss(bets: { payout: number; stake: number; status: string }[]): number {
+    let _profitLoss = 0;
+    return bets.reduce((total: number, bet: { payout: number; stake: number; status: string }) => {
       if (bet.status === 'won') {
-        profitLoss += bet.amount || 0;
+        _profitLoss += bet.payout - bet.stake;
       }
       return total;
     }, 0);
   }
 
-  private calculateROI(bets: any[]): number {
+  private calculateROI(bets: { payout: number; stake: number }[]): number {
     if (bets.length === 0) return 0;
-    const profitLoss = 0;
-    const totalStaked = 1;
-    return (profitLoss / totalStaked) * 100;
+    const _profitLoss = bets.reduce((total, b) => total + (b.payout - b.stake), 0);
+    const _totalStaked = bets.reduce((total, b) => total + b.stake, 0);
+    return _totalStaked === 0 ? 0 : (_profitLoss / _totalStaked) * 100;
   }
 
-  private calculateStreaks(bets: any[]): { bestStreak: number; currentStreak: number } {
-    const currentStreak = 0;
-    const bestStreak = 0;
-    return { bestStreak, currentStreak };
+  private calculateStreaks(bets: { status: string }[]): { bestStreak: number; currentStreak: number } {
+    let _currentStreak = 0;
+    let _bestStreak = 0;
+    for (let i = bets.length - 1; i >= 0; i--) {
+      if (bets[i].status === 'won') {
+        _currentStreak++;
+      } else {
+        _currentStreak = 0;
+      }
+      if (_currentStreak > _bestStreak) {
+        _bestStreak = _currentStreak;
+      }
+    }
+    return { bestStreak: _bestStreak, currentStreak: _currentStreak };
   }
 
-  private calculateAverageOdds(bets: any[]): number {
+  private calculateAverageOdds(bets: { odds: number }[]): number {
     if (bets.length === 0) return 0;
-    const totalOdds = 0;
-    return totalOdds / bets.length;
+    const _totalOdds = bets.reduce((total, b) => total + b.odds, 0);
+    return _totalOdds / bets.length;
   }
 
-  private calculateAverageStake(bets: any[]): number {
+  private calculateAverageStake(bets: { stake: number }[]): number {
     if (bets.length === 0) return 0;
-    const totalStaked = 0;
-    return totalStaked / bets.length;
+    const _totalStaked = bets.reduce((total, b) => total + b.stake, 0);
+    return _totalStaked / bets.length;
   }
 
-  private calculatePredictionAccuracy(predictions: any[]): number {
+  private calculatePredictionAccuracy(predictions: { status: string }[]): number {
     if (predictions.length === 0) return 0;
-    const correctPredictions = 0;
-    return (correctPredictions / predictions.length) * 100;
+    const _correctPredictions = predictions.filter(p => p.status === 'correct').length;
+    return (_correctPredictions / predictions.length) * 100;
   }
 
-  private calculateOpportunities(predictions: any[]): number {
-    return predictions.filter((pred: any) => pred.status === 'opportunity').length;
+  private calculateOpportunities(predictions: { status: string }[]): number {
+    return predictions.filter((pred: { status: string }) => pred.status === 'opportunity').length;
   }
 
-  private someMethodWithImplicitAny(bet: any, pred: any, opp: any, a: any, b: any, total: any) {
+  private someMethodWithImplicitAny(bet: unknown, pred: unknown, opp: unknown, a: unknown, b: unknown, total: unknown) {
     // Stub for missing variables and logic
-    const wonBets = 0;
+    const _wonBets = 0;
     // ...
   }
 }

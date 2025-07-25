@@ -1,1 +1,1 @@
-export declare const useEvolutionaryAnalytics: () => never;
+export declare const _useEvolutionaryAnalytics: () => never;

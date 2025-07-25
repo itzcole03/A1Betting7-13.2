@@ -8,8 +8,8 @@ import { PerformanceMonitor } from '@/unified/PerformanceMonitor';
  * Wraps PerformanceMonitor and exposes a compatible API for feature flags, adapters, and analytics.
  *
  * Usage:
- *   const monitor = UnifiedMonitor.getInstance();
- *   const trace = monitor.startTrace('my-trace');
+ *   const _monitor = UnifiedMonitor.getInstance();
+ *   const _trace = monitor.startTrace('my-trace');
  *   monitor.endTrace(trace);
  *   monitor.recordMetric('my_metric', 1, { meta: 'data' });
  */
@@ -64,4 +64,4 @@ export class UnifiedMonitor {
 }
 
 // Optionally provide a default export for legacy usage
-export const unifiedMonitor = UnifiedMonitor.getInstance();
+export const _unifiedMonitor = UnifiedMonitor.getInstance();

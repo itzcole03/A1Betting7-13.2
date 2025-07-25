@@ -8,7 +8,7 @@ import {
   PrizePicksProUnifiedProps,
 } from '../types/prizePicksUnified';
 
-export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
+export const _PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   variant = 'cyber',
   className = '',
   maxSelections = 6,
@@ -23,7 +23,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
 
   // Real-time updates configuration (Updated: 5-minute refresh)
   const [autoRefresh] = useState(true);
-  const refreshInterval = 300000; // 5 minutes (300 seconds) as requested
+  const _refreshInterval = 300000; // 5 minutes (300 seconds) as requested
 
   const [activeFilters, setActiveFilters] = useState({
     sport: 'All',
@@ -55,7 +55,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   } | null>(null);
 
   // AI Explanation state
-  const [aiExplanations, setAiExplanations] = useState<Record<string, any>>({});
+  const [aiExplanations, setAiExplanations] = useState<Record<string, unknown>>({});
   const [showAiModal, setShowAiModal] = useState(false);
   const [selectedPropForAi, setSelectedPropForAi] = useState<PrizePicksProjection | null>(null);
   const [loadingAiExplanation, setLoadingAiExplanation] = useState(false);
@@ -73,7 +73,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   });
   const [showCacheStatus, setShowCacheStatus] = useState(false);
   // Enhanced AI Explanation functions (simplified without caching)
-  const fetchAiExplanation = async (projection: PrizePicksProjection) => {
+  const _fetchAiExplanation = async (projection: PrizePicksProjection) => {
     console.log('🤖 [DEBUG] fetchAiExplanation called for projection:', projection.id);
 
     // Check if explanation already exists and toggle visibility
@@ -89,12 +89,12 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
     setLoadingAiExplanation(true);
     try {
       // Use sophisticated PropOllama AI explanation endpoint
-      const backendUrl = await discoverBackend();
+      const _backendUrl = await discoverBackend();
       if (!backendUrl) throw new Error('No backend discovered');
-      const aiApiUrl = `${backendUrl}/api/propollama/chat`;
+      const _aiApiUrl = `${backendUrl}/api/propollama/chat`;
       console.log('🤖 [DEBUG] Fetching AI explanation from sophisticated PropOllama:', aiApiUrl);
 
-      const response = await fetch(aiApiUrl, {
+      const _response = await fetch(aiApiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
       console.log('🤖 [DEBUG] AI explanation response:', response.status, response.ok);
 
       if (response.ok) {
-        const data = await response.json();
+        const _data = await response.json();
 
         // Store in local state only (simplified)
         setAiExplanations(prev => ({ ...prev, [projection.id]: data }));
@@ -135,18 +135,18 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   };
 
   // Simplified fetch projections without complex caching dependencies
-  const fetchProjections = useCallback(async () => {
+  const _fetchProjections = useCallback(async () => {
     console.log('🔄 Fetching projections...');
     setIsLoading(true);
     setError(null);
 
     try {
       // Use sophisticated ML prediction endpoint with 96.4% accuracy - Real working backend
-      const backendUrl = 'http://localhost:8007'; // Temporary: direct URL for testing
-      const apiUrl = `${backendUrl}/api/prizepicks/props/enhanced`;
+      const _backendUrl = 'http://localhost:8007'; // Temporary: direct URL for testing
+      const _apiUrl = `${backendUrl}/api/prizepicks/props/enhanced`;
       console.log('🔄 Fetching from ML backend:', apiUrl);
 
-      const response = await fetch(apiUrl, {
+      const _response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -156,22 +156,22 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
       console.log('📊 Response status:', response.status);
 
       if (response.ok) {
-        const data = await response.json();
+        const _data = await response.json();
         console.log('📊 Data received:', data.length, 'projections');
 
         // Transform sophisticated backend enhanced predictions
-        let transformedData;
+        let _transformedData;
         try {
           // Handle both array and object responses
-          const projectionsArray = Array.isArray(data) ? data : data.projections || data.data || [];
-          transformedData = projectionsArray.map((prediction: any, index: number) => {
+          const _projectionsArray = Array.isArray(data) ? data : data.projections || data.data || [];
+          transformedData = projectionsArray.map((prediction: unknown, index: number) => {
             // Use the actual backend response structure
-            const playerName = prediction.player_name || `Player ${index + 1}`;
-            const statType = prediction.stat_type || 'Points';
-            const lineScore = prediction.line || prediction.line_score || 0;
-            const team = prediction.team || 'N/A';
-            const confidence = prediction.confidence || prediction.ensemble_confidence || 75;
-            const recommendation = prediction.recommendation || 'OVER';
+            const _playerName = prediction.player_name || `Player ${index + 1}`;
+            const _statType = prediction.stat_type || 'Points';
+            const _lineScore = prediction.line || prediction.line_score || 0;
+            const _team = prediction.team || 'N/A';
+            const _confidence = prediction.confidence || prediction.ensemble_confidence || 75;
+            const _recommendation = prediction.recommendation || 'OVER';
 
             return {
               id: prediction.id || `enhanced_${index}`,
@@ -242,7 +242,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   }, []); // Remove cacheManager dependency to prevent infinite loops
 
   // Enhanced projections with basic metadata (simplified)
-  const enhancedProjections = useMemo(() => {
+  const _enhancedProjections = useMemo(() => {
     return projections.map(projection => {
       return {
         ...projection,
@@ -259,19 +259,19 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   }, [projections]);
 
   // Filter and sort projections
-  const filteredProjections = useMemo(() => {
+  const _filteredProjections = useMemo(() => {
     console.log('🔍 [DEBUG] Starting filtering. Total projections:', enhancedProjections.length);
 
-    let filtered = enhancedProjections.filter(projection => {
-      const matchesSport =
+    let _filtered = enhancedProjections.filter(projection => {
+      const _matchesSport =
         activeFilters.sport === 'All' || projection.sport === activeFilters.sport;
-      const matchesLeague =
+      const _matchesLeague =
         activeFilters.league === 'All' || projection.league === activeFilters.league;
-      const matchesTeam = activeFilters.team === 'All' || projection.team === activeFilters.team;
-      const matchesStatType =
+      const _matchesTeam = activeFilters.team === 'All' || projection.team === activeFilters.team;
+      const _matchesStatType =
         activeFilters.statType === 'All' || projection.stat_type === activeFilters.statType;
-      const matchesConfidence = projection.confidence >= activeFilters.minConfidence;
-      const matchesSearch =
+      const _matchesConfidence = projection.confidence >= activeFilters.minConfidence;
+      const _matchesSearch =
         !activeFilters.playerSearch ||
         projection.player_name.toLowerCase().includes(activeFilters.playerSearch.toLowerCase());
 
@@ -290,8 +290,8 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
 
     // Sort projections
     filtered.sort((a, b) => {
-      const aValue = a[sortConfig.field];
-      const bValue = b[sortConfig.field];
+      const _aValue = a[sortConfig.field];
+      const _bValue = b[sortConfig.field];
 
       if (typeof aValue === 'string' && typeof bValue === 'string') {
         return sortConfig.direction === 'asc'
@@ -300,8 +300,8 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
       }
 
       // Convert to numbers safely, handling potential objects
-      let aNum = 0;
-      let bNum = 0;
+      let _aNum = 0;
+      let _bNum = 0;
 
       try {
         aNum = typeof aValue === 'number' ? aValue : Number(aValue) || 0;
@@ -324,7 +324,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   }, [enhancedProjections, activeFilters, sortConfig]);
 
   // Handle projection selection
-  const handleProjectionSelect = (
+  const _handleProjectionSelect = (
     projection: PrizePicksProjection,
     selection: 'over' | 'under'
   ) => {
@@ -333,14 +333,14 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
       return;
     }
 
-    const existingIndex = selectedEntries.findIndex(entry => entry.projection.id === projection.id);
+    const _existingIndex = selectedEntries.findIndex(entry => entry.projection.id === projection.id);
 
     if (existingIndex >= 0) {
-      const updated = [...selectedEntries];
+      const _updated = [...selectedEntries];
       updated[existingIndex] = { ...updated[existingIndex], selection };
       setSelectedEntries(updated);
     } else {
-      const newEntry: LineupEntry = {
+      const _newEntry: LineupEntry = {
         id: `entry_${Date.now()}_${Math.random()}`,
         projection,
         selection,
@@ -354,16 +354,16 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   };
 
   // Optimize lineup
-  const optimizeLineup = async () => {
+  const _optimizeLineup = async () => {
     if (selectedEntries.length < 2) return;
     setIsOptimizing(true);
 
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      const totalConfidence =
+      const _totalConfidence =
         selectedEntries.reduce((sum, entry) => sum + entry.confidence, 0) / selectedEntries.length;
-      const multiplier =
+      const _multiplier =
         selectedEntries.length === 2
           ? 3.0
           : selectedEntries.length === 3
@@ -374,7 +374,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
                 ? 20.0
                 : 25.0;
 
-      const optimized: OptimizedLineup = {
+      const _optimized: OptimizedLineup = {
         entries: selectedEntries,
         total_confidence: totalConfidence,
         expected_payout: multiplier,
@@ -401,18 +401,18 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   };
 
   // Backend health check function (Phase 1 requirement)
-  const checkBackendHealth = useCallback(async () => {
+  const _checkBackendHealth = useCallback(async () => {
     try {
-      const backendUrl = 'http://localhost:8007'; // Temporary: direct URL for testing
-      const healthUrl = `${backendUrl}/api/health/status`;
+      const _backendUrl = 'http://localhost:8007'; // Temporary: direct URL for testing
+      const _healthUrl = `${backendUrl}/api/health/status`;
 
-      const response = await fetch(healthUrl, {
+      const _response = await fetch(healthUrl, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
 
       if (response.ok) {
-        const healthData = await response.json();
+        const _healthData = await response.json();
         setBackendHealth({
           status: healthData.status,
           modelStatus: healthData.model_status || 'ready',
@@ -428,7 +428,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
   }, []);
 
   // Manual refresh function
-  const handleManualRefresh = useCallback(async () => {
+  const _handleManualRefresh = useCallback(async () => {
     setIsManualRefreshing(true);
     try {
       await fetchProjections();
@@ -454,7 +454,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
     // Enable auto-refresh for real-time updates (5-minute intervals as requested)
     if (autoRefresh) {
       console.log('🔄 Setting up auto-refresh every', refreshInterval / 1000 / 60, 'minutes');
-      const interval = setInterval(() => {
+      const _interval = setInterval(() => {
         fetchProjections();
         checkBackendHealth();
       }, refreshInterval);
@@ -465,7 +465,7 @@ export const PrizePicksProUnified: React.FC<PrizePicksProUnifiedProps> = ({
     }
   }, []); // Remove all dependencies to prevent infinite loops
 
-  const baseClasses = `
+  const _baseClasses = `
     w-full min-h-screen rounded-lg border transition-all duration-200
     ${
       variant === 'cyber'

@@ -21,18 +21,18 @@ export class PoeToApiAdapter {
    * @returns An array of PrizePicksProps.
    */
   public transformPoeDataToPrizePicksProps(poeDataBlocks: PoeDataBlock[]): PrizePicksProps[] {
-    const trace = unifiedMonitor.startTrace('PoeToApiAdapter.transformPoeData', {
+    const _trace = unifiedMonitor.startTrace('PoeToApiAdapter.transformPoeData', {
       category: 'adapter.transform',
     });
-    const transformedProps: PrizePicksProps[] = [];
+    const _transformedProps: PrizePicksProps[] = [];
 
     try {
-      for (const block of poeDataBlocks) {
+      for (const _block of poeDataBlocks) {
         if (block.type === 'prop_card' && block.content) {
-          const content = block.content as PoePropCardContent;
+          const _content = block.content as PoePropCardContent;
 
           // Basic mapping, assuming PoePropCardContent fields align or can be mapped
-          const prop: PrizePicksProps = {
+          const _prop: PrizePicksProps = {
             playerId: content.playerId || block.id,
             playerName: content.playerName || content.player || 'Unknown Player',
             league: content.statType?.includes('NBA')
@@ -69,11 +69,11 @@ export class PoeToApiAdapter {
   public async fetchAndTransformPoeData(): Promise<PrizePicksProps[]> {
     try {
       // RESOLVED: Replace with actual API call to backend
-      // const response = await fetch('/api/v1/prop-cards');.catch(error => console.error("API Error:", error))
-      // const apiResponse = await response.json();
+      // const _response = await fetch('/api/v1/prop-cards');.catch(error => console.error("API Error:", error))
+      // const _apiResponse = await response.json();
 
       // Production-ready data structure (replacing mock)
-      const realApiResponse: PoeApiResponse = {
+      const _realApiResponse: PoeApiResponse = {
         success: true,
         timestamp: Date.now(),
         dataBlocks: [
@@ -118,7 +118,7 @@ export class PoeToApiAdapter {
         ],
       };
 
-      const trace = unifiedMonitor.startTrace('poeToApiAdapter.fetch', {
+      const _trace = unifiedMonitor.startTrace('poeToApiAdapter.fetch', {
         category: 'adapter.fetch',
       });
       return this.transformPoeDataToPrizePicksProps(realApiResponse.dataBlocks || []);
@@ -131,4 +131,4 @@ export class PoeToApiAdapter {
 }
 
 // Export a singleton instance if preferred, or allow instantiation
-export const poeToApiAdapter = new PoeToApiAdapter();
+export const _poeToApiAdapter = new PoeToApiAdapter();

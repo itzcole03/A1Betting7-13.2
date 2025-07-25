@@ -15,7 +15,7 @@ export interface AlertProps {
   animate?: boolean;
 }
 
-export const Alert: React.FC<AlertProps> = ({
+export const _Alert: React.FC<AlertProps> = ({
   variant = 'default',
   size = 'md',
   title,
@@ -29,20 +29,20 @@ export const Alert: React.FC<AlertProps> = ({
 }) => {
   const [isVisible, setIsVisible] = React.useState(true);
 
-  const handleDismiss = () => {
+  const _handleDismiss = () => {
     setIsVisible(false);
     setTimeout(() => {
       onDismiss?.();
     }, 300);
   };
 
-  const sizeClasses = {
+  const _sizeClasses = {
     sm: 'p-3 text-sm',
     md: 'p-4 text-base',
     lg: 'p-6 text-lg',
   };
 
-  const variantConfig = {
+  const _variantConfig = {
     default: {
       container: 'bg-slate-800/50 border-slate-700/50 text-slate-200',
       icon: Info,
@@ -86,10 +86,10 @@ export const Alert: React.FC<AlertProps> = ({
     },
   };
 
-  const config = variantConfig[variant];
-  const IconComponent = icon || config.icon;
+  const _config = variantConfig[variant];
+  const _IconComponent = icon || config.icon;
 
-  const alertVariants = {
+  const _alertVariants = {
     hidden: {
       opacity: 0,
       scale: 0.95,
@@ -115,7 +115,7 @@ export const Alert: React.FC<AlertProps> = ({
     },
   };
 
-  const shimmerVariants = {
+  const _shimmerVariants = {
     animate: {
       x: ['-100%', '100%'],
       transition: {
@@ -238,13 +238,13 @@ export const Alert: React.FC<AlertProps> = ({
 };
 
 // Additional Alert components for compound pattern
-export const AlertTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({
+export const _AlertTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({
   children,
   className = '',
 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
 }) => <h4 className={`font-semibold mb-1 ${className}`}>{children}</h4>;
 
-export const AlertDescription: React.FC<{ children: React.ReactNode; className?: string }> = ({
+export const _AlertDescription: React.FC<{ children: React.ReactNode; className?: string }> = ({
   children,
   className = '',
 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

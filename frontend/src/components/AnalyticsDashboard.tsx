@@ -44,7 +44,7 @@ interface TimeSeriesData {
   winRate: number;
 }
 
-export const AnalyticsDashboard: React.FC = () => {
+export const _AnalyticsDashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<PerformanceMetric[]>([]);
   const [sportAnalytics, setSportAnalytics] = useState<SportAnalytics[]>([]);
   const [modelPerformance, setModelPerformance] = useState<ModelPerformance[]>([]);
@@ -52,7 +52,7 @@ export const AnalyticsDashboard: React.FC = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
 
   useEffect(() => {
-    const generateMetrics = (): PerformanceMetric[] => {
+    const _generateMetrics = (): PerformanceMetric[] => {
       return [
         {
           label: 'Total Profit',
@@ -113,8 +113,8 @@ export const AnalyticsDashboard: React.FC = () => {
       ];
     };
 
-    const generateSportAnalytics = (): SportAnalytics[] => {
-      const sports = ['NBA', 'NFL', 'MLB', 'NHL', 'Soccer', 'Tennis'];
+    const _generateSportAnalytics = (): SportAnalytics[] => {
+      const _sports = ['NBA', 'NFL', 'MLB', 'NHL', 'Soccer', 'Tennis'];
       return sports.map(sport => ({
         sport,
         totalBets: Math.floor(Math.random() * 100) + 20,
@@ -126,8 +126,8 @@ export const AnalyticsDashboard: React.FC = () => {
       }));
     };
 
-    const generateModelPerformance = (): ModelPerformance[] => {
-      const models = [
+    const _generateModelPerformance = (): ModelPerformance[] => {
+      const _models = [
         'Quantum Neural Network',
         'Ensemble Predictor',
         'LSTM Deep Model',
@@ -147,8 +147,8 @@ export const AnalyticsDashboard: React.FC = () => {
       }));
     };
 
-    const generateTimeSeriesData = (): TimeSeriesData[] => {
-      const days =
+    const _generateTimeSeriesData = (): TimeSeriesData[] => {
+      const _days =
         selectedTimeframe === '7d'
           ? 7
           : selectedTimeframe === '30d'
@@ -156,11 +156,11 @@ export const AnalyticsDashboard: React.FC = () => {
             : selectedTimeframe === '90d'
               ? 90
               : 365;
-      const data: TimeSeriesData[] = [];
-      let cumulativeProfit = 0;
+      const _data: TimeSeriesData[] = [];
+      let _cumulativeProfit = 0;
 
-      for (let i = days; i >= 0; i--) {
-        const dailyProfit = (Math.random() - 0.4) * 500;
+      for (let _i = days; i >= 0; i--) {
+        const _dailyProfit = (Math.random() - 0.4) * 500;
         cumulativeProfit += dailyProfit;
 
         data.push({
@@ -181,7 +181,7 @@ export const AnalyticsDashboard: React.FC = () => {
     setTimeSeriesData(generateTimeSeriesData());
   }, [selectedTimeframe]);
 
-  const formatValue = (value: number, format: string) => {
+  const _formatValue = (value: number, format: string) => {
     switch (format) {
       case 'currency':
         return `$${value.toLocaleString()}`;
@@ -192,7 +192,7 @@ export const AnalyticsDashboard: React.FC = () => {
     }
   };
 
-  const getTrendIcon = (trend: string) => {
+  const _getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'up':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -206,7 +206,7 @@ export const AnalyticsDashboard: React.FC = () => {
     }
   };
 
-  const getTrendColor = (trend: string) => {
+  const _getTrendColor = (trend: string) => {
     switch (trend) {
       case 'up':
         return 'text-green-400';

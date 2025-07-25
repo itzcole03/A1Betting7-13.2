@@ -34,7 +34,7 @@ export interface WinProbabilityMeterProps {
   onTeamClick?: (team: 'home' | 'away') => void;
 }
 
-export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
+export const _WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
   data,
   variant = 'default',
   size = 'md',
@@ -45,14 +45,14 @@ export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
   onTeamClick,
 }) => {
   const { homeTeam, awayTeam, tie, confidence } = data;
-  const totalProb = homeTeam.probability + awayTeam.probability + (tie?.probability || 0);
+  const _totalProb = homeTeam.probability + awayTeam.probability + (tie?.probability || 0);
 
   // Normalize probabilities to 100%
-  const homePercent = (homeTeam.probability / totalProb) * 100;
-  const awayPercent = (awayTeam.probability / totalProb) * 100;
-  const tiePercent = tie ? (tie.probability / totalProb) * 100 : 0;
+  const _homePercent = (homeTeam.probability / totalProb) * 100;
+  const _awayPercent = (awayTeam.probability / totalProb) * 100;
+  const _tiePercent = tie ? (tie.probability / totalProb) * 100 : 0;
 
-  const sizeConfig = {
+  const _sizeConfig = {
     sm: {
       container: 'h-3',
       text: 'text-xs',
@@ -73,7 +73,7 @@ export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
     },
   };
 
-  const getTrendIcon = (trend?: string) => {
+  const _getTrendIcon = (trend?: string) => {
     switch (trend) {
       case 'up':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -87,13 +87,13 @@ export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
     }
   };
 
-  const getConfidenceColor = (confidence: number) => {
+  const _getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'text-green-400';
     if (confidence >= 65) return 'text-yellow-400';
     return 'text-orange-400';
   };
 
-  const meterVariants = {
+  const _meterVariants = {
     hidden: { scaleX: 0 },
     visible: {
       scaleX: 1,
@@ -104,7 +104,7 @@ export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
     },
   };
 
-  const containerVariants = {
+  const _containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
@@ -116,7 +116,7 @@ export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
     },
   };
 
-  const renderMinimalVersion = () => (
+  const _renderMinimalVersion = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.div
       className={`space-y-2 ${className}`}
@@ -175,7 +175,7 @@ export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
     </motion.div>
   );
 
-  const renderCyberVersion = () => (
+  const _renderCyberVersion = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.div
       className={`
@@ -382,7 +382,7 @@ export const WinProbabilityMeter: React.FC<WinProbabilityMeterProps> = ({
     </motion.div>
   );
 
-  const renderDefaultVersion = () => (
+  const _renderDefaultVersion = () => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.div
       className={`bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 backdrop-blur-sm ${className}`}

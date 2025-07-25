@@ -9,7 +9,7 @@ import './A1BettingPreview.css';
  *
  * @returns {JSX.Element} Backtesting lab UI
  */
-const BacktestingTab: React.FC = (): JSX.Element => (
+const _BacktestingTab: React.FC = (): JSX.Element => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div className='backtesting-tab' role='tabpanel' aria-label='Backtesting Lab'>
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

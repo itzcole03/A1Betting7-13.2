@@ -39,10 +39,10 @@ class ServiceManager {
   async initializeServices(): Promise<void> {
     if (this.initialized) return;
 
-    const initOrder = this.getInitializationOrder();
+    const _initOrder = this.getInitializationOrder();
 
-    for (const serviceName of initOrder) {
-      const service = this.services.get(serviceName);
+    for (const _serviceName of initOrder) {
+      const _service = this.services.get(serviceName);
       if (service?.enabled) {
         try {
           await service.initialize();
@@ -58,10 +58,10 @@ class ServiceManager {
   }
 
   async shutdownServices(): Promise<void> {
-    const shutdownOrder = this.getInitializationOrder().reverse();
+    const _shutdownOrder = this.getInitializationOrder().reverse();
 
-    for (const serviceName of shutdownOrder) {
-      const service = this.services.get(serviceName);
+    for (const _serviceName of shutdownOrder) {
+      const _service = this.services.get(serviceName);
       if (service) {
         try {
           await service.shutdown();
@@ -75,11 +75,11 @@ class ServiceManager {
   }
 
   private getInitializationOrder(): string[] {
-    const visited = new Set<string>();
-    const visiting = new Set<string>();
-    const order: string[] = [];
+    const _visited = new Set<string>();
+    const _visiting = new Set<string>();
+    const _order: string[] = [];
 
-    const visit = (serviceName: string) => {
+    const _visit = (serviceName: string) => {
       if (visiting.has(serviceName)) {
         throw new Error(`Circular dependency detected: ${serviceName}`);
       }
@@ -88,9 +88,9 @@ class ServiceManager {
 
       visiting.add(serviceName);
 
-      const service = this.services.get(serviceName);
+      const _service = this.services.get(serviceName);
       if (service) {
-        for (const dependency of service.dependencies) {
+        for (const _dependency of service.dependencies) {
           visit(dependency);
         }
       }
@@ -100,7 +100,7 @@ class ServiceManager {
       order.push(serviceName);
     };
 
-    for (const serviceName of this.services.keys()) {
+    for (const _serviceName of this.services.keys()) {
       visit(serviceName);
     }
 
@@ -108,14 +108,14 @@ class ServiceManager {
   }
 
   private async updateHealthStatus(serviceName: string): Promise<void> {
-    const service = this.services.get(serviceName);
+    const _service = this.services.get(serviceName);
     if (!service) return;
 
-    const startTime = Date.now();
+    const _startTime = Date.now();
 
     try {
-      const isHealthy = await service.healthCheck();
-      const latency = Date.now() - startTime;
+      const _isHealthy = await service.healthCheck();
+      const _latency = Date.now() - startTime;
 
       this.healthStatus.set(serviceName, {
         name: serviceName,
@@ -125,7 +125,7 @@ class ServiceManager {
         errorRate: 0,
       });
     } catch (error) {
-      const latency = Date.now() - startTime;
+      const _latency = Date.now() - startTime;
 
       this.healthStatus.set(serviceName, {
         name: serviceName,
@@ -139,7 +139,7 @@ class ServiceManager {
 
   private startHealthMonitoring(): void {
     setInterval(async () => {
-      for (const serviceName of this.services.keys()) {
+      for (const _serviceName of this.services.keys()) {
         await this.updateHealthStatus(serviceName);
       }
     }, 30000); // Check every 30 seconds
@@ -162,7 +162,7 @@ class ServiceManager {
   }
 
   getOverallHealth(): 'healthy' | 'degraded' | 'unhealthy' {
-    const statuses = Array.from(this.healthStatus.values());
+    const _statuses = Array.from(this.healthStatus.values());
 
     if (statuses.every(s => s.status === 'healthy')) return 'healthy';
     if (statuses.some(s => s.status === 'unhealthy')) return 'unhealthy';
@@ -170,7 +170,7 @@ class ServiceManager {
   }
 
   async restartService(serviceName: string): Promise<void> {
-    const service = this.services.get(serviceName);
+    const _service = this.services.get(serviceName);
     if (!service) throw new Error(`Service ${serviceName} not found`);
 
     await service.shutdown();

@@ -54,7 +54,7 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
 
   public async isAvailable(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.config.baseUrl}/status?apiKey=${this.config.apiKey}`);
+      const _response = await fetch(`${this.config.baseUrl}/status?apiKey=${this.config.apiKey}`);
       return response.ok;
     } catch {
       return false;
@@ -62,7 +62,7 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
   }
 
   public async fetchData(): Promise<TheOddsData> {
-    const trace = this.monitor.startTrace('the-odds-fetch', {
+    const _trace = this.monitor.startTrace('the-odds-fetch', {
       category: 'adapter.fetch',
       description: 'Fetching odds data',
     });
@@ -73,7 +73,7 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
         return this.cache.data!;
       }
 
-      const data = await this.fetchOddsData();
+      const _data = await this.fetchOddsData();
 
       this.cache = {
         data,
@@ -81,7 +81,7 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
       };
 
       // Update game status for each event
-      for (const event of data.events) {
+      for (const _event of data.events) {
         await this.eventBus.publish('game:status', {
           game: {
             id: event.id,
@@ -103,7 +103,7 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
   }
 
   private async fetchOddsData(): Promise<TheOddsData> {
-    const response = await fetch(
+    const _response = await fetch(
       `${this.config.baseUrl}/odds?apiKey=${this.config.apiKey}&regions=us&markets=h2h,spreads,totals`
     );
 

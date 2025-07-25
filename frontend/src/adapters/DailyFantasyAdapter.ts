@@ -53,7 +53,7 @@ export class DailyFantasyAdapter implements DataSource<DailyFantasyData> {
    * @returns DailyFantasyData with projections array.
    */
   public async fetchData(): Promise<DailyFantasyData> {
-    const trace = this.monitor.startTrace('daily-fantasy-fetch', {
+    const _trace = this.monitor.startTrace('daily-fantasy-fetch', {
       category: 'adapter.fetch',
       description: 'Fetching daily fantasy data',
     });
@@ -65,7 +65,7 @@ export class DailyFantasyAdapter implements DataSource<DailyFantasyData> {
         return this.cache.data!;
       }
 
-      const response = await fetch(`${this.config.baseUrl}/nba/projections`, {
+      const _response = await fetch(`${this.config.baseUrl}/nba/projections`, {
         headers: {
           Authorization: `Bearer ${this.config.apiKey}`,
           'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ export class DailyFantasyAdapter implements DataSource<DailyFantasyData> {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const _data = await response.json();
 
       // Update cache
       this.cache = {
@@ -85,7 +85,7 @@ export class DailyFantasyAdapter implements DataSource<DailyFantasyData> {
       };
 
       // Update game status for each projection
-      for (const projection of data.projections) {
+      for (const _projection of data.projections) {
         await this.eventBus.publish({
           type: 'player:update',
           payload: {
@@ -123,7 +123,7 @@ export class DailyFantasyAdapter implements DataSource<DailyFantasyData> {
 
   private isCacheValid(): boolean {
     if (!this.cache.data) return false;
-    const age = Date.now() - this.cache.timestamp;
+    const _age = Date.now() - this.cache.timestamp;
     return age < this.config.cacheTimeout;
   }
 

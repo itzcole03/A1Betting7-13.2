@@ -1,2 +1,2 @@
-declare const router: unknown;
+declare const _router: unknown;
 export default router;

@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { masterServiceRegistry } from '../services/MasterServiceRegistry';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface BettingState {
   isConnected: boolean;
@@ -55,7 +54,7 @@ interface BettingSettings {
   bookmakers: string[];
 }
 
-export const useUnifiedBetting = () => {
+export const _useUnifiedBetting = () => {
   const [state, setState] = useState<BettingState>({
     isConnected: false,
     opportunities: [],
@@ -77,14 +76,14 @@ export const useUnifiedBetting = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const wsSubscriptions = useRef<string[]>([]);
+  const _wsSubscriptions = useRef<string[]>([]);
 
-  const initializeBetting = useCallback(async () => {
+  const _initializeBetting = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const bettingService = masterServiceRegistry.getService('betting');
+      const _bettingService = masterServiceRegistry.getService('betting');
       if (!bettingService) {
         throw new Error('Betting service not available');
       }
@@ -107,7 +106,7 @@ export const useUnifiedBetting = () => {
         isConnected: true,
       }));
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to initialize betting';
+      const _errorMessage = err instanceof Error ? err.message : 'Failed to initialize betting';
       setError(errorMessage);
       console.error('Betting initialization error:', err);
     } finally {
@@ -115,16 +114,16 @@ export const useUnifiedBetting = () => {
     }
   }, []);
 
-  const placeBet = useCallback(async (opportunity: BettingOpportunity, customStake?: number) => {
+  const _placeBet = useCallback(async (opportunity: BettingOpportunity, customStake?: number) => {
     try {
-      const bettingService = masterServiceRegistry.getService('betting');
+      const _bettingService = masterServiceRegistry.getService('betting');
       if (!bettingService) {
         throw new Error('Betting service not available');
       }
 
-      const stake = customStake || opportunity.recommendedStake;
+      const _stake = customStake || opportunity.recommendedStake;
 
-      const betData = {
+      const _betData = {
         opportunityId: opportunity.id,
         sport: opportunity.sport,
         game: opportunity.game,
@@ -135,7 +134,7 @@ export const useUnifiedBetting = () => {
         bookmaker: opportunity.bookmaker,
       };
 
-      const success = await bettingService.placeBet(betData);
+      const _success = await bettingService.placeBet(betData);
 
       if (success) {
         // Remove opportunity from list
@@ -155,14 +154,14 @@ export const useUnifiedBetting = () => {
     }
   }, []);
 
-  const cancelBet = useCallback(async (betId: string) => {
+  const _cancelBet = useCallback(async (betId: string) => {
     try {
-      const bettingService = masterServiceRegistry.getService('betting');
+      const _bettingService = masterServiceRegistry.getService('betting');
       if (!bettingService?.cancelBet) {
         throw new Error('Bet cancellation not available');
       }
 
-      const success = await bettingService.cancelBet(betId);
+      const _success = await bettingService.cancelBet(betId);
 
       if (success) {
         setState(prev => ({
@@ -178,14 +177,14 @@ export const useUnifiedBetting = () => {
     }
   }, []);
 
-  const cashoutBet = useCallback(async (betId: string) => {
+  const _cashoutBet = useCallback(async (betId: string) => {
     try {
-      const bettingService = masterServiceRegistry.getService('betting');
+      const _bettingService = masterServiceRegistry.getService('betting');
       if (!bettingService?.cashoutBet) {
         throw new Error('Bet cashout not available');
       }
 
-      const result = await bettingService.cashoutBet(betId);
+      const _result = await bettingService.cashoutBet(betId);
 
       if (result.success) {
         setState(prev => ({
@@ -204,15 +203,15 @@ export const useUnifiedBetting = () => {
     }
   }, []);
 
-  const updateSettings = useCallback(
+  const _updateSettings = useCallback(
     async (newSettings: Partial<BettingSettings>) => {
       try {
-        const bettingService = masterServiceRegistry.getService('betting');
+        const _bettingService = masterServiceRegistry.getService('betting');
         if (!bettingService) {
           return false;
         }
 
-        const updatedSettings = { ...state.settings, ...newSettings };
+        const _updatedSettings = { ...state.settings, ...newSettings };
         bettingService.setConfig(updatedSettings);
 
         setState(prev => ({
@@ -229,12 +228,12 @@ export const useUnifiedBetting = () => {
     [state.settings]
   );
 
-  const refreshOpportunities = useCallback(async () => {
+  const _refreshOpportunities = useCallback(async () => {
     try {
-      const bettingService = masterServiceRegistry.getService('betting');
+      const _bettingService = masterServiceRegistry.getService('betting');
       if (!bettingService) return;
 
-      const opportunities = await bettingService.getBettingOpportunities();
+      const _opportunities = await bettingService.getBettingOpportunities();
       setState(prev => ({
         ...prev,
         opportunities: opportunities || [],
@@ -244,12 +243,12 @@ export const useUnifiedBetting = () => {
     }
   }, []);
 
-  const refreshActiveBets = useCallback(async () => {
+  const _refreshActiveBets = useCallback(async () => {
     try {
-      const bettingService = masterServiceRegistry.getService('betting');
+      const _bettingService = masterServiceRegistry.getService('betting');
       if (!bettingService?.getActiveBets) return;
 
-      const activeBets = await bettingService.getActiveBets();
+      const _activeBets = await bettingService.getActiveBets();
       setState(prev => ({
         ...prev,
         activeBets: activeBets || [],
@@ -259,13 +258,13 @@ export const useUnifiedBetting = () => {
     }
   }, []);
 
-  const subscribeToUpdates = useCallback(() => {
+  const _subscribeToUpdates = useCallback(() => {
     try {
-      const wsService = masterServiceRegistry.getService('websocket');
+      const _wsService = masterServiceRegistry.getService('websocket');
       if (!wsService) return;
 
       // Subscribe to betting opportunities
-      const oppSub = wsService.subscribe('betting_opportunities', (data: BettingOpportunity[]) => {
+      const _oppSub = wsService.subscribe('betting_opportunities', (data: BettingOpportunity[]) => {
         setState(prev => ({
           ...prev,
           opportunities: data || [],
@@ -273,7 +272,7 @@ export const useUnifiedBetting = () => {
       });
 
       // Subscribe to bet updates
-      const betSub = wsService.subscribe('bet_update', (data: any) => {
+      const _betSub = wsService.subscribe('bet_update', (data: unknown) => {
         setState(prev => ({
           ...prev,
           activeBets: prev.activeBets.map(bet =>
@@ -283,7 +282,7 @@ export const useUnifiedBetting = () => {
       });
 
       // Subscribe to balance updates
-      const balanceSub = wsService.subscribe('balance_update', (data: any) => {
+      const _balanceSub = wsService.subscribe('balance_update', (data: unknown) => {
         setState(prev => ({
           ...prev,
           balance: data.balance,
@@ -297,9 +296,9 @@ export const useUnifiedBetting = () => {
     }
   }, []);
 
-  const unsubscribeFromUpdates = useCallback(() => {
+  const _unsubscribeFromUpdates = useCallback(() => {
     try {
-      const wsService = masterServiceRegistry.getService('websocket');
+      const _wsService = masterServiceRegistry.getService('websocket');
       if (wsService && wsSubscriptions.current.length > 0) {
         wsSubscriptions.current.forEach(sub => wsService.unsubscribe(sub));
         wsSubscriptions.current = [];
@@ -309,31 +308,31 @@ export const useUnifiedBetting = () => {
     }
   }, []);
 
-  const calculateOptimalStake = useCallback(
+  const _calculateOptimalStake = useCallback(
     (opportunity: BettingOpportunity, customBankroll?: number) => {
-      const bankroll = customBankroll || state.settings.bankroll;
-      const maxStake = bankroll * state.settings.maxStakePercentage;
+      const _bankroll = customBankroll || state.settings.bankroll;
+      const _maxStake = bankroll * state.settings.maxStakePercentage;
 
       // Kelly Criterion calculation
-      const edge = opportunity.value;
-      const odds = opportunity.odds;
-      const kellyStake = (edge * bankroll) / (odds - 1);
+      const _edge = opportunity.value;
+      const _odds = opportunity.odds;
+      const _kellyStake = (edge * bankroll) / (odds - 1);
 
       // Apply conservative factor based on risk level
-      const riskFactors = {
+      const _riskFactors = {
         conservative: 0.25,
         moderate: 0.5,
         aggressive: 0.75,
       };
 
-      const conservativeKelly = kellyStake * riskFactors[state.settings.riskLevel];
+      const _conservativeKelly = kellyStake * riskFactors[state.settings.riskLevel];
 
       return Math.min(conservativeKelly, maxStake, opportunity.maxStake);
     },
     [state.settings]
   );
 
-  const getFilteredOpportunities = useCallback(
+  const _getFilteredOpportunities = useCallback(
     (filters?: { sport?: string; market?: string; minValue?: number; minConfidence?: number }) => {
       return state.opportunities.filter(opp => {
         if (filters?.sport && opp.sport !== filters.sport) return false;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+export const _Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div
@@ -12,7 +12,7 @@ export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
 );
 Card.displayName = 'Card';
 
-export const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+export const _CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div ref={ref} className={`flex flex-col space-y-1.5 p-6 ${className || ''}`} {...props} />
@@ -20,7 +20,7 @@ export const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<
 );
 CardHeader.displayName = 'CardHeader';
 
-export const CardTitle = React.forwardRef<
+export const _CardTitle = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, children, ...props }, ref) => (
@@ -36,7 +36,7 @@ export const CardTitle = React.forwardRef<
 ));
 CardTitle.displayName = 'CardTitle';
 
-export const CardDescription = React.forwardRef<
+export const _CardDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
@@ -45,7 +45,7 @@ export const CardDescription = React.forwardRef<
 ));
 CardDescription.displayName = 'CardDescription';
 
-export const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+export const _CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div ref={ref} className={`p-6 pt-0 ${className || ''}`} {...props} />
@@ -53,7 +53,7 @@ export const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes
 );
 CardContent.displayName = 'CardContent';
 
-export const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+export const _CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div ref={ref} className={`flex items-center p-6 pt-0 ${className || ''}`} {...props} />

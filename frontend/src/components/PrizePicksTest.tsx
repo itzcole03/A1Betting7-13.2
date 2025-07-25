@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { fetchPrizePicksProps, PrizePicksProp } from '../services/api';
 
-const PrizePicksTest: React.FC = () => {
+const _PrizePicksTest: React.FC = () => {
   const [data, setData] = useState<PrizePicksProp[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const _fetchData = async () => {
       try {
         console.log('🔍 PrizePicksTest: Starting fetch...');
-        const result = await fetchPrizePicksProps();
+        const _result = await fetchPrizePicksProps();
         console.log('🔍 PrizePicksTest: Data received:', result);
         setData(result);
       } catch (err) {

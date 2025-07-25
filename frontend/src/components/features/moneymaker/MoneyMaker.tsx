@@ -26,14 +26,14 @@ interface BettingOpportunity {
   risk: 'low' | 'medium' | 'high';
 }
 
-const MoneyMaker: React.FC = () => {
+const _MoneyMaker: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [opportunities, setOpportunities] = useState<BettingOpportunity[]>([]);
   const [totalBankroll, setTotalBankroll] = useState(10000);
 
   useEffect(() => {
     // Mock data - replace with real API calls
-    const mockOpportunities: BettingOpportunity[] = [
+    const _mockOpportunities: BettingOpportunity[] = [
       {
         id: '1',
         game: 'Lakers vs Warriors',
@@ -71,14 +71,14 @@ const MoneyMaker: React.FC = () => {
     setOpportunities(mockOpportunities);
   }, []);
 
-  const runAnalysis = async () => {
+  const _runAnalysis = async () => {
     setIsAnalyzing(true);
     // Simulate AI analysis
     await new Promise(resolve => setTimeout(resolve, 3000));
     setIsAnalyzing(false);
   };
 
-  const getRiskColor = (risk: string) => {
+  const _getRiskColor = (risk: string) => {
     switch (risk) {
       case 'low':
         return 'text-green-400 bg-green-500/20';

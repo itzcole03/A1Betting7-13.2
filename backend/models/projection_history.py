@@ -7,6 +7,7 @@ from backend.models.base import Base
 
 class ProjectionHistory(Base):
     __tablename__ = "projection_history"
+    __table_args__ = {"extend_existing": True}
     id = Column(Integer, primary_key=True, index=True)
     player_name = Column(String, nullable=False)
     prop_type = Column(String, nullable=False)

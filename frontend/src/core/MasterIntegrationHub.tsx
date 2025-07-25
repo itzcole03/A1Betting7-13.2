@@ -7,10 +7,10 @@ import { useEnhancedBettingEngine } from '../hooks/useEnhancedBettingEngine';
 import { useEnhancedRealDataSources } from '../hooks/useEnhancedRealDataSources';
 // @ts-expect-error TS(2306): File 'C:/Users/bcmad/Downloads/A1Betting7-13.2/fro... Remove this comment to see the full error message
 import { useMLAnalytics } from '../hooks/useMLAnalytics';
-import { useUnifiedAnalytics } from '../hooks/useUnifiedAnalytics';
-import { useUnifiedBetting } from '../hooks/useUnifiedBetting';
 import { useRealtimePredictions } from '../hooks/useRealtimePredictions';
 import { useSmartAlerts } from '../hooks/useSmartAlerts';
+import { useUnifiedAnalytics } from '../hooks/useUnifiedAnalytics';
+import { useUnifiedBetting } from '../hooks/useUnifiedBetting';
 // @ts-expect-error TS(2306): File 'C:/Users/bcmad/Downloads/A1Betting7-13.2/fro... Remove this comment to see the full error message
 import { usePerformance } from '../hooks/usePerformance';
 // @ts-expect-error TS(2305): Module '"../hooks/useSpecialistData"' has no expor... Remove this comment to see the full error message
@@ -21,8 +21,6 @@ import { useQuantumPredictions } from '../hooks/useQuantumPredictions';
 import { useUltraMLAnalytics } from '../hooks/useUltraMLAnalytics';
 
 // Import unified services
-import { injuryService } from '../services/injuryService';
-import { lineupService } from '../services/lineupService';
 // @ts-expect-error TS(2614): Module '"../services/unified/ApiService"' has no e... Remove this comment to see the full error message
 import { ApiService } from '../services/unified/ApiService';
 import { UnifiedAnalyticsService } from '../services/unified/UnifiedAnalyticsService';
@@ -31,9 +29,9 @@ import { UnifiedDataService } from '../services/unified/UnifiedDataService';
 import { UnifiedPredictionService } from '../services/unified/UnifiedPredictionService';
 
 // Import all sports and theme configurations
-import { SPORTS_CONFIG, getAllSports, getActiveSports } from '../constants/sports';
+import { SPORTS_CONFIG, getActiveSports } from '../constants/sports';
 // @ts-expect-error TS(2305): Module '"../theme"' has no exported member 'THEMES... Remove this comment to see the full error message
-import { THEMES, getThemeById, applyCSSVariables } from '../theme';
+import { applyCSSVariables, getThemeById } from '../theme';
 
 interface MasterIntegrationState {
   // Data Management
@@ -47,38 +45,38 @@ interface MasterIntegrationState {
 
   // Real-time Systems
   realTimeData: {
-    predictions: any[];
-    opportunities: any[];
-    alerts: any[];
-    performance: any;
-    liveGames: any[];
+    predictions: unknown[];
+    opportunities: unknown[];
+    alerts: unknown[];
+    performance: unknown;
+    liveGames: unknown[];
   };
 
   // ML & AI Systems
   mlSystems: {
-    models: any[];
+    models: unknown[];
     accuracy: number;
-    predictions: any[];
+    predictions: unknown[];
     quantumEnhanced: boolean;
-    shapAnalysis: any[];
+    shapAnalysis: unknown[];
   };
 
   // Sports & Markets
   sportsData: {
     allSports: typeof SPORTS_CONFIG;
-    activeSports: any[];
-    marketData: { [sportId: string]: any };
-    injuries: any[];
-    weather: any[];
+    activeSports: unknown[];
+    marketData: { [sportId: string]: unknown };
+    injuries: unknown[];
+    weather: unknown[];
   };
 
   // User & Settings
   userSystems: {
-    profile: any;
-    preferences: any;
-    portfolio: any;
-    riskProfile: any;
-    theme: any;
+    profile: unknown;
+    preferences: unknown;
+    portfolio: unknown;
+    riskProfile: unknown;
+    theme: unknown;
   };
 
   // Performance & Monitoring
@@ -103,9 +101,9 @@ interface MasterIntegrationState {
 interface MasterIntegrationContextType extends MasterIntegrationState {
   // Actions
   refreshAllData: () => Promise<void>;
-  updateSportsData: (sportId: string, data: any) => void;
-  updateUserPreferences: (preferences: any) => void;
-  addAlert: (alert: any) => void;
+  updateSportsData: (sportId: string, data: unknown) => void;
+  updateUserPreferences: (preferences: unknown) => void;
+  addAlert: (alert: unknown) => void;
   dismissAlert: (alertId: string) => void;
   optimizePerformance: () => Promise<void>;
   syncAllSystems: () => Promise<void>;
@@ -116,17 +114,19 @@ interface MasterIntegrationContextType extends MasterIntegrationState {
   errors: string[];
 }
 
-const MasterIntegrationContext = createContext<MasterIntegrationContextType | undefined>(undefined);
+const _MasterIntegrationContext = createContext<MasterIntegrationContextType | undefined>(
+  undefined
+);
 
-export const useMasterIntegration = () => {
-  const context = useContext(MasterIntegrationContext);
+export const _useMasterIntegration = () => {
+  const _context = useContext(MasterIntegrationContext);
   if (!context) {
     throw new Error('useMasterIntegration must be used within MasterIntegrationProvider');
   }
   return context;
 };
 
-export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> = ({
+export const _MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, setState] = useState<MasterIntegrationState>({
@@ -190,27 +190,27 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
   const [errors, setErrors] = useState<string[]>([]);
 
   // Initialize all hooks and services
-  const analytics = useAnalytics();
-  const bettingAnalytics = useBettingAnalytics();
-  const enhancedBetting = useEnhancedBettingEngine();
-  const realDataSources = useEnhancedRealDataSources();
-  const mlAnalytics = useMLAnalytics();
-  const unifiedAnalytics = useUnifiedAnalytics();
-  const unifiedBetting = useUnifiedBetting();
-  const realtimePredictions = useRealtimePredictions();
-  const smartAlerts = useSmartAlerts();
-  const performance = usePerformance();
-  const specialistData = useSpecialistData();
-  const quantumPredictions = useQuantumPredictions();
-  const ultraMLAnalytics = useUltraMLAnalytics();
+  const _analytics = useAnalytics();
+  const _bettingAnalytics = useBettingAnalytics();
+  const _enhancedBetting = useEnhancedBettingEngine();
+  const _realDataSources = useEnhancedRealDataSources();
+  const _mlAnalytics = useMLAnalytics();
+  const _unifiedAnalytics = useUnifiedAnalytics();
+  const _unifiedBetting = useUnifiedBetting();
+  const _realtimePredictions = useRealtimePredictions();
+  const _smartAlerts = useSmartAlerts();
+  const _performance = usePerformance();
+  const _specialistData = useSpecialistData();
+  const _quantumPredictions = useQuantumPredictions();
+  const _ultraMLAnalytics = useUltraMLAnalytics();
 
   useEffect(() => {
     initializeAllSystems();
-    const interval = setInterval(syncAllSystems, 30000); // Sync every 30 seconds
+    const _interval = setInterval(syncAllSystems, 30000); // Sync every 30 seconds
     return () => clearInterval(interval);
   }, []);
 
-  const initializeAllSystems = async () => {
+  const _initializeAllSystems = async () => {
     setIsLoading(true);
     try {
       // Initialize all data services
@@ -243,10 +243,10 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
     }
   };
 
-  const initializeDataServices = async () => {
+  const _initializeDataServices = async () => {
     try {
       // Initialize all unified services
-      const services = state.dataServices;
+      const _services = state.dataServices;
 
       // Test connections
       await Promise.all([
@@ -283,10 +283,10 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
     }
   };
 
-  const initializeMLSystems = async () => {
+  const _initializeMLSystems = async () => {
     try {
       // Integrate all ML analytics
-      const mlData = {
+      const _mlData = {
         models: [
           { name: 'XGBoost Ensemble', accuracy: 97.2, status: 'active', weight: 35 },
           { name: 'Neural Network', accuracy: 96.8, status: 'active', weight: 30 },
@@ -310,12 +310,12 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
     }
   };
 
-  const initializeSportsData = async () => {
+  const _initializeSportsData = async () => {
     try {
       // Load comprehensive sports data
-      const marketData: { [sportId: string]: any } = {};
+      const _marketData: { [sportId: string]: unknown } = {};
 
-      for (const sport of SPORTS_CONFIG) {
+      for (const _sport of SPORTS_CONFIG) {
         marketData[sport.id] = {
           popularMarkets: sport.popularMarkets,
           activeGames: Math.floor(Math.random() * 10) + 1,
@@ -338,10 +338,10 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
     }
   };
 
-  const initializeUserSystems = async () => {
+  const _initializeUserSystems = async () => {
     try {
       // Initialize user profile and preferences
-      const userProfile = {
+      const _userProfile = {
         id: 'user-001',
         name: 'Pro User',
         tier: 'premium',
@@ -379,10 +379,10 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
     }
   };
 
-  const initializeMonitoring = async () => {
+  const _initializeMonitoring = async () => {
     try {
       // Set up performance monitoring
-      const healthData = {
+      const _healthData = {
         uptime: 99.9,
         responseTime: performance.averageResponseTime || 120,
         errorRate: 0.01,
@@ -400,7 +400,7 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
     }
   };
 
-  const refreshAllData = async () => {
+  const _refreshAllData = async () => {
     setIsLoading(true);
     try {
       await syncAllSystems();
@@ -413,7 +413,7 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
     }
   };
 
-  const syncAllSystems = async () => {
+  const _syncAllSystems = async () => {
     try {
       // Sync all data sources
       const [latestPredictions, latestOpportunities, latestAlerts, latestInjuries] =
@@ -448,7 +448,7 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
     }
   };
 
-  const updateSportsData = (sportId: string, data: any) => {
+  const _updateSportsData = (sportId: string, data: unknown) => {
     setState(prev => ({
       ...prev,
       sportsData: {
@@ -465,7 +465,7 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
     }));
   };
 
-  const updateUserPreferences = (preferences: any) => {
+  const _updateUserPreferences = (preferences: unknown) => {
     setState(prev => ({
       ...prev,
       userSystems: {
@@ -479,7 +479,7 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
 
     // Apply theme if changed
     if (preferences.theme) {
-      const theme = getThemeById(preferences.theme);
+      const _theme = getThemeById(preferences.theme);
       if (theme) {
         applyCSSVariables(theme);
         setState(prev => ({
@@ -493,7 +493,7 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
     }
   };
 
-  const addAlert = (alert: any) => {
+  const _addAlert = (alert: unknown) => {
     setState(prev => ({
       ...prev,
       realTimeData: {
@@ -503,17 +503,17 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
     }));
   };
 
-  const dismissAlert = (alertId: string) => {
+  const _dismissAlert = (alertId: string) => {
     setState(prev => ({
       ...prev,
       realTimeData: {
         ...prev.realTimeData,
-        alerts: prev.realTimeData.alerts.filter((alert: any) => alert.id !== alertId),
+        alerts: prev.realTimeData.alerts.filter((alert: unknown) => alert.id !== alertId),
       },
     }));
   };
 
-  const optimizePerformance = async () => {
+  const _optimizePerformance = async () => {
     try {
       // Optimize all systems
       await Promise.all([
@@ -540,7 +540,7 @@ export const MasterIntegrationProvider: React.FC<{ children: React.ReactNode }> 
     }
   };
 
-  const contextValue: MasterIntegrationContextType = {
+  const _contextValue: MasterIntegrationContextType = {
     ...state,
     refreshAllData,
     updateSportsData,

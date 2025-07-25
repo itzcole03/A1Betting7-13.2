@@ -10,7 +10,7 @@ interface LayoutProps {
   className?: string;
 }
 
-export const Layout: React.FC<LayoutProps> = ({
+export const _Layout: React.FC<LayoutProps> = ({
   children,
   title,
   subtitle,

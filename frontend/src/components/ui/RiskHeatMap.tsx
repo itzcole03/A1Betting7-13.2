@@ -40,8 +40,8 @@ interface RiskHeatMapProps {
   onRiskLevelChange?: (level: number) => void;
 }
 
-const getRiskColor = (level: number, variant: string = 'default') => {
-  const colors = {
+const _getRiskColor = (level: number, variant: string = 'default') => {
+  const _colors = {
     default: {
       1: 'bg-green-500',
       2: 'bg-yellow-500',
@@ -63,8 +63,8 @@ const getRiskColor = (level: number, variant: string = 'default') => {
     : colors.default[level as keyof typeof colors.default] || colors.default[3];
 };
 
-const getRiskLabel = (level: number) => {
-  const labels = {
+const _getRiskLabel = (level: number) => {
+  const _labels = {
     1: 'Very Low',
     2: 'Low',
     3: 'Medium',
@@ -74,7 +74,7 @@ const getRiskLabel = (level: number) => {
   return labels[level as keyof typeof labels] || 'Unknown';
 };
 
-const getTrendIcon = (trend: string) => {
+const _getTrendIcon = (trend: string) => {
   switch (trend) {
     case 'increasing':
       return '↗️';
@@ -85,7 +85,7 @@ const getTrendIcon = (trend: string) => {
   }
 };
 
-export const RiskHeatMap: React.FC<RiskHeatMapProps> = ({
+export const _RiskHeatMap: React.FC<RiskHeatMapProps> = ({
   data,
   variant = 'default',
   size = 'md',
@@ -96,14 +96,14 @@ export const RiskHeatMap: React.FC<RiskHeatMapProps> = ({
   onCategoryClick,
   onRiskLevelChange,
 }) => {
-  const sizeClasses = {
+  const _sizeClasses = {
     sm: 'h-64 text-sm',
     md: 'h-80 text-base',
     lg: 'h-96 text-lg',
     xl: 'h-[32rem] text-xl',
   };
 
-  const variantClasses = {
+  const _variantClasses = {
     default: 'bg-white border border-gray-200 rounded-lg shadow-sm',
     cyber:
       'bg-slate-900 border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-500/20 backdrop-blur-sm',
@@ -111,9 +111,9 @@ export const RiskHeatMap: React.FC<RiskHeatMapProps> = ({
     detailed: 'bg-white border border-gray-300 rounded-xl shadow-lg',
   };
 
-  const gridSize = Math.ceil(Math.sqrt(data.categories.length));
-  const gridCols = gridSize;
-  const gridRows = Math.ceil(data.categories.length / gridSize);
+  const _gridSize = Math.ceil(Math.sqrt(data.categories.length));
+  const _gridCols = gridSize;
+  const _gridRows = Math.ceil(data.categories.length / gridSize);
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

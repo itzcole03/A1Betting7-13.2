@@ -30,19 +30,19 @@ export class ModelService {
     await this.modelManager.initializeModel(modelId, type, config);
   }
 
-  async trainModel(modelId: string, data: any): Promise<void> {
+  async trainModel(modelId: string, data: unknown): Promise<void> {
     await this.modelManager.trainModel(modelId, data);
   }
 
-  async predict(modelId: string, input: any): Promise<any> {
+  async predict(modelId: string, input: unknown): Promise<unknown> {
     return await this.modelManager.predict(modelId, input);
   }
 
-  async evaluateModel(modelId: string, data: any): Promise<any> {
+  async evaluateModel(modelId: string, data: unknown): Promise<unknown> {
     return await this.modelManager.evaluateModel(modelId, data);
   }
 
-  async updateModel(modelId: string, update: any): Promise<void> {
+  async updateModel(modelId: string, update: unknown): Promise<void> {
     await this.modelManager.updateModel(modelId, update);
   }
 
@@ -62,7 +62,7 @@ export class ModelService {
     return this.modelManager.getActiveModels();
   }
 
-  getModelMetrics(modelId: string): any {
+  getModelMetrics(modelId: string): unknown {
     return this.modelManager.getModelMetrics(modelId);
   }
 
@@ -70,7 +70,7 @@ export class ModelService {
     return this.modelManager.isModelActive(modelId);
   }
 
-  getModelInfo(modelId: string): any {
+  getModelInfo(modelId: string): unknown {
     return this.modelManager.getModelInfo(modelId);
   }
 
@@ -82,7 +82,7 @@ export class ModelService {
     return this.modelManager.getAvailableModelTypes();
   }
 
-  getModelTypeInfo(type: ModelType): any {
+  getModelTypeInfo(type: ModelType): unknown {
     return this.modelManager.getModelTypeInfo(type);
   }
 }

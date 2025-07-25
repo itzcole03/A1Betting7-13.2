@@ -1,32 +1,36 @@
 // LiveStream.test.tsx
 // Automated tests for live stream page (LiveStream)
 
-import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import LiveStream from '../LiveStream';
 
-describe('LiveStream', () => {
-  it('renders onboarding banner', () => {
+describe('LiveStream component', () => {
+  it('renders the onboarding banner and safety tips', () => {
     render(<LiveStream />);
     expect(screen.getByText(/How to Use:/i)).toBeInTheDocument();
     expect(screen.getByText(/Safety Tips:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Use an ad blocker for best experience./i)).toBeInTheDocument();
+    expect(screen.getByText(/Open streams in a new tab if popups appear./i)).toBeInTheDocument();
+    expect(screen.getByText(/No registration or payment is ever required./i)).toBeInTheDocument();
   });
 
-  it('loads iframe with correct src', () => {
+  it('renders the header with the correct title and external link', () => {
     render(<LiveStream />);
-    const iframe = screen.getByTitle('StreamEast Live Sports');
-    expect(iframe).toBeInTheDocument();
-    expect(iframe).toHaveAttribute('src', 'https://gostreameast.link/official/');
+    expect(screen.getByRole('heading', { name: /Live Sports Streams/i })).toBeInTheDocument();
+    const streamEastLink = screen.getByRole('link', { name: 'StreamEast' }); // Exact match for the inline link
+    expect(streamEastLink).toBeInTheDocument();
+    expect(streamEastLink).toHaveAttribute('href', 'https://gostreameast.link/official/');
+    expect(streamEastLink).toHaveAttribute('target', '_blank');
+    expect(streamEastLink).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
-  it('iframe is accessible', () => {
+  it('renders the button to open the live stream site', () => {
     render(<LiveStream />);
-    const iframe = screen.getByLabelText('StreamEast Live Sports Preview');
-    expect(iframe).toBeInTheDocument();
+    const openStreamButton = screen.getByRole('link', { name: /Open StreamEast Live Streams/i });
+    expect(openStreamButton).toBeInTheDocument();
+    expect(openStreamButton).toHaveAttribute('href', 'https://gostreameast.link/official/');
+    expect(openStreamButton).toHaveAttribute('target', '_blank');
+    expect(openStreamButton).toHaveAttribute('rel', 'noopener noreferrer');
+    expect(screen.getByText(/You will be redirected to an external website/i)).toBeInTheDocument();
   });
-
-  // Note: Simulating iframe load errors is not natively supported in jsdom, but we can check fallback UI if implemented
-  // it('shows fallback if iframe fails', () => {
-  //   // Implement fallback UI in LiveStream.tsx for this test
-  // });
 });

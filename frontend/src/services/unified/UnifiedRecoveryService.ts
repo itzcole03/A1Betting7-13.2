@@ -37,7 +37,7 @@ export interface RecoveryResult {
   component: string;
   action: string;
   error?: string;
-  details?: any;
+  details?: unknown;
 }
 
 export class UnifiedRecoveryService {
@@ -156,8 +156,8 @@ export class UnifiedRecoveryService {
   private async getLatestBackup(): Promise<string | null> {
     try {
       // @ts-expect-error TS(2304): Cannot find name 'entries'.
-      const backups = entries
-        .filter((entry: any) => entry.startsWith('backup_'))
+      const _backups = entries
+        .filter((entry: unknown) => entry.startsWith('backup_'))
         .sort()
         .reverse();
 

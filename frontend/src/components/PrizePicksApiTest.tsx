@@ -1,34 +1,34 @@
 import React, { useEffect, useState } from 'react';
 
-const PrizePicksApiTest: React.FC = () => {
-  const [data, setData] = useState<any>(null);
+const _PrizePicksApiTest: React.FC = () => {
+  const [data, setData] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const testApi = async () => {
+    const _testApi = async () => {
       try {
         console.log('Testing API connection...');
 
         // Test backend discovery
-        const backendUrl = 'http://localhost:8003';
+        const _backendUrl = 'http://localhost:8003';
         console.log('Using backend URL:', backendUrl);
 
         // Test health endpoint
-        const healthResponse = await fetch(`${backendUrl}/api/health/status`);
+        const _healthResponse = await fetch(`${backendUrl}/api/health/status`);
         console.log('Health response:', healthResponse.status);
 
         if (healthResponse.ok) {
-          const healthData = await healthResponse.json();
+          const _healthData = await healthResponse.json();
           console.log('Health data:', healthData);
         }
 
         // Test props endpoint
-        const propsResponse = await fetch(`${backendUrl}/api/prizepicks/props/enhanced`);
+        const _propsResponse = await fetch(`${backendUrl}/api/prizepicks/props/enhanced`);
         console.log('Props response:', propsResponse.status);
 
         if (propsResponse.ok) {
-          const propsData = await propsResponse.json();
+          const _propsData = await propsResponse.json();
           console.log('Props data received:', propsData.length, 'items');
           setData(propsData);
         } else {

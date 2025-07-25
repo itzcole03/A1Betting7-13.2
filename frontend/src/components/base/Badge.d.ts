@@ -5,6 +5,6 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   glow?: boolean;
   dot?: boolean;
 }
-export declare const Badge: React.ForwardRefExoticComponent<
+export declare const _Badge: React.ForwardRefExoticComponent<
   BadgeProps & React.RefAttributes<HTMLSpanElement>
 >;

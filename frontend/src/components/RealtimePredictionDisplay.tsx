@@ -2,7 +2,7 @@ import React from 'react';
 // @ts-expect-error TS(6142): Module './Card' was resolved to 'C:/Users/bcmad/Do... Remove this comment to see the full error message
 import { Card, CardContent, CardHeader } from './Card';
 
-const mockPredictions = [
+const _mockPredictions = [
   { id: '1', event: 'Team A vs Team B', prediction: 'Over 2.5 Goals', confidence: 0.87 },
   { id: '2', event: 'Team C vs Team D', prediction: 'Team C Win', confidence: 0.78 },
 ];
@@ -13,7 +13,7 @@ const mockPredictions = [
  * Modern, accessible display of live AI/ML predictions for the A1Betting platform.
  * Shows event, prediction, and confidence.
  */
-export const RealtimePredictionDisplay: React.FC = () => {
+export const _RealtimePredictionDisplay: React.FC = () => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <Card className='max-w-2xl mx-auto'>

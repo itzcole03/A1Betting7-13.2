@@ -26,7 +26,7 @@ export interface BettingFilters {
   status?: string;
 }
 
-const defaultSports: FilterOption[] = [
+const _defaultSports: FilterOption[] = [
   { value: 'all', label: 'All Sports', count: 247 },
   { value: 'nfl', label: 'NFL', count: 89 },
   { value: 'nba', label: 'NBA', count: 156 },
@@ -35,7 +35,7 @@ const defaultSports: FilterOption[] = [
   { value: 'soccer', label: 'Soccer', count: 234 },
 ];
 
-const defaultMarkets: FilterOption[] = [
+const _defaultMarkets: FilterOption[] = [
   { value: 'all', label: 'All Markets', count: 547 },
   { value: 'moneyline', label: 'Moneyline', count: 189 },
   { value: 'spread', label: 'Point Spread', count: 167 },
@@ -44,7 +44,7 @@ const defaultMarkets: FilterOption[] = [
   { value: 'futures', label: 'Futures', count: 23 },
 ];
 
-const defaultTimeRanges: FilterOption[] = [
+const _defaultTimeRanges: FilterOption[] = [
   { value: '1h', label: 'Last Hour' },
   { value: '24h', label: 'Last 24 Hours' },
   { value: '7d', label: 'Last 7 Days' },
@@ -52,7 +52,7 @@ const defaultTimeRanges: FilterOption[] = [
   { value: 'all', label: 'All Time' },
 ];
 
-export const BettingFilters: React.FC<BettingFiltersProps> = ({
+export const _BettingFilters: React.FC<BettingFiltersProps> = ({
   sports = defaultSports,
   markets = defaultMarkets,
   timeRanges = defaultTimeRanges,
@@ -72,12 +72,12 @@ export const BettingFilters: React.FC<BettingFiltersProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeFilters, setActiveFilters] = useState(0);
 
-  const handleFilterChange = (key: keyof BettingFilters, value: any) => {
-    const newFilters = { ...filters, [key]: value };
+  const _handleFilterChange = (key: keyof BettingFilters, value: unknown) => {
+    const _newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
 
     // Count active filters (non-default values)
-    const active = Object.entries(newFilters).filter(([k, v]) => {
+    const _active = Object.entries(newFilters).filter(([k, v]) => {
       if (k === 'sport' || k === 'market') return v !== 'all';
       if (k === 'timeRange') return v !== '24h';
       if (k === 'status') return v !== 'all';
@@ -88,8 +88,8 @@ export const BettingFilters: React.FC<BettingFiltersProps> = ({
     onFiltersChange?.(newFilters);
   };
 
-  const clearFilters = () => {
-    const defaultFilters: BettingFilters = {
+  const _clearFilters = () => {
+    const _defaultFilters: BettingFilters = {
       sport: 'all',
       market: 'all',
       timeRange: '24h',
@@ -103,12 +103,12 @@ export const BettingFilters: React.FC<BettingFiltersProps> = ({
     onFiltersChange?.(defaultFilters);
   };
 
-  const containerVariants = {
+  const _containerVariants = {
     collapsed: { height: 'auto' },
     expanded: { height: 'auto' },
   };
 
-  const contentVariants = {
+  const _contentVariants = {
     collapsed: { opacity: 0, height: 0 },
     expanded: { opacity: 1, height: 'auto' },
   };

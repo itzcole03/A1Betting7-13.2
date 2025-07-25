@@ -50,6 +50,10 @@ def test_predict_valid():
     data = response.json()
     assert "prediction" in data
     assert isinstance(data["prediction"], float)
+    assert "shap_values" in data
+    assert isinstance(data["shap_values"], dict)
+    assert "lime_values" in data
+    assert isinstance(data["lime_values"], dict)
 
 
 def test_predict_empty_stats():

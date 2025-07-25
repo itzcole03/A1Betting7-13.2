@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const UserStats: React.FC;
+declare const _UserStats: React.FC;
 export default UserStats;

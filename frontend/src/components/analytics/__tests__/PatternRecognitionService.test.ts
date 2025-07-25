@@ -1,13 +1,12 @@
-// @ts-expect-error TS(2307): Cannot find module '@/services/analytics/PatternRe... Remove this comment to see the full error message
-import { PatternRecognitionService } from '@/services/analytics/PatternRecognitionService';
+import { PatternRecognitionService } from '../../../services/analytics/PatternRecognitionService';
 describe('PatternRecognitionService', () => {
   it('detects pattern structure', () => {
-    const mockData: any = [
-      /* mock input data */
+    const _mockData: unknown[] = [
+      // mock input data
     ];
-    const result = PatternRecognitionService.detectPatterns(mockData);
-    expect(result).toHaveProperty('inefficiencies');
-    expect(result).toHaveProperty('streaks');
-    expect(result).toHaveProperty('biases');
+    const _result = PatternRecognitionService.analyzeMarketPatterns(_mockData as any);
+    expect(_result).toHaveProperty('inefficiencies');
+    expect(_result).toHaveProperty('streaks');
+    expect(_result).toHaveProperty('biases');
   });
 });

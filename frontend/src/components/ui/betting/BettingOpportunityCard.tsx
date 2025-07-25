@@ -29,26 +29,26 @@ export interface BettingOpportunityCardProps {
   compact?: boolean;
 }
 
-export const BettingOpportunityCard: React.FC<BettingOpportunityCardProps> = ({
+export const _BettingOpportunityCard: React.FC<BettingOpportunityCardProps> = ({
   opportunity,
   onSelect,
   className = '',
   showAnalysis = true,
   compact = false,
 }) => {
-  const getConfidenceColor = (confidence: number) => {
+  const _getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'text-green-400 bg-green-500/20';
     if (confidence >= 65) return 'text-yellow-400 bg-yellow-500/20';
     return 'text-orange-400 bg-orange-500/20';
   };
 
-  const getROIColor = (roi: number) => {
+  const _getROIColor = (roi: number) => {
     if (roi >= 10) return 'text-green-400';
     if (roi >= 5) return 'text-yellow-400';
     return 'text-gray-400';
   };
 
-  const cardVariants = {
+  const _cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,

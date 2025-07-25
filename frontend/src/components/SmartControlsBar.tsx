@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const SmartControlsBar = () => {
+const _SmartControlsBar = () => {
   const [sport, setSport] = useState('NBA');
   const [legs, setLegs] = useState(3);
   const [confidence, setConfidence] = useState(0.7);

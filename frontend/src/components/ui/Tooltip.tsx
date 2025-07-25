@@ -19,7 +19,7 @@ export interface TooltipProps {
   onVisibilityChange?: (visible: boolean) => void;
 }
 
-export const Tooltip: React.FC<TooltipProps> = ({
+export const _Tooltip: React.FC<TooltipProps> = ({
   children,
   content,
   position = 'auto',
@@ -39,17 +39,17 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const [isVisible, setIsVisible] = useState(false);
   const [actualPosition, setActualPosition] = useState(position);
   const [isOverflowing, setIsOverflowing] = useState(false);
-  const triggerRef = useRef<HTMLDivElement>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const _triggerRef = useRef<HTMLDivElement>(null);
+  const _tooltipRef = useRef<HTMLDivElement>(null);
+  const _timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const visible = controlledVisible !== undefined ? controlledVisible : isVisible;
+  const _visible = controlledVisible !== undefined ? controlledVisible : isVisible;
 
   // Check for text overflow if showOnOverflow is enabled
   useEffect(() => {
     if (showOnOverflow && triggerRef.current) {
-      const element = triggerRef.current;
-      const isOverflow =
+      const _element = triggerRef.current;
+      const _isOverflow =
         element.scrollWidth > element.clientWidth || element.scrollHeight > element.clientHeight;
       setIsOverflowing(isOverflow);
     }
@@ -58,20 +58,20 @@ export const Tooltip: React.FC<TooltipProps> = ({
   // Calculate optimal position
   useEffect(() => {
     if (visible && position === 'auto' && triggerRef.current && tooltipRef.current) {
-      const triggerRect = triggerRef.current.getBoundingClientRect();
-      const tooltipRect = tooltipRef.current.getBoundingClientRect();
-      const viewport = {
+      const _triggerRect = triggerRef.current.getBoundingClientRect();
+      const _tooltipRect = tooltipRef.current.getBoundingClientRect();
+      const _viewport = {
         width: window.innerWidth,
         height: window.innerHeight,
       };
 
-      let bestPosition = 'top';
+      let _bestPosition = 'top';
 
       // Check space availability in each direction
-      const spaceTop = triggerRect.top;
-      const spaceBottom = viewport.height - triggerRect.bottom;
-      const spaceLeft = triggerRect.left;
-      const spaceRight = viewport.width - triggerRect.right;
+      const _spaceTop = triggerRect.top;
+      const _spaceBottom = viewport.height - triggerRect.bottom;
+      const _spaceLeft = triggerRect.left;
+      const _spaceRight = viewport.width - triggerRect.right;
 
       if (spaceTop >= tooltipRect.height + offset) {
         bestPosition = 'top';
@@ -83,20 +83,20 @@ export const Tooltip: React.FC<TooltipProps> = ({
         bestPosition = 'right';
       } else {
         // Use the direction with most space
-        const maxSpace = Math.max(spaceTop, spaceBottom, spaceLeft, spaceRight);
+        const _maxSpace = Math.max(spaceTop, spaceBottom, spaceLeft, spaceRight);
         if (maxSpace === spaceTop) bestPosition = 'top';
         else if (maxSpace === spaceBottom) bestPosition = 'bottom';
         else if (maxSpace === spaceLeft) bestPosition = 'left';
         else bestPosition = 'right';
       }
 
-      setActualPosition(bestPosition as any);
+      setActualPosition(bestPosition as unknown);
     } else if (position !== 'auto') {
       setActualPosition(position);
     }
   }, [visible, position, offset]);
 
-  const showTooltip = () => {
+  const _showTooltip = () => {
     if (disabled || (showOnOverflow && !isOverflowing)) return;
 
     if (timeoutRef.current) {
@@ -114,7 +114,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
-  const hideTooltip = () => {
+  const _hideTooltip = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -130,7 +130,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
-  const toggleTooltip = () => {
+  const _toggleTooltip = () => {
     if (visible) {
       hideTooltip();
     } else {
@@ -138,8 +138,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
-  const getPositionClasses = () => {
-    const baseOffset = offset;
+  const _getPositionClasses = () => {
+    const _baseOffset = offset;
 
     switch (actualPosition) {
       case 'top':
@@ -180,10 +180,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
-  const positionClasses = getPositionClasses();
+  const _positionClasses = getPositionClasses();
 
-  const getTooltipStyles = () => {
-    const baseStyles = {
+  const _getTooltipStyles = () => {
+    const _baseStyles = {
       maxWidth: `${maxWidth}px`,
       zIndex: 9999,
     };
@@ -220,8 +220,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
-  const getArrowStyles = () => {
-    const borderColor =
+  const _getArrowStyles = () => {
+    const _borderColor =
       variant === 'cyber' ? '#22d3ee' : variant === 'rich' ? '#e5e7eb' : 'rgba(0, 0, 0, 0.9)';
 
     switch (actualPosition) {
@@ -238,7 +238,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
-  const triggerProps = {
+  const _triggerProps = {
     ref: triggerRef,
     className: `relative inline-block ${className}`,
     ...(trigger === 'hover' && {
@@ -254,7 +254,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }),
   };
 
-  const tooltipVariants = {
+  const _tooltipVariants = {
     hidden: {
       opacity: 0,
       scale: 0.8,

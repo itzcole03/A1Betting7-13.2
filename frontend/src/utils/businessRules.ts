@@ -12,13 +12,13 @@ interface Entry {
 // Centralized business rules for the app;
 
 // Minimum win rate (e.g., 84%)
-export const MIN_WIN_RATE = 0.84;
+export const _MIN_WIN_RATE = 0.84;
 
 // Example: Enforce team diversification (no more than X players from the same team)
-export function isTeamDiversified(props: PlayerProp[], maxPerTeam = 2): boolean {
-  const teamCounts: Record<string, number> = {};
-  for (const prop of props) {
-    const teamId = prop.teamId;
+export function isTeamDiversified(_props: PlayerProp[], _maxPerTeam = 2): boolean {
+  const _teamCounts: Record<string, number> = {};
+  for (const _prop of props) {
+    const _teamId = prop.teamId;
     teamCounts[teamId] = (teamCounts[teamId] || 0) + 1;
     if (teamCounts[teamId] > maxPerTeam) return false;
   }
@@ -29,7 +29,7 @@ export function isTeamDiversified(props: PlayerProp[], maxPerTeam = 2): boolean 
  * Returns the multiplier for a given entry type.
  * Extend this logic as new types or business rules are added.
  */
-export function getMultiplier(type: 'goblin' | 'normal' | 'demon'): number {
+export function getMultiplier(_type: 'goblin' | 'normal' | 'demon'): number {
   switch (type) {
     case 'goblin':
       return 1.5;
@@ -42,8 +42,8 @@ export function getMultiplier(type: 'goblin' | 'normal' | 'demon'): number {
 }
 
 // Validate entry against all business rules;
-export function validateEntry(entry: Entry): string[] {
-  const errors: string[] = [];
+export function validateEntry(_entry: Entry): string[] {
+  const _errors: string[] = [];
   // Enforce minimum win rate;
   if (entry.props.some((prop: PlayerProp) => prop.confidence < MIN_WIN_RATE)) {
     errors.push(`All props must have at least ${(MIN_WIN_RATE * 100).toFixed(0)}% win rate.`);

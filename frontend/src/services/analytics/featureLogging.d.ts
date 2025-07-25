@@ -2,10 +2,10 @@
 export declare class FeatureLogger {
   private readonly config;
   constructor(config?: Partial<FeatureLoggerConfig>);
-  info(message: string, data?: any): void;
-  warn(message: string, data?: any): void;
-  error(message: string, error?: any): void;
-  debug(message: string, data?: any): void;
+  info(message: string, data?: unknown): void;
+  warn(message: string, data?: unknown): void;
+  error(message: string, error?: unknown): void;
+  debug(message: string, data?: unknown): void;
   private log;
   private shouldLog;
   private createLogEntry;

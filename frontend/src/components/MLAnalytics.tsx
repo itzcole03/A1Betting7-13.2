@@ -2,7 +2,7 @@ import React from 'react';
 // @ts-expect-error TS(6142): Module './Card' was resolved to 'C:/Users/bcmad/Do... Remove this comment to see the full error message
 import { Card, CardContent, CardHeader } from './Card';
 
-const mockModels = [
+const _mockModels = [
   { id: '1', name: 'Ensemble Model', accuracy: 0.964, lastTrained: '2025-01-18', status: 'active' },
   {
     id: '2',
@@ -20,7 +20,7 @@ const mockModels = [
  * Modern, accessible display of machine learning model performance and insights.
  * Shows model name, accuracy, last trained date, and status.
  */
-export const MLAnalytics: React.FC = () => {
+export const _MLAnalytics: React.FC = () => {
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <Card className='max-w-2xl mx-auto'>

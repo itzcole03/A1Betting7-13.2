@@ -91,7 +91,7 @@ class MLService {
 
   async loadModels(): Promise<MLModel[]> {
     try {
-      const response = await ApiService.get<MLModel[]>('/ml/models');
+      const _response = await ApiService.get<MLModel[]>('/ml/models');
 
       this.models.clear();
       response.data.forEach(model => {
@@ -111,7 +111,7 @@ class MLService {
     type?: string;
     status?: string;
   }): Promise<MLModel[]> {
-    let models = Array.from(this.models.values());
+    let _models = Array.from(this.models.values());
 
     if (filters) {
       if (filters.sport) models = models.filter(m => m.sport === filters.sport);
@@ -124,12 +124,12 @@ class MLService {
   }
 
   async getPrediction(gameId: string, market: string): Promise<EnsemblePrediction | null> {
-    const cacheKey = `${gameId}:${market}`;
+    const _cacheKey = `${gameId}:${market}`;
 
     // Check cache first
     if (this.cachedPredictions.has(cacheKey)) {
-      const cached = this.cachedPredictions.get(cacheKey)!;
-      const cacheAge = Date.now() - cached.timestamp.getTime();
+      const _cached = this.cachedPredictions.get(cacheKey)!;
+      const _cacheAge = Date.now() - cached.timestamp.getTime();
 
       // Cache for 5 minutes
       if (cacheAge < 300000) {
@@ -138,7 +138,7 @@ class MLService {
     }
 
     try {
-      const response = await ApiService.post<EnsemblePrediction>('/ml/predict', {
+      const _response = await ApiService.post<EnsemblePrediction>('/ml/predict', {
         gameId,
         market,
         useEnsemble: true,
@@ -159,14 +159,14 @@ class MLService {
     }>
   ): Promise<EnsemblePrediction[]> {
     try {
-      const response = await ApiService.post<EnsemblePrediction[]>('/ml/predict/batch', {
+      const _response = await ApiService.post<EnsemblePrediction[]>('/ml/predict/batch', {
         requests,
         useEnsemble: true,
       });
 
       // Cache all predictions
       response.data.forEach(prediction => {
-        const cacheKey = `${prediction.gameId}:${prediction.market}`;
+        const _cacheKey = `${prediction.gameId}:${prediction.market}`;
         this.cachedPredictions.set(cacheKey, prediction);
       });
 
@@ -179,8 +179,8 @@ class MLService {
 
   async getModelPerformance(modelId?: string): Promise<ModelPerformance[]> {
     try {
-      const url = modelId ? `/ml/models/${modelId}/performance` : '/ml/performance';
-      const response = await ApiService.get<ModelPerformance[]>(url);
+      const _url = modelId ? `/ml/models/${modelId}/performance` : '/ml/performance';
+      const _response = await ApiService.get<ModelPerformance[]>(url);
       return response.data;
     } catch (error) {
       console.error('Failed to get model performance:', error);
@@ -190,7 +190,7 @@ class MLService {
 
   async getSHAPAnalysis(predictionId: string): Promise<SHAPAnalysis | null> {
     try {
-      const response = await ApiService.get<SHAPAnalysis>(`/ml/shap/${predictionId}`);
+      const _response = await ApiService.get<SHAPAnalysis>(`/ml/shap/${predictionId}`);
       return response.data;
     } catch (error) {
       console.error('Failed to get SHAP analysis:', error);
@@ -198,12 +198,12 @@ class MLService {
     }
   }
 
-  async retrainModel(modelId: string, data?: any): Promise<boolean> {
+  async retrainModel(modelId: string, data?: unknown): Promise<boolean> {
     try {
       await ApiService.post(`/ml/models/${modelId}/retrain`, data);
 
       // Reload model after retraining
-      const updatedModel = await ApiService.get<MLModel>(`/ml/models/${modelId}`);
+      const _updatedModel = await ApiService.get<MLModel>(`/ml/models/${modelId}`);
       this.models.set(modelId, updatedModel.data);
 
       return true;
@@ -214,11 +214,11 @@ class MLService {
   }
 
   async validateModels(): Promise<{ valid: number; invalid: number; errors: string[] }> {
-    const results = { valid: 0, invalid: 0, errors: [] as string[] };
+    const _results = { valid: 0, invalid: 0, errors: [] as string[] };
 
-    for (const model of this.models.values()) {
+    for (const _model of this.models.values()) {
       try {
-        const response = await ApiService.get(`/ml/models/${model.id}/validate`);
+        const _response = await ApiService.get(`/ml/models/${model.id}/validate`);
         // @ts-expect-error TS(2571): Object is of type 'unknown'.
         if (response.data.valid) {
           results.valid++;
@@ -238,7 +238,7 @@ class MLService {
 
   async getFeatureImportance(modelId: string): Promise<Record<string, number>> {
     try {
-      const response = await ApiService.get<Record<string, number>>(
+      const _response = await ApiService.get<Record<string, number>>(
         `/ml/models/${modelId}/features`
       );
       return response.data;
@@ -253,14 +253,14 @@ class MLService {
     newWeights: Record<string, number>;
   }> {
     try {
-      const response = await ApiService.post<{
+      const _response = await ApiService.post<{
         oldWeights: Record<string, number>;
         newWeights: Record<string, number>;
       }>('/ml/ensemble/optimize');
 
       // Update model weights
       for (const [modelId, weight] of Object.entries(response.data.newWeights)) {
-        const model = this.models.get(modelId);
+        const _model = this.models.get(modelId);
         if (model) {
           model.weight = weight;
         }
@@ -279,9 +279,9 @@ class MLService {
     avgAccuracy: number;
     cachedPredictions: number;
   } {
-    const models = Array.from(this.models.values());
-    const activeModels = models.filter(m => m.status === 'active');
-    const avgAccuracy = activeModels.reduce((sum, m) => sum + m.accuracy, 0) / activeModels.length;
+    const _models = Array.from(this.models.values());
+    const _activeModels = models.filter(m => m.status === 'active');
+    const _avgAccuracy = activeModels.reduce((sum, m) => sum + m.accuracy, 0) / activeModels.length;
 
     return {
       totalModels: models.length,
@@ -297,7 +297,7 @@ class MLService {
 
   async healthCheck(): Promise<boolean> {
     try {
-      const response = await ApiService.get('/ml/health');
+      const _response = await ApiService.get('/ml/health');
       return response.status === 200;
     } catch {
       return false;

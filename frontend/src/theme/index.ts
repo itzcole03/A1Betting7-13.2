@@ -34,7 +34,7 @@ export interface Theme {
 }
 
 // Enhanced theme configurations
-export const THEMES: Theme[] = [
+export const _THEMES: Theme[] = [
   {
     id: 'cyber-dark',
     name: 'Cyber Dark',
@@ -201,7 +201,7 @@ export const THEMES: Theme[] = [
   {
     id: 'premium-purple',
     name: 'Premium Purple',
-    description: 'Luxury purple and violet premium theme',
+    description: 'Luxury purple and violet _premium theme',
     isDark: true,
     category: 'premium',
     animations: true,
@@ -300,89 +300,81 @@ export const THEMES: Theme[] = [
 ];
 
 // Theme helper functions
-export const getThemeById = (id: string): Theme | undefined => {
-  return THEMES.find(theme => theme.id === id);
+export const _getThemeById = (id: string): Theme | undefined => {
+  return _THEMES.find(theme => theme.id === id);
 };
 
-export const getThemesByCategory = (category: Theme['category']): Theme[] => {
-  return THEMES.filter(theme => theme.category === category);
+export const _getThemesByCategory = (category: Theme['category']): Theme[] => {
+  return _THEMES.filter(theme => theme.category === category);
 };
 
-export const getDarkThemes = (): Theme[] => {
-  return THEMES.filter(theme => theme.isDark);
+export const _getDarkThemes = (): Theme[] => {
+  return _THEMES.filter(theme => theme.isDark);
 };
 
-export const getLightThemes = (): Theme[] => {
-  return THEMES.filter(theme => !theme.isDark);
+export const _getLightThemes = (): Theme[] => {
+  return _THEMES.filter(theme => !theme.isDark);
 };
 
-export const getAnimatedThemes = (): Theme[] => {
-  return THEMES.filter(theme => theme.animations);
+export const _getAnimatedThemes = (): Theme[] => {
+  return _THEMES.filter(theme => theme.animations);
 };
 
-export const getGlassMorphismThemes = (): Theme[] => {
-  return THEMES.filter(theme => theme.glassMorphism);
+export const _getGlassMorphismThemes = (): Theme[] => {
+  return _THEMES.filter(theme => theme.glassMorphism);
 };
 
 // Theme categories for filtering
-export const THEME_CATEGORIES = [
-  { id: 'all', label: 'All Themes', count: THEMES.length },
-  { id: 'cyber', label: 'Cyber', count: getThemesByCategory('cyber').length },
-  { id: 'modern', label: 'Modern', count: getThemesByCategory('modern').length },
-  { id: 'premium', label: 'Premium', count: getThemesByCategory('premium').length },
-  { id: 'sport', label: 'Sports', count: getThemesByCategory('sport').length },
+export const _THEME_CATEGORIES = [
+  { id: 'all', label: 'All Themes', count: _THEMES.length },
+  { id: 'cyber', label: 'Cyber', count: _getThemesByCategory('cyber').length },
+  { id: 'modern', label: 'Modern', count: _getThemesByCategory('modern').length },
+  { id: 'premium', label: 'Premium', count: _getThemesByCategory('premium').length },
+  { id: 'sport', label: 'Sports', count: _getThemesByCategory('sport').length },
 ];
 
 // Default theme
-export const DEFAULT_THEME = 'cyber-dark';
+export const _DEFAULT_THEME = 'cyber-dark';
 
 // CSS variable mapping
-export const applyCSSVariables = (theme: Theme) => {
-  const root = document.documentElement;
+export const _applyCSSVariables = (theme: Theme) => {
+  const _root = document.documentElement;
 
-  root.style.setProperty('--theme-primary', theme.colors.primary);
-  root.style.setProperty('--theme-secondary', theme.colors.secondary);
-  root.style.setProperty('--theme-accent', theme.colors.accent);
-  root.style.setProperty('--theme-background', theme.colors.background);
-  root.style.setProperty('--theme-surface', theme.colors.surface);
-  root.style.setProperty('--theme-text-primary', theme.colors.text.primary);
-  root.style.setProperty('--theme-text-secondary', theme.colors.text.secondary);
-  root.style.setProperty('--theme-text-muted', theme.colors.text.muted);
-  root.style.setProperty('--theme-success', theme.colors.status.success);
-  root.style.setProperty('--theme-warning', theme.colors.status.warning);
-  root.style.setProperty('--theme-error', theme.colors.status.error);
-  root.style.setProperty('--theme-info', theme.colors.status.info);
-  root.style.setProperty('--theme-gradient-primary', theme.colors.gradients.primary);
-  root.style.setProperty('--theme-gradient-secondary', theme.colors.gradients.secondary);
-  root.style.setProperty('--theme-gradient-accent', theme.colors.gradients.accent);
-
-  // Apply theme class to body
-  document.body.className = document.body.className.replace(/theme-\w+(-\w+)?/g, '');
-  document.body.classList.add(`theme-${theme.id}`);
-
-  // Set data attribute for CSS targeting
-  document.documentElement.setAttribute('data-theme', theme.id);
+  _root.style.setProperty('--theme-primary', theme.colors.primary);
+  _root.style.setProperty('--theme-secondary', theme.colors.secondary);
+  _root.style.setProperty('--theme-accent', theme.colors.accent);
+  _root.style.setProperty('--theme-background', theme.colors.background);
+  _root.style.setProperty('--theme-surface', theme.colors.surface);
+  _root.style.setProperty('--theme-text-primary', theme.colors.text.primary);
+  _root.style.setProperty('--theme-text-secondary', theme.colors.text.secondary);
+  _root.style.setProperty('--theme-text-muted', theme.colors.text.muted);
+  _root.style.setProperty('--theme-success', theme.colors.status.success);
+  _root.style.setProperty('--theme-warning', theme.colors.status.warning);
+  _root.style.setProperty('--theme-error', theme.colors.status.error);
+  _root.style.setProperty('--theme-info', theme.colors.status.info);
+  _root.style.setProperty('--theme-gradient-primary', theme.colors.gradients.primary);
+  _root.style.setProperty('--theme-gradient-secondary', theme.colors.gradients.secondary);
+  _root.style.setProperty('--theme-gradient-accent', theme.colors.gradients.accent);
 };
 
 // Theme persistence
-export const saveTheme = (themeId: string) => {
+export const _saveTheme = (themeId: string) => {
   localStorage.setItem('a1betting-theme', themeId);
 };
 
-export const loadTheme = (): string => {
-  return localStorage.getItem('a1betting-theme') || DEFAULT_THEME;
+export const _loadTheme = (): string => {
+  return localStorage.getItem('a1betting-theme') || _DEFAULT_THEME;
 };
 
 // Auto theme detection
-export const getSystemTheme = (): 'light' | 'dark' => {
+export const _getSystemTheme = (): 'light' | 'dark' => {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 };
 
-export const getRecommendedTheme = (): string => {
-  const systemTheme = getSystemTheme();
-  return systemTheme === 'dark' ? 'cyber-dark' : 'cyber-light';
+export const _getRecommendedTheme = (): string => {
+  const _systemTheme = _getSystemTheme();
+  return _systemTheme === 'dark' ? 'cyber-dark' : 'cyber-light';
 };
 
 // Export all themes for components
-export { THEMES as AVAILABLE_THEMES };
-export default THEMES;
+export { _THEMES as AVAILABLE_THEMES };

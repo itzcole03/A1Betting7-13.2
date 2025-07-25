@@ -205,13 +205,13 @@ class EnhancedConfig:
     llm_provider = "ollama"
     llm_endpoint = "http://localhost:11434"
     llm_timeout = 60
-    llm_default_model = "llama3:8b"
+    llm_default_model = "llama3:latest"
 
     model_preferences = {
-        "generation": ["llama3:8b", "closex/neuraldaredevil-8b-abliterated:latest"],
+        "generation": ["llama3:latest", "closex/neuraldaredevil-8b-abliterated:latest"],
         "embedding": ["nomic-embed-text:v1.5"],
-        "sports_analysis": ["llama3:8b", "closex/neuraldaredevil-8b-abliterated:latest"],
-        "conversation": ["llama3:8b"]
+        "sports_analysis": ["llama3:latest", "closex/neuraldaredevil-8b-abliterated:latest"],
+        "conversation": ["llama3:latest"]
     }
 ```
 

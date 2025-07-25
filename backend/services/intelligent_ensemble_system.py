@@ -6,15 +6,13 @@ to produce the most accurate betting lineups with the highest predicted
 chance of winning, using real data and intelligent ensemble techniques.
 """
 
-import asyncio
 import hashlib
 import json
 import logging
-import time
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 import httpx
 import numpy as np
@@ -123,7 +121,8 @@ class IntelligentEnsembleSystem:
         self._initialize_engine_weights()
 
         logger.info(
-            f"✅ Intelligent Ensemble System initialized with {len(self.engines)} engines"
+            "✅ Intelligent Ensemble System initialized with %d engines",
+            len(self.engines),
         )
 
     def _get_in_season_sports(self) -> List[str]:
@@ -164,7 +163,7 @@ class IntelligentEnsembleSystem:
         # Tennis, Golf: Year-round
         in_season.extend(["Tennis", "Golf"])
 
-        logger.info(f"🏆 In-season sports: {in_season}")
+        logger.info("🏆 In-season sports: %s", in_season)
         return in_season
 
     def _initialize_engines(self):
@@ -177,8 +176,8 @@ class IntelligentEnsembleSystem:
                 self.engines["prediction_engine"] = UltraAdvancedPredictionEngine()
                 engine_count += 1
                 logger.info("✅ Main prediction engine initialized")
-            except Exception as e:
-                logger.warning(f"Failed to initialize main prediction engine: {e}")
+            except (ImportError, AttributeError, TypeError) as e:
+                logger.warning("Failed to initialize main prediction engine: %s", e)
 
         # Initialize enhanced mathematical engine
         if ENHANCED_ENGINE_AVAILABLE:
@@ -186,8 +185,8 @@ class IntelligentEnsembleSystem:
                 self.engines["enhanced_engine"] = EnhancedMathematicalPredictionEngine()
                 engine_count += 1
                 logger.info("✅ Enhanced mathematical engine initialized")
-            except Exception as e:
-                logger.warning(f"Failed to initialize enhanced engine: {e}")
+            except (ImportError, AttributeError, TypeError) as e:
+                logger.warning("Failed to initialize enhanced engine: %s", e)
 
         # Initialize ensemble engine
         if ENSEMBLE_ENGINE_AVAILABLE:
@@ -195,8 +194,8 @@ class IntelligentEnsembleSystem:
                 self.engines["ensemble_engine"] = AdvancedEnsembleEngine()
                 engine_count += 1
                 logger.info("✅ Advanced ensemble engine initialized")
-            except Exception as e:
-                logger.warning(f"Failed to initialize ensemble engine: {e}")
+            except (ImportError, AttributeError, TypeError) as e:
+                logger.warning("Failed to initialize ensemble engine: %s", e)
 
         # Initialize ultra accuracy engine
         if ULTRA_ENGINE_AVAILABLE:
@@ -204,8 +203,8 @@ class IntelligentEnsembleSystem:
                 self.engines["ultra_engine"] = UltraAccuracyEngine()
                 engine_count += 1
                 logger.info("✅ Ultra accuracy engine initialized")
-            except Exception as e:
-                logger.warning(f"Failed to initialize ultra accuracy engine: {e}")
+            except (ImportError, AttributeError, TypeError) as e:
+                logger.warning("Failed to initialize ultra accuracy engine: %s", e)
 
         # Initialize real ML service
         if REAL_ML_AVAILABLE:
@@ -213,8 +212,8 @@ class IntelligentEnsembleSystem:
                 self.engines["real_ml"] = RealMLModels()
                 engine_count += 1
                 logger.info("✅ Real ML service initialized")
-            except Exception as e:
-                logger.warning(f"Failed to initialize real ML service: {e}")
+            except (ImportError, AttributeError, TypeError) as e:
+                logger.warning("Failed to initialize real ML service: %s", e)
 
         # Initialize recursive AI
         if RECURSIVE_AI_AVAILABLE:
@@ -222,10 +221,10 @@ class IntelligentEnsembleSystem:
                 self.engines["recursive_ai"] = RecursiveIntelligenceFunction()
                 engine_count += 1
                 logger.info("✅ Recursive AI initialized")
-            except Exception as e:
-                logger.warning(f"Failed to initialize recursive AI: {e}")
+            except (ImportError, AttributeError, TypeError) as e:
+                logger.warning("Failed to initialize recursive AI: %s", e)
 
-        logger.info(f"🚀 Total engines initialized: {engine_count}")
+        logger.info("🚀 Total engines initialized: %d", engine_count)
 
     def _initialize_engine_weights(self):
         """Initialize engine weights based on historical performance"""
@@ -251,7 +250,7 @@ class IntelligentEnsembleSystem:
             for engine_name in self.engine_weights:
                 self.engine_weights[engine_name] /= total_weight
 
-        logger.info(f"🎯 Engine weights: {self.engine_weights}")
+        logger.info("🎯 Engine weights: %s", self.engine_weights)
 
     def _get_cache_key(self, data: Any) -> str:
         """Generate cache key for data"""
@@ -270,7 +269,7 @@ class IntelligentEnsembleSystem:
             if (
                 datetime.now() - cached_entry.timestamp
             ).seconds < cached_entry.ttl_seconds:
-                logger.info(f"📋 Using cached API result for {url[:50]}...")
+                logger.info("📋 Using cached API result for %s...", url[:50])
                 return cached_entry.data
 
         # Make fresh API call
@@ -288,13 +287,13 @@ class IntelligentEnsembleSystem:
                 )
                 self.api_cache[cache_key] = cache_entry
 
-                logger.info(f"✅ Cached fresh API result for {url[:50]}...")
+                logger.info("✅ Cached fresh API result for %s...", url[:50])
                 return data
             else:
-                logger.warning(f"API call failed with status {response.status_code}")
+                logger.warning("API call failed with status %d", response.status_code)
                 return None
-        except Exception as e:
-            logger.error(f"API call error: {e}")
+        except (httpx.RequestError, ValueError) as e:
+            logger.error("API call error: %s", e)
             return None
 
     async def predict_prop_outcome(self, prop: Dict[str, Any]) -> EnsemblePrediction:
@@ -309,7 +308,8 @@ class IntelligentEnsembleSystem:
                 datetime.now() - cached_prediction.timestamp
             ).seconds < 300:  # 5-minute cache
                 logger.info(
-                    f"📋 Using cached prediction for {prop.get('player_name', 'unknown')}"
+                    "📋 Using cached prediction for %s",
+                    prop.get("player_name", "unknown"),
                 )
                 return cached_prediction.data
 
@@ -332,9 +332,9 @@ class IntelligentEnsembleSystem:
                         engine_name, 0.1
                     )
                     source_engines.append(engine_name)
-                    logger.info(f"✅ {engine_name}: {prediction:.2f}")
-            except Exception as e:
-                logger.warning(f"Engine {engine_name} prediction failed: {e}")
+                    logger.info("✅ %s: %.2f", engine_name, prediction)
+            except (AttributeError, TypeError, ValueError) as e:
+                logger.warning("Engine %s prediction failed: %s", engine_name, e)
 
         if not individual_predictions:
             logger.warning("No engines produced predictions, using fallback")
@@ -350,13 +350,29 @@ class IntelligentEnsembleSystem:
             individual_predictions, prediction_weights
         )
         win_probability = self._calculate_win_probability(ensemble_prediction, prop)
-        expected_value = self._calculate_expected_value(
-            ensemble_prediction, prop, win_probability
-        )
+        expected_value = self._calculate_expected_value(win_probability)
         risk_score = self._calculate_risk_score(individual_predictions, confidence)
         recommendation = self._generate_recommendation(
             win_probability, expected_value, risk_score
         )
+
+        # SHAP/LIME explainability (only for real_ml engine)
+        shap_explanation = None
+        lime_explanation = None
+        if "real_ml" in self.engines:
+            real_ml = self.engines["real_ml"]
+            try:
+                shap_explanation = await real_ml.explain_with_shap(
+                    "win_probability", features
+                )
+            except (AttributeError, TypeError, ValueError) as e:
+                logger.warning("SHAP explanation error: %s", e)
+            try:
+                lime_explanation = await real_ml.explain_with_lime(
+                    "win_probability", features
+                )
+            except (AttributeError, TypeError, ValueError) as e:
+                logger.warning("LIME explanation error: %s", e)
 
         # Create ensemble prediction result
         result = EnsemblePrediction(
@@ -376,6 +392,8 @@ class IntelligentEnsembleSystem:
                 "line_score": prop.get("line_score"),
                 "sport": prop.get("sport"),
                 "timestamp": datetime.now().isoformat(),
+                "shap_explanation": shap_explanation,
+                "lime_explanation": lime_explanation,
             },
         )
 
@@ -505,15 +523,15 @@ class IntelligentEnsembleSystem:
             return None
 
         except Exception as e:
-            logger.warning(f"Engine {engine_name} prediction error: {e}")
+            logger.warning("Engine %s prediction error: %s", engine_name, e)
             return None
 
     def _calculate_weighted_prediction(
         self, predictions: Dict[str, float], weights: Dict[str, float]
     ) -> float:
         """Calculate weighted ensemble prediction"""
-        weighted_sum = 0
-        total_weight = 0
+        weighted_sum = 0.0
+        total_weight = 0.0
 
         for engine_name, prediction in predictions.items():
             weight = weights.get(engine_name, 0.1)
@@ -521,8 +539,8 @@ class IntelligentEnsembleSystem:
             total_weight += weight
 
         if total_weight > 0:
-            return weighted_sum / total_weight
-        return np.mean(list(predictions.values()))
+            return float(weighted_sum / total_weight)
+        return float(np.mean(list(predictions.values())))
 
     def _calculate_ensemble_confidence(
         self, predictions: Dict[str, float], weights: Dict[str, float]
@@ -535,15 +553,15 @@ class IntelligentEnsembleSystem:
         weighted_std = np.std(values)
 
         # Lower standard deviation = higher confidence
-        base_confidence = max(50, 100 - (weighted_std * 10))
+        base_confidence = max(50.0, float(100 - (weighted_std * 10)))
 
         # Bonus for more engines agreeing
-        engine_bonus = min(20, len(predictions) * 3)
+        engine_bonus = min(20.0, float(len(predictions) * 3))
 
         # Bonus for high-weight engines
         weight_bonus = sum(weights.values()) * 10
 
-        total_confidence = min(98, base_confidence + engine_bonus + weight_bonus)
+        total_confidence = min(98.0, base_confidence + engine_bonus + weight_bonus)
         return total_confidence
 
     def _calculate_win_probability(
@@ -560,9 +578,7 @@ class IntelligentEnsembleSystem:
 
         return max(0.1, min(0.9, win_prob))  # Clamp between 10% and 90%
 
-    def _calculate_expected_value(
-        self, prediction: float, prop: Dict[str, Any], win_probability: float
-    ) -> float:
+    def _calculate_expected_value(self, win_probability: float) -> float:
         """Calculate expected value of the bet"""
         # Assume standard -110 odds for simplicity
         if win_probability > 0.524:  # Break-even point for -110 odds
@@ -583,7 +599,7 @@ class IntelligentEnsembleSystem:
         # Risk based on confidence (inverse relationship)
         confidence_risk = (100 - confidence) * 0.5
 
-        total_risk = min(100, variance_risk + confidence_risk)
+        total_risk = min(100.0, float(variance_risk + confidence_risk))
         return total_risk
 
     def _generate_recommendation(
@@ -633,13 +649,13 @@ class IntelligentEnsembleSystem:
         """
         Generate optimal betting lineup with highest predicted chance of winning
         """
-        logger.info(f"🎯 Generating optimal lineup from {len(props)} props")
+        logger.info("🎯 Generating optimal lineup from %d props", len(props))
 
         # Filter to only in-season sports
         in_season_props = [
             prop for prop in props if prop.get("sport") in self.in_season_sports
         ]
-        logger.info(f"🏆 Filtered to {len(in_season_props)} in-season props")
+        logger.info("🏆 Filtered to %d in-season props", len(in_season_props))
 
         if not in_season_props:
             logger.warning("No in-season props available")
@@ -659,10 +675,13 @@ class IntelligentEnsembleSystem:
                 prediction = await self.predict_prop_outcome(prop)
                 predictions.append((prop, prediction))
                 logger.info(
-                    f"✅ {prop.get('player_name', 'Unknown')} {prop.get('stat_type', '')}: {prediction.win_probability:.1%} win prob"
+                    "✅ %s %s: %.1f%% win prob",
+                    prop.get("player_name", "Unknown"),
+                    prop.get("stat_type", ""),
+                    prediction.win_probability * 100,
                 )
             except Exception as e:
-                logger.warning(f"Failed to predict prop {prop.get('id')}: {e}")
+                logger.warning("Failed to predict prop %s: %s", prop.get("id"), e)
 
         if not predictions:
             logger.warning("No successful predictions generated")
@@ -732,7 +751,8 @@ class IntelligentEnsembleSystem:
             )
 
         logger.info(
-            f"🏆 Generated lineup with {total_win_probability:.1%} combined win probability"
+            "🏆 Generated lineup with %.1f%% combined win probability",
+            total_win_probability * 100,
         )
 
         return {
@@ -803,9 +823,9 @@ class IntelligentEnsembleSystem:
             for engine_name, score in engine_scores.items():
                 self.engine_weights[engine_name] = score / total_score
 
-            logger.info(
-                f"🔄 Updated engine weights based on performance: {self.engine_weights}"
-            )
+        logger.info(
+            "🔄 Updated engine weights based on performance: %s", self.engine_weights
+        )
 
 
 # Global ensemble system instance

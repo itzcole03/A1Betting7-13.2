@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const RiskManagerPage: React.FC;
+declare const _RiskManagerPage: React.FC;
 export default RiskManagerPage;

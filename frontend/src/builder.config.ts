@@ -1,7 +1,7 @@
 // Initialize Builder.io with your API key
 
 // Register your A1Betting components with Builder.io
-export const builderConfig = {
+export const _builderConfig = {
   // Your app's base URL for Builder.io to load
   apiKey: 'YOUR_BUILDER_API_KEY',
 

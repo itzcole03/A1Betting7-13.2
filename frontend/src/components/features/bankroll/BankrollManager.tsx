@@ -68,7 +68,7 @@ interface AllocationTarget {
   color: string;
 }
 
-const BankrollManager: React.FC = () => {
+const _BankrollManager: React.FC = () => {
   const [accounts, setAccounts] = useState<BankrollAccount[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [metrics, setMetrics] = useState<RiskMetrics | null>(null);
@@ -82,12 +82,12 @@ const BankrollManager: React.FC = () => {
     loadBankrollData();
   }, [selectedAccount, timeRange]);
 
-  const loadBankrollData = async (): Promise<void> => {
+  const _loadBankrollData = async (): Promise<void> => {
     setIsLoading(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const mockAccounts: BankrollAccount[] = [
+      const _mockAccounts: BankrollAccount[] = [
         {
           id: 'primary',
           name: 'Primary Bankroll',
@@ -123,7 +123,7 @@ const BankrollManager: React.FC = () => {
         },
       ];
 
-      const mockTransactions: Transaction[] = [
+      const _mockTransactions: Transaction[] = [
         {
           id: 'tx-001',
           accountId: 'primary',
@@ -152,7 +152,7 @@ const BankrollManager: React.FC = () => {
         },
       ];
 
-      const mockMetrics: RiskMetrics = {
+      const _mockMetrics: RiskMetrics = {
         totalBankroll: 34700,
         availableBalance: 31200,
         lockedInBets: 3500,
@@ -165,7 +165,7 @@ const BankrollManager: React.FC = () => {
         diversificationIndex: 0.78,
       };
 
-      const mockAllocations: AllocationTarget[] = [
+      const _mockAllocations: AllocationTarget[] = [
         {
           category: 'NBA Props',
           currentPercentage: 35,
@@ -214,17 +214,17 @@ const BankrollManager: React.FC = () => {
     }
   };
 
-  const getTotalBalance = () => {
+  const _getTotalBalance = () => {
     return accounts.reduce((sum, account) => sum + account.balance, 0);
   };
 
-  const getTotalROI = () => {
-    const totalInitial = accounts.reduce((sum, account) => sum + account.initialBalance, 0);
-    const totalCurrent = getTotalBalance();
+  const _getTotalROI = () => {
+    const _totalInitial = accounts.reduce((sum, account) => sum + account.initialBalance, 0);
+    const _totalCurrent = getTotalBalance();
     return totalInitial > 0 ? ((totalCurrent - totalInitial) / totalInitial) * 100 : 0;
   };
 
-  const getAccountTypeColor = (type: string) => {
+  const _getAccountTypeColor = (type: string) => {
     switch (type) {
       case 'primary':
         return 'text-green-400 bg-green-500/20';
@@ -237,7 +237,7 @@ const BankrollManager: React.FC = () => {
     }
   };
 
-  const getRiskLevelColor = (level: string) => {
+  const _getRiskLevelColor = (level: string) => {
     switch (level) {
       case 'conservative':
         return 'text-green-400';
@@ -250,7 +250,7 @@ const BankrollManager: React.FC = () => {
     }
   };
 
-  const getTransactionIcon = (type: string) => {
+  const _getTransactionIcon = (type: string) => {
     switch (type) {
       case 'deposit':
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -351,7 +351,7 @@ const BankrollManager: React.FC = () => {
                 </p>
               </div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <Wallet className='w-8 h-8 text-green-400' />
+              <Wallet _className='w-8 h-8 text-green-400' />
             </div>
           </motion.div>
 
@@ -472,7 +472,7 @@ const BankrollManager: React.FC = () => {
                     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div className='w-10 h-10 bg-gradient-to-br from-green-500 to-cyan-500 rounded-lg flex items-center justify-center'>
                       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                      <Wallet className='w-5 h-5 text-white' />
+                      <Wallet _className='w-5 h-5 text-white' />
                     </div>
                     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div>

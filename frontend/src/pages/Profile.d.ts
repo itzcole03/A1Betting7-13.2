@@ -1,3 +1,3 @@
 import React from 'react.ts';
-declare const Profile: React.FC;
+declare const _Profile: React.FC;
 export default Profile;

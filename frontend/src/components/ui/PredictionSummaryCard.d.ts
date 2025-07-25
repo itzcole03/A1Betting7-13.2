@@ -30,5 +30,5 @@ export interface PredictionSummaryProps {
   /** Whether the card is interactive */
   interactive?: boolean;
 }
-export declare const PredictionSummaryCard: React.FC<PredictionSummaryProps>;
+export declare const _PredictionSummaryCard: React.FC<PredictionSummaryProps>;
 export default PredictionSummaryCard;

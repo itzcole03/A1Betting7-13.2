@@ -2,7 +2,7 @@
 import { EventBus } from '@/core/EventBus.js';
 // Attempt to import unifiedMonitor, fallback to stub if not found
 // Fallback stub for unifiedMonitor (analytics monitoring)
-const unifiedMonitor = { captureException: () => {} };
+const _unifiedMonitor = { captureException: () => {} };
 
 type AnalyticsData = Record<string, unknown>;
 
@@ -99,7 +99,7 @@ export class UnifiedAnalytics {
     // Apply sampling;
     if (Math.random() > this.config.sampleRate) return;
 
-    const event: AnalyticsEvent = {
+    const _event: AnalyticsEvent = {
       id: `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       type,
       timestamp: Date.now(),
@@ -118,9 +118,9 @@ export class UnifiedAnalytics {
 
   private updateMetrics(event: AnalyticsEvent): void {
     this.metrics.totalEvents++;
-    const currentCount = this.metrics.eventsByType.get(event.type) || 0;
+    const _currentCount = this.metrics.eventsByType.get(event.type) || 0;
     this.metrics.eventsByType.set(event.type, currentCount + 1);
-    const latency = Date.now() - event.timestamp;
+    const _latency = Date.now() - event.timestamp;
     this.metrics.averageLatency =
       (this.metrics.averageLatency * (this.metrics.totalEvents - 1) + latency) /
       this.metrics.totalEvents;
@@ -130,7 +130,7 @@ export class UnifiedAnalytics {
   private async flushEvents(): Promise<void> {
     if (this.eventQueue.length === 0) return;
 
-    const events = [...this.eventQueue];
+    const _events = [...this.eventQueue];
     this.eventQueue.length = 0; // Clear the queue;
 
     try {
@@ -157,8 +157,8 @@ export class UnifiedAnalytics {
   private async processEvents(events: AnalyticsEvent[]): Promise<void> {
     try {
       // Format events for backend;
-      const payload = events;
-      const response = await fetch('/api/analytics/events', {
+      const _payload = events;
+      const _response = await fetch('/api/analytics/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
