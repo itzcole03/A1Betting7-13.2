@@ -33,9 +33,9 @@ export class PrizePicksApiService extends BaseApiService {
     try {
       // @ts-expect-error TS(2339): Property 'emit' does not exist on type 'PrizePicks... Remove this comment to see the full error message
       this.emit('request', endpoint);
-      const _client = this.initializeClient();
-      const _response = await client.get<T>(endpoint, { params });
-      const _apiResponse: ApiResponse<T> = {
+      const client = this.initializeClient();
+      const response = await client.get<T>(endpoint, { params });
+      const apiResponse: ApiResponse<T> = {
         data: response.data,
         status: response.status,
         timestamp: Date.now(),
