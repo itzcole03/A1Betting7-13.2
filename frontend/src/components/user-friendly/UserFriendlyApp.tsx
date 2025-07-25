@@ -27,12 +27,6 @@ const navItems: NavItem[] = [
     icon: <BarChart3 className='w-5 h-5' />,
     component: PredictionDisplay,
   },
-  {
-    id: 'analytics',
-    label: 'Analytics',
-    icon: <BarChart3 className='w-5 h-5' />,
-    component: AnalyticsTab,
-  },
 ];
 
 const UserFriendlyApp: React.FC = () => {
