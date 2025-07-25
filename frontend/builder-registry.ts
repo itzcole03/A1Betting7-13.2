@@ -1,5 +1,4 @@
-import MyComponent from './src/components/MyComponent';
-import TestComponent from './src/components/TestComponent';
+// Builder.io component registry
+// This file is currently empty but available for future component registrations
 
-// Export for manual registration if needed
-export { MyComponent, TestComponent };
+export {};
