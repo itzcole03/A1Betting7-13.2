@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "types": ["@testing-library/jest-dom", "vite/client", "react", "react-dom", "framer-motion"],
+
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["frontend/src/*"],
+      "src/*": ["frontend/src/*"]
+    },
+
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true
+  },
+
+  "include": [
+    "src",
+    "frontend/src",
+    "frontend/src/**/*.ts",
+    "frontend/src/**/*.tsx",
+    "frontend/src/**/*.test.ts",
+    "frontend/src/**/*.test.tsx",
+    "frontend/src/__tests__/**/*.ts",
+    "frontend/src/__tests__/**/*.tsx"
+  ],
+
+  "exclude": ["node_modules", "dist", "dist-electron", "build", "backend"]
+}
