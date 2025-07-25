@@ -134,7 +134,7 @@ const UnifiedOllama: React.FC = () => {
                       </motion.button>
                     ))}
                   </div>
-                  {suggestions.length > 6 && (
+                  {suggestions.length > 0 && (
                     <div className='mt-3 text-center'>
                       <button
                         onClick={() => setShowMoreSuggestions(!showMoreSuggestions)}
