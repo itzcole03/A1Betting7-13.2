@@ -114,7 +114,7 @@ const UnifiedOllama: React.FC = () => {
                         className='p-3 text-left text-sm bg-gray-800/30 hover:bg-gray-700/50 border border-cyan-400/20 hover:border-cyan-400/40 rounded-lg text-cyan-300 hover:text-cyan-200 transition-all duration-200 group'
                       >
                         <div className='flex items-start justify-between'>
-                          <span className='line-clamp-2 group-hover:text-white transition-colors'>
+                          <span className='overflow-hidden text-ellipsis group-hover:text-white transition-colors'>
                             {suggestion.prompt}
                           </span>
                           {suggestion.confidence && (
