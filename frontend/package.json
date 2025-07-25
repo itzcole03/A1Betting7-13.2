@@ -47,7 +47,8 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-junit": "^16.0.0",
     "jest-localstorage-mock": "^2.4.26",
-    "ts-jest": "^29.4.0"
+    "ts-jest": "^29.4.0",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "keywords": [],
   "author": "",
