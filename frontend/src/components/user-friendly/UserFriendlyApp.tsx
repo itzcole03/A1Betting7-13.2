@@ -6,6 +6,7 @@ import { ErrorBoundary } from '../core/ErrorBoundary';
 // Import actual functional components
 const PropOllamaUnified = lazy(() => import('../PropOllamaUnified'));
 const PredictionDisplay = lazy(() => import('../PredictionDisplay'));
+const AnalyticsTab = lazy(() => import('../AnalyticsTab'));
 
 interface NavItem {
   id: string;
