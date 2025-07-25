@@ -29,14 +29,22 @@ class TrendingSuggestionsService {
 
   async getTrendingSuggestions(): Promise<TrendingSuggestion[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/trending-suggestions`);
+      const response = await fetch(`${this.baseUrl}/api/trending-suggestions`, {
+        timeout: 3000, // 3 second timeout
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       if (!response.ok) {
-        throw new Error('Failed to fetch trending suggestions');
+        throw new Error(`API returned ${response.status}`);
       }
-      return await response.json();
+
+      const data = await response.json();
+      return Array.isArray(data) ? data : this.getFallbackSuggestions();
     } catch (error) {
-      console.error('Error fetching trending suggestions:', error);
-      // Return fallback suggestions
+      // Silently handle expected API unavailability and use fallbacks
+      console.warn('Trending API unavailable, using fallback suggestions');
       return this.getFallbackSuggestions();
     }
   }
