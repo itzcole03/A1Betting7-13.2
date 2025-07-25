@@ -1,429 +1,328 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import React, { useEffect, useState } from 'react';
-import { discoverBackend } from '../services/backendDiscovery';
-import BestBetsDisplay from './BestBetsDisplay'; // Import BestBetsDisplay
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  TrendingUp, 
+  Target, 
+  Brain, 
+  Star, 
+  Trophy, 
+  Activity, 
+  RefreshCw,
+  Filter,
+  Search,
+  ChevronDown
+} from 'lucide-react';
 
-console.log('[DEBUG] PropOllamaUnified.tsx loaded at', new Date().toISOString());
-
-interface PropOllamaMessage {
+interface PropProjection {
   id: string;
-  type: 'user' | 'ai';
-  content: string;
-  timestamp: Date;
-  confidence?: number;
-  suggestions?: string[];
-}
-
-interface BestBet {
-  id: string;
-  player_name: string;
+  player: string;
+  team: string;
   sport: string;
-  stat_type: string;
+  statType: string;
   line: number;
-  recommendation: 'OVER' | 'UNDER';
+  prediction: 'over' | 'under';
   confidence: number;
+  value: number;
   reasoning: string;
-  expected_value: number;
 }
 
-interface PropOllamaUnifiedProps {
-  variant?: 'standard' | 'cyber';
-  className?: string;
-}
-
-const PropOllamaUnified: React.FC<PropOllamaUnifiedProps> = ({
-  // variant = 'cyber',
-  className = '',
-}) => {
-  // Chat state
-  const [messages, setMessages] = useState<PropOllamaMessage[]>([]);
-  const [input, setInput] = useState('');
+const PropOllamaUnified: React.FC = () => {
+  const [projections, setProjections] = useState<PropProjection[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedSport, setSelectedSport] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('confidence');
 
-  // Best bets state (removed from here, now in BestBetsDisplay)
-  // const [bestBets, setBestBets] = useState<BestBet[]>([]);
-  // const [isRefreshing, setIsRefreshing] = useState(false);
-  // const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  // Mock data for demonstration
+  const mockProjections: PropProjection[] = [
+    {
+      id: '1',
+      player: 'LeBron James',
+      team: 'LAL',
+      sport: 'NBA',
+      statType: 'Points',
+      line: 25.5,
+      prediction: 'over',
+      confidence: 87,
+      value: 8.2,
+      reasoning: 'Strong recent scoring form, favorable matchup vs weak defense'
+    },
+    {
+      id: '2',
+      player: 'Josh Allen',
+      team: 'BUF',
+      sport: 'NFL',
+      statType: 'Passing Yards',
+      line: 287.5,
+      prediction: 'over',
+      confidence: 82,
+      value: 7.5,
+      reasoning: 'Elite passing offense, dome game conditions favor high passing volume'
+    },
+    {
+      id: '3',
+      player: 'Connor McDavid',
+      team: 'EDM',
+      sport: 'NHL',
+      statType: 'Points',
+      line: 1.5,
+      prediction: 'over',
+      confidence: 78,
+      value: 6.8,
+      reasoning: 'Leading scorer, home ice advantage against struggling defense'
+    },
+    {
+      id: '4',
+      player: 'Mookie Betts',
+      team: 'LAD',
+      sport: 'MLB',
+      statType: 'Hits',
+      line: 1.5,
+      prediction: 'over',
+      confidence: 75,
+      value: 6.2,
+      reasoning: 'Good matchup vs left-handed pitching, hitting well at home'
+    }
+  ];
 
-  // Health state
-  interface ScraperHealth {
-    is_healthy?: boolean;
-    is_stale?: boolean;
-    last_success?: string;
-    last_error?: string;
-    healing_attempts?: number;
-  }
-  const [scraperHealth, setScraperHealth] = useState<ScraperHealth | null>(null);
-
-  // Auto-refresh best bets on component mount (removed, now in BestBetsDisplay)
-  // useEffect(() => {
-  //   _fetchBestBets();
-  //   const interval = setInterval(_fetchBestBets, 30 * 60 * 1000);
-  //   return () => clearInterval(interval);
-  // }, []);
-
-  // Poll scraper health every 30s
   useEffect(() => {
-    let isMounted = true;
-    const fetchHealth = async () => {
-      try {
-        const backendUrl = (await Promise.race([
-          discoverBackend(),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Discovery timeout')), 3000)
-          ),
-        ])) as string;
-
-        const response = await fetch(`${backendUrl}/api/prizepicks/health`, {
-          signal: AbortSignal.timeout(3000), // 3 second timeout
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (isMounted) setScraperHealth(data);
-        } else {
-          if (isMounted)
-            setScraperHealth({ is_healthy: false, last_error: 'Failed to fetch health' });
-        }
-      } catch (e) {
-        if (isMounted) {
-          console.log('Health check failed (expected in demo mode):', e);
-          setScraperHealth({ is_healthy: false, last_error: 'Demo mode - backend unavailable' });
-        }
-      }
-    };
-    fetchHealth();
-    const interval = setInterval(fetchHealth, 30000);
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
+    setProjections(mockProjections);
   }, []);
 
-  // _fetchBestBets function (removed from here, now in BestBetsDisplay)
-  // const _fetchBestBets = async () => { /* ... */ };
-
-  const handleSendMessage = async () => {
-    const trimmed = typeof input === 'string' ? input.trim() : '';
-    if (!trimmed || isLoading) return;
-
-    const userMessage: PropOllamaMessage = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: trimmed,
-      timestamp: new Date(),
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
+  const refreshProjections = async () => {
     setIsLoading(true);
-
-    try {
-      const backendUrl = await discoverBackend();
-      if (!backendUrl) throw new Error('No backend discovered');
-      const aiApiUrl = `${backendUrl}/api/propollama/chat`;
-      const payload = {
-        message: trimmed,
-        analysisType: 'comprehensive',
-        includeWebResearch: true,
-        requestBestBets:
-          trimmed.toLowerCase().includes('best bets') ||
-          trimmed.toLowerCase().includes('recommendations'),
-      };
-      const response = await fetch(`${aiApiUrl}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('🤖 Chat response received:', data);
-
-        const aiResponse: PropOllamaMessage = {
-          id: (Date.now() + 1).toString(),
-          type: 'ai',
-          content: data.content,
-          timestamp: new Date(),
-          confidence: data.confidence,
-          suggestions: data.suggestions,
-        };
-
-        setMessages(prev => [...prev, aiResponse]);
-
-        // Update best bets if included in response (logic removed, now handled by BestBetsDisplay if needed)
-        // if (data.best_bets) {
-        //   setBestBets(data.best_bets);
-        //   setLastRefresh(new Date());
-        // }
-      } else {
-        console.error('Chat request failed:', response.status);
-        throw new Error(`HTTP ${response.status}`);
-      }
-    } catch (error) {
-      console.error('Error sending message:', error);
-      const errorMessage: PropOllamaMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content: `🚨 **Error**: Could not connect to PropOllama AI. Please try again.`,
-        timestamp: new Date(),
-        confidence: 0,
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setProjections(mockProjections);
+    setIsLoading(false);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
+  const filteredProjections = projections
+    .filter(p => selectedSport === 'All' || p.sport === selectedSport)
+    .filter(p => searchTerm === '' || 
+      p.player.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.team.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortBy === 'confidence') return b.confidence - a.confidence;
+      if (sortBy === 'value') return b.value - a.value;
+      return a.player.localeCompare(b.player);
+    });
 
-  const _baseClasses = `
-    w-full h-screen flex bg-gradient-to-br from-gray-900 to-black text-white
-    ${className}
-  `;
+  const sports = ['All', 'NBA', 'NFL', 'NHL', 'MLB'];
 
   return (
-    <div className={_baseClasses}>
-      {/* Onboarding Banner */}
-
-      <div className='absolute top-0 left-0 w-full z-20'>
-        <div className='bg-cyan-900/90 text-cyan-100 px-6 py-3 text-sm flex items-center justify-between shadow-md border-b border-cyan-400/30'>
-          <div>
-            <span className='font-bold text-cyan-300'>Welcome!</span> This page shows AI-powered
-            sports betting recommendations,{' '}
-            <span className='font-bold'>sorted by model confidence</span> (highest first).
-            <br />
-            <span className='font-bold'>Confidence</span> is color-coded and shown as a percentage.
-            Click <span className='underline'>Show Explanation</span> on any bet to see detailed AI
-            reasoning and insights.
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 bg-yellow-500/20 rounded-xl">
+              <Brain className="w-8 h-8 text-yellow-400" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-white">PropOllama</h1>
+              <p className="text-gray-400">AI-Powered Sports Prop Analysis</p>
+            </div>
           </div>
-        </div>
-        {/* Scraper Health Banner */}
-        {scraperHealth && (
-          <div
-            className={`transition-all duration-300 px-6 py-2 text-sm flex items-center justify-between shadow border-b
-            ${
-              scraperHealth.is_healthy
-                ? 'bg-green-900/90 text-green-200 border-green-400/30'
-                : scraperHealth.is_stale
-                ? 'bg-yellow-900/90 text-yellow-200 border-yellow-400/30'
-                : 'bg-red-900/90 text-red-200 border-red-400/30'
-            }`}
-            style={{ minHeight: '36px' }}
-          >
-            {scraperHealth.is_healthy && (
-              <span>
-                ✅ <b>Live data is healthy.</b> All props are up to date.
-              </span>
-            )}
-            {scraperHealth.is_stale && !scraperHealth.is_healthy && (
-              <span>
-                ⚠️ <b>Warning:</b> Live data may be <b>stale</b>. Last successful scrape:{' '}
-                {scraperHealth.last_success
-                  ? new Date(scraperHealth.last_success).toLocaleString()
-                  : 'unknown'}
-                .
-              </span>
-            )}
-            {!scraperHealth.is_healthy && !scraperHealth.is_stale && (
-              <span>
-                🚨 <b>Error:</b> Live data is use JSX unless the '--jsx' flag is provided... Remove
-                this comment to see the full error message
-                {scraperHealth.last_error && <span>Reason: {scraperHealth.last_error}</span>}{' '}
-              </span>
-            )}
-            <span className='ml-4 text-xs opacity-70'>
-              (Autonomous healing: {scraperHealth.healing_attempts || 0} attempts)
-            </span>
+          
+          {/* Controls */}
+          <div className="flex flex-wrap gap-4 items-center">
+            {/* Sport Filter */}
+            <div className="relative">
+              <select
+                value={selectedSport}
+                onChange={(e) => setSelectedSport(e.target.value)}
+                className="bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+              >
+                {sports.map(sport => (
+                  <option key={sport} value={sport}>{sport}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Search */}
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search players or teams..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Sort */}
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+              >
+                <option value="confidence">Sort by Confidence</option>
+                <option value="value">Sort by Value</option>
+                <option value="player">Sort by Player</option>
+              </select>
+            </div>
+
+            {/* Refresh */}
+            <motion.button
+              onClick={refreshProjections}
+              disabled={isLoading}
+              className="flex items-center gap-2 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/30 rounded-lg px-4 py-2 text-yellow-400 transition-colors disabled:opacity-50"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </motion.button>
           </div>
-        )}
-      </div>
-      {/* Main Chat Interface - 60% width */}
+        </motion.div>
 
-      <div className='flex-1 flex flex-col border-r border-cyan-400/30'>
-        {/* Chat Header */}
-
-        <div className='p-6 border-b border-cyan-400/30 bg-gradient-to-r from-cyan-900/50 to-blue-900/50'>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center space-x-4'>
-              <div className='text-3xl'>🤖</div>
-
+        {/* Stats Overview */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
+        >
+          <div className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <Target className="w-6 h-6 text-green-400" />
               <div>
-                <h1 className='text-2xl font-bold text-cyan-300'>PropOllama AI</h1>
-
-                <p className='text-sm text-cyan-400/70'>
-                  Your AI Sports Betting Expert • Powered by 96.4% Accuracy ML
+                <p className="text-sm text-gray-400">Total Props</p>
+                <p className="text-xl font-bold text-white">{filteredProjections.length}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <TrendingUp className="w-6 h-6 text-yellow-400" />
+              <div>
+                <p className="text-sm text-gray-400">Avg Confidence</p>
+                <p className="text-xl font-bold text-white">
+                  {filteredProjections.length > 0 ? 
+                    Math.round(filteredProjections.reduce((sum, p) => sum + p.confidence, 0) / filteredProjections.length) : 0}%
                 </p>
               </div>
             </div>
-            <div className='flex space-x-2'>
-              <div className='px-3 py-1 rounded-full text-xs font-medium bg-green-400/10 text-green-400 border border-green-400/30'>
-                🎯 96.4% Accuracy
-              </div>
-
-              <div className='px-3 py-1 rounded-full text-xs font-medium bg-purple-400/10 text-purple-400 border border-purple-400/30'>
-                🌐 Web Research
+          </div>
+          
+          <div className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <Star className="w-6 h-6 text-purple-400" />
+              <div>
+                <p className="text-sm text-gray-400">High Value</p>
+                <p className="text-xl font-bold text-white">
+                  {filteredProjections.filter(p => p.value > 7).length}
+                </p>
               </div>
             </div>
           </div>
-        </div>
-        {/* Chat Messages */}
-
-        <div className='flex-1 overflow-y-auto p-6 space-y-4'>
-          {messages.length === 0 && (
-            <div className='text-center py-12'>
-              <div className='text-6xl mb-4'>🎯</div>
-
-              <h2 className='text-xl font-bold text-cyan-300 mb-2'>Welcome to PropOllama AI</h2>
-
-              <p className='text-cyan-400/70 mb-6'>
-                Your intelligent sports betting assistant with web research capabilities
-              </p>
-
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto'>
-                {[
-                  'What are the best NBA props tonight?',
-                  "Analyze LeBron's scoring trend",
-                  'Show me high-confidence MLB picks',
-                  'Compare NFL quarterback props',
-                ].map((suggestion, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setInput(suggestion)}
-                    className='p-3 rounded-lg bg-cyan-400/10 border border-cyan-400/30 text-cyan-300 hover:bg-cyan-400/20 transition-all text-sm'
-                  >
-                    {suggestion}
-                  </button>
-                ))}
+          
+          <div className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <Trophy className="w-6 h-6 text-orange-400" />
+              <div>
+                <p className="text-sm text-gray-400">High Confidence</p>
+                <p className="text-xl font-bold text-white">
+                  {filteredProjections.filter(p => p.confidence > 80).length}
+                </p>
               </div>
             </div>
-          )}
+          </div>
+        </motion.div>
 
+        {/* Projections Grid */}
+        <div className="space-y-4">
           <AnimatePresence>
-            {messages.map(message => (
+            {filteredProjections.map((projection, index) => (
               <motion.div
-                key={message.id}
+                key={projection.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                transition={{ delay: index * 0.05 }}
+                className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-6 hover:border-yellow-500/30 transition-colors"
               >
-                <div
-                  className={`max-w-4xl rounded-lg p-4 ${
-                    message.type === 'user'
-                      ? 'bg-cyan-400/10 border border-cyan-400/30'
-                      : 'bg-gray-900/50 border border-cyan-400/20'
-                  }`}
-                >
-                  <div className='flex items-start space-x-3'>
-                    <div
-                      className={`text-lg ${
-                        message.type === 'user' ? 'text-cyan-400' : 'text-green-400'
-                      }`}
-                    >
-                      {message.type === 'user' ? '👤' : '🤖'}
+                <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                  {/* Player Info */}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-lg font-bold text-white">{projection.player}</h3>
+                      <span className="bg-slate-700 text-gray-300 px-2 py-1 rounded text-sm">
+                        {projection.team}
+                      </span>
+                      <span className="bg-purple-500/20 text-purple-300 px-2 py-1 rounded text-sm">
+                        {projection.sport}
+                      </span>
                     </div>
+                    <p className="text-gray-400 text-sm">{projection.reasoning}</p>
+                  </div>
 
-                    <div className='flex-1'>
-                      <div className='whitespace-pre-wrap text-sm'>{message.content}</div>
-                      {message.confidence && (
-                        <div className='mt-2 flex items-center space-x-2'>
-                          <span className='text-xs text-cyan-400'>Confidence:</span>
-
-                          <div
-                            className={`px-2 py-1 rounded-full text-xs font-bold ${
-                              message.confidence >= 80
-                                ? 'bg-green-400/20 text-green-400'
-                                : message.confidence >= 65
-                                ? 'bg-yellow-400/20 text-yellow-400'
-                                : 'bg-red-400/20 text-red-400'
-                            }`}
-                          >
-                            {message.confidence}%
-                          </div>
+                  {/* Prop Details */}
+                  <div className="flex items-center gap-6">
+                    <div className="text-center">
+                      <p className="text-sm text-gray-400">Stat</p>
+                      <p className="text-white font-semibold">{projection.statType}</p>
+                    </div>
+                    
+                    <div className="text-center">
+                      <p className="text-sm text-gray-400">Line</p>
+                      <p className="text-white font-semibold">{projection.line}</p>
+                    </div>
+                    
+                    <div className="text-center">
+                      <p className="text-sm text-gray-400">Pick</p>
+                      <p className={`font-semibold ${
+                        projection.prediction === 'over' ? 'text-green-400' : 'text-red-400'
+                      }`}>
+                        {projection.prediction.toUpperCase()}
+                      </p>
+                    </div>
+                    
+                    <div className="text-center">
+                      <p className="text-sm text-gray-400">Confidence</p>
+                      <div className="flex items-center gap-2">
+                        <div className="w-16 bg-slate-700 rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-yellow-400 to-green-400 h-2 rounded-full transition-all"
+                            style={{ width: `${projection.confidence}%` }}
+                          />
                         </div>
-                      )}
-                      {message.suggestions && (
-                        <div className='mt-3'>
-                          <div className='flex flex-wrap gap-2'>
-                            {message.suggestions.map((suggestion, idx) => (
-                              <button
-                                key={idx}
-                                onClick={() => setInput(suggestion)}
-                                className='px-3 py-1 rounded-full text-xs bg-cyan-400/10 text-cyan-400 border border-cyan-400/30 hover:bg-cyan-400/20 transition-all'
-                              >
-                                {suggestion}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className='text-xs text-gray-500 mt-2'>
-                        {message.timestamp.toLocaleTimeString()}
+                        <span className="text-white font-semibold">{projection.confidence}%</span>
                       </div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <p className="text-sm text-gray-400">Value</p>
+                      <p className="text-yellow-400 font-semibold">{projection.value}</p>
                     </div>
                   </div>
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
-          {isLoading && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className='flex justify-start'
-            >
-              <div className='max-w-md rounded-lg p-4 bg-gray-900/50 border border-cyan-400/20'>
-                <div className='flex items-center space-x-3'>
-                  <div className='text-lg text-green-400'>🤖</div>
-
-                  <div className='flex space-x-1'>
-                    {[0, 1, 2].map(i => (
-                      <div
-                        key={i}
-                        className='w-2 h-2 rounded-full bg-cyan-400 animate-bounce'
-                        style={{ animationDelay: `${i * 150}ms` }}
-                      />
-                    ))}
-                  </div>
-
-                  <span className='text-sm text-cyan-400'>Analyzing with AI + Web Research...</span>
-                </div>
-              </div>
-            </motion.div>
-          )}
         </div>
-        {/* Chat Input */}
 
-        <div className='p-6 border-t border-cyan-400/30 bg-gray-900/50'>
-          <div className='flex space-x-4'>
-            <input
-              type='text'
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask me about any sports prop, strategy, or get today's best bets..."
-              className='flex-1 px-4 py-3 rounded-lg bg-gray-800/50 border border-cyan-400/30 text-cyan-300 placeholder-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-transparent'
-              disabled={isLoading}
-            />
-            <button
-              onClick={handleSendMessage}
-              disabled={isLoading || typeof input !== 'string' || !input.trim()}
-              className='px-6 py-3 rounded-lg font-medium bg-gradient-to-r from-cyan-400 to-blue-500 text-black hover:from-cyan-300 hover:to-blue-400 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed'
-            >
-              {isLoading ? 'Analyzing...' : 'Send'}
-            </button>
-          </div>
-        </div>
+        {filteredProjections.length === 0 && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12"
+          >
+            <Activity className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+            <h3 className="text-xl text-gray-400 mb-2">No projections found</h3>
+            <p className="text-gray-500">Try adjusting your filters or refresh the data</p>
+          </motion.div>
+        )}
       </div>
-      {/* Best Bets Sidebar - 40% width */}
-      <BestBetsDisplay />
     </div>
   );
 };
