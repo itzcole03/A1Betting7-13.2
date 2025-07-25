@@ -1,4 +1,4 @@
-# PropGPT - AI-Powered Sports Analytics Platform
+# PropOllama - AI-Powered Sports Analytics Platform
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Python](https://img.shields.io/badge/python-3.8%2B-blue) ![TypeScript](https://img.shields.io/badge/typescript-%5E5.0-blue) ![Build](https://img.shields.io/badge/build-passing-brightgreen) ![Status](https://img.shields.io/badge/status-functional-green)
 
@@ -10,9 +10,10 @@
 
 **✅ FULLY FUNCTIONAL APPLICATION**
 
-The PropGPT platform is now fully operational with:
+The PropOllama platform is now fully operational with:
+
 - ✅ **PropOllama**: AI-powered sports prop analysis interface
-- ✅ **Game Predictions**: Real-time AI game analysis and predictions  
+- ✅ **Game Predictions**: Real-time AI game analysis and predictions
 - ✅ **Modern UI**: Clean, responsive interface with cyber theme
 - ✅ **Dev Server**: Running successfully on port 8174
 - ✅ **No Build Errors**: All TypeScript and CSS issues resolved
@@ -21,7 +22,8 @@ The PropGPT platform is now fully operational with:
 ## 📑 Quick Start
 
 ### 1. Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - Python 3.8+
 - Git
 
@@ -35,7 +37,7 @@ cd A1Betting7-13.2
 # Install frontend dependencies
 cd frontend && npm install
 
-# Install backend dependencies  
+# Install backend dependencies
 cd ../backend && pip install -r requirements.txt
 ```
 
@@ -51,6 +53,7 @@ ODDS_API_KEY=your_odds_api_key_here
 ### 4. Start the Application
 
 **Backend:**
+
 ```bash
 # From project root
 python -m backend.main
@@ -58,6 +61,7 @@ python -m backend.main
 ```
 
 **Frontend:**
+
 ```bash
 # From frontend directory
 cd frontend && npm run dev
@@ -71,6 +75,7 @@ Open your browser and navigate to: **http://localhost:8174**
 ## 🎯 Core Features
 
 ### PropOllama Interface
+
 - **AI Prop Analysis**: Advanced AI-powered sports prop research
 - **Real-time Data**: Live prop lines and recommendations
 - **Multi-Sport Support**: NBA, NFL, NHL, MLB coverage
@@ -78,6 +83,7 @@ Open your browser and navigate to: **http://localhost:8174**
 - **Confidence Scoring**: AI confidence ratings for each prop
 
 ### Game Predictions
+
 - **AI Game Analysis**: Comprehensive game predictions across sports
 - **Win Probabilities**: Team win percentage calculations
 - **Betting Lines**: Real-time spread, over/under, and odds
@@ -85,6 +91,7 @@ Open your browser and navigate to: **http://localhost:8174**
 - **Live Status**: Real-time game status updates
 
 ### Modern Interface
+
 - **Responsive Design**: Works on desktop and mobile
 - **Dark Theme**: Professional cyber-themed UI
 - **Smooth Animations**: Framer Motion powered interactions
@@ -94,6 +101,7 @@ Open your browser and navigate to: **http://localhost:8174**
 ## 🛠️ Technology Stack
 
 ### Frontend
+
 - **React 18** with TypeScript
 - **Vite** for development and bundling
 - **Tailwind CSS** for styling
@@ -102,6 +110,7 @@ Open your browser and navigate to: **http://localhost:8174**
 - **Lucide React** for icons
 
 ### Backend
+
 - **FastAPI** with Python
 - **SQLAlchemy** ORM
 - **Pydantic** for validation
@@ -109,6 +118,7 @@ Open your browser and navigate to: **http://localhost:8174**
 - **OpenTelemetry** monitoring
 
 ### Development
+
 - **ESLint** + **Prettier** for code quality
 - **Jest** for testing
 - **TypeScript** for type safety
@@ -140,6 +150,7 @@ A1Betting7-13.2/
 ## 🔧 Development
 
 ### Frontend Development
+
 ```bash
 cd frontend
 npm run dev          # Start development server
@@ -149,6 +160,7 @@ npm run lint         # Run ESLint
 ```
 
 ### Backend Development
+
 ```bash
 cd backend
 python main.py       # Start development server
@@ -156,6 +168,7 @@ pytest              # Run tests
 ```
 
 ### Code Quality
+
 - **TypeScript**: Strict type checking enabled
 - **ESLint**: Consistent code style
 - **Prettier**: Automatic code formatting
@@ -184,6 +197,7 @@ graph LR
 ## 🚦 Current Status Details
 
 ### ✅ Working Features
+
 - **Frontend Server**: Running on port 8174 with no errors
 - **Component Loading**: PropOllama and Predictions components fully functional
 - **Navigation**: Smooth transitions between different views
@@ -192,6 +206,7 @@ graph LR
 - **Error Handling**: Proper error boundaries and fallback states
 
 ### 🔧 Recent Fixes (January 2025)
+
 - **Fixed Proxy Configuration**: Corrected dev server port mapping
 - **Resolved TypeScript Errors**: Fixed all compilation issues
 - **Created Missing CSS Files**: Added all required style imports
@@ -199,6 +214,7 @@ graph LR
 - **Updated Dependencies**: Proper package management and imports
 
 ### 📋 Testing Status
+
 - **Component Tests**: Available for core components
 - **Integration Tests**: Backend API integration tests
 - **E2E Tests**: Frontend user flow testing
@@ -206,9 +222,10 @@ graph LR
 
 ## 🎨 User Interface
 
-The PropGPT interface features:
+The PropOllama interface features:
 
 ### Design System
+
 - **Color Palette**: Professional dark theme with purple/blue gradients
 - **Typography**: Clean, readable fonts with proper hierarchy
 - **Spacing**: Consistent spacing and layout patterns
@@ -216,6 +233,7 @@ The PropGPT interface features:
 - **Animations**: Smooth Framer Motion transitions
 
 ### Responsive Design
+
 - **Mobile First**: Optimized for mobile devices
 - **Desktop Enhanced**: Rich desktop experience
 - **Adaptive Layout**: Responsive grid and flexbox layouts
@@ -224,18 +242,21 @@ The PropGPT interface features:
 ## 🔮 Future Roadmap
 
 ### Short Term
+
 - [ ] Backend API integration for live data
 - [ ] User authentication and profiles
 - [ ] Enhanced AI model integration
 - [ ] Real-time WebSocket updates
 
-### Medium Term  
+### Medium Term
+
 - [ ] Mobile app development
 - [ ] Advanced analytics dashboard
 - [ ] Social features and sharing
 - [ ] Performance optimizations
 
 ### Long Term
+
 - [ ] Machine learning model training
 - [ ] Multi-language support
 - [ ] Enterprise features
@@ -250,6 +271,7 @@ The PropGPT interface features:
 5. **Open** a Pull Request
 
 ### Development Guidelines
+
 - Follow existing code style and conventions
 - Write tests for new features
 - Update documentation as needed
@@ -258,11 +280,13 @@ The PropGPT interface features:
 ## 📞 Support
 
 ### Getting Help
+
 - **Issues**: Create GitHub issues for bugs and feature requests
 - **Discussions**: Use GitHub discussions for questions
 - **Documentation**: Check existing docs and README files
 
 ### Troubleshooting
+
 - **Port Conflicts**: Dev server will auto-select available ports
 - **Dependencies**: Run `npm install` and `pip install -r requirements.txt`
 - **Environment**: Ensure `.env` file is properly configured
@@ -282,6 +306,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ by the PropGPT Team**
+**Built with ❤️ by the PropOllama Team**
 
-*Last Updated: January 2025*
+_Last Updated: January 2025_

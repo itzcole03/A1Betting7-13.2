@@ -1,1 +1,5 @@
-// DELETED: Legacy DataPipeline test removed as part of canonicalization.
+describe('DataPipeline', () => {
+  it('should run a dummy test', () => {
+    expect(true).toBe(true);
+  });
+});

@@ -5,6 +5,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react()],
   server: {
+    port: 8173,
     proxy: {
       "/api/stream-background": {
         target: "http://localhost:4001",

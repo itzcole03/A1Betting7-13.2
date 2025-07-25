@@ -946,7 +946,7 @@ class SportsExpertAgent:
 
         Args:
         ----
-            llm_engine: LLM engine instance (Ollama, OpenAI, etc.)
+            llm_engine: LLM engine instance (Ollama, external LLM provider, etc.)
             model_name: Name of the expert model (if None, will auto-pick best).
             enabled: Whether the agent is enabled.
             rag_enabled: Enable/disable RAG (retrieval-augmented generation).

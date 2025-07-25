@@ -60,3 +60,8 @@ app.include_router(betting_router)
 app.include_router(health_router, prefix="/api")
 app.include_router(prizepicks_router)
 app.include_router(propollama_router, prefix="/api/propollama")
+
+# Register trending suggestions router
+from backend.routes.trending_suggestions import router as trending_suggestions_router
+
+app.include_router(trending_suggestions_router)

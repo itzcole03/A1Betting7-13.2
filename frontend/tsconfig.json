@@ -5,32 +5,28 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "types": ["@testing-library/jest-dom", "vite/client", "react", "react-dom", "framer-motion"],
-    
-    
-    "moduleResolution": "bundler",
+
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    
-    
+
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
       "src/*": ["src/*"]
     },
-    
-    
+
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true
   },
-  
+
   "include": [
     "src",
     "src/**/*.ts",
@@ -42,15 +38,8 @@
     "./jest.setup.js",
     "./jest.setup.ts"
   ],
-  
-  "exclude": [
-    "node_modules",
-    "dist",
-    "dist-electron",
-    "build"
-  ],
-  
-  "references": [
-    { "path": "./tsconfig.node.json" }
-  ]
+
+  "exclude": ["node_modules", "dist", "dist-electron", "build"],
+
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

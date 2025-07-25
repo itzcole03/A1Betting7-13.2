@@ -554,7 +554,7 @@ Implementation Notes:
 - [ ] backend/api_integration.py: "up", "down", "stable"
 - [ ] backend/api_integration.py: AI Chat Models
   - [ ] Implement async AI chat endpoints using Pydantic models for validation
-  - [ ] Integrate LLMs via dedicated service layer (e.g., OpenAI, custom models)
+  - [ ] Integrate LLMs via dedicated service layer (e.g., external LLM provider, custom models)
   - [ ] Use FastAPI-MCP for agent orchestration and recursive improvement
   - [ ] Log all chat interactions for audit and compliance
 - [ ] backend/api_integration.py: WebSocket Models

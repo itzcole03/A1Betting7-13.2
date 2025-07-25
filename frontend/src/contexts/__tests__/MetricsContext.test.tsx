@@ -1,10 +1,10 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { _MetricsProvider, _useMetrics } from '../MetricsContext';
 
-const TestComponent = () => {
+function TestComponent() {
   const ctx = _useMetrics();
-  return <button onClick={() => ctx.track('test-event')}>Track</button>;
-};
+  return <div data-testid='metrics-context'>{ctx ? 'context-present' : 'context-absent'}</div>;
+}
 
 describe('MetricsContext', () => {
   it('provides default values and track function', () => {
@@ -13,6 +13,8 @@ describe('MetricsContext', () => {
         <TestComponent />
       </_MetricsProvider>
     );
-    // No assertion: just ensure no crash and context is available
+    expect(screen.getByTestId('metrics-context')).toHaveTextContent('context-present');
+    // Optionally, simulate track function call
+    // e.g., fireEvent or rerender with new props
   });
 });

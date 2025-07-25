@@ -1,54 +1,19 @@
-// PropOllamaUnified.test.tsx
-// Automated tests for unified betting page (PropOllamaUnified)
-
-import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
-import PropOllamaUnified from '../../components/PropOllamaUnified';
+import React from 'react';
+import { _AppProvider } from '../../contexts/AppContext';
+import { _AuthProvider } from '../../contexts/AuthContext';
+import { _ThemeProvider } from '../../contexts/ThemeContext';
+import PropOllamaUnified from '../PropOllamaUnified';
 
-// Mock backendDiscovery
-jest.mock('../../services/backendDiscovery', () => ({
-  backendDiscovery: {
-    getBackendUrl: async () => '',
-  },
-}));
+const CompositeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <_ThemeProvider>
+    <_AppProvider>
+      <_AuthProvider>{children}</_AuthProvider>
+    </_AppProvider>
+  </_ThemeProvider>
+);
 
 describe('PropOllamaUnified', () => {
-  beforeEach(() => {
-    jest.resetAllMocks();
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => [
-        {
-          id: '1',
-          player_name: 'LeBron James',
-          sport: 'NBA',
-          stat_type: 'Points',
-          line: 25.5,
-          recommendation: 'OVER',
-          confidence: 92,
-          reasoning: 'Dominant scorer',
-          expected_value: 0.18,
-        },
-        {
-          id: '2',
-          player_name: 'Stephen Curry',
-          sport: 'NBA',
-          stat_type: 'Assists',
-          line: 6.5,
-          recommendation: 'UNDER',
-          confidence: 78,
-          reasoning: 'Defensive focus',
-          expected_value: 0.08,
-        },
-      ],
-    } as Partial<Response>);
-  });
-
-  it('renders onboarding banner', () => {
-    render(<PropOllamaUnified />);
-    expect(screen.getByText(/AI-powered sports betting recommendations/i)).toBeInTheDocument();
-  });
-
   it.skip('loads and sorts best bets by confidence', async () => {});
 
   it.skip('shows confidence badge and bar', async () => {});
@@ -56,16 +21,38 @@ describe('PropOllamaUnified', () => {
   it.skip('expand/collapse explanation', async () => {});
 
   it('handles empty state', async () => {
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => [],
-    } as Partial<Response>);
-    render(<PropOllamaUnified />);
+      headers: new Headers(),
+      status: 200,
+      statusText: 'OK',
+      url: '',
+      clone: () => ({} as Response),
+      body: null,
+      bodyUsed: false,
+      redirected: false,
+      type: 'basic',
+      arrayBuffer: async () => new ArrayBuffer(0),
+      blob: async () => new Blob(),
+      formData: async () => new FormData(),
+      text: async () => '',
+    } as Response);
+    render(
+      <CompositeProvider>
+        <PropOllamaUnified />
+      </CompositeProvider>
+    );
     await waitFor(() => screen.getByText(/Loading today's best bets/i));
+    (global.fetch as jest.Mock).mockRestore?.();
   });
 
   it('is accessible (banner, buttons)', async () => {
-    render(<PropOllamaUnified />);
+    render(
+      <CompositeProvider>
+        <PropOllamaUnified />
+      </CompositeProvider>
+    );
     expect(screen.getByText(/AI-powered sports betting recommendations/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Ask me about any sports prop/i)).toBeInTheDocument();
   });

@@ -1,8 +1,8 @@
 /**
- * PropGPT/AI/Analytics/Chat Components Index
+ * PropOllama/AI/Analytics/Chat Components Index
  *
  * NOTICE: This index now only exports the core AI-powered prop research, analytics, and chat components.
- * The app is now focused as a PropGPT/PropOllama competitor for advanced prop research and analytics.
+ * The app is now focused as a PropOllama competitor for advanced prop research and analytics.
  */
 
 // Core AI/analytics/chat components

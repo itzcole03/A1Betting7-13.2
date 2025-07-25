@@ -1,3 +1,14 @@
+// Use the mock for unifiedApiService in error state E2E tests
+jest.mock('src/services/__mocks__/unifiedApiService', () => {
+  const createUnifiedApiServiceMock = jest.requireActual(
+    'src/services/__mocks__/unifiedApiService'
+  ).default;
+  return {
+    __esModule: true,
+    createUnifiedApiService: () => createUnifiedApiServiceMock(),
+  };
+});
+
 globalThis.__JEST_E2E_ERROR__ = true;
 
 // Set error flag before any imports

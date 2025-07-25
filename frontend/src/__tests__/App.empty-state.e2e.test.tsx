@@ -18,7 +18,7 @@ describe('App E2E - Empty State', () => {
     }
 
     // Mock localStorage for onboarding
-    localStorage.getItem = jest.fn(() => 'onboardingComplete');
+    jest.spyOn(localStorage, 'getItem').mockImplementation(() => 'onboardingComplete');
   });
 
   it('shows empty state if no enhanced bets are returned', async () => {

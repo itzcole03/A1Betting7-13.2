@@ -2,11 +2,23 @@
 // Automated tests for live stream page (LiveStream)
 
 import { render, screen } from '@testing-library/react';
+import { _AppProvider } from '../../contexts/AppContext';
+import { _ThemeProvider } from '../../contexts/ThemeContext';
 import LiveStream from '../LiveStream';
+
+const CompositeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <_ThemeProvider>
+    <_AppProvider>{children}</_AppProvider>
+  </_ThemeProvider>
+);
 
 describe('LiveStream component', () => {
   it('renders the onboarding banner and safety tips', () => {
-    render(<LiveStream />);
+    render(
+      <CompositeProvider>
+        <LiveStream />
+      </CompositeProvider>
+    );
     expect(screen.getByText(/How to Use:/i)).toBeInTheDocument();
     expect(screen.getByText(/Safety Tips:/i)).toBeInTheDocument();
     expect(screen.getByText(/Use an ad blocker for best experience./i)).toBeInTheDocument();
@@ -15,7 +27,11 @@ describe('LiveStream component', () => {
   });
 
   it('renders the header with the correct title and external link', () => {
-    render(<LiveStream />);
+    render(
+      <CompositeProvider>
+        <LiveStream />
+      </CompositeProvider>
+    );
     expect(screen.getByRole('heading', { name: /Live Sports Streams/i })).toBeInTheDocument();
     const streamEastLink = screen.getByRole('link', { name: 'StreamEast' }); // Exact match for the inline link
     expect(streamEastLink).toBeInTheDocument();
@@ -25,7 +41,11 @@ describe('LiveStream component', () => {
   });
 
   it('renders the button to open the live stream site', () => {
-    render(<LiveStream />);
+    render(
+      <CompositeProvider>
+        <LiveStream />
+      </CompositeProvider>
+    );
     const openStreamButton = screen.getByRole('link', { name: /Open StreamEast Live Streams/i });
     expect(openStreamButton).toBeInTheDocument();
     expect(openStreamButton).toHaveAttribute('href', 'https://gostreameast.link/official/');

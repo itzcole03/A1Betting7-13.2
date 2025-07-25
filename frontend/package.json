@@ -5,14 +5,26 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build", 
+    "build": "vite build",
     "preview": "vite preview",
     "test": "jest --config ./jest.config.js"
   },
   "dependencies": {
+    "axios": "^1.11.0",
+    "framer-motion": "^12.23.9",
+    "lucide-react": "^0.525.0",
     "node-fetch": "^2.7.0"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@testing-library/user-event": "^14.6.1",
+    "jest-fixed-jsdom": "^0.0.9",
+    "jest-junit": "^16.0.0",
+    "jest-localstorage-mock": "^2.4.26",
+    "msw": "^2.10.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  }
 }

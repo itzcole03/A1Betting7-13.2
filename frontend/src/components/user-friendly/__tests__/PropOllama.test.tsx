@@ -32,7 +32,22 @@ window.alert = jest.fn();
 
 // (imports moved below matchMedia mock)
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
 import PropOllama from '../PropOllama';
+
+// Composite provider for PropOllama tests
+// Replace with actual providers if available in your app (ThemeProvider, AppProvider, AuthProvider)
+import { _AppProvider } from '../../../contexts/AppContext';
+import { _AuthProvider } from '../../../contexts/AuthContext';
+import { _ThemeProvider } from '../../../contexts/ThemeContext';
+
+const CompositeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <_ThemeProvider>
+    <_AppProvider>
+      <_AuthProvider>{children}</_AuthProvider>
+    </_AppProvider>
+  </_ThemeProvider>
+);
 
 // Mock fetch for all PropOllama endpoints
 beforeEach(() => {
@@ -48,7 +63,7 @@ beforeEach(() => {
     if (url === '/api/propollama/models') {
       return Promise.resolve({
         ok: true,
-        json: () => Promise.resolve({ models: ['gpt-4', 'gpt-3.5'] }),
+        json: () => Promise.resolve({ models: ['PropOllama'] }),
       });
     }
     if (url === '/api/propollama/model_health') {
@@ -56,7 +71,7 @@ beforeEach(() => {
         ok: true,
         json: () =>
           Promise.resolve({
-            model_health: { 'gpt-4': { status: 'ready' }, 'gpt-3.5': { status: 'ready' } },
+            model_health: { PropOllama: { status: 'ready' } },
           }),
       });
     }
@@ -103,7 +118,11 @@ afterEach(() => {
 });
 
 test('displays health check status', async () => {
-  render(<PropOllama />);
+  render(
+    <CompositeProvider>
+      <PropOllama />
+    </CompositeProvider>
+  );
   // Use aria-label for robust querying
   const _healthBtn = screen.getByRole('button', { name: /check propollama api health/i });
   fireEvent.click(_healthBtn);
@@ -113,7 +132,11 @@ test('displays health check status', async () => {
 });
 
 test('displays backend error message', async () => {
-  render(<PropOllama />);
+  render(
+    <CompositeProvider>
+      <PropOllama />
+    </CompositeProvider>
+  );
   const _input = screen.getByLabelText(/type your message/i) as HTMLInputElement;
   fireEvent.change(_input, { target: { value: 'error' } });
   fireEvent.submit(_input.form!);
@@ -126,7 +149,11 @@ test('displays backend error message', async () => {
 });
 
 test('displays AI response for valid message', async () => {
-  render(<PropOllama />);
+  render(
+    <CompositeProvider>
+      <PropOllama />
+    </CompositeProvider>
+  );
   const _input = screen.getByLabelText(/type your message/i) as HTMLInputElement;
   fireEvent.change(_input, { target: { value: 'hello' } });
   fireEvent.submit(_input.form!);

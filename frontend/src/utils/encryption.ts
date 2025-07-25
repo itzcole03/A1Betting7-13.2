@@ -10,11 +10,8 @@ import { AES, enc } from 'crypto-js';
 // import.meta.env.VITE_ENCRYPTION_KEY is the standard for Vite projects.
 
 function getEncryptionKey(): string {
-  // Use process.env for all environments (Vite injects env vars into process.env at build time)
-  if (typeof import.meta.env !== 'undefined' && import.meta.env.VITE_ENCRYPTION_KEY) {
-    return import.meta.env.VITE_ENCRYPTION_KEY;
-  }
-  return 'FALLBACK_INSECURE_KEY';
+  // Use only process.env for environment variables
+  return process.env.VITE_ENCRYPTION_KEY || process.env.ENCRYPTION_KEY || 'FALLBACK_INSECURE_KEY';
 }
 
 /**

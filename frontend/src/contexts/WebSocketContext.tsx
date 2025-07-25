@@ -38,10 +38,7 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
 
   useEffect(() => {
     // Use process.env for VITE_WS_URL with a fallback for test compatibility
-    const _wsUrl =
-      typeof import.meta.env !== 'undefined' && import.meta.env.VITE_WS_URL
-        ? import.meta.env.VITE_WS_URL
-        : 'ws://localhost:8000/ws';
+    const _wsUrl = process.env.VITE_WS_URL || process.env.WS_URL || 'ws://localhost:8000/ws';
     const _ws = new WebSocket(_wsUrl);
     _wsRef.current = _ws;
     _ws.onopen = () => setConnected(true);

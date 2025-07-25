@@ -141,9 +141,9 @@ const _AuthPage: React.FC = () => {
           className='text-center mb-8'
         >
           <div className='inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-yellow-400 to-purple-500 rounded-2xl mb-6 shadow-lg shadow-yellow-400/25'>
-            <span className='text-2xl font-bold text-slate-900'>PropGPT</span>
+            <span className='text-2xl font-bold text-slate-900'>PropOllama</span>
           </div>
-          <h1 className='text-3xl font-bold text-yellow-400 mb-2'>PropGPT</h1>
+          <h1 className='text-3xl font-bold text-yellow-400 mb-2'>PropOllama</h1>
           <p className='text-gray-400'>AI Prop Research & Analytics</p>
         </motion.div>
         {/* Auth Mode Toggle - Only show if not in password change mode */}
@@ -306,7 +306,7 @@ const _AuthPage: React.FC = () => {
           transition={{ delay: 0.4 }}
           className='mt-8 text-center'
         >
-          <p className='text-xs text-gray-500'>© 2025 PropGPT. All rights reserved.</p>
+          <p className='text-xs text-gray-500'>© 2025 PropOllama. All rights reserved.</p>
           <div className='flex justify-center space-x-4 mt-2'>
             <button
               type='button'
