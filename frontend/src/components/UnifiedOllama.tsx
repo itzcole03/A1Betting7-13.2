@@ -1,10 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useState } from 'react';
+import { useTrendingSuggestions } from '../hooks/useTrendingSuggestions';
 
 const UnifiedOllama: React.FC = () => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [showHealthTooltip, setShowHealthTooltip] = useState(false);
   const [input, setInput] = useState('');
+  const { suggestions, loading: suggestionsLoading } = useTrendingSuggestions();
 
   return (
     <>
