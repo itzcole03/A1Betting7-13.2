@@ -208,7 +208,7 @@ const UnifiedOllama: React.FC = () => {
                             </span>
                           </div>
                         )}
-                        <div className={`text-sm font-bold text-cyan-200 leading-tight ${bet.trending ? 'pr-8' : ''}`}>
+                        <div className={`text-sm font-bold text-cyan-200 leading-tight ${bet.trending ? 'pr-12' : ''}`}>
                           {bet.player}
                         </div>
                         <div className='text-sm text-cyan-100 mt-1 leading-tight'>
