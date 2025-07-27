@@ -1,8 +1,85 @@
 import asyncio
+import json
 import logging
+import os
+import re
 import time
-import traceback
-from typing import Any, Dict, List, Tuple
+
+import yaml
+
+from backend.services.comprehensive_feature_engine import enrich_prop_with_all_features
+
+config_path = os.path.join(
+    os.path.dirname(__file__), "..", "config", "business_rules.yaml"
+)
+with open(config_path, "r") as f:
+    rules = yaml.safe_load(f)
+forbidden_combos = [tuple(x) for x in rules.get("forbidden_combos", [])]
+allowed_stat_types = set(rules.get("allowed_stat_types", []))
+logger = logging.getLogger("propollama")
+
+
+async def pre_llm_business_logic(request):
+    # Validate entry amount
+    entry_amt = getattr(request, "entryAmount", None)
+    if not isinstance(entry_amt, (int, float)) or entry_amt < 1.0 or entry_amt > 1000.0:
+        logger.error("Invalid entryAmount: %s", entry_amt)
+        raise ValueError(f"Entry amount {entry_amt} outside allowed range [1, 1000]")
+
+    # Validate user and session
+    user = getattr(request, "userId", None)
+    session = getattr(request, "sessionId", None)
+    if not user or not isinstance(user, str):
+        logger.error("Invalid userId: %s", user)
+        raise ValueError("Invalid or missing userId")
+    if not session or not isinstance(session, str):
+        logger.error("Invalid sessionId: %s", session)
+        raise ValueError("Invalid or missing sessionId")
+
+    # Check for forbidden prop combinations
+    for idx, prop in enumerate(request.selectedProps):
+        combo = (prop.get("player"), prop.get("statType"), prop.get("choice"))
+        if combo in forbidden_combos:
+            logger.error("Forbidden prop combo at index %d: %s", idx + 1, combo)
+            raise ValueError(f"Forbidden prop combination: {combo}")
+
+    # Check for duplicate props (by player, statType, line, choice)
+    seen = set()
+    for idx, prop in enumerate(request.selectedProps):
+        key = (
+            prop.get("player"),
+            prop.get("statType"),
+            prop.get("line"),
+            prop.get("choice"),
+        )
+        if key in seen:
+            logger.error("Duplicate prop detected at index %d: %s", idx + 1, key)
+            raise ValueError(f"Duplicate prop detected: {key}")
+        seen.add(key)
+
+    # Debug log after validation, before enrichment
+    logger.info(
+        "[DEBUG] pre_llm_business_logic received %d props: %s",
+        len(getattr(request, "selectedProps", [])),
+        getattr(request, "selectedProps", []),
+    )
+
+    # Enrich all props concurrently using modular service
+    enriched_props = await asyncio.gather(
+        *[
+            enrich_prop_with_all_features(prop, user, session, allowed_stat_types)
+            for prop in request.selectedProps
+        ]
+    )
+
+    logger.info(
+        "User %s, session %s, entry %s, props validated and fully enriched.",
+        user,
+        session,
+        entry_amt,
+    )
+    return enriched_props, entry_amt, user, session
+
 
 from fastapi import APIRouter, HTTPException, Request
 
@@ -15,97 +92,86 @@ from backend.services.unified_prediction_service import unified_prediction_servi
 router = APIRouter()
 
 
+import asyncio
+import logging
+import os
 from typing import Optional
 
 import httpx
+import yaml
+
+from backend.services.comprehensive_feature_engine import enrich_prop_with_all_features
+
+config_path = os.path.join(
+    os.path.dirname(__file__), "..", "config", "business_rules.yaml"
+)
+with open(config_path, "r") as f:
+    rules = yaml.safe_load(f)
+forbidden_combos = [tuple(x) for x in rules.get("forbidden_combos", [])]
+allowed_stat_types = set(rules.get("allowed_stat_types", []))
+logger = logging.getLogger("propollama")
 
 
-async def fetch_player_status(
-    player: str, http_client: Optional[httpx.AsyncClient] = None
-) -> str:
-    """
-    Fetch the real-time status of a player from a production data source (e.g., sports API).
-    Uses an injected async HTTP client for testability and production use.
-    """
-    if http_client is None:
-        async with httpx.AsyncClient() as client:
-            return await fetch_player_status(player, http_client=client)
-    # Example: Replace the following with a real API call
-    # resp = await http_client.get(f"https://api.sportsdata.io/v3/nba/scores/json/Player/{player}")
-    # resp.raise_for_status()
-    # data = resp.json()
-    # return data.get("Status", "unknown")
-    # For now, raise to indicate not implemented
-    raise NotImplementedError(
-        "fetch_player_status must be implemented with a real data source."
+async def pre_llm_business_logic(request):
+    # Validate entry amount
+    entry_amt = getattr(request, "entryAmount", None)
+    if not isinstance(entry_amt, (int, float)) or entry_amt < 1.0 or entry_amt > 1000.0:
+        logger.error("Invalid entryAmount: %s", entry_amt)
+        raise ValueError(f"Entry amount {entry_amt} outside allowed range [1, 1000]")
+
+    # Validate user and session
+    user = getattr(request, "userId", None)
+    session = getattr(request, "sessionId", None)
+    if not user or not isinstance(user, str):
+        logger.error("Invalid userId: %s", user)
+        raise ValueError("Invalid or missing userId")
+    if not session or not isinstance(session, str):
+        logger.error("Invalid sessionId: %s", session)
+        raise ValueError("Invalid or missing sessionId")
+
+    # Check for forbidden prop combinations
+    for idx, prop in enumerate(request.selectedProps):
+        combo = (prop.get("player"), prop.get("statType"), prop.get("choice"))
+        if combo in forbidden_combos:
+            logger.error("Forbidden prop combo at index %d: %s", idx + 1, combo)
+            raise ValueError(f"Forbidden prop combination: {combo}")
+
+    # Check for duplicate props (by player, statType, line, choice)
+    seen = set()
+    for idx, prop in enumerate(request.selectedProps):
+        key = (
+            prop.get("player"),
+            prop.get("statType"),
+            prop.get("line"),
+            prop.get("choice"),
+        )
+        if key in seen:
+            logger.error("Duplicate prop detected at index %d: %s", idx + 1, key)
+            raise ValueError(f"Duplicate prop detected: {key}")
+        seen.add(key)
+
+    # Debug log after validation, before enrichment
+    logger.info(
+        "[DEBUG] pre_llm_business_logic received %d props: %s",
+        len(getattr(request, "selectedProps", [])),
+        getattr(request, "selectedProps", []),
     )
 
-
-from typing import Optional
-
-
-async def fetch_real_odds(
-    player: str,
-    stat_type: str,
-    http_client: Optional[httpx.AsyncClient] = None,
-    api_key: Optional[str] = None,
-    sport: str = "basketball_nba",
-    region: str = "us",
-    market: str = "player_points",
-    odds_format: str = "american",
-) -> float:
-    """
-    Fetch the real odds for a player/stat from The Odds API (or similar sportsbook API).
-    Uses an injected async HTTP client for testability and production use.
-    Args:
-        player: Player name (must match API data)
-        stat_type: Stat type (e.g., 'points', 'rebounds')
-        http_client: Injected httpx.AsyncClient
-        api_key: API key for The Odds API (should be set via config/env)
-        sport: Sport key (default: 'basketball_nba')
-        region: Bookmaker region (default: 'us')
-        market: Odds market (default: 'player_points')
-        odds_format: Odds format (default: 'american')
-    Returns:
-        The best available odds for the player/stat, or raises if not found.
-    """
-    if api_key is None:
-        raise ValueError("API key for The Odds API must be provided via config or env.")
-    if http_client is None:
-        async with httpx.AsyncClient() as client:
-            return await fetch_real_odds(
-                player,
-                stat_type,
-                http_client=client,
-                api_key=api_key,
-                sport=sport,
-                region=region,
-                market=market,
-                odds_format=odds_format,
-            )
-    url = f"https://api.the-odds-api.com/v4/sports/{sport}/odds"
-    params = {
-        "apiKey": api_key,
-        "regions": region,
-        "markets": market,
-        "oddsFormat": odds_format,
-    }
-    resp = await http_client.get(url, params=params, timeout=10)
-    resp.raise_for_status()
-    data = resp.json()
-    # Find the odds for the player/stat_type in the response (structure may vary by market)
-    # This is a simplified example; production code should handle all edge cases and errors
-    for event in data:
-        for bookmaker in event.get("bookmakers", []):
-            for market_obj in bookmaker.get("markets", []):
-                if market_obj.get("key") == market:
-                    for outcome in market_obj.get("outcomes", []):
-                        # For player props, outcome["description"] is player name, outcome["name"] is 'Over'/'Under'
-                        if outcome.get("description", "").lower() == player.lower():
-                            return float(outcome.get("price"))
-    raise ValueError(
-        f"Odds not found for player {player} and stat {stat_type} in market {market}."
+    # Enrich all props concurrently using modular service
+    enriched_props = await asyncio.gather(
+        *[
+            enrich_prop_with_all_features(prop, user, session, allowed_stat_types)
+            for prop in request.selectedProps
+        ]
     )
+
+    logger.info(
+        "User %s, session %s, entry %s, props validated and fully enriched.",
+        user,
+        session,
+        entry_amt,
+    )
+    return enriched_props, entry_amt, user, session
 
 
 from typing import Optional
@@ -144,187 +210,6 @@ async def fetch_injury_status(
 
 
 import traceback
-
-
-async def pre_llm_business_logic(
-    request,
-) -> Tuple[List[Dict[str, Any]], float, str, str]:
-    """
-    Validate and enrich the incoming bet analysis request.
-    Returns: (enriched_props, entry_amt, user, session)
-    Raises ValueError for validation errors.
-    """
-    logger = logging.getLogger("propollama_pre_llm_business_logic")
-    logger.info("[DEBUG] Entered pre_llm_business_logic with request: %s", request)
-
-    try:
-        # ...existing validation code above...
-        # Validate entry amount
-        entry_amt = getattr(request, "entryAmount", None)
-        if (
-            not isinstance(entry_amt, (int, float))
-            or entry_amt < 1.0
-            or entry_amt > 1000.0
-        ):
-            logger.error("Invalid entryAmount: %s", entry_amt)
-            raise ValueError(
-                f"Entry amount {entry_amt} outside allowed range [1, 1000]"
-            )
-
-        # Validate user and session
-        user = getattr(request, "userId", None)
-        session = getattr(request, "sessionId", None)
-        if not user or not isinstance(user, str):
-            logger.error("Invalid userId: %s", user)
-            raise ValueError("Invalid or missing userId")
-        if not session or not isinstance(session, str):
-            logger.error("Invalid sessionId: %s", session)
-            raise ValueError("Invalid or missing sessionId")
-
-        # Load business rules from config
-        import os
-
-        import yaml
-
-        config_path = os.path.join(
-            os.path.dirname(__file__), "..", "config", "business_rules.yaml"
-        )
-        with open(config_path, "r") as f:
-            rules = yaml.safe_load(f)
-        forbidden_combos = [tuple(x) for x in rules.get("forbidden_combos", [])]
-        allowed_stat_types = set(rules.get("allowed_stat_types", []))
-
-        # Check for forbidden prop combinations
-        for idx, prop in enumerate(request.selectedProps):
-            combo = (prop.get("player"), prop.get("statType"), prop.get("choice"))
-            if combo in forbidden_combos:
-                logger.error("Forbidden prop combo at index %d: %s", idx + 1, combo)
-                raise ValueError(f"Forbidden prop combination: {combo}")
-
-        # Check for duplicate props (by player, statType, line, choice)
-        seen = set()
-        for idx, prop in enumerate(request.selectedProps):
-            key = (
-                prop.get("player"),
-                prop.get("statType"),
-                prop.get("line"),
-                prop.get("choice"),
-            )
-            if key in seen:
-                logger.error("Duplicate prop detected at index %d: %s", idx + 1, key)
-                raise ValueError(f"Duplicate prop detected: {key}")
-            seen.add(key)
-
-        # Debug log after validation, before enrichment
-        logger.info(
-            "[DEBUG] pre_llm_business_logic received %d props: %s",
-            len(getattr(request, "selectedProps", [])),
-            getattr(request, "selectedProps", []),
-        )
-
-        # Unified async enrichment for all props
-        async def enrich_prop_with_all_features(prop, user, session):
-            """
-            Enrich a prop with all advanced features: feature engineering, ensemble prediction, unified prediction, etc.
-            Robust error handling: if any step fails, log and return partial data with error info.
-            """
-            # Validate required fields
-            player = prop.get("player")
-            stat_type = prop.get("statType")
-            line = prop.get("line")
-            choice = prop.get("choice")
-            odds = prop.get("odds")
-            errors = []
-            if not player or not isinstance(player, str):
-                errors.append(f"Invalid player: {player}")
-            if stat_type not in allowed_stat_types:
-                errors.append(f"Invalid statType: {stat_type}")
-            if not isinstance(line, (int, float)):
-                errors.append(f"Invalid line: {line}")
-            if choice not in {"over", "under"}:
-                errors.append(f"Invalid choice: {choice}")
-            if not isinstance(odds, str):
-                errors.append(f"Invalid odds: {odds}")
-            feature_set = None
-            ensemble_pred = None
-            try:
-                # 1. Advanced feature engineering
-                feature_set = (
-                    await advanced_feature_engineer.engineer_maximum_accuracy_features(
-                        raw_data=prop,
-                        target_variable=None,
-                        strategies=None,
-                        context={"user": user, "session": session},
-                    )
-                )
-            except Exception as e:
-                logger.error(
-                    f"[ENRICHMENT] Feature engineering failed for prop {prop}: {e}"
-                )
-                errors.append(f"Feature engineering error: {e}")
-            try:
-                # 2. Ensemble ML prediction
-                if feature_set is not None:
-                    ensemble_pred = await get_enhanced_prediction(
-                        player_name=player,
-                        prop_type=stat_type,
-                        sport=prop.get("sport", "unknown"),
-                        line_score=line,
-                        features=feature_set.features,
-                    )
-            except Exception as e:
-                logger.error(
-                    f"[ENRICHMENT] Ensemble prediction failed for prop {prop}: {e}"
-                )
-                errors.append(f"Ensemble prediction error: {e}")
-            enriched = {
-                **prop,
-                "feature_set": getattr(feature_set, "features", None),
-                "feature_metrics": (
-                    {
-                        k: v.__dict__
-                        for k, v in getattr(feature_set, "feature_metrics", {}).items()
-                    }
-                    if feature_set
-                    else {}
-                ),
-                "ensemble_prediction": getattr(ensemble_pred, "__dict__", {}),
-                "validated": len(errors) == 0,
-                "enriched": True,
-                "enrichment_errors": errors,
-            }
-            return enriched
-
-        # Enrich all props concurrently
-        enriched_props = await asyncio.gather(
-            *[
-                enrich_prop_with_all_features(prop, user, session)
-                for prop in request.selectedProps
-            ]
-        )
-
-        logger.info(
-            "User %s, session %s, entry %s, props validated and fully enriched.",
-            user,
-            session,
-            entry_amt,
-        )
-        return enriched_props, entry_amt, user, session
-    except ValueError as e:
-        enriched_props = await asyncio.gather(
-            *[
-                enrich_prop_with_all_features(prop, user, session)
-                for prop in request.selectedProps
-            ]
-        )
-        logger.info(
-            "[DEBUG] pre_llm_business_logic enriched %d props: %s",
-            len(enriched_props),
-            [p.get("player") for p in enriched_props],
-        )
-    raise RuntimeError(
-        "pre_llm_business_logic: reached unexpected end of function without return or exception."
-    )
 
 
 def build_ensemble_prompt(props, entry_amt, user, session):
@@ -458,90 +343,74 @@ async def post_llm_business_logic(llm_response, props, entry_amt, user, session)
         # Add metadata and enriched fields
         parsed["user"] = user
         parsed["session"] = session
-        parsed["entry_amt"] = entry_amt
-        # For each prop, include ensemble_prediction and feature_set summaries
-        enriched_props = []
-        for prop in props:
-            summary = {
-                "player": prop.get("player"),
-                "statType": prop.get("statType"),
-                "line": prop.get("line"),
-                "choice": prop.get("choice"),
-                "odds": prop.get("odds"),
-            }
-            if "ensemble_prediction" in prop:
-                ep = prop["ensemble_prediction"]
-                summary["ensemble_prediction"] = {
-                    "predicted_value": ep.get("predicted_value"),
-                    "confidence": ep.get("confidence"),
-                    "recommendation": ep.get("recommendation"),
-                    "risk_score": ep.get("risk_score"),
-                    "win_probability": ep.get("win_probability"),
-                    "over_probability": ep.get("over_probability"),
-                    "under_probability": ep.get("under_probability"),
-                }
-            if "feature_set" in prop:
-                fs = prop["feature_set"]
-                summary["key_features"] = {
-                    k: v for k, v in list(fs.items())[:5] if isinstance(v, (int, float))
-                }
-            enriched_props.append(summary)
-        parsed["enriched_props"] = enriched_props
-        logger.info(f"Post-LLM parsed result: {parsed}")
-        # Return as JSON string for now (could be dict if frontend expects it)
-        import json
 
-        return json.dumps(parsed, indent=2)
+        # Validate entry amount
+        if (
+            not isinstance(entry_amt, (int, float))
+            or entry_amt < 1.0
+            or entry_amt > 1000.0
+        ):
+            logger.error("Invalid entryAmount: %s", entry_amt)
+            raise ValueError(
+                f"Entry amount {entry_amt} outside allowed range [1, 1000]"
+            )
+
+        # Validate user and session
+        if not user or not isinstance(user, str):
+            logger.error("Invalid userId: %s", user)
+            raise ValueError("Invalid or missing userId")
+        if not session or not isinstance(session, str):
+            logger.error("Invalid sessionId: %s", session)
+            raise ValueError("Invalid or missing sessionId")
+
+        # Check for forbidden prop combinations
+        for idx, prop in enumerate(props):
+            combo = (prop.get("player"), prop.get("statType"), prop.get("choice"))
+            if combo in forbidden_combos:
+                logger.error("Forbidden prop combo at index %d: %s", idx + 1, combo)
+                raise ValueError(f"Forbidden prop combination: {combo}")
+
+        # Check for duplicate props (by player, statType, line, choice)
+        seen = set()
+        for idx, prop in enumerate(props):
+            key = (
+                prop.get("player"),
+                prop.get("statType"),
+                prop.get("line"),
+                prop.get("choice"),
+            )
+            if key in seen:
+                logger.error("Duplicate prop detected at index %d: %s", idx + 1, key)
+                raise ValueError(f"Duplicate prop detected: {key}")
+            seen.add(key)
+
+        # Debug log after validation, before enrichment
+        logger.info(
+            "[DEBUG] pre_llm_business_logic received %d props: %s",
+            len(props),
+            props,
+        )
+
+        # Enrich all props concurrently using modular service
+        enriched_props = await asyncio.gather(
+            *[
+                enrich_prop_with_all_features(prop, user, session, allowed_stat_types)
+                for prop in props
+            ]
+        )
+
+        logger.info(
+            "User %s, session %s, entry %s, props validated and fully enriched.",
+            user,
+            session,
+            entry_amt,
+        )
+        return enriched_props, entry_amt, user, session
     except Exception as e:
-        logger.error(f"post_llm_business_logic error: {e}")
+        logger.error("Exception in post_llm_business_logic: %s", str(e), exc_info=True)
         raise
 
 
-# --- Readiness Check Endpoint ---
-@router.get(
-    "/readiness",
-    response_model=dict,
-    summary="Readiness check for PropOllama API",
-    description="Checks readiness of LLM engine and subprocess availability. Returns 200 if all dependencies are ready, 503 otherwise.",
-    tags=["Health"],
-)
-async def propollama_readiness() -> Dict[str, str]:
-    """
-    Readiness check for PropOllama API and dependencies.
-    - Checks LLM engine initialization and subprocess availability.
-    - Returns status and message if ready, 503 if not.
-    """
-    import shutil
-
-    try:
-        # Check LLM engine
-        llm_ready = await llm_engine.ensure_initialized()
-        # Check if 'ollama' subprocess is available
-        ollama_path = shutil.which("ollama")
-        if not llm_ready:
-            return {"status": "not_ready", "message": "LLM engine not initialized."}
-        if not ollama_path:
-            return {
-                "status": "not_ready",
-                "message": "'ollama' subprocess not found in PATH.",
-            }
-        return {"status": "ready", "message": "All dependencies are ready."}
-    except Exception as e:
-        import traceback
-
-        return {
-            "status": "not_ready",
-            "message": str(e),
-            "trace": traceback.format_exc(),
-        }
-
-
-import asyncio
-import json
-import logging
-import os
-import re
-import time
 from typing import Any, Dict, List, Optional
 
 from fastapi import Body, Depends, HTTPException, Request, status
