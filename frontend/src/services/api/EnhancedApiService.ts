@@ -159,8 +159,7 @@ class EnhancedApiService {
 
   constructor() {
     // Get API base URL from environment or use default;
-    // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-    this.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    this.baseURL = process.env.VITE_API_URL || 'http://localhost:8000';
 
     // Create axios instance with enhanced configuration;
     this.api = axios.create({
@@ -357,7 +356,7 @@ class EnhancedApiService {
     try {
       // Replace with actual WebSocket URL if backend supports it
       // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-      const _wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws/updates';
+      const _wsUrl = process.env.VITE_WS_URL || 'ws://localhost:8000/ws/updates';
       const _ws = new WebSocket(wsUrl);
       ws.onmessage = event => {
         try {

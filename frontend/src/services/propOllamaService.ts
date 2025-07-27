@@ -18,6 +18,7 @@ export interface PropOllamaRequest {
 
 export interface PropOllamaResponse {
   content: string;
+  response?: string; // Add response field for backend compatibility
   confidence: number;
   suggestions: string[];
   model_used: string;
@@ -68,7 +69,7 @@ class PropOllamaService {
       const baseUrl = await this.getBackendUrl();
       console.log(`🤖 Sending message to PropOllama at ${baseUrl}`);
 
-      const response: AxiosResponse<PropOllamaResponse> = await axios.post(
+      const response: AxiosResponse<any> = await axios.post(
         `${baseUrl}/api/propollama/chat`,
         request,
         {
@@ -80,13 +81,19 @@ class PropOllamaService {
       );
 
       this.addToHistory('user', request.message);
-      this.addToHistory('assistant', response.data.content, {
+      // Use response.data.response as the analyst reply (backend contract)
+      this.addToHistory('assistant', response.data.response, {
+        // Optionally map other fields if present
         confidence: response.data.confidence,
         shap_explanation: response.data.shap_explanation,
         suggestions: response.data.suggestions,
       });
 
-      return response.data;
+      // For compatibility, return an object with content as the analyst reply
+      return {
+        ...response.data,
+        content: response.data.response,
+      };
     } catch (error: any) {
       console.error('PropOllama chat error:', error);
       let errorMessage = 'Failed to get PropOllama response.';
@@ -152,7 +159,9 @@ class PropOllamaService {
   async getModelHealth(modelName: string): Promise<ModelHealthStatus> {
     try {
       const baseUrl = await this.getBackendUrl();
-      const response = await axios.get(`${baseUrl}/api/propollama/model_health`, { params: { model_name: modelName } });
+      const response = await axios.get(`${baseUrl}/api/propollama/model_health`, {
+        params: { model_name: modelName },
+      });
       return response.data.model_health;
     } catch (error) {
       console.error(`Error fetching health for model ${modelName}:`, error);

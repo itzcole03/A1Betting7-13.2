@@ -155,22 +155,22 @@ class EnhancedConfig(BaseSettings):
     llm_timeout: int = 60
     llm_batch_size: int = 5
     llm_models_cache_ttl: int = 300
-    llm_default_model: str = "llama3:latest"
+    llm_default_model: str = "llama3:8b"
     available_models: List[str] = Field(default_factory=list)
     embedding_models: List[str] = Field(default_factory=list)
     generation_models: List[str] = Field(default_factory=list)
     model_preferences: Dict[str, List[str]] = Field(
         default_factory=lambda: {
             "generation": [
-                "llama3:latest",
+                "llama3:8b",
                 "closex/neuraldaredevil-8b-abliterated:latest",
             ],
             "embedding": ["nomic-embed-text:v1.5"],
             "sports_analysis": [
-                "llama3:latest",
+                "llama3:8b",
                 "closex/neuraldaredevil-8b-abliterated:latest",
             ],
-            "conversation": ["llama3:latest"],
+            "conversation": ["llama3:8b"],
         }
     )
     odds_api_key: Optional[str] = None
@@ -256,7 +256,7 @@ class EnhancedConfigManager:
         # Fallback to first available model or default
         if available:
             return available[0]
-        return self.config.llm_default_model or "llama3:latest"
+        return self.config.llm_default_model or "llama3:8b"
 
 
 config_manager = EnhancedConfigManager()
@@ -278,6 +278,53 @@ class BaseLLMClient:
 
 
 class OllamaClient(BaseLLMClient):
+    async def ensure_model_pulled(self, model_name: str) -> bool:
+        """Ensure the model is pulled (downloaded) locally. Pulls in background if missing."""
+        # Check if model is present
+        try:
+            tags_resp = await self.client.get(f"{self.base}/api/tags")
+            tags_resp.raise_for_status()
+            tags = tags_resp.json().get("models", [])
+            if any(m.get("name") == model_name for m in tags):
+                logger.info(f"Model {model_name} already present locally.")
+                return True
+        except Exception as e:
+            logger.warning(f"Failed to check tags for model {model_name}: {e}")
+        # Pull model
+        try:
+            logger.info(f"Pulling model {model_name} from Ollama registry...")
+            pull_resp = await self.client.post(
+                f"{self.base}/api/pull", json={"model": model_name}
+            )
+            pull_resp.raise_for_status()
+            logger.info(f"Pull response for {model_name}: {pull_resp.text}")
+            # Optionally, check for 'success' in response
+            return True
+        except Exception as e:
+            logger.error(f"Failed to pull model {model_name}: {e}")
+            return False
+
+    async def ensure_model_loaded(self, model_name: str) -> bool:
+        """Ensure the model is loaded into memory (serving). Loads in background if not."""
+        try:
+            # Try a no-op generate to load the model
+            resp = await self.client.post(
+                f"{self.base}/api/generate",
+                json={
+                    "model": model_name,
+                    "prompt": "",
+                    "stream": False,
+                    "options": {"num_predict": 1, "temperature": 0.0},
+                },
+                timeout=10,
+            )
+            resp.raise_for_status()
+            logger.info(f"Model {model_name} loaded into memory (generate ping).")
+            return True
+        except Exception as e:
+            logger.warning(f"Failed to load model {model_name} into memory: {e}")
+            return False
+
     def __init__(self, url: str, timeout: int):
         self.base = url.rstrip("/")
         self.client = httpx.AsyncClient(timeout=timeout)
@@ -329,107 +376,48 @@ class OllamaClient(BaseLLMClient):
                 await asyncio.sleep(5)  # Short delay on error
 
     async def check_model_health(self, model_name: str) -> ModelHealth:
-        """Check health of a specific model, always refresh model list, log request/response, and set status to 'ready' on any 200 response"""
+        """Check health of a specific model asynchronously, non-blocking. Uses only /api/generate ping. Never calls analyze_prop_bet."""
+        import time
+
+        logger.info(
+            f"[HEALTH] check_model_health called for {model_name}. Using only /api/generate ping. Never calling analyze_prop_bet."
+        )
         start_time = time.time()
         # Always refresh model list before health check
         await self.list_models()
-        try:
-            import json as pyjson
-            import subprocess
-
-            payload = pyjson.dumps(
-                {
-                    "model": model_name,
-                    "prompt": "test",
-                    "stream": False,
-                    "options": {
-                        "num_predict": 1,
-                        "temperature": 0.0,
-                    },
-                }
+        # Ensure model is pulled
+        pulled = await self.ensure_model_pulled(model_name)
+        # Ensure model is loaded (uses /api/generate ping)
+        loaded = await self.ensure_model_loaded(model_name) if pulled else False
+        response_time = time.time() - start_time
+        if pulled and loaded:
+            health = ModelHealth(
+                name=model_name,
+                status="ready",
+                last_check=time.time(),
+                response_time=response_time,
+                error_count=0,
+                success_count=self.model_health.get(
+                    model_name,
+                    ModelHealth(
+                        name=model_name,
+                        status="unknown",
+                        last_check=0,
+                        response_time=0,
+                        error_count=0,
+                        success_count=0,
+                        last_error=None,
+                    ),
+                ).success_count
+                + 1,
+                last_error=None,
             )
-            curl_cmd = [
-                "curl",
-                "-H",
-                "Content-Type: application/json",
-                "-H",
-                "Accept: application/json",
-                "-d",
-                payload,
-                "--max-time",
-                "5",
-            ]
-            logger.info(f"[HealthCheck] Running curl command: {' '.join(curl_cmd)}")
-            start = time.time()
-            result = subprocess.run(curl_cmd, capture_output=True, text=True)
-            response_time = time.time() - start
-            output = result.stdout
-            http_code = output[-3:]
-            logger.info(f"[HealthCheck] curl output: {output}")
-            if http_code == "200":
-                health = ModelHealth(
-                    name=model_name,
-                    status="ready",
-                    last_check=time.time(),
-                    response_time=response_time,
-                    error_count=0,
-                    success_count=self.model_health.get(
-                        model_name,
-                        ModelHealth(
-                            name=model_name,
-                            status="unknown",
-                            last_check=0,
-                            response_time=0,
-                            error_count=0,
-                            success_count=0,
-                            last_error=None,
-                        ),
-                    ).success_count
-                    + 1,
-                    last_error=None,
-                )
-            else:
-                health = ModelHealth(
-                    name=model_name,
-                    status="error",
-                    last_check=time.time(),
-                    response_time=response_time,
-                    error_count=self.model_health.get(
-                        model_name,
-                        ModelHealth(
-                            name=model_name,
-                            status="unknown",
-                            last_check=0,
-                            response_time=0,
-                            error_count=0,
-                            success_count=0,
-                            last_error=None,
-                        ),
-                    ).error_count
-                    + 1,
-                    success_count=self.model_health.get(
-                        model_name,
-                        ModelHealth(
-                            name=model_name,
-                            status="unknown",
-                            last_check=0,
-                            response_time=0,
-                            error_count=0,
-                            success_count=0,
-                            last_error=None,
-                        ),
-                    ).success_count,
-                    last_error=f"curl http_code={http_code} output={output}",
-                )
-        except Exception as e:
-            import traceback
-
-            tb = traceback.format_exc()
+        else:
             health = ModelHealth(
                 name=model_name,
                 status="error",
                 last_check=time.time(),
-                response_time=time.time() - start_time,
+                response_time=response_time,
                 error_count=self.model_health.get(
                     model_name,
                     ModelHealth(
@@ -455,12 +443,8 @@ class OllamaClient(BaseLLMClient):
                         last_error=None,
                     ),
                 ).success_count,
-                last_error=f"{e}\n{tb}",
+                last_error="Model not pulled or not loaded",
             )
-            logger.warning(
-                f"[HealthCheck] Model {model_name} health check failed: {e}\n{tb}"
-            )
-
         self.model_health[model_name] = health
         MODEL_STATE["model_health"][model_name] = {
             "status": health.status,
@@ -652,17 +636,21 @@ class OllamaClient(BaseLLMClient):
         line: float,
         odds: str,
         context_data: Optional[Dict[str, Any]] = None,
+        timeout: int = 15,
     ) -> str:
-        """Analyze a prop bet with enhanced logging and diagnostics"""
+        """Analyze a prop bet with enhanced logging, diagnostics, and strict timeout"""
+        import asyncio
+
         MODEL_STATE["propollama_requests"] = (
             MODEL_STATE.get("propollama_requests", 0) + 1
         )
         start_time = time.time()
-
+        logger.info(
+            f"[OllamaClient.analyze_prop_bet] Starting analysis for {player_name} {stat_type} (timeout={timeout}s)"
+        )
         try:
             context = context_data or {}
             model = self.select_model("sports_analysis")
-
             prompt = f"""
             As PropOllama, an expert sports betting AI assistant, analyze this prop bet:
             
@@ -681,9 +669,9 @@ class OllamaClient(BaseLLMClient):
             
             Keep response focused and actionable.
             """
-
-            response = await self.generate(prompt, max_tokens=200, temperature=0.3)
-
+            response = await asyncio.wait_for(
+                self.generate(prompt, max_tokens=200, temperature=0.3), timeout=timeout
+            )
             request_time = time.time() - start_time
             MODEL_STATE["propollama_successes"] = (
                 MODEL_STATE.get("propollama_successes", 0) + 1
@@ -699,9 +687,14 @@ class OllamaClient(BaseLLMClient):
                     },
                 }
             )
-
+            logger.info(
+                f"[OllamaClient.analyze_prop_bet] Analysis complete for {player_name} {stat_type} in {request_time:.2f}s"
+            )
             return response
-
+        except asyncio.TimeoutError:
+            error_msg = f"[OllamaClient.analyze_prop_bet] Timeout after {timeout}s for {player_name} {stat_type}"
+            logger.error(error_msg)
+            return f"Error: LLM analysis timed out after {timeout} seconds."
         except Exception as e:
             error_msg = f"PropOllama analysis failed: {e}"
             log_model_state(
@@ -718,11 +711,11 @@ class OllamaClient(BaseLLMClient):
             return f"Error analyzing prop bet: {str(e)}"
 
     def select_model(self, task: str) -> str:
-        """ALWAYS return 'llama3:latest' for any task, with explicit logging."""
+        """ALWAYS return 'llama3:8b' for any task, with explicit logging."""
         logger.info(
-            f"[OllamaClient.select_model] Forcing model to: llama3:latest for task: {task}"
+            f"[OllamaClient.select_model] Forcing model to: llama3:8b for task: {task}"
         )
-        return "llama3:latest"
+        return "llama3:8b"
 
 
 class LMStudioClient(BaseLLMClient):
@@ -769,6 +762,18 @@ class LMStudioClient(BaseLLMClient):
 
 
 class LLMEngine:
+    async def generate_text(
+        self, prompt: str, max_tokens: int = 100, temperature: float = 0.7
+    ) -> str:
+        """Generate text using the configured LLM client."""
+        await self.ensure_client()
+        if not self.client:
+            raise RuntimeError("LLM client is not initialized")
+        # Use the client's generate method
+        return await self.client.generate(
+            prompt, max_tokens=max_tokens, temperature=temperature
+        )
+
     """Unified engine to select and call the best local LLM."""
 
     _instance = None
@@ -966,10 +971,15 @@ class LLMEngine:
         line: float,
         odds: str,
         context_data: Optional[Dict[str, Any]] = None,
+        timeout: int = 15,
     ) -> str:
-        """Analyze a prop bet and provide intelligent insights."""
-        context = context_data or {}
+        """Analyze a prop bet and provide intelligent insights, with strict timeout and logging."""
+        import asyncio
 
+        context = context_data or {}
+        logger.info(
+            f"[LLMEngine.analyze_prop_bet] Starting analysis for {player_name} {stat_type} (timeout={timeout}s)"
+        )
         prompt = f"""
         As PropOllama, an expert sports betting AI assistant, analyze this prop bet:
 
@@ -988,8 +998,23 @@ class LLMEngine:
 
         Keep response focused and actionable.
         """
-
-        return await self.generate_text(prompt, max_tokens=200, temperature=0.3)
+        try:
+            response = await asyncio.wait_for(
+                self.generate_text(prompt, max_tokens=200, temperature=0.3),
+                timeout=timeout,
+            )
+            logger.info(
+                f"[LLMEngine.analyze_prop_bet] Analysis complete for {player_name} {stat_type}"
+            )
+            return response
+        except asyncio.TimeoutError:
+            error_msg = f"[LLMEngine.analyze_prop_bet] Timeout after {timeout}s for {player_name} {stat_type}"
+            logger.error(error_msg)
+            return f"Error: LLM analysis timed out after {timeout} seconds."
+        except Exception as e:
+            error_msg = f"[LLMEngine.analyze_prop_bet] Exception: {e}"
+            logger.error(error_msg)
+            return f"Error analyzing prop bet: {str(e)}"
 
     async def explain_prediction_confidence(
         self,

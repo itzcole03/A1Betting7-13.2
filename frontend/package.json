@@ -23,8 +23,6 @@
     "jest-fixed-jsdom": "^0.0.9",
     "jest-junit": "^16.0.0",
     "jest-localstorage-mock": "^2.4.26",
-    "msw": "^2.10.4",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "msw": "^2.10.4"
   }
 }

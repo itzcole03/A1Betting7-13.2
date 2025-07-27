@@ -1,9 +1,10 @@
 // Unified Jest Configuration - consolidates all test setups
 module.exports = {
+  rootDir: '../',
   testEnvironment: 'jest-fixed-jsdom',
 
   // Unified setup files
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 
   // File extensions
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'],
@@ -42,23 +43,15 @@ module.exports = {
 
   // Module name mapping
   moduleNameMapper: {
-    // Path aliases
-    // Removed deprecated '@/' alias mapping. Use '^src/(.*)$' only.
-    '^src/(.*)$': '<rootDir>/src/$1',
-
-    // Style mocks
-    '.(css|less|scss|sass)$': 'identity-obj-proxy',
-    '.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
+    '^@/(.*)$': '<rootDir>/frontend/src/$1',
+    '^src/(.*)$': '<rootDir>/frontend/src/$1',
+    '^react$': '<rootDir>/node_modules/react',
+    '^react-dom$': '<rootDir>/node_modules/react-dom',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
       'jest-transform-stub',
-
-    // Service mocks (only for files that exist as mocks)
-    '^src/services/__mocks__/(.*)$': '<rootDir>/src/services/__mocks__/$1',
-
-    // Hook mocks
-    '^src/hooks/(.*)$': '<rootDir>/src/hooks/__mocks__/$1',
-
-    // Context mocks (DISABLED: resolve actual context files)
-    // '^(.*/)?contexts/(.*)$': '<rootDir>/src/contexts/__mocks__/$2',
+    '^src/services/__mocks__/(.*)$': '<rootDir>/frontend/src/services/__mocks__/$1',
+    '^src/hooks/(.*)$': '<rootDir>/frontend/src/hooks/__mocks__/$1',
   },
 
   // Coverage configuration
@@ -119,7 +112,7 @@ module.exports = {
   },
 
   // Preset
-  preset: 'ts-jest/presets/js-with-ts',
+  preset: 'ts-jest',
 
   // Transform ignore patterns
   transformIgnorePatterns: [

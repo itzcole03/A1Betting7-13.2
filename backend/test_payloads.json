@@ -1,0 +1,129 @@
+[
+  {
+    "description": "Valid single prop",
+    "payload": {
+      "userId": "user123",
+      "sessionId": "sessA",
+      "selectedProps": [
+        {
+          "player": "LeBron James",
+          "statType": "points",
+          "line": 28.5,
+          "choice": "over",
+          "odds": "+120"
+        }
+      ],
+      "entryAmount": 10.0
+    }
+  },
+  {
+    "description": "Duplicate prop (should fail)",
+    "payload": {
+      "userId": "user123",
+      "sessionId": "sessA",
+      "selectedProps": [
+        {
+          "player": "LeBron James",
+          "statType": "points",
+          "line": 28.5,
+          "choice": "over",
+          "odds": "+120"
+        },
+        {
+          "player": "LeBron James",
+          "statType": "points",
+          "line": 28.5,
+          "choice": "over",
+          "odds": "+120"
+        }
+      ],
+      "entryAmount": 10.0
+    }
+  },
+  {
+    "description": "Invalid stat type (should fail)",
+    "payload": {
+      "userId": "user123",
+      "sessionId": "sessA",
+      "selectedProps": [
+        {
+          "player": "LeBron James",
+          "statType": "invalid_stat",
+          "line": 28.5,
+          "choice": "over",
+          "odds": "+120"
+        }
+      ],
+      "entryAmount": 10.0
+    }
+  },
+  {
+    "description": "Entry amount too low (should fail)",
+    "payload": {
+      "userId": "user123",
+      "sessionId": "sessA",
+      "selectedProps": [
+        {
+          "player": "LeBron James",
+          "statType": "points",
+          "line": 28.5,
+          "choice": "over",
+          "odds": "+120"
+        }
+      ],
+      "entryAmount": 0.5
+    }
+  },
+  {
+    "description": "Forbidden combo (should fail)",
+    "payload": {
+      "userId": "user123",
+      "sessionId": "sessA",
+      "selectedProps": [
+        {
+          "player": "LeBron James",
+          "statType": "points",
+          "line": 28.5,
+          "choice": "under",
+          "odds": "+120"
+        }
+      ],
+      "entryAmount": 10.0
+    }
+  },
+  {
+    "description": "Missing player (should fail)",
+    "payload": {
+      "userId": "user123",
+      "sessionId": "sessA",
+      "selectedProps": [
+        { "statType": "points", "line": 28.5, "choice": "over", "odds": "+120" }
+      ],
+      "entryAmount": 10.0
+    }
+  },
+  {
+    "description": "Valid multi-prop",
+    "payload": {
+      "userId": "user123",
+      "sessionId": "sessA",
+      "selectedProps": [
+        {
+          "player": "LeBron James",
+          "statType": "points",
+          "line": 28.5,
+          "choice": "over",
+          "odds": "+120"
+        },
+        {
+          "player": "Anthony Davis",
+          "statType": "rebounds",
+          "line": 12.5,
+          "choice": "over",
+          "odds": "+110"
+        }
+      ],
+      "entryAmount": 50.0
+    }
+  }
+]

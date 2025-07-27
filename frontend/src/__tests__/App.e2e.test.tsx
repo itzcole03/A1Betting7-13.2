@@ -20,7 +20,7 @@ jest.doMock('../contexts/AuthContext', () => ({
   },
   _AuthProvider: ({ children }) => children,
 }));
-jest.mock('./contexts/AuthContext');
+jest.mock('../contexts/AuthContext');
 
 import '../../../jest.setup.e2e.js';
 

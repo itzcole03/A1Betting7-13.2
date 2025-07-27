@@ -1,0 +1,20 @@
+# Business rules for PropOllama
+forbidden_combos:
+  - ["LeBron James", "points", "under"]
+allowed_stat_types:
+  - points
+  - rebounds
+  - assists
+  - threes
+  - blocks
+  - steals
+  - runs
+  - hits
+  - strikeouts
+  - bases
+  - rbis
+  - goals
+  - saves
+  - shots
+  - passes
+  - tackles

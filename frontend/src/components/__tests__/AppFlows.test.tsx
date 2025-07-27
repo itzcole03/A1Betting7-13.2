@@ -2,6 +2,7 @@
 // Legacy AppFlows test removed as part of canonicalization.
 import '@testing-library/jest-dom';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { _AuthProvider } from '../../contexts/AuthContext';
@@ -34,11 +35,13 @@ jest.mock('../../contexts/AuthContext', () => {
 describe('A1Betting App Flows', () => {
   test('Registration form validation and submission', async () => {
     render(
-      <MemoryRouter>
-        <_AuthProvider>
-          <Register />
-        </_AuthProvider>
-      </MemoryRouter>
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter>
+          <_AuthProvider>
+            <Register />
+          </_AuthProvider>
+        </MemoryRouter>
+      </QueryClientProvider>
     );
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
     fireEvent.change(screen.getByLabelText(/email/i), {
@@ -56,11 +59,13 @@ describe('A1Betting App Flows', () => {
 
   test('Login form validation and submission', async () => {
     render(
-      <MemoryRouter>
-        <_AuthProvider>
-          <LoginForm />
-        </_AuthProvider>
-      </MemoryRouter>
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter>
+          <_AuthProvider>
+            <LoginForm />
+          </_AuthProvider>
+        </MemoryRouter>
+      </QueryClientProvider>
     );
     fireEvent.change(screen.getByLabelText(/email address/i), {
       target: { value: 'testuser@example.com' },
@@ -72,11 +77,13 @@ describe('A1Betting App Flows', () => {
 
   test('BetSlip validation and submission', async () => {
     render(
-      <MemoryRouter>
-        <_AuthProvider>
-          <BetSlip />
-        </_AuthProvider>
-      </MemoryRouter>
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter>
+          <_AuthProvider>
+            <BetSlip />
+          </_AuthProvider>
+        </MemoryRouter>
+      </QueryClientProvider>
     );
     fireEvent.change(screen.getByLabelText(/selection/i), { target: { value: 'TeamA' } });
     fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: '10' } });

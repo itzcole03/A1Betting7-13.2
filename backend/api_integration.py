@@ -628,8 +628,12 @@ async def start_analysis() -> AnalysisStartResponse:
 
 # Register routers (if not already)
 # In your main app, you should have:
+from chat_history_api import router as chat_history_router
+
+# ...existing code...
 # app.include_router(unified_router, prefix="/api/unified")
 # app.include_router(analysis_router, prefix="/api/analysis")
+app.include_router(chat_history_router)
 
 
 # --- Authentication Routes ---

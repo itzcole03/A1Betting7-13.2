@@ -1,9 +1,500 @@
-# --- Typing Imports ---
-from typing import Any, Dict, List, Optional
+import asyncio
+import logging
+import time
+import traceback
+from typing import Any, Dict, List, Tuple
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, Request
+
+from backend.advanced_feature_engineering import advanced_feature_engineer
+
+# Import advanced enrichment modules
+from backend.services.enhanced_ml_ensemble_service import get_enhanced_prediction
+from backend.services.unified_prediction_service import unified_prediction_service
 
 router = APIRouter()
+
+
+from typing import Optional
+
+import httpx
+
+
+async def fetch_player_status(
+    player: str, http_client: Optional[httpx.AsyncClient] = None
+) -> str:
+    """
+    Fetch the real-time status of a player from a production data source (e.g., sports API).
+    Uses an injected async HTTP client for testability and production use.
+    """
+    if http_client is None:
+        async with httpx.AsyncClient() as client:
+            return await fetch_player_status(player, http_client=client)
+    # Example: Replace the following with a real API call
+    # resp = await http_client.get(f"https://api.sportsdata.io/v3/nba/scores/json/Player/{player}")
+    # resp.raise_for_status()
+    # data = resp.json()
+    # return data.get("Status", "unknown")
+    # For now, raise to indicate not implemented
+    raise NotImplementedError(
+        "fetch_player_status must be implemented with a real data source."
+    )
+
+
+from typing import Optional
+
+
+async def fetch_real_odds(
+    player: str,
+    stat_type: str,
+    http_client: Optional[httpx.AsyncClient] = None,
+    api_key: Optional[str] = None,
+    sport: str = "basketball_nba",
+    region: str = "us",
+    market: str = "player_points",
+    odds_format: str = "american",
+) -> float:
+    """
+    Fetch the real odds for a player/stat from The Odds API (or similar sportsbook API).
+    Uses an injected async HTTP client for testability and production use.
+    Args:
+        player: Player name (must match API data)
+        stat_type: Stat type (e.g., 'points', 'rebounds')
+        http_client: Injected httpx.AsyncClient
+        api_key: API key for The Odds API (should be set via config/env)
+        sport: Sport key (default: 'basketball_nba')
+        region: Bookmaker region (default: 'us')
+        market: Odds market (default: 'player_points')
+        odds_format: Odds format (default: 'american')
+    Returns:
+        The best available odds for the player/stat, or raises if not found.
+    """
+    if api_key is None:
+        raise ValueError("API key for The Odds API must be provided via config or env.")
+    if http_client is None:
+        async with httpx.AsyncClient() as client:
+            return await fetch_real_odds(
+                player,
+                stat_type,
+                http_client=client,
+                api_key=api_key,
+                sport=sport,
+                region=region,
+                market=market,
+                odds_format=odds_format,
+            )
+    url = f"https://api.the-odds-api.com/v4/sports/{sport}/odds"
+    params = {
+        "apiKey": api_key,
+        "regions": region,
+        "markets": market,
+        "oddsFormat": odds_format,
+    }
+    resp = await http_client.get(url, params=params, timeout=10)
+    resp.raise_for_status()
+    data = resp.json()
+    # Find the odds for the player/stat_type in the response (structure may vary by market)
+    # This is a simplified example; production code should handle all edge cases and errors
+    for event in data:
+        for bookmaker in event.get("bookmakers", []):
+            for market_obj in bookmaker.get("markets", []):
+                if market_obj.get("key") == market:
+                    for outcome in market_obj.get("outcomes", []):
+                        # For player props, outcome["description"] is player name, outcome["name"] is 'Over'/'Under'
+                        if outcome.get("description", "").lower() == player.lower():
+                            return float(outcome.get("price"))
+    raise ValueError(
+        f"Odds not found for player {player} and stat {stat_type} in market {market}."
+    )
+
+
+from typing import Optional
+
+
+async def fetch_injury_status(
+    player: str,
+    http_client: Optional[httpx.AsyncClient] = None,
+    api_key: Optional[str] = None,
+    sport: str = "basketball_nba",
+) -> str:
+    """
+    Fetch the current injury status of a player from a production data source (e.g., sports API).
+    Uses an injected async HTTP client for testability and production use.
+    Args:
+        player: Player name (must match API data)
+        http_client: Injected httpx.AsyncClient
+        api_key: API key for the injury API (should be set via config/env)
+        sport: Sport key (default: 'basketball_nba')
+    Returns:
+        The injury status string for the player, or raises if not found.
+    """
+    # Placeholder: Replace with real API integration (e.g., SportsDataIO, Sportradar, etc.)
+    if http_client is None:
+        async with httpx.AsyncClient() as client:
+            return await fetch_injury_status(
+                player, http_client=client, api_key=api_key, sport=sport
+            )
+    # Example: resp = await http_client.get(f"https://api.sportsdata.io/v3/nba/injuries/json/PlayerInjuries/{player}?key={api_key}")
+    # resp.raise_for_status()
+    # data = resp.json()
+    # return data.get("InjuryStatus", "unknown")
+    raise NotImplementedError(
+        "fetch_injury_status must be implemented with a real data source."
+    )
+
+
+import traceback
+
+
+async def pre_llm_business_logic(
+    request,
+) -> Tuple[List[Dict[str, Any]], float, str, str]:
+    """
+    Validate and enrich the incoming bet analysis request.
+    Returns: (enriched_props, entry_amt, user, session)
+    Raises ValueError for validation errors.
+    """
+    logger = logging.getLogger("propollama_pre_llm_business_logic")
+    logger.info("[DEBUG] Entered pre_llm_business_logic with request: %s", request)
+
+    try:
+        # ...existing validation code above...
+        # Validate entry amount
+        entry_amt = getattr(request, "entryAmount", None)
+        if (
+            not isinstance(entry_amt, (int, float))
+            or entry_amt < 1.0
+            or entry_amt > 1000.0
+        ):
+            logger.error("Invalid entryAmount: %s", entry_amt)
+            raise ValueError(
+                f"Entry amount {entry_amt} outside allowed range [1, 1000]"
+            )
+
+        # Validate user and session
+        user = getattr(request, "userId", None)
+        session = getattr(request, "sessionId", None)
+        if not user or not isinstance(user, str):
+            logger.error("Invalid userId: %s", user)
+            raise ValueError("Invalid or missing userId")
+        if not session or not isinstance(session, str):
+            logger.error("Invalid sessionId: %s", session)
+            raise ValueError("Invalid or missing sessionId")
+
+        # Load business rules from config
+        import os
+
+        import yaml
+
+        config_path = os.path.join(
+            os.path.dirname(__file__), "..", "config", "business_rules.yaml"
+        )
+        with open(config_path, "r") as f:
+            rules = yaml.safe_load(f)
+        forbidden_combos = [tuple(x) for x in rules.get("forbidden_combos", [])]
+        allowed_stat_types = set(rules.get("allowed_stat_types", []))
+
+        # Check for forbidden prop combinations
+        for idx, prop in enumerate(request.selectedProps):
+            combo = (prop.get("player"), prop.get("statType"), prop.get("choice"))
+            if combo in forbidden_combos:
+                logger.error("Forbidden prop combo at index %d: %s", idx + 1, combo)
+                raise ValueError(f"Forbidden prop combination: {combo}")
+
+        # Check for duplicate props (by player, statType, line, choice)
+        seen = set()
+        for idx, prop in enumerate(request.selectedProps):
+            key = (
+                prop.get("player"),
+                prop.get("statType"),
+                prop.get("line"),
+                prop.get("choice"),
+            )
+            if key in seen:
+                logger.error("Duplicate prop detected at index %d: %s", idx + 1, key)
+                raise ValueError(f"Duplicate prop detected: {key}")
+            seen.add(key)
+
+        # Debug log after validation, before enrichment
+        logger.info(
+            "[DEBUG] pre_llm_business_logic received %d props: %s",
+            len(getattr(request, "selectedProps", [])),
+            getattr(request, "selectedProps", []),
+        )
+
+        # Unified async enrichment for all props
+        async def enrich_prop_with_all_features(prop, user, session):
+            """
+            Enrich a prop with all advanced features: feature engineering, ensemble prediction, unified prediction, etc.
+            Robust error handling: if any step fails, log and return partial data with error info.
+            """
+            # Validate required fields
+            player = prop.get("player")
+            stat_type = prop.get("statType")
+            line = prop.get("line")
+            choice = prop.get("choice")
+            odds = prop.get("odds")
+            errors = []
+            if not player or not isinstance(player, str):
+                errors.append(f"Invalid player: {player}")
+            if stat_type not in allowed_stat_types:
+                errors.append(f"Invalid statType: {stat_type}")
+            if not isinstance(line, (int, float)):
+                errors.append(f"Invalid line: {line}")
+            if choice not in {"over", "under"}:
+                errors.append(f"Invalid choice: {choice}")
+            if not isinstance(odds, str):
+                errors.append(f"Invalid odds: {odds}")
+            feature_set = None
+            ensemble_pred = None
+            try:
+                # 1. Advanced feature engineering
+                feature_set = (
+                    await advanced_feature_engineer.engineer_maximum_accuracy_features(
+                        raw_data=prop,
+                        target_variable=None,
+                        strategies=None,
+                        context={"user": user, "session": session},
+                    )
+                )
+            except Exception as e:
+                logger.error(
+                    f"[ENRICHMENT] Feature engineering failed for prop {prop}: {e}"
+                )
+                errors.append(f"Feature engineering error: {e}")
+            try:
+                # 2. Ensemble ML prediction
+                if feature_set is not None:
+                    ensemble_pred = await get_enhanced_prediction(
+                        player_name=player,
+                        prop_type=stat_type,
+                        sport=prop.get("sport", "unknown"),
+                        line_score=line,
+                        features=feature_set.features,
+                    )
+            except Exception as e:
+                logger.error(
+                    f"[ENRICHMENT] Ensemble prediction failed for prop {prop}: {e}"
+                )
+                errors.append(f"Ensemble prediction error: {e}")
+            enriched = {
+                **prop,
+                "feature_set": getattr(feature_set, "features", None),
+                "feature_metrics": (
+                    {
+                        k: v.__dict__
+                        for k, v in getattr(feature_set, "feature_metrics", {}).items()
+                    }
+                    if feature_set
+                    else {}
+                ),
+                "ensemble_prediction": getattr(ensemble_pred, "__dict__", {}),
+                "validated": len(errors) == 0,
+                "enriched": True,
+                "enrichment_errors": errors,
+            }
+            return enriched
+
+        # Enrich all props concurrently
+        enriched_props = await asyncio.gather(
+            *[
+                enrich_prop_with_all_features(prop, user, session)
+                for prop in request.selectedProps
+            ]
+        )
+
+        logger.info(
+            "User %s, session %s, entry %s, props validated and fully enriched.",
+            user,
+            session,
+            entry_amt,
+        )
+        return enriched_props, entry_amt, user, session
+    except ValueError as e:
+        enriched_props = await asyncio.gather(
+            *[
+                enrich_prop_with_all_features(prop, user, session)
+                for prop in request.selectedProps
+            ]
+        )
+        logger.info(
+            "[DEBUG] pre_llm_business_logic enriched %d props: %s",
+            len(enriched_props),
+            [p.get("player") for p in enriched_props],
+        )
+    raise RuntimeError(
+        "pre_llm_business_logic: reached unexpected end of function without return or exception."
+    )
+
+
+def build_ensemble_prompt(props, entry_amt, user, session):
+    """
+    Build the LLM prompt for ensemble analysis using a robust template and advanced prompt engineering.
+    - Use clear instructions, context, and formatting for LLM reliability
+    - Add explicit sections for risk, payout, correlation, and recommendation
+    """
+    import datetime
+    import logging
+    import os
+    from datetime import datetime
+
+    import yaml
+
+    logger = logging.getLogger("propollama")
+    try:
+        # Determine sport and bet_type from props (default to basketball_nba, default)
+        sport = props[0].get("sport", "basketball_nba") if props else "basketball_nba"
+        bet_type = "default"
+        version = "v1"
+        # Load prompt templates
+        config_path = os.path.join(
+            os.path.dirname(__file__), "..", "config", "prompt_templates.yaml"
+        )
+        with open(config_path, "r", encoding="utf-8") as f:
+            prompt_config = yaml.safe_load(f)
+        template = (
+            prompt_config.get("prompts", {})
+            .get(version, {})
+            .get(sport, {})
+            .get(bet_type)
+        )
+        if not template:
+            logger.warning(
+                f"Prompt template not found for sport={sport}, bet_type={bet_type}, version={version}. Using fallback."
+            )
+            template = "SYSTEM: PropOllama fallback prompt.\nUSER: {user}, Session: {session}, Entry: {entry_amt}, Date: {date}\nPROPS:\n{props_section}"
+        # Build props section with all enriched fields
+        props_section = ""
+        for idx, prop in enumerate(props, 1):
+            props_section += f"  {idx}. Player: {prop.get('player')}, Stat: {prop.get('statType')}, Line: {prop.get('line')}, Choice: {prop.get('choice')}, Odds: {prop.get('odds')}\n"
+            # Add advanced enrichment fields
+            if "ensemble_prediction" in prop:
+                ep = prop["ensemble_prediction"]
+                props_section += f"     Ensemble Prediction: {ep.get('predicted_value', 'N/A')}, Confidence: {ep.get('confidence', 'N/A')}, Recommendation: {ep.get('recommendation', 'N/A')}, Risk: {ep.get('risk_score', 'N/A')}\n"
+            if "feature_set" in prop:
+                fs = prop["feature_set"]
+                # Show a summary of key features
+                top_features = ", ".join(
+                    f"{k}: {v:.2f}"
+                    for k, v in list(fs.items())[:5]
+                    if isinstance(v, (int, float))
+                )
+                props_section += f"     Key Features: {top_features}\n"
+            if "feature_metrics" in prop:
+                # Optionally, add feature quality summary
+                pass
+        prompt = template.format(
+            user=user,
+            session=session,
+            entry_amt=entry_amt,
+            date=datetime.now().strftime("%Y-%m-%d %H:%M"),
+            props_section=props_section,
+        )
+        logger.info(
+            f"Prompt built for user {user}, session {session}, entry {entry_amt}, {len(props)} props, sport={sport}, bet_type={bet_type}, version={version}."
+        )
+        return prompt
+    except Exception as e:
+        logger.error(f"build_ensemble_prompt error: {e}")
+        raise
+
+
+async def post_llm_business_logic(llm_response, props, entry_amt, user, session):
+    """
+    Production post-LLM business logic: parse, validate, or enrich LLM output.
+    - Parse LLM output for required fields (risk, correlation, payout, recommendation, confidence, key factors)
+    - Score and validate output
+    - Check against business rules (e.g., confidence threshold, forbidden recommendations)
+    - Add metadata or warnings if needed
+    """
+    import logging
+    import re
+
+    logger = logging.getLogger("propollama")
+    try:
+        parsed = {
+            "risk_assessment": None,
+            "correlation_analysis": None,
+            "payout_potential": None,
+            "recommendation": None,
+            "confidence_score": None,
+            "key_factors": [],
+            "raw": llm_response,
+            "warnings": [],
+        }
+        # Parse sections using regex
+        patterns = {
+            "risk_assessment": r"Risk Assessment:\s*(.*)",
+            "correlation_analysis": r"Correlation Analysis:\s*(.*)",
+            "payout_potential": r"Payout Potential:\s*(.*)",
+            "recommendation": r"Recommendation:\s*(.*)",
+            "confidence_score": r"Confidence Score \(1-10\):\s*([0-9]+)",
+            "key_factors": r"Key Factors:\s*(.*)",
+        }
+        for key, pat in patterns.items():
+            match = re.search(pat, llm_response, re.IGNORECASE)
+            if match:
+                parsed[key] = match.group(1).strip()
+        # Key factors: split by bullet or comma
+        if parsed["key_factors"]:
+            factors = re.split(r"[-•]\s*|,", parsed["key_factors"])
+            parsed["key_factors"] = [f.strip() for f in factors if f.strip()]
+        # Confidence score: convert to int and check threshold
+        try:
+            conf = int(parsed["confidence_score"])
+            parsed["confidence_score"] = conf
+            if conf < 5:
+                parsed["warnings"].append("Low confidence score: review recommended.")
+        except Exception:
+            parsed["warnings"].append("Could not parse confidence score.")
+        # Business rule: forbidden recommendations
+        forbidden = {"avoid", "do not bet", "not recommended"}
+        if parsed["recommendation"] and any(
+            fb in parsed["recommendation"].lower() for fb in forbidden
+        ):
+            parsed["warnings"].append(
+                "Recommendation is negative: check for compliance."
+            )
+        # Add metadata and enriched fields
+        parsed["user"] = user
+        parsed["session"] = session
+        parsed["entry_amt"] = entry_amt
+        # For each prop, include ensemble_prediction and feature_set summaries
+        enriched_props = []
+        for prop in props:
+            summary = {
+                "player": prop.get("player"),
+                "statType": prop.get("statType"),
+                "line": prop.get("line"),
+                "choice": prop.get("choice"),
+                "odds": prop.get("odds"),
+            }
+            if "ensemble_prediction" in prop:
+                ep = prop["ensemble_prediction"]
+                summary["ensemble_prediction"] = {
+                    "predicted_value": ep.get("predicted_value"),
+                    "confidence": ep.get("confidence"),
+                    "recommendation": ep.get("recommendation"),
+                    "risk_score": ep.get("risk_score"),
+                    "win_probability": ep.get("win_probability"),
+                    "over_probability": ep.get("over_probability"),
+                    "under_probability": ep.get("under_probability"),
+                }
+            if "feature_set" in prop:
+                fs = prop["feature_set"]
+                summary["key_features"] = {
+                    k: v for k, v in list(fs.items())[:5] if isinstance(v, (int, float))
+                }
+            enriched_props.append(summary)
+        parsed["enriched_props"] = enriched_props
+        logger.info(f"Post-LLM parsed result: {parsed}")
+        # Return as JSON string for now (could be dict if frontend expects it)
+        import json
+
+        return json.dumps(parsed, indent=2)
+    except Exception as e:
+        logger.error(f"post_llm_business_logic error: {e}")
+        raise
 
 
 # --- Readiness Check Endpoint ---
@@ -218,16 +709,23 @@ async def propollama_pull_model(
 
 # --- Logger Configuration ---
 logger = logging.getLogger("propollama")
-if not logger.hasHandlers():
-    logger.setLevel(logging.INFO)
-    formatter = logging.Formatter("[%(asctime)s] %(levelname)s %(name)s: %(message)s")
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter("[%(asctime)s] %(levelname)s %(name)s: %(message)s")
+# Always add a StreamHandler for console output
+if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
-    # Optional: persistent file logging
-    log_dir = os.path.join(os.path.dirname(__file__), "..", "logs")
-    os.makedirs(log_dir, exist_ok=True)
-    file_handler = logging.FileHandler(os.path.join(log_dir, "propollama.log"))
+# Optional: persistent file logging
+log_dir = os.path.join(os.path.dirname(__file__), "..", "logs")
+os.makedirs(log_dir, exist_ok=True)
+file_handler_path = os.path.join(log_dir, "propollama.log")
+if not any(
+    isinstance(h, logging.FileHandler)
+    and getattr(h, "baseFilename", None) == file_handler_path
+    for h in logger.handlers
+):
+    file_handler = logging.FileHandler(file_handler_path)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
@@ -544,10 +1042,10 @@ async def propollama_chat(request: Request):
             )
         )
         # --- Step 9: Model selection and validation ---
-        # Always use 'llama3:latest' for chat requests, regardless of engine state or request payload
+        # Always use 'llama3:8b' for chat requests, regardless of engine state or request payload
         await llm_engine.refresh_models()
         valid_models = [m for m in llm_engine.models if "embed" not in m.lower()]
-        forced_model = "llama3:latest"
+        forced_model = "llama3:8b"
         if forced_model not in valid_models:
             logger.error(
                 json.dumps(
@@ -591,49 +1089,10 @@ async def propollama_chat(request: Request):
                 f"[propollama.py] Selected model for chat (forced): {selected_model}"
             )
             client = getattr(llm_engine, "client", None)
-            # Refresh model health before checking readiness
-            if client and hasattr(client, "check_model_health"):
-                await client.check_model_health(selected_model)
-            # Log model health and model list for debugging
-            # Convert ModelHealth objects to dicts for JSON serialization
-            model_health_raw = getattr(client, "model_health", {})
-            model_health_serializable = {
-                k: v.__dict__ if hasattr(v, "__dict__") else str(v)
-                for k, v in model_health_raw.items()
-            }
+            # [HEALTH] Only use /api/generate ping for model readiness; skip check_model_health
             logger.info(
-                json.dumps(
-                    {
-                        "event": "chat_model_health_debug",
-                        "selected_model": selected_model,
-                        "model_health": model_health_serializable,
-                        "models": getattr(llm_engine, "models", []),
-                    }
-                )
+                "[HEALTH] Skipping legacy check_model_health; using /api/generate ping only."
             )
-            model_health = getattr(client, "model_health", {}) if client else {}
-            if (
-                selected_model not in model_health
-                or getattr(model_health[selected_model], "status", None) != "ready"
-            ):
-                logger.error(
-                    json.dumps(
-                        {
-                            "event": "chat_model_not_ready",
-                            "model": selected_model,
-                            "model_health": model_health_serializable,
-                        }
-                    )
-                )
-                raise HTTPException(
-                    status_code=503,
-                    detail={
-                        "error": "Model not ready",
-                        "message": f"Model '{selected_model}' is not healthy or ready. Please select a different model or try again later.",
-                        "model_health": model_health_serializable,
-                        "models": getattr(llm_engine, "models", []),
-                    },
-                )
             # Await the async chat response method
             if client is not None:
                 try:
@@ -875,77 +1334,6 @@ response_cache: Dict[str, Dict[str, Any]] = {}
 cache_timestamps: Dict[str, float] = {}
 
 
-class BetAnalysisRequest(BaseModel):
-    """Request model for bet analysis"""
-
-    player_name: str = Field(..., min_length=2, max_length=100)
-    stat_type: str = Field(..., min_length=2, max_length=50)
-    line: float = Field(..., gt=0)
-    odds: str = Field(..., pattern=r"^[+-]?[0-9]+$")
-    context: Optional[Dict[str, Any]] = Field(default=None)
-
-    @field_validator("player_name")
-    @classmethod
-    def validate_player_name(cls, v: str) -> str:
-        """Validate player name"""
-        if not v.replace(" ", "").isalnum():
-            raise ValueError(
-                "Player name must contain only letters, numbers, and spaces"
-            )
-        return v.strip()
-
-    @field_validator("stat_type")
-    @classmethod
-    def validate_stat_type(cls, v: str) -> str:
-        """Validate stat type"""
-        valid_stats = {
-            "points",
-            "rebounds",
-            "assists",
-            "threes",
-            "blocks",
-            "steals",
-            "runs",
-            "hits",
-            "strikeouts",
-            "bases",
-            "rbis",
-            "goals",
-            "saves",
-            "shots",
-            "passes",
-            "tackles",
-        }
-        if v.lower() not in valid_stats:
-            raise ValueError(
-                f"Invalid stat type. Must be one of: {', '.join(valid_stats)}"
-            )
-        return v.lower()
-
-    @field_validator("odds")
-    @classmethod
-    def validate_odds(cls, v: str) -> str:
-        """Validate odds format"""
-        try:
-            odds = int(v)
-            if abs(odds) < 100:
-                raise ValueError("Odds must be at least ±100")
-            return v
-        except ValueError:
-            raise ValueError("Odds must be a valid integer (e.g., +150, -110)")
-
-
-class BetAnalysisResponse(BaseModel):
-    """Response model for bet analysis"""
-
-    analysis: str
-    confidence: float = Field(..., ge=0, le=1)
-    recommendation: str
-    key_factors: List[str]
-    processing_time: float
-    cached: bool = False
-
-
 async def check_rate_limit(request: Request) -> None:
     """
     Check rate limit for the request.
@@ -966,11 +1354,18 @@ async def check_rate_limit(request: Request) -> None:
         )
 
 
-def get_cache_key(request: BetAnalysisRequest) -> str:
+def get_cache_key(request) -> str:
     """
-    Generate a unique cache key for a bet analysis request.
+    Generate a unique cache key for a multi-prop bet analysis request.
     """
-    return f"{request.player_name}:{request.stat_type}:{request.line}:{request.odds}"
+    import hashlib
+
+    props_hash = (
+        hashlib.md5(str(request.selectedProps).encode()).hexdigest()
+        if hasattr(request, "selectedProps")
+        else "noprops"
+    )
+    return f"{getattr(request, 'userId', 'nouser')}:{getattr(request, 'sessionId', 'nosession')}:{getattr(request, 'entryAmount', 'noamt')}:{props_hash}"
 
 
 def is_cache_valid(cache_key: str) -> bool:
@@ -983,154 +1378,189 @@ def is_cache_valid(cache_key: str) -> bool:
     )
 
 
-@router.post("/best-bets-unified", response_model=BetAnalysisResponse)
-async def analyze_bet_unified(
+# --- Multi-prop BetAnalysisRequest for contest-style entries ---
+class BetAnalysisRequest(BaseModel):
+    """Request model for multi-prop bet analysis (contest style)"""
+
+    userId: str
+    sessionId: str
+    selectedProps: List[Dict[str, Any]]
+    entryAmount: float
+
+
+class BetAnalysisResponse(BaseModel):
+    """Response model for bet analysis (multi-prop)"""
+
+    analysis: str
+    confidence: float
+    recommendation: str
+    key_factors: List[str]
+    processing_time: float
+    cached: bool = False
+    enriched_props: List[Dict[str, Any]] = (
+        []
+    )  # Full enrichment/prediction data for each prop
+
+
+# --- Unified Bet Analysis Implementation ---
+async def _analyze_bet_unified_impl(
     request: BetAnalysisRequest,
     req: Request,
-    rate_limit: None = Depends(check_rate_limit),
+    rate_limit: None = None,
 ) -> BetAnalysisResponse:
-    """
-    Analyze a bet with enhanced validation, caching, and fallback.
-    - Checks cache before LLM call
-    - Handles circuit breaker and LLM errors with fallback
-    - Logs cache hits/misses, errors, and fallback reasons
-    """
+
+    logger = logging.getLogger("propollama.endpoint")
     start_time = time.time()
-    cache_key = get_cache_key(request)
+    logger.info(
+        "[DEBUG] Entered /final_analysis endpoint (BetAnalysisRequest) at %s",
+        start_time,
+    )
+
     try:
-        # Check cache first
+        logger.info("[TRACE] Step 1: Starting enrichment/validation...")
+        # Step 1: Validate and enrich props
+        try:
+            logger.info("[TRACE] Awaiting pre_llm_business_logic...")
+            enriched_props, entry_amt, user, session = await asyncio.wait_for(
+                pre_llm_business_logic(request), timeout=5.0
+            )
+            logger.info("[TRACE] Enrichment completed: %s", enriched_props)
+        except asyncio.TimeoutError:
+            logger.error("[Timeout] pre_llm_business_logic enrichment timed out.")
+            raise HTTPException(status_code=504, detail="Enrichment step timed out.")
+        except ValueError as e:
+            logger.error("[Validation Error] %s", e)
+            raise HTTPException(
+                status_code=422, detail={"error": "Validation Error", "message": str(e)}
+            )
+        except Exception as e:
+            logger.error("[Error] pre_llm_business_logic failed: %s", e)
+            raise HTTPException(status_code=500, detail=f"Enrichment error: {e}")
+
+        # Step 2: Build prompt
+        try:
+            logger.info("[TRACE] Building prompt...")
+            prompt = build_ensemble_prompt(enriched_props, entry_amt, user, session)
+            logger.info("[TRACE] Prompt built: %s", prompt)
+        except Exception as e:
+            logger.error(f"[Error] build_ensemble_prompt failed: {e}")
+            raise HTTPException(status_code=500, detail=f"Prompt build error: {e}")
+
+        # Step 3: Generate cache key
+        cache_key = get_cache_key(request)
         if is_cache_valid(cache_key):
-            logger.info(f"Cache hit for key: {cache_key}")
+            logger.info("[Cache] Hit for key: %s", cache_key)
             cached_response = response_cache[cache_key]
             cached_response["processing_time"] = time.time() - start_time
             cached_response["cached"] = True
+            logger.info("[TRACE] Returning cached response.")
             return BetAnalysisResponse(**cached_response)
         else:
-            logger.info(f"Cache miss for key: {cache_key}")
+            logger.info("[Cache] Miss for key: %s", cache_key)
 
-        # Ensure LLM engine is ready
-        if not await llm_engine.ensure_initialized():
-            logger.error("LLM engine not ready")
-            raise HTTPException(status_code=503, detail="LLM engine not ready")
-
-        # Try LLM analysis with circuit breaker
+        # Step 4: Use official ollama.AsyncClient for LLM call
+        logger.info("[TRACE] Using ollama.AsyncClient for LLM call...")
         try:
-            analysis = await llm_engine.analyze_prop_bet(
-                player_name=request.player_name,
-                stat_type=request.stat_type,
-                line=request.line,
-                odds=request.odds,
-                context_data=request.context,
-            )
-        except RuntimeError as cb_exc:
-            logger.error(f"Circuit breaker open: {cb_exc}")
-            # Circuit breaker open: fallback to cache or default
-            if is_cache_valid(cache_key):
-                cached_response = response_cache[cache_key]
-                cached_response["processing_time"] = time.time() - start_time
-                cached_response["cached"] = True
-                cached_response["fallback_reason"] = "circuit_breaker_open"
-                return BetAnalysisResponse(**cached_response)
-            else:
-                return BetAnalysisResponse(
-                    analysis="Service temporarily unavailable (circuit breaker open)",
-                    confidence=0.0,
-                    recommendation="No recommendation",
-                    key_factors=["No analysis available"],
-                    processing_time=time.time() - start_time,
-                    cached=False,
+            from ollama import AsyncClient
+
+            ollama_client = AsyncClient()
+            messages = [{"role": "user", "content": prompt}]
+            # Robust check: ensure ollama_client.chat is awaitable
+            chat_method = getattr(ollama_client, "chat", None)
+            if chat_method is None or not callable(chat_method):
+                logger.error(
+                    "[LLM] Ollama AsyncClient.chat is not callable or missing."
                 )
+                raise HTTPException(
+                    status_code=503, detail="Ollama AsyncClient.chat is not available."
+                )
+            llm_response = await chat_method(model="llama3", messages=messages)
+            if (
+                not llm_response
+                or "message" not in llm_response
+                or "content" not in llm_response["message"]
+            ):
+                logger.error(
+                    f"[LLM] Ollama LLM response missing content: {llm_response}"
+                )
+                raise HTTPException(
+                    status_code=503, detail="Ollama LLM response missing content."
+                )
+            llm_content = llm_response["message"]["content"]
         except Exception as e:
-            logger.error(f"LLM engine error: {e}")
-            # LLM call failed: fallback to cache or default
-            if is_cache_valid(cache_key):
-                cached_response = response_cache[cache_key]
-                cached_response["processing_time"] = time.time() - start_time
-                cached_response["cached"] = True
-                cached_response["fallback_reason"] = "llm_error"
-                return BetAnalysisResponse(**cached_response)
-            else:
-                return BetAnalysisResponse(
-                    analysis=f"Analysis failed: {str(e)}",
-                    confidence=0.0,
-                    recommendation="No recommendation",
-                    key_factors=["No analysis available"],
-                    processing_time=time.time() - start_time,
-                    cached=False,
-                )
+            logger.error(f"[Error] ollama.AsyncClient LLM call failed: {e}")
+            raise HTTPException(status_code=503, detail=f"Ollama LLM call failed: {e}")
 
-        # Extract confidence and key factors
-        confidence: float = 0.0
-        key_factors: List[str] = []
-        recommendation: str = ""
+        # Step 5: Post-LLM business logic
+        try:
+            analysis = await post_llm_business_logic(
+                llm_content, enriched_props, entry_amt, user, session
+            )
+        except Exception as e:
+            logger.error(f"[Error] post_llm_business_logic failed: {e}")
+            raise HTTPException(
+                status_code=500, detail=f"Post-LLM business logic error: {e}"
+            )
 
-        # Parse the analysis
-        lines = analysis.split("\n")
-        for line in lines:
-            line = line.strip()
-            if "Confidence level:" in line:
-                try:
-                    conf_level = int(line.split(":")[1].strip().split("/")[0])
-                    confidence = conf_level / 10.0
-                except (ValueError, IndexError):
-                    confidence = 0.5
-            elif line.startswith("- "):
-                key_factors.append(line[2:])
-            elif "Recommendation:" in line:
-                recommendation = line.split(":")[1].strip()
+        processing_time = time.time() - start_time
+        response = {
+            "analysis": analysis,
+            "confidence": None,  # Fill as needed from analysis
+            "recommendation": None,  # Fill as needed from analysis
+            "key_factors": [],  # Fill as needed from analysis
+            "processing_time": processing_time,
+            "cached": False,
+            "enriched_props": enriched_props,  # <-- Add full enrichment data for frontend
+        }
+        # Optionally parse confidence, recommendation, key_factors from analysis JSON
+        try:
+            import json
 
-        if not recommendation:
-            recommendation = "No clear recommendation available"
-
-        if not key_factors:
-            key_factors = ["Analysis available but no key factors extracted"]
-
-        # Prepare response
-        response = BetAnalysisResponse(
-            analysis=analysis,
-            confidence=confidence,
-            recommendation=recommendation,
-            key_factors=key_factors,
-            processing_time=time.time() - start_time,
-            cached=False,
+            parsed = json.loads(analysis)
+            response["confidence"] = parsed.get("confidence_score")
+            response["recommendation"] = parsed.get("recommendation")
+            response["key_factors"] = parsed.get("key_factors", [])
+        except Exception as e:
+            logger.warning(f"[Warning] Could not parse analysis JSON: {e}")
+        return BetAnalysisResponse(**response)
+    except ValueError as e:
+        logger.error(f"[Validation Error] {e}")
+        raise HTTPException(
+            status_code=422, detail={"error": "Validation Error", "message": str(e)}
         )
-
-        # Cache the response
-        response_cache[cache_key] = response.model_dump()
-        cache_timestamps[cache_key] = time.time()
-
-        return response
-
+    except HTTPException:
+        raise
     except Exception as e:
+        logger.error(
+            f"[Fatal Error] _analyze_bet_unified_impl error: {e}", exc_info=True
+        )
         raise HTTPException(
             status_code=500,
             detail={
                 "error": "Analysis failed",
                 "message": str(e),
                 "request_id": str(int(time.time())),
-                "player": request.player_name,
-                "stat": request.stat_type,
             },
         )
 
 
-# Cleanup task for expired cache entries
-async def cleanup_expired_cache():
-    """
-    Periodically clean up expired cache entries.
-    Runs every minute to remove expired cache keys.
-    """
-    while True:
-        current_time = time.time()
-        expired_keys = [
-            key
-            for key, timestamp in cache_timestamps.items()
-            if current_time - timestamp >= CACHE_TTL
-        ]
-        for key in expired_keys:
-            del response_cache[key]
-            del cache_timestamps[key]
-        await asyncio.sleep(60)  # Run every minute
+# --- Endpoints for Unified Bet Analysis ---
+@router.post("/final_analysis", response_model=BetAnalysisResponse)
+async def analyze_bet_final_analysis(
+    request: BetAnalysisRequest,
+    req: Request,
+    rate_limit: None = Depends(check_rate_limit),
+) -> BetAnalysisResponse:
+    import time
 
+    start_time = time.time()
+    try:
+        # Use unified implementation for multi-prop analysis
+        response = await _analyze_bet_unified_impl(request, req, rate_limit)
+        return response
+    except Exception as e:
+        import logging
 
-# Cleanup task will be started when the router is included
+        logger = logging.getLogger("propollama.final_analysis")
+        logger.error(f"/final_analysis error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

@@ -21,9 +21,7 @@ class ApiClient {
   private defaultTimeout: number;
 
   constructor() {
-    this.baseUrl =
-      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-      (import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api';
+    this.baseUrl = (process.env.VITE_API_URL || 'http://localhost:8000') + '/api';
     this.defaultHeaders = {
       'Content-Type': 'application/json',
     };

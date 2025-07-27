@@ -65,3 +65,8 @@ app.include_router(propollama_router, prefix="/api/propollama")
 from backend.routes.trending_suggestions import router as trending_suggestions_router
 
 app.include_router(trending_suggestions_router)
+
+# Include chat history endpoints
+from backend.chat_history_api import router as chat_history_router
+
+app.include_router(chat_history_router)

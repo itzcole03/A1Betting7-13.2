@@ -37,16 +37,22 @@ import PropOllama from '../PropOllama';
 
 // Composite provider for PropOllama tests
 // Replace with actual providers if available in your app (ThemeProvider, AppProvider, AuthProvider)
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
 import { _AppProvider } from '../../../contexts/AppContext';
 import { _AuthProvider } from '../../../contexts/AuthContext';
 import { _ThemeProvider } from '../../../contexts/ThemeContext';
 
 const CompositeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <_ThemeProvider>
-    <_AppProvider>
-      <_AuthProvider>{children}</_AuthProvider>
-    </_AppProvider>
-  </_ThemeProvider>
+  <QueryClientProvider client={new QueryClient()}>
+    <_AuthProvider>
+      <MemoryRouter>
+        <_ThemeProvider>
+          <_AppProvider>{children}</_AppProvider>
+        </_ThemeProvider>
+      </MemoryRouter>
+    </_AuthProvider>
+  </QueryClientProvider>
 );
 
 // Mock fetch for all PropOllama endpoints

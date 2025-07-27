@@ -9,6 +9,11 @@ const UnifiedOllama: React.FC = () => {
   const [showMoreSuggestions, setShowMoreSuggestions] = useState(false);
   const { suggestions, loading: suggestionsLoading } = useTrendingSuggestions();
 
+  // Handler to clear input after sending
+  const handleSend = () => {
+    setInput('');
+  };
+
   return (
     <>
       <div className='w-full h-screen flex flex-col bg-gradient-to-br from-gray-900 to-black text-white relative'>
@@ -34,33 +39,47 @@ const UnifiedOllama: React.FC = () => {
                   <div className='absolute left-0 top-8 z-30 w-[340px] bg-gray-950/95 text-cyan-100 border border-cyan-400/40 rounded-2xl shadow-2xl p-5 text-sm flex flex-col gap-3'>
                     <div className='flex items-center gap-2 mb-1'>
                       <span className='text-cyan-300 text-lg'>🧠</span>
-                      <span className='font-bold text-cyan-200 text-base'>UnifiedOllama Onboarding</span>
+                      <span className='font-bold text-cyan-200 text-base'>
+                        UnifiedOllama Onboarding
+                      </span>
                     </div>
                     <div className='border-b border-cyan-400/20 my-1'></div>
                     <ul className='list-none pl-0 space-y-2'>
                       <li className='flex items-start gap-2'>
                         <span className='text-cyan-400'>💡</span>
                         <span>
-                          <span className='font-bold text-cyan-300'>AI-powered recommendations</span> are shown for all major sports.<br />
-                          Bets are <span className='font-bold text-cyan-200'>sorted by model confidence</span> (highest first).
+                          <span className='font-bold text-cyan-300'>
+                            AI-powered recommendations
+                          </span>{' '}
+                          are shown for all major sports.
+                          <br />
+                          Bets are{' '}
+                          <span className='font-bold text-cyan-200'>
+                            sorted by model confidence
+                          </span>{' '}
+                          (highest first).
                         </span>
                       </li>
                       <li className='flex items-start gap-2'>
                         <span className='text-green-400'>🔢</span>
                         <span>
-                          <span className='font-bold text-green-300'>Confidence</span> is color-coded and shown as a percentage.<br />
+                          <span className='font-bold text-green-300'>Confidence</span> is
+                          color-coded and shown as a percentage.
+                          <br />
                           Higher confidence = stronger AI signal.
                         </span>
                       </li>
                       <li className='flex items-start gap-2'>
                         <span className='text-blue-400'>📝</span>
                         <span>
-                          Click <span className='underline text-blue-300'>Show Explanation</span> on any bet to see detailed AI reasoning and insights.
+                          Click <span className='underline text-blue-300'>Show Explanation</span> on
+                          any bet to see detailed AI reasoning and insights.
                         </span>
                       </li>
                     </ul>
                     <div className='border-t border-cyan-400/20 mt-2 pt-2 text-xs text-cyan-400'>
-                      Tip: Use the chat below to ask about trending props, strategies, or get personalized best bets.
+                      Tip: Use the chat below to ask about trending props, strategies, or get
+                      personalized best bets.
                     </div>
                   </div>
                 )}
@@ -92,7 +111,10 @@ const UnifiedOllama: React.FC = () => {
                   placeholder="Ask me about any sports prop, strategy, or get today's best bets..."
                   className='w-full px-4 py-3 rounded-lg bg-gray-800/50 border border-cyan-400/30 text-cyan-300 placeholder-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:border-transparent mb-4'
                 />
-                <button className='w-full px-6 py-3 rounded-lg font-medium bg-gradient-to-r from-cyan-400 to-blue-500 text-black hover:from-cyan-300 hover:to-blue-400 transition-all hover:scale-105'>
+                <button
+                  className='w-full px-6 py-3 rounded-lg font-medium bg-gradient-to-r from-cyan-400 to-blue-500 text-black hover:from-cyan-300 hover:to-blue-400 transition-all hover:scale-105'
+                  onClick={handleSend}
+                >
                   Send
                 </button>
 
@@ -105,34 +127,36 @@ const UnifiedOllama: React.FC = () => {
                     )}
                   </div>
                   <div className='grid grid-cols-2 gap-2'>
-                    {suggestions.slice(0, showMoreSuggestions ? suggestions.length : 6).map((suggestion, index) => (
-                      <motion.button
-                        key={index}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        onClick={() => setInput(suggestion.prompt)}
-                        className='p-3 text-left text-sm bg-gray-800/30 hover:bg-gray-700/50 border border-cyan-400/20 hover:border-cyan-400/40 rounded-lg text-cyan-300 hover:text-cyan-200 transition-all duration-200 group'
-                      >
-                        <div className='flex items-start justify-between'>
-                          <span className='overflow-hidden text-ellipsis group-hover:text-white transition-colors'>
-                            {suggestion.prompt}
-                          </span>
-                          {suggestion.confidence && (
-                            <span className='ml-2 text-xs text-green-400 opacity-70'>
-                              {Math.round(suggestion.confidence * 100)}%
+                    {suggestions
+                      .slice(0, showMoreSuggestions ? suggestions.length : 6)
+                      .map((suggestion, index) => (
+                        <motion.button
+                          key={index}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          onClick={() => setInput(suggestion.prompt)}
+                          className='p-3 text-left text-sm bg-gray-800/30 hover:bg-gray-700/50 border border-cyan-400/20 hover:border-cyan-400/40 rounded-lg text-cyan-300 hover:text-cyan-200 transition-all duration-200 group'
+                        >
+                          <div className='flex items-start justify-between'>
+                            <span className='overflow-hidden text-ellipsis group-hover:text-white transition-colors'>
+                              {suggestion.prompt}
                             </span>
-                          )}
-                        </div>
-                        {suggestion.category && (
-                          <div className='mt-1'>
-                            <span className='text-xs text-gray-500 bg-gray-700/30 px-2 py-1 rounded'>
-                              {suggestion.category}
-                            </span>
+                            {suggestion.confidence && (
+                              <span className='ml-2 text-xs text-green-400 opacity-70'>
+                                {Math.round(suggestion.confidence * 100)}%
+                              </span>
+                            )}
                           </div>
-                        )}
-                      </motion.button>
-                    ))}
+                          {suggestion.category && (
+                            <div className='mt-1'>
+                              <span className='text-xs text-gray-500 bg-gray-700/30 px-2 py-1 rounded'>
+                                {suggestion.category}
+                              </span>
+                            </div>
+                          )}
+                        </motion.button>
+                      ))}
                   </div>
                   {suggestions.length > 6 && (
                     <div className='mt-3 text-center'>
@@ -159,7 +183,9 @@ const UnifiedOllama: React.FC = () => {
             >
               <div className='mb-6'>
                 <h2 className='text-xl font-bold text-green-300'>🏆 Today's Best Bets</h2>
-                <p className='text-sm text-green-400/70'>Top AI-Powered Recommendations • Live Updates</p>
+                <p className='text-sm text-green-400/70'>
+                  Top AI-Powered Recommendations • Live Updates
+                </p>
               </div>
               <div className='flex-1 overflow-y-auto space-y-4'>
                 {(() => {
@@ -170,7 +196,7 @@ const UnifiedOllama: React.FC = () => {
                       value: 'OVER 2.3',
                       confidence: '87.5%',
                       trending: true,
-                      volume: 'High'
+                      volume: 'High',
                     },
                     {
                       player: 'Mookie Betts (MLB)',
@@ -178,7 +204,7 @@ const UnifiedOllama: React.FC = () => {
                       value: 'OVER 1.8',
                       confidence: '82.1%',
                       trending: false,
-                      volume: 'Medium'
+                      volume: 'Medium',
                     },
                     {
                       player: 'LeBron James (NBA)',
@@ -186,7 +212,7 @@ const UnifiedOllama: React.FC = () => {
                       value: 'OVER 25.5',
                       confidence: '79.3%',
                       trending: true,
-                      volume: 'Very High'
+                      volume: 'Very High',
                     },
                     {
                       player: 'Patrick Mahomes (NFL)',
@@ -194,13 +220,15 @@ const UnifiedOllama: React.FC = () => {
                       value: 'OVER 275.5',
                       confidence: '84.2%',
                       trending: false,
-                      volume: 'High'
-                    }
+                      volume: 'High',
+                    },
                   ];
-                  return bets
-                    .concat(Array(6 - bets.length).fill(null))
-                    .map((bet, idx) => bet ? (
-                      <div key={idx} className='p-3 rounded-lg bg-gray-800/50 border border-cyan-400/20 shadow-md'>
+                  return bets.concat(Array(6 - bets.length).fill(null)).map((bet, idx) =>
+                    bet ? (
+                      <div
+                        key={idx}
+                        className='p-3 rounded-lg bg-gray-800/50 border border-cyan-400/20 shadow-md'
+                      >
                         <div className='text-sm font-bold text-cyan-200 leading-tight'>
                           {(() => {
                             const playerMatch = bet.player.match(/^(.+?) \((.+)\)$/);
@@ -232,23 +260,31 @@ const UnifiedOllama: React.FC = () => {
                             <span className='text-green-400'>Confidence: {bet.confidence}</span>
                           </div>
                           <div className='flex justify-end'>
-                            <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
-                              bet.volume === 'Very High' ? 'bg-red-500/20 text-red-400' :
-                              bet.volume === 'High' ? 'bg-orange-500/20 text-orange-400' :
-                              'bg-blue-500/20 text-blue-400'
-                            }`}>
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                                bet.volume === 'Very High'
+                                  ? 'bg-red-500/20 text-red-400'
+                                  : bet.volume === 'High'
+                                  ? 'bg-orange-500/20 text-orange-400'
+                                  : 'bg-blue-500/20 text-blue-400'
+                              }`}
+                            >
                               {bet.volume} Vol
                             </span>
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <div key={idx} className='p-4 rounded-lg bg-gray-800/30 border border-cyan-400/10 shadow-md opacity-60'>
+                      <div
+                        key={idx}
+                        className='p-4 rounded-lg bg-gray-800/30 border border-cyan-400/10 shadow-md opacity-60'
+                      >
                         <div className='text-lg font-bold text-cyan-200'>No bet available</div>
                         <div className='text-cyan-100'>--</div>
                         <div className='mt-2 text-xs text-green-400'>Confidence: --</div>
                       </div>
-                    ));
+                    )
+                  );
                 })()}
               </div>
             </motion.div>

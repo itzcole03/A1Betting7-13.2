@@ -1,15 +1,21 @@
 // LiveStream.test.tsx
 // Automated tests for live stream page (LiveStream)
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { _AppProvider } from '../../contexts/AppContext';
 import { _ThemeProvider } from '../../contexts/ThemeContext';
 import LiveStream from '../LiveStream';
 
 const CompositeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <_ThemeProvider>
-    <_AppProvider>{children}</_AppProvider>
-  </_ThemeProvider>
+  <QueryClientProvider client={new QueryClient()}>
+    <MemoryRouter>
+      <_ThemeProvider>
+        <_AppProvider>{children}</_AppProvider>
+      </_ThemeProvider>
+    </MemoryRouter>
+  </QueryClientProvider>
 );
 
 describe('LiveStream component', () => {

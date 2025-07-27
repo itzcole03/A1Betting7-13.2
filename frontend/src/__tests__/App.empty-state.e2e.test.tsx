@@ -17,8 +17,14 @@ describe('App E2E - Empty State', () => {
       jest.spyOn(backendDiscoveryModule, 'discoverBackend').mockResolvedValue(null);
     }
 
-    // Mock localStorage for onboarding
-    jest.spyOn(localStorage, 'getItem').mockImplementation(() => 'onboardingComplete');
+    // Mock localStorage for onboarding and user
+    jest.spyOn(localStorage, 'getItem').mockImplementation((key: string) => {
+      if (key === 'onboardingComplete') return 'true';
+      if (key === 'user')
+        return JSON.stringify({ id: 'test', email: 'test@example.com', role: 'user' });
+      if (key === 'token') return 'test-token';
+      return null;
+    });
   });
 
   it('shows empty state if no enhanced bets are returned', async () => {

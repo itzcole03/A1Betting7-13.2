@@ -18,7 +18,7 @@ export default async function handler(_req: NextApiRequest, _res: NextApiRespons
   const { site, date, sport } = req.body as DailyFantasyRequest;
   const _logger = getLogger();
   const _metrics = getMetrics();
-  const _apiKey = import.meta.env.VITE_DAILYFANTASY_API_KEY;
+  const _apiKey = process.env.VITE_DAILYFANTASY_API_KEY;
 
   if (!apiKey) {
     return res.status(401).json({ error: 'API key is required' });
