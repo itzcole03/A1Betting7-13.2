@@ -1,3 +1,5 @@
+ruleset_version: 1.0.0
+last_updated: "2025-07-27T00:00:00Z"
 # Business rules for PropOllama
 forbidden_combos:
   - ["LeBron James", "points", "under"]
@@ -18,3 +20,63 @@ allowed_stat_types:
   - shots
   - passes
   - tackles
+# --- Per-user (user_id-specific) business rules ---
+user_overrides:
+  user_123:
+    forbidden_combos:
+      - ["LeBron James", "points", "under"]
+    allowed_stat_types:
+      - points
+      - rebounds
+    rules:
+      - id: "user123-nba-ev-boost"
+        description: "User 123: Higher EV threshold for NBA during playoffs"
+        applies_to:
+          sport: "nba"
+        type: "expected_value_min"
+        value: 0.15
+        time_window:
+          start: "2025-07-27T00:00:00Z"
+          end: "2025-08-01T00:00:00Z"
+  user_456:
+    rules:
+      - id: "user456-ufc-ban"
+        description: "User 456: No UFC parlays allowed ever"
+        applies_to:
+          sport: "ufc"
+        type: "forbidden_combo"
+        combo: ["ufc", "parlay"]
+        time_window: null
+# --- Dynamic/Time-Windowed Rules (new schema) ---
+rules:
+  - id: "nba-ev-boost"
+    description: "Boost NBA expected value threshold during playoffs"
+    applies_to:
+      sport: "nba"
+    type: "expected_value_min"
+    value: 0.10
+    time_window:
+      start: "2025-07-27T00:00:00Z"
+      end: "2025-08-01T00:00:00Z"
+  - id: "global-max-risk"
+    description: "Global max risk score"
+    type: "risk_score_max"
+    value: 0.25
+    applies_to:
+      sport: "all"
+    time_window: null
+  - id: "forbid-ufc-parlays"
+    description: "No parlays for UFC"
+    type: "forbidden_combo"
+    combo: ["ufc", "parlay"]
+    time_window:
+      start: "2025-07-30T00:00:00Z"
+      end: "2025-08-02T00:00:00Z"
+#       - points
+#       - rebounds
+# dynamic_rules:
+#   - name: "NBA Finals Special"
+#     active_from: "2025-06-01T00:00:00Z"
+#     active_to: "2025-06-30T23:59:59Z"
+#     forbidden_combos:
+#       - ["Stephen Curry", "threes", "over"]

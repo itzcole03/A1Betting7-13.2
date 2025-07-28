@@ -1,5 +1,36 @@
 # A1Betting Real-Time Analysis API Documentation
 
+## API Versioning Policy (2025-07-27)
+
+### Versioned API Paths
+
+- All public and stable endpoints MUST use a versioned path prefix: `/api/v1/` (e.g., `/api/v1/analysis/start`).
+- Legacy endpoints using `/api/` without a version are considered deprecated and will be migrated or removed in future releases.
+
+### Version Field in Responses
+
+- All JSON responses from public endpoints MUST include a `"version"` field (e.g., `"version": "v1"`).
+- All analysis and admin responses also include `ruleset_version` and `rules_last_updated` for auditability.
+- This enables clients to detect API changes and supports robust audit/version tracking.
+
+### Rationale
+
+- Versioning ensures backward compatibility for third-party and frontend consumers.
+- It enables safe, non-breaking upgrades and clear deprecation/migration paths.
+- Including a `version` field in responses supports traceability and debugging.
+
+### Migration Plan
+
+- All new endpoints will use `/api/v1/` and include a `version` field in responses.
+- Existing endpoints will be migrated to `/api/v1/` as part of the next major release cycle.
+- Deprecated endpoints will be removed after a 90-day deprecation window.
+
+### Audit Note
+
+- This policy is documented for future audits and to ensure clarity for all developers and integrators.
+
+---
+
 ## Overview
 
 The A1Betting platform provides a comprehensive real-time analysis API that processes thousands of bets across all major sports and sportsbooks using a 47+ ML model ensemble to deliver the highest-probability winning opportunities.
@@ -398,3 +429,294 @@ Check the health and freshness of all major data sources (e.g., scrapers, extern
 
 - If either endpoint is unavailable, ensure the backend is running and accessible on the correct port.
 - See the main README for more details on running and interpreting the Health API.
+
+## Business Rules and Violations
+
+### Admin Rule Reload Endpoint
+
+Admins can reload business rules at runtime via a secure endpoint:
+
+**Endpoint:** `POST /api/v1/admin/reload-business-rules`
+
+**Auth:** Bearer token (replace `admin-token` with real admin token in production)
+
+**Request:**
+
+```
+Authorization: Bearer admin-token
+```
+
+**Response:**
+
+```json
+{
+  "status": "ok",
+  "message": "Business rules reloaded",
+  "ruleset_version": "2025.07.01",
+  "rules_last_updated": "2025-07-01T12:00:00Z",
+  "timestamp": "2025-07-27T15:00:00Z"
+}
+```
+
+**Note:** This endpoint is protected and should only be accessible to authorized admins. Replace the dummy check with real authentication in production. All reload attempts are logged with timestamp, version, and outcome for auditability.
+
+### Business Rules Enforcement
+
+All bets and lineups are filtered according to business rules defined in `backend/config/business_rules.yaml`. These rules include forbidden feature combinations and allowed stat types. The rules can be reloaded at runtime (admin only).
+
+### Violation Reporting
+
+If a bet is filtered out due to business rules, the response will include a `violations` array with detailed reasons for each violation. Each bet object may have a `violations` field if it was filtered, and the response metadata will include a top-level `violations` list.
+
+**Example Response with Violations:**
+
+```json
+{
+  "opportunities": [
+    {
+      "id": "nba_luka_points_over",
+      "player_name": "Luka Dončić",
+      ...,
+      "violations": [
+        "Forbidden combo: ['foo', 'bar']",
+        "Stat type 'Blocks' not allowed"
+      ]
+    }
+  ],
+  "violations": [
+    {"bet_id": "nba_luka_points_over", "reason": "Forbidden combo: ['foo', 'bar']"},
+    {"bet_id": "nba_luka_points_over", "reason": "Stat type 'Blocks' not allowed"}
+  ]
+}
+```
+
+### Reloading Business Rules
+
+Business rules can be reloaded at runtime via the `/api/v1/admin/reload-business-rules` endpoint (admin only). This is thread-safe, observable, and does not require a server restart. All reloads are logged for audit.
+
+### API Changes
+
+- All endpoints are now versioned under `/api/v1/`.
+- All responses include a top-level `version` field (e.g., `"version": "v1"`).
+- Analysis and admin responses include `ruleset_version` and `rules_last_updated`.
+- `_is_bet_allowed(bet)` now returns `(bool, list_of_reasons)` for granular violation reporting.
+- All logs and response metadata include the specific reason(s) for each violation.
+
+## Per-User (user_id-specific) Business Rules
+
+The backend supports per-user business rules via the `user_overrides` section in `backend/config/business_rules.yaml`. This allows for user-specific restrictions, thresholds, and time-windowed rules that override global rules for a given `user_id`.
+
+### YAML Schema
+
+```yaml
+user_overrides:
+  <user_id>:
+    forbidden_combos: # Optional: user-specific forbidden combos
+      - [...]
+    allowed_stat_types: # Optional: user-specific allowed stat types
+      - ...
+    rules: # Optional: user-specific rules (static or time-windowed)
+      - id: "<unique_rule_id>"
+        description: "<description>"
+        applies_to:
+          sport: "<sport>"
+        type: "<rule_type>"
+        value: <value>
+        combo: [...] # For forbidden_combo rules
+        time_window: # Optional: ISO8601 start/end
+          start: "<start_time>"
+          end: "<end_time>"
+```
+
+**Example:**
+
+```yaml
+user_overrides:
+  user_123:
+    forbidden_combos:
+      - ["LeBron James", "points", "under"]
+    allowed_stat_types:
+      - points
+      - rebounds
+    rules:
+      - id: "user123-nba-ev-boost"
+        description: "User 123: Higher EV threshold for NBA during playoffs"
+        applies_to:
+          sport: "nba"
+        type: "expected_value_min"
+        value: 0.15
+        time_window:
+          start: "2025-07-27T00:00:00Z"
+          end: "2025-08-01T00:00:00Z"
+  user_456:
+    rules:
+      - id: "user456-ufc-ban"
+        description: "User 456: No UFC parlays allowed ever"
+        applies_to:
+          sport: "ufc"
+        type: "forbidden_combo"
+        combo: ["ufc", "parlay"]
+        time_window: null
+```
+
+### Rule Precedence and Fallback
+
+- If a `user_id` is provided in the analysis request, the engine checks for user-specific rules in `user_overrides`.
+- If user-specific rules exist, they are applied **instead of** global rules for that user.
+- If no user-specific rule matches (or no override exists), the engine falls back to global rules.
+- Both static and time-windowed rules are supported for users and globally.
+
+### Example: User-Specific Rule Violation in API Response
+
+If a bet is filtered out due to a user-specific rule, the response will include a `violations` array with the user rule ID and reason:
+
+```json
+{
+  "opportunities": [
+    {
+      "id": "ufc_parlay_789",
+      "player_name": "N/A",
+      ...,
+      "violations": [
+        "Forbidden combo (dynamic): ['ufc', 'parlay'] (user rule user456-ufc-ban)"
+      ]
+    }
+  ],
+  "violations": [
+    {"bet_id": "ufc_parlay_789", "reason": "Forbidden combo (dynamic): ['ufc', 'parlay'] (user rule user456-ufc-ban)"}
+  ]
+}
+```
+
+### Admin/Integrator Notes
+
+- Use `user_overrides` to enforce custom business logic for VIPs, compliance, or experimental features.
+- All user-specific rule changes are hot-reloadable via the admin endpoint (`/api/v1/admin/reload-business-rules`).
+- For auditability, all responses include `ruleset_version` and `rules_last_updated`.
+- If both user and global rules are present, **user rules always take precedence** for that user.
+
+---
+
+## Rule Change Audit Trail & History
+
+All business rule changes are tracked in an append-only audit log for compliance, traceability, and rollback support.
+
+### Audit Log Schema
+
+Each entry in `backend/rules_audit_log.jsonl` is a JSON object with:
+
+- `timestamp`: ISO-8601 UTC timestamp
+- `user_id`: User/admin who made the change (or `system`)
+- `action`: `add`, `update`, `delete`, or `init`
+- `rule_id`: The rule or config key affected
+- `before`: Previous value (if applicable)
+- `after`: New value (if applicable)
+- `reason`: Optional admin-supplied reason/comment
+- `request_ip`: IP address of the requestor (if available)
+- `hash`: SHA-256 hash of the entry for tamper-evidence
+
+**Example Entry:**
+
+```json
+{
+  "timestamp": "2025-07-27T18:00:00Z",
+  "user_id": "admin_42",
+  "action": "update",
+  "rule_id": "nba-ev-boost",
+  "before": { "value": 0.1 },
+  "after": { "value": 0.15 },
+  "reason": "Playoff threshold adjustment",
+  "request_ip": "192.168.1.10",
+  "hash": "..."
+}
+```
+
+### API: Get Rule Audit Log
+
+**Endpoint:** `GET /api/v1/admin/rules-audit-log`
+
+**Auth:** Bearer token (admin only)
+
+**Query Parameters:**
+
+- `user_id` (optional): Filter by user/admin
+- `action` (optional): `add`, `update`, `delete`
+- `rule_id` (optional): Filter by rule/config key
+- `since` (optional): Only entries after this ISO-8601 timestamp
+- `until` (optional): Only entries before this ISO-8601 timestamp
+
+**Response:**
+Returns a list of audit log entries matching the filters.
+
+**Example:**
+
+```json
+[
+  {
+    "timestamp": "2025-07-27T18:00:00Z",
+    "user_id": "admin_42",
+    "action": "update",
+    "rule_id": "nba-ev-boost",
+    "before": { "value": 0.1 },
+    "after": { "value": 0.15 },
+    "reason": "Playoff threshold adjustment",
+    "request_ip": "192.168.1.10",
+    "hash": "..."
+  }
+]
+```
+
+### Admin Guidance
+
+- All rule changes (add, update, delete, reload) are logged for audit and rollback.
+- Use the audit log to review who changed what, when, and why.
+- To revert a rule, restore the previous value in `business_rules.yaml` and reload; the revert will also be logged.
+- The audit log is append-only and tamper-evident (SHA-256 hash per entry).
+- For compliance, retain audit logs per your org’s policy and restrict access to authorized admins.
+
+---
+
+The backend supports dynamic and time-windowed business rules for maximum flexibility and compliance. Rules are defined in `backend/config/business_rules.yaml` under the `rules:` section. Each rule can specify:
+
+- `id`: Unique rule identifier
+- `description`: Human-readable description
+- `applies_to`: Scope (e.g., sport)
+- `type`: Rule type (`expected_value_min`, `risk_score_max`, `forbidden_combo`, etc.)
+- `value` or `combo`: Rule value or forbidden feature combination
+- `time_window`: Optional ISO8601 start/end; if omitted, rule is always active
+
+**Example YAML:**
+
+```yaml
+rules:
+  - id: "nba-ev-boost"
+    description: "Boost NBA expected value threshold during playoffs"
+    applies_to:
+      sport: "nba"
+    type: "expected_value_min"
+    value: 0.10
+    time_window:
+      start: "2025-07-27T00:00:00Z"
+      end: "2025-08-01T00:00:00Z"
+  - id: "global-max-risk"
+    description: "Global max risk score"
+    type: "risk_score_max"
+    value: 0.25
+    applies_to:
+      sport: "all"
+    time_window: null
+  - id: "forbid-ufc-parlays"
+    description: "No parlays for UFC"
+    type: "forbidden_combo"
+    combo: ["ufc", "parlay"]
+    time_window:
+      start: "2025-07-30T00:00:00Z"
+      end: "2025-08-02T00:00:00Z"
+```
+
+**Enforcement:**
+
+- All bets and lineups are filtered according to both static and dynamic/time-windowed rules.
+- The engine checks if the current UTC time is within a rule's `time_window` before applying it.
+- Violations are reported in the response as shown above.
+- Rules can be reloaded at runtime via the admin endpoint.

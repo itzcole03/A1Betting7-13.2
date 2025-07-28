@@ -24,7 +24,7 @@ from backend.services.real_time_analysis_engine import (
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/analysis", tags=["Real-Time Analysis"])
+router = APIRouter(prefix="/api/v1/analysis", tags=["Real-Time Analysis"])
 
 
 class AnalysisRequest(BaseModel):
@@ -209,11 +209,14 @@ async def get_supported_sports() -> List[str]:
 
 @router.get("/status")
 async def get_system_status() -> Dict[str, Any]:
-    """Get real-time analysis system status"""
+    """Get real-time analysis system status, including business rules version info"""
+    rules = getattr(real_time_engine, "business_rules", {})
     return {
         "status": "operational",
         "supported_sports": len(SportCategory),
         "supported_sportsbooks": 10,
         "ml_models_active": 47,
         "last_health_check": "2024-12-19T23:45:00Z",
+        "ruleset_version": rules.get("ruleset_version", "unknown"),
+        "rules_last_updated": rules.get("last_updated", "unknown"),
     }

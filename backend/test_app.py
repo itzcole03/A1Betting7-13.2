@@ -53,13 +53,13 @@ from backend.routes.prizepicks import router as prizepicks_router
 from backend.routes.propollama import router as propollama_router
 from backend.routes.unified_api import router as unified_api_router
 
-app.include_router(router, prefix="/api")
-app.include_router(auth_router)
-app.include_router(unified_api_router, prefix="/api")
-app.include_router(betting_router)
-app.include_router(health_router, prefix="/api")
-app.include_router(prizepicks_router)
-app.include_router(propollama_router, prefix="/api/propollama")
+app.include_router(router, prefix="/api/v1")
+app.include_router(auth_router, prefix="/api/v1")
+app.include_router(unified_api_router, prefix="/api/v1")
+app.include_router(betting_router, prefix="/api/v1")
+app.include_router(health_router, prefix="/api/v1")
+app.include_router(prizepicks_router, prefix="/api/v1")
+app.include_router(propollama_router, prefix="/api/v1/propollama")
 
 # Register trending suggestions router
 from backend.routes.trending_suggestions import router as trending_suggestions_router

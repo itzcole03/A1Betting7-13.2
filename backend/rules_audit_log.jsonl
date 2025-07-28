@@ -1,0 +1,18 @@
+[
+  {
+    "timestamp": "2025-07-27T00:00:00Z",
+    "user_id": "system",
+    "action": "init",
+    "rule_id": null,
+    "before": null,
+    "after": null,
+    "reason": "Initial audit log creation",
+    "request_ip": null
+  }
+]
+{"timestamp": "2025-07-28T02:00:17.279831+00:00", "user_id": "admin_test", "action": "add", "rule_id": "test-rule", "before": null, "after": {"id": "test-rule", "value": 2}, "reason": "unit test", "request_ip": "127.0.0.1", "hash": "e1fef3f4cc41d807a01b130037840ab52642443c3112c935e499b19a90988252"}
+{"timestamp": "2025-07-28T02:00:17.279831+00:00", "user_id": "admin_test", "action": "delete", "rule_id": "test-rule", "before": {"id": "test-rule", "value": 1}, "after": null, "reason": "unit test", "request_ip": "127.0.0.1", "hash": "01c49d00c6a21cdf39f84408b8b95dde1314fdbba43074039b12e9fe8af64fcd"}
+{"timestamp": "2025-07-28T02:00:17.279831+00:00", "user_id": "admin_test", "action": "update", "rule_id": "test-rule", "before": {"id": "test-rule", "value": 1}, "after": {"id": "test-rule", "value": 2}, "reason": "unit test", "request_ip": "127.0.0.1", "hash": "9ce261e2ae8eed655b73599cf3c19a9bab0b00665c00e5109824e15f5bddb128"}
+{"timestamp": "2025-07-28T02:00:17.335830+00:00", "user_id": "admin_reload", "action": "add", "rule_id": "r1", "before": null, "after": {"id": "r1", "value": 10}, "reason": "reload", "request_ip": "1.2.3.4", "hash": "4c741595f67c75211d32475a83812d6b9f24b1b1e49f1a5d06613b05aa7d86cd"}
+{"timestamp": "2025-07-28T02:00:17.335830+00:00", "user_id": "admin_reload", "action": "delete", "rule_id": "r1", "before": {"id": "r1", "value": 5}, "after": null, "reason": "reload", "request_ip": "1.2.3.4", "hash": "c9e252463098a1fca566ec73b77fa137dd411878dd29745c87972ddf94c0a2f8"}
+{"timestamp": "2025-07-28T02:00:17.335830+00:00", "user_id": "admin_reload", "action": "update", "rule_id": "r1", "before": {"id": "r1", "value": 5}, "after": {"id": "r1", "value": 10}, "reason": "reload", "request_ip": "1.2.3.4", "hash": "b5d38aaca462f16c434230d15243adaa9e4915c644bf51ff119bc3fd5dc1a19f"}

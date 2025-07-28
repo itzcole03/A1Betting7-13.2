@@ -178,6 +178,21 @@ pytest              # Run tests
 
 The application follows a modern full-stack architecture:
 
+## 📊 Monitoring & Alerting (Business Rules)
+
+- All business rule violations are logged with granular reasons and bet IDs.
+- Log aggregation is recommended (e.g., ELK, Loki, or cloud logging) to track violation counts and trends over time.
+- Alerting should be configured if all bets in a batch are filtered (possible config error or ruleset issue).
+- (Optional) Add a dashboard widget to visualize top violation reasons and trends for admins.
+
+## 🚦 Performance Observability & Future Optimization
+
+- Current business rules enforcement is performant for the present scale.
+- If forbidden combos or stat types grow significantly, batch or set-based optimizations should be implemented.
+- TODO: In the main analysis loop, consider set-based lookups and vectorized checks for large rulesets.
+
+---
+
 ```mermaid
 graph LR
     Frontend[React Frontend] --> API[FastAPI Backend]

@@ -22,7 +22,7 @@ from backend.services.enhanced_prizepicks_service_v2 import (
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/prizepicks", tags=["PrizePicks"])
+router = APIRouter(prefix="/api/v1/prizepicks", tags=["PrizePicks"])
 
 # Cache for PrizePicks data
 prizepicks_cache = TTLCache(maxsize=100, ttl=300)

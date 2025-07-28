@@ -89,7 +89,7 @@ from backend.advanced_feature_engineering import advanced_feature_engineer
 from backend.services.enhanced_ml_ensemble_service import get_enhanced_prediction
 from backend.services.unified_prediction_service import unified_prediction_service
 
-router = APIRouter()
+router = APIRouter(prefix="/api/v1/propollama")
 
 
 import asyncio

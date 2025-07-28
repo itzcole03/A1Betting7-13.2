@@ -113,6 +113,196 @@ class OptimalLineup:
 
 # --- BEGIN RealTimeAnalysisEngine CLASS ---
 class RealTimeAnalysisEngine:
+    def reload_business_rules(self, user_id="system", reason=None, request_ip=None):
+        """
+        Reload business rules from the YAML file at runtime, audit all changes.
+        """
+        import copy
+
+        old_rules = copy.deepcopy(getattr(self, "business_rules", {}))
+        self._load_business_rules()
+        new_rules = getattr(self, "business_rules", {})
+        self._audit_rule_changes(
+            old_rules, new_rules, user_id=user_id, reason=reason, request_ip=request_ip
+        )
+
+    def _audit_rule_changes(
+        self, old, new, user_id="system", reason=None, request_ip=None
+    ):
+        """
+        Compare old and new rulesets, append audit entries for each change to rules_audit_log.jsonl.
+        Uses self._audit_log_path if set (for testing), else defaults to ../rules_audit_log.jsonl.
+        """
+        import hashlib
+        import json
+        from datetime import datetime, timezone
+
+        audit_path = getattr(self, "_audit_log_path", None)
+        if not audit_path:
+            audit_path = os.path.join(
+                os.path.dirname(__file__), "../rules_audit_log.jsonl"
+            )
+        timestamp = datetime.now(timezone.utc).isoformat()
+
+        # Helper to hash entry for tamper-evidence (optional, can be extended)
+        def hash_entry(entry):
+            return hashlib.sha256(
+                json.dumps(entry, sort_keys=True).encode()
+            ).hexdigest()
+
+        # Compare top-level rules, forbidden_combos, allowed_stat_types, user_overrides
+        def diff_list(old_list, new_list):
+            old_set = set(json.dumps(x, sort_keys=True) for x in old_list or [])
+            new_set = set(json.dumps(x, sort_keys=True) for x in new_list or [])
+            added = [json.loads(x) for x in new_set - old_set]
+            removed = [json.loads(x) for x in old_set - new_set]
+            return added, removed
+
+        # 1. Top-level rules
+        old_rules = old.get("rules", [])
+        new_rules = new.get("rules", [])
+        added, removed = diff_list(old_rules, new_rules)
+        for rule in added:
+            entry = {
+                "timestamp": timestamp,
+                "user_id": user_id,
+                "action": "add",
+                "rule_id": rule.get("id"),
+                "before": None,
+                "after": rule,
+                "reason": reason,
+                "request_ip": request_ip,
+            }
+            entry["hash"] = hash_entry(entry)
+            with open(audit_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry) + "\n")
+        for rule in removed:
+            entry = {
+                "timestamp": timestamp,
+                "user_id": user_id,
+                "action": "delete",
+                "rule_id": rule.get("id"),
+                "before": rule,
+                "after": None,
+                "reason": reason,
+                "request_ip": request_ip,
+            }
+            entry["hash"] = hash_entry(entry)
+            with open(audit_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry) + "\n")
+        # 2. Modified rules (same id, different content)
+        old_by_id = {r.get("id"): r for r in old_rules if r.get("id")}
+        new_by_id = {r.get("id"): r for r in new_rules if r.get("id")}
+        for rid in set(old_by_id) & set(new_by_id):
+            if json.dumps(old_by_id[rid], sort_keys=True) != json.dumps(
+                new_by_id[rid], sort_keys=True
+            ):
+                entry = {
+                    "timestamp": timestamp,
+                    "user_id": user_id,
+                    "action": "update",
+                    "rule_id": rid,
+                    "before": old_by_id[rid],
+                    "after": new_by_id[rid],
+                    "reason": reason,
+                    "request_ip": request_ip,
+                }
+                entry["hash"] = hash_entry(entry)
+                with open(audit_path, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(entry) + "\n")
+        # 3. forbidden_combos, allowed_stat_types
+        for key in ["forbidden_combos", "allowed_stat_types"]:
+            a, r = diff_list(old.get(key, []), new.get(key, []))
+            for v in a:
+                entry = {
+                    "timestamp": timestamp,
+                    "user_id": user_id,
+                    "action": "add",
+                    "rule_id": key,
+                    "before": None,
+                    "after": v,
+                    "reason": reason,
+                    "request_ip": request_ip,
+                }
+                entry["hash"] = hash_entry(entry)
+                with open(audit_path, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(entry) + "\n")
+            for v in r:
+                entry = {
+                    "timestamp": timestamp,
+                    "user_id": user_id,
+                    "action": "delete",
+                    "rule_id": key,
+                    "before": v,
+                    "after": None,
+                    "reason": reason,
+                    "request_ip": request_ip,
+                }
+                entry["hash"] = hash_entry(entry)
+                with open(audit_path, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(entry) + "\n")
+        # 4. user_overrides (per user)
+        old_users = set((old.get("user_overrides") or {}).keys())
+        new_users = set((new.get("user_overrides") or {}).keys())
+        for user in old_users | new_users:
+            old_u = (old.get("user_overrides") or {}).get(user, {})
+            new_u = (new.get("user_overrides") or {}).get(user, {})
+            for key in ["forbidden_combos", "allowed_stat_types", "rules"]:
+                a, r = diff_list(old_u.get(key, []), new_u.get(key, []))
+                for v in a:
+                    entry = {
+                        "timestamp": timestamp,
+                        "user_id": user_id,
+                        "action": "add",
+                        "rule_id": f"{user}:{key}",
+                        "before": None,
+                        "after": v,
+                        "reason": reason,
+                        "request_ip": request_ip,
+                    }
+                    entry["hash"] = hash_entry(entry)
+                    with open(audit_path, "a", encoding="utf-8") as f:
+                        f.write(json.dumps(entry) + "\n")
+                for v in r:
+                    entry = {
+                        "timestamp": timestamp,
+                        "user_id": user_id,
+                        "action": "delete",
+                        "rule_id": f"{user}:{key}",
+                        "before": v,
+                        "after": None,
+                        "reason": reason,
+                        "request_ip": request_ip,
+                    }
+                    entry["hash"] = hash_entry(entry)
+                    with open(audit_path, "a", encoding="utf-8") as f:
+                        f.write(json.dumps(entry) + "\n")
+            # Modified user rules (same id, different content)
+            if key == "rules":
+                old_by_id = {
+                    r.get("id"): r for r in old_u.get("rules", []) if r.get("id")
+                }
+                new_by_id = {
+                    r.get("id"): r for r in new_u.get("rules", []) if r.get("id")
+                }
+                for rid in set(old_by_id) & set(new_by_id):
+                    if json.dumps(old_by_id[rid], sort_keys=True) != json.dumps(
+                        new_by_id[rid], sort_keys=True
+                    ):
+                        entry = {
+                            "timestamp": timestamp,
+                            "user_id": user_id,
+                            "action": "update",
+                            "rule_id": f"{user}:{rid}",
+                            "before": old_by_id[rid],
+                            "after": new_by_id[rid],
+                            "reason": reason,
+                            "request_ip": request_ip,
+                        }
+                        entry["hash"] = hash_entry(entry)
+                        with open(audit_path, "a", encoding="utf-8") as f:
+                            f.write(json.dumps(entry) + "\n")
+
     def __init__(self):
         from threading import Lock
 
@@ -137,6 +327,185 @@ class RealTimeAnalysisEngine:
         self.min_expected_value: float = 0.05
         self.max_risk_score: float = 0.3
         self._load_business_rules()
+
+    def _load_business_rules(self, path="backend/config/business_rules.yaml"):
+        import yaml
+
+        try:
+            with open(path, "r") as f:
+                rules = yaml.safe_load(f)
+                if not isinstance(rules, dict):
+                    raise ValueError("Business rules YAML did not parse to a dict.")
+        except Exception as e:
+            logger.error(f"Failed to load business rules: {e}")
+            rules = {"forbidden_combos": [], "allowed_stat_types": [], "rules": []}
+        # Thread-safe assignment
+        if hasattr(self, "_job_lock"):
+            with self._job_lock:
+                self.business_rules = rules
+        else:
+            self.business_rules = rules
+        logger.debug(f"Loaded business_rules: {self.business_rules}")
+
+    def _get_active_rules(self, now=None, user_id=None):
+        """Return list of active rules for current UTC time or supplied 'now', checking user_overrides if user_id is given."""
+        br = getattr(self, "business_rules", {})
+        now = now or datetime.now(timezone.utc)
+        # User-specific rules
+        if user_id:
+            user_overrides = br.get("user_overrides", {}).get(user_id, {})
+            user_rules = user_overrides.get("rules", [])
+            active = []
+            for rule in user_rules:
+                tw = rule.get("time_window")
+                if not tw:
+                    active.append(rule)
+                    continue
+                try:
+                    start = datetime.fromisoformat(tw["start"]).astimezone(timezone.utc)
+                    end = datetime.fromisoformat(tw["end"]).astimezone(timezone.utc)
+                    if start <= now <= end:
+                        active.append(rule)
+                except Exception as e:
+                    logger.warning(
+                        f"Invalid time_window in user rule {rule.get('id')}: {e}"
+                    )
+            logger.debug(
+                f"Active user rules for {user_id} at {now}: {[r.get('id') for r in active]}"
+            )
+            if active:
+                return active
+        # Fallback to global rules
+        rules = br.get("rules", [])
+        active = []
+        for rule in rules:
+            tw = rule.get("time_window")
+            if not tw:
+                active.append(rule)
+                continue
+            try:
+                start = datetime.fromisoformat(tw["start"]).astimezone(timezone.utc)
+                end = datetime.fromisoformat(tw["end"]).astimezone(timezone.utc)
+                if start <= now <= end:
+                    active.append(rule)
+            except Exception as e:
+                logger.warning(f"Invalid time_window in rule {rule.get('id')}: {e}")
+        logger.debug(f"Active global rules at {now}: {[r.get('id') for r in active]}")
+        return active
+
+    def _is_bet_allowed(self, bet, now=None, user_id=None):
+        """
+        Checks if a bet (dict or RealTimeBet) violates any loaded business rules, including dynamic/time-windowed rules.
+        Returns (True, []) if allowed, (False, [reasons]) if forbidden.
+        Reasons are granular and specific to the violated rule(s).
+        """
+        br = getattr(
+            self,
+            "business_rules",
+            {
+                "forbidden_combos": [],
+                "allowed_stat_types": [],
+                "rules": [],
+                "user_overrides": {},
+            },
+        )
+        # User-specific overrides
+        forbidden_combos = []
+        allowed_stat_types = []
+        if user_id:
+            user_overrides = br.get("user_overrides", {}).get(user_id, {})
+            forbidden_combos = user_overrides.get("forbidden_combos", [])
+            allowed_stat_types = user_overrides.get("allowed_stat_types", [])
+        if not forbidden_combos:
+            forbidden_combos = br.get("forbidden_combos", [])
+        if not allowed_stat_types:
+            allowed_stat_types = br.get("allowed_stat_types", [])
+        active_rules = self._get_active_rules(now=now, user_id=user_id)
+        if hasattr(bet, "__dict__"):
+            bet_dict = bet.__dict__
+        else:
+            bet_dict = bet
+        # Ensure features list exists for combo rules
+        features = bet_dict.get("features")
+        if features is None:
+            # Try to infer features from bet fields (e.g., sport, bet_type, player_name, stat_type)
+            features = [
+                str(bet_dict.get("sport", "")).lower(),
+                str(bet_dict.get("bet_type", "")).lower(),
+                str(bet_dict.get("player_name", "")).lower(),
+                str(bet_dict.get("stat_type", "")).lower(),
+            ]
+            bet_dict["features"] = features
+        reasons = []
+        # Static forbidden combos
+        for combo in forbidden_combos:
+            if all(
+                str(feature).lower()
+                in [str(f).lower() for f in bet_dict.get("features", [])]
+                for feature in combo
+            ):
+                reasons.append(f"Forbidden combo: {combo}")
+        # Static allowed stat types
+        if allowed_stat_types and bet_dict.get("stat_type") not in allowed_stat_types:
+            reasons.append(f"Stat type '{bet_dict.get('stat_type')}' not allowed")
+        # Dynamic/time-windowed rules
+        for rule in active_rules:
+            applies = rule.get("applies_to", {})
+            sport = applies.get("sport")
+            logger.debug(
+                f"Evaluating rule {rule.get('id')} for bet sport {getattr(bet, 'sport', None)}"
+            )
+            if (
+                sport
+                and sport != "all"
+                and getattr(bet, "sport", None)
+                and getattr(bet, "sport").value != sport
+            ):
+                logger.debug(
+                    f"Rule {rule.get('id')} skipped: sport mismatch ({sport} != {getattr(bet, 'sport', None)})"
+                )
+                continue
+            rtype = rule.get("type")
+            if rtype == "forbidden_combo":
+                combo = rule.get("combo", [])
+                logger.debug(
+                    f"Checking forbidden_combo {combo} against features {bet_dict.get('features', [])}"
+                )
+                if all(
+                    str(feature).lower()
+                    in [str(f).lower() for f in bet_dict.get("features", [])]
+                    for feature in combo
+                ):
+                    reasons.append(f"Forbidden combo (dynamic): {combo}")
+            elif rtype == "expected_value_min":
+                min_ev = rule.get("value")
+                logger.debug(
+                    f"Checking expected_value_min {min_ev} against bet expected_value {bet_dict.get('expected_value')}"
+                )
+                if (
+                    min_ev is not None
+                    and (bet_dict.get("expected_value") is not None)
+                    and bet_dict["expected_value"] < min_ev
+                ):
+                    reasons.append(
+                        f"Expected value {bet_dict['expected_value']} below min {min_ev} (rule {rule.get('id')})"
+                    )
+            elif rtype == "risk_score_max":
+                max_risk = rule.get("value")
+                logger.debug(
+                    f"Checking risk_score_max {max_risk} against bet risk_score {bet_dict.get('risk_score')}"
+                )
+                if (
+                    max_risk is not None
+                    and (bet_dict.get("risk_score") is not None)
+                    and bet_dict["risk_score"] > max_risk
+                ):
+                    reasons.append(
+                        f"Risk score {bet_dict['risk_score']} above max {max_risk} (rule {rule.get('id')})"
+                    )
+        if reasons:
+            return False, reasons
+        return True, []
 
     async def _fetch_caesars_data(self, sport: SportCategory) -> List[RealTimeBet]:
         """Fetch Caesars data for specific sport using real API (production-ready)."""
@@ -280,8 +649,21 @@ class RealTimeAnalysisEngine:
     async def _run_ensemble_analysis(
         self, batch: List[RealTimeBet]
     ) -> List[RealTimeBet]:
-        """Run ensemble ML analysis on a batch of bets, enforcing business rules."""
+        """Run ensemble ML analysis on a batch of bets, enforcing business rules and surfacing violations, including dynamic/time-windowed rules."""
         analyzed_batch = []
+        self.violations = getattr(self, "violations", [])  # ensure attribute exists
+        # Get active rules for thresholds
+        active_rules = self._get_active_rules()
+        # Determine dynamic thresholds if present
+        min_confidence = self.min_confidence_threshold
+        min_ev = self.min_expected_value
+        max_risk = self.max_risk_score
+        for rule in active_rules:
+            rtype = rule.get("type")
+            if rtype == "expected_value_min":
+                min_ev = max(min_ev, rule.get("value", min_ev))
+            elif rtype == "risk_score_max":
+                max_risk = min(max_risk, rule.get("value", max_risk))
         for bet in batch:
             try:
                 # Feature engineering
@@ -295,15 +677,21 @@ class RealTimeAnalysisEngine:
                 bet.risk_score = ensemble_results.get("risk_score", 1.0)
                 bet.shap_explanation = ensemble_results.get("shap_explanation", {})
                 bet.analyzed_at = datetime.now(timezone.utc)
-                # Enforce business rules
-                if not self._is_bet_allowed(bet):
-                    logger.info("Bet %s filtered by business rules", bet.id)
+                # Enforce business rules (static + dynamic)
+                allowed, reasons = self._is_bet_allowed(bet)
+                if not allowed:
+                    logger.info(f"Bet {bet.id} filtered by business rules: {reasons}")
+                    if not hasattr(bet, "violations"):
+                        bet.violations = []
+                    bet.violations.extend(reasons)
+                    for reason in reasons:
+                        self.violations.append({"bet_id": bet.id, "reason": reason})
                     continue
-                # Only keep high-quality opportunities
+                # Only keep high-quality opportunities (respect dynamic thresholds)
                 if (
-                    (bet.ml_confidence or 0.0) >= self.min_confidence_threshold
-                    and (bet.expected_value or 0.0) >= self.min_expected_value
-                    and (bet.risk_score or 0.0) <= self.max_risk_score
+                    (bet.ml_confidence or 0.0) >= min_confidence
+                    and (bet.expected_value or 0.0) >= min_ev
+                    and (bet.risk_score or 0.0) <= max_risk
                 ):
                     analyzed_batch.append(bet)
             except Exception as e:
@@ -723,9 +1111,15 @@ class RealTimeAnalysisEngine:
             return self._analyses.get(analysis_id)
 
     def get_results(self, analysis_id: str) -> Optional[Dict[str, Any]]:
-        """Get results for a specific analysis job"""
+        """Get results for a specific analysis job, including business rules version info and API version field"""
         with self._job_lock:
-            return self._results.get(analysis_id)
+            results = self._results.get(analysis_id)
+            if results is not None:
+                rules = getattr(self, "business_rules", {})
+                results["ruleset_version"] = rules.get("ruleset_version", "unknown")
+                results["rules_last_updated"] = rules.get("last_updated", "unknown")
+                results["version"] = "v1"  # API version field for standardization
+            return results
 
 
 # Global instance

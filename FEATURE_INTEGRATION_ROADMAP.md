@@ -42,7 +42,15 @@ The platform has been successfully transformed into a professional desktop appli
 
 ---
 
-## 📋 **Comprehensive Production Roadmap**
+## 📋 **Comprehensive Production Roadmap & Audit Notes**
+
+### 🔒 API Versioning, Rule Reload, and Monitoring (2025-07-27)
+
+- All backend endpoints are now versioned under `/api/v1/` for auditability and safe upgrades.
+- All API responses include a `version` field, and analysis/admin responses include `ruleset_version` and `rules_last_updated`.
+- Admins can reload business rules at runtime via `/api/v1/admin/reload-business-rules` (observable, logged, and auditable).
+- Monitoring and alerting templates are provided for DevOps (see `devops_api_monitoring_template.md`).
+- Frontend must surface violation reasons and version info to users (see `frontend_violation_ux_confirmation.md`).
 
 ### **🔴 HIGH PRIORITY - Core Infrastructure**
 
