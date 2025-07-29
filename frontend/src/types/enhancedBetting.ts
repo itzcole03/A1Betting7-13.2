@@ -137,7 +137,17 @@ export interface MultiPlatformOpportunity {
 }
 
 export interface EnhancedBetsResponse {
-  enhanced_bets: EnhancedPrediction[];
+  // Unified backend fields
+  analysis: string; // LLM or ensemble analysis summary
+  confidence: number; // Overall confidence score
+  recommendation: string; // Overall recommendation
+  key_factors: string[]; // Key factors from analysis
+  processing_time: number; // Backend processing time (seconds)
+  cached: boolean; // Whether response was served from cache
+  enriched_props: EnhancedPrediction[]; // Direct mapping of backend enriched_props
+
+  // Existing frontend fields (for compatibility/aggregation)
+  enhanced_bets: EnhancedPrediction[]; // Alias for enriched_props (for legacy code)
   count: number;
   portfolio_metrics?: PortfolioMetrics;
   ai_insights?: AIInsights[];

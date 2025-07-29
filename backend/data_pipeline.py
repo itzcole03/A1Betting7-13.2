@@ -13,6 +13,7 @@ from typing import Any, Callable, Dict, List, Optional
 from urllib.parse import urljoin
 
 import aiohttp
+
 from backend.config import config_manager
 from backend.middleware.caching import TTLCache
 
@@ -415,15 +416,30 @@ class DataPipeline:
         return hashlib.md5(key_string.encode()).hexdigest()
 
     async def get_live_games(self, sport: str = "basketball") -> List[DataResponse]:
-        """Get live games from multiple sources"""
+        """Get live games from multiple sources. Supports 'basketball' and 'mlb'."""
         requests = []
+
+        # Map sport to endpoints
+        sport_endpoints = {
+            "basketball": {
+                "sportradar": "nba/trial/v8/en/games/live.json",
+                "odds": "v4/sports/basketball_nba/odds",
+            },
+            "mlb": {
+                "sportradar": "mlb/trial/v7/en/games/live.json",
+                "odds": "v4/sports/baseball_mlb/odds",
+            },
+        }
+        endpoints = sport_endpoints.get(sport.lower())
+        if not endpoints:
+            raise ValueError(f"Unsupported sport: {sport}")
 
         # Sportradar live games
         if DataSourceType.SPORTRADAR in self.connectors:
             requests.append(
                 DataRequest(
                     source=DataSourceType.SPORTRADAR,
-                    endpoint="nba/trial/v8/en/games/live.json",
+                    endpoint=endpoints["sportradar"],
                     cache_ttl=60,  # Cache for 1 minute for live data
                 )
             )
@@ -433,7 +449,7 @@ class DataPipeline:
             requests.append(
                 DataRequest(
                     source=DataSourceType.ODDS_API,
-                    endpoint="v4/sports/basketball_nba/odds",
+                    endpoint=endpoints["odds"],
                     params={"regions": "us", "markets": "h2h,spreads,totals"},
                     cache_ttl=120,
                 )
@@ -442,8 +458,17 @@ class DataPipeline:
         return await self.fetch_multiple(requests)
 
     async def get_player_props(self, sport: str = "basketball") -> List[DataResponse]:
-        """Get player props from multiple sources"""
+        """Get player props from multiple sources. Supports 'basketball' and 'mlb'."""
         requests = []
+
+        # Map sport to PrizePicks league_id
+        league_ids = {
+            "basketball": 7,  # NBA
+            "mlb": 2,  # MLB (commonly 2, verify with PrizePicks API)
+        }
+        league_id = league_ids.get(sport.lower())
+        if league_id is None:
+            raise ValueError(f"Unsupported sport: {sport}")
 
         # PrizePicks props
         if DataSourceType.PRIZEPICKS in self.connectors:
@@ -451,7 +476,7 @@ class DataPipeline:
                 DataRequest(
                     source=DataSourceType.PRIZEPICKS,
                     endpoint="projections",
-                    params={"league_id": 7},  # NBA
+                    params={"league_id": league_id},
                     cache_ttl=300,
                 )
             )

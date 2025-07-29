@@ -12,8 +12,8 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 from pydantic import BaseModel, Field
 
-# Import BetAnalysisResponse from propollama
-from backend.routes.propollama import BetAnalysisResponse
+# Import BetAnalysisResponse from models.api_models
+from backend.models.api_models import BetAnalysisResponse
 from backend.services.real_time_analysis_engine import (
     AnalysisProgress,
     OptimalLineup,

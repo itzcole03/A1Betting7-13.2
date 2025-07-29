@@ -1,5 +1,11 @@
-import asyncio
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(dotenv_path=env_path, override=True)
+import asyncio
 from typing import Any
 
 from sqlalchemy.ext.asyncio import create_async_engine

@@ -1,3 +1,19 @@
+# Ensure project root is on sys.path for all backend imports
+import sys
+from pathlib import Path
+
+project_root = Path(__file__).parent.parent.parent.resolve()
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+
+import os
+
+from dotenv import load_dotenv
+
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(dotenv_path=env_path, override=True)
+
 from logging.config import fileConfig
 
 from alembic import context
@@ -10,16 +26,18 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-import os
 
 # Ensure all models are registered for Alembic autogeneration
-import sys
+import backend.models.__all_models__  # Import all models here
+from backend.models.base import Base
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-import models.__all_models__  # Import all models here
-from models.base import Base
+# Set sqlalchemy.url from DATABASE_URL env var if present
+database_url = os.environ.get("DATABASE_URL")
+if database_url:
+    config.set_main_option("sqlalchemy.url", database_url)
 
-print("Alembic registered tables:", Base.metadata.tables.keys())
+
+# print("Alembic registered tables:", Base.metadata.tables.keys())
 
 target_metadata = Base.metadata
 

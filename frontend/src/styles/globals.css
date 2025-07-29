@@ -1,11 +1,10 @@
 /* ===== CONSOLIDATED GLOBAL STYLES FOR A1BETTING ===== */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-/* ===== FONT IMPORTS ===== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
 
 /* ===== CSS VARIABLES FOR UNIFIED THEMING ===== */
 :root {
@@ -94,97 +93,95 @@ html {
   background: var(--cyber-secondary);
 }
 
-/* ===== COMPONENT LAYER ===== */
-@layer components {
-  /* === PREMIUM CARDS === */
-  .premium-card {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl transition-all duration-300 ease-out overflow-hidden relative;
-  }
+/* ===== COMPONENTS & UTILITIES ===== */
+/* === PREMIUM CARDS === */
+.premium-card {
+  @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl transition-all duration-300 ease-out overflow-hidden relative;
+}
 
-  .premium-card:hover {
-    @apply bg-white/10 border-white/20 shadow-[0_0_30px_rgba(6,255,165,0.3)];
-  }
+.premium-card:hover {
+  @apply bg-white/10 border-white/20 shadow-[0_0_30px_rgba(6,255,165,0.3)];
+}
 
-  /* === CYBER CARDS === */
-  .cyber-card {
-    @apply bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl transition-all duration-300;
-  }
+/* === CYBER CARDS === */
+.cyber-card {
+  @apply bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl transition-all duration-300;
+}
 
-  .cyber-card:hover {
-    @apply border-cyan-500/30 shadow-[0_0_20px_rgba(0,212,255,0.2)];
-  }
+.cyber-card:hover {
+  @apply border-cyan-500/30 shadow-[0_0_20px_rgba(0,212,255,0.2)];
+}
 
-  /* === GLASS MORPHISM === */
-  .glass {
-    background: var(--glass-gradient);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--cyber-border);
-  }
+/* === GLASS MORPHISM === */
+.glass {
+  background: var(--glass-gradient);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--cyber-border);
+}
 
-  /* === NEON EFFECTS === */
-  .neon-glow {
-    box-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 80px currentColor;
-  }
+/* === NEON EFFECTS === */
+.neon-glow {
+  box-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 80px currentColor;
+}
 
-  .neon-text {
-    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 40px currentColor;
-  }
+.neon-text {
+  text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 40px currentColor;
+}
 
-  /* === BUTTONS === */
-  .cyber-button {
-    @apply bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105;
-  }
+/* === BUTTONS === */
+.cyber-button {
+  @apply bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105;
+}
 
-  .quantum-button {
-    @apply bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105;
-  }
+.quantum-button {
+  @apply bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105;
+}
 
-  /* === GRADIENTS === */
-  .cyber-gradient {
-    background: var(--cyber-gradient);
-  }
+/* === GRADIENTS === */
+.cyber-gradient {
+  background: var(--cyber-gradient);
+}
 
-  .quantum-gradient {
-    background: var(--quantum-gradient);
-  }
+.quantum-gradient {
+  background: var(--quantum-gradient);
+}
 
-  /* === ANIMATIONS === */
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite alternate;
-  }
+/* === ANIMATIONS === */
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
 
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
 
-  .animate-pulse-slow {
-    animation: pulse 3s ease-in-out infinite;
-  }
+.animate-pulse-slow {
+  animation: pulse 3s ease-in-out infinite;
+}
 
-  /* === UTILITIES === */
-  .text-cyber {
-    color: var(--cyber-primary);
-  }
+/* === UTILITIES === */
+.text-cyber {
+  color: var(--cyber-primary);
+}
 
-  .text-quantum {
-    color: var(--quantum-primary);
-  }
+.text-quantum {
+  color: var(--quantum-primary);
+}
 
-  .bg-cyber {
-    background-color: var(--cyber-primary);
-  }
+.bg-cyber {
+  background-color: var(--cyber-primary);
+}
 
-  .bg-quantum {
-    background-color: var(--quantum-primary);
-  }
+.bg-quantum {
+  background-color: var(--quantum-primary);
+}
 
-  .border-cyber {
-    border-color: var(--cyber-primary);
-  }
+.border-cyber {
+  border-color: var(--cyber-primary);
+}
 
-  .border-quantum {
-    border-color: var(--quantum-primary);
-  }
+.border-quantum {
+  border-color: var(--quantum-primary);
 }
 
 /* ===== KEYFRAME ANIMATIONS ===== */

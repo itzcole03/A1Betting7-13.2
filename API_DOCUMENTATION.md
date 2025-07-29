@@ -180,7 +180,71 @@ Retrieve optimized cross-sport lineups from completed analysis.
 ]
 ```
 
-### Get Supported Sports
+### MLB Integration (2025-07-28)
+
+**MLB (Major League Baseball) is now fully supported with real data ingestion, ETL, feature engineering, and model validation.**
+
+- Data sources: SportRadar, TheOdds, PrizePicks (where available)
+- ETL pipeline: `backend/services/mlb_provider_client.py`, `backend/etl_mlb.py`
+- Feature engineering: `backend/services/mlb_feature_engineering.py`
+- Model: Integrated with `EnhancedMathematicalModelService` for MLB props/outcomes
+- API: Unified endpoints return MLB props and predictions via `BetAnalysisResponse`
+- Frontend: MLB props, predictions, and explanations are displayed in `PropOllamaUnified.tsx`
+
+#### Lessons Learned
+
+- Modular, sport-by-sport approach ensures high accuracy and reliability
+- Real API keys are required for full data ingestion; pipeline robust to missing keys
+- Unified response model enables seamless frontend integration
+
+---
+
+## MLB Integration Best Practices (2025-07-28)
+
+The MLB data pipeline and API integration now follow these robust, production-grade best practices:
+
+- **Persistent Redis Caching**: All event, team, odds, and event mapping data are cached in Redis with a minimum TTL of 10 minutes to minimize API calls and ensure reliability.
+- **Dynamic, Quota-Aware Rate Limiting**: All API requests parse quota headers (e.g., `x-requests-remaining`) and throttle dynamically to avoid quota exhaustion. Rate limiting state is persisted in Redis.
+- **Canonical Team Normalization & Event Mapping**: TheOdds `/participants` endpoint is used to maintain a canonical team list. SportRadar event mapping endpoints are used for robust cross-provider event ID matching, always matching on normalized team names and event start times (±5 min window).
+- **Exponential Backoff & Retry Logic**: All API fetches implement exponential backoff and retry for 429/5xx errors, with logging and alerting on persistent failures. This ensures resilience to transient provider outages and quota limits.
+- **Secure Secret Management**: All API keys are loaded from environment variables or config files via `config_manager.py`. No secrets are ever hardcoded in source.
+
+**Reference Implementation:** See `backend/services/mlb_provider_client.py` for the full implementation of these patterns.
+
+---
+
+# API Documentation: MLB Extras (2025-07-28)
+
+## New Endpoints
+
+### GET `/mlb/action-shots/{event_id}`
+
+- **Description:** Get AP Action Shots for a given MLB event.
+- **Params:**
+  - `event_id` (str): MLB event ID
+- **Returns:** List of image asset dicts (see AP Action Shots manifest)
+
+### GET `/mlb/country-flag/{country_code}`
+
+- **Description:** Get country flag image URL by country code.
+- **Params:**
+  - `country_code` (str): ISO country code (e.g., 'US', 'JP')
+- **Returns:** Image URL (str) or null
+
+### GET `/mlb/odds-comparison/?market_type=...`
+
+- **Description:** Get odds comparison data for MLB by market type.
+- **Params:**
+  - `market_type` (str, enum): 'futures', 'prematch', 'regular', 'playerprops' (default: 'regular')
+- **Returns:** List of odds dicts (structure varies by market)
+
+---
+
+**Note:** These endpoints are implemented in `backend/routes/mlb_extras.py` and use methods from `MLBProviderClient`. See code for details and caching behavior.
+
+---
+
+## Supported Sports
 
 List all sports supported by the analysis engine.
 
@@ -205,7 +269,7 @@ List all sports supported by the analysis engine.
 ]
 ```
 
-### Get System Status
+## Get System Status
 
 Check the real-time analysis system status.
 
@@ -720,3 +784,68 @@ rules:
 - The engine checks if the current UTC time is within a rule's `time_window` before applying it.
 - Violations are reported in the response as shown above.
 - Rules can be reloaded at runtime via the admin endpoint.
+
+## Minimal Test App Endpoints (for CI/dev integration)
+
+These endpoints are provided by `backend/test_app.py` for lightweight health checks, version checks, and frontend integration tests. They return static or mock data and are not connected to production models or databases.
+
+### GET /
+
+- **Description:** Root endpoint for service identification.
+- **Response:** `{ "name": "A1Betting Ultra-Enhanced Backend" }`
+
+### GET /api/version
+
+- **Description:** Legacy version check endpoint.
+- **Response:** `{ "version": "1.0.0", "status": "ok", "uptime": <seconds>, "dependencies": { ... } }`
+
+### GET /api/health/status
+
+- **Description:** Legacy health check endpoint.
+- **Response:** `{ "status": "healthy", "uptime": <seconds>, "services": [ ... ], "dependencies": { ... } }`
+
+### GET /health
+
+- **Description:** Modern health check endpoint.
+- **Response:** `{ "status": "healthy", "uptime": <seconds>, "services": [ ... ], "dependencies": { ... } }`
+
+### GET /version
+
+- **Description:** Modern version check endpoint.
+- **Response:** `{ "version": "1.0.0", "status": "ok", "uptime": <seconds>, "dependencies": { ... } }`
+
+### GET /test
+
+- **Description:** Simple test endpoint for connectivity.
+- **Response:** `{ "message": "Test endpoint is working" }`
+
+### POST /api/v1/unified/analysis
+
+- **Description:** Minimal mock analysis endpoint for frontend integration.
+- **Request Body:** `{}` (ignored)
+- **Response:**
+  ```json
+  {
+    "enriched_props": [
+      {
+        "prop_id": 1,
+        "player": "Test Player",
+        "market": "points",
+        "line": 25.5,
+        "prediction": 27,
+        "confidence": 0.82
+      }
+    ],
+    "confidence_score": 0.82,
+    "diagnostic": { "source": "mock", "latency_ms": 12, "model": "test-mock" }
+  }
+  ```
+
+### GET /api/v1/unified/analysis
+
+- **Description:** Simple GET for unified analysis endpoint (mock).
+- **Response:** `{ "message": "GET endpoint for unified analysis is working" }`
+
+---
+
+> **Note:** These endpoints are for development/testing only and should not be used in production. For full API details, see the main documentation above.

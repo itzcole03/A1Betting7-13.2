@@ -70,7 +70,7 @@ export class UnifiedLogger {
       data,
     };
 
-    this.logs.push(entry);
+    this.logs.push(_entry);
 
     // Keep only the most recent logs
     if (this.logs.length > this.maxLogs) {
