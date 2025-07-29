@@ -13,18 +13,126 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 
 class MLBProviderClient:
-    # --- Metrics and Alerting Hooks ---
     @staticmethod
-    def metrics_increment(metric_name: str) -> None:
-        # Placeholder for metrics integration (e.g., Prometheus, StatsD)
-        # Example: metrics.increment(metric_name)
-        pass
+    def alert_event(event_name: str, details: dict):
+        # Placeholder for real alerting (e.g., Sentry, email, Slack)
+        logger.warning(f"[ALERT] {event_name}: {json.dumps(details)}")
 
     @staticmethod
-    def alert_event(event_name: str, context: Optional[dict] = None) -> None:
-        # Placeholder for alerting integration (e.g., Sentry, PagerDuty)
-        # Example: alert_event(event_name, context)
-        pass
+    def metrics_increment(metric_name: str):
+        # Placeholder for real metrics integration (e.g., Prometheus, StatsD)
+        logger.info(f"[METRICS] Incremented metric: {metric_name}")
+
+    async def fetch_player_props_theodds(self) -> list:
+        """
+        Fetch and normalize MLB player props from TheOdds API using the per-event endpoint.
+        Returns a list of normalized player prop dicts.
+        """
+        import asyncio
+        import json
+
+        redis_conn = await self._get_redis()
+        season_year = time.strftime("%Y")
+        cache_key = f"mlb:player_props:{season_year}"
+        cached = await redis_conn.get(cache_key)
+        if cached:
+            logger.info("[MLBProviderClient] Returning cached player props from Redis.")
+            MLBProviderClient.metrics_increment("mlb.player_props.cache_hit")
+            return json.loads(cached)
+
+        # Step 1: Fetch all MLB events
+        events_url = f"https://api.the-odds-api.com/v4/sports/baseball_mlb/events/?apiKey={self.theodds_api_key}"
+        resp, err = await self._httpx_get_with_backoff(events_url)
+        if resp is None:
+            logger.error("Error fetching MLB events from TheOdds: %s", err)
+            return json.loads(cached) if cached else []
+        events = resp.json()
+        if not isinstance(events, list):
+            logger.error("MLB events response is not a list!")
+            return []
+
+        # Step 2: For each event, fetch player prop odds using the per-event endpoint
+        player_props = []
+        player_prop_markets = [
+            "batter_home_runs",
+            "batter_first_home_run",
+            "batter_hits",
+            "batter_total_bases",
+            "batter_rbis",
+            "batter_runs_scored",
+            "batter_hits_runs_rbis",
+            "batter_singles",
+            "batter_doubles",
+            "batter_triples",
+            "batter_walks",
+            "batter_strikeouts",
+            "batter_stolen_bases",
+            "pitcher_strikeouts",
+            "pitcher_record_a_win",
+            "pitcher_hits_allowed",
+        ]
+
+        async def fetch_event_player_props(event):
+            event_id = event.get("id")
+            event_name = f"{event.get('home_team', '')} vs {event.get('away_team', '')}"
+            event_start_time = event.get("commence_time", "")
+            url = f"https://api.the-odds-api.com/v4/sports/baseball_mlb/events/{event_id}/odds/?apiKey={self.theodds_api_key}&markets={','.join(player_prop_markets)}"
+            resp, err = await self._httpx_get_with_backoff(url)
+            if resp is None:
+                logger.error(f"Error fetching player props for event {event_id}: {err}")
+                return []
+            data = resp.json()
+            results = []
+            for bookmaker in data.get("bookmakers", []):
+                for market in bookmaker.get("markets", []):
+                    market_key = market.get("key", "")
+                    if market_key not in player_prop_markets:
+                        continue
+                    for outcome in market.get("outcomes", []):
+                        player_name = (
+                            outcome.get("player")
+                            or outcome.get("description")
+                            or outcome.get("name")
+                        )
+                        stat_type = market_key
+                        matchup = event_name
+                        confidence = 75.0
+                        line = outcome.get("point") or market.get("point") or None
+                        results.append(
+                            {
+                                "event_id": event_id,
+                                "event_name": event_name,
+                                "start_time": event_start_time,
+                                "team_name": outcome.get("team") or "",
+                                "player_name": player_name,
+                                "stat_type": stat_type,
+                                "odds_type": stat_type,
+                                "matchup": matchup,
+                                "confidence": confidence,
+                                "value": outcome.get("price"),
+                                "provider_id": bookmaker.get("key"),
+                                "mapping_fallback": False,
+                                "line": line,
+                            }
+                        )
+            return results
+
+        sem = asyncio.Semaphore(5)
+
+        async def safe_fetch(event):
+            async with sem:
+                return await fetch_event_player_props(event)
+
+        tasks = [safe_fetch(event) for event in events]
+        all_results = await asyncio.gather(*tasks)
+        for result in all_results:
+            player_props.extend(result)
+
+        await redis_conn.set(cache_key, json.dumps(player_props), ex=self.CACHE_TTL)
+        logger.info(
+            f"[MLBProviderClient] END fetch_player_props_theodds, props count: {len(player_props)}"
+        )
+        return player_props
 
     async def fetch_odds_comparison(
         self, market_type: str = "regular"
@@ -35,72 +143,121 @@ class MLBProviderClient:
         market_type: one of 'futures', 'prematch', 'regular', 'playerprops'
         Returns a list of odds dicts.
         """
-        import json
+        from logging import getLogger
 
-        logger.debug(
-            f"[MLBProviderClient] START fetch_odds_comparison for market_type={market_type}"
-        )
-        redis_conn = await self._get_redis()
-        season_year = time.strftime("%Y")
-        cache_key = f"mlb:odds_comparison:{market_type}:{season_year}"
-        cached = await redis_conn.get(cache_key)
-        if cached:
-            logger.info(
-                f"[MLBProviderClient] Returning cached odds comparison for {market_type}."
+        logger = getLogger("propollama")
+        print("[DEBUG] Entered fetch_odds_comparison")
+        try:
+            logger.debug(
+                f"[MLBProviderClient] START fetch_odds_comparison for market_type={market_type}"
             )
-            MLBProviderClient.metrics_increment(
-                f"mlb.odds_comparison.{market_type}.cache_hit"
-            )
-            return json.loads(cached)
-        base_urls = {
-            "futures": "https://api.sportradar.com/oddscomparison-futures-trial/v4/en/sports/baseball/mlb/futures.json",
-            "prematch": "https://api.sportradar.com/oddscomparison-prematch-trial/v4/en/sports/baseball/mlb/prematch.json",
-            "regular": "https://api.sportradar.com/oddscomparison-trial/v4/en/sports/baseball/mlb/odds.json",
-            "playerprops": "https://api.sportradar.com/oddscomparison-playerprops-trial/v4/en/sports/baseball/mlb/playerprops.json",
-        }
-        url = base_urls.get(market_type)
-        data = None
-        if url:
-            url = f"{url}?api_key={self.sportradar_api_key}"
-            resp, err = await self._httpx_get_with_backoff(url)
-            if resp is not None:
-                data = resp.json()
-                if data:
-                    await redis_conn.set(cache_key, json.dumps(data), ex=self.CACHE_TTL)
+            redis_conn = await self._get_redis()
+            season_year = time.strftime("%Y")
+            cache_key = f"mlb:odds_comparison:{market_type}:{season_year}"
+            cached = await redis_conn.get(cache_key)
+            if cached:
+                print(
+                    f"[DEBUG] Returning cached odds comparison for {market_type}, type: {type(cached)}"
+                )
+                logger.info(
+                    f"[MLBProviderClient] Returning cached odds comparison for {market_type}."
+                )
+                MLBProviderClient.metrics_increment(
+                    f"mlb.odds_comparison.{market_type}.cache_hit"
+                )
+                result = json.loads(cached)
+                print(f"[DEBUG] Returning result from cache, type: {type(result)}")
+                return result
+            # PATCH: If odds_comparison cache is missing, try mlb:odds:2025
+            fallback_odds_key = f"mlb:odds:{season_year}"
+            fallback_cached = await redis_conn.get(fallback_odds_key)
+            if fallback_cached:
+                logger.info(
+                    f"[MLBProviderClient] PATCH: Returning fallback odds from {fallback_odds_key}"
+                )
+                MLBProviderClient.metrics_increment(
+                    f"mlb.odds_comparison.fallback_odds_key_hit"
+                )
+                result = json.loads(fallback_cached)
+                return result
+            base_urls = {
+                "futures": "https://api.sportradar.com/oddscomparison-futures-trial/v4/en/sports/baseball/mlb/futures.json",
+                "prematch": "https://api.sportradar.com/oddscomparison-prematch-trial/v4/en/sports/baseball/mlb/prematch.json",
+                "regular": "https://api.sportradar.com/oddscomparison-trial/v4/en/sports/baseball/mlb/odds.json",
+                "playerprops": "https://api.sportradar.com/oddscomparison-playerprops-trial/v4/en/sports/baseball/mlb/playerprops.json",
+            }
+            url = base_urls.get(market_type)
+            data = None
+            if url:
+                url = f"{url}?api_key={self.sportradar_api_key}"
+                resp, err = await self._httpx_get_with_backoff(url)
+                if resp is not None:
+                    logger.info(f"[SPORTRADAR] playerprops status: {resp.status_code}")
                     logger.info(
-                        "[MLBProviderClient] Returning SportRadar odds comparison data."
+                        f"[SPORTRADAR] playerprops headers: {dict(resp.headers)}"
                     )
-                    return data
+                    try:
+                        logger.info(
+                            f"[SPORTRADAR] playerprops body: {resp.text[:1000]}"
+                        )
+                    except Exception as e:
+                        logger.error(f"[SPORTRADAR] error logging body: {e}")
+                    data = resp.json()
+                    # Dump raw response for debugging
+                    with open(
+                        "sportradar_playerprops_raw.json", "w", encoding="utf-8"
+                    ) as f:
+                        import json as _json
+
+                        _json.dump(data, f, indent=2)
+                    if data:
+                        await redis_conn.set(
+                            cache_key, json.dumps(data), ex=self.CACHE_TTL
+                        )
+                        logger.info(
+                            "[MLBProviderClient] Returning SportRadar odds comparison data."
+                        )
+                        print(
+                            f"[DEBUG] Returning SportRadar odds comparison data, type: {type(data)}"
+                        )
+                        return data
+                    else:
+                        logger.warning(
+                            "[MLBProviderClient] SportRadar odds comparison returned no data, will try TheOdds fallback."
+                        )
                 else:
+                    logger.error(
+                        f"Error fetching odds comparison ({market_type}): {err}"
+                    )
+                    MLBProviderClient.alert_event(
+                        "mlb_odds_comparison_fetch_failure",
+                        {"market_type": market_type, "error": str(err)},
+                    )
                     logger.warning(
-                        "[MLBProviderClient] SportRadar odds comparison returned no data, will try TheOdds fallback."
+                        "[MLBProviderClient] SportRadar odds comparison failed, will try TheOdds fallback."
                     )
             else:
-                logger.error(f"Error fetching odds comparison ({market_type}): {err}")
+                logger.error(f"Unknown market_type for odds comparison: {market_type}")
                 MLBProviderClient.alert_event(
-                    "mlb_odds_comparison_fetch_failure",
-                    {"market_type": market_type, "error": str(err)},
+                    "mlb_odds_comparison_unknown_market_type",
+                    {"market_type": market_type},
                 )
-                logger.warning(
-                    "[MLBProviderClient] SportRadar odds comparison failed, will try TheOdds fallback."
+                print(
+                    f"[DEBUG] Unknown market_type for odds comparison: {market_type}, returning []"
                 )
-        else:
-            logger.error(f"Unknown market_type for odds comparison: {market_type}")
-            MLBProviderClient.alert_event(
-                "mlb_odds_comparison_unknown_market_type", {"market_type": market_type}
+                return []
+            # Fallback to TheOdds API
+            logger.info(
+                "[MLBProviderClient] Fetching MLB odds from TheOdds API as fallback."
             )
-            return []
-
-        # Fallback to TheOdds API
-        logger.info(
-            "[MLBProviderClient] Fetching MLB odds from TheOdds API as fallback."
-        )
-        odds = await self.fetch_odds_theodds()
-        if odds:
-            if isinstance(odds, list) and len(odds) > 0:
+            # Fetch both team props and player props from TheOdds
+            team_props = await self.fetch_odds_theodds()
+            player_props = await self.fetch_player_props_theodds()
+            odds = (team_props or []) + (player_props or [])
+            if odds and isinstance(odds, list) and len(odds) > 0:
                 await redis_conn.set(cache_key, json.dumps(odds), ex=self.CACHE_TTL)
                 logger.info(
-                    "[MLBProviderClient] Returning TheOdds odds data as fallback."
+                    "[MLBProviderClient] Returning TheOdds odds data (team + player props) as fallback."
                 )
                 MLBProviderClient.metrics_increment(
                     "mlb.odds_comparison.fallback_success"
@@ -109,10 +266,13 @@ class MLBProviderClient:
                     "mlb_odds_comparison_fallback",
                     {"market_type": market_type, "source": "TheOdds"},
                 )
+                print(
+                    f"[DEBUG] Returning TheOdds odds data (team + player props) as fallback, type: {type(odds)}"
+                )
                 return odds
             else:
                 logger.warning(
-                    "[MLBProviderClient] TheOdds odds fetch returned empty list. Not overwriting cache."
+                    "[MLBProviderClient] TheOdds odds fetch (team + player props) returned empty list. Not overwriting cache."
                 )
                 MLBProviderClient.metrics_increment(
                     "mlb.odds_comparison.fallback_empty"
@@ -120,15 +280,36 @@ class MLBProviderClient:
                 MLBProviderClient.alert_event(
                     "mlb_odds_comparison_fallback_empty", {"market_type": market_type}
                 )
-        logger.error(
-            "[MLBProviderClient] Both SportRadar and TheOdds odds fetch failed or returned no data."
-        )
-        MLBProviderClient.metrics_increment("mlb.odds_comparison.total_failure")
-        MLBProviderClient.alert_event(
-            "mlb_odds_comparison_total_failure", {"market_type": market_type}
-        )
-        cached_final = await redis_conn.get(cache_key)
-        return json.loads(cached_final) if cached_final else []
+            logger.error(
+                "[MLBProviderClient] Both SportRadar and TheOdds odds fetch failed or returned no data."
+            )
+            MLBProviderClient.metrics_increment("mlb.odds_comparison.total_failure")
+            MLBProviderClient.alert_event(
+                "mlb_odds_comparison_total_failure", {"market_type": market_type}
+            )
+            cached_final = await redis_conn.get(cache_key)
+            logger.error(
+                f"[MLBProviderClient] Fallback failed: SportRadar and TheOdds returned no data. cache_key={cache_key}, cached_final={bool(cached_final)}"
+            )
+            result = json.loads(cached_final) if cached_final else []
+            print(f"[DEBUG] Fallback: returning cached_final, type: {type(result)}")
+            return result
+        except Exception as e:
+            logger.error(
+                f"[MLBProviderClient] Unhandled exception in fetch_odds_comparison: {e}",
+                exc_info=True,
+            )
+            print(
+                f"[MLBProviderClient] Unhandled exception in fetch_odds_comparison: {e}"
+            )
+            print(
+                f"[DEBUG] Unhandled exception in fetch_odds_comparison: {e}, returning []"
+            )
+            return []
+            print(
+                f"[MLBProviderClient] Unhandled exception in fetch_odds_comparison: {e}"
+            )
+            return []
 
     async def fetch_country_flag(self, country_code: str) -> Optional[str]:
         """
@@ -500,15 +681,7 @@ class MLBProviderClient:
         return events
 
     async def fetch_odds_theodds(self) -> List[Dict[str, Any]]:
-        # Dump full raw odds data to a file for inspection
-        with open("mlb_odds_raw_dump.json", "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-        logger.debug(
-            f"[MLBProviderClient] RAW TheOdds data dumped to mlb_odds_raw_dump.json"
-        )
         logger.debug("[MLBProviderClient] START fetch_odds_theodds")
-        import json
-
         now = time.time()
         redis_conn = await self._get_redis()
         # Use season year for more granular cache key
@@ -519,6 +692,22 @@ class MLBProviderClient:
             logger.info("[MLBProviderClient] Returning cached odds data from Redis.")
             MLBProviderClient.metrics_increment("mlb.odds.cache_hit")
             return json.loads(cached)
+        # Fetch from TheOdds API
+        url = f"https://api.the-odds-api.com/v4/sports/baseball_mlb/odds/?apiKey={self.theodds_api_key}&regions=us&markets=h2h,spreads,totals"
+        resp, err = await self._httpx_get_with_backoff(url)
+        if resp is None:
+            logger.error("Error fetching odds from TheOdds: %s", err)
+            if cached:
+                return json.loads(cached)
+            else:
+                return []
+        data = resp.json()
+        # Dump full raw odds data to a file for inspection
+        with open("mlb_odds_raw_dump.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        logger.debug(
+            f"[MLBProviderClient] RAW TheOdds data dumped to mlb_odds_raw_dump.json"
+        )
         quota_key = "mlb:odds:quota"
         quota = await redis_conn.get(quota_key)
         if quota is not None and int(quota) < 5:
@@ -562,9 +751,7 @@ class MLBProviderClient:
         data = resp.json()
         odds = []
         for event in data:
-            event_name = (
-                event.get("home_team", "") + " vs " + event.get("away_team", "")
-            )
+            event_name = f"{event.get('home_team', '')} vs {event.get('away_team', '')}"
             event_start_time = event.get("commence_time", "")
             theodds_event_id = event.get("id")
             mapped_srid = None
@@ -582,48 +769,64 @@ class MLBProviderClient:
                         break
             else:
                 logger.debug(
-                    "[MLBProviderClient] Fallback: No event mapping for TheOdds event_id %s. Using TheOdds event_id as canonical.",
-                    theodds_event_id,
+                    f"[MLBProviderClient] Fallback: No event mapping for TheOdds event_id {theodds_event_id}. Using TheOdds event_id as canonical."
                 )
             for bookmaker in event.get("bookmakers", []):
                 for market in bookmaker.get("markets", []):
                     market_key = market.get("key", "")
-                    logger.debug(
-                        f"[MLBProviderClient] Event: {event.get('id')} Market: {market_key} RAW: {json.dumps(market)[:1000]}"
-                    )
                     for outcome in market.get("outcomes", []):
-                        logger.debug(
-                            f"[MLBProviderClient] Event: {event.get('id')} Market: {market_key} Outcome RAW: {json.dumps(outcome)[:500]}"
-                        )
-                        # Heuristic: If market_key contains 'player' or 'prop', treat as player prop
-                        # Try to extract player name from outcome fields
+                        # Player prop detection (future-proof):
                         player_name = None
-                        if "player" in market_key or "prop" in market_key:
+                        # If market_key contains 'player' or 'prop', or outcome has a 'player' field
+                        if (
+                            "player" in market_key.lower()
+                            or "prop" in market_key.lower()
+                            or outcome.get("player")
+                        ):
                             player_name = (
-                                outcome.get("description")
-                                or outcome.get("player")
+                                outcome.get("player")
+                                or outcome.get("description")
                                 or outcome.get("participant")
                             )
-                            # Fallback: if outcome name looks like a player (e.g., contains a space and not a team)
+                            # Fallback: if outcome name looks like a player (contains a space, not a team, not Over/Under)
                             if not player_name and outcome.get("name"):
                                 name_val = outcome["name"]
-                                # Ignore 'Over'/'Under' as player names
-                                if name_val.lower() in ["over", "under"]:
-                                    player_name = None
-                                elif len(name_val.split()) >= 2 and not any(
-                                    team in name_val
-                                    for team in [
-                                        event.get("home_team", ""),
-                                        event.get("away_team", ""),
-                                    ]
+                                if (
+                                    name_val.lower() not in ["over", "under"]
+                                    and len(name_val.split()) >= 2
+                                    and not any(
+                                        team in name_val
+                                        for team in [
+                                            event.get("home_team", ""),
+                                            event.get("away_team", ""),
+                                        ]
+                                    )
                                 ):
                                     player_name = name_val
-                        # If still not found, and this is a team prop, set to None or 'Team'
-                        if not player_name and (
-                            market_key in ["totals", "h2h", "spreads"]
-                            or outcome.get("name", "").lower() in ["over", "under"]
-                        ):
-                            player_name = None
+                        # Team prop: set player_name to team name or descriptive label
+                        if not player_name and market_key in [
+                            "totals",
+                            "h2h",
+                            "spreads",
+                        ]:
+                            # Use team_name if available, else label
+                            player_name = (
+                                outcome.get("name") or f"{market_key.title()} Prop"
+                            )
+                        # Stat type: use market_key
+                        stat_type = market_key
+                        # Matchup: event_name
+                        matchup = event_name
+                        # Confidence: not present, so default or calculate (could be improved with model)
+                        confidence = 75.0
+                        # For totals, extract the line (run total) from the market or outcome
+                        line = None
+                        if market_key == "totals":
+                            line = (
+                                outcome.get("point")
+                                or market.get("point")
+                                or market.get("total")
+                            )
                         odds.append(
                             {
                                 "event_id": mapped_srid or theodds_event_id,
@@ -631,10 +834,14 @@ class MLBProviderClient:
                                 "start_time": event_start_time,
                                 "team_name": outcome.get("name"),
                                 "player_name": player_name,
-                                "odds_type": market_key,
+                                "stat_type": stat_type,
+                                "odds_type": stat_type,
+                                "matchup": matchup,
+                                "confidence": confidence,
                                 "value": outcome.get("price"),
                                 "provider_id": bookmaker.get("key"),
                                 "mapping_fallback": mapped_srid is None,
+                                "line": line,
                             }
                         )
         await redis_conn.set(cache_key, json.dumps(odds), ex=self.CACHE_TTL)

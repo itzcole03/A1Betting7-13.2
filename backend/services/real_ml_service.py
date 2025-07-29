@@ -168,6 +168,9 @@ class RealMLModels:
             await self._initialize_fallback_models()
 
     async def _generate_realistic_training_data(self) -> Dict[str, pd.DataFrame]:
+        # TODO: For MLB, tune stat distributions and market features using real MLB data.
+        # Use MLB-specific stats (runs, hits, ERA, WHIP, player stats) and market quirks (prop types, variance, lineup volatility).
+        # See mlb.prompt.md for details.
         """Generate realistic training data based on sports betting patterns"""
         np.random.seed(42)  # For reproducible results
 

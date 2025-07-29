@@ -1,3 +1,43 @@
+## MLB Odds/AI Insights Data Flow & Mapping (Frontend)
+
+### Overview
+
+This section documents how MLB odds and AI insights are fetched, mapped, and displayed in the frontend analytics table. This is critical for future maintainers and Copilot agents.
+
+### Data Fetch
+
+- The frontend calls `fetchFeaturedProps('MLB')` in `frontend/src/services/unified/FeaturedPropsService.ts`.
+- This fetches data from the backend endpoint `/mlb/odds-comparison/`.
+- The backend may return multiple rows per event, especially for "totals" (e.g., Total Runs), with separate rows for "Over" and "Under" bets.
+
+### Grouping & Merging Logic
+
+- All rows with `stat_type === 'totals'` are grouped by `event_id`, `stat_type`, and line value.
+- For each group, Over and Under odds are merged into a single object with both `overOdds` and `underOdds` fields.
+- The "Player Name" column for these rows is set to the event name, matchup, or a fallback like "Total (Game)".
+- This ensures only one row per prop is shown in the table, with both Over/Under odds and a meaningful label.
+
+### Non-totals
+
+- All other props (e.g., spreads, h2h) are mapped as before, with player/team logic to ensure a user-friendly label.
+
+### Mapping Output
+
+- Each mapped prop includes: id, player (display name), matchup, stat, line, overOdds, underOdds, confidence, sport, gameTime, pickType.
+- Diagnostic logs are output for each mapped prop for troubleshooting.
+
+### Table Display
+
+- The frontend table displays one row per prop, with correct odds and a clear, user-friendly name for each.
+
+### Maintenance Tips
+
+- "Player Name" should never be "Over" or "Under" for totals.
+- Only one row per prop should be shown for totals, with both odds present.
+- Check diagnostic logs for edge cases or missing data.
+
+For further details, see `frontend/src/services/unified/FeaturedPropsService.ts` and the API documentation.
+
 # PropOllama - AI-Powered Sports Analytics Platform
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Python](https://img.shields.io/badge/python-3.8%2B-blue) ![TypeScript](https://img.shields.io/badge/typescript-%5E5.0-blue) ![Build](https://img.shields.io/badge/build-passing-brightgreen) ![Status](https://img.shields.io/badge/status-functional-green)
@@ -302,6 +342,7 @@ The PropOllama interface features:
 
 ### Troubleshooting
 
+- **Empty MLB Table**: If the MLB props/AI insights table is empty, check backend logs for errors. A missing `alert_event` method in `MLBProviderClient` will break fallback logic and cause empty responses. Ensure this method exists and Redis is running.
 - **Port Conflicts**: Dev server will auto-select available ports
 - **Dependencies**: Run `npm install` and `pip install -r requirements.txt`
 - **Environment**: Ensure `.env` file is properly configured

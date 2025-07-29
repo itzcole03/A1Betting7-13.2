@@ -1,3 +1,11 @@
+## MLB Pipeline Lessons Learned (2025-07-28)
+
+- End-to-end MLB data ingestion, ETL, feature engineering, model prediction, and frontend integration are functional and validated.
+- The backend and frontend handle edge cases (missing data, empty explanations) robustly.
+- Model training currently uses general sports patterns; MLB-specific stat distributions and market quirks should be incorporated for optimal accuracy (see TODO in `real_ml_service.py`).
+- Unified API returns `BetAnalysisResponse` for MLB, and the frontend displays all required fields.
+- Next steps: Gather real MLB stat distributions, tune model parameters, and further document MLB-specific edge cases and best practices.
+
 # PropOllama Project Status Report
 
 **Report Date**: January 20, 2025  

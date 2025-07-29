@@ -31,6 +31,46 @@ Implements real-time data ingestion, historical tracking, and value detection.
 
 
 class ComprehensivePrizePicksService:
+
+    async def get_mlb_prizepicks_props_for_ui(self) -> list[dict]:
+        """
+        Fetch, filter, and map only MLB PrizePicks projections for UI display.
+        Returns a list of dicts with all required fields: player_name, team, stat_type, line_score, matchup, start_time, etc.
+        """
+        logger.info("[SERVICE] get_mlb_prizepicks_props_for_ui called")
+        try:
+            projections = await self.get_current_projections()
+            logger.info(
+                f"[SERVICE] get_mlb_prizepicks_props_for_ui fetched {len(projections)} projections"
+            )
+            mlb_props = []
+            for p in projections:
+                league = (p.get("league") or p.get("sport") or "").upper()
+                if league != "MLB":
+                    continue
+                mlb_props.append(
+                    {
+                        "id": p.get("id"),
+                        "player_name": p.get("player_name", "Unknown"),
+                        "team": p.get("team", "Unknown"),
+                        "stat_type": p.get("stat_type", "Unknown"),
+                        "line_score": p.get("line_score"),
+                        "matchup": p.get("opponent") or p.get("matchup") or "Unknown",
+                        "start_time": p.get("start_time"),
+                        "status": p.get("status", "active"),
+                        "updated_at": p.get("updated_at"),
+                        "league": league,
+                        "venue": p.get("venue", ""),
+                    }
+                )
+            logger.info(
+                f"[SERVICE] get_mlb_prizepicks_props_for_ui returning {len(mlb_props)} MLB props"
+            )
+            return mlb_props
+        except Exception as e:
+            logger.error(f"Error filtering/mapping MLB PrizePicks projections: {e}")
+            return []
+
     async def get_current_props(self) -> List[Any]:
         """Return fast mock PrizePicks props for development/testing."""
         # Return mock data instantly to avoid endpoint hangs

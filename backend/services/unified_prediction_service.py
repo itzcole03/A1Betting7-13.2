@@ -14,7 +14,7 @@ Enterprise-grade unified service for maximum betting accuracy and profitability.
 import asyncio
 import logging
 import math
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -22,15 +22,12 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-from backend.auth.user_service import UserService
-
 from .comprehensive_prizepicks_service import ComprehensivePrizePicksService
 from .enhanced_prizepicks_service_v2 import enhanced_prizepicks_service_v2
 
 # Import advanced services
 try:
     from .quantum_optimization_service import (
-        OptimizationResult,
         quantum_portfolio_manager,
     )
 
@@ -89,7 +86,7 @@ class EnhancedPrediction:
 
     # Multi-platform data
     source: str = "PrizePicks"
-    arbitrage_opportunities: List[Dict[str, Any]] = None
+    arbitrage_opportunities: List[Dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self):
         return asdict(self)
@@ -159,81 +156,46 @@ class UnifiedPredictionService:
         try:
             # Fetch user profile if user_id is provided
             user_profile = None
-            if user_id:
-                user_service = UserService()
-                user_profile = user_service.get_user_by_id(user_id)
+            # Skipping user profile fetch for now (session required)
 
-            # MLB: Use MLBProviderClient for real odds/props
+            # MLB: Use MLBProviderClient for real odds/props, but enrich with AI/ML logic
             if sport and sport.upper() == "MLB":
                 from backend.services.mlb_provider_client import MLBProviderClient
 
                 mlb_client = MLBProviderClient()
-                mlb_odds = await mlb_client.fetch_odds_comparison(market_type="regular")
-                logger.debug(f"[MLB] Raw odds from MLBProviderClient: {mlb_odds}")
-                if not mlb_odds:
-                    logger.warning("[MLB] No odds returned from MLBProviderClient!")
-                else:
-                    logger.info(f"[MLB] Number of odds fetched: {len(mlb_odds)}")
+                try:
+                    mlb_odds = await mlb_client.fetch_odds_comparison(market_type="regular")
+                    logger.debug("[MLB] Raw odds from MLBProviderClient: %r", mlb_odds)
+                    if not mlb_odds:
+                        raise ValueError('No odds data returned from provider')
+                except Exception as e:
+                    logger.error(f'[MLB] Failed to fetch odds: {str(e)}')
+                    raise  # Do not fallback; propagate the error
+                logger.info("[MLB] Number of odds fetched: %d", len(mlb_odds))
                 enhanced_predictions = []
                 filtered_out = 0
                 for odd in mlb_odds:
-                    logger.debug(f"[MLB] Raw odds entry: {odd}")
-                    confidence = (
-                        odd.get("confidence_score") or odd.get("confidence") or 75.0
+                    enriched_input = dict(odd)  # Start with a copy
+                    enriched_input['sport'] = 'MLB'
+                    enriched_input['player_name'] = str(odd.get('player_name') or 'Team')
+                    enriched_input["team"] = str(
+                        odd.get("event_name", "Unknown Team")
                     )
-                    if confidence < min_confidence:
-                        logger.debug(
-                            f"[MLB] Skipping prop due to low confidence: {confidence} | Odd: {odd}"
-                        )
-                        filtered_out += 1
-                        continue
-                    try:
-                        pred = EnhancedPrediction(
-                            id=odd.get("event_id", "mlb-unknown"),
-                            player_name=(
-                                odd.get("player_name")
-                                or odd.get("participant")
-                                or odd.get("player")
-                                or (
-                                    None
-                                    if odd.get("odds_type", "").startswith("h2h")
-                                    or odd.get("odds_type", "").startswith("spreads")
-                                    else odd.get("team_name")
-                                )
-                                or "Unknown"
-                            ),
-                            team=odd.get("event_name", "Unknown Team"),
-                            sport="MLB",
-                            stat_type=odd.get("odds_type", "unknown"),
-                            line_score=odd.get("value", 0.0),
-                            recommendation="OVER",  # Placeholder, can be improved
-                            confidence=confidence,
-                            kelly_fraction=odd.get("kelly_fraction", 0.0),
-                            expected_value=odd.get("expected_value", 0.0),
-                            quantum_confidence=odd.get("quantum_confidence", 0.0),
-                            neural_score=odd.get("neural_score", 0.0),
-                            correlation_score=odd.get("correlation_score", 0.0),
-                            synergy_rating=odd.get("synergy_rating", 0.0),
-                            stack_potential=odd.get("stack_potential", 0.0),
-                            diversification_value=odd.get("diversification_value", 0.0),
-                            shap_explanation=odd.get("shap_explanation", {}),
-                            risk_assessment=odd.get("risk_assessment", {}),
-                            weather_impact=odd.get("weather_impact", 0.0),
-                            injury_risk=odd.get("injury_risk", 0.0),
-                            optimal_stake=odd.get("optimal_stake", 0.0),
-                            portfolio_impact=odd.get("portfolio_impact", 0.0),
-                            variance_contribution=odd.get("variance_contribution", 0.0),
-                            source="mlb_odds_comparison",
-                            arbitrage_opportunities=odd.get(
-                                "arbitrage_opportunities", []
-                            ),
-                        )
-                        logger.debug(f"[MLB] Normalized EnhancedPrediction: {pred}")
-                        enhanced_predictions.append(pred)
-                    except Exception as e:
-                        logger.error(
-                            f"[MLB] Error normalizing odds entry: {odd} | Error: {e}"
-                        )
+                    enriched_input["stat_type"] = str(
+                        odd.get("stat_type") or odd.get("odds_type", "unknown")
+                    )
+                    enriched_input["line_score"] = float(odd.get("value", 0.0))
+                    enriched_input["confidence"] = float(
+                        odd.get("confidence", confidence)
+                    )
+                    if odd.get('stat_type', '').lower() == 'totals':
+                        enriched_input['overOdds'] = odd.get('overOdds', 0)
+                        enriched_input['underOdds'] = odd.get('underOdds', 0)
+                    enhanced_pred = await self._enhance_prediction(enriched_input, include_ai_insights, user_profile)
+                    logger.debug(
+                        "[MLB] Enriched EnhancedPrediction: %r", enhanced_pred
+                    )
+                    enhanced_predictions.append(enhanced_pred)
                 logger.info(
                     f"[MLB] Filtered out {filtered_out} odds due to low confidence."
                 )

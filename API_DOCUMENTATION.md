@@ -201,7 +201,24 @@ Retrieve optimized cross-sport lineups from completed analysis.
 
 ## MLB Integration Best Practices (2025-07-28)
 
-The MLB data pipeline and API integration now follow these robust, production-grade best practices:
+### MLB Odds Fallback & Alerting (2025-07-29)
+
+#### Fallback Logic
+
+If the primary SportRadar API call fails (e.g., 403 Forbidden, quota, or network error), the backend automatically falls back to TheOdds API and/or cached data in Redis. This ensures the `/mlb/odds-comparison/` endpoint always returns the best available data, even if a provider is down.
+
+#### Alerting
+
+All persistent failures or fallback events are logged via a static `alert_event` method in `MLBProviderClient`. This method logs alerts for monitoring and can be extended to integrate with Sentry, email, or Slack. If this method is missing, fallback logic will break and the endpoint will return empty data.
+
+#### Troubleshooting
+
+- If the frontend table is empty, check backend logs for `AttributeError: type object 'MLBProviderClient' has no attribute 'alert_event'` or API 403 errors.
+- Ensure the `alert_event` method exists and is logging alerts.
+- Verify Redis is running and accessible for caching.
+- See `backend/services/mlb_provider_client.py` for implementation details.
+
+---
 
 - **Persistent Redis Caching**: All event, team, odds, and event mapping data are cached in Redis with a minimum TTL of 10 minutes to minimize API calls and ensure reliability.
 - **Dynamic, Quota-Aware Rate Limiting**: All API requests parse quota headers (e.g., `x-requests-remaining`) and throttle dynamically to avoid quota exhaustion. Rate limiting state is persisted in Redis.

@@ -5,7 +5,7 @@ import {
   fetchBatchPredictions,
   fetchFeaturedProps,
 } from '../services/unified/FeaturedPropsService';
-import { EnhancedBetsResponse, EnhancedPrediction } from '../types/enhancedBetting';
+import { EnhancedBetsResponse } from '../types/enhancedBetting';
 
 // Utility to safely render cell values
 function safeCell(val: any) {
@@ -172,7 +172,7 @@ const PropOllamaUnified: React.FC = () => {
   // State declarations (restored, only once, above useEffect)
   const [renderError, setRenderError] = useState<string | null>(null);
   const [expandedRowKey, setExpandedRowKey] = useState<string | null>(null);
-  const [projections, setProjections] = useState<EnhancedPrediction[]>([]);
+  const [projections, setProjections] = useState<FeaturedProp[]>([]);
   const [unifiedResponse, setUnifiedResponse] = useState<EnhancedBetsResponse | null>(null);
   const [selectedSport, setSelectedSport] = useState<string>('All');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -200,33 +200,14 @@ const PropOllamaUnified: React.FC = () => {
         // Fetch real props from backend
         const candidateProps: FeaturedProp[] = await fetchFeaturedProps(selectedSport);
         // Use backend batch endpoint for predictions
-        let enriched_props: EnhancedPrediction[] = [];
+        let enriched_props: FeaturedProp[] = [];
         if (candidateProps.length > 0) {
           // Show progress bar as batch loads
           const batchResults = await fetchBatchPredictions(candidateProps);
           enriched_props = batchResults.filter((r: any) => r && !r.error);
           setPropLoadingProgress(1);
         }
-        const safeUnifiedResponse = {
-          analysis: '',
-          confidence: 0,
-          recommendation: '',
-          key_factors: [],
-          processing_time: 0,
-          cached: false,
-          enriched_props,
-          enhanced_bets: enriched_props,
-          count: enriched_props.length,
-          portfolio_metrics: undefined,
-          ai_insights: [],
-          filters: {
-            sport: selectedSport === 'All' ? 'NBA' : selectedSport,
-            min_confidence: 0,
-            max_results: 10,
-          },
-          status: 'success',
-        };
-        setUnifiedResponse(safeUnifiedResponse);
+        setUnifiedResponse(null);
         setProjections(enriched_props);
       } catch (err: any) {
         // Log the error object for debugging
@@ -262,15 +243,15 @@ const PropOllamaUnified: React.FC = () => {
   const isSelected = (projectionId: string) => selectedProps.some(p => p.id === projectionId);
 
   // addProp handler (accepts EnhancedPrediction)
-  const addProp = (proj: EnhancedPrediction, choice: 'over' | 'under') => {
+  const addProp = (proj: FeaturedProp, choice: 'over' | 'under') => {
     if (selectedProps.length < 6 && !isSelected(proj.id)) {
       setSelectedProps([
         ...selectedProps,
         {
           id: proj.id,
-          player: proj.player_name,
-          statType: proj.stat_type,
-          line: proj.line_score,
+          player: proj.player,
+          statType: proj.stat,
+          line: proj.line,
           choice,
           odds: 1, // Placeholder, update if odds are available in EnhancedPrediction
         },
@@ -384,14 +365,13 @@ const PropOllamaUnified: React.FC = () => {
     .filter(
       p =>
         searchTerm === '' ||
-        (p.player_name && p.player_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (p.team && p.team.toLowerCase().includes(searchTerm.toLowerCase()))
+        (p.player && p.player.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (p.matchup && p.matchup.toLowerCase().includes(searchTerm.toLowerCase()))
     )
     .sort((a, b) => {
       if (sortBy === 'confidence') return b.confidence - a.confidence;
       if (sortBy === 'value') return (b as any).expected_value - (a as any).expected_value;
-      // Odds sorting removed: EnhancedPrediction does not have overOdds/underOdds
-      return (a.player_name || '').localeCompare(b.player_name || '');
+      return (a.player || '').localeCompare(b.player || '');
     });
 
   // Show only top 10 by default unless showAllProps is true
@@ -446,14 +426,14 @@ const PropOllamaUnified: React.FC = () => {
           aria-expanded={isExpanded}
         >
           <td className='px-4 py-3 flex items-center gap-2 font-semibold text-white min-w-0 max-w-xs whitespace-normal break-words'>
-            <span className='whitespace-normal break-words'>{safeCell(proj.player_name)}</span>
+            <span className='whitespace-normal break-words'>{safeCell(proj.player)}</span>
             <span className='ml-2 text-xs text-gray-400 select-none'>{isExpanded ? '▼' : '▶'}</span>
           </td>
           <td className='px-4 py-3 text-blue-200 min-w-0 max-w-xs whitespace-pre-line break-words'>
-            {safeCell(proj.team)}
+            {safeCell(proj.matchup)}
           </td>
-          <td className='px-4 py-3 text-purple-200 font-medium'>{safeCell(proj.stat_type)}</td>
-          <td className='px-4 py-3 text-yellow-200 font-bold'>{safeCell(proj.line_score)}</td>
+          <td className='px-4 py-3 text-purple-200 font-medium'>{safeCell(proj.stat)}</td>
+          <td className='px-4 py-3 text-yellow-200 font-bold'>{safeCell(proj.line)}</td>
           <td className='px-4 py-3'>
             <button
               className='rounded-full px-3 py-1 bg-green-700/80 text-green-100 font-bold shadow hover:bg-green-600/90 transition disabled:opacity-60 disabled:cursor-not-allowed'
@@ -543,6 +523,39 @@ const PropOllamaUnified: React.FC = () => {
         </tr>
       );
       if (isExpanded) {
+        // Extract AI analysis fields from the prop (backend response)
+        const shap = (proj as any).shap_explanation;
+        const risk = (proj as any).risk_assessment;
+        const quantum = (proj as any).quantum_confidence;
+        const neural = (proj as any).neural_score;
+        const synergy = (proj as any).synergy_rating;
+        const stack = (proj as any).stack_potential;
+        const diversification = (proj as any).diversification_value;
+        const optimalStake = (proj as any).optimal_stake;
+        const portfolioImpact = (proj as any).portfolio_impact;
+        const variance = (proj as any).variance_contribution;
+        const weather = (proj as any).weather_impact;
+        const injury = (proj as any).injury_risk;
+        const topFactors = shap?.top_factors || [];
+        const riskLevel = risk?.risk_level;
+        const riskOverall = risk?.overall_risk;
+        const confidenceReason = `Confidence: ${proj.confidence}% | Quantum: ${quantum}% | Neural: ${neural}%`;
+        const whyPick =
+          topFactors.length > 0 ? topFactors.map((f: any) => `${f[0]}: ${f[1]}`).join(', ') : null;
+        const hasAnalysis =
+          whyPick ||
+          quantum ||
+          neural ||
+          synergy ||
+          stack ||
+          diversification ||
+          optimalStake ||
+          portfolioImpact ||
+          variance ||
+          weather ||
+          injury ||
+          riskLevel ||
+          riskOverall;
         projectionRows.push(
           <tr key={rowKey + '-expanded'}>
             <td colSpan={9} className='p-0 bg-transparent border-none'>
@@ -564,28 +577,81 @@ const PropOllamaUnified: React.FC = () => {
                       AI's Take
                     </div>
                     <div className='mb-4 text-white text-base leading-relaxed'>
-                      {unifiedResponse?.analysis || 'No analysis available.'}
+                      {hasAnalysis ? (
+                        <>
+                          <div>
+                            <b>Confidence Reasoning:</b> {confidenceReason}
+                          </div>
+                          {riskLevel && (
+                            <div>
+                              <b>Risk Level:</b> {riskLevel} ({(riskOverall * 100).toFixed(1)}%)
+                            </div>
+                          )}
+                          {quantum && (
+                            <div>
+                              <b>Quantum Confidence:</b> {quantum.toFixed(1)}%
+                            </div>
+                          )}
+                          {neural && (
+                            <div>
+                              <b>Neural Score:</b> {neural.toFixed(1)}%
+                            </div>
+                          )}
+                          {synergy && (
+                            <div>
+                              <b>Synergy Rating:</b> {synergy.toFixed(2)}
+                            </div>
+                          )}
+                          {stack && (
+                            <div>
+                              <b>Stack Potential:</b> {stack.toFixed(2)}
+                            </div>
+                          )}
+                          {diversification && (
+                            <div>
+                              <b>Diversification Value:</b> {diversification.toFixed(2)}
+                            </div>
+                          )}
+                          {optimalStake && (
+                            <div>
+                              <b>Optimal Stake:</b> {optimalStake.toFixed(2)}
+                            </div>
+                          )}
+                          {portfolioImpact && (
+                            <div>
+                              <b>Portfolio Impact:</b> {portfolioImpact.toFixed(2)}
+                            </div>
+                          )}
+                          {variance && (
+                            <div>
+                              <b>Variance Contribution:</b> {variance.toFixed(2)}
+                            </div>
+                          )}
+                          {weather && (
+                            <div>
+                              <b>Weather Impact:</b> {weather.toFixed(2)}
+                            </div>
+                          )}
+                          {injury && (
+                            <div>
+                              <b>Injury Risk:</b> {injury.toFixed(2)}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <span className='italic text-slate-400'>No analysis available.</span>
+                      )}
                     </div>
                     <div className='text-yellow-300 font-semibold mb-1'>Why this pick?</div>
                     <div className='mb-4 text-yellow-100 text-sm'>
-                      {unifiedResponse &&
-                      Array.isArray(unifiedResponse.key_factors) &&
-                      unifiedResponse.key_factors.length > 0 ? (
-                        <ul className='list-disc ml-5'>
-                          {unifiedResponse.key_factors.map((f, i) => (
-                            <li key={i}>{f}</li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <span className='italic text-slate-400'>N/A</span>
-                      )}
+                      {whyPick ? whyPick : <span className='italic text-slate-400'>N/A</span>}
                     </div>
                     <div className='grid grid-cols-2 gap-2 text-xs text-slate-200 mb-2'>
                       <div>
-                        <span className='font-bold text-white'>Stat Type:</span> {proj.stat_type}
+                        <span className='font-bold text-white'>Stat Type:</span> {proj.stat}
                       </div>
                       <div>
-                        <span className='font-bold text-white'>Target:</span> {proj.line_score}
+                        <span className='font-bold text-white'>Target:</span> {proj.line}
                       </div>
                       <div>
                         <span className='font-bold text-white'>AI Confidence:</span>{' '}
@@ -614,13 +680,11 @@ const PropOllamaUnified: React.FC = () => {
                   {/* Right: Meta Info */}
                   <div className='flex-1 min-w-[180px] flex flex-col gap-2'>
                     <div className='font-bold text-yellow-300 mb-1'>Matchup</div>
-                    <div className='mb-2 text-white text-base'>{proj.team}</div>
+                    <div className='mb-2 text-white text-base'>{proj.matchup}</div>
                     <div className='font-bold text-yellow-300 mb-1'>Processing Time</div>
-                    <div className='mb-2 text-white'>
-                      {unifiedResponse?.processing_time ?? 'N/A'} sec
-                    </div>
+                    <div className='mb-2 text-white'>N/A sec</div>
                     <div className='font-bold text-yellow-300 mb-1'>Cached</div>
-                    <div className='mb-2 text-white'>{unifiedResponse?.cached ? 'Yes' : 'No'}</div>
+                    <div className='mb-2 text-white'>N/A</div>
                     <div className='text-xs text-gray-400 mt-4'>Click row to collapse.</div>
                   </div>
                 </div>

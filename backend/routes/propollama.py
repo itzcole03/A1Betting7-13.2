@@ -248,10 +248,38 @@ def build_ensemble_prompt(props, entry_amt, user, session):
                 f"Prompt template not found for sport={sport}, bet_type={bet_type}, version={version}. Using fallback."
             )
             template = "SYSTEM: PropOllama fallback prompt.\nUSER: {user}, Session: {session}, Entry: {entry_amt}, Date: {date}\nPROPS:\n{props_section}"
-        # Build props section with all enriched fields
+        # Build props section with all required MLB features
         props_section = ""
         for idx, prop in enumerate(props, 1):
-            props_section += f"  {idx}. Player: {prop.get('player')}, Stat: {prop.get('statType')}, Line: {prop.get('line')}, Choice: {prop.get('choice')}, Odds: {prop.get('odds')}\n"
+            # MLB-specific field mapping and defaults
+            player_name = prop.get("player_name") or prop.get("player")
+            team_name = prop.get("team_name") or prop.get("team")
+            opponent_team = prop.get("opponent_team") or prop.get("opponent")
+            stat_type = prop.get("stat_type") or prop.get("statType")
+            line_score = prop.get("line_score") or prop.get("line")
+            odds = prop.get("odds")
+            if not odds:
+                # Compose odds from over/under if available
+                over_odds = prop.get("over_odds")
+                under_odds = prop.get("under_odds")
+                odds = (
+                    f"Over: {over_odds}, Under: {under_odds}"
+                    if over_odds and under_odds
+                    else "N/A"
+                )
+            market_type = prop.get("market_type", "N/A")
+            game_id = prop.get("game_id", prop.get("id", "N/A"))
+            event_id = prop.get("event_id", "N/A")
+            rolling_avg_hits = prop.get("rolling_avg_hits", "N/A")
+            recent_strikeouts = prop.get("recent_strikeouts", "N/A")
+            weather_impact = prop.get("weather_impact", "N/A")
+            injury_risk = prop.get("injury_risk", "N/A")
+            # Compose the prop line for the prompt
+            props_section += (
+                f"  {idx}. Player: {player_name}, Team: {team_name}, Opponent: {opponent_team}, Stat: {stat_type}, "
+                f"Line: {line_score}, Odds: {odds}, Market: {market_type}, Game ID: {game_id}, Event ID: {event_id}, "
+                f"Rolling Avg Hits: {rolling_avg_hits}, Recent SO: {recent_strikeouts}, Weather Impact: {weather_impact}, Injury Risk: {injury_risk}\n"
+            )
             # Add advanced enrichment fields
             if "ensemble_prediction" in prop:
                 ep = prop["ensemble_prediction"]

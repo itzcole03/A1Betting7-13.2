@@ -12,10 +12,10 @@ dns.setDefaultResultOrder('verbatim');
 export default defineConfig(({ mode, command }) => {
   // Load environment variables that start with VITE_
   const env = loadEnv(mode, process.cwd());
-  
+
   // Determine if this is Electron build
   const isElectron = process.env.BUILD_TARGET === 'electron' || mode === 'electron';
-  
+
   // Map the VITE_* variables to keys without the prefix
   const processEnv = Object.keys(env)
     .filter(key => key.startsWith('VITE_'))
@@ -27,7 +27,7 @@ export default defineConfig(({ mode, command }) => {
 
   return {
     base: isElectron ? './' : '/', // Important for Electron compatibility
-    
+
     esbuild: {
       logLevel: 'error',
       target: 'es2020',
@@ -51,17 +51,17 @@ export default defineConfig(({ mode, command }) => {
         },
       },
     },
-    
+
     plugins: [react(), viteTsconfigPaths()],
-    
+
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
       },
     },
-    
+
     define: processEnv,
-    
+
     server: {
       port: parseInt(env.VITE_PORT || '8173', 10),
       host: '0.0.0.0',
@@ -71,28 +71,36 @@ export default defineConfig(({ mode, command }) => {
         port: 24878,
       },
       strictPort: false,
-      
+
       // Conditional proxy setup
-      proxy: mode === 'development' && !isElectron ? {
-        '/api': {
-          target: env.VITE_BACKEND_URL || 'http://localhost:8000',
-          changeOrigin: true,
-          secure: false,
-          ws: false,
-        },
-        '/health': {
-          target: env.VITE_BACKEND_URL || 'http://localhost:8000',
-          changeOrigin: true,
-          secure: false,
-        },
-        '/ws': {
-          target: 'ws://localhost:8000',
-          ws: true,
-          changeOrigin: true,
-        },
-      } : undefined,
+      proxy:
+        mode === 'development' && !isElectron
+          ? {
+              '/api': {
+                target: env.VITE_BACKEND_URL || 'http://localhost:8000',
+                changeOrigin: true,
+                secure: false,
+                ws: false,
+              },
+              '/mlb': {
+                target: env.VITE_BACKEND_URL || 'http://localhost:8000',
+                changeOrigin: true,
+                secure: false,
+              },
+              '/health': {
+                target: env.VITE_BACKEND_URL || 'http://localhost:8000',
+                changeOrigin: true,
+                secure: false,
+              },
+              '/ws': {
+                target: 'ws://localhost:8000',
+                ws: true,
+                changeOrigin: true,
+              },
+            }
+          : undefined,
     },
-    
+
     build: {
       outDir: isElectron ? 'dist-electron' : 'dist',
       assetsDir: 'assets',
@@ -100,14 +108,17 @@ export default defineConfig(({ mode, command }) => {
       rollupOptions: {
         external: isElectron ? ['electron'] : [],
         output: {
-          manualChunks: command === 'build' ? {
-            react: ['react', 'react-dom'],
-            query: ['@tanstack/react-query'],
-            state: ['zustand'],
-            ui: ['@radix-ui/react-tabs', '@radix-ui/react-slot', '@radix-ui/react-label'],
-            motion: ['framer-motion'],
-            utils: ['class-variance-authority', 'clsx', 'tailwind-merge'],
-          } : undefined,
+          manualChunks:
+            command === 'build'
+              ? {
+                  react: ['react', 'react-dom'],
+                  query: ['@tanstack/react-query'],
+                  state: ['zustand'],
+                  ui: ['@radix-ui/react-tabs', '@radix-ui/react-slot', '@radix-ui/react-label'],
+                  motion: ['framer-motion'],
+                  utils: ['class-variance-authority', 'clsx', 'tailwind-merge'],
+                }
+              : undefined,
         },
         onwarn(warning, warn) {
           if (warning.code === 'UNRESOLVED_IMPORT') return;
@@ -115,7 +126,7 @@ export default defineConfig(({ mode, command }) => {
         },
       },
     },
-    
+
     optimizeDeps: {
       include: [
         '@radix-ui/react-tabs',

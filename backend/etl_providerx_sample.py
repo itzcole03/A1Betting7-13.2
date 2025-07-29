@@ -111,32 +111,88 @@ def robust_team_lookup(name: str, alias_map: dict) -> str:
     tokens = key2.split()
     if len(tokens) > 1 and tokens[-1] in alias_map:
         return alias_map[tokens[-1]]
-
+    # Try matching by abbreviation or partials
+    for alias, canonical in alias_map.items():
+        if key in alias or alias in key:
+            return canonical
+    # Try fuzzy match (very basic)
+    for alias, canonical in alias_map.items():
+        if alias.replace(" ", "") == key2.replace(" ", ""):
+            return canonical
     return key  # fallback to original
 
 
 def load_data(session: Session, records: dict[str, list[dict[str, Any]]]) -> None:
+
     # Load alias table once
     alias_csv = os.path.join(os.path.dirname(__file__), "mlb_team_alias_table.csv")
     alias_map = load_team_alias_table(alias_csv)
     team_id_map: dict[str, int] = {}
     canonical_team_id_map: dict[str, int] = {}
-    event_id_map: dict[int, int] = {}
+    event_id_map: dict[Any, int] = {}  # Accept both int and str keys
     # For robust event matching: (normalized_name, start_time as datetime) -> event_id
     from datetime import datetime, timedelta
 
     event_name_time_map: dict[tuple[str, datetime], int] = {}
+
+    # Load event_mappings if available (from mlb_odds_raw_dump.json or a cache file)
+    event_mappings = {}
+    mapping_path = os.path.join(os.path.dirname(__file__), "event_mappings.json")
+    if os.path.exists(mapping_path):
+        import json
+
+        with open(mapping_path, "r", encoding="utf-8") as f:
+            event_mappings = json.load(f)
 
     def normalize_event_name(name: str) -> str:
         import re
 
         if not name:
             return ""
-        # Remove all non-alphanumeric, lowercase, split on vs/at, sort team names
         name = name.lower()
+        # Remove all non-alphanumeric except spaces
         name = re.sub(r"[^a-z0-9 ]", "", name)
-        # Split on 'vs', 'at', etc.
-        tokens = re.split(r"\bvs\b|\bat\b", name)
+        # Remove city names (robust, with optional spaces)
+        mlb_cities = [
+            "oakland",
+            "seattle",
+            "baltimore",
+            "toronto",
+            "detroit",
+            "arizona",
+            "san francisco",
+            "pittsburgh",
+            "chicago",
+            "texas",
+            "houston",
+            "new york",
+            "boston",
+            "cleveland",
+            "kansas city",
+            "los angeles",
+            "miami",
+            "milwaukee",
+            "minnesota",
+            "philadelphia",
+            "san diego",
+            "st louis",
+            "tampa bay",
+            "washington",
+            "atlanta",
+            "cincinnati",
+            "colorado",
+        ]
+        for city in mlb_cities:
+            # Remove city at start, middle, or end, with optional spaces
+            name = re.sub(rf"(^| )({city})( |$)", " ", name)
+        # Collapse multiple spaces
+        name = re.sub(r"\s+", " ", name).strip()
+        # Split on 'vs', 'at', or multiple spaces
+        tokens = re.split(r"\bvs\b|\bat\b|\s{2,}", name)
+        # If still not split, try single space (for e.g. 'orioles blue jays')
+        if len(tokens) == 1 and " " in name:
+            tokens = name.split(" ")
+        # Remove empty and extra spaces, sort for order-insensitive match
         teams = [t.strip() for t in tokens if t.strip()]
         teams.sort()
         return "_".join(teams)
@@ -151,6 +207,7 @@ def load_data(session: Session, records: dict[str, list[dict[str, Any]]]) -> Non
             canonical_team_id_map[canonical_name] = team_id
         except ValueError as e:
             logging.error("Team upsert failed: %s", e)
+
     # Upsert events
     for event in records.get("events", []):
         try:
@@ -164,9 +221,14 @@ def load_data(session: Session, records: dict[str, list[dict[str, Any]]]) -> Non
             except Exception:
                 start_time_dt = None
             if norm_name and start_time_dt:
-                event_name_time_map[(norm_name, start_time_dt)] = event_id
+                # Store both integer PK and UUID string
+                event_name_time_map[(norm_name, start_time_dt)] = (
+                    event_id,
+                    event["event_id"],
+                )
         except ValueError as e:
             logging.error("Event upsert failed: %s", e)
+
     # Upsert odds
     for odds in records.get("odds", []):
         try:
@@ -175,35 +237,95 @@ def load_data(session: Session, records: dict[str, list[dict[str, Any]]]) -> Non
             odds["team_name"] = (
                 canonical_name  # Ensure odds uses canonical name for lookup
             )
-            # Try to match event by event_id, else by normalized name+start_time (with time window)
-            event_id = event_id_map.get(odds.get("event_id"))
+            # Defensive patch: ensure odds_type is present
+            if "odds_type" not in odds or not odds["odds_type"]:
+                logging.error(
+                    "[DEFENSIVE PATCH] odds_type missing in odds dict, injecting fallback. Odds: %s",
+                    odds,
+                )
+                odds["odds_type"] = (
+                    odds.get("stat_type") or odds.get("market") or "unknown"
+                )
+
+            # Enhanced event mapping: remap TheOdds event_id to local DB event_id using event_mappings if available
+            orig_event_id = odds.get("event_id")
+            event_id = event_id_map.get(orig_event_id)
+            # If event_id is a hex string and event_mappings is available, try to remap
+            if (
+                not event_id
+                and event_mappings
+                and isinstance(orig_event_id, str)
+                and len(orig_event_id) >= 16
+            ):
+                # Try to find the mapped local event_id
+                for srid, mapping in event_mappings.items():
+                    if "mappings" in mapping:
+                        for m in mapping["mappings"]:
+                            if (
+                                m.get("provider", "").lower() == "theoddsapi"
+                                and m.get("id") == orig_event_id
+                            ):
+                                # srid is the SportRadar event_id, which should be in event_id_map
+                                mapped_event_id = event_id_map.get(srid)
+                                if mapped_event_id:
+                                    event_id = mapped_event_id
+                                    odds["event_id"] = (
+                                        srid  # update odds dict to use mapped event_id
+                                    )
+                                    break
+                        if event_id:
+                            break
+
+            # Fallback: try event name and start time matching
             if not event_id:
                 odds_event_name = normalize_event_name(odds.get("event_name", ""))
                 odds_start_time_str = odds.get("start_time", "")
+                # Handle ISO format with 'Z' (Zulu/UTC)
                 try:
-                    odds_start_time_dt = datetime.fromisoformat(odds_start_time_str)
+                    if odds_start_time_str.endswith("Z"):
+                        odds_start_time_dt = datetime.fromisoformat(
+                            odds_start_time_str.replace("Z", "+00:00")
+                        )
+                    else:
+                        odds_start_time_dt = datetime.fromisoformat(odds_start_time_str)
                 except Exception:
                     odds_start_time_dt = None
                 # Try exact match first
+                match = None
                 if odds_event_name and odds_start_time_dt:
-                    event_id = event_name_time_map.get(
+                    match = event_name_time_map.get(
                         (odds_event_name, odds_start_time_dt)
                     )
-                    # If not found, try within ±5 minutes
-                    if not event_id:
-                        for (ename, etime), eid in event_name_time_map.items():
+                    # If not found, try within ±10 minutes (wider window)
+                    if not match:
+                        for (ename, etime), val in event_name_time_map.items():
                             if (
                                 ename == odds_event_name
                                 and abs((etime - odds_start_time_dt).total_seconds())
-                                <= 300
+                                <= 600
                             ):
-                                event_id = eid
+                                match = val
                                 break
-                    if event_id:
-                        odds["event_id"] = event_id
+                    # Fuzzy event name match (ignore order, partials)
+                    if not match:
+                        for (ename, etime), val in event_name_time_map.items():
+                            if (
+                                set(ename.split("_")) == set(odds_event_name.split("_"))
+                                and abs((etime - odds_start_time_dt).total_seconds())
+                                <= 600
+                            ):
+                                match = val
+                                break
+                if match:
+                    event_id, event_uuid = match
+                    odds["event_id"] = event_uuid
+                    event_id = event_id
+            # Log if still unmatched
+            if not event_id:
+                logging.warning("[MAPPING] Could not match event for odds: %s", odds)
             upsert_odds(session, odds, canonical_team_id_map, event_id_map)
         except ValueError as e:
-            logging.error("Odds upsert failed: %s", e)
+            logging.error("Odds upsert failed: %s | odds dict: %s", e, odds)
 
 
 def upsert_event(session: Session, event: Dict[str, Any]) -> int:

@@ -25,6 +25,16 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Unified Intelligence"])
 
 
+# TEMPORARY: Debug endpoint to flush Redis cache
+@router.post("/debug/flush-redis-cache")
+async def flush_redis_cache():
+    """Flush all Redis cache (TEMPORARY DEBUG ENDPOINT)."""
+    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+    r = await redis.from_url(redis_url)
+    await r.flushall()
+    return {"status": "ok", "message": "Redis cache flushed"}
+
+
 # --- Featured Props Endpoint ---
 @router.get("/props/featured")
 async def get_featured_props(

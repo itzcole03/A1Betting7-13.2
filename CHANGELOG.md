@@ -1,3 +1,12 @@
+# [2025-07-29] - MLB Odds Fallback & Alerting Bugfix
+
+### 🐞 FIXED: MLB Odds Fallback Logic
+
+- **BUG**: MLB odds endpoint returned empty data if SportRadar API failed and `alert_event` method was missing in `MLBProviderClient`.
+- **FIX**: Added static `alert_event` method to log alerts and enable fallback to TheOdds API and Redis cache.
+- **IMPACT**: MLB props and AI insights now display correctly in the frontend even if primary provider fails.
+- **TROUBLESHOOTING**: If the frontend table is empty, check backend logs for `AttributeError` or API 403 errors. Ensure `alert_event` exists and Redis is running.
+
 # PropOllama Changelog
 
 All notable changes to the PropOllama project are documented in this file.

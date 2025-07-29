@@ -16,8 +16,14 @@ logging.basicConfig(level=logging.INFO)
 
 
 async def run_async_etl():
-    # Setup DB session (use production or dev DB as needed)
-    engine = create_engine("sqlite:///./a1betting_fallback.db", echo=False)
+    # Setup DB session (use DATABASE_URL from .env or default to a1betting.db)
+    from pathlib import Path
+
+    from dotenv import load_dotenv
+
+    load_dotenv(dotenv_path=Path(__file__).parent / ".env", override=True)
+    db_url = os.getenv("DATABASE_URL", "sqlite:///a1betting.db")
+    engine = create_engine(db_url, echo=False)
     SessionLocal = sessionmaker(bind=engine)
     Base.metadata.create_all(engine)
     db_session = SessionLocal()
