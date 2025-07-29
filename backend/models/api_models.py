@@ -10,10 +10,41 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
+# ==========================================================================
+# BET ANALYSIS RESPONSE MODEL (moved from routes/propollama.py)
+# ==========================================================================
+
+
+class BetAnalysisResponse(BaseModel):
+    """Response model for bet analysis (multi-prop)"""
+
+    analysis: str
+    confidence: float
+    recommendation: str
+    key_factors: List[str]
+    processing_time: float
+    cached: bool = False
+    enriched_props: List[Dict[str, Any]] = (
+        []
+    )  # Full enrichment/prediction data for each prop
+
+
+"""
+API Models for A1Betting Backend
+
+This module contains all Pydantic models used in the API responses and requests.
+Models are organized by functionality and imported by the main application.
+"""
+
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field
 
 # ============================================================================
 # HEALTH CHECK MODELS
 # ============================================================================
+
 
 class HealthCheckResponse(BaseModel):
     """Health check response model"""
@@ -32,6 +63,7 @@ class HealthCheckResponse(BaseModel):
 # ============================================================================
 # BETTING MODELS
 # ============================================================================
+
 
 class BettingOpportunity(BaseModel):
     """Betting opportunity model"""
@@ -66,6 +98,7 @@ class ArbitrageOpportunity(BaseModel):
 # ============================================================================
 # PERFORMANCE MODELS
 # ============================================================================
+
 
 class PerformanceStats(BaseModel):
     """Performance statistics model"""
@@ -132,6 +165,7 @@ class ActiveBetsResponse(BaseModel):
 # RISK MANAGEMENT MODELS
 # ============================================================================
 
+
 class RiskProfileModel(BaseModel):
     """Risk profile model"""
 
@@ -150,6 +184,7 @@ class RiskProfilesResponse(BaseModel):
 # ============================================================================
 # USER MODELS
 # ============================================================================
+
 
 class UserProfileResponse(BaseModel):
     """Response model for user profiles."""
@@ -190,6 +225,7 @@ class TokenResponse(BaseModel):
 # DATA MODELS
 # ============================================================================
 
+
 class HistoricalGameResult(BaseModel):
     """Historical game result model"""
 
@@ -217,6 +253,7 @@ class UnifiedFeed(BaseModel):
 # ============================================================================
 # PREDICTION MODELS
 # ============================================================================
+
 
 class MatchPredictionRequest(BaseModel):
     """Match prediction request model"""
@@ -260,6 +297,7 @@ class MatchPredictionResponse(BaseModel):
 # FEATURE ENGINEERING MODELS
 # ============================================================================
 
+
 class InputData(BaseModel):
     """Input data model for feature engineering"""
 
@@ -271,6 +309,7 @@ class InputData(BaseModel):
 # ============================================================================
 # SPECIALIST DATA MODELS
 # ============================================================================
+
 
 class TeamSimple(BaseModel):
     """Simple team model"""
@@ -306,4 +345,4 @@ class OddsDataModel(BaseModel):
     bookmaker: str
     market: str
     outcomes: List[OddOutcome]
-    timestamp: float 
+    timestamp: float

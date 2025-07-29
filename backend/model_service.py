@@ -39,7 +39,7 @@ except ImportError:
     np = None
 
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 
 class ModelServiceConfig(BaseSettings):

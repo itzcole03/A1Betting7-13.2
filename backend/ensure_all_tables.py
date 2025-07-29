@@ -7,10 +7,10 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from backend.database import engine
+from backend.database import sync_engine
 from backend.models import *  # Import all models to register them with Base
 from backend.models.base import Base
 
 if __name__ == "__main__":
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=sync_engine)
     print("All tables created in backend/a1betting.db.")

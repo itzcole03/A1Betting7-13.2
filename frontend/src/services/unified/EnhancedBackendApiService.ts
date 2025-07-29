@@ -2,6 +2,13 @@
  * Enhanced Backend API Integration Service;
  * Complete integration with enhanced mathematical backend services;
  */
+// ...rest of class definition...
+import { EnhancedBetsResponse, EnhancedPrediction } from '../../types/enhancedBetting';
+// ...existing code...
+/**
+ * Enhanced Backend API Integration Service;
+ * Complete integration with enhanced mathematical backend services;
+ */
 
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { UnifiedCache } from './UnifiedCache';
@@ -204,6 +211,75 @@ export interface ModelStatusResponse {
 }
 
 class EnhancedBackendApiService {
+  /**
+   * Calls the backend unified AI insights endpoint.
+   * POST /api/v1/unified/analysis
+   */
+  async postUnifiedAnalysis(request: {
+    event_id: string;
+    sport: string;
+    features: Record<string, number>;
+    include_all_enhancements: boolean;
+    processing_level: 'basic' | 'advanced' | 'research_grade' | 'revolutionary';
+  }): Promise<any> {
+    try {
+      const response = await this.client.post('/api/v1/unified/analysis', request);
+      return response.data;
+    } catch (error) {
+      this.logger.error('Unified analysis API call failed', {
+        error: (error as any).message,
+        request,
+      });
+      throw error;
+    }
+  }
+  /**
+   * Unified method to fetch and map the backend unified response to EnhancedBetsResponse.
+   * This method orchestrates the backend calls and returns a fully typed response for the UI.
+   */
+  async getUnifiedBetsResponse(request: {
+    event_id: string;
+    sport: string;
+    features: Record<string, number>;
+    include_all_enhancements: boolean;
+    processing_level: 'basic' | 'advanced' | 'research_grade' | 'revolutionary';
+  }): Promise<EnhancedBetsResponse> {
+    // Call the backend unified AI insights endpoint
+    const result = await this.postUnifiedAnalysis(request);
+
+    // Defensive extraction for summary and key_factors
+    let summary = result.analysis || 'No analysis';
+    let key_factors: string[] = [];
+    if (Array.isArray(result.key_factors)) {
+      key_factors = result.key_factors.filter((k: any) => typeof k === 'string');
+    } else if (result.key_factors) {
+      key_factors = Object.values(result.key_factors).map(String);
+    }
+
+    // Compose unified response fields
+    const enriched_props: EnhancedPrediction[] = result.enriched_props || [];
+
+    const unified: EnhancedBetsResponse = {
+      analysis: summary,
+      confidence: result.confidence || 0,
+      recommendation: result.recommendation || 'N/A',
+      key_factors,
+      processing_time: result.processing_time || 0,
+      cached: !!result.cached,
+      enriched_props,
+      enhanced_bets: enriched_props, // Alias for legacy code
+      count: enriched_props.length,
+      portfolio_metrics: result.portfolio_metrics,
+      ai_insights: result.ai_insights,
+      filters: {
+        sport: request.sport,
+        min_confidence: 0,
+        max_results: 10,
+      },
+      status: result.status || 'success',
+    };
+    return unified;
+  }
   private static instance: EnhancedBackendApiService;
   private client: AxiosInstance;
   private logger: UnifiedLogger;

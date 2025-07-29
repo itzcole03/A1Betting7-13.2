@@ -1,6 +1,3 @@
-# Sample ETL Module: ProviderX
-
-
 import logging
 
 try:
@@ -35,7 +32,7 @@ def etl_health_check() -> bool:
 
 class ProviderXClient:
     def get_data(self) -> dict[str, list[dict[str, Any]]]:
-        # Simulate fetching raw data for all entities
+        # Simulate fetching raw data for all entities (fixed syntax)
         return {
             "teams": [
                 {"name": "A", "provider_id": "provA"},
@@ -68,29 +65,145 @@ class ProviderXClient:
         }
 
 
-def transform_record(record: Dict[str, Any]) -> Dict[str, Any]:
-    # Deprecated: now handled per entity
-    return record
+# --- MLB Team Alias Table Integration ---
+import csv
+import os
 
 
-def upsert_team(session: Session, team: Dict[str, Any]) -> int:
-    if not team.get("name"):
-        raise ValueError("Team name required")
-    existing = session.query(Team).filter_by(name=team["name"]).first()
-    if existing:
-        if team.get("provider_id") is not None:
-            existing.provider_id = team["provider_id"]
-        session.commit()
-        logging.info("Updated team: %s", team)
-        logging.debug("existing.id type: %s, value: %s", type(existing.id), existing.id)
-        return int(existing.__dict__.get("id", 0))
-    else:
-        new_team = Team(name=team["name"], provider_id=team.get("provider_id"))
-        session.add(new_team)
-        session.commit()
-        logging.info("Inserted team: %s", team)
-        logging.debug("new_team.id type: %s, value: %s", type(new_team.id), new_team.id)
-        return int(new_team.__dict__.get("id", 0))
+def load_team_alias_table(csv_path: str) -> dict:
+    alias_map = {}
+    if not os.path.exists(csv_path):
+        logging.warning(f"MLB team alias table not found: {csv_path}")
+        return alias_map
+    with open(csv_path, newline="", encoding="utf-8") as csvfile:
+        reader = csv.DictReader(filter(lambda row: row[0] != "#", csvfile))
+        for row in reader:
+            canonical = row["canonical_name"].strip()
+            abbr = row["abbreviation"].strip()
+            alt_abbr = row["alt_abbreviation"].strip()
+            city = row["city"].strip()
+            # Map all known names/abbreviations to canonical
+            for key in [
+                canonical,
+                abbr,
+                alt_abbr,
+                city,
+                f"{city} {canonical}",
+                f"{city} {abbr}",
+            ]:
+                if key and key != "":
+                    alias_map[key.lower()] = canonical
+    return alias_map
+
+
+def robust_team_lookup(name: str, alias_map: dict) -> str:
+    if not name:
+        return ""
+    key = name.lower().strip()
+    if key in alias_map:
+        return alias_map[key]
+    # Try removing city, punctuation, etc.
+    import re
+
+    key2 = re.sub(r"[^a-z0-9 ]", "", key)
+    if key2 in alias_map:
+        return alias_map[key2]
+    tokens = key2.split()
+    if len(tokens) > 1 and tokens[-1] in alias_map:
+        return alias_map[tokens[-1]]
+
+    return key  # fallback to original
+
+
+def load_data(session: Session, records: dict[str, list[dict[str, Any]]]) -> None:
+    # Load alias table once
+    alias_csv = os.path.join(os.path.dirname(__file__), "mlb_team_alias_table.csv")
+    alias_map = load_team_alias_table(alias_csv)
+    team_id_map: dict[str, int] = {}
+    canonical_team_id_map: dict[str, int] = {}
+    event_id_map: dict[int, int] = {}
+    # For robust event matching: (normalized_name, start_time as datetime) -> event_id
+    from datetime import datetime, timedelta
+
+    event_name_time_map: dict[tuple[str, datetime], int] = {}
+
+    def normalize_event_name(name: str) -> str:
+        import re
+
+        if not name:
+            return ""
+        # Remove all non-alphanumeric, lowercase, split on vs/at, sort team names
+        name = name.lower()
+        name = re.sub(r"[^a-z0-9 ]", "", name)
+        # Split on 'vs', 'at', etc.
+        tokens = re.split(r"\bvs\b|\bat\b", name)
+        teams = [t.strip() for t in tokens if t.strip()]
+        teams.sort()
+        return "_".join(teams)
+
+    # Upsert teams
+    for team in records.get("teams", []):
+        try:
+            canonical_name = robust_team_lookup(team["name"], alias_map)
+            team["name"] = canonical_name
+            team_id = upsert_team(session, team)
+            team_id_map[team["name"]] = team_id
+            canonical_team_id_map[canonical_name] = team_id
+        except ValueError as e:
+            logging.error("Team upsert failed: %s", e)
+    # Upsert events
+    for event in records.get("events", []):
+        try:
+            event_id = upsert_event(session, event)
+            event_id_map[event["event_id"]] = event_id
+            # Build normalized event name + start_time map for cross-provider matching
+            norm_name = normalize_event_name(event.get("name", ""))
+            start_time_str = event.get("start_time", "")
+            try:
+                start_time_dt = datetime.fromisoformat(start_time_str)
+            except Exception:
+                start_time_dt = None
+            if norm_name and start_time_dt:
+                event_name_time_map[(norm_name, start_time_dt)] = event_id
+        except ValueError as e:
+            logging.error("Event upsert failed: %s", e)
+    # Upsert odds
+    for odds in records.get("odds", []):
+        try:
+            team_name = odds.get("team_name")
+            canonical_name = robust_team_lookup(team_name, alias_map)
+            odds["team_name"] = (
+                canonical_name  # Ensure odds uses canonical name for lookup
+            )
+            # Try to match event by event_id, else by normalized name+start_time (with time window)
+            event_id = event_id_map.get(odds.get("event_id"))
+            if not event_id:
+                odds_event_name = normalize_event_name(odds.get("event_name", ""))
+                odds_start_time_str = odds.get("start_time", "")
+                try:
+                    odds_start_time_dt = datetime.fromisoformat(odds_start_time_str)
+                except Exception:
+                    odds_start_time_dt = None
+                # Try exact match first
+                if odds_event_name and odds_start_time_dt:
+                    event_id = event_name_time_map.get(
+                        (odds_event_name, odds_start_time_dt)
+                    )
+                    # If not found, try within ±5 minutes
+                    if not event_id:
+                        for (ename, etime), eid in event_name_time_map.items():
+                            if (
+                                ename == odds_event_name
+                                and abs((etime - odds_start_time_dt).total_seconds())
+                                <= 300
+                            ):
+                                event_id = eid
+                                break
+                    if event_id:
+                        odds["event_id"] = event_id
+            upsert_odds(session, odds, canonical_team_id_map, event_id_map)
+        except ValueError as e:
+            logging.error("Odds upsert failed: %s", e)
 
 
 def upsert_event(session: Session, event: Dict[str, Any]) -> int:
@@ -207,31 +320,6 @@ def transform_data(raw_data: list[Dict[str, Any]]) -> dict[str, list[dict[str, A
     return {"teams": teams, "events": events, "odds": odds}
 
 
-def load_data(session: Session, records: dict[str, list[dict[str, Any]]]) -> None:
-    team_id_map: dict[str, int] = {}
-    event_id_map: dict[int, int] = {}
-    # Upsert teams
-    for team in records.get("teams", []):
-        try:
-            team_id = upsert_team(session, team)
-            team_id_map[team["name"]] = team_id
-        except ValueError as e:
-            logging.error("Team upsert failed: %s", e)
-    # Upsert events
-    for event in records.get("events", []):
-        try:
-            event_id = upsert_event(session, event)
-            event_id_map[event["event_id"]] = event_id
-        except ValueError as e:
-            logging.error("Event upsert failed: %s", e)
-    # Upsert odds
-    for odds in records.get("odds", []):
-        try:
-            upsert_odds(session, odds, team_id_map, event_id_map)
-        except ValueError as e:
-            logging.error("Odds upsert failed: %s", e)
-
-
 def etl_job(api_client: ProviderXClient, session: Session | None) -> None:
     if ETL_DURATION:
         with ETL_DURATION.time():
@@ -265,6 +353,26 @@ def _run_etl_job(api_client: ProviderXClient, session: Session | None) -> None:
         logging.error("ETL job failed: %s", err, exc_info=True)
         if ETL_FAILURE:
             ETL_FAILURE.inc()
+
+
+def upsert_team(session: Session, team: Dict[str, Any]) -> int:
+    if not team.get("name"):
+        raise ValueError("Team name required")
+    existing = session.query(Team).filter_by(name=team["name"]).first()
+    if existing:
+        if team.get("provider_id") is not None:
+            existing.provider_id = team["provider_id"]
+        session.commit()
+        logging.info("Updated team: %s", team)
+        logging.debug("existing.id type: %s, value: %s", type(existing.id), existing.id)
+        return int(existing.__dict__.get("id", 0))
+    else:
+        new_team = Team(name=team["name"], provider_id=team.get("provider_id"))
+        session.add(new_team)
+        session.commit()
+        logging.info("Inserted team: %s", team)
+        logging.debug("new_team.id type: %s, value: %s", type(new_team.id), new_team.id)
+        return int(new_team.__dict__.get("id", 0))
 
 
 # Example usage

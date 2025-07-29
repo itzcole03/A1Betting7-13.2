@@ -573,8 +573,7 @@ async def propollama_pull_model(
         return {"success": False, "error": str(e), "request_id": request_id}
 
 
-# ...existing code...
-
+from backend.models.api_models import BetAnalysisResponse
 
 # --- Logger Configuration ---
 logger = logging.getLogger("propollama")
@@ -1255,20 +1254,6 @@ class BetAnalysisRequest(BaseModel):
     sessionId: str
     selectedProps: List[Dict[str, Any]]
     entryAmount: float
-
-
-class BetAnalysisResponse(BaseModel):
-    """Response model for bet analysis (multi-prop)"""
-
-    analysis: str
-    confidence: float
-    recommendation: str
-    key_factors: List[str]
-    processing_time: float
-    cached: bool = False
-    enriched_props: List[Dict[str, Any]] = (
-        []
-    )  # Full enrichment/prediction data for each prop
 
 
 # --- Unified Bet Analysis Implementation ---

@@ -1,7 +1,23 @@
 import json
 import os
 
-from fastapi import Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+from backend.services.real_time_analysis_engine import real_time_engine
+
+router = APIRouter()
+security = HTTPBearer()
+
+
+# Dummy admin check (replace with real auth in production)
+def is_admin(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    # TODO: Implement real admin check
+    if credentials.credentials != "admin-token":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized"
+        )
+    return True
 
 
 @router.get("/admin/rules-audit-log", tags=["Admin"])
@@ -36,25 +52,6 @@ def get_rules_audit_log(
             except Exception:
                 continue
     return entries
-
-
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-
-from backend.services.real_time_analysis_engine import real_time_engine
-
-router = APIRouter()
-security = HTTPBearer()
-
-
-# Dummy admin check (replace with real auth in production)
-def is_admin(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    # TODO: Implement real admin check
-    if credentials.credentials != "admin-token":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized"
-        )
-    return True
 
 
 import logging

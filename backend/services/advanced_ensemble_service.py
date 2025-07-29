@@ -407,10 +407,53 @@ class AdvancedEnsembleService:
     async def prepare_features(
         self, features: Dict[str, Any], player_name: str, prop_type: str, sport: str
     ) -> np.ndarray:
-        """Prepare and engineer features for prediction"""
-        # This would integrate with the comprehensive feature engineering service
-        # For now, return a placeholder feature vector
-        feature_vector = np.random.rand(100)  # 100 features
+        """Prepare and engineer features for prediction, with MLB-specific logic."""
+        if sport.lower() == "mlb":
+            # MLB-specific feature engineering
+            # Extract advanced sabermetrics and contextual features
+            # Expected keys in features: 'fip', 'xwoba', 'wrc_plus', 'barrel_rate', 'hard_hit_rate',
+            # 'rolling_avg_7', 'rolling_avg_30', 'home_away', 'park_factor', 'weather',
+            # 'umpire', 'lineup_position', 'opponent_pitcher', 'handedness_split',
+            # 'bullpen_strength', 'recent_usage', 'injury_status', 'playoff', 'travel', 'rest_days', etc.
+            engineered = []
+            # Advanced stats
+            engineered.append(features.get("fip", 0))
+            engineered.append(features.get("xwoba", 0))
+            engineered.append(features.get("wrc_plus", 0))
+            engineered.append(features.get("barrel_rate", 0))
+            engineered.append(features.get("hard_hit_rate", 0))
+            # Rolling averages
+            engineered.append(features.get("rolling_avg_7", 0))
+            engineered.append(features.get("rolling_avg_30", 0))
+            # Contextual
+            engineered.append(1 if features.get("home_away", "home") == "home" else 0)
+            engineered.append(features.get("park_factor", 1.0))
+            engineered.append(features.get("weather", 0))
+            engineered.append(features.get("umpire", 0))
+            engineered.append(features.get("lineup_position", 0))
+            # Matchup
+            engineered.append(features.get("opponent_pitcher", 0))
+            engineered.append(features.get("handedness_split", 0))
+            engineered.append(features.get("bullpen_strength", 0))
+            engineered.append(features.get("recent_usage", 0))
+            # Real-time
+            engineered.append(
+                1 if features.get("injury_status", "healthy") == "healthy" else 0
+            )
+            # Game context
+            engineered.append(1 if features.get("playoff", False) else 0)
+            engineered.append(features.get("travel", 0))
+            engineered.append(features.get("rest_days", 0))
+            # Add more engineered features as needed for MLB props
+            # Pad or truncate to 30 features for consistency
+            if len(engineered) < 30:
+                engineered += [0] * (30 - len(engineered))
+            elif len(engineered) > 30:
+                engineered = engineered[:30]
+            feature_vector = np.array(engineered)
+        else:
+            # Default: placeholder for other sports
+            feature_vector = np.random.rand(100)
 
         # Apply feature scaling
         scaler_key = f"{sport}_{prop_type}"
@@ -490,19 +533,16 @@ class AdvancedEnsembleService:
         """Calculate prediction confidence based on model agreement"""
         if len(model_predictions) < 2:
             return 0.5
-        logger.info("Retraining models with new data...")
         predictions = list(model_predictions.values())
 
         # Calculate prediction variance (lower variance = higher confidence)
-        logger.info(f"Models retrained with {len(training_data)} samples")
         prediction_mean = np.mean(predictions)
-
-        # Coefficient of variation
-        logger.info("Updating ensemble weights based on performance...")
+        prediction_std = np.std(predictions)
+        # Coefficient of variation (cv)
+        cv = prediction_std / prediction_mean if prediction_mean != 0 else 1.0
 
         # Base confidence (inverse of coefficient of variation)
         base_confidence = max(0.5, 1.0 - cv)
-        logger.info("Ensemble weights updated")
         # Adjust based on number of models
         model_count_factor = min(1.0, len(model_predictions) / 5.0)
 
@@ -694,7 +734,10 @@ class AdvancedEnsembleService:
         logger.info("Retraining models with new data...")
         # This would implement the retraining logic
         # For now, just log the action
-        logger.info(f"Models retrained with {len(training_data)} samples")
+        if training_data is not None:
+            logger.info(f"Models retrained with {len(training_data)} samples")
+        else:
+            logger.info("No training data provided for retraining.")
 
     async def update_ensemble_weights(self, performance_data: Dict[str, float]):
         """Update ensemble weights based on recent performance"""

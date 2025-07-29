@@ -1,111 +1,174 @@
-# Copilot Instructions for A1Betting7-13.2
+# A1Betting7-13.2: Supreme Copilot & Developer Instructions
 
-## Project Overview
-
-- **A1Betting7-13.2** is a comprehensive, full-stack AI-powered sports analytics and betting platform.
-- **Backend**: FastAPI (Python) with modular async services, ML ensembles, ETL pipelines, and LLM integrations (PropOllama/GPT).
-- **Frontend**: React + Vite (TypeScript) with Zustand for state management, Tailwind for styling, and Electron wrapper for desktop.
-- **Auxiliary tools**: AutoHotkey scripts (in `ahk/`), Docker (backend & frontend), and CI/CD hooks.
-
-## Key Architectural Patterns
-
-### Backend (Python, FastAPI)
-
-- **Entrypoints**:
-  - `backend/main.py` or `run_backend.py` for production.
-  - `backend/minimal_test_app.py` and `backend/simple_backend.py` for lightweight testing.
-- **Routing & Services**:
-  - Routes in `backend/routes/` (e.g., `propollama_intelligence_service`, `enhanced_api_routes.py`, `unified_api.py`).
-  - Business logic & feature engineering in `backend/services/` (e.g., `comprehensive_feature_engine.py`, `advanced_ml_ensemble_service.py`).
-  - Core prop analysis in `backend/routes/propollama.py` via `_analyze_bet_unified_impl` and `pre_llm_business_logic`.
-- **Data pipelines & integrations**:
-  - ETL orchestrator: `data_pipeline.py`, `etl_providerx_sample.py`, and `deploy_etl_production.sh`.
-  - Data fetchers: `data_fetchers_working.py`, enhanced variants, and real-time analytics in `real_time_analysis_engine.py`.
-  - Database schema managed via Alembic (`alembic/versions/`), migrations in `migrations/`.
-- **ML & LLM**:
-  - ML ensemble & model training in `enhanced_model_service.py` and `real_ml_training_service.py`.
-  - SHAP explainability in `shap_explainer.py` and `real_shap_service.py`.
-  - LLM routing via `llm_routes.py` and toggling in `llm_toggle_api.py`.
-
-### Frontend (TypeScript, React, Vite)
-
-- **Components**:
-  - Unified UI logic in `frontend/src/components/PropOllamaUnified.tsx`, `PredictionDisplay.tsx`, and new `PropGPT.tsx`.
-  - Feature modules (LineupBuilder, BettingDashboard, BankrollManager, SHAPVisualization, etc.) under `components/`.
-- **Adapters & API layer**:
-  - Adapters for external data: `ESPNAdapter.ts`, `PrizePicksAdapter.ts`, `SocialSentimentAdapter.ts`, `SportsRadarAdapter.ts`, `TheOddsAdapter.ts`.
-  - Unified service in `frontend/src/analytics/UnifiedFeatureService.ts` and `adapters/index.ts`.
-- **State & styling**:
-  - Zustand stores in `frontend/src/store/`.
-  - Tailwind config in `tailwind.config.js`, global styles in `globals.css`.
-- **Testing & QA**:
-  - Unit & E2E tests in `__tests__/`, Vitest config in `vitest.config.ts`.
-  - Accessibility audit report in `accessibility_report_2025-07-19T01-50-12-696Z.json`.
-
-## Developer Workflows
-
-### Backend
-
-1. **Install & Environment**:
-   - Copy `.env.example` to `.env` and populate API keys (SportRadar, TheOdds, PrizePicks).
-   - `pip install -r requirements.txt` (or `requirements-production.txt`).
-2. **Run & Test**:
-   - Start dev server: `uvicorn backend.main:app --reload` or `bash start-python-backend.sh`.
-   - Minimal test: `python backend/minimal_test_app.py`.
-   - Run full tests: `pytest -q --disable-warnings`.
-3. **Database & Migrations**:
-   - Generate migration: `alembic revision --autogenerate -m "<msg>"`.
-   - Apply: `alembic upgrade head` (or via `deploy_production.sh`).
-4. **Lint & Security**:
-   - Lint: `flake8 .` or `pylint backend/`.
-   - Security scan: `bash run_security_scan.sh` and `sonar-project.properties` for SonarQube.
-
-### Frontend
-
-1. **Install**: `cd frontend && npm ci`.
-2. **Dev Server**: `npm run dev` or `bash start-dev.ps1`.
-3. **Build**: `npm run build`.
-4. **Test & Lint**: `npm run test`, `npm run lint`.
-
-### Auxiliary Tools
-
-- **Docker Compose**: `docker-compose up --build` orchestrates backend, frontend, and ETL.
-- **AutoHotkey**: Scripts in `ahk/` (`AFKToggle.ahk`, `generate_prompt.py`) automate Copilot prompts.
-- **Monitoring**: `monitor_backend.py` and `realtime_accuracy_monitor.py` for health and performance.
-
-## Project-Specific Conventions
-
-- **Unified Response**: All endpoints return `BetAnalysisResponse` with `enriched_props`, `confidence_score`, and diagnostic metadata.
-- **Async/Await**: Mandatory across services; errors must bubble with logger context (`logging.getLogger("propollama")`).
-- **Secret Management**: No keys in source; `.env` + `config_manager.py` handles secure retrieval.
-- **Documentation**:
-  - Update `API_DOCUMENTATION.md`, `FEATURE_INTEGRATION_ROADMAP.md`, and `BACKEND_FILE_USAGE_ANALYSIS.md` when adding features.
-  - Use OpenAPI docs at `/docs` for endpoint changes.
-
-## Integration Points
-
-- **External APIs**:
-  - SportRadar, TheOdds, PrizePicks, ESPN, SocialSentiment (API keys/config in `config/business_rules.yaml`).
-- **Data Storage**:
-  - PostgreSQL in production, SQLite default for dev (configured in `database.py`).
-  - Redis for caching & rate-limiting (`redis_rate_limiter.py`).
-- **ETL & Analytics**:
-  - ETL pipelines orchestrated by `deploy_etl_production.sh` and `ETL_MONITORING_SETUP.md`.
-- **CI/CD**:
-  - GitHub Actions workflows in `.github/` (not shown) integrate tests, lint, and deploy steps.
-
-## Examples & Tips
-
-- **Adding a new feature service**:
-
-  1. Create `backend/services/<feature>_service.py` with async functions.
-  2. Import and call in `pre_llm_business_logic` of `propollama.py` or relevant route.
-  3. Add configuration in `config/prompt_templates.yaml` and `business_rules.yaml`.
-
-- **Frontend Data Exposure**:
-  - Extend the `UnifiedFeatureService` and corresponding adapter to return new fields.
-  - Update `BetAnalysisResponse` model in `models/api_models.py` and component props in `PropOllamaUnified.tsx`.
+Welcome to the definitive, self-sufficient guide for developing, maintaining, and extending A1Betting7-13.2. This document is all you (or Copilot) will ever need—no further instruction required.
 
 ---
 
-For detailed architecture diagrams and additional context, refer to `CLASS_DIAGRAM.md`, `ARCHITECTURE.md`, and `ROUTE_OVERVIEW.md`.
+## 1. Project Context & Mission
+
+- **A1Betting7-13.2** is a full-stack, AI-powered sports analytics and betting platform.
+- **Backend:** Python (FastAPI), async modular services, ML ensembles, ETL, LLM (PropOllama/GPT), robust audit/compliance.
+- **Frontend:** React + Vite (TypeScript), Zustand state, Tailwind, Electron desktop, modern admin UI.
+- **Auxiliary:** AutoHotkey scripts, Docker, CI/CD, advanced monitoring.
+
+**Mission:** Deliver real-time, explainable, and compliant sports analytics and betting tools for both technical and non-technical users.
+
+---
+
+## 2. Architecture Overview
+
+### Backend (Python, FastAPI)
+
+- **Entrypoints:**
+  - `backend/main.py` or `run_backend.py` (production)
+  - `backend/minimal_test_app.py` (dev/test)
+- **Core Modules:**
+  - `admin_api.py`, `admin.py`: Admin endpoints, audit, health
+  - `betting_opportunity_service.py`: Opportunity management
+  - `feature_engineering.py`, `feature_cache.py`, `feature_flags.py`, etc.: Feature pipeline
+  - `prediction_engine.py`, `enhanced_ml_ensemble_service.py`: ML/ensemble prediction
+  - `shap_explainer.py`, `real_shap_service.py`: Explainability
+  - `unified_feature_service.py`: Unified feature pipeline
+  - `ws.py`: WebSocket endpoints
+  - `monitoring_service.py`: Monitoring/alerts
+- **Routing:**
+  - All routes in `backend/routes/` (REST, admin, analytics, unified API, etc.)
+- **Data & ETL:**
+  - ETL orchestrator: `data_pipeline.py`, `etl_providerx_sample.py`, `deploy_etl_production.sh`
+  - Data fetchers: `data_fetchers_working.py`, `real_time_analysis_engine.py`
+- **Database:**
+  - Alembic for migrations (`alembic/`, `migrations/`)
+  - PostgreSQL (prod), SQLite (dev), Redis (cache/rate-limit)
+- **Testing:**
+  - All tests in `backend/test/` (pytest)
+- **Security:**
+  - JWT/session auth, admin-only endpoints, secret management via `.env` + `config_manager.py`
+
+### Frontend (React, Vite, TypeScript)
+
+- **Components:**
+  - Unified UI: `frontend/src/components/PropOllamaUnified.tsx`, `PredictionDisplay.tsx`, `PropGPT.tsx`
+  - Feature modules: LineupBuilder, BettingDashboard, BankrollManager, SHAPVisualization, etc.
+- **State & Styling:**
+  - Zustand stores, Tailwind config, global styles
+- **API Layer:**
+  - Adapters: ESPN, PrizePicks, SocialSentiment, SportsRadar, TheOdds
+  - Unified service: `frontend/src/analytics/UnifiedFeatureService.ts`
+- **Testing:**
+  - Unit/E2E: `__tests__/`, Vitest config
+- **Admin UI:**
+  - Modern, secure admin SPA for rule management, audit, and monitoring
+
+---
+
+## 3. Developer Workflows
+
+### Backend
+
+1. **Setup:**
+   - Copy `.env.example` → `.env`, add API keys (never commit keys)
+   - `pip install -r requirements.txt` (or `requirements-production.txt`)
+2. **Run:**
+   - Dev: `uvicorn backend.main:app --reload` or `bash start-python-backend.sh`
+   - Test: `python backend/minimal_test_app.py`
+3. **Test:**
+   - `pytest -q --disable-warnings`
+4. **Migrate:**
+   - `alembic revision --autogenerate -m "<msg>"`, then `alembic upgrade head`
+5. **Lint/Security:**
+   - `flake8 .`, `pylint backend/`, `bash run_security_scan.sh`, SonarQube
+
+### Frontend
+
+1. **Setup:** `cd frontend && npm ci`
+2. **Run:** `npm run dev` or `bash start-dev.ps1`
+3. **Build:** `npm run build`
+4. **Test/Lint:** `npm run test`, `npm run lint`
+
+### Auxiliary
+
+- **Docker Compose:** `docker-compose up --build` (full stack)
+- **Monitoring:** `monitor_backend.py`, `realtime_accuracy_monitor.py`
+- **AutoHotkey:** Scripts in `ahk/` for automation
+
+---
+
+## 4. API, Data, and Integration
+
+- **PrizePicks:** Real data only (`https://api.prizepicks.com/projections`)
+- **SportRadar, TheOdds:** API keys in `.env` (required)
+- **Health:** `GET /api/prizepicks/health` (status endpoint)
+- **Error Handling:** All APIs handle rate limits/unavailability gracefully
+- **No mock endpoints** (as of 2025-07-14)
+
+---
+
+## 5. Conventions, Patterns, and Rules
+
+- **Async/Await:** All backend services must be async; errors must bubble with logger context
+- **Unified Response:** All endpoints return `BetAnalysisResponse` with `enriched_props`, `confidence_score`, and diagnostics
+- **Secret Management:** No keys in source; use `.env` + `config_manager.py`
+- **Documentation:**
+  - Update `API_DOCUMENTATION.md`, `FEATURE_INTEGRATION_ROADMAP.md`, `BACKEND_FILE_USAGE_ANALYSIS.md` for any feature
+  - Use OpenAPI docs at `/docs` for endpoint changes
+- **Naming/Style:**
+  - Follow PEP8 (Python), Airbnb/Prettier (TypeScript/React)
+  - Use clear, descriptive names for all files, functions, and variables
+- **Testing:**
+  - All new features must have unit/integration tests
+  - E2E tests for admin UI and critical workflows
+- **CI/CD:**
+  - All code must pass lint, tests, and security scans before merge/deploy
+
+---
+
+## 6. How to Add or Change Features
+
+- **Backend Service:**
+  1. Create `backend/services/<feature>_service.py` (async)
+  2. Import/call in `pre_llm_business_logic` or relevant route
+  3. Add config in `config/prompt_templates.yaml` and/or `business_rules.yaml`
+  4. Add/extend tests in `backend/test/`
+  5. Update docs as above
+- **Frontend Exposure:**
+  - Extend `UnifiedFeatureService` and adapters to return new fields
+  - Update `BetAnalysisResponse` model and relevant component props
+  - Add/extend tests and update docs
+
+---
+
+## 7. Where to Find More
+
+- **Diagrams & Deep Dives:** `CLASS_DIAGRAM.md`, `ARCHITECTURE.md`, `ROUTE_OVERVIEW.md`
+- **Roadmap:** `FEATURE_INTEGRATION_ROADMAP.md`, `PROJECT_STATUS.md`, `CHANGELOG.md`
+- **Security/Compliance:** `sonar-project.properties`, `run_security_scan.sh`, audit log docs
+- **Troubleshooting:** `README.md`, `advanced_best_practices.log`, `monitor_backend.py`
+
+---
+
+## 8. If You Do X, Do Y (Quick Reference)
+
+- **Add a backend feature:** See section 6, update docs/tests
+- **Expose new data to frontend:** Update adapters, models, docs
+- **Change a rule or config:** Edit YAML, reload via admin API/UI, check audit log
+- **Add a migration:** Use Alembic, verify models, test upgrade/downgrade
+- **Add a test:** Place in correct test dir, follow naming conventions
+- **Update docs:** Always update all relevant docs and diagrams
+- **Handle secrets:** Never commit keys, always use `.env` and config manager
+- **Debug:** Use logger context, check health endpoints, review monitoring scripts
+
+---
+
+## 9. Golden Rules
+
+1. Never commit secrets or keys
+2. Never bypass tests, lint, or security scans
+3. Always document and test every feature/change
+4. Always use async/await in backend
+5. Always keep Alembic and models in sync
+6. Always update all relevant docs and diagrams
+7. Always escalate blockers with context and options
+
+---
+
+**This is the only instructions file you will ever need.**

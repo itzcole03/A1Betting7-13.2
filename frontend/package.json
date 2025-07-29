@@ -19,6 +19,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
     "@testing-library/user-event": "^14.6.1",
     "jest-fixed-jsdom": "^0.0.9",
     "jest-junit": "^16.0.0",

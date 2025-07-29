@@ -9,12 +9,20 @@
 - See `devops_api_monitoring_template.md` for monitoring/alerting setup.
 - See `frontend_violation_ux_confirmation.md` for frontend integration and audit requirements.
 
-## Key Files
+## Key Files (MLB Integration 2025-07-28)
 
-- `backend/services/real_time_analysis_engine.py`: Core business logic, rule versioning, and metadata injection
-- `backend/routes/admin.py`: Admin reload endpoint and observability
-- `backend/routes/propollama.py`, `backend/routes/real_time_analysis.py`: API versioning and response structure
-- `backend/config/business_rules.yaml`: Business rules, version, and last updated
+- `backend/services/mlb_provider_client.py`: MLB ETL client for SportRadar and TheOdds
+- `backend/etl_mlb.py`: MLB ETL pipeline runner
+- `backend/services/mlb_feature_engineering.py`: MLB-specific feature engineering
+- `backend/enhanced_model_service.py`: Unified model service (MLB now supported)
+- `backend/routes/propollama.py`: Unified API endpoint for all sports, including MLB
+- `frontend/src/components/PropOllamaUnified.tsx`: Frontend MLB prop display
+
+## Lessons Learned
+
+- Modular ETL and feature engineering per sport enables robust, incremental expansion
+- Unified API and response model simplifies frontend integration
+- Real API keys are required for full data ingestion; pipeline handles missing keys gracefully
 
 ## Audit Notes
 

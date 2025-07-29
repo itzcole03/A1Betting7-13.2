@@ -69,12 +69,20 @@ The platform has been successfully transformed into a professional desktop appli
 - [❌] Encrypted API key management for sportsbook integrations
 - [❌] Security best practices (CSP, input validation, HTTPS enforcement)
 
-#### **🔄 PENDING - Real Data Integration**
+#### **✅ MLB Real Data Integration (2025-07-28)**
 
-- [❌] Replace mock data with actual sportsbook API calls
-- [❌] Integrate real sports data APIs (ESPN, The Odds API, SportsRadar)
-- [❌] Implement 47+ ML model ensemble with trained models
-- [❌] Test sportsbook API integrations in sandbox environments
+- [✅] MLB ETL pipeline implemented (`mlb_provider_client.py`, `etl_mlb.py`)
+- [✅] MLB feature engineering pipeline (`mlb_feature_engineering.py`)
+- [✅] MLB-specific model training and evaluation via unified model service
+- [✅] MLB predictions exposed via API and frontend
+- [✅] Lessons learned: Modular, sport-by-sport validation is robust and scalable
+
+#### **� PENDING - Real Data Integration (Other Sports)**
+
+- [❌] Replace mock data with actual sportsbook API calls (other sports)
+- [❌] Integrate real sports data APIs (ESPN, The Odds API, SportsRadar) (other sports)
+- [❌] Implement 47+ ML model ensemble with trained models (other sports)
+- [❌] Test sportsbook API integrations in sandbox environments (other sports)
 
 ### **🟡 MEDIUM PRIORITY - Enhanced Features**
 
@@ -345,3 +353,13 @@ Complete Production System
 _The foundation is complete. Now building the comprehensive sports intelligence ecosystem._
 
 **Current Status**: Desktop application ready for development → Production-ready platform with real data and professional features.
+
+## MLB Integration Best Practices (2025-07-28)
+
+- **Persistent Redis Caching**: All MLB event, team, odds, and mapping data are cached in Redis (TTL ≥ 10 min).
+- **Dynamic, Quota-Aware Rate Limiting**: API requests parse quota headers and throttle dynamically, with state persisted in Redis.
+- **Canonical Team Normalization & Event Mapping**: Uses TheOdds `/participants` and SportRadar event mapping endpoints for robust cross-provider mapping.
+- **Exponential Backoff & Retry Logic**: All API fetches use exponential backoff and retry for 429/5xx errors, with logging and alerting on persistent failures.
+- **Secure Secret Management**: API keys are loaded from environment/config only, never hardcoded.
+
+See `mlb_provider_client.py` for implementation details. These practices are now required for all new sport integrations.

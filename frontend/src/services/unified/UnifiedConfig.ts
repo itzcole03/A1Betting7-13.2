@@ -7,7 +7,6 @@ export class UnifiedConfig {
   private config: ConfigStore = {};
   private defaults: ConfigStore = {
     api: {
-      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
       baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001',
       timeout: 10000,
       retries: 3,
@@ -40,11 +39,11 @@ export class UnifiedConfig {
 
   get<T>(key: string, defaultValue?: T): T {
     const _keys = key.split('.');
-    let _value = this.config;
+    let value: any = this.config;
 
-    for (const _k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k];
+    for (const _k of _keys) {
+      if (value && typeof value === 'object' && _k in value) {
+        value = value[_k];
       } else {
         return defaultValue as T;
       }
@@ -55,26 +54,26 @@ export class UnifiedConfig {
 
   set(key: string, value: unknown): void {
     const _keys = key.split('.');
-    let _current = this.config;
+    let current: ConfigStore = this.config;
 
-    for (let _i = 0; i < keys.length - 1; i++) {
-      const _k = keys[i];
-      if (!(k in current) || typeof current[k] !== 'object') {
-        current[k] = {};
+    for (let i = 0; i < _keys.length - 1; i++) {
+      const _k = _keys[i];
+      if (!(_k in current) || typeof current[_k] !== 'object' || current[_k] === null) {
+        current[_k] = {};
       }
-      current = current[k];
+      current = current[_k] as ConfigStore;
     }
 
-    current[keys[keys.length - 1]] = value;
+    current[_keys[_keys.length - 1]] = value;
   }
 
   has(key: string): boolean {
     const _keys = key.split('.');
-    let _value = this.config;
+    let value = this.config;
 
-    for (const _k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k];
+    for (const _k of _keys) {
+      if (value && typeof value === 'object' && _k in value) {
+        value = (value as any)[_k];
       } else {
         return false;
       }
@@ -85,17 +84,17 @@ export class UnifiedConfig {
 
   delete(key: string): void {
     const _keys = key.split('.');
-    let _current = this.config;
+    let current: ConfigStore = this.config;
 
-    for (let _i = 0; i < keys.length - 1; i++) {
-      const _k = keys[i];
-      if (!(k in current) || typeof current[k] !== 'object') {
+    for (let i = 0; i < _keys.length - 1; i++) {
+      const _k = _keys[i];
+      if (!(_k in current) || typeof current[_k] !== 'object' || current[_k] === null) {
         return;
       }
-      current = current[k];
+      current = current[_k] as ConfigStore;
     }
 
-    delete current[keys[keys.length - 1]];
+    delete current[_keys[_keys.length - 1]];
   }
 
   reset(): void {
@@ -107,17 +106,21 @@ export class UnifiedConfig {
   }
 
   merge(newConfig: ConfigStore): void {
-    this.config = this.deepMerge(this.config, newConfig);
+    this.config = this.deepMerge(this.config, newConfig) as ConfigStore;
   }
 
   private deepMerge(target: unknown, source: unknown): unknown {
-    const _result = { ...target };
+    const result = { ...(target as any) };
 
-    for (const _key in source) {
-      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-        result[key] = this.deepMerge(result[key] || {}, source[key]);
+    for (const _key in source as any) {
+      if (
+        (source as any)[_key] &&
+        typeof (source as any)[_key] === 'object' &&
+        !Array.isArray((source as any)[_key])
+      ) {
+        result[_key] = this.deepMerge(result[_key] || {}, (source as any)[_key]);
       } else {
-        result[key] = source[key];
+        result[_key] = (source as any)[_key];
       }
     }
 
