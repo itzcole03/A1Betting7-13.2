@@ -1,63 +1,26 @@
-## MLB Odds/AI Insights Data Flow & Mapping (Frontend)
+# A1Betting7-13.2 - AI-Powered Sports Analytics Platform
 
-### Overview
+![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Python](https://img.shields.io/badge/python-3.8%2B-blue) ![TypeScript](https://img.shields.io/badge/typescript-%5E5.0-blue) ![Build](https://img.shields.io/badge/build-in-progress-orange) ![Status](https://img.shields.io/badge/status-development-yellow)
 
-This section documents how MLB odds and AI insights are fetched, mapped, and displayed in the frontend analytics table. This is critical for future maintainers and Copilot agents.
-
-### Data Fetch
-
-- The frontend calls `fetchFeaturedProps('MLB')` in `frontend/src/services/unified/FeaturedPropsService.ts`.
-- This fetches data from the backend endpoint `/mlb/odds-comparison/`.
-- The backend may return multiple rows per event, especially for "totals" (e.g., Total Runs), with separate rows for "Over" and "Under" bets.
-
-### Grouping & Merging Logic
-
-- All rows with `stat_type === 'totals'` are grouped by `event_id`, `stat_type`, and line value.
-- For each group, Over and Under odds are merged into a single object with both `overOdds` and `underOdds` fields.
-- The "Player Name" column for these rows is set to the event name, matchup, or a fallback like "Total (Game)".
-- This ensures only one row per prop is shown in the table, with both Over/Under odds and a meaningful label.
-
-### Non-totals
-
-- All other props (e.g., spreads, h2h) are mapped as before, with player/team logic to ensure a user-friendly label.
-
-### Mapping Output
-
-- Each mapped prop includes: id, player (display name), matchup, stat, line, overOdds, underOdds, confidence, sport, gameTime, pickType.
-- Diagnostic logs are output for each mapped prop for troubleshooting.
-
-### Table Display
-
-- The frontend table displays one row per prop, with correct odds and a clear, user-friendly name for each.
-
-### Maintenance Tips
-
-- "Player Name" should never be "Over" or "Under" for totals.
-- Only one row per prop should be shown for totals, with both odds present.
-- Check diagnostic logs for edge cases or missing data.
-
-For further details, see `frontend/src/services/unified/FeaturedPropsService.ts` and the API documentation.
-
-# PropOllama - AI-Powered Sports Analytics Platform
-
-![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Python](https://img.shields.io/badge/python-3.8%2B-blue) ![TypeScript](https://img.shields.io/badge/typescript-%5E5.0-blue) ![Build](https://img.shields.io/badge/build-passing-brightgreen) ![Status](https://img.shields.io/badge/status-functional-green)
-
-**Professional AI-Powered Sports Prop Research & Analytics Platform**
+**A comprehensive AI-powered platform for sports prop research and analytics, currently under active development and refinement.**
 
 ---
 
-## 🚀 Current Status (January 2025)
+## 🚀 Current Status (August 2025)
 
-**✅ FULLY FUNCTIONAL APPLICATION**
+The A1Betting7-13.2 platform is under active development, focusing on resolving critical frontend stability issues and integrating advanced features to merge the capabilities of PropGPT (AI predictions) and PropFinder (comprehensive research tools).
 
-The PropOllama platform is now fully operational with:
+### ✅ Backend Status:
 
-- ✅ **PropOllama**: AI-powered sports prop analysis interface
-- ✅ **Game Predictions**: Real-time AI game analysis and predictions
-- ✅ **Modern UI**: Clean, responsive interface with cyber theme
-- ✅ **Dev Server**: Running successfully on port 8174
-- ✅ **No Build Errors**: All TypeScript and CSS issues resolved
-- ✅ **User-Friendly Navigation**: Seamless switching between features
+- **Fully Functional:** The FastAPI backend is robust and actively processing data, generating player and team props, and serving API requests successfully (e.g., `/mlb/odds-comparison/` returns 200 OK).
+- **Sophisticated Data Pipeline:** Includes advanced data ingestion, processing, and AI/ML components (`enhanced_propollama_engine.py`, `prediction_engine.py`).
+
+### ⚠️ Frontend Status (Under Active Debugging):
+
+- **Persistent Loading/Refreshing Loop:** The primary symptom is a continuous re-rendering cycle, preventing stable display.
+- **"Backend version mismatch" Warning:** A critical warning (`[APP] Backend version mismatch - Possible resolution conflict`) is frequently observed, likely triggering the refresh loop.
+- **Unstable WebSocket Connection:** Initial WebSocket connection failures (`WebSocket is closed before the connection is established.`) persist, even if a connection is eventually made, disrupting real-time data flow.
+- **Incomplete Data Display:** Despite the backend successfully serving data, the frontend is not consistently or correctly displaying it, indicating issues with data consumption and state management.
 
 ## 📑 Quick Start
 
@@ -105,38 +68,39 @@ python -m backend.main
 ```bash
 # From frontend directory
 cd frontend && npm run dev
-# Frontend runs on http://localhost:8174
+# Frontend runs on http://localhost:5173 (or similar, check console)
 ```
 
 ### 5. Access the App
 
-Open your browser and navigate to: **http://localhost:8174**
+Open your browser and navigate to: **http://localhost:5173** (or the port indicated in your frontend console)
 
-## 🎯 Core Features
+## 🎯 Core Features (Planned & In Progress)
 
-### PropOllama Interface
+### PropGPT - AI-Powered Insights
 
-- **AI Prop Analysis**: Advanced AI-powered sports prop research
-- **Real-time Data**: Live prop lines and recommendations
-- **Multi-Sport Support**: NBA, NFL, NHL, MLB coverage
-- **Bet Slip**: Interactive prop selection and lineup building
-- **Confidence Scoring**: AI confidence ratings for each prop
+- **AI Prop Analysis**: Advanced AI-powered sports prop research and predictions.
+- **Confidence Scoring**: AI confidence ratings for each prop.
+- **Game Predictions**: Real-time AI game analysis and predictions.
+- **Real-time Data**: Live prop lines and recommendations.
 
-### Game Predictions
+### PropFinder - Comprehensive Research Tools
 
-- **AI Game Analysis**: Comprehensive game predictions across sports
-- **Win Probabilities**: Team win percentage calculations
-- **Betting Lines**: Real-time spread, over/under, and odds
-- **Confidence Metrics**: AI confidence levels for predictions
-- **Live Status**: Real-time game status updates
+- **Player Dashboard**: Detailed player performance trends, matchup analysis, advanced stats, and opponent-specific game logs.
+- **Quick Glance Stats**: Efficient display of relevant prop stats.
+- **Comprehensive Data Access**: Democratizing access to advanced sports betting data and tools.
+- **Personalized Alerts & Notifications**: Engagement features for bet updates.
+- **Search Functionality**: Ability to search for prop markets by player or team.
+- **Multi-Sport Support**: Covering various sports like MLB, NBA, NFL, NHL, WNBA.
+- **Interactive Visualizations**: Charts and graphs for data presentation.
 
 ### Modern Interface
 
-- **Responsive Design**: Works on desktop and mobile
-- **Dark Theme**: Professional cyber-themed UI
-- **Smooth Animations**: Framer Motion powered interactions
-- **Error Handling**: Graceful error states and fallbacks
-- **Loading States**: Skeleton loaders and progress indicators
+- **Responsive Design**: Works on desktop and mobile.
+- **Dark Theme**: Professional cyber-themed UI.
+- **Smooth Animations**: Framer Motion powered interactions.
+- **Error Handling**: Graceful error states and fallbacks.
+- **Loading States**: Skeleton loaders and progress indicators.
 
 ## 🛠️ Technology Stack
 
@@ -218,6 +182,22 @@ pytest              # Run tests
 
 The application follows a modern full-stack architecture:
 
+```mermaid
+graph LR
+    Frontend[React Frontend] --> API[FastAPI Backend]
+    API --> DB[(SQLite Database)]
+    API --> External[External APIs]
+    Frontend --> User[User Interface]
+```
+
+### Key Components
+
+1.  **PropOllamaUnified**: Main prop analysis interface with AI-powered recommendations
+2.  **PredictionDisplay**: Game prediction dashboard with real-time analytics
+3.  **UserFriendlyApp**: Main application shell with navigation
+4.  **State Management**: Centralized Zustand stores for app, betting, and prediction state
+5.  **API Services**: Unified API service layer with error handling and fallbacks
+
 ## 📊 Monitoring & Alerting (Business Rules)
 
 - All business rule violations are logged with granular reasons and bet IDs.
@@ -231,99 +211,54 @@ The application follows a modern full-stack architecture:
 - If forbidden combos or stat types grow significantly, batch or set-based optimizations should be implemented.
 - TODO: In the main analysis loop, consider set-based lookups and vectorized checks for large rulesets.
 
----
-
-```mermaid
-graph LR
-    Frontend[React Frontend] --> API[FastAPI Backend]
-    API --> DB[(SQLite Database)]
-    API --> External[External APIs]
-    Frontend --> User[User Interface]
-```
-
-### Key Components
-
-1. **PropOllamaUnified**: Main prop analysis interface with AI-powered recommendations
-2. **PredictionDisplay**: Game prediction dashboard with real-time analytics
-3. **UserFriendlyApp**: Main application shell with navigation
-4. **State Management**: Centralized Zustand stores for app, betting, and prediction state
-5. **API Services**: Unified API service layer with error handling and fallbacks
-
-## 🚦 Current Status Details
-
-### ✅ Working Features
-
-- **Frontend Server**: Running on port 8174 with no errors
-- **Component Loading**: PropOllama and Predictions components fully functional
-- **Navigation**: Smooth transitions between different views
-- **UI/UX**: Professional interface with animations and responsive design
-- **State Management**: Functional state management across components
-- **Error Handling**: Proper error boundaries and fallback states
-
-### 🔧 Recent Fixes (January 2025)
-
-- **Fixed Proxy Configuration**: Corrected dev server port mapping
-- **Resolved TypeScript Errors**: Fixed all compilation issues
-- **Created Missing CSS Files**: Added all required style imports
-- **Removed Corrupted Files**: Cleaned up broken/unused components
-- **Updated Dependencies**: Proper package management and imports
-
-### 📋 Testing Status
-
-- **Component Tests**: Available for core components
-- **Integration Tests**: Backend API integration tests
-- **E2E Tests**: Frontend user flow testing
-- **Performance**: Optimized loading and rendering
-
-## 🎨 User Interface
-
-The PropOllama interface features:
-
-### Design System
-
-- **Color Palette**: Professional dark theme with purple/blue gradients
-- **Typography**: Clean, readable fonts with proper hierarchy
-- **Spacing**: Consistent spacing and layout patterns
-- **Icons**: Lucide React icon system
-- **Animations**: Smooth Framer Motion transitions
-
-### Responsive Design
-
-- **Mobile First**: Optimized for mobile devices
-- **Desktop Enhanced**: Rich desktop experience
-- **Adaptive Layout**: Responsive grid and flexbox layouts
-- **Touch Friendly**: Large touch targets and gestures
-
 ## 🔮 Future Roadmap
 
-### Short Term
+This roadmap outlines the phased approach to stabilize the application and integrate advanced features, merging the best aspects of PropGPT and PropFinder.
 
-- [ ] Backend API integration for live data
-- [ ] User authentication and profiles
-- [ ] Enhanced AI model integration
-- [ ] Real-time WebSocket updates
+### Phase 1: Application Stabilization (Immediate Priority)
 
-### Medium Term
+**Goal:** Eliminate the frontend loading/refreshing loop and establish stable communication between frontend and backend.
 
-- [ ] Mobile app development
-- [ ] Advanced analytics dashboard
-- [ ] Social features and sharing
-- [ ] Performance optimizations
+- **Resolve "Backend version mismatch":** Identify and correct the versioning logic in the frontend to match the backend API version (currently `2.0.0`). Implement graceful handling for any future mismatches to prevent continuous reloads.
+- **Stabilize WebSocket Connections:** Enhance `WebSocketContext.tsx` with robust error handling, exponential backoff for reconnection attempts, and proper lifecycle management to ensure stable real-time communication.
+- **Verify Initial Data Fetching:** Ensure the `usePropOllamaData` hook reliably triggers API calls (e.g., `/mlb/todays-games`, `/api/v2/sports/activate`) and correctly processes their responses, updating the frontend state without issues.
+- **Identify & Break Re-render Loops:** Use React Developer Tools to pinpoint and eliminate excessive re-renders in `UserFriendlyApp` and `PropOllamaContainer` through strategic memoization (`React.memo`, `useCallback`, `useMemo`).
 
-### Long Term
+### Phase 2: Core Feature Implementation & Refinement (PropFinder Aspect)
 
-- [ ] Machine learning model training
-- [ ] Multi-language support
-- [ ] Enterprise features
-- [ ] API monetization
+**Goal:** Build out the core data presentation and interaction features that define a comprehensive sports data research tool.
+
+- **Develop a Robust Player Dashboard:** Create a centralized view for player-specific data, including key stats, performance trends, matchup analysis, and advanced metrics, with interactive charts and graphs.
+- **Implement Comprehensive Search and Filtering:** Add a global search bar and advanced filtering options (sport, league, date, market type, stats, odds ranges) with dynamic loading for large datasets.
+- **Interactive Visualizations:** Integrate charting libraries to visualize player trends, head-to-head matchups, and historical performance, allowing for comparison tools.
+- **Real-time Data Display:** Leverage stable WebSockets to push live odds, game scores, and player status updates to the frontend with visual cues.
+
+### Phase 3: AI Prediction Integration & Enhancement (PropGPT Aspect)
+
+**Goal:** Seamlessly integrate AI-driven predictions and insights into the user interface, making them actionable and understandable.
+
+- **Display AI Predictions Prominently:** Show AI-generated predictions (e.g., over/under probabilities, predicted stat lines) with confidence scores and brief explanations/rationales.
+- **Interactive Prediction Filters:** Allow users to filter predictions based on sport, confidence level, prop type, or specific AI model.
+- **Feedback Loop for AI:** Implement a mechanism for user feedback on predictions to refine AI models.
+- **Integration with Research Tools:** Ensure seamless transition from AI predictions to detailed research views for validation.
+
+### Phase 4: Refinement, Performance, and Scalability
+
+**Goal:** Optimize the application for speed, reliability, and maintainability, ensuring a smooth user experience and future growth.
+
+- **Performance Optimization:** Profile and optimize both frontend and backend for faster response times, efficient data handling, and reduced re-renders.
+- **Robust Error Handling and User Feedback:** Implement comprehensive error boundaries and user-friendly messages across the application, with centralized logging.
+- **Security Enhancements:** Strengthen API authentication/authorization, implement rate limiting, and ensure data privacy.
+- **Automated Testing:** Expand unit, integration, and end-to-end test coverage, integrating tests into CI/CD.
+- **Documentation and Code Quality:** Maintain up-to-date documentation and ensure high code quality through regular code reviews.
 
 ## 🤝 Contributing
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+1.  **Fork** the repository
+2.  **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3.  **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4.  **Push** to the branch (`git push origin feature/amazing-feature`)
+5.  **Open** a Pull Request
 
 ### Development Guidelines
 
@@ -342,11 +277,12 @@ The PropOllama interface features:
 
 ### Troubleshooting
 
+- **Frontend Loading Loop**: Refer to Phase 1 of the Future Roadmap for detailed debugging steps, focusing on version mismatch and WebSocket stability.
 - **Empty MLB Table**: If the MLB props/AI insights table is empty, check backend logs for errors. A missing `alert_event` method in `MLBProviderClient` will break fallback logic and cause empty responses. Ensure this method exists and Redis is running.
-- **Port Conflicts**: Dev server will auto-select available ports
-- **Dependencies**: Run `npm install` and `pip install -r requirements.txt`
-- **Environment**: Ensure `.env` file is properly configured
-- **Browser**: Clear cache and refresh if needed
+- **Port Conflicts**: Dev server will auto-select available ports.
+- **Dependencies**: Run `npm install` and `pip install -r requirements.txt`.
+- **Environment**: Ensure `.env` file is properly configured.
+- **Browser**: Clear cache and refresh if needed.
 
 ## 📄 License
 
@@ -364,4 +300,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ by the PropOllama Team**
 
-_Last Updated: January 2025_
+_Last Updated: August 2025_
