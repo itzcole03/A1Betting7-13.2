@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 import numpy as np
-from config import config_manager
 from enhanced_data_pipeline import enhanced_data_pipeline
 from enhanced_feature_engineering import enhanced_feature_engineering
 from enhanced_model_service import EnhancedMathematicalModelService
@@ -22,6 +21,8 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+
+from backend.config_manager import config_manager
 
 logger = logging.getLogger(__name__)
 
@@ -687,8 +688,6 @@ async def store_prediction_analytics(
         # Keep only last 1000 records in memory
         if len(model_performance_history) > 1000:
             model_performance_history.pop(0)
-
-        
 
     except Exception as e:  # pylint: disable=broad-exception-caught
         logger.error("Failed to store prediction analytics: {e}")

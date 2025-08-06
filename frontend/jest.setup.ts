@@ -1,8 +1,48 @@
-// Unified test setup for Jest - consolidates all test configurations
-import '@testing-library/jest-dom';
+// Polyfill TextEncoder/TextDecoder for Node.js (needed by MSW and fetch polyfills)
+import React from 'react';
+import { TextDecoder, TextEncoder } from 'util';
 
-// Polyfills
+if (typeof global.TextEncoder === 'undefined') {
+  global.TextEncoder = TextEncoder as any;
+}
+if (typeof global.TextDecoder === 'undefined') {
+  global.TextDecoder = TextDecoder as any;
+}
+// Mock window.matchMedia as early as possible for framer-motion compatibility
+if (typeof window !== 'undefined') {
+  // Create a proper implementation of matchMedia for framer-motion
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: jest.fn().mockImplementation((query: string) => {
+      const listeners = new Set<EventListener>();
+      return {
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: function (listener: EventListener) {
+          listeners.add(listener);
+        },
+        removeListener: function (listener: EventListener) {
+          listeners.delete(listener);
+        },
+        addEventListener: function (_type: string, listener: EventListener) {
+          listeners.add(listener);
+        },
+        removeEventListener: function (_type: string, listener: EventListener) {
+          listeners.delete(listener);
+        },
+        dispatchEvent: function () {
+          return false;
+        },
+      };
+    }),
+  });
+}
+
+// Polyfill fetch, Response, and Request for Node.js (MSW compatibility)
+import '@testing-library/jest-dom';
 import 'jest-localstorage-mock';
+import 'whatwg-fetch';
 
 // Text Encoder/Decoder polyfill for Node.js
 if (typeof global.TextEncoder === 'undefined') {
@@ -17,23 +57,8 @@ if (typeof global.fetch === 'undefined') {
   global.fetch = require('node-fetch');
 }
 
-// Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-});
-
 // Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
+(global as any).IntersectionObserver = class IntersectionObserver {
   constructor() {}
   disconnect() {}
   observe() {}
@@ -41,7 +66,7 @@ global.IntersectionObserver = class IntersectionObserver {
 };
 
 // Mock ResizeObserver
-global.ResizeObserver = class ResizeObserver {
+(global as any).ResizeObserver = class ResizeObserver {
   constructor() {}
   disconnect() {}
   observe() {}
@@ -49,7 +74,9 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 // Mock HTMLCanvasElement.getContext
-HTMLCanvasElement.prototype.getContext = jest.fn();
+if (typeof HTMLCanvasElement !== 'undefined') {
+  HTMLCanvasElement.prototype.getContext = jest.fn();
+}
 
 // Suppress console errors in tests unless explicitly needed
 const originalError = console.error;
@@ -57,31 +84,16 @@ console.error = (...args: any[]) => {
   if (
     typeof args[0] === 'string' &&
     (args[0].includes('Warning: ReactDOM.render is deprecated') ||
-     args[0].includes('Warning: React.createFactory') ||
-     args[0].includes('act() is not supported'))
+      args[0].includes('Warning: React.createFactory') ||
+      args[0].includes('act() is not supported'))
   ) {
     return;
   }
   originalError.call(console, ...args);
 };
 
-// Setup MSW for API mocking
-import { server } from '../test/msw-server';
-
-beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'warn' });
-});
-
-afterEach(() => {
-  server.resetHandlers();
-});
-
-afterAll(() => {
-  server.close();
-});
-
 // Global test utilities
-global.testUtils = {
+(global as any).testUtils = {
   // Add any global test utilities here
   mockComponent: (name: string) => {
     return jest.fn(() => React.createElement('div', { 'data-testid': name }));
@@ -92,8 +104,5 @@ global.testUtils = {
 afterEach(() => {
   jest.clearAllMocks();
   jest.restoreAllMocks();
-  
-  // Clear any timers
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
+  // Timer cleanup is now managed by each test file as needed
 });

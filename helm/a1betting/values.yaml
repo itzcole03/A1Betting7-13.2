@@ -1,0 +1,358 @@
+# Default values for A1Betting7-13.2 Helm Chart
+# Production-ready configuration with modern best practices
+
+# Global settings
+global:
+  imageRegistry: "ghcr.io"
+  imagePullSecrets: []
+  storageClass: "fast-ssd"
+
+# Environment configuration
+environment: production
+replicaCount:
+  backend: 3
+  frontend: 2
+
+# Image configuration
+image:
+  backend:
+    repository: a1betting/backend
+    tag: "latest"
+    pullPolicy: Always
+  frontend:
+    repository: a1betting/frontend
+    tag: "latest"
+    pullPolicy: Always
+
+# Service configuration
+service:
+  backend:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+    annotations: {}
+  frontend:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+    annotations: {}
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+  hosts:
+    - host: api.a1betting.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: backend
+    - host: a1betting.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+  tls:
+    - secretName: a1betting-tls
+      hosts:
+        - api.a1betting.com
+        - a1betting.com
+
+# Resource configuration
+resources:
+  backend:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+  frontend:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "250m"
+
+# Autoscaling configuration
+autoscaling:
+  backend:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  frontend:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  backend:
+    enabled: true
+    minAvailable: 2
+  frontend:
+    enabled: true
+    minAvailable: 1
+
+# Security configuration
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+# Network Policies
+networkPolicy:
+  enabled: true
+  backend:
+    ingress:
+      - from:
+          - podSelector:
+              matchLabels:
+                app.kubernetes.io/name: a1betting-frontend
+        ports:
+          - protocol: TCP
+            port: 8000
+      - from:
+          - namespaceSelector:
+              matchLabels:
+                name: monitoring
+        ports:
+          - protocol: TCP
+            port: 8000
+    egress:
+      - to:
+          - podSelector:
+              matchLabels:
+                app.kubernetes.io/name: postgresql
+        ports:
+          - protocol: TCP
+            port: 5432
+      - to:
+          - podSelector:
+              matchLabels:
+                app.kubernetes.io/name: redis
+        ports:
+          - protocol: TCP
+            port: 6379
+      - to: [] # External APIs
+        ports:
+          - protocol: TCP
+            port: 443
+          - protocol: TCP
+            port: 80
+
+# Health checks configuration
+healthChecks:
+  backend:
+    livenessProbe:
+      httpGet:
+        path: /api/health
+        port: 8000
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    readinessProbe:
+      httpGet:
+        path: /api/health/ready
+        port: 8000
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+  frontend:
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 80
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+    readinessProbe:
+      httpGet:
+        path: /
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 3
+
+# Environment variables
+env:
+  backend:
+    ENVIRONMENT: production
+    OTEL_SERVICE_NAME: "a1betting-backend"
+    OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4317"
+    OTEL_RESOURCE_ATTRIBUTES: "service.name=a1betting-backend,service.version=1.0.0,deployment.environment=production"
+  frontend:
+    VITE_ENVIRONMENT: production
+    VITE_BACKEND_URL: "https://api.a1betting.com"
+
+# Secrets configuration
+secrets:
+  create: true
+  annotations: {}
+  postgres:
+    username: "a1betting"
+    password: "" # Will be generated if empty
+    database: "a1betting_prod"
+  redis:
+    password: "" # Will be generated if empty
+  apiKeys:
+    sportradar: ""
+    theodds: ""
+    espn: ""
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  auth:
+    username: "a1betting"
+    database: "a1betting_prod"
+    existingSecret: "postgres-credentials"
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: "fast-ssd"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+# Redis configuration
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    existingSecret: "redis-credentials"
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+      storageClass: "fast-ssd"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "250m"
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+# Monitoring configuration
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+      path: /metrics
+  grafana:
+    enabled: true
+    adminPassword: "" # Will be generated if empty
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus:9090
+        isDefault: true
+  jaeger:
+    enabled: true
+    collector:
+      otlp:
+        grpc:
+          enabled: true
+        http:
+          enabled: true
+
+# Backup configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *" # Daily at 2 AM
+  retention: "30d"
+  storage:
+    type: "s3"
+    bucket: "a1betting-backups"
+    region: "us-east-1"
+
+# Canary deployment configuration
+canary:
+  enabled: false
+  weight: 20
+  analysis:
+    interval: 30s
+    threshold: 5
+    maxWeight: 50
+    stepWeight: 10
+    metrics:
+      - name: request-success-rate
+        threshold: 99
+        interval: 1m
+      - name: request-duration
+        threshold: 500
+        interval: 30s
+
+# Node affinity and tolerations
+nodeAffinity:
+  backend:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: node-type
+              operator: In
+              values:
+                - compute-optimized
+  frontend:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: node-type
+              operator: In
+              values:
+                - general-purpose
+
+tolerations: []
+
+# Pod annotations
+podAnnotations:
+  backend:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+    prometheus.io/path: "/metrics"
+  frontend: {}
+
+# Service annotations
+serviceAnnotations:
+  backend:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+    prometheus.io/path: "/metrics"
+  frontend: {}

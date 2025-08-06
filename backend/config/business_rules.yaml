@@ -1,8 +1,32 @@
-ruleset_version: 1.0.0
-last_updated: "2025-07-27T00:00:00Z"
-# Business rules for PropOllama
+# Business Rules Configuration for A1Betting Platform
+# This file defines the business logic rules for bet validation, risk management, and decision making
+
+ruleset_version: 2.0.0
+last_updated: "2025-08-01T00:00:00Z"
+
+# Global Business Rules
+global_rules:
+  # Expected Value (EV) Rules
+  min_ev_threshold: 0.02 # Minimum 2% edge required
+  max_ev_threshold: 0.50 # Maximum 50% edge (suspicious)
+
+  # Risk Management Rules
+  max_risk_score: 0.8 # Maximum risk score allowed (0-1 scale)
+  min_confidence: 0.65 # Minimum confidence threshold (65%)
+
+  # Bet Size Rules
+  min_bet_amount: 1.00 # Minimum bet amount in USD
+  max_bet_amount: 1000.00 # Maximum bet amount in USD
+  max_daily_volume: 5000.00 # Maximum daily betting volume
+
+  # Prop Validation Rules
+  max_props_per_slip: 8 # Maximum number of props in a bet slip
+  min_props_for_parlay: 2 # Minimum props required for parlay betting
+
+# Legacy PropOllama business rules (maintained for compatibility)
 forbidden_combos:
   - ["LeBron James", "points", "under"]
+
 allowed_stat_types:
   - points
   - rebounds
@@ -20,6 +44,51 @@ allowed_stat_types:
   - shots
   - passes
   - tackles
+
+# Stat groupings
+stat_groups:
+  goals:
+    - saves
+    - shots
+    - passes
+    - tackles
+
+# Sport-specific Rules
+sport_rules:
+  NBA:
+    min_confidence: 0.70
+    max_risk_score: 0.75
+    forbidden_stat_combos:
+      - ["points", "rebounds"] # Avoid correlated props
+      - ["assists", "turnovers"]
+
+  NFL:
+    min_confidence: 0.68
+    max_risk_score: 0.80
+
+  MLB:
+    min_confidence: 0.65
+    max_risk_score: 0.85
+
+  UFC:
+    min_confidence: 0.75
+    max_risk_score: 0.70
+    forbidden_combinations:
+      - rule_id: "forbid-ufc-parlays"
+        description: "Avoid UFC parlays due to high variance"
+        applies_to: ["parlay_bets"]
+
+# Time-windowed Rules (rules that apply during specific time periods)
+time_windowed_rules:
+  - rule_id: "high-ev-restriction"
+    description: "Restrict high EV bets during peak hours"
+    time_window:
+      start: "18:00"
+      end: "23:00"
+      timezone: "EST"
+    conditions:
+      max_ev_threshold: 0.30
+
 # --- Per-user (user_id-specific) business rules ---
 user_overrides:
   user_123:

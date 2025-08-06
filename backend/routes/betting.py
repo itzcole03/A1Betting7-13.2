@@ -24,6 +24,55 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["Betting"])
 
 
+async def fetch_betting_opportunities_internal() -> List[BettingOpportunity]:
+    """Internal function to fetch betting opportunities from various sources"""
+    try:
+        # Mock implementation with realistic test data
+        opportunities = [
+            BettingOpportunity(
+                id="bet_001",
+                sport="NBA",
+                event="Lakers vs Warriors",
+                odds=1.95,
+                expected_value=0.08,
+                confidence=0.85,
+                bookmaker="DraftKings",
+                market="spread",
+                status="active",
+            ),
+            BettingOpportunity(
+                id="bet_002",
+                sport="NFL",
+                event="Patriots vs Bills",
+                odds=2.10,
+                expected_value=0.12,
+                confidence=0.78,
+                bookmaker="FanDuel",
+                market="moneyline",
+                status="active",
+            ),
+            BettingOpportunity(
+                id="bet_003",
+                sport="MLB",
+                event="Yankees vs Red Sox",
+                odds=1.75,
+                expected_value=0.05,
+                confidence=0.92,
+                bookmaker="Bet365",
+                market="total",
+                status="active",
+            ),
+        ]
+
+        logger.info(f"Fetched {len(opportunities)} betting opportunities")
+        return opportunities
+
+    except Exception as e:
+        logger.error(f"Error in fetch_betting_opportunities_internal: {e}")
+        # Return empty list on error rather than raise
+        return []
+
+
 @router.get("/betting-opportunities", response_model=List[BettingOpportunity])
 async def get_betting_opportunities(
     sport: Optional[str] = None, limit: int = 10

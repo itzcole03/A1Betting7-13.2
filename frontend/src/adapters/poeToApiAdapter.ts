@@ -1,4 +1,4 @@
-import { unifiedMonitor } from '@/core/UnifiedMonitor';
+import { UnifiedMonitor } from '@/core/UnifiedMonitor';
 import {
   PoeApiResponse,
   PoeDataBlock,
@@ -11,6 +11,8 @@ import {
  * into a more usable format, such as PrizePicksProps for prop card display.
  */
 export class PoeToApiAdapter {
+  private unifiedMonitor = UnifiedMonitor.getInstance();
+
   constructor() {}
 
   /**
@@ -21,20 +23,25 @@ export class PoeToApiAdapter {
    * @returns An array of PrizePicksProps.
    */
   public transformPoeDataToPrizePicksProps(poeDataBlocks: PoeDataBlock[]): PrizePicksProps[] {
-    const _trace = unifiedMonitor.startTrace('PoeToApiAdapter.transformPoeData', {
-      category: 'adapter.transform',
-    });
-    const _transformedProps: PrizePicksProps[] = [];
+    const trace = this.unifiedMonitor.startTrace(
+      'PoeToApiAdapter.transformPoeData',
+      'adapter.transform'
+    );
+    const transformedProps: PrizePicksProps[] = [];
 
     try {
-      for (const _block of poeDataBlocks) {
+      for (const block of poeDataBlocks) {
         if (block.type === 'prop_card' && block.content) {
-          const _content = block.content as PoePropCardContent;
+          const content = block.content as PoePropCardContent;
 
           // Basic mapping, assuming PoePropCardContent fields align or can be mapped
-          const _prop: PrizePicksProps = {
+          const prop: PrizePicksProps = {
+            id: block.id + '-prop', // Use block.id since content.id doesn't exist
             playerId: content.playerId || block.id,
             playerName: content.playerName || content.player || 'Unknown Player',
+            team: 'Unknown', // PoePropCardContent doesn't have team property
+            position: 'Unknown', // PoePropCardContent doesn't have position property
+            sport: 'Unknown', // PoePropCardContent doesn't have sport property
             league: content.statType?.includes('NBA')
               ? 'NBA'
               : content.statType?.includes('NFL')
@@ -42,22 +49,28 @@ export class PoeToApiAdapter {
               : 'Unknown', // Crude league detection
             player_name: content.playerName || content.player || 'Unknown Player',
             stat_type: content.statType || content.stat || 'Unknown Stat',
-            line: content.line,
+            line_score: content.line || 0, // Use line property instead of non-existent id
+            over_odds: content.overOdds || 1.0,
+            under_odds: content.underOdds || 1.0,
             description: `${content.playerName} - ${content.statType} ${content.line}`,
-            image_url: content.playerImage,
-            overOdds: content.overOdds,
-            underOdds: content.underOdds,
+            start_time: content.lastUpdated || new Date().toISOString(),
+            // Required fields from PrizePicksProps interface
+            status: 'active',
+            rank: 0,
+            is_promo: false,
+            confidence: 0.5,
+            market_efficiency: 0.5,
             // start_time, status would need to come from PoeDataBlock metadata or extended content
             // For now, these are example transformations
           };
           transformedProps.push(prop);
         }
       }
-      unifiedMonitor.endTrace(trace);
+      this.unifiedMonitor.endTrace(trace);
       return transformedProps;
     } catch (error) {
-      unifiedMonitor.reportError(error, { operation: 'transformPoeDataToPrizePicksProps' });
-      unifiedMonitor.endTrace(trace);
+      console.error('PoeToApiAdapter transformation failed:', error);
+      this.unifiedMonitor.endTrace(trace);
       throw error;
     }
   }
@@ -69,11 +82,11 @@ export class PoeToApiAdapter {
   public async fetchAndTransformPoeData(): Promise<PrizePicksProps[]> {
     try {
       // RESOLVED: Replace with actual API call to backend
-      // const _response = await fetch('/api/v1/prop-cards');.catch(error => console.error("API Error:", error))
-      // const _apiResponse = await response.json();
+      // const response = await fetch('/api/v1/prop-cards');.catch(error => console.error("API Error:", error))
+      // const apiResponse = await response.json();
 
       // Production-ready data structure (replacing mock)
-      const _realApiResponse: PoeApiResponse = {
+      const realApiResponse: PoeApiResponse = {
         success: true,
         timestamp: Date.now(),
         dataBlocks: [
@@ -118,10 +131,10 @@ export class PoeToApiAdapter {
         ],
       };
 
-      const _trace = unifiedMonitor.startTrace('poeToApiAdapter.fetch', {
-        category: 'adapter.fetch',
-      });
-      return this.transformPoeDataToPrizePicksProps(realApiResponse.dataBlocks || []);
+      const trace = this.unifiedMonitor.startTrace('poeToApiAdapter.fetch', 'adapter.fetch');
+      const result = this.transformPoeDataToPrizePicksProps(realApiResponse.dataBlocks || []);
+      this.unifiedMonitor.endTrace(trace);
+      return result;
     } catch (error) {
       // console.error('Error fetching real API data:', error);
       // Fallback to empty array instead of mock data

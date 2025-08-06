@@ -9,25 +9,25 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, Field
-from ultra_accuracy_engine_simple import (
-    UltraHighAccuracyConfig,
-    UltraHighAccuracyEngine,
+# from ultra_accuracy_engine_simple import (
+    # UltraHighAccuracyConfig,
+    # UltraHighAccuracyEngine,
 )
 from ultra_accuracy_engine import RealPerformanceMetrics
 
 logger = logging.getLogger(__name__)
 
 # Initialize ultra-accuracy engine
-ultra_config = UltraHighAccuracyConfig(
-    target_accuracy=0.995,
-    confidence_threshold=0.99,
-    min_consensus_models=15,
-    max_uncertainty=0.01,
+ultra_config = # UltraHighAccuracyConfig(
+    # target_accuracy=0.995,
+    # confidence_threshold=0.99,
+    # min_consensus_models=15,
+    # max_uncertainty=0.01,
 )
-ultra_engine = UltraHighAccuracyEngine(ultra_config)
+# ultra_engine = UltraHighAccuracyEngine(ultra_config)
 
 # Initialize real performance metrics system
-real_metrics = RealPerformanceMetrics(ultra_engine)
+# real_metrics = RealPerformanceMetrics(ultra_engine)
 
 router = APIRouter(prefix="/api/ultra-accuracy", tags=["ultra-accuracy"])
 
@@ -108,13 +108,7 @@ async def generate_ultra_accurate_prediction(
         )
 
         # Generate ultra-accurate prediction
-        prediction = await ultra_engine.predict_with_maximum_accuracy(
-            features=request.features,
-            context=request.context or "general",
-            market_data=request.market_data,
-            alternative_data=request.alternative_data,
-            target_accuracy=request.target_accuracy or 0.995,
-        )
+        raise HTTPException(status_code=503, detail="Ultra accuracy engine unavailable")
 
         processing_time = time.time() - start_time
 
@@ -187,55 +181,13 @@ async def generate_ultra_accurate_prediction(
 @router.post("/market-efficiency")
 async def analyze_market_efficiency(request: MarketEfficiencyRequest):
     """Analyze market efficiency for predictability assessment"""
-    try:
-        # Use the market efficiency analyzer from ultra engine
-        analysis = await ultra_engine.market_efficiency_analyzer.analyze(
-            request.market_data
-        )
-
-        return {
-            "success": True,
-            "efficiency_score": analysis.get("efficiency_score", 0.5),
-            "predictability_score": analysis.get("predictability_score", 0.5),
-            "microstructure": analysis.get("microstructure", {}),
-            "liquidity_analysis": {
-                "depth": analysis.get("microstructure", {}).get("liquidity_depth", 0),
-                "spread": analysis.get("microstructure", {}).get("bid_ask_spread", 0),
-                "resilience": analysis.get("microstructure", {}).get(
-                    "order_flow_imbalance", 0
-                ),
-            },
-        }
-
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        logger.error("Error analyzing market efficiency: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Market efficiency analysis failed: {e!s}"
-        )
+    raise HTTPException(status_code=503, detail="Ultra accuracy engine unavailable")
 
 
 @router.post("/behavioral-patterns")
 async def analyze_behavioral_patterns(request: BehavioralPatternsRequest):
     """Analyze behavioral patterns in betting markets"""
-    try:
-        # Use the behavioral pattern detector from ultra engine
-        patterns = await ultra_engine.behavioral_pattern_detector.detect(
-            request.features, request.market_data or {}
-        )
-
-        return {
-            "success": True,
-            "patterns": patterns,
-            "overall_impact": patterns.get("overall_impact", 0),
-            "primary_pattern": patterns.get("primary_pattern", "none"),
-            "pattern_strength": patterns.get("pattern_strength", 0),
-        }
-
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        logger.error("Error analyzing behavioral patterns: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Behavioral pattern analysis failed: {e!s}"
-        )
+    raise HTTPException(status_code=503, detail="Ultra accuracy engine unavailable")
 
 
 @router.post("/update-performance")
@@ -246,7 +198,7 @@ async def update_model_performance(
     try:
         # Update model performance asynchronously
         background_tasks.add_task(
-            ultra_engine.update_model_performance,
+
             request.prediction_id,
             request.actual_outcome,
         )
@@ -279,11 +231,11 @@ async def get_system_performance_metrics():
             "overall_accuracy": real_metrics.calculate_overall_accuracy(),
             "model_consensus": real_metrics.calculate_model_consensus(),
             "average_processing_time": real_metrics.calculate_average_processing_time(),
-            "predictions_generated": len(ultra_engine.prediction_outcomes),
+
             "accuracy_trend": real_metrics.calculate_accuracy_trend(),
             "model_performance": {
                 name: sum(perf_history) / len(perf_history) if perf_history else 0.9
-                for name, perf_history in ultra_engine.model_performance_tracker.items()
+
             },
             "system_status": {
                 "quantum_models": "active",

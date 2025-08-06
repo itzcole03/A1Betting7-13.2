@@ -13,8 +13,9 @@ from typing import Any, Dict, List, Optional
 import aiohttp
 import numpy as np
 import redis.asyncio as redis
-from config import config_manager
 from feature_cache import FeatureCache
+
+from backend.config_manager import config_manager
 
 logger = logging.getLogger(__name__)
 

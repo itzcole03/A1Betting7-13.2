@@ -10,9 +10,10 @@ from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
 import requests
-from feature_engineering import FeatureEngineering
 from feature_flags import FeatureFlags
 from utils.circuit_breaker import CircuitBreaker  # <-- Add this import
+
+from backend.feature_engineering import FeatureEngineering
 
 # Global circuit breaker for Ollama API
 ollama_circuit_breaker = CircuitBreaker(failure_threshold=3, recovery_timeout=60)

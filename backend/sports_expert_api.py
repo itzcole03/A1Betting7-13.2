@@ -1,11 +1,11 @@
 # --- Background Job Scheduling (APScheduler) ---
 
-import datetime
 import gc
 import hashlib
 import json
 import logging
 import os
+
 # import random  # pylint: disable=unused-import
 import shutil
 import signal
@@ -29,18 +29,10 @@ from functools import lru_cache, wraps
 # import jwt  # pip install PyJWT
 # from passlib.context import CryptContext  # pip install passlib
 # Enhanced imports for computational perfection
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Generic,
-    List,
-    Optional,
-    Protocol,
-    TypeVar,
-    Union,
-)
+from typing import Any, Callable
+from typing import Dict
 from typing import Dict as TypingDict
+from typing import Generic, List, Optional, Protocol, TypeVar, Union
 
 import pkg_resources
 import psutil
@@ -456,7 +448,7 @@ signal.signal(signal.SIGINT, graceful_shutdown_handler)
 
 # Reference to FastAPI app (for startup event)
 app: FastAPI = None  # Will be set by main app
-agent: Optional[Any] = None # Will be set by main app
+agent: Optional[Any] = None  # Will be set by main app
 
 
 # --- Notification Hook (Email) ---
@@ -1006,7 +998,7 @@ def automation_full_reset():
 
 
 # --- Automation & Ops Endpoints ---
-import datetime
+from datetime import datetime
 
 
 # 26. Automated daily/periodic state backup
@@ -1018,7 +1010,7 @@ def automation_backup_state():
     state = agent.export_full_state() if hasattr(agent, "export_full_state") else {}
     backup_dir = os.path.join(os.getcwd(), "backups")
     os.makedirs(backup_dir, exist_ok=True)
-    fname = f"agent_state_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    fname = f"agent_state_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     fpath = os.path.join(backup_dir, fname)
     with open(fpath, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2)
@@ -1034,7 +1026,7 @@ def automation_rotate_logs():
         return {"error": "No log file found."}
     rotated_dir = os.path.join(os.getcwd(), "logs_rotated")
     os.makedirs(rotated_dir, exist_ok=True)
-    fname = f"audit_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    fname = f"audit_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
     shutil.move(log_path, os.path.join(rotated_dir, fname))
     # Touch new log file
     open(log_path, "a").close()

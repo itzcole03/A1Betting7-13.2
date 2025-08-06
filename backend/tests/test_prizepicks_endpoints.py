@@ -9,7 +9,10 @@ client = TestClient(app)
 def test_get_prizepicks_props():
     response = client.get("/api/prizepicks/props")
     assert response.status_code == 200
-    assert isinstance(response.json(), list)
+    data = response.json()
+    assert isinstance(data, dict)
+    assert "props" in data
+    assert isinstance(data["props"], list)
 
 
 def test_get_prizepicks_recommendations():

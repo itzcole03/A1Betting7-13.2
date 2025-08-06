@@ -1,0 +1,906 @@
+# Comprehensive CI/CD Pipeline for A1Betting7-13.2
+# Implements modern DevOps practices with security, performance, and quality gates
+
+name: 🚀 CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ["v*"]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: "0 2 * * *"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.12"
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+# Security permissions
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+  actions: read
+  id-token: write
+
+jobs:
+  # ================================
+  # Pre-flight Checks
+  # ================================
+  pre-flight:
+    name: 🔍 Pre-flight Checks
+    runs-on: ubuntu-latest
+    outputs:
+      backend-changed: ${{ steps.changes.outputs.backend }}
+      frontend-changed: ${{ steps.changes.outputs.frontend }}
+      docs-changed: ${{ steps.changes.outputs.docs }}
+      docker-changed: ${{ steps.changes.outputs.docker }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - 'requirements*.txt'
+              - 'Dockerfile.backend*'
+            frontend:
+              - 'frontend/**'
+              - 'Dockerfile.frontend*'
+            docs:
+              - '**/*.md'
+              - 'docs/**'
+            docker:
+              - 'docker-compose*.yml'
+              - 'Dockerfile*'
+
+      - name: Print change summary
+        run: |
+          echo "Backend changed: ${{ steps.changes.outputs.backend }}"
+          echo "Frontend changed: ${{ steps.changes.outputs.frontend }}"
+          echo "Docs changed: ${{ steps.changes.outputs.docs }}"
+          echo "Docker changed: ${{ steps.changes.outputs.docker }}"
+
+  # ================================
+  # Code Quality and Security
+  # ================================
+  code-quality:
+    name: 📊 Code Quality & Security
+    runs-on: ubuntu-latest
+    needs: pre-flight
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Cache pre-commit
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files
+
+      - name: Upload pre-commit results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: pre-commit-results
+          path: .pre-commit-*.log
+
+  # ================================
+  # Backend Testing and Analysis
+  # ================================
+  backend-tests:
+    name: 🐍 Backend Tests
+    runs-on: ubuntu-latest
+    needs: [pre-flight]
+    if: needs.pre-flight.outputs.backend-changed == 'true' || github.event_name == 'schedule'
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_USER: test_user
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          pip install -r requirements-test.txt
+
+      - name: Run security checks
+        run: |
+          safety check
+          bandit -r backend/ -f json -o bandit-report.json
+          semgrep --config=auto backend/
+
+      - name: Run type checking
+        run: mypy backend/
+
+      - name: Run linting
+        run: |
+          flake8 backend/
+          black --check backend/
+          isort --check-only backend/
+
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379/0
+        run: |
+          pytest backend/tests/ \
+            --cov=backend \
+            --cov-report=xml \
+            --cov-report=html \
+            --cov-report=term \
+            --junitxml=pytest-results.xml \
+            -v
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: backend
+          name: backend-coverage
+          fail_ci_if_error: false
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: backend-test-results-py${{ matrix.python-version }}
+          path: |
+            pytest-results.xml
+            htmlcov/
+            bandit-report.json
+
+  # ================================
+  # Frontend Testing and Analysis
+  # ================================
+  frontend-tests:
+    name: ⚛️ Frontend Tests
+    runs-on: ubuntu-latest
+    needs: [pre-flight]
+    if: needs.pre-flight.outputs.frontend-changed == 'true' || github.event_name == 'schedule'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run type checking
+        working-directory: frontend
+        run: npm run type-check
+
+      - name: Run linting
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Run security audit
+        working-directory: frontend
+        run: npm audit --audit-level moderate
+
+      - name: Run unit tests
+        working-directory: frontend
+        run: npm run test:ci
+
+      - name: Build application
+        working-directory: frontend
+        run: npm run build
+
+      - name: Run bundle analysis
+        working-directory: frontend
+        run: npm run analyze
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          directory: frontend/coverage
+          flags: frontend
+          name: frontend-coverage
+          fail_ci_if_error: false
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: frontend/dist/
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: frontend-test-results
+          path: |
+            frontend/coverage/
+            frontend/junit.xml
+
+  # ================================
+  # E2E Testing
+  # ================================
+  e2e-tests:
+    name: 🎭 E2E Tests
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    if: always() && (needs.backend-tests.result == 'success' || needs.frontend-tests.result == 'success')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright
+        working-directory: frontend
+        run: npx playwright install --with-deps
+
+      - name: Start services
+        run: |
+          docker-compose -f docker-compose.dev.yml up -d
+          # Wait for services to be healthy
+          timeout 300 bash -c 'until curl -f http://localhost:8000/health; do sleep 5; done'
+          timeout 300 bash -c 'until curl -f http://localhost:8173/; do sleep 5; done'
+
+      - name: Run E2E tests
+        working-directory: frontend
+        run: npm run test:e2e
+
+      - name: Upload E2E results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: e2e-test-results
+          path: |
+            frontend/test-results/
+            frontend/playwright-report/
+
+      - name: Stop services
+        if: always()
+        run: docker-compose -f docker-compose.dev.yml down
+
+  # ================================
+  # Performance Testing
+  # ================================
+  performance-tests:
+    name: ⚡ Performance Tests
+    runs-on: ubuntu-latest
+    needs: [e2e-tests]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start services
+        run: |
+          docker-compose -f docker-compose.optimized.yml up -d
+          timeout 300 bash -c 'until curl -f http://localhost/health; do sleep 5; done'
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: "./lighthouserc.json"
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Run load tests
+        run: |
+          pip install locust
+          locust -f tests/load/locustfile.py --headless -u 50 -r 10 -t 60s --host http://localhost
+
+      - name: Stop services
+        if: always()
+        run: docker-compose -f docker-compose.optimized.yml down
+
+  # ================================
+  # Security Scanning
+  # ================================
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: "trivy-results.sarif"
+
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/ci
+            p/owasp-top-ten
+
+  # ================================
+  # Build and Push Docker Images
+  # ================================
+  build-images:
+    name: 🐳 Build Images
+    runs-on: ubuntu-latest
+    needs: [code-quality, backend-tests, frontend-tests]
+    if: always() && (needs.backend-tests.result == 'success' || needs.frontend-tests.result == 'success')
+
+    strategy:
+      matrix:
+        image: [backend, frontend]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.image }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.${{ matrix.image }}.optimized
+          target: production
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+
+  # ================================
+  # Phase 3 MLOps Tests
+  # ================================
+  phase3-mlops-tests:
+    name: 🤖 Phase 3 MLOps Tests
+    runs-on: ubuntu-latest
+    needs: [backend-tests]
+    if: needs.pre-flight.outputs.backend-changed == 'true' || github.event_name == 'schedule'
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_USER: test_user
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies with Phase 3 ML packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          # Install optional ML dependencies for testing
+          pip install torch transformers ray[tune] mlflow optuna || echo "Some ML packages not available, using fallbacks"
+
+      - name: Test Phase 3 MLOps Pipeline Service
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379/0
+          MLFLOW_TRACKING_URI: sqlite:///mlruns.db
+        run: |
+          cd backend
+          python -c "
+          import asyncio
+          from services.mlops_pipeline_service import mlops_pipeline_service
+
+          async def test_mlops():
+              # Test pipeline creation
+              config = {
+                  'name': 'test_pipeline',
+                  'model_type': 'transformer',
+                  'sport': 'MLB'
+              }
+              pipeline = await mlops_pipeline_service.create_pipeline(config)
+              print(f'✅ Pipeline created: {pipeline.id}')
+              
+              # Test model registry
+              models = await mlops_pipeline_service.list_models()
+              print(f'✅ Model registry accessible: {len(models)} models')
+              
+              # Test health check
+              health = await mlops_pipeline_service.health_check()
+              print(f'✅ MLOps service health: {health}')
+
+          asyncio.run(test_mlops())
+          "
+
+      - name: Test Phase 3 Production Deployment Service
+        run: |
+          cd backend
+          python -c "
+          import asyncio
+          from services.production_deployment_service import production_deployment_service
+
+          async def test_deployment():
+              # Test deployment config
+              config = await production_deployment_service.get_deployment_config('test')
+              print(f'✅ Deployment config loaded: {config.name}')
+              
+              # Test health check
+              health = await production_deployment_service.health_check()
+              print(f'✅ Deployment service health: {health}')
+
+          asyncio.run(test_deployment())
+          "
+
+      - name: Test Phase 3 Autonomous Monitoring Service
+        run: |
+          cd backend
+          python -c "
+          import asyncio
+          from services.autonomous_monitoring_service import autonomous_monitoring_service
+
+          async def test_monitoring():
+              # Test metrics collection
+              metrics = await autonomous_monitoring_service.collect_system_metrics()
+              print(f'✅ System metrics collected: {len(metrics)} metrics')
+              
+              # Test alert system
+              alerts = await autonomous_monitoring_service.get_active_alerts()
+              print(f'✅ Alert system active: {len(alerts)} alerts')
+              
+              # Test health check
+              health = await autonomous_monitoring_service.health_check()
+              print(f'✅ Monitoring service health: {health}')
+
+          asyncio.run(test_monitoring())
+          "
+
+      - name: Test Phase 3 Advanced Security Service
+        run: |
+          cd backend
+          python -c "
+          import asyncio
+          from services.advanced_security_service import advanced_security_service
+
+          async def test_security():
+              # Test security scan
+              result = await advanced_security_service.scan_model_security('test_model')
+              print(f'✅ Security scan completed: {result.overall_score}')
+              
+              # Test access policy
+              policies = await advanced_security_service.list_access_policies()
+              print(f'✅ Access policies loaded: {len(policies)} policies')
+              
+              # Test health check
+              health = await advanced_security_service.health_check()
+              print(f'✅ Security service health: {health}')
+
+          asyncio.run(test_security())
+          "
+
+      - name: Test Phase 3 API Routes Integration
+        run: |
+          cd backend
+          python -c "
+          # Test route imports and registration
+          from routes.phase3_routes import router as phase3_router
+          from production_integration import create_production_app
+
+          app = create_production_app()
+          routes = [route.path for route in app.routes if hasattr(route, 'path')]
+          phase3_routes = [r for r in routes if '/api/phase3' in r]
+
+          print(f'✅ Phase 3 routes registered: {len(phase3_routes)} routes')
+          for route in phase3_routes[:5]:  # Show first 5
+              print(f'   - {route}')
+
+          assert len(phase3_routes) >= 20, f'Expected at least 20 Phase 3 routes, got {len(phase3_routes)}'
+          print('✅ Phase 3 integration test passed!')
+          "
+
+  # ================================
+  # Phase 3 Performance Benchmarks
+  # ================================
+  phase3-performance-tests:
+    name: ⚡ Phase 3 Performance Tests
+    runs-on: ubuntu-latest
+    needs: [phase3-mlops-tests]
+    if: needs.pre-flight.outputs.backend-changed == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install pytest pytest-benchmark memory-profiler
+
+      - name: Run Phase 3 performance benchmarks
+        run: |
+          cd backend
+          python -c "
+          import asyncio
+          import time
+          import psutil
+          import gc
+          from services.performance_optimization import performance_optimizer
+          from services.modern_ml_service import modern_ml_service
+
+          async def benchmark_phase3():
+              print('🚀 Running Phase 3 Performance Benchmarks...')
+              
+              # Memory usage baseline
+              process = psutil.Process()
+              baseline_memory = process.memory_info().rss / 1024 / 1024  # MB
+              print(f'📊 Baseline memory usage: {baseline_memory:.2f} MB')
+              
+              # Test modern ML service performance
+              start_time = time.time()
+              for i in range(10):
+                  await modern_ml_service.health_check()
+              ml_time = time.time() - start_time
+              print(f'⚡ Modern ML service: {ml_time:.3f}s for 10 health checks')
+              
+              # Test performance optimizer
+              start_time = time.time()
+              optimizer_health = await performance_optimizer.health_check()
+              opt_time = time.time() - start_time
+              print(f'⚡ Performance optimizer: {opt_time:.3f}s for health check')
+              
+              # Memory usage after tests
+              gc.collect()
+              final_memory = process.memory_info().rss / 1024 / 1024  # MB
+              memory_increase = final_memory - baseline_memory
+              print(f'📊 Final memory usage: {final_memory:.2f} MB (+{memory_increase:.2f} MB)')
+              
+              # Performance assertions
+              assert ml_time < 5.0, f'Modern ML service too slow: {ml_time:.3f}s'
+              assert memory_increase < 100, f'Memory increase too high: {memory_increase:.2f} MB'
+              
+              print('✅ All Phase 3 performance benchmarks passed!')
+
+          asyncio.run(benchmark_phase3())
+          "
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: phase3-performance-results
+          path: |
+            backend/performance-*.json
+            backend/memory-profile-*.txt
+
+  # ================================
+  # Deploy to Staging
+  # ================================
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-images, e2e-tests]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    environment:
+      name: staging
+      url: https://staging.a1betting.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "latest"
+
+      - name: Configure kubectl for staging
+        run: |
+          echo "${{ secrets.KUBECONFIG_STAGING }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+      - name: Deploy Phase 3 services to staging
+        run: |
+          export KUBECONFIG=kubeconfig
+
+          # Deploy infrastructure first
+          kubectl apply -f k8s/infrastructure.yaml
+
+          # Deploy backend with Phase 3 MLOps capabilities
+          envsubst < k8s/backend-deployment.yaml | kubectl apply -f -
+          kubectl apply -f k8s/frontend-deployment.yaml
+
+          # Wait for deployments
+          kubectl rollout status deployment/a1betting-backend --timeout=300s
+          kubectl rollout status deployment/a1betting-frontend --timeout=300s
+
+          # Verify Phase 3 services are healthy
+          sleep 30
+          backend_pod=$(kubectl get pod -l app=a1betting-backend -o jsonpath="{.items[0].metadata.name}")
+          kubectl exec $backend_pod -- curl -f http://localhost:8000/api/phase3/health
+          kubectl exec $backend_pod -- curl -f http://localhost:8000/api/phase3/mlops/health
+          kubectl exec $backend_pod -- curl -f http://localhost:8000/api/phase3/monitoring/health
+
+  # ================================
+  # Deploy to Production
+  # ================================
+  deploy-production:
+    name: 🚀 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-images, performance-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://a1betting.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "latest"
+
+      - name: Configure kubectl for production
+        run: |
+          echo "${{ secrets.KUBECONFIG_PRODUCTION }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+      - name: Deploy Phase 3 services to production with blue-green strategy
+        run: |
+          export KUBECONFIG=kubeconfig
+
+          # Deploy infrastructure services first
+          kubectl apply -f k8s/infrastructure.yaml
+
+          # Create backup of current deployment
+          kubectl get deployment a1betting-backend -o yaml > backup-backend.yaml || true
+          kubectl get deployment a1betting-frontend -o yaml > backup-frontend.yaml || true
+
+          # Deploy new version with Phase 3 capabilities
+          envsubst < k8s/backend-deployment.yaml | kubectl apply -f -
+          kubectl apply -f k8s/frontend-deployment.yaml
+
+          # Wait for rollout to complete
+          kubectl rollout status deployment/a1betting-backend --timeout=600s
+          kubectl rollout status deployment/a1betting-frontend --timeout=600s
+
+          # Comprehensive health checks for Phase 3
+          sleep 60
+          backend_pod=$(kubectl get pod -l app=a1betting-backend -o jsonpath="{.items[0].metadata.name}")
+
+          # Core health checks
+          kubectl exec $backend_pod -- curl -f http://localhost:8000/health
+          kubectl exec $backend_pod -- curl -f http://localhost:8000/api/sports/health
+
+          # Phase 3 MLOps health checks
+          kubectl exec $backend_pod -- curl -f http://localhost:8000/api/phase3/health
+          kubectl exec $backend_pod -- curl -f http://localhost:8000/api/phase3/mlops/health
+          kubectl exec $backend_pod -- curl -f http://localhost:8000/api/phase3/mlops/pipelines
+
+          # Phase 3 deployment health checks
+          kubectl exec $backend_pod -- curl -f http://localhost:8000/api/phase3/deployment/health
+          kubectl exec $backend_pod -- curl -f http://localhost:8000/api/phase3/deployment/status
+
+          # Phase 3 monitoring health checks
+          kubectl exec $backend_pod -- curl -f http://localhost:8000/api/phase3/monitoring/health
+          kubectl exec $backend_pod -- curl -f http://localhost:8000/api/phase3/monitoring/metrics
+
+          # Phase 3 security health checks
+          kubectl exec $backend_pod -- curl -f http://localhost:8000/api/phase3/security/health
+
+          echo "✅ All Phase 3 services deployed and healthy!"
+
+      - name: Run Phase 3 MLOps validation
+        run: |
+          export KUBECONFIG=kubeconfig
+          backend_pod=$(kubectl get pod -l app=a1betting-backend -o jsonpath="{.items[0].metadata.name}")
+
+          # Test automated training pipeline
+          kubectl exec $backend_pod -- curl -X POST http://localhost:8000/api/phase3/mlops/pipelines/test/trigger
+
+          # Test model registry
+          kubectl exec $backend_pod -- curl http://localhost:8000/api/phase3/mlops/models
+
+          # Test monitoring metrics
+          kubectl exec $backend_pod -- curl http://localhost:8000/api/phase3/monitoring/system-metrics
+
+          echo "✅ Phase 3 MLOps validation complete!"
+
+  # ================================
+  # Notification and Cleanup
+  # ================================
+  notify:
+    name: 📢 Notifications
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always()
+
+    steps:
+      - name: Notify on success
+        if: needs.deploy-production.result == 'success' || needs.deploy-staging.result == 'success'
+        run: |
+          echo "✅ A1Betting Phase 3 deployment successful!"
+          echo "🤖 MLOps pipelines active"
+          echo "🔐 Security monitoring enabled"  
+          echo "📊 Autonomous monitoring deployed"
+          # Add notification logic (Slack, Discord, etc.)
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ A1Betting Phase 3 pipeline failed!"
+          echo "Please check the logs for Phase 3 services"
+          # Add notification logic for failures
+
+      - name: Comprehensive Phase 3 status report
+        if: always()
+        run: |
+          echo "# 📋 Phase 3 Deployment Status Report" > phase3-status.md
+          echo "" >> phase3-status.md
+          echo "## 🤖 MLOps Services" >> phase3-status.md
+          echo "- Pipeline Service: ${{ needs.phase3-mlops-tests.result }}" >> phase3-status.md
+          echo "- Model Registry: ${{ needs.phase3-mlops-tests.result }}" >> phase3-status.md
+          echo "- Training Automation: ${{ needs.phase3-mlops-tests.result }}" >> phase3-status.md
+          echo "" >> phase3-status.md
+          echo "## 🚀 Production Services" >> phase3-status.md
+          echo "- Deployment Automation: ${{ needs.deploy-production.result }}" >> phase3-status.md
+          echo "- Kubernetes Integration: ${{ needs.deploy-production.result }}" >> phase3-status.md
+          echo "- Container Management: ${{ needs.build-images.result }}" >> phase3-status.md
+          echo "" >> phase3-status.md
+          echo "## 📊 Monitoring & Security" >> phase3-status.md
+          echo "- Autonomous Monitoring: ${{ needs.phase3-mlops-tests.result }}" >> phase3-status.md
+          echo "- Security Scanning: ${{ needs.security-audit.result }}" >> phase3-status.md
+          echo "- Performance Tests: ${{ needs.phase3-performance-tests.result }}" >> phase3-status.md
+          echo "" >> phase3-status.md
+          echo "Generated at: $(date)" >> phase3-status.md
+
+          cat phase3-status.md
+
+      - name: Upload Phase 3 status report
+        uses: actions/upload-artifact@v3
+        with:
+          name: phase3-deployment-status
+          path: phase3-status.md

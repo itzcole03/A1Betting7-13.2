@@ -328,9 +328,18 @@ class RealTimeAnalysisEngine:
         self.max_risk_score: float = 0.3
         self._load_business_rules()
 
-    def _load_business_rules(self, path="backend/config/business_rules.yaml"):
+    def _load_business_rules(self, path=None):
+        import os
+
         import yaml
 
+        if path is None:
+            # Always resolve path relative to this file for robustness
+            path = os.path.abspath(
+                os.path.join(
+                    os.path.dirname(__file__), "..", "config", "business_rules.yaml"
+                )
+            )
         try:
             with open(path, "r") as f:
                 rules = yaml.safe_load(f)
@@ -338,7 +347,7 @@ class RealTimeAnalysisEngine:
                     raise ValueError("Business rules YAML did not parse to a dict.")
         except Exception as e:
             logger.error(f"Failed to load business rules: {e}")
-            rules = {"forbidden_combos": [], "allowed_stat_types": [], "rules": []}
+            rules = {"forbidden_combos": [], "allowed_stat_types": []}
         # Thread-safe assignment
         if hasattr(self, "_job_lock"):
             with self._job_lock:

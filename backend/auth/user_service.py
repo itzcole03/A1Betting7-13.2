@@ -11,9 +11,6 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import HTTPException, status
-from sqlalchemy import JSON, Boolean, Column, DateTime, Float, String, create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session, sessionmaker
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -22,47 +19,14 @@ from .security import get_password_hash, verify_password
 
 logger = logging.getLogger(__name__)
 
-# Database setup
-Base = declarative_base()
 
-# In-memory database for development (replace with real database in production)
-SQLALCHEMY_DATABASE_URL = "sqlite:///./users.db"
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from sqlmodel import Session as SQLModelSession
 
-
-class User(Base):
-    """User database model"""
-
-    __tablename__ = "users"
-
-    id = Column(String, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True, nullable=False)
-    email = Column(String, unique=True, index=True, nullable=False)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    is_active = Column(Boolean, default=True)
-    is_verified = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    last_login = Column(DateTime, nullable=True)
-
-    # Profile information
-    risk_tolerance = Column(
-        String, default="moderate"
-    )  # conservative, moderate, aggressive
-    preferred_stake = Column(Float, default=50.0)
-    bookmakers = Column(JSON, default=list)  # List of preferred bookmakers
-
-    # Settings
-    settings = Column(JSON, default=dict)  # User preferences and settings
-
+from backend.database import get_async_session
+from backend.models.user import User
 
 # Module exports for external use
-__all__ = ["User", "UserService", "SessionLocal"]
+__all__ = ["User", "UserService"]
 
 
 @dataclass
@@ -84,19 +48,38 @@ class UserProfile:
 
 
 class UserService:
+    async def get_user_by_id(self, user_id: str) -> Optional[UserProfile]:
+        """Get user by ID (async version)"""
+        async for session in get_async_session():
+            statement = select(User).where(User.id == user_id)
+            result = await session.exec(statement)
+            user = result.first()
+            if not user:
+                return None
+            return self._user_to_profile(user)
+
     """Real user service for managing users"""
 
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session):
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.info(f"[DEBUG] UserService.__init__ session type: {type(session)}")
         self.session = session
 
     async def get_user_by_id(self, user_id: str) -> Optional[UserProfile]:
-        """Get user by ID"""
+        """Get user by ID (async)"""
+        from sqlmodel.ext.asyncio.session import AsyncSession
+
+        if not isinstance(self.session, AsyncSession):
+            raise TypeError(
+                f"get_user_by_id requires an AsyncSession, got {type(self.session)}"
+            )
         statement = select(User).where(User.id == user_id)
         result = await self.session.exec(statement)
         user = result.first()
         if not user:
             return None
-
         return self._user_to_profile(user)
 
     async def get_user_by_username(self, username: str) -> Optional[UserProfile]:
@@ -141,6 +124,14 @@ class UserService:
             user_id = str(uuid.uuid4())
             hashed_password = get_password_hash(user_data.password)
 
+            bookmakers_val = getattr(user_data, "bookmakers", [])
+            settings_val = getattr(user_data, "settings", {})
+            logger.info(
+                f"[DEBUG] bookmakers type: {type(bookmakers_val)}, value: {bookmakers_val}"
+            )
+            logger.info(
+                f"[DEBUG] settings type: {type(settings_val)}, value: {settings_val}"
+            )
             db_user = User(
                 id=user_id,
                 username=user_data.username,
@@ -150,12 +141,13 @@ class UserService:
                 hashed_password=hashed_password,
                 risk_tolerance=getattr(user_data, "risk_tolerance", "moderate"),
                 preferred_stake=getattr(user_data, "preferred_stake", 50.0),
-                bookmakers=getattr(user_data, "bookmakers", []),
+                bookmakers=bookmakers_val,
+                settings=settings_val,
             )
 
-            logger.info("[DEBUG] Before await self.session.add(db_user)")
-            await self.session.add(db_user)
-            logger.info("[DEBUG] After await self.session.add(db_user)")
+            logger.info("[DEBUG] Before self.session.add(db_user)")
+            self.session.add(db_user)
+            logger.info("[DEBUG] After self.session.add(db_user)")
             logger.info("[DEBUG] Before await self.session.commit()")
             await self.session.commit()
             logger.info("[DEBUG] After await self.session.commit()")
@@ -165,22 +157,9 @@ class UserService:
 
             logger.info(f"Created new user: {user_data.username}")
 
-            logger.info("[DEBUG] Before return user profile dict")
+            logger.info("[DEBUG] Before return user profile object")
             user_profile = self._user_to_profile(db_user)
-            return {
-                "user_id": user_profile.user_id,
-                "username": user_profile.username,
-                "email": user_profile.email,
-                "first_name": user_profile.first_name,
-                "last_name": user_profile.last_name,
-                "risk_tolerance": user_profile.risk_tolerance,
-                "preferred_stake": user_profile.preferred_stake,
-                "bookmakers": user_profile.bookmakers,
-                "is_active": user_profile.is_active,
-                "is_verified": user_profile.is_verified,
-                "created_at": user_profile.created_at,
-                "last_login": user_profile.last_login,
-            }
+            return user_profile
 
         except HTTPException:
             raise
@@ -198,135 +177,47 @@ class UserService:
         result = await self.session.exec(statement)
         user = result.first()
         if user:
-            user.last_login = datetime.utcnow()
+            user.last_login = datetime.now(timezone.utc)
             await self.session.commit()
         return user
 
-    def get_db(self) -> Session:
-        """Get database session"""
-        db = SessionLocal()
+    async def get_db(self) -> AsyncSession:
+        """Get async database session"""
+        async for session in get_async_session():
+            return session
+
+    # Removed duplicate create_user method that returned HTTP 409 for duplicate username. All duplicate registration errors now return HTTP 400 as required by tests.
+
+    async def authenticate_user(
+        self, username: str, password: str
+    ) -> Optional[UserProfile]:
+        """Authenticate a user with username and password (async)"""
+        session = self.session
         try:
-            return db
-        finally:
-            pass  # Session will be closed by caller
-
-    def create_user(self, user_data: UserRegistration) -> UserProfile:
-        """Create a new user"""
-        db = self.get_db()
-
-        try:
-            # Check if username already exists
-            existing_user = (
-                db.query(User).filter(User.username == user_data.username).first()
+            statement = select(User).where(
+                (User.username == username) | (User.email == username)
             )
-            if existing_user:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Username already registered",
-                )
-
-            # Check if email already exists
-            existing_email = (
-                db.query(User).filter(User.email == user_data.email).first()
-            )
-            if existing_email:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Email already registered",
-                )
-
-            # Create new user
-            user_id = str(uuid.uuid4())
-            hashed_password = get_password_hash(user_data.password)
-
-            db_user = User(
-                id=user_id,
-                username=user_data.username,
-                email=user_data.email,
-                first_name=user_data.first_name,
-                last_name=user_data.last_name,
-                hashed_password=hashed_password,
-                risk_tolerance=getattr(user_data, "risk_tolerance", "moderate"),
-                preferred_stake=getattr(user_data, "preferred_stake", 50.0),
-                bookmakers=getattr(user_data, "bookmakers", []),
-            )
-
-            db.add(db_user)
-            db.commit()
-            db.refresh(db_user)
-
-            logger.info(f"Created new user: {user_data.username}")
-
-            return self._user_to_profile(db_user)
-
-        except HTTPException:
-            raise
-        except Exception as e:
-            db.rollback()
-            logger.error(f"Error creating user: {e}")
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="User creation failed",
-            )
-        finally:
-            db.close()
-
-    def authenticate_user(self, username: str, password: str) -> Optional[UserProfile]:
-        """Authenticate a user with username and password"""
-        db = self.get_db()
-
-        try:
-            # Find user by username or email
-            user = (
-                db.query(User)
-                .filter((User.username == username) | (User.email == username))
-                .first()
-            )
-
+            result = await session.exec(statement)
+            user = result.first()
             if not user:
                 return None
-
             if not verify_password(password, user.hashed_password):
                 return None
-
             if not user.is_active:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="User account is deactivated",
                 )
-
             # Update last login
             user.last_login = datetime.now(timezone.utc)
-            db.commit()
-
+            await session.commit()
             logger.info(f"User authenticated: {username}")
-
             return self._user_to_profile(user)
-
         except HTTPException:
             raise
         except Exception as e:
             logger.error(f"Error authenticating user: {e}")
             return None
-        finally:
-            db.close()
-
-    def get_user_by_id(self, user_id: str) -> Optional[UserProfile]:
-        """Get user by ID"""
-        db = self.get_db()
-
-        try:
-            user = db.query(User).filter(User.id == user_id).first()
-            if not user:
-                return None
-
-            return self._user_to_profile(user)
-
-        except Exception as e:
-            logger.error(f"Error getting user by ID: {e}")
-            return None
-        finally:
-            db.close()
 
     def get_user_by_username(self, username: str) -> Optional[UserProfile]:
         """Get user by username"""

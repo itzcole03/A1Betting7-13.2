@@ -12,8 +12,9 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 import psutil
-from config_manager import get_api_key, get_config
 from specialist_apis import specialist_manager
+
+from backend.config_manager import get_api_key, get_config
 
 logger = logging.getLogger(__name__)
 

@@ -1,1158 +1,501 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="117" failures="24" errors="0" time="5.807">
-  <testsuite name="ConfidenceBandChart" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:02" time="2.008" tests="1">
-    <testcase classname="ConfidenceBandChart" name="should run a placeholder test" time="0.075">
+<testsuites name="jest tests" tests="185" failures="0" errors="0" time="5.392">
+  <testsuite name="propOllamaService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="1.753" tests="11">
+    <testcase classname="propOllamaService" name="sendChatMessage sends request to correct endpoint" time="0.054">
+    </testcase>
+    <testcase classname="propOllamaService" name="getPropOllamaHealth sends request to correct endpoint" time="0.006">
+    </testcase>
+    <testcase classname="propOllamaService" name="getAvailableModels sends request to correct endpoint" time="0.005">
+    </testcase>
+    <testcase classname="propOllamaService" name="getModelHealth sends request to correct endpoint" time="0.005">
+    </testcase>
+    <testcase classname="propOllamaService" name="handles network errors gracefully" time="0.012">
+    </testcase>
+    <testcase classname="propOllamaService" name="handles HTTP errors with details" time="0.005">
+    </testcase>
+    <testcase classname="propOllamaService" name="getConversationStarters returns array of suggestions" time="0.002">
+    </testcase>
+    <testcase classname="propOllamaService" name="getChatHistory returns chat history array" time="0.001">
+    </testcase>
+    <testcase classname="propOllamaService" name="clearChatHistory clears the chat history" time="0.002">
+    </testcase>
+    <testcase classname="propOllamaService" name="getSystemStatus returns system status" time="0.004">
+    </testcase>
+    <testcase classname="propOllamaService" name="formatShapExplanation formats SHAP values correctly" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="UserPersonalizationService" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:02" time="2.005" tests="2">
-    <testcase classname="UserPersonalizationService" name="should return a singleton instance" time="0.09">
-    </testcase>
-    <testcase classname="UserPersonalizationService" name="should initialize with empty userProfiles and clusters" time="0.004">
+  <testsuite name="MetricsContext" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="1.888" tests="1">
+    <testcase classname="MetricsContext" name="provides default values and track function" time="0.031">
     </testcase>
   </testsuite>
-  <testsuite name="AffiliateService" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:02" time="2.086" tests="6">
-    <testcase classname="AffiliateService" name="fetches affiliate links" time="0.084">
-    </testcase>
-    <testcase classname="AffiliateService" name="throws on affiliate links fetch failure" time="0.007">
-    </testcase>
-    <testcase classname="AffiliateService" name="tracks affiliate click" time="0.004">
-    </testcase>
-    <testcase classname="AffiliateService" name="throws on affiliate click track failure" time="0.005">
-    </testcase>
-    <testcase classname="AffiliateService" name="fetches affiliate offers" time="0.004">
-    </testcase>
-    <testcase classname="AffiliateService" name="throws on affiliate offers fetch failure" time="0.008">
+  <testsuite name="ThemeContext" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="1.892" tests="1">
+    <testcase classname="ThemeContext" name="provides default values and allows theme change" time="0.032">
     </testcase>
   </testsuite>
-  <testsuite name="RefereeService" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:02" time="2.154" tests="8">
-    <testcase classname="RefereeService" name="fetches referee stats" time="0.086">
+  <testsuite name="AuthContext Admin Functionality" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="1.999" tests="5">
+    <testcase classname="AuthContext Admin Functionality" name="should detect admin user with admin email" time="0.036">
     </testcase>
-    <testcase classname="RefereeService" name="throws on referee stats fetch failure" time="0.007">
+    <testcase classname="AuthContext Admin Functionality" name="should detect admin user with cole email" time="0.005">
     </testcase>
-    <testcase classname="RefereeService" name="fetches batch referee stats" time="0.004">
+    <testcase classname="AuthContext Admin Functionality" name="should not detect admin for regular user" time="0.003">
     </testcase>
-    <testcase classname="RefereeService" name="throws on batch referee stats fetch failure" time="0.04">
+    <testcase classname="AuthContext Admin Functionality" name="should return false for isAdmin when no user" time="0.003">
     </testcase>
-    <testcase classname="RefereeService" name="searches referees" time="0.003">
-    </testcase>
-    <testcase classname="RefereeService" name="throws on search referees failure" time="0.004">
-    </testcase>
-    <testcase classname="RefereeService" name="fetches referee modeling" time="0.003">
-    </testcase>
-    <testcase classname="RefereeService" name="throws on referee modeling fetch failure" time="0.004">
+    <testcase classname="AuthContext Admin Functionality" name="should clear admin status on logout" time="0.048">
     </testcase>
   </testsuite>
-  <testsuite name="PredictionExplanationModal" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:04" time="0.253" tests="1">
-    <testcase classname="PredictionExplanationModal" name="should run a placeholder test" time="0.004">
+  <testsuite name="WebSocketContext" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="2.012" tests="1">
+    <testcase classname="WebSocketContext" name="provides default values" time="0.111">
     </testcase>
   </testsuite>
-  <testsuite name="UnifiedBettingAnalytics" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:04" time="0.246" tests="1">
-    <testcase classname="UnifiedBettingAnalytics" name="should have at least one test" time="0.004">
+  <testsuite name="SocialSentimentAdapter" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:25" time="0.266" tests="3">
+    <testcase classname="SocialSentimentAdapter" name="should be available" time="0.001">
+    </testcase>
+    <testcase classname="SocialSentimentAdapter" name="should fetch sentiment data and cache it" time="0.001">
+    </testcase>
+    <testcase classname="SocialSentimentAdapter" name="should clear cache" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="safeNumber utils" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:04" time="0.284" tests="13">
-    <testcase classname="safeNumber utils" name="safeNumber should format a number correctly" time="0.005">
+  <testsuite name="location utils" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:25" time="0.276" tests="4">
+    <testcase classname="location utils" name="getLocation should return window.location" time="0.001">
     </testcase>
-    <testcase classname="safeNumber utils" name="safeNumber should handle string input" time="0.002">
+    <testcase classname="location utils" name="getQueryParams should parse query parameters correctly" time="0.003">
     </testcase>
-    <testcase classname="safeNumber utils" name="safeNumber should handle invalid input with fallback" time="0.004">
+    <testcase classname="location utils" name="navigateTo should be callable" time="0.009">
     </testcase>
-    <testcase classname="safeNumber utils" name="safePercentage should format a percentage correctly" time="0.003">
-    </testcase>
-    <testcase classname="safeNumber utils" name="safePercentage should handle invalid input with default fallback" time="0.003">
-    </testcase>
-    <testcase classname="safeNumber utils" name="safeCurrency should format currency correctly" time="0.003">
-    </testcase>
-    <testcase classname="safeNumber utils" name="safeCurrency should handle invalid input with default fallback" time="0.002">
-    </testcase>
-    <testcase classname="safeNumber utils" name="safeCompactNumber should format large numbers with suffixes" time="0.003">
-    </testcase>
-    <testcase classname="safeNumber utils" name="safeCompactNumber should handle invalid input with default fallback" time="0.002">
-    </testcase>
-    <testcase classname="safeNumber utils" name="safeDivision should perform division correctly" time="0.004">
-    </testcase>
-    <testcase classname="safeNumber utils" name="safeDivision should handle invalid input with fallback" time="0.006">
-    </testcase>
-    <testcase classname="safeNumber utils" name="safePercentageChange should calculate percentage change correctly" time="0.003">
-    </testcase>
-    <testcase classname="safeNumber utils" name="safePercentageChange should handle invalid input with default fallback" time="0.002">
+    <testcase classname="location utils" name="reloadPage should be callable" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="MetricsContext" errors="0" failures="1" skipped="0" timestamp="2025-07-25T18:44:02" time="2.376" tests="1">
-    <testcase classname="MetricsContext" name="provides default values and track function" time="0.104">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useContext&apos;)
-    at process.env.NODE_ENV.exports.useContext (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1168:25)
-    at _useMetrics (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\MetricsContext.tsx:52:26)
-    at TestComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\__tests__\MetricsContext.test.tsx:5:26)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\__tests__\MetricsContext.test.tsx:11:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
+  <testsuite name="AffiliateService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:25" time="0.364" tests="6">
+    <testcase classname="AffiliateService" name="fetches affiliate links" time="0.004">
+    </testcase>
+    <testcase classname="AffiliateService" name="throws on affiliate links fetch failure" time="0.003">
+    </testcase>
+    <testcase classname="AffiliateService" name="tracks affiliate click" time="0.001">
+    </testcase>
+    <testcase classname="AffiliateService" name="throws on affiliate click track failure" time="0">
+    </testcase>
+    <testcase classname="AffiliateService" name="fetches affiliate offers" time="0.002">
+    </testcase>
+    <testcase classname="AffiliateService" name="throws on affiliate offers fetch failure" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="LiveStream component" errors="0" failures="3" skipped="0" timestamp="2025-07-25T18:44:02" time="2.438" tests="3">
-    <testcase classname="LiveStream component" name="renders the onboarding banner and safety tips" time="0.13">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _ThemeProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\ThemeContext.tsx:33:37)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\pages\__tests__\LiveStream.test.tsx:17:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
+  <testsuite name="encryption utils" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:25" time="0.331" tests="3">
+    <testcase classname="encryption utils" name="should encrypt and decrypt data correctly" time="0.006">
     </testcase>
-    <testcase classname="LiveStream component" name="renders the header with the correct title and external link" time="0.008">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _ThemeProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\ThemeContext.tsx:33:37)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\pages\__tests__\LiveStream.test.tsx:30:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
+    <testcase classname="encryption utils" name="should throw on invalid decryption" time="0.008">
     </testcase>
-    <testcase classname="LiveStream component" name="renders the button to open the live stream site" time="0.007">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _ThemeProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\ThemeContext.tsx:33:37)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\pages\__tests__\LiveStream.test.tsx:44:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
+    <testcase classname="encryption utils" name="should throw on invalid encryption input" time="0.007">
     </testcase>
   </testsuite>
-  <testsuite name="AppContext" errors="0" failures="1" skipped="0" timestamp="2025-07-25T18:44:02" time="2.452" tests="1">
-    <testcase classname="AppContext" name="provides default values and allows updating user" time="0.138">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _AppProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\AppContext.tsx:39:41)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\__tests__\AppContext.test.tsx:17:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
+  <testsuite name="RefereeService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:25" time="0.497" tests="8">
+    <testcase classname="RefereeService" name="fetches referee stats" time="0.002">
+    </testcase>
+    <testcase classname="RefereeService" name="throws on referee stats fetch failure" time="0.004">
+    </testcase>
+    <testcase classname="RefereeService" name="fetches batch referee stats" time="0.001">
+    </testcase>
+    <testcase classname="RefereeService" name="throws on batch referee stats fetch failure" time="0.001">
+    </testcase>
+    <testcase classname="RefereeService" name="searches referees" time="0.001">
+    </testcase>
+    <testcase classname="RefereeService" name="throws on search referees failure" time="0.001">
+    </testcase>
+    <testcase classname="RefereeService" name="fetches referee modeling" time="0.001">
+    </testcase>
+    <testcase classname="RefereeService" name="throws on referee modeling fetch failure" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="WebSocketContext" errors="0" failures="1" skipped="0" timestamp="2025-07-25T18:44:02" time="2.408" tests="1">
-    <testcase classname="WebSocketContext" name="provides default values" time="0.123">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _WebSocketProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\WebSocketContext.tsx:35:45)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\__tests__\WebSocketContext.test.tsx:11:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
+  <testsuite name="userSettings utils" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.319" tests="15">
+    <testcase classname="userSettings utils" name="getUserSettings should return default settings if nothing in localStorage" time="0.001">
     </testcase>
-  </testsuite>
-  <testsuite name="BankrollTracker" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.227" tests="1">
-    <testcase classname="BankrollTracker" name="should run a placeholder test" time="0.003">
+    <testcase classname="userSettings utils" name="getUserSettings should return parsed settings from localStorage" time="0.001">
     </testcase>
-  </testsuite>
-  <testsuite name="UnifiedOllama" errors="0" failures="3" skipped="0" timestamp="2025-07-25T18:44:02" time="2.595" tests="3">
-    <testcase classname="UnifiedOllama" name="renders onboarding banner and chat input" time="0.129">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at UnifiedOllama (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\UnifiedOllama.tsx:112:43)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\__tests__\UnifiedOllama.test.tsx:14:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-    <testcase classname="UnifiedOllama" name="shows best bets sidebar and refresh button" time="0.01">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at UnifiedOllama (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\UnifiedOllama.tsx:112:43)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\__tests__\UnifiedOllama.test.tsx:24:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-    <testcase classname="UnifiedOllama" name="allows user to type and send a message" time="0.021">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at UnifiedOllama (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\UnifiedOllama.tsx:112:43)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\__tests__\UnifiedOllama.test.tsx:34:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-  </testsuite>
-  <testsuite name="App E2E - Empty State" errors="0" failures="1" skipped="0" timestamp="2025-07-25T18:44:02" time="2.73" tests="1">
-    <testcase classname="App E2E - Empty State" name="shows empty state if no enhanced bets are returned" time="0.472">
-      <failure>SyntaxError: Unexpected token &apos;o&apos;, &quot;onboardingComplete&quot; is not valid JSON
-    at JSON.parse (&lt;anonymous&gt;)
-    at AuthService.loadFromLocalStorage (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\services\authService.ts:40:24)
-    at new AuthService (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\services\authService.ts:32:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\services\authService.ts:127:29)
-    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
-    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
-    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
-    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\AuthContext.tsx:9:1)
-    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
-    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
-    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
-    at Runtime.requireActual (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:857:17)
-    at Object.requireActual (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1778:41)
-    at requireActual (C:\Users\bcmad\Downloads\A1Betting7-13.2\jest.setup.e2e.js:68:23)
-    at Runtime.requireMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:872:55)
-    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:960:21)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\auth\AuthPage.tsx:4:1)
-    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
-    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
-    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
-    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\App.tsx:6:1)
-    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
-    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
-    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
-    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
-    at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\App.empty-state.e2e.test.tsx:25:18
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\App.empty-state.e2e.test.tsx:25:18)</failure>
-    </testcase>
-  </testsuite>
-  <testsuite name="confidenceSlice" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.338" tests="1">
-    <testcase classname="confidenceSlice" name="should run a placeholder test" time="0.003">
-    </testcase>
-  </testsuite>
-  <testsuite name="AuthContext Admin Functionality" errors="0" failures="5" skipped="0" timestamp="2025-07-25T18:44:02" time="2.638" tests="5">
-    <testcase classname="AuthContext Admin Functionality" name="should detect admin user with admin email" time="0.127">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _AuthProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\AuthContext.tsx:51:35)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\__tests__\AuthContext.test.tsx:42:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-    <testcase classname="AuthContext Admin Functionality" name="should detect admin user with cole email" time="0.008">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _AuthProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\AuthContext.tsx:51:35)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\__tests__\AuthContext.test.tsx:67:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-    <testcase classname="AuthContext Admin Functionality" name="should not detect admin for regular user" time="0.008">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _AuthProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\AuthContext.tsx:51:35)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\__tests__\AuthContext.test.tsx:91:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-    <testcase classname="AuthContext Admin Functionality" name="should return false for isAdmin when no user" time="0.007">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _AuthProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\AuthContext.tsx:51:35)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\__tests__\AuthContext.test.tsx:103:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-    <testcase classname="AuthContext Admin Functionality" name="should clear admin status on logout" time="0.12">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _AuthProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\AuthContext.tsx:51:35)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\__tests__\AuthContext.test.tsx:141:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-  </testsuite>
-  <testsuite name="A1Betting App Flows" errors="0" failures="3" skipped="0" timestamp="2025-07-25T18:44:02" time="2.69" tests="3">
-    <testcase classname="A1Betting App Flows" name="Registration form validation and submission" time="0.188">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _AuthProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\AuthContext.tsx:51:35)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\__tests__\AppFlows.test.tsx:36:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-    <testcase classname="A1Betting App Flows" name="Login form validation and submission" time="0.009">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _AuthProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\AuthContext.tsx:51:35)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\__tests__\AppFlows.test.tsx:58:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-    <testcase classname="A1Betting App Flows" name="BetSlip validation and submission" time="0.008">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _AuthProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\AuthContext.tsx:51:35)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\__tests__\AppFlows.test.tsx:74:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-  </testsuite>
-  <testsuite name="App E2E Error State" errors="0" failures="1" skipped="0" timestamp="2025-07-25T18:44:02" time="2.818" tests="1">
-    <testcase classname="App E2E Error State" name="shows error state if API returns error" time="0.512">
-      <failure>Jest encountered an unexpected token
-
-Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
-
-Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
-
-By default &quot;node_modules&quot; folder is ignored by transformers.
-
-Here&apos;s what you can do:
- • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
- • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
- • To have some of your &quot;node_modules&quot; files transformed, you can specify a custom &quot;transformIgnorePatterns&quot; in your config.
- • If you need a custom transformation, specify a &quot;transform&quot; option in your config.
- • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the &quot;moduleNameMapper&quot; config option.
-
-You&apos;ll find more details and examples of these config options in the docs:
-https://jestjs.io/docs/configuration
-For information about custom transformations, see:
-https://jestjs.io/docs/code-transformation
-
-Details:
-
-C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\constants.ts:6
-exports.VITE_API_URL = import.meta.env.VITE_API_URL;
-                              ^^^^
-
-SyntaxError: Cannot use &apos;import.meta&apos; outside a module
-    at internalCompileFunction (node:internal/vm:137:18)
-    at compileFunction (node:vm:365:10)
-    at Runtime.createScriptFromCode (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1316:40)
-    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1242:35)
-    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
-    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
-    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\services\AccessRequestService.ts:1:1)
-    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
-    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
-    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
-    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\auth\AccessRequestForm.tsx:4:1)
-    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
-    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
-    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
-    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\auth\AuthPage.tsx:8:1)
-    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
-    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
-    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
-    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\App.tsx:6:1)
-    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
-    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
-    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
-    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
-    at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\App.e2e.error.test.tsx:27:18
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\App.e2e.error.test.tsx:27:18)</failure>
-    </testcase>
-  </testsuite>
-  <testsuite name="FinalPredictionEngine" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.293" tests="1">
-    <testcase classname="FinalPredictionEngine" name="should run a placeholder test" time="0.005">
-    </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="3" skipped="0" timestamp="2025-07-25T18:44:02" time="2.806" tests="3">
-    <testcase classname="" name="displays health check status" time="0.155">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _ThemeProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\ThemeContext.tsx:33:37)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\user-friendly\__tests__\PropOllama.test.tsx:121:9)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-    <testcase classname="" name="displays backend error message" time="0.008">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _ThemeProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\ThemeContext.tsx:33:37)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\user-friendly\__tests__\PropOllama.test.tsx:135:9)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-    <testcase classname="" name="displays AI response for valid message" time="0.016">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _ThemeProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\ThemeContext.tsx:33:37)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\user-friendly\__tests__\PropOllama.test.tsx:152:9)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-  </testsuite>
-  <testsuite name="Dashboard" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.307" tests="1">
-    <testcase classname="Dashboard" name="should run a placeholder test" time="0.016">
-    </testcase>
-  </testsuite>
-  <testsuite name="cacheUtils" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.251" tests="1">
-    <testcase classname="cacheUtils" name="should run a placeholder test" time="0.01">
-    </testcase>
-  </testsuite>
-  <testsuite name="ShapExplanation" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.264" tests="1">
-    <testcase classname="ShapExplanation" name="should run a placeholder test" time="0.005">
-    </testcase>
-  </testsuite>
-  <testsuite name="ShapExplanation" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.218" tests="1">
-    <testcase classname="ShapExplanation" name="should run a placeholder test" time="0.002">
-    </testcase>
-  </testsuite>
-  <testsuite name="encryption utils" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.386" tests="3">
-    <testcase classname="encryption utils" name="should encrypt and decrypt data correctly" time="0.008">
-    </testcase>
-    <testcase classname="encryption utils" name="should throw on invalid decryption" time="0.016">
-    </testcase>
-    <testcase classname="encryption utils" name="should throw on invalid encryption input" time="0.003">
-    </testcase>
-  </testsuite>
-  <testsuite name="PropOllamaUnified" errors="0" failures="2" skipped="3" timestamp="2025-07-25T18:44:02" time="2.869" tests="5">
-    <testcase classname="PropOllamaUnified" name="loads and sorts best bets by confidence" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="PropOllamaUnified" name="shows confidence badge and bar" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="PropOllamaUnified" name="expand/collapse explanation" time="0">
-      <skipped/>
-    </testcase>
-    <testcase classname="PropOllamaUnified" name="handles empty state" time="0.12">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _ThemeProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\ThemeContext.tsx:33:37)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\__tests__\PropOllamaUnified.test.tsx:41:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-    <testcase classname="PropOllamaUnified" name="is accessible (banner, buttons)" time="0.005">
-      <failure>TypeError: Cannot read properties of null (reading &apos;useState&apos;)
-    at process.env.NODE_ENV.exports.useState (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:1221:33)
-    at _ThemeProvider (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\contexts\ThemeContext.tsx:33:37)
-    at Object.react-stack-bottom-frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
-    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
-    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
-    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
-    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
-    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
-    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
-    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
-    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
-    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
-    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:566:34)
-    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\react\cjs\react.development.js:859:10)
-    at actImplementation (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\act-compat.js:47:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:190:25)
-    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\react\dist\pure.js:292:10)
-    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\__tests__\PropOllamaUnified.test.tsx:51:11)
-    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
-    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
-    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
-    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
-    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
-    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
-    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
-    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
-    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
-    </testcase>
-  </testsuite>
-  <testsuite name="BestBetSelector" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.243" tests="1">
-    <testcase classname="BestBetSelector" name="should run a placeholder test" time="0.007">
-    </testcase>
-  </testsuite>
-  <testsuite name="UserFriendlyApp" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.279" tests="1">
-    <testcase classname="UserFriendlyApp" name="should run a placeholder test" time="0.021">
-    </testcase>
-  </testsuite>
-  <testsuite name="Analytics Logging" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.276" tests="1">
-    <testcase classname="Analytics Logging" name="logs data without throwing" time="0.006">
-    </testcase>
-  </testsuite>
-  <testsuite name="marketAnalysisService" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.232" tests="1">
-    <testcase classname="marketAnalysisService" name="should run a placeholder test" time="0.005">
-    </testcase>
-  </testsuite>
-  <testsuite name="PatternRecognitionService" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.312" tests="1">
-    <testcase classname="PatternRecognitionService" name="detects pattern structure" time="0.011">
-    </testcase>
-  </testsuite>
-  <testsuite name="PredictionGenerator" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.239" tests="1">
-    <testcase classname="PredictionGenerator" name="should have at least one test" time="0.005">
-    </testcase>
-  </testsuite>
-  <testsuite name="userSettings utils" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:04" time="0.377" tests="15">
-    <testcase classname="userSettings utils" name="getUserSettings should return default settings if nothing in localStorage" time="0.004">
-    </testcase>
-    <testcase classname="userSettings utils" name="getUserSettings should return parsed settings from localStorage" time="0.003">
-    </testcase>
-    <testcase classname="userSettings utils" name="getUserSettings should merge saved settings with defaults" time="0.003">
+    <testcase classname="userSettings utils" name="getUserSettings should merge saved settings with defaults" time="0.001">
     </testcase>
     <testcase classname="userSettings utils" name="applySettings should apply dark mode class and background color" time="0.004">
     </testcase>
-    <testcase classname="userSettings utils" name="applySettings should set font size" time="0.003">
+    <testcase classname="userSettings utils" name="applySettings should set font size" time="0.026">
     </testcase>
-    <testcase classname="userSettings utils" name="saveUserSettings should save settings to localStorage and apply them" time="0.086">
+    <testcase classname="userSettings utils" name="saveUserSettings should save settings to localStorage and apply them" time="0.014">
     </testcase>
-    <testcase classname="userSettings utils" name="getUserDisplayName should return name from localStorage if available" time="0.031">
+    <testcase classname="userSettings utils" name="getUserDisplayName should return name from localStorage if available" time="0.001">
     </testcase>
-    <testcase classname="userSettings utils" name="getUserDisplayName should return name from settings if not in localStorage" time="0.006">
+    <testcase classname="userSettings utils" name="getUserDisplayName should return name from settings if not in localStorage" time="0">
     </testcase>
-    <testcase classname="userSettings utils" name="getUserDisplayName should return default if no name found" time="0.006">
+    <testcase classname="userSettings utils" name="getUserDisplayName should return default if no name found" time="0">
     </testcase>
-    <testcase classname="userSettings utils" name="getUserEmail should return email from localStorage if available" time="0.004">
+    <testcase classname="userSettings utils" name="getUserEmail should return email from localStorage if available" time="0.001">
     </testcase>
-    <testcase classname="userSettings utils" name="getUserEmail should return email from settings if not in localStorage" time="0.005">
+    <testcase classname="userSettings utils" name="getUserEmail should return email from settings if not in localStorage" time="0.011">
     </testcase>
-    <testcase classname="userSettings utils" name="getUserEmail should return default if no email found" time="0.003">
+    <testcase classname="userSettings utils" name="getUserEmail should return default if no email found" time="0">
     </testcase>
-    <testcase classname="userSettings utils" name="isDarkMode should return dark mode setting" time="0.003">
+    <testcase classname="userSettings utils" name="isDarkMode should return dark mode setting" time="0.002">
     </testcase>
-    <testcase classname="userSettings utils" name="isDarkMode should return default if settings not found" time="0.003">
+    <testcase classname="userSettings utils" name="isDarkMode should return default if settings not found" time="0">
     </testcase>
-    <testcase classname="userSettings utils" name="initializeSettings should get and apply settings" time="0.004">
-    </testcase>
-  </testsuite>
-  <testsuite name="SocialSentimentAdapter" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.204" tests="3">
-    <testcase classname="SocialSentimentAdapter" name="should be available" time="0.005">
-    </testcase>
-    <testcase classname="SocialSentimentAdapter" name="should fetch sentiment data and cache it" time="0.005">
-    </testcase>
-    <testcase classname="SocialSentimentAdapter" name="should clear cache" time="0.005">
+    <testcase classname="userSettings utils" name="initializeSettings should get and apply settings" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="location utils" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.209" tests="4">
-    <testcase classname="location utils" name="getLocation should return window.location" time="0.003">
+  <testsuite name="UnifiedOllama" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="2.622" tests="3">
+    <testcase classname="UnifiedOllama" name="renders onboarding banner and chat input" time="0.085">
     </testcase>
-    <testcase classname="location utils" name="getQueryParams should parse query parameters correctly" time="0.004">
+    <testcase classname="UnifiedOllama" name="shows best bets sidebar" time="0.017">
     </testcase>
-    <testcase classname="location utils" name="navigateTo should be callable" time="0.016">
-    </testcase>
-    <testcase classname="location utils" name="reloadPage should be callable" time="0.004">
+    <testcase classname="UnifiedOllama" name="allows user to type and send a message" time="0.191">
     </testcase>
   </testsuite>
-  <testsuite name="BetRecommendationCard" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.237" tests="1">
-    <testcase classname="BetRecommendationCard" name="should run a placeholder test" time="0.003">
+  <testsuite name="ComprehensiveAdminDashboard" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="2.627" tests="6">
+    <testcase classname="ComprehensiveAdminDashboard" name="renders dashboard data and panels when loaded" time="0.039">
+    </testcase>
+    <testcase classname="ComprehensiveAdminDashboard" name="shows loading state" time="0">
+    </testcase>
+    <testcase classname="ComprehensiveAdminDashboard" name="shows error state" time="0.001">
+    </testcase>
+    <testcase classname="ComprehensiveAdminDashboard" name="renders dashboard data and panels when loaded" time="0.226">
+    </testcase>
+    <testcase classname="ComprehensiveAdminDashboard" name="shows loading state" time="0.021">
+    </testcase>
+    <testcase classname="ComprehensiveAdminDashboard" name="shows error state" time="0.003">
     </testcase>
   </testsuite>
-  <testsuite name="bettingOpportunityService" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.249" tests="1">
-    <testcase classname="bettingOpportunityService" name="should run a placeholder test" time="0.003">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="2.657" tests="2">
+    <testcase classname="" name="displays health check status" time="0.665">
+    </testcase>
+    <testcase classname="" name="displays AI response for valid message" time="0.134">
     </testcase>
   </testsuite>
-  <testsuite name="predictionService" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.265" tests="1">
-    <testcase classname="predictionService" name="should run a placeholder test" time="0.004">
+  <testsuite name="confidenceSlice" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.381" tests="1">
+    <testcase classname="confidenceSlice" name="should run a placeholder test" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="SocialSentimentService" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.297" tests="3">
-    <testcase classname="SocialSentimentService" name="is a singleton" time="0.004">
-    </testcase>
-    <testcase classname="SocialSentimentService" name="throws if feature is disabled" time="0.008">
-    </testcase>
-    <testcase classname="SocialSentimentService" name="throws not implemented if enabled" time="0.003">
+  <testsuite name="DailyFantasyIntegration" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.398" tests="1">
+    <testcase classname="DailyFantasyIntegration" name="should run a placeholder test" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="DailyFantasyIntegration" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.184" tests="1">
-    <testcase classname="DailyFantasyIntegration" name="should run a placeholder test" time="0.003">
+  <testsuite name="A1Betting App Flows" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="2.741" tests="3">
+    <testcase classname="A1Betting App Flows" name="Registration form validation and submission" time="0.186">
+    </testcase>
+    <testcase classname="A1Betting App Flows" name="Login form validation and submission" time="0.052">
+    </testcase>
+    <testcase classname="A1Betting App Flows" name="BetSlip validation and submission" time="0.131">
     </testcase>
   </testsuite>
-  <testsuite name="BetRecommendationList" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.197" tests="1">
-    <testcase classname="BetRecommendationList" name="should run a placeholder test" time="0.004">
+  <testsuite name="bettingOpportunityService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.296" tests="1">
+    <testcase classname="bettingOpportunityService" name="should run a placeholder test" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="prizePicksService" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.218" tests="1">
-    <testcase classname="prizePicksService" name="should run a placeholder test" time="0.003">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="2.798" tests="3">
+    <testcase classname="" name="displays health check status" time="0.177">
+    </testcase>
+    <testcase classname="" name="displays backend error message" time="0.105">
+    </testcase>
+    <testcase classname="" name="displays AI response for valid message" time="0.2">
     </testcase>
   </testsuite>
-  <testsuite name="RiskAssessmentMatrix" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:05" time="0.211" tests="1">
-    <testcase classname="RiskAssessmentMatrix" name="should run a placeholder test" time="0.003">
+  <testsuite name="ConfidenceBandChart" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.341" tests="1">
+    <testcase classname="ConfidenceBandChart" name="should run a placeholder test" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="UnifiedPredictionService" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:06" time="0.21" tests="1">
-    <testcase classname="UnifiedPredictionService" name="should run a placeholder test" time="0.003">
+  <testsuite name="App E2E - Empty State" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="2.885" tests="1">
+    <testcase classname="App E2E - Empty State" name="shows empty state if no enhanced bets are returned" time="0.989">
     </testcase>
   </testsuite>
-  <testsuite name="LineupSynergyModel" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:06" time="0.216" tests="1">
-    <testcase classname="LineupSynergyModel" name="should run a basic test" time="0.004">
+  <testsuite name="App E2E" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="2.847" tests="2">
+    <testcase classname="App E2E" name="renders the main headings and prop cards" time="0.308">
+    </testcase>
+    <testcase classname="App E2E" name="shows error state if API returns error" time="0.057">
     </testcase>
   </testsuite>
-  <testsuite name="VenueEffectModel" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:06" time="0.213" tests="1">
-    <testcase classname="VenueEffectModel" name="should run a basic test" time="0.004">
+  <testsuite name="Minimal useState E2E" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.449" tests="1">
+    <testcase classname="Minimal useState E2E" name="renders and updates state" time="0.007">
     </testcase>
   </testsuite>
-  <testsuite name="ModelPerformanceTracker" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:06" time="0.256" tests="1">
-    <testcase classname="ModelPerformanceTracker" name="should run a placeholder test" time="0.004">
+  <testsuite name="App E2E Error State" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="2.888" tests="1">
+    <testcase classname="App E2E Error State" name="shows error state if API returns error" time="0.847">
     </testcase>
   </testsuite>
-  <testsuite name="RefereeImpactModel" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:06" time="0.236" tests="1">
-    <testcase classname="RefereeImpactModel" name="should run a basic test" time="0.003">
+  <testsuite name="PropOllamaUnified E2E" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="2.898" tests="7">
+    <testcase classname="PropOllamaUnified E2E" name="renders the component" time="0.275">
+    </testcase>
+    <testcase classname="PropOllamaUnified E2E" name="expands prop card and loads analysis" time="0.14">
+    </testcase>
+    <testcase classname="PropOllamaUnified E2E" name="shows loading state while fetching analysis" time="0.034">
+    </testcase>
+    <testcase classname="PropOllamaUnified E2E" name="handles error when fetching analysis" time="0.059">
+    </testcase>
+    <testcase classname="PropOllamaUnified E2E" name="shows fallback content when LLM is unavailable" time="0.03">
+    </testcase>
+    <testcase classname="PropOllamaUnified E2E" name="shows stale content when refreshing in background" time="0.032">
+    </testcase>
+    <testcase classname="PropOllamaUnified E2E" name="collapses expanded row when clicked again" time="0.041">
     </testcase>
   </testsuite>
-  <testsuite name="RiskAssessmentService" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:06" time="0.253" tests="1">
-    <testcase classname="RiskAssessmentService" name="classifies risk correctly" time="0.003">
+  <testsuite name="BetRecommendationCard" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.314" tests="1">
+    <testcase classname="BetRecommendationCard" name="should run a placeholder test" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="PvPMatchupModel" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:06" time="0.219" tests="1">
-    <testcase classname="PvPMatchupModel" name="should run a basic test" time="0.003">
+  <testsuite name="ShapExplanation" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.294" tests="1">
+    <testcase classname="ShapExplanation" name="should run a placeholder test" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="FantasyPredictionEnhancer" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:06" time="0.24" tests="1">
-    <testcase classname="FantasyPredictionEnhancer" name="should run a placeholder test" time="0.003">
+  <testsuite name="UserPersonalizationService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.363" tests="2">
+    <testcase classname="UserPersonalizationService" name="should return a singleton instance" time="0.001">
+    </testcase>
+    <testcase classname="UserPersonalizationService" name="should initialize with empty userProfiles and clusters" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="advancedPredictionService" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:06" time="0.242" tests="1">
-    <testcase classname="advancedPredictionService" name="should run a placeholder test" time="0.003">
+  <testsuite name="RefereeImpactModel" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.278" tests="1">
+    <testcase classname="RefereeImpactModel" name="should run a basic test" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="PlayerFormModel" errors="0" failures="0" skipped="0" timestamp="2025-07-25T18:44:06" time="0.242" tests="1">
-    <testcase classname="PlayerFormModel" name="should run a basic test" time="0.002">
+  <testsuite name="PropOllamaUnified" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:23" time="3.04" tests="6">
+    <testcase classname="PropOllamaUnified" name="loads and sorts best bets by confidence" time="0.197">
+    </testcase>
+    <testcase classname="PropOllamaUnified" name="shows confidence badge and bar" time="0.13">
+    </testcase>
+    <testcase classname="PropOllamaUnified" name="expand/collapse explanation" time="0.337">
+    </testcase>
+    <testcase classname="PropOllamaUnified" name="handles empty state" time="0.009">
+    </testcase>
+    <testcase classname="PropOllamaUnified" name="is accessible (banner, headings)" time="0.011">
+    </testcase>
+    <testcase classname="" name="renders MLB odds and props as cards when backend returns MLB data" time="0.096">
+    </testcase>
+  </testsuite>
+  <testsuite name="DataPipeline" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.265" tests="1">
+    <testcase classname="DataPipeline" name="should run a dummy test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="VenueEffectModel" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.384" tests="1">
+    <testcase classname="VenueEffectModel" name="should run a basic test" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="AppContext" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.364" tests="1">
+    <testcase classname="AppContext" name="provides default values and allows updating user" time="0.009">
+    </testcase>
+  </testsuite>
+  <testsuite name="PredictionGenerator" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.307" tests="1">
+    <testcase classname="PredictionGenerator" name="should have at least one test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="PvPMatchupModel" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.274" tests="1">
+    <testcase classname="PvPMatchupModel" name="should run a basic test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="FantasyPredictionEnhancer" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.324" tests="1">
+    <testcase classname="FantasyPredictionEnhancer" name="should run a placeholder test" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="PropAnalysisAggregator" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.305" tests="11">
+    <testcase classname="PropAnalysisAggregator" name="getAnalysis returns cached analysis if available" time="0.003">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="getAnalysis returns stale analysis and refreshes in background" time="0.002">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="getAnalysis generates new analysis when cache is empty" time="0.002">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="getAnalysis handles errors and generates fallback content" time="0.005">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="getAnalysis rethrows error if fallback is not available" time="0.005">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="parseResponse extracts analysis sections correctly" time="0">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="parseResponse handles missing sections gracefully" time="0.001">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="buildPrompt creates appropriate prompt" time="0.001">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="parseResponse extracts analysis sections correctly" time="0.001">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="parseResponse handles missing sections gracefully" time="0.001">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="buildPrompt creates appropriate prompt" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="safeNumber utils" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.323" tests="13">
+    <testcase classname="safeNumber utils" name="safeNumber should format a number correctly" time="0.002">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeNumber should handle string input" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeNumber should handle invalid input with fallback" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safePercentage should format a percentage correctly" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safePercentage should handle invalid input with default fallback" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeCurrency should format currency correctly" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeCurrency should handle invalid input with default fallback" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeCompactNumber should format large numbers with suffixes" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeCompactNumber should handle invalid input with default fallback" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeDivision should perform division correctly" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeDivision should handle invalid input with fallback" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safePercentageChange should calculate percentage change correctly" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safePercentageChange should handle invalid input with default fallback" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="PropOllamaError" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.305" tests="13">
+    <testcase classname="PropOllamaError" name="creates network error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="creates timeout error" time="0">
+    </testcase>
+    <testcase classname="PropOllamaError" name="creates LLM unavailable error" time="0">
+    </testcase>
+    <testcase classname="PropOllamaError" name="creates data fetch error" time="0">
+    </testcase>
+    <testcase classname="PropOllamaError" name="creates insufficient data error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="creates parsing error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="creates unknown error" time="0">
+    </testcase>
+    <testcase classname="PropOllamaError" name="converts generic error to PropOllamaError" time="0">
+    </testcase>
+    <testcase classname="PropOllamaError" name="converts Axios error to PropOllamaError" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="converts Axios network error to PropOllamaError" time="0">
+    </testcase>
+    <testcase classname="PropOllamaError" name="converts Axios timeout error to PropOllamaError" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="handles error with details" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="preserves PropOllamaError when converting from error" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="cacheUtils" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.266" tests="1">
+    <testcase classname="cacheUtils" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="UnifiedPredictionService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.257" tests="1">
+    <testcase classname="UnifiedPredictionService" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="LineupSynergyModel" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.286" tests="1">
+    <testcase classname="LineupSynergyModel" name="should run a basic test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="PredictionExplanationModal" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.283" tests="1">
+    <testcase classname="PredictionExplanationModal" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="AnalysisCacheService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:26" time="0.318" tests="12">
+    <testcase classname="AnalysisCacheService" name="getInstance returns singleton instance" time="0.002">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="generateCacheKey creates consistent keys" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="set and get work correctly" time="0.002">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="has returns true for existing item" time="0">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="has returns false for non-existent item" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="delete removes item from cache" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="clear removes all items from cache" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="get returns null for expired item and isStale for stale item" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="get returns stale item with isStale flag" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="getStats returns cache statistics" time="0.009">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="set with custom TTL" time="0.002">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="localStorage integration" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="BetRecommendationList" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.267" tests="1">
+    <testcase classname="BetRecommendationList" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="UnifiedBettingAnalytics" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.288" tests="1">
+    <testcase classname="UnifiedBettingAnalytics" name="should have at least one test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="UserFriendlyApp" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.292" tests="1">
+    <testcase classname="UserFriendlyApp" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Analytics Logging" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.308" tests="1">
+    <testcase classname="Analytics Logging" name="logs data without throwing" time="0.009">
+    </testcase>
+  </testsuite>
+  <testsuite name="RiskAssessmentService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.299" tests="1">
+    <testcase classname="RiskAssessmentService" name="classifies risk correctly" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="advancedPredictionService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.331" tests="1">
+    <testcase classname="advancedPredictionService" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ModelPerformanceTracker" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.308" tests="1">
+    <testcase classname="ModelPerformanceTracker" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ShapExplanation" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.334" tests="1">
+    <testcase classname="ShapExplanation" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="PatternRecognitionService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.309" tests="1">
+    <testcase classname="PatternRecognitionService" name="detects pattern structure" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="Dashboard" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.376" tests="1">
+    <testcase classname="Dashboard" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="marketAnalysisService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.326" tests="1">
+    <testcase classname="marketAnalysisService" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="PlayerFormModel" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.326" tests="1">
+    <testcase classname="PlayerFormModel" name="should run a basic test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="RiskAssessmentMatrix" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.289" tests="1">
+    <testcase classname="RiskAssessmentMatrix" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="BestBetSelector" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.311" tests="1">
+    <testcase classname="BestBetSelector" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="SocialSentimentService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.306" tests="3">
+    <testcase classname="SocialSentimentService" name="is a singleton" time="0.001">
+    </testcase>
+    <testcase classname="SocialSentimentService" name="throws if feature is disabled" time="0.003">
+    </testcase>
+    <testcase classname="SocialSentimentService" name="throws not implemented if enabled" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="predictionService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.276" tests="1">
+    <testcase classname="predictionService" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="prizePicksService" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.27" tests="1">
+    <testcase classname="prizePicksService" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="BankrollTracker" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.223" tests="1">
+    <testcase classname="BankrollTracker" name="should run a placeholder test" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="FinalPredictionEngine" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.273" tests="1">
+    <testcase classname="FinalPredictionEngine" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="LiveStream component" errors="0" failures="0" skipped="0" timestamp="2025-08-01T05:32:27" time="0.332" tests="3">
+    <testcase classname="LiveStream component" name="renders the onboarding banner and safety tips" time="0.008">
+    </testcase>
+    <testcase classname="LiveStream component" name="renders the header with the correct title and external link" time="0.011">
+    </testcase>
+    <testcase classname="LiveStream component" name="renders the button to open the live stream site" time="0.004">
     </testcase>
   </testsuite>
 </testsuites>

@@ -5,7 +5,6 @@
  */
 
 import axios, { AxiosResponse } from 'axios';
-import { discoverBackend } from './backendDiscovery';
 
 export interface PropOllamaRequest {
   message: string;
@@ -57,11 +56,13 @@ class PropOllamaService {
   private chatHistory: PropOllamaChatMessage[] = [];
 
   private async getBackendUrl(): Promise<string> {
-    const url = await discoverBackend();
-    if (!url) {
-      throw new Error('Backend URL not discovered.');
+    // Use environment variable for tests or manual override
+    const envUrl = process.env.VITE_API_URL || process.env.REACT_APP_API_URL;
+    if (envUrl) {
+      return envUrl.replace(/\/$/, '');
     }
-    return url;
+    // Default to localhost
+    return 'http://localhost:8000';
   }
 
   async sendChatMessage(request: PropOllamaRequest): Promise<PropOllamaResponse> {

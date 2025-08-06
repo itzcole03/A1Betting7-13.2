@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comprehensive Props Flow Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      .prop-item {
+        margin: 5px 0;
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 3px;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 3px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🏈 Comprehensive MLB Props Flow Test</h1>
+    <p>
+      <strong
+        >Testing the complete data flow from enhanced backend to frontend
+        display</strong
+      >
+    </p>
+
+    <div id="test-results"></div>
+
+    <script>
+      async function testComprehensivePropsFlow() {
+        const results = document.getElementById("test-results");
+
+        try {
+          // Test 1: Backend Props Generation
+          results.innerHTML +=
+            '<div class="test-section"><h3>🔧 Test 1: Backend Props Generation</h3><p>Fetching props from backend...</p></div>';
+
+          const backendResponse = await fetch(
+            "http://localhost:8000/mlb/odds-comparison/?market_type=playerprops"
+          );
+          const backendData = await backendResponse.json();
+
+          const scheduledProps = backendData.filter(
+            (prop) => prop.game_status === "Scheduled"
+          );
+          const finalProps = backendData.filter(
+            (prop) => prop.game_status === "Final"
+          );
+
+          let test1Result = `
+                    <div class="test-section ${
+                      scheduledProps.length > 0 ? "success" : "error"
+                    }">
+                        <h3>✅ Test 1: Backend Props Generation</h3>
+                        <p><strong>Total Props:</strong> ${
+                          backendData.length
+                        }</p>
+                        <p><strong>Scheduled Props:</strong> ${
+                          scheduledProps.length
+                        } ✅</p>
+                        <p><strong>Final Props:</strong> ${finalProps.length} ${
+            finalProps.length === 0 ? "✅" : "❌"
+          }</p>
+                        <p><strong>Status:</strong> ${
+                          scheduledProps.length > 0 && finalProps.length === 0
+                            ? "PASS - Generating scheduled props correctly!"
+                            : "FAIL - Issues with game status"
+                        }</p>
+                `;
+
+          if (scheduledProps.length > 0) {
+            const statTypes = [
+              ...new Set(scheduledProps.map((p) => p.stat_type)),
+            ];
+            test1Result += `<p><strong>Stat Types Found:</strong> ${
+              statTypes.length
+            } (${statTypes.slice(0, 5).join(", ")}${
+              statTypes.length > 5 ? "..." : ""
+            })</p>`;
+
+            const sampleProp = scheduledProps[0];
+            test1Result += `
+                        <p><strong>Sample Prop:</strong></p>
+                        <pre>${JSON.stringify(
+                          {
+                            player_name: sampleProp.player_name,
+                            stat_type: sampleProp.stat_type,
+                            game_status: sampleProp.game_status,
+                            start_time: sampleProp.start_time,
+                            event_name: sampleProp.event_name,
+                          },
+                          null,
+                          2
+                        )}</pre>
+                    `;
+          }
+          test1Result += "</div>";
+
+          // Test 2: Frontend Data Fetching
+          test1Result +=
+            '<div class="test-section"><h3>🌐 Test 2: Frontend Data Processing</h3><p>Testing frontend data fetch and filtering...</p></div>';
+
+          // Simulate frontend enhanced data manager logic
+          const enhancedResponse = await fetch(
+            "http://localhost:8000/mlb/odds-comparison/?market_type=playerprops"
+          );
+          const enhancedData = await enhancedResponse.json();
+
+          // Frontend filtering logic for upcoming games
+          const upcomingGames = enhancedData.filter((prop) => {
+            const gameTime = new Date(prop.start_time);
+            const now = new Date();
+            return gameTime > now && prop.game_status === "Scheduled";
+          });
+
+          test1Result += `
+                    <div class="test-section ${
+                      upcomingGames.length > 0 ? "success" : "error"
+                    }">
+                        <h3>${
+                          upcomingGames.length > 0 ? "✅" : "❌"
+                        } Test 2: Frontend Data Processing</h3>
+                        <p><strong>Props After Frontend Filtering:</strong> ${
+                          upcomingGames.length
+                        }</p>
+                        <p><strong>Frontend Logic:</strong> Filters for Scheduled games with future start times</p>
+                        <p><strong>Status:</strong> ${
+                          upcomingGames.length > 0
+                            ? "PASS - Props should display in frontend!"
+                            : "FAIL - No props would display"
+                        }</p>
+                `;
+
+          if (upcomingGames.length > 0) {
+            const uniqueGames = [
+              ...new Set(upcomingGames.map((p) => p.event_name)),
+            ];
+            test1Result += `<p><strong>Unique Games:</strong> ${
+              uniqueGames.length
+            } (${uniqueGames.slice(0, 2).join(", ")}${
+              uniqueGames.length > 2 ? "..." : ""
+            })</p>`;
+          }
+          test1Result += "</div>";
+
+          // Test 3: Comprehensive Coverage
+          const playerProps = enhancedData.filter(
+            (p) => p.stat_type && !p.stat_type.startsWith("team_")
+          );
+          const teamProps = enhancedData.filter(
+            (p) => p.stat_type && p.stat_type.startsWith("team_")
+          );
+
+          test1Result += `
+                    <div class="test-section success">
+                        <h3>📊 Test 3: Comprehensive Coverage Analysis</h3>
+                        <p><strong>Player Props:</strong> ${
+                          playerProps.length
+                        }</p>
+                        <p><strong>Team Props:</strong> ${teamProps.length}</p>
+                        <p><strong>Improvement:</strong> From original 457 props to ${
+                          backendData.length
+                        } comprehensive props!</p>
+                        <p><strong>Enhancement Factor:</strong> ${Math.round(
+                          (backendData.length / 457) * 100
+                        )}% of original baseline</p>
+                    </div>
+                `;
+
+          // Test 4: Final Status
+          const overallSuccess =
+            scheduledProps.length > 0 && upcomingGames.length > 0;
+          test1Result += `
+                    <div class="test-section ${
+                      overallSuccess ? "success" : "error"
+                    }">
+                        <h3>${overallSuccess ? "🎉" : "❌"} Final Status</h3>
+                        <p><strong>Backend Enhancement:</strong> ${
+                          scheduledProps.length > 0
+                            ? "✅ COMPLETE"
+                            : "❌ FAILED"
+                        }</p>
+                        <p><strong>Frontend Integration:</strong> ${
+                          upcomingGames.length > 0 ? "✅ COMPLETE" : "❌ FAILED"
+                        }</p>
+                        <p><strong>Overall Status:</strong> ${
+                          overallSuccess
+                            ? "🎉 SUCCESS - Comprehensive props are flowing to frontend!"
+                            : "❌ ISSUES - Props not reaching frontend"
+                        }</p>
+                    </div>
+                `;
+
+          results.innerHTML = test1Result;
+        } catch (error) {
+          results.innerHTML = `
+                    <div class="test-section error">
+                        <h3>❌ Test Failed</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+        }
+      }
+
+      // Run the test when page loads
+      window.addEventListener("load", testComprehensivePropsFlow);
+    </script>
+  </body>
+</html>

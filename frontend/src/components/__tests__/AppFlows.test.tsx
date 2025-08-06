@@ -1,3 +1,10 @@
+// Ensure modern fake timers for React 18+ compatibility
+beforeEach(() => {
+  jest.useFakeTimers();
+});
+afterEach(() => {
+  jest.useRealTimers();
+});
 // (deleted)
 // Legacy AppFlows test removed as part of canonicalization.
 import '@testing-library/jest-dom';
@@ -85,9 +92,14 @@ describe('A1Betting App Flows', () => {
         </MemoryRouter>
       </QueryClientProvider>
     );
-    fireEvent.change(screen.getByLabelText(/selection/i), { target: { value: 'TeamA' } });
-    fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: '10' } });
+    fireEvent.change(screen.getByLabelText('Selection'), { target: { value: 'TeamA' } });
+    fireEvent.change(screen.getByLabelText('Amount ($)'), { target: { value: '10' } });
     fireEvent.click(screen.getByRole('button', { name: /place bet/i }));
+    // Advance timers and flush React state updates using async timer API
+    const { act } = await import('react-dom/test-utils');
+    await act(async () => {
+      await jest.runAllTimersAsync();
+    });
     // The BetSlip does not show a success message, so check that the button is enabled again after submit
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /place bet/i })).toBeEnabled();

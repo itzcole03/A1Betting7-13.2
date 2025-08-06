@@ -1,0 +1,379 @@
+# RBAC Configuration for A1Betting7-13.2 Production
+# Implements least privilege access principles with comprehensive role definitions
+
+# Service Account for Backend Application
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: a1betting-backend
+  namespace: a1betting-prod
+  labels:
+    app: a1betting-backend
+    tier: backend
+automountServiceAccountToken: true
+
+---
+# Service Account for Frontend Application
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: a1betting-frontend
+  namespace: a1betting-prod
+  labels:
+    app: a1betting-frontend
+    tier: frontend
+automountServiceAccountToken: false
+
+---
+# Service Account for Monitoring Components
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: monitoring
+automountServiceAccountToken: true
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+    component: monitoring
+automountServiceAccountToken: true
+
+---
+# ClusterRole for Prometheus (monitoring across namespaces)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - nodes/proxy
+      - nodes/metrics
+      - services
+      - endpoints
+      - pods
+      - ingresses
+      - configmaps
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["extensions", "networking.k8s.io"]
+    resources:
+      - ingresses
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - namespaces
+    verbs: ["get", "list", "watch"]
+  - nonResourceURLs: ["/metrics", "/metrics/cadvisor"]
+    verbs: ["get"]
+
+---
+# ClusterRoleBinding for Prometheus
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+  - kind: ServiceAccount
+    name: prometheus
+    namespace: monitoring
+
+---
+# Role for Backend Application (namespace-scoped)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: a1betting-prod
+  name: a1betting-backend
+  labels:
+    app: a1betting-backend
+rules:
+  - apiGroups: [""]
+    resources:
+      - secrets
+      - configmaps
+    verbs: ["get", "list"]
+    resourceNames:
+      - postgres-credentials
+      - redis-credentials
+      - api-keys
+      - app-config
+  - apiGroups: [""]
+    resources:
+      - pods
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources:
+      - services
+    verbs: ["get", "list"]
+    resourceNames:
+      - postgresql-service
+      - pgbouncer-service
+      - redis-service
+
+---
+# RoleBinding for Backend Application
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: a1betting-backend
+  namespace: a1betting-prod
+  labels:
+    app: a1betting-backend
+subjects:
+  - kind: ServiceAccount
+    name: a1betting-backend
+    namespace: a1betting-prod
+roleRef:
+  kind: Role
+  name: a1betting-backend
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Role for Grafana (monitoring namespace)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: monitoring
+  name: grafana
+  labels:
+    app: grafana
+rules:
+  - apiGroups: [""]
+    resources:
+      - secrets
+      - configmaps
+    verbs: ["get", "list", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources:
+      - persistentvolumeclaims
+    verbs: ["get", "list"]
+
+---
+# RoleBinding for Grafana
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+subjects:
+  - kind: ServiceAccount
+    name: grafana
+    namespace: monitoring
+roleRef:
+  kind: Role
+  name: grafana
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Network Security Policy Role (for security team)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: network-policy-admin
+  labels:
+    rbac.security: "network-admin"
+rules:
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - networkpolicies
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources:
+      - namespaces
+    verbs: ["get", "list", "watch"]
+
+---
+# Security Scanning Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: security-scanner
+  namespace: a1betting-prod
+  labels:
+    app: security-scanner
+    security: scanner
+automountServiceAccountToken: true
+
+---
+# Role for Security Scanner (read-only access for vulnerability scanning)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: a1betting-prod
+  name: security-scanner
+  labels:
+    app: security-scanner
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+      - services
+      - configmaps
+    verbs: ["get", "list"]
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - replicasets
+    verbs: ["get", "list"]
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - networkpolicies
+      - ingresses
+    verbs: ["get", "list"]
+
+---
+# RoleBinding for Security Scanner
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: security-scanner
+  namespace: a1betting-prod
+  labels:
+    app: security-scanner
+subjects:
+  - kind: ServiceAccount
+    name: security-scanner
+    namespace: a1betting-prod
+roleRef:
+  kind: Role
+  name: security-scanner
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Backup Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backup-operator
+  namespace: a1betting-prod
+  labels:
+    app: backup-operator
+    component: backup
+automountServiceAccountToken: true
+
+---
+# Role for Backup Operator
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: a1betting-prod
+  name: backup-operator
+  labels:
+    app: backup-operator
+rules:
+  - apiGroups: [""]
+    resources:
+      - secrets
+    verbs: ["get", "list"]
+    resourceNames:
+      - postgres-credentials
+      - backup-credentials
+  - apiGroups: [""]
+    resources:
+      - pods
+    verbs: ["get", "list", "create", "delete"]
+  - apiGroups: ["batch"]
+    resources:
+      - jobs
+      - cronjobs
+    verbs: ["get", "list", "create", "update", "patch", "delete"]
+
+---
+# RoleBinding for Backup Operator
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: backup-operator
+  namespace: a1betting-prod
+  labels:
+    app: backup-operator
+subjects:
+  - kind: ServiceAccount
+    name: backup-operator
+    namespace: a1betting-prod
+roleRef:
+  kind: Role
+  name: backup-operator
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Pod Security Policy (if using PSP instead of PSS)
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: a1betting-prod-psp
+  labels:
+    security: restricted
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  volumes:
+    - "configMap"
+    - "emptyDir"
+    - "projected"
+    - "secret"
+    - "downwardAPI"
+    - "persistentVolumeClaim"
+  runAsUser:
+    rule: "MustRunAsNonRoot"
+  seLinux:
+    rule: "RunAsAny"
+  fsGroup:
+    rule: "RunAsAny"
+
+---
+# ClusterRole for Pod Security Policy
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: a1betting-prod-psp-user
+  labels:
+    security: restricted
+rules:
+  - apiGroups: ["policy"]
+    resources: ["podsecuritypolicies"]
+    verbs: ["use"]
+    resourceNames:
+      - a1betting-prod-psp
+
+---
+# ClusterRoleBinding for Pod Security Policy
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: a1betting-prod-psp-user
+  labels:
+    security: restricted
+roleRef:
+  kind: ClusterRole
+  name: a1betting-prod-psp-user
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: a1betting-backend
+    namespace: a1betting-prod
+  - kind: ServiceAccount
+    name: a1betting-frontend
+    namespace: a1betting-prod

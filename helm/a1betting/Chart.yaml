@@ -1,0 +1,47 @@
+# Helm Chart for A1Betting7-13.2
+# Production-ready Helm chart with modern best practices
+
+apiVersion: v2
+name: a1betting
+description: A1Betting7-13.2 AI-powered sports analytics platform
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+kubeVersion: ">=1.25.0"
+
+keywords:
+  - sports-analytics
+  - ai
+  - betting
+  - machine-learning
+
+maintainers:
+  - name: A1Betting Team
+    email: dev@a1betting.com
+
+dependencies:
+  - name: postgresql
+    version: 12.x.x
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: redis
+    version: 17.x.x
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+  - name: prometheus
+    version: 23.x.x
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: monitoring.prometheus.enabled
+  - name: grafana
+    version: 6.x.x
+    repository: https://grafana.github.io/helm-charts
+    condition: monitoring.grafana.enabled
+
+annotations:
+  category: Analytics
+  artifacthub.io/license: MIT
+  artifacthub.io/links: |
+    - name: Chart Source
+      url: https://github.com/a1betting/charts
+    - name: Documentation
+      url: https://docs.a1betting.com

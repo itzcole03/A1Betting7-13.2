@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Card Collapse Behavior Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #1a1a1a;
+        color: white;
+      }
+      .test-section {
+        background: #2a2a2a;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        border: 1px solid #4a4a4a;
+      }
+      .checklist {
+        list-style-type: none;
+        padding: 0;
+      }
+      .checklist li {
+        padding: 8px 0;
+        border-bottom: 1px solid #3a3a3a;
+      }
+      .checklist li:before {
+        content: "✅ ";
+        color: #4ade80;
+        font-weight: bold;
+      }
+      .behavior-item {
+        background: #1e293b;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 6px;
+        border-left: 4px solid #3b82f6;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🎯 Card Collapse Behavior Implementation</h1>
+
+    <div class="test-section">
+      <h2>📋 Implementation Summary</h2>
+      <ul class="checklist">
+        <li>Added onCollapse prop to PropCard interface</li>
+        <li>Added onClick handler to collapse button in PropCard</li>
+        <li>Removed onClick wrapper from expanded card in PropOllamaUnified</li>
+        <li>Added expandedCardRef for click-outside detection</li>
+        <li>Added click-outside detection useEffect</li>
+        <li>Added Escape key support for accessibility</li>
+        <li>All TypeScript errors resolved</li>
+        <li>Hot Module Reloading successful</li>
+      </ul>
+    </div>
+
+    <div class="test-section">
+      <h2>🔄 New Behavior Pattern</h2>
+
+      <div class="behavior-item">
+        <strong>1. Condensed Cards (Default State)</strong>
+        <br />• Display in 2-column grid layout <br />• Clicking any condensed
+        card expands it <br />• Shows confidence score and basic prop details
+      </div>
+
+      <div class="behavior-item">
+        <strong>2. Expanded Cards</strong>
+        <br />• Switch to single-column layout for focus <br />• Clicking inside
+        the expanded card does NOTHING <br />• Card content is non-interactive
+        for reading <br />• Show full analysis, stats, and insights
+      </div>
+
+      <div class="behavior-item">
+        <strong>3. Collapse Methods (Only These Work)</strong>
+        <br />• ✅ Click the "Collapse" button at bottom of card <br />• ✅
+        Click outside the expanded card area <br />• ✅ Press Escape key
+        (accessibility) <br />• ❌ Clicking inside expanded card content
+        (disabled)
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>🧪 Test Cases to Validate</h2>
+
+      <div class="behavior-item">
+        <strong>Test 1: Basic Expansion</strong>
+        <br />1. Navigate to Props page with condensed cards <br />2. Click any
+        condensed card <br />3. ✅ Should expand to show full details <br />4.
+        ✅ Layout should switch to single column
+      </div>
+
+      <div class="behavior-item">
+        <strong>Test 2: Collapse Button</strong>
+        <br />1. With card expanded, locate collapse button at bottom <br />2.
+        Click the pill-shaped "Collapse" button <br />3. ✅ Card should collapse
+        back to condensed view <br />4. ✅ Layout should return to 2-column grid
+      </div>
+
+      <div class="behavior-item">
+        <strong>Test 3: Click Inside Card (Should NOT Collapse)</strong>
+        <br />1. With card expanded, click anywhere on card content <br />2. Try
+        clicking on player name, stats, insights, etc. <br />3. ✅ Card should
+        remain expanded <br />4. ✅ No collapse behavior should trigger
+      </div>
+
+      <div class="behavior-item">
+        <strong>Test 4: Click Outside Card</strong>
+        <br />1. With card expanded, click on empty space around card <br />2.
+        Click on background or other UI elements <br />3. ✅ Card should
+        collapse automatically <br />4. ✅ Should return to condensed grid view
+      </div>
+
+      <div class="behavior-item">
+        <strong>Test 5: Escape Key</strong>
+        <br />1. With card expanded, press Escape key <br />2. ✅ Card should
+        collapse <br />3. ✅ Focus should remain manageable
+      </div>
+
+      <div class="behavior-item">
+        <strong>Test 6: Multiple Card Interaction</strong>
+        <br />1. Expand one card, then click another condensed card <br />2. ✅
+        Previous card should collapse, new card expands <br />3. ✅ Only one
+        card expanded at a time
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>🎨 UI/UX Benefits</h2>
+      <ul class="checklist">
+        <li>Prevents accidental collapses while reading content</li>
+        <li>Clear intention required for collapse action</li>
+        <li>Modern click-outside pattern familiar to users</li>
+        <li>Escape key provides keyboard accessibility</li>
+        <li>Collapse button provides explicit visual affordance</li>
+        <li>Matches modern dashboard interaction patterns</li>
+      </ul>
+    </div>
+
+    <div class="test-section">
+      <h2>⚡ Technical Implementation</h2>
+      <p><strong>PropCard.tsx Changes:</strong></p>
+      <ul>
+        <li>Added onCollapse prop to interface</li>
+        <li>Added onClick={onCollapse} to collapse button</li>
+      </ul>
+
+      <p><strong>PropOllamaUnified.tsx Changes:</strong></p>
+      <ul>
+        <li>Added expandedCardRef with React.useRef</li>
+        <li>Added click-outside detection useEffect</li>
+        <li>Removed onClick wrapper from expanded card div</li>
+        <li>Added onCollapse prop passing setExpandedRowKey(null)</li>
+      </ul>
+    </div>
+
+    <p
+      style="
+        text-align: center;
+        color: #4ade80;
+        font-weight: bold;
+        margin-top: 40px;
+      "
+    >
+      ✅ IMPLEMENTATION COMPLETE - READY FOR TESTING ✅
+    </p>
+  </body>
+</html>

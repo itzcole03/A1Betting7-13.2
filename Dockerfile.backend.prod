@@ -1,0 +1,102 @@
+# Production-Optimized Dockerfile for A1Betting Backend
+# Multi-stage build with security hardening and minimal image size
+
+# Build stage
+FROM python:3.12-slim as builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    g++ \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy and install Python dependencies including Phase 3 MLOps packages
+COPY backend/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir -r /tmp/requirements.txt && \
+    # Install optional Phase 3 dependencies with fallbacks
+    pip install --no-cache-dir \
+        torch>=2.1.0 \
+        transformers>=4.35.0 \
+        mlflow>=2.8.0 \
+        optuna>=3.4.0 \
+        docker>=6.1.0 \
+        kubernetes>=28.1.0 \
+        pyjwt>=2.8.0 \
+        cryptography>=41.0.0 \
+        || echo "Some Phase 3 dependencies not available, using fallbacks"
+
+# Production stage
+FROM python:3.12-slim as production
+
+# Create non-root user
+RUN groupadd -r a1betting && useradd -r -g a1betting a1betting
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get autoremove -y \
+    && apt-get autoclean
+
+# Copy virtual environment from builder stage
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Set working directory
+WORKDIR /app
+
+# Copy application code
+COPY backend/ ./backend/
+COPY requirements.txt ./
+
+# Create Phase 3 startup script
+RUN echo '#!/bin/bash\n\
+set -e\n\
+echo "🚀 Starting A1Betting Backend with Phase 3 MLOps..."\n\
+echo "📊 Checking Phase 3 services..."\n\
+python -c "from backend.services.mlops_pipeline_service import mlops_pipeline_service; print(\"✅ MLOps service available\")" 2>/dev/null || echo "⚠️  MLOps service using fallbacks"\n\
+python -c "from backend.services.autonomous_monitoring_service import autonomous_monitoring_service; print(\"✅ Monitoring service available\")" 2>/dev/null || echo "⚠️  Monitoring service using fallbacks"\n\
+python -c "from backend.services.advanced_security_service import advanced_security_service; print(\"✅ Security service available\")" 2>/dev/null || echo "⚠️  Security service using fallbacks"\n\
+echo "🎯 Starting production server with Phase 3 capabilities..."\n\
+exec "$@"' > /app/phase3-entrypoint.sh && \
+    chmod +x /app/phase3-entrypoint.sh
+
+# Switch to non-root user
+USER a1betting
+
+# Expose port
+EXPOSE 8000
+
+# Health check with Phase 3 endpoints
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/health && \
+        curl -f http://localhost:8000/api/phase3/health || exit 1
+
+# Set environment variables
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Start application with OpenTelemetry auto-instrumentation and Phase 3 integration
+ENTRYPOINT ["/app/phase3-entrypoint.sh"]
+CMD ["opentelemetry-instrument", \
+     "--service_name", "a1betting-backend", \
+     "--exporter_otlp_endpoint", "http://jaeger:4317", \
+     "uvicorn", "backend.production_integration:create_production_app", \
+     "--factory", \
+     "--host", "0.0.0.0", \
+     "--port", "8000", \
+     "--workers", "4", \
+     "--loop", "uvloop", \
+     "--http", "httptools"]

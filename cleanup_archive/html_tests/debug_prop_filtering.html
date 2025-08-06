@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PropOllamaUnified Debug Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .debug {
+        background: #f0f0f0;
+        padding: 10px;
+        margin: 10px 0;
+      }
+      .error {
+        color: red;
+      }
+      .success {
+        color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>PropOllamaUnified Debug Test</h1>
+    <div id="output"></div>
+
+    <script>
+      async function debugPropFiltering() {
+        const output = document.getElementById("output");
+
+        try {
+          // Simulate the same data flow as the frontend
+          output.innerHTML += '<div class="debug">Starting debug test...</div>';
+
+          // Fetch props like the frontend does
+          const response = await fetch(
+            "http://localhost:8000/mlb/odds-comparison/",
+            {
+              method: "GET",
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+          output.innerHTML += `<div class="debug">Raw props fetched: ${
+            data.odds ? data.odds.length : 0
+          }</div>`;
+
+          // Map to FeaturedProp format (simplified)
+          const mappedProps = (data.odds || []).map((item) => ({
+            id: item.id || `${item.player}-${item.stat}`,
+            player: item.player || "Unknown",
+            matchup: item.matchup || "Unknown vs Unknown",
+            stat: item.stat || "Unknown",
+            line: parseFloat(item.line || 0),
+            overOdds: parseFloat(item.overOdds || 0),
+            underOdds: parseFloat(item.underOdds || 0),
+            confidence: parseFloat(item.confidence || 75),
+            sport: item.sport || "MLB",
+            gameTime: item.gameTime || new Date().toISOString(),
+            pickType: item.pickType || "prop",
+          }));
+
+          output.innerHTML += `<div class="debug">Mapped props: ${mappedProps.length}</div>`;
+          output.innerHTML += `<div class="debug">Sample prop: ${JSON.stringify(
+            mappedProps[0],
+            null,
+            2
+          )}</div>`;
+
+          // Test filtering logic
+          const selectedSport = "MLB";
+          const searchTerm = "";
+
+          const filtered = mappedProps
+            .filter((p) => selectedSport === "All" || p.sport === selectedSport)
+            .filter(
+              (p) =>
+                searchTerm === "" ||
+                (p.player &&
+                  p.player.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (p.matchup &&
+                  p.matchup.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+
+          output.innerHTML += `<div class="debug">After filtering: ${filtered.length}</div>`;
+          output.innerHTML += `<div class="debug">Filter criteria: selectedSport='${selectedSport}', searchTerm='${searchTerm}'</div>`;
+
+          if (filtered.length > 0) {
+            output.innerHTML += `<div class="success">✅ Filtering working correctly!</div>`;
+            output.innerHTML += `<div class="debug">Sample filtered prop: ${JSON.stringify(
+              filtered[0],
+              null,
+              2
+            )}</div>`;
+          } else {
+            output.innerHTML += `<div class="error">❌ No props after filtering!</div>`;
+            output.innerHTML += `<div class="debug">First original prop sport: ${mappedProps[0]?.sport}</div>`;
+          }
+        } catch (error) {
+          output.innerHTML += `<div class="error">Error: ${error.message}</div>`;
+        }
+      }
+
+      // Run test when page loads
+      window.onload = debugPropFiltering;
+    </script>
+  </body>
+</html>

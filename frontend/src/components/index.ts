@@ -4,9 +4,12 @@
 export { default as UserFriendlyApp } from './user-friendly/UserFriendlyApp';
 
 // === CORE FEATURES ===
-export { default as PropOllamaUnified } from './PropOllamaUnified';
-export { default as PredictionDisplay } from './PredictionDisplay';
+export { default as CondensedPropCard } from './CondensedPropCard';
+export { default as LoadingOverlay } from './LoadingOverlay';
 export { default as MoneyMaker } from './MoneyMaker/UltimateMoneyMaker';
+export { default as PredictionDisplay } from './PredictionDisplay';
+export { default as PropCard } from './PropCard';
+export { default as PropOllamaUnified } from './PropOllamaUnified';
 
 // === UI COMPONENTS (Canonical) ===
 export * from './ui';

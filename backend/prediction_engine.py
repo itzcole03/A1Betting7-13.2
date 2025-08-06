@@ -17,16 +17,16 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import xgboost as xgb
 from fastapi import APIRouter, BackgroundTasks, FastAPI, HTTPException
-
-# Import enhanced services
-from feature_engineering import FeatureEngineering
 from pydantic import BaseModel, Field
-from shap_explainer import ShapExplainer
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
-from utils.llm_engine import llm_engine
+
+# Import enhanced services
+from backend.feature_engineering import FeatureEngineering
+from backend.shap_explainer import ShapExplainer
+from backend.utils.llm_engine import llm_engine
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

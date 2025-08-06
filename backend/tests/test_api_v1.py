@@ -77,14 +77,18 @@ def test_get_prizepicks_props():
 # --- Tests for /api/v1/sr/games endpoint ---
 import httpx
 
+from backend.api_integration import get_config
+from backend.main import app
 
-@patch("backend.main.config")
+
 @patch("httpx.AsyncClient.get")
-def test_sr_games_success(mock_get: MagicMock, mock_config: MagicMock):
-    """
-    Test /api/v1/sr/games with valid API key and well-formed response.
-    """
+def test_sr_games_success(mock_get: MagicMock):
+    from unittest.mock import MagicMock
+
+    # Use dependency override for config
+    mock_config = MagicMock()
     mock_config.sportradar_api_key = "test_key"
+    app.dependency_overrides[get_config] = lambda: mock_config
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_response.json.return_value = {
@@ -107,8 +111,12 @@ def test_sr_games_success(mock_get: MagicMock, mock_config: MagicMock):
     assert data[0]["id"] == "game1"
 
 
-@patch("backend.main.config")
-def test_sr_games_missing_api_key(mock_config: MagicMock):
+def test_sr_games_missing_api_key():
+    from unittest.mock import MagicMock
+
+    mock_config = MagicMock()
+    mock_config.sportradar_api_key = None
+    app.dependency_overrides[get_config] = lambda: mock_config
     """
     Test /api/v1/sr/games with missing API key (should return 503).
     """
@@ -118,13 +126,16 @@ def test_sr_games_missing_api_key(mock_config: MagicMock):
     assert "SportRadar API key not configured" in response.text
 
 
-@patch("backend.main.config")
 @patch("httpx.AsyncClient.get")
-def test_sr_games_malformed_response(mock_get: MagicMock, mock_config: MagicMock):
+def test_sr_games_malformed_response(mock_get: MagicMock):
     """
     Test /api/v1/sr/games with malformed API response (missing 'games' key).
     """
+    from unittest.mock import MagicMock
+
+    mock_config = MagicMock()
     mock_config.sportradar_api_key = "test_key"
+    app.dependency_overrides[get_config] = lambda: mock_config
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_response.json.return_value = {"unexpected": []}
@@ -135,13 +146,16 @@ def test_sr_games_malformed_response(mock_get: MagicMock, mock_config: MagicMock
     assert data == []  # Defensive: returns empty list
 
 
-@patch("backend.main.config")
 @patch("httpx.AsyncClient.get")
-def test_sr_games_api_error(mock_get: MagicMock, mock_config: MagicMock):
+def test_sr_games_api_error(mock_get: MagicMock):
     """
     Test /api/v1/sr/games with API error (non-200 status).
     """
+    from unittest.mock import MagicMock
+
+    mock_config = MagicMock()
     mock_config.sportradar_api_key = "test_key"
+    app.dependency_overrides[get_config] = lambda: mock_config
     mock_response = MagicMock()
     mock_response.status_code = 403
     mock_response.text = "Forbidden"
@@ -154,26 +168,32 @@ def test_sr_games_api_error(mock_get: MagicMock, mock_config: MagicMock):
 # --- Additional edge case tests for /api/v1/sr/games ---
 
 
-@patch("backend.main.config")
 @patch("httpx.AsyncClient.get")
-def test_sr_games_timeout_error(mock_get: MagicMock, mock_config: MagicMock):
+def test_sr_games_timeout_error(mock_get: MagicMock):
     """
     Test /api/v1/sr/games with httpx timeout/network error.
     """
+    from unittest.mock import MagicMock
+
+    mock_config = MagicMock()
     mock_config.sportradar_api_key = "test_key"
+    app.dependency_overrides[get_config] = lambda: mock_config
     mock_get.side_effect = httpx.TimeoutException("Timeout occurred")
     response = client.get("/api/v1/sr/games?sport=basketball_nba")
     assert response.status_code == 500
     assert "Failed to fetch games" in response.text
 
 
-@patch("backend.main.config")
 @patch("httpx.AsyncClient.get")
-def test_sr_games_unexpected_nested_keys(mock_get: MagicMock, mock_config: MagicMock):
+def test_sr_games_unexpected_nested_keys(mock_get: MagicMock):
     """
     Test /api/v1/sr/games with unexpected/missing nested keys in API response.
     """
+    from unittest.mock import MagicMock
+
+    mock_config = MagicMock()
     mock_config.sportradar_api_key = "test_key"
+    app.dependency_overrides[get_config] = lambda: mock_config
     mock_response = MagicMock()
     mock_response.status_code = 200
     # Missing 'home', 'away', and 'scheduled' keys
@@ -193,13 +213,16 @@ def test_sr_games_unexpected_nested_keys(mock_get: MagicMock, mock_config: Magic
 # --- Tests for /api/v1/odds/{event_id} endpoint ---
 
 
-@patch("backend.main.config")
 @patch("httpx.AsyncClient.get")
-def test_odds_success(mock_get: MagicMock, mock_config: MagicMock):
+def test_odds_success(mock_get: MagicMock):
     """
     Test /api/v1/odds/{event_id} with valid API key and well-formed response.
     """
+    from unittest.mock import MagicMock
+
+    mock_config = MagicMock()
     mock_config.odds_api_key = "test_key"
+    app.dependency_overrides[get_config] = lambda: mock_config
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_response.json.return_value = [
@@ -223,24 +246,30 @@ def test_odds_success(mock_get: MagicMock, mock_config: MagicMock):
     assert data[0]["eventId"] == "event1"
 
 
-@patch("backend.main.config")
-def test_odds_missing_api_key(mock_config: MagicMock):
+def test_odds_missing_api_key():
     """
     Test /api/v1/odds/{event_id} with missing API key (should return 503).
     """
+    from unittest.mock import MagicMock
+
+    mock_config = MagicMock()
     mock_config.odds_api_key = None
+    app.dependency_overrides[get_config] = lambda: mock_config
     response = client.get("/api/v1/odds/event1")
     assert response.status_code == 503
     assert "Odds API key not configured" in response.text
 
 
-@patch("backend.main.config")
 @patch("httpx.AsyncClient.get")
-def test_odds_malformed_response(mock_get: MagicMock, mock_config: MagicMock):
+def test_odds_malformed_response(mock_get: MagicMock):
     """
     Test /api/v1/odds/{event_id} with malformed API response (missing bookmakers).
     """
+    from unittest.mock import MagicMock
+
+    mock_config = MagicMock()
     mock_config.odds_api_key = "test_key"
+    app.dependency_overrides[get_config] = lambda: mock_config
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_response.json.return_value = [{"id": "event1"}]
@@ -251,13 +280,16 @@ def test_odds_malformed_response(mock_get: MagicMock, mock_config: MagicMock):
     assert data == []  # Defensive: returns empty list
 
 
-@patch("backend.main.config")
 @patch("httpx.AsyncClient.get")
-def test_odds_api_error(mock_get: MagicMock, mock_config: MagicMock):
+def test_odds_api_error(mock_get: MagicMock):
     """
     Test /api/v1/odds/{event_id} with API error (non-200 status).
     """
+    from unittest.mock import MagicMock
+
+    mock_config = MagicMock()
     mock_config.odds_api_key = "test_key"
+    app.dependency_overrides[get_config] = lambda: mock_config
     mock_response = MagicMock()
     mock_response.status_code = 403
     mock_response.text = "Forbidden"
@@ -270,26 +302,32 @@ def test_odds_api_error(mock_get: MagicMock, mock_config: MagicMock):
 # --- Additional edge case tests for /api/v1/odds/{event_id} ---
 
 
-@patch("backend.main.config")
 @patch("httpx.AsyncClient.get")
-def test_odds_timeout_error(mock_get: MagicMock, mock_config: MagicMock):
+def test_odds_timeout_error(mock_get: MagicMock):
     """
     Test /api/v1/odds/{event_id} with httpx timeout/network error.
     """
+    from unittest.mock import MagicMock
+
+    mock_config = MagicMock()
     mock_config.odds_api_key = "test_key"
+    app.dependency_overrides[get_config] = lambda: mock_config
     mock_get.side_effect = httpx.TimeoutException("Timeout occurred")
     response = client.get("/api/v1/odds/event1")
     assert response.status_code == 500
     assert "Failed to fetch odds" in response.text
 
 
-@patch("backend.main.config")
 @patch("httpx.AsyncClient.get")
-def test_odds_unexpected_nested_keys(mock_get: MagicMock, mock_config: MagicMock):
+def test_odds_unexpected_nested_keys(mock_get: MagicMock):
     """
     Test /api/v1/odds/{event_id} with unexpected/missing nested keys in API response.
     """
+    from unittest.mock import MagicMock
+
+    mock_config = MagicMock()
     mock_config.odds_api_key = "test_key"
+    app.dependency_overrides[get_config] = lambda: mock_config
     mock_response = MagicMock()
     mock_response.status_code = 200
     # Missing 'bookmakers' key

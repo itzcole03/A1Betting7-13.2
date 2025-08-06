@@ -10,5 +10,11 @@ module.exports = {
     ["@babel/plugin-proposal-private-methods", { loose: true }],
     ["@babel/plugin-proposal-private-property-in-object", { loose: true }],
     ["@babel/plugin-transform-modules-commonjs"],
+    [
+      "babel-plugin-transform-import-meta",
+      {
+        module: "ES6",
+      },
+    ],
   ],
 };

@@ -1,362 +1,409 @@
 /**
- * Consolidated Analytics Hook
- * Combines unified analytics, betting analytics, and general analytics functionality
+ * Custom hooks for analytics data fetching and state management
+ * Following modern React patterns with proper error handling and loading states
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { analyticsApiService } from '../services/analytics/AnalyticsService';
+import {
+  ApiError,
+  CrossSportInsight,
+  DashboardFilters,
+  DashboardState,
+  ModelDetailedPerformance,
+  PerformanceAlert,
+  UseAnalyticsDashboardReturn,
+  UseModelPerformanceReturn,
+  UsePerformanceAlertsReturn,
+} from '../types/analytics';
 
-// Consolidated interface combining all analytics functionality
-export interface AnalyticsMetrics {
-  // Performance metrics
-  performance: {
-    totalBets: number;
-    activeBets: number;
-    winningBets: number;
-    losingBets: number;
-    winRate: number;
-    roi: number;
-    profit: number;
-    avgStake: number;
-    avgOdds: number;
-    bestWin: number;
-    worstLoss: number;
-    streak: number;
-    bestDay: number;
-    worstDay: number;
-  };
-
-  // Time-based performance
-  timeframe: {
-    profitToday: number;
-    profitThisWeek: number;
-    profitThisMonth: number;
-    betsToday: number;
-    betsThisWeek: number;
-    betsThisMonth: number;
-  };
-
-  // Model performance metrics
-  models: {
-    [modelName: string]: {
-      accuracy: number;
-      precision: number;
-      recall: number;
-      f1Score: number;
-      predictions: number;
-      confidence: number;
-    };
-  };
-
-  // Sports breakdown
-  sports: {
-    [sport: string]: {
-      bets: number;
-      winRate: number;
-      roi: number;
-      profit: number;
-      avgValue: number;
-    };
-  };
-
-  // Market analysis
-  markets: {
-    [market: string]: {
-      volume: number;
-      accuracy: number;
-      avgValue: number;
-      profitability: number;
-    };
-  };
-
-  // Trend analysis
-  trends: {
-    daily: Array<{ date: string; profit: number; bets: number; winRate: number }>;
-    weekly: Array<{ week: string; profit: number; bets: number; winRate: number }>;
-    monthly: Array<{ month: string; profit: number; bets: number; winRate: number }>;
-  };
-}
-
-export interface BettingOpportunity {
-  id: string;
-  sport: string;
-  game: string;
-  market: string;
-  odds: number;
-  value: number;
-  confidence: number;
-  recommendedStake: number;
-  bookmaker: string;
-  timestamp: Date;
-}
-
-export interface AnalyticsHookReturn {
-  metrics: AnalyticsMetrics;
-  opportunities: BettingOpportunity[];
-  isLoading: boolean;
-  error: string | null;
-  
-  // Actions
-  trackEvent: (event: string, properties?: Record<string, unknown>) => void;
-  trackBet: (betData: any) => void;
-  refreshMetrics: () => Promise<void>;
-  clearCache: () => void;
-  
-  // Utility functions
-  calculateROI: (profit: number, invested: number) => number;
-  getWinRate: (wins: number, total: number) => number;
-  getBestSport: () => string;
-  getWorstSport: () => string;
-}
-
-export const useAnalytics = (): AnalyticsHookReturn => {
-  const [metrics, setMetrics] = useState<AnalyticsMetrics>({
-    performance: {
-      totalBets: 0,
-      activeBets: 0,
-      winningBets: 0,
-      losingBets: 0,
-      winRate: 0,
-      roi: 0,
-      profit: 0,
-      avgStake: 0,
-      avgOdds: 0,
-      bestWin: 0,
-      worstLoss: 0,
-      streak: 0,
-      bestDay: 0,
-      worstDay: 0,
-    },
-    timeframe: {
-      profitToday: 0,
-      profitThisWeek: 0,
-      profitThisMonth: 0,
-      betsToday: 0,
-      betsThisWeek: 0,
-      betsThisMonth: 0,
-    },
-    models: {},
-    sports: {},
-    markets: {},
-    trends: {
-      daily: [],
-      weekly: [],
-      monthly: [],
-    },
+/**
+ * Main hook for analytics dashboard data
+ * Provides comprehensive dashboard state management with filtering and real-time updates
+ */
+export function useAnalyticsDashboard(
+  autoRefresh: boolean = true,
+  refreshInterval: number = 30000 // 30 seconds
+): UseAnalyticsDashboardReturn {
+  const [dashboardData, setDashboardData] = useState<DashboardState>({
+    isLoading: true,
+    error: null,
+    lastUpdated: null,
+    summary: null,
+    models: [],
+    alerts: [],
+    insights: [],
+    filters: {},
   });
 
-  const [opportunities, setOpportunities] = useState<BettingOpportunity[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Track events
-  const trackEvent = useCallback((event: string, properties?: Record<string, unknown>) => {
+  const refreshData = useCallback(async () => {
     try {
-      // Send to analytics service
-      console.log('Analytics Event:', event, properties);
-      
-      // Could integrate with external analytics
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', event, properties);
+      setDashboardData(prev => ({ ...prev, isLoading: true, error: null }));
+
+      // Fetch all dashboard data in parallel
+      const [summary, modelsData, alerts, insights] = await Promise.all([
+        analyticsApiService.getDashboardSummary(),
+        analyticsApiService.getAllModelsPerformance(dashboardData.filters.sport),
+        analyticsApiService.getPerformanceAlerts(),
+        analyticsApiService.getCrossSportInsights(30),
+      ]);
+
+      setDashboardData(prev => ({
+        ...prev,
+        isLoading: false,
+        error: null,
+        lastUpdated: new Date().toISOString(),
+        summary,
+        models: modelsData.models,
+        alerts: alerts.alerts,
+        insights: insights.insights,
+      }));
+    } catch (error) {
+      const apiError = error as ApiError;
+      setDashboardData(prev => ({
+        ...prev,
+        isLoading: false,
+        error: apiError.message || 'Failed to fetch dashboard data',
+      }));
+    }
+  }, [dashboardData.filters.sport]);
+
+  const updateFilters = useCallback((newFilters: Partial<DashboardFilters>) => {
+    setDashboardData(prev => ({
+      ...prev,
+      filters: { ...prev.filters, ...newFilters },
+    }));
+  }, []);
+
+  const exportData = useCallback(
+    async (format: 'csv' | 'json' | 'pdf') => {
+      try {
+        // Implementation for data export
+        const exportData = {
+          summary: dashboardData.summary,
+          models: dashboardData.models,
+          alerts: dashboardData.alerts,
+          insights: dashboardData.insights,
+          exportedAt: new Date().toISOString(),
+        };
+
+        if (format === 'json') {
+          const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+            type: 'application/json',
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `analytics-dashboard-${new Date().toISOString().split('T')[0]}.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } else if (format === 'csv') {
+          // Convert models data to CSV
+          const csvHeaders = [
+            'Model Name',
+            'Sport',
+            'Status',
+            'Win Rate',
+            'Total ROI',
+            'Predictions Count',
+            'Error Rate',
+          ];
+          const csvRows = dashboardData.models.map(model => [
+            model.model_name,
+            model.sport,
+            model.status,
+            model.win_rate.toFixed(2),
+            model.total_roi.toFixed(2),
+            model.predictions_count.toString(),
+            model.error_rate.toFixed(3),
+          ]);
+
+          const csvContent = [csvHeaders, ...csvRows]
+            .map(row => row.map(field => `"${field}"`).join(','))
+            .join('\n');
+
+          const blob = new Blob([csvContent], { type: 'text/csv' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `analytics-models-${new Date().toISOString().split('T')[0]}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+        // PDF export would require additional libraries like jsPDF
+      } catch (error) {
+        console.error('Export failed:', error);
+        throw new Error('Failed to export data');
       }
-    } catch (err) {
-      console.error('Failed to track event:', err);
-    }
-  }, []);
+    },
+    [dashboardData]
+  );
 
-  // Track bet-specific data
-  const trackBet = useCallback((betData: any) => {
-    try {
-      trackEvent('bet_placed', {
-        sport: betData.sport,
-        market: betData.market,
-        odds: betData.odds,
-        stake: betData.stake,
-        value: betData.value,
-      });
-    } catch (err) {
-      console.error('Failed to track bet:', err);
-    }
-  }, [trackEvent]);
-
-  // Refresh metrics from API
-  const refreshMetrics = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // In a real app, this would fetch from your analytics API
-      // For now, generate mock data
-      const mockMetrics: AnalyticsMetrics = {
-        performance: {
-          totalBets: 142,
-          activeBets: 8,
-          winningBets: 95,
-          losingBets: 39,
-          winRate: 67.3,
-          roi: 15.6,
-          profit: 2340,
-          avgStake: 25,
-          avgOdds: -110,
-          bestWin: 450,
-          worstLoss: -125,
-          streak: 5,
-          bestDay: 380,
-          worstDay: -225,
-        },
-        timeframe: {
-          profitToday: 180,
-          profitThisWeek: 520,
-          profitThisMonth: 2340,
-          betsToday: 5,
-          betsThisWeek: 18,
-          betsThisMonth: 142,
-        },
-        models: {
-          'Neural Network': { accuracy: 68.2, precision: 71.5, recall: 65.8, f1Score: 68.5, predictions: 89, confidence: 0.72 },
-          'Random Forest': { accuracy: 72.1, precision: 74.3, recall: 69.2, f1Score: 71.6, predictions: 76, confidence: 0.68 },
-          'XGBoost': { accuracy: 75.4, precision: 78.1, recall: 72.6, f1Score: 75.2, predictions: 92, confidence: 0.81 },
-        },
-        sports: {
-          'NBA': { bets: 43, winRate: 72.1, roi: 18.3, profit: 1250, avgValue: 6.8 },
-          'NFL': { bets: 38, winRate: 68.4, roi: 12.7, profit: 890, avgValue: 5.9 },
-          'NHL': { bets: 26, winRate: 61.5, roi: 8.2, profit: 200, avgValue: 4.2 },
-          'MLB': { bets: 35, winRate: 64.7, roi: -2.1, profit: 0, avgValue: 3.8 },
-        },
-        markets: {
-          'Player Props': { volume: 78, accuracy: 69.2, avgValue: 6.2, profitability: 14.8 },
-          'Game Lines': { volume: 34, accuracy: 73.5, avgValue: 7.1, profitability: 18.9 },
-          'Totals': { volume: 30, accuracy: 66.7, avgValue: 5.4, profitability: 11.2 },
-        },
-        trends: {
-          daily: [
-            { date: '2024-01-15', profit: 180, bets: 5, winRate: 80 },
-            { date: '2024-01-14', profit: -75, bets: 3, winRate: 33 },
-            { date: '2024-01-13', profit: 220, bets: 6, winRate: 83 },
-            { date: '2024-01-12', profit: 95, bets: 4, winRate: 75 },
-            { date: '2024-01-11', profit: -50, bets: 2, winRate: 0 },
-          ],
-          weekly: [
-            { week: 'Week 3', profit: 520, bets: 18, winRate: 72 },
-            { week: 'Week 2', profit: 380, bets: 22, winRate: 68 },
-            { week: 'Week 1', profit: 290, bets: 16, winRate: 75 },
-          ],
-          monthly: [
-            { month: 'January 2024', profit: 2340, bets: 142, winRate: 67 },
-            { month: 'December 2023', profit: 1890, bets: 128, winRate: 64 },
-            { month: 'November 2023', profit: 1420, bets: 156, winRate: 69 },
-          ],
-        },
-      };
-
-      const mockOpportunities: BettingOpportunity[] = [
-        {
-          id: '1',
-          sport: 'NBA',
-          game: 'Lakers vs Celtics',
-          market: 'LeBron James Points Over 25.5',
-          odds: -110,
-          value: 8.2,
-          confidence: 87,
-          recommendedStake: 50,
-          bookmaker: 'PrizePicks',
-          timestamp: new Date(),
-        },
-        {
-          id: '2',
-          sport: 'NFL',
-          game: 'Bills vs Dolphins',
-          market: 'Josh Allen Passing Yards Over 287.5',
-          odds: -105,
-          value: 7.5,
-          confidence: 82,
-          recommendedStake: 40,
-          bookmaker: 'PrizePicks',
-          timestamp: new Date(),
-        },
-      ];
-
-      setMetrics(mockMetrics);
-      setOpportunities(mockOpportunities);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch analytics');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Utility functions
-  const calculateROI = useCallback((profit: number, invested: number): number => {
-    if (invested === 0) return 0;
-    return (profit / invested) * 100;
-  }, []);
-
-  const getWinRate = useCallback((wins: number, total: number): number => {
-    if (total === 0) return 0;
-    return (wins / total) * 100;
-  }, []);
-
-  const getBestSport = useCallback((): string => {
-    const sports = Object.entries(metrics.sports);
-    if (sports.length === 0) return 'N/A';
-    
-    const best = sports.reduce((best, [sport, data]) => 
-      data.roi > best[1].roi ? [sport, data] : best
-    );
-    return best[0];
-  }, [metrics.sports]);
-
-  const getWorstSport = useCallback((): string => {
-    const sports = Object.entries(metrics.sports);
-    if (sports.length === 0) return 'N/A';
-    
-    const worst = sports.reduce((worst, [sport, data]) => 
-      data.roi < worst[1].roi ? [sport, data] : worst
-    );
-    return worst[0];
-  }, [metrics.sports]);
-
-  const clearCache = useCallback(() => {
-    setMetrics({
-      performance: {
-        totalBets: 0, activeBets: 0, winningBets: 0, losingBets: 0,
-        winRate: 0, roi: 0, profit: 0, avgStake: 0, avgOdds: 0,
-        bestWin: 0, worstLoss: 0, streak: 0, bestDay: 0, worstDay: 0,
-      },
-      timeframe: {
-        profitToday: 0, profitThisWeek: 0, profitThisMonth: 0,
-        betsToday: 0, betsThisWeek: 0, betsThisMonth: 0,
-      },
-      models: {},
-      sports: {},
-      markets: {},
-      trends: { daily: [], weekly: [], monthly: [] },
-    });
-    setOpportunities([]);
-  }, []);
-
-  // Load initial data
+  // Auto-refresh effect
   useEffect(() => {
-    refreshMetrics();
-  }, [refreshMetrics]);
+    refreshData();
+
+    if (autoRefresh) {
+      const interval = setInterval(refreshData, refreshInterval);
+      return () => clearInterval(interval);
+    }
+  }, [refreshData, autoRefresh, refreshInterval]);
+
+  // Filter models based on current filters
+  const filteredModels = useMemo(() => {
+    return dashboardData.models.filter(model => {
+      const { modelStatus, minWinRate, minROI } = dashboardData.filters;
+
+      if (modelStatus && model.status !== modelStatus) return false;
+      if (minWinRate && model.win_rate < minWinRate) return false;
+      if (minROI && model.total_roi < minROI) return false;
+
+      return true;
+    });
+  }, [dashboardData.models, dashboardData.filters]);
 
   return {
-    metrics,
-    opportunities,
-    isLoading,
-    error,
-    trackEvent,
-    trackBet,
-    refreshMetrics,
-    clearCache,
-    calculateROI,
-    getWinRate,
-    getBestSport,
-    getWorstSport,
+    dashboardData: {
+      ...dashboardData,
+      models: filteredModels,
+    },
+    isLoading: dashboardData.isLoading,
+    error: dashboardData.error,
+    lastUpdated: dashboardData.lastUpdated,
+    refreshData,
+    updateFilters,
+    exportData,
   };
-};
+}
 
-// Export for backward compatibility
-export const useUnifiedAnalytics = useAnalytics;
-export const useBettingAnalytics = useAnalytics;
+/**
+ * Hook for detailed model performance data
+ */
+export function useModelPerformance(
+  modelName: string,
+  sport: string,
+  days: number = 7
+): UseModelPerformanceReturn {
+  const [state, setState] = useState<{
+    modelData: ModelDetailedPerformance | null;
+    isLoading: boolean;
+    error: string | null;
+    lastUpdated: string | null;
+  }>({
+    modelData: null,
+    isLoading: true,
+    error: null,
+    lastUpdated: null,
+  });
 
-export default useAnalytics;
+  const refreshModel = useCallback(async () => {
+    if (!modelName || !sport) return;
+
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+
+      const modelData = await analyticsApiService.getModelPerformance(modelName, sport, days);
+
+      setState({
+        modelData,
+        isLoading: false,
+        error: null,
+        lastUpdated: new Date().toISOString(),
+      });
+    } catch (error) {
+      const apiError = error as ApiError;
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: apiError.message || 'Failed to fetch model performance',
+      }));
+    }
+  }, [modelName, sport, days]);
+
+  useEffect(() => {
+    refreshModel();
+  }, [refreshModel]);
+
+  return {
+    ...state,
+    refreshModel,
+  };
+}
+
+/**
+ * Hook for performance alerts with real-time monitoring
+ */
+export function usePerformanceAlerts(
+  threshold: number = 0.1,
+  autoRefresh: boolean = true,
+  refreshInterval: number = 60000 // 1 minute
+): UsePerformanceAlertsReturn {
+  const [state, setState] = useState<{
+    alerts: PerformanceAlert[];
+    isLoading: boolean;
+    error: string | null;
+    lastUpdated: string | null;
+  }>({
+    alerts: [],
+    isLoading: true,
+    error: null,
+    lastUpdated: null,
+  });
+
+  const refreshAlerts = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+
+      const alertsData = await analyticsApiService.getPerformanceAlerts(threshold);
+
+      setState({
+        alerts: alertsData.alerts,
+        isLoading: false,
+        error: null,
+        lastUpdated: new Date().toISOString(),
+      });
+    } catch (error) {
+      const apiError = error as ApiError;
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: apiError.message || 'Failed to fetch performance alerts',
+      }));
+    }
+  }, [threshold]);
+
+  const dismissAlert = useCallback(async (alertId: string) => {
+    // This would typically make an API call to dismiss the alert
+    // For now, we'll just remove it from the local state
+    setState(prev => ({
+      ...prev,
+      alerts: prev.alerts.filter(
+        alert => `${alert.model_name}-${alert.sport}-${alert.timestamp}` !== alertId
+      ),
+    }));
+  }, []);
+
+  // Auto-refresh effect
+  useEffect(() => {
+    refreshAlerts();
+
+    if (autoRefresh) {
+      const interval = setInterval(refreshAlerts, refreshInterval);
+      return () => clearInterval(interval);
+    }
+  }, [refreshAlerts, autoRefresh, refreshInterval]);
+
+  return {
+    ...state,
+    refreshAlerts,
+    dismissAlert,
+  };
+}
+
+/**
+ * Hook for cross-sport insights and correlations
+ */
+export function useCrossSportInsights(days: number = 30) {
+  const [state, setState] = useState<{
+    insights: CrossSportInsight[];
+    isLoading: boolean;
+    error: string | null;
+    lastUpdated: string | null;
+  }>({
+    insights: [],
+    isLoading: true,
+    error: null,
+    lastUpdated: null,
+  });
+
+  const refreshInsights = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+
+      const insightsData = await analyticsApiService.getCrossSportInsights(days);
+
+      setState({
+        insights: insightsData.insights,
+        isLoading: false,
+        error: null,
+        lastUpdated: new Date().toISOString(),
+      });
+    } catch (error) {
+      const apiError = error as ApiError;
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: apiError.message || 'Failed to fetch cross-sport insights',
+      }));
+    }
+  }, [days]);
+
+  useEffect(() => {
+    refreshInsights();
+  }, [refreshInsights]);
+
+  return {
+    ...state,
+    refreshInsights,
+  };
+}
+
+/**
+ * Hook for analytics health monitoring
+ */
+export function useAnalyticsHealth() {
+  const [state, setState] = useState<{
+    health: 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
+    components: Record<string, string>;
+    isLoading: boolean;
+    error: string | null;
+    lastChecked: string | null;
+  }>({
+    health: 'unknown',
+    components: {},
+    isLoading: true,
+    error: null,
+    lastChecked: null,
+  });
+
+  const checkHealth = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+
+      const healthData = await analyticsApiService.checkHealth();
+
+      setState({
+        health: healthData.status,
+        components: healthData.components,
+        isLoading: false,
+        error: null,
+        lastChecked: new Date().toISOString(),
+      });
+    } catch (error) {
+      const apiError = error as ApiError;
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: apiError.message || 'Failed to check analytics health',
+        health: 'unhealthy',
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    checkHealth();
+
+    // Check health every 5 minutes
+    const interval = setInterval(checkHealth, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [checkHealth]);
+
+  return {
+    ...state,
+    checkHealth,
+  };
+}

@@ -9,7 +9,7 @@ export enum PropOllamaErrorType {
   DATA_FETCH_ERROR = 'DATA_FETCH_ERROR',
   INSUFFICIENT_DATA = 'INSUFFICIENT_DATA',
   PARSING_ERROR = 'PARSING_ERROR',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
 
 export class PropOllamaError extends Error {
@@ -104,63 +104,55 @@ export class PropOllamaError extends Error {
   }
 
   static fromError(error: any): PropOllamaError {
+    // Handle timeout errors first
+    if (error && error.code === 'ECONNABORTED') {
+      return PropOllamaError.timeoutError('Request timed out', { originalError: error.message });
+    }
     // Handle Axios errors
     if (error && error.isAxiosError) {
       if (!error.response) {
-        return PropOllamaError.networkError(
-          'Network error: Unable to connect to the server',
-          { originalError: error.message }
-        );
+        return PropOllamaError.networkError('Network error: Unable to connect to the server', {
+          originalError: error.message,
+        });
       }
 
       const status = error.response.status;
-      
       // Handle different HTTP status codes
       if (status === 404) {
-        return PropOllamaError.networkError(
-          'Resource not found',
-          { status, originalError: error.message }
-        );
+        return PropOllamaError.networkError('Resource not found', {
+          status,
+          originalError: error.message,
+        });
       } else if (status === 401 || status === 403) {
-        return PropOllamaError.networkError(
-          'Authentication error',
-          { status, originalError: error.message }
-        );
+        return PropOllamaError.networkError('Authentication error', {
+          status,
+          originalError: error.message,
+        });
       } else if (status === 429) {
-        return PropOllamaError.networkError(
-          'Rate limit exceeded',
-          { status, originalError: error.message }
-        );
+        return PropOllamaError.networkError('Rate limit exceeded', {
+          status,
+          originalError: error.message,
+        });
       } else if (status >= 500) {
-        return PropOllamaError.llmUnavailableError(
-          'LLM service is unavailable',
-          { status, originalError: error.message }
-        );
+        return PropOllamaError.llmUnavailableError('LLM service is unavailable', {
+          status,
+          originalError: error.message,
+        });
       }
-      
-      return PropOllamaError.networkError(
-        `HTTP error: ${error.response.status}`,
-        { status, originalError: error.message }
-      );
+      return PropOllamaError.networkError(`HTTP error: ${error.response.status}`, {
+        status,
+        originalError: error.message,
+      });
     }
-    
-    // Handle timeout errors
-    if (error && error.code === 'ECONNABORTED') {
-      return PropOllamaError.timeoutError(
-        'Request timed out',
-        { originalError: error.message }
-      );
-    }
-    
+
     // Handle PropOllamaError instances
     if (error instanceof PropOllamaError) {
       return error;
     }
-    
+
     // Handle generic errors
-    return PropOllamaError.unknownError(
-      error?.message || 'Unknown error occurred',
-      { originalError: error }
-    );
+    return PropOllamaError.unknownError(error?.message || 'Unknown error occurred', {
+      originalError: error,
+    });
   }
 }

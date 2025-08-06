@@ -1,0 +1,600 @@
+# Grafana Dashboards Configuration for A1Betting7-13.2
+# Pre-configured dashboards for application and infrastructure monitoring
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-config
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  # Application Performance Dashboard
+  application-performance.json: |
+    {
+      "dashboard": {
+        "id": 1,
+        "title": "A1Betting Application Performance",
+        "tags": ["a1betting", "application"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Request Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{job=\"a1betting-backend\"}[5m])",
+                "legendFormat": "{{method}} {{handler}}"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Requests/sec"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 0
+            }
+          },
+          {
+            "id": 2,
+            "title": "Response Time",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"a1betting-backend\"}[5m]))",
+                "legendFormat": "95th percentile"
+              },
+              {
+                "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"a1betting-backend\"}[5m]))",
+                "legendFormat": "50th percentile"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Seconds"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 0
+            }
+          },
+          {
+            "id": 3,
+            "title": "Error Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{job=\"a1betting-backend\",status=~\"5..\"}[5m])",
+                "legendFormat": "5xx Errors"
+              },
+              {
+                "expr": "rate(http_requests_total{job=\"a1betting-backend\",status=~\"4..\"}[5m])",
+                "legendFormat": "4xx Errors"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Errors/sec"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 8
+            }
+          },
+          {
+            "id": 4,
+            "title": "Database Connections",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "pg_stat_database_numbackends{datname=\"a1betting_prod\"}",
+                "legendFormat": "Active Connections"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Connections"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 8
+            }
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "refresh": "5s"
+      }
+    }
+
+  # Infrastructure Dashboard
+  infrastructure-monitoring.json: |
+    {
+      "dashboard": {
+        "id": 2,
+        "title": "A1Betting Infrastructure Monitoring",
+        "tags": ["a1betting", "infrastructure"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "CPU Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(container_cpu_usage_seconds_total{namespace=\"a1betting-prod\"}[5m]) * 100",
+                "legendFormat": "{{pod}}"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "CPU %",
+                "max": 100
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 0
+            }
+          },
+          {
+            "id": 2,
+            "title": "Memory Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "container_memory_usage_bytes{namespace=\"a1betting-prod\"} / 1024 / 1024",
+                "legendFormat": "{{pod}}"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Memory (MB)"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 0
+            }
+          },
+          {
+            "id": 3,
+            "title": "Network I/O",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(container_network_receive_bytes_total{namespace=\"a1betting-prod\"}[5m])",
+                "legendFormat": "{{pod}} - Receive"
+              },
+              {
+                "expr": "rate(container_network_transmit_bytes_total{namespace=\"a1betting-prod\"}[5m])",
+                "legendFormat": "{{pod}} - Transmit"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Bytes/sec"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 8
+            }
+          },
+          {
+            "id": 4,
+            "title": "Disk I/O",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(container_fs_reads_bytes_total{namespace=\"a1betting-prod\"}[5m])",
+                "legendFormat": "{{pod}} - Read"
+              },
+              {
+                "expr": "rate(container_fs_writes_bytes_total{namespace=\"a1betting-prod\"}[5m])",
+                "legendFormat": "{{pod}} - Write"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Bytes/sec"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 8
+            }
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "refresh": "10s"
+      }
+    }
+
+  # Business Metrics Dashboard
+  business-metrics.json: |
+    {
+      "dashboard": {
+        "id": 3,
+        "title": "A1Betting Business Metrics",
+        "tags": ["a1betting", "business"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "API Requests by Endpoint",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{job=\"a1betting-backend\"}[5m])",
+                "legendFormat": "{{handler}}"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Requests/sec"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 0
+            }
+          },
+          {
+            "id": 2,
+            "title": "User Sessions",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "increase(user_sessions_total[1h])",
+                "legendFormat": "Active Sessions"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 0
+            }
+          },
+          {
+            "id": 3,
+            "title": "Predictions Generated",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(predictions_generated_total[5m])",
+                "legendFormat": "Predictions/sec"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Predictions/sec"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 8
+            }
+          },
+          {
+            "id": 4,
+            "title": "Cache Hit Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "redis_keyspace_hits_total / (redis_keyspace_hits_total + redis_keyspace_misses_total) * 100",
+                "legendFormat": "Hit Rate %"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Percentage",
+                "max": 100
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 8
+            }
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "refresh": "30s"
+      }
+    }
+
+  # Security Dashboard
+  security-monitoring.json: |
+    {
+      "dashboard": {
+        "id": 4,
+        "title": "A1Betting Security Monitoring",
+        "tags": ["a1betting", "security"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Failed Authentication Attempts",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(auth_failures_total[5m])",
+                "legendFormat": "Failed Logins/sec"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Failures/sec"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 0
+            }
+          },
+          {
+            "id": 2,
+            "title": "Rate Limit Violations",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(rate_limit_violations_total[5m])",
+                "legendFormat": "Rate Limit Hits/sec"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Violations/sec"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 0
+            }
+          },
+          {
+            "id": 3,
+            "title": "Security Events",
+            "type": "logs",
+            "targets": [
+              {
+                "expr": "{namespace=\"a1betting-prod\"} |= \"SECURITY\"",
+                "legendFormat": "Security Events"
+              }
+            ],
+            "gridPos": {
+              "h": 8,
+              "w": 24,
+              "x": 0,
+              "y": 8
+            }
+          }
+        ],
+        "time": {
+          "from": "now-4h",
+          "to": "now"
+        },
+        "refresh": "10s"
+      }
+    }
+
+---
+# Prometheus Alerting Rules
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-alert-rules
+  namespace: monitoring
+  labels:
+    app: prometheus
+data:
+  alert.rules: |
+    groups:
+    - name: a1betting.rules
+      rules:
+      # Application Alerts
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: a1betting-backend
+        annotations:
+          summary: High error rate detected
+          description: "Error rate is {{ $value }} errors per second for the last 5 minutes"
+
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 10m
+        labels:
+          severity: warning
+          service: a1betting-backend
+        annotations:
+          summary: High response time detected
+          description: "95th percentile response time is {{ $value }} seconds"
+
+      - alert: ApplicationDown
+        expr: up{job="a1betting-backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: a1betting-backend
+        annotations:
+          summary: Application is down
+          description: "A1Betting backend application has been down for more than 2 minutes"
+
+      # Database Alerts
+      - alert: DatabaseConnectionFailure
+        expr: up{job="postgresql"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: postgresql
+        annotations:
+          summary: Database connection failed
+          description: "PostgreSQL database is unreachable"
+
+      - alert: HighDatabaseConnections
+        expr: pg_stat_database_numbackends > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: High number of database connections
+          description: "Number of database connections is {{ $value }}"
+
+      - alert: DatabaseSlowQueries
+        expr: rate(pg_stat_database_tup_returned[5m]) / rate(pg_stat_database_tup_fetched[5m]) < 0.1
+        for: 10m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: Database has slow queries
+          description: "Database query performance is degraded"
+
+      # Redis Alerts
+      - alert: RedisDown
+        expr: up{job="redis-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: redis
+        annotations:
+          summary: Redis is down
+          description: "Redis cache server is unreachable"
+
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: Redis memory usage is high
+          description: "Redis memory usage is {{ $value | humanizePercentage }}"
+
+      - alert: RedisLowCacheHitRate
+        expr: redis_keyspace_hits_total / (redis_keyspace_hits_total + redis_keyspace_misses_total) < 0.8
+        for: 10m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: Redis cache hit rate is low
+          description: "Cache hit rate is {{ $value | humanizePercentage }}"
+
+      # Infrastructure Alerts
+      - alert: HighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total[5m]) * 100 > 80
+        for: 10m
+        labels:
+          severity: warning
+          service: infrastructure
+        annotations:
+          summary: High CPU usage detected
+          description: "CPU usage is {{ $value }}% for {{ $labels.pod }}"
+
+      - alert: HighMemoryUsage
+        expr: container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          service: infrastructure
+        annotations:
+          summary: High memory usage detected
+          description: "Memory usage is {{ $value | humanizePercentage }} for {{ $labels.pod }}"
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes > 0.9
+        for: 5m
+        labels:
+          severity: critical
+          service: infrastructure
+        annotations:
+          summary: Disk space is low
+          description: "Disk usage is {{ $value | humanizePercentage }} on {{ $labels.device }}"
+
+      # Security Alerts
+      - alert: HighFailedLoginAttempts
+        expr: rate(auth_failures_total[5m]) > 5
+        for: 2m
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: High number of failed login attempts
+          description: "{{ $value }} failed login attempts per second"
+
+      - alert: RateLimitViolations
+        expr: rate(rate_limit_violations_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: High rate limit violations
+          description: "{{ $value }} rate limit violations per second"
+
+      # Business Alerts
+      - alert: LowPredictionVolume
+        expr: rate(predictions_generated_total[5m]) < 0.1
+        for: 15m
+        labels:
+          severity: warning
+          service: business
+        annotations:
+          summary: Low prediction generation volume
+          description: "Prediction generation rate is {{ $value }} per second"
+
+      - alert: APIEndpointDown
+        expr: rate(http_requests_total{handler="/api/health"}[5m]) == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: api
+        annotations:
+          summary: API health endpoint is not responding
+          description: "Health check endpoint has not responded for 2 minutes"

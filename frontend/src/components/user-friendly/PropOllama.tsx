@@ -56,6 +56,14 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
     if (inputEl) (inputEl as HTMLInputElement).focus();
 
     // Fetch available models
+    // DEBUG: Log the service and method before calling
+    // @ts-ignore
+    console.log('[DEBUG] propOllamaService:', propOllamaService);
+    // @ts-ignore
+    console.log(
+      '[DEBUG] propOllamaService.getAvailableModels:',
+      propOllamaService.getAvailableModels
+    );
     propOllamaService
       .getAvailableModels()
       .then(modelsArray => {

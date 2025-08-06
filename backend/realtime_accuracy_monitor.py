@@ -17,12 +17,13 @@ import redis.asyncio as redis
 
 warnings.filterwarnings("ignore")
 
-from config import config_manager
 from scipy import stats
 
 # Monitoring and optimization imports
 from sklearn.metrics import r2_score
 from ultra_accuracy_engine import ultra_accuracy_engine
+
+from backend.config_manager import config_manager
 
 logger = logging.getLogger(__name__)
 

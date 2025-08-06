@@ -57,20 +57,31 @@ export default defineConfig(({ mode, command }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        src: path.resolve(__dirname, './src'),
       },
     },
 
     define: processEnv,
 
     server: {
-      port: parseInt(env.VITE_PORT || '8173', 10),
+      port: parseInt(env.VITE_PORT || '5173', 10),
       host: '0.0.0.0',
       hmr: {
         overlay: false,
-        clientPort: parseInt(env.VITE_PORT || '8173', 10),
+        clientPort: parseInt(env.VITE_PORT || '5173', 10),
         port: 24878,
       },
       strictPort: false,
+      watch: {
+        // Ignore scanner-report files to prevent excessive reloads
+        ignored: [
+          '**/node_modules/**',
+          '**/.git/**',
+          '**/.scannerwork/**',
+          '**/scanner-report/**',
+          '**/*.pb',
+        ],
+      },
 
       // Conditional proxy setup
       proxy:
@@ -81,6 +92,11 @@ export default defineConfig(({ mode, command }) => {
                 changeOrigin: true,
                 secure: false,
                 ws: false,
+              },
+              '/auth': {
+                target: env.VITE_BACKEND_URL || 'http://localhost:8000',
+                changeOrigin: true,
+                secure: false,
               },
               '/mlb': {
                 target: env.VITE_BACKEND_URL || 'http://localhost:8000',

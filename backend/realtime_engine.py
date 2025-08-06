@@ -17,8 +17,9 @@ try:
 except ImportError:
     aioredis = None  # Placeholder for aioredis if not installed
 
-from config import config_manager
 from ensemble_engine import PredictionContext, ultra_ensemble_engine
+
+from backend.config_manager import config_manager
 
 logger = logging.getLogger(__name__)
 

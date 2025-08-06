@@ -29,12 +29,12 @@ prizepicks_cache = TTLCache(maxsize=100, ttl=300)
 
 
 ## @retry_and_cache(prizepicks_cache)  # Temporarily removed for async deadlock diagnosis
-@router.get("/props")
+@router.get("/props", response_model=List[Dict[str, Any]])
 async def get_prizepicks_props(
     sport: Optional[str] = None,
     min_confidence: Optional[int] = 70,
     enhanced: bool = Query(True, description="Use enhanced ensemble predictions"),
-) -> List[Dict[str, Any]]:
+) -> Dict[str, Any]:
     """Get PrizePicks props scraped live from the website, all sports, no mock data."""
     import time
 
@@ -69,6 +69,7 @@ async def get_prizepicks_props(
             "[EXIT] /api/prizepicks/props returning response. Total time: %.2fs",
             time.time() - start_time,
         )
+        # Return as a list for frontend contract alignment
         return props
     except Exception as e:
         logger.error("[ERROR] Exception in /api/prizepicks/props: %s", e)

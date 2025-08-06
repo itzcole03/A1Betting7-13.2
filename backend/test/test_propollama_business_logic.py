@@ -3,6 +3,7 @@ import importlib.util
 import os
 import sys
 
+import pydantic
 import pytest
 
 # Ensure the project root is in sys.path for 'backend' imports
@@ -24,7 +25,6 @@ post_llm_business_logic = propollama.post_llm_business_logic
 BetAnalysisRequest = propollama.BetAnalysisRequest
 
 
-@pytest.mark.asyncio
 def test_pre_llm_business_logic_valid():
     req = BetAnalysisRequest(
         userId="user1",
@@ -53,23 +53,22 @@ def test_pre_llm_business_logic_valid():
     assert isinstance(props[0]["feature_set"], dict)
 
 
-@pytest.mark.asyncio
 def test_pre_llm_business_logic_invalid_user():
-    req = BetAnalysisRequest(
-        userId=None,
-        sessionId="sess1",
-        selectedProps=[
-            {
-                "player": "A",
-                "statType": "points",
-                "line": 1,
-                "choice": "over",
-                "odds": "+100",
-            }
-        ],
-        entryAmount=10.0,
-    )
-    with pytest.raises(Exception):
+    with pytest.raises(pydantic.ValidationError):
+        req = BetAnalysisRequest(
+            userId=None,
+            sessionId="sess1",
+            selectedProps=[
+                {
+                    "player": "A",
+                    "statType": "points",
+                    "line": 1,
+                    "choice": "over",
+                    "odds": "+100",
+                }
+            ],
+            entryAmount=10.0,
+        )
         asyncio.run(pre_llm_business_logic(req))
 
 
@@ -89,7 +88,6 @@ def test_build_ensemble_prompt():
     assert "Entry Amount" in prompt
 
 
-@pytest.mark.asyncio
 def test_post_llm_business_logic_parsing():
     llm_response = """
     Risk Assessment: High risk due to correlated props.

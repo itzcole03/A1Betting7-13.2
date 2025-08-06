@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enhanced Deep AI Analysis Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #111827;
+        color: #fff;
+        padding: 20px;
+        margin: 0;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .test-card {
+        background: #1f2937;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+        border: 1px solid #374151;
+      }
+      .analysis-section {
+        background: #111827;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 12px 0;
+      }
+      .section-title {
+        font-weight: bold;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .content {
+        color: #d1d5db;
+        font-size: 14px;
+        line-height: 1.5;
+        white-space: pre-line;
+      }
+      .btn {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin: 10px 5px;
+      }
+      .btn:hover {
+        background: #2563eb;
+      }
+      .status {
+        padding: 10px;
+        border-radius: 6px;
+        margin: 10px 0;
+      }
+      .success {
+        background: #065f46;
+      }
+      .error {
+        background: #7f1d1d;
+      }
+      .loading {
+        background: #1e40af;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧠 Enhanced Deep AI Analysis Test</h1>
+      <p>
+        Testing the new insight-focused analysis content vs old methodology
+        explanations
+      </p>
+
+      <div class="test-card">
+        <h2>Test Enhanced Analysis Service</h2>
+        <button class="btn" onclick="testAnalysis()">
+          Generate Enhanced Analysis
+        </button>
+        <button class="btn" onclick="testOldAnalysis()">
+          Generate Old Analysis (Comparison)
+        </button>
+        <button class="btn" onclick="testFrontendIntegration()">
+          Test Frontend Integration
+        </button>
+
+        <div id="status" class="status loading" style="display: none">
+          Testing...
+        </div>
+
+        <div id="results"></div>
+      </div>
+
+      <div class="test-card">
+        <h2>Expected Analysis Content</h2>
+        <div class="analysis-section">
+          <div class="section-title">
+            <span>🧠</span>
+            Deep AI Analysis (Enhanced)
+          </div>
+          <div class="content">
+            <strong>Performance Trends:</strong>
+            Brandon Lowe is hitting .315 over his last 10 games vs LHP,
+            significantly above his .280 season average. His contact rate has
+            improved to 78% during this stretch.
+
+            <strong>Matchup Analysis:</strong>
+            Against today's probable starter (LHP), Lowe has a .290 career
+            average with a 1.15 OPS in 45 plate appearances. The pitcher allows
+            a .310 BAA to right-handed batters.
+
+            <strong>Statistical Edge:</strong>
+            Line set at 1.5 hits appears generous given Lowe's 68% hit rate in
+            games vs left-handed starters this season.
+
+            <strong>Confidence Factors:</strong>
+            • Recent form trending upward • Favorable matchup history • Park
+            factors slightly favor hitters • Weather conditions optimal for
+            offense
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      async function testAnalysis() {
+        const statusEl = document.getElementById("status");
+        const resultsEl = document.getElementById("results");
+
+        statusEl.style.display = "block";
+        statusEl.className = "status loading";
+        statusEl.textContent = "Testing enhanced analysis...";
+
+        try {
+          // Test the enhanced analysis service directly
+          const response = await fetch("/mlb/odds-comparison/", {
+            method: "GET",
+            headers: {
+              accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            displayResults(data, "Enhanced Analysis Results");
+            statusEl.className = "status success";
+            statusEl.textContent =
+              "Enhanced analysis test completed successfully!";
+          } else {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+        } catch (error) {
+          statusEl.className = "status error";
+          statusEl.textContent = `Error: ${error.message}`;
+          resultsEl.innerHTML = `<div class="analysis-section"><div class="content">Error testing enhanced analysis: ${error.message}</div></div>`;
+        }
+      }
+
+      async function testOldAnalysis() {
+        // Simulate old analysis content for comparison
+        const oldAnalysisContent = `
+                <strong>SHAP Feature Importance:</strong>
+                This analysis uses SHAP (SHapley Additive exPlanations) to determine feature importance in our machine learning model.
+
+                <strong>Recent Performance Weighting:</strong>
+                We apply exponential decay to recent games, giving more weight to the player's last 10 games compared to earlier season performance.
+
+                <strong>Matchup Analysis Methodology:</strong>
+                Our system analyzes historical matchups using a combination of Bayesian updating and regression analysis to predict outcomes.
+
+                <strong>Ensemble Model Confidence:</strong>
+                We combine multiple models including XGBoost, Random Forest, and Neural Networks to generate confidence intervals.
+            `;
+
+        displayResults(
+          { analysis: oldAnalysisContent },
+          "Old Analysis (Methodology Focus)"
+        );
+      }
+
+      async function testFrontendIntegration() {
+        // Test if frontend components are working
+        const statusEl = document.getElementById("status");
+        statusEl.style.display = "block";
+        statusEl.className = "status loading";
+        statusEl.textContent = "Testing frontend integration...";
+
+        // Simulate prop card data
+        const testProp = {
+          analysis: {
+            deep_analysis: `Performance Trends:
+Brandon Lowe is hitting .315 over his last 10 games vs LHP, significantly above his .280 season average.
+
+Matchup Analysis:
+Against today's probable starter, Lowe has a .290 career average with excellent plate discipline.
+
+Statistical Edge:
+Line appears generous given recent performance trends and favorable matchup conditions.
+
+Confidence Factors:
+• Recent form trending upward
+• Favorable matchup history
+• Optimal weather conditions`,
+          },
+          summary:
+            "Strong value on the over based on recent performance vs lefties and favorable matchup conditions.",
+        };
+
+        displayResults(testProp, "Frontend Integration Test");
+        statusEl.className = "status success";
+        statusEl.textContent = "Frontend integration test completed!";
+      }
+
+      function displayResults(data, title) {
+        const resultsEl = document.getElementById("results");
+
+        let content = `<div class="analysis-section">
+                <div class="section-title"><strong>${title}</strong></div>
+                <div class="content">`;
+
+        if (data.analysis && data.analysis.deep_analysis) {
+          content += data.analysis.deep_analysis;
+        } else if (data.analysis) {
+          content += data.analysis;
+        } else if (data.featured_props && data.featured_props.length > 0) {
+          content += `Found ${data.featured_props.length} props with enhanced analysis`;
+          const firstProp = data.featured_props[0];
+          if (firstProp.analysis && firstProp.analysis.deep_analysis) {
+            content +=
+              "\n\nSample Analysis:\n" + firstProp.analysis.deep_analysis;
+          }
+        } else {
+          content += JSON.stringify(data, null, 2);
+        }
+
+        content += `</div></div>`;
+        resultsEl.innerHTML = content;
+      }
+    </script>
+  </body>
+</html>

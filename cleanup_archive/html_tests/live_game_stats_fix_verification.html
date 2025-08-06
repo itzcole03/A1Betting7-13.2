@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Game Stats Fix Verification</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #1a1a1a;
+        color: white;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .status {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #4caf50;
+      }
+      .error {
+        background-color: #f44336;
+      }
+      .test-button {
+        background: #ffc107;
+        color: #000;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .result {
+        background: #333;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 10px 0;
+        white-space: pre-wrap;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔧 Live Game Stats - Fix Verification</h1>
+
+      <div class="status success">
+        <strong>✅ FIXED:</strong> Removed /api prefix from fetch call in
+        LiveGameStats.tsx
+      </div>
+
+      <div>
+        <h3>Problem Identified:</h3>
+        <p>
+          Frontend was calling: <code>/api/mlb/live-game-stats/776890</code>
+        </p>
+        <p>Backend endpoint is: <code>/mlb/live-game-stats/776890</code></p>
+        <p>Result: 404 Not Found</p>
+      </div>
+
+      <div>
+        <h3>Solution Applied:</h3>
+        <p>
+          Updated LiveGameStats.tsx fetch call to use correct path without /api
+          prefix
+        </p>
+        <p>Now matches pattern used by other MLB API calls in the app</p>
+      </div>
+
+      <button class="test-button" onclick="testFixedEndpoint()">
+        Test Fixed Endpoint
+      </button>
+      <div id="result" class="result"></div>
+
+      <div>
+        <h3>Next Steps:</h3>
+        <ol>
+          <li>
+            Navigate to main app:
+            <a href="http://localhost:5173" target="_blank"
+              >http://localhost:5173</a
+            >
+          </li>
+          <li>Go to "Prop Betting" section</li>
+          <li>Click "Show Upcoming Games"</li>
+          <li>Select "Tigers @ Phillies" game</li>
+          <li>Should now see live game stats instead of error message</li>
+        </ol>
+      </div>
+
+      <div class="status success">
+        <strong>Expected Result:</strong><br />
+        Live stats showing: Detroit Tigers @ Philadelphia Phillies<br />
+        Score: 0-0, Bottom 1st Inning, In Progress<br />
+        Venue: Citizens Bank Park
+      </div>
+    </div>
+
+    <script>
+      async function testFixedEndpoint() {
+        const resultDiv = document.getElementById("result");
+        resultDiv.textContent = "Testing fixed endpoint...";
+
+        try {
+          const response = await fetch("/mlb/live-game-stats/776890");
+          const data = await response.json();
+
+          if (data.status === "ok") {
+            resultDiv.textContent = `✅ SUCCESS!\n\nGame: ${data.teams.away.name} @ ${data.teams.home.name}\nScore: ${data.teams.away.score} - ${data.teams.home.score}\nInning: ${data.game_state.inning_half} ${data.game_state.inning}\nStatus: ${data.game_state.status}\nVenue: ${data.venue}\n\nThe fix is working correctly!`;
+          } else {
+            resultDiv.textContent = `❌ Error: ${data.message}`;
+          }
+        } catch (error) {
+          resultDiv.textContent = `❌ Error: ${error.message}`;
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -56,23 +56,45 @@ export const UpdateModal: React.FC = () => {
           borderRadius: 8,
           padding: 32,
           boxShadow: '0 2px 16px rgba(0,0,0,0.2)',
+          color: '#333',
         }}
       >
-        <h2>What's New in v{currentVersion}?</h2>
+        <h2 style={{ color: '#333', marginBottom: '16px' }}>What's New in v{currentVersion}?</h2>
         {isPending && <div style={{ color: 'blue', marginBottom: 8 }}>Loading...</div>}
-        <ul>
+        <ul style={{ color: '#333', paddingLeft: '20px' }}>
           {deferredFeatures.map(f => (
-            <li key={f}>{f}</li>
+            <li key={f} style={{ marginBottom: '8px' }}>
+              {f}
+            </li>
           ))}
         </ul>
         <button
           onClick={() => startTransition(() => setShowModal(false))}
-          style={{ marginTop: 24 }}
+          style={{
+            marginTop: 24,
+            background: '#007bff',
+            color: '#fff',
+            border: 'none',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
           disabled={isPending}
         >
           Dismiss
         </button>
-        <button onClick={() => window.open('/release-notes', '_blank')} style={{ marginLeft: 8 }}>
+        <button
+          onClick={() => window.open('/release-notes', '_blank')}
+          style={{
+            marginLeft: 8,
+            background: '#6c757d',
+            color: '#fff',
+            border: 'none',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
           View Details
         </button>
       </div>

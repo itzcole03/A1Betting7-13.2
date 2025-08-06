@@ -1,8 +1,6 @@
 @import "tailwindcss";
 @import './styles/globals-enhanced.css';
 @import './styles/cyber-theme.css';
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 /* ...existing code... */
 
 /* Tailwind CSS Variables - Extended from HTML */
@@ -1492,4 +1490,131 @@ select:focus-visible {
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
+}
+
+/* Enhanced Statistics Chart Styles */
+.group:hover .transition-all {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Performance chart enhancements */
+.group:hover .transform {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Performance indicators */
+.group:hover .opacity-90 {
+  opacity: 1;
+  font-weight: 600;
+}
+
+/* Accessibility: Focus states for keyboard navigation in charts */
+[role="button"]:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  transform: translateY(-1px) !important;
+}
+
+/* Enhanced mobile responsiveness for statistics charts */
+@media (max-width: 640px) {
+  .flex.items-end.gap-3 {
+    gap: 0.5rem;
+  }
+  
+  .w-8 {
+    width: 1.25rem;
+  }
+  
+  .text-xs {
+    font-size: 0.625rem;
+  }
+  
+  /* Adjust baseline position for mobile */
+  .absolute.border-t {
+    right: 0.5rem;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .transition-all,
+  .transition-colors,
+  .transition-opacity,
+  .transform {
+    transition: none;
+  }
+  
+  .hover\:-translate-y-0\.5:hover {
+    transform: none;
+  }
+}
+
+/* ========================================
+   OPTIMIZED LOADING ANIMATIONS - BEST PRACTICES
+   ======================================== */
+
+/* Respect user's motion preferences for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .optimized-spinner,
+  .optimized-shimmer {
+    animation: none !important;
+  }
+}
+
+/* Main spinner - hardware accelerated, clean rotation */
+@keyframes optimized-spin {
+  0% { 
+    transform: rotate(0deg);
+  }
+  100% { 
+    transform: rotate(360deg);
+  }
+}
+
+.optimized-spinner {
+  animation: optimized-spin 1.5s linear infinite;
+  /* Hardware acceleration for smooth performance */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Progress bar shimmer - subtle, performance-optimized */
+@keyframes optimized-shimmer {
+  0% { 
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% { 
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.optimized-shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: optimized-shimmer 2.5s ease-in-out infinite;
+  /* Hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* Clean focus states for accessibility */
+.optimized-spinner:focus-visible {
+  outline: 2px solid #fbbf24;
+  outline-offset: 2px;
 }

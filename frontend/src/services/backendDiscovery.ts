@@ -1,3 +1,4 @@
+// [DEBUG] Top of real backendDiscovery.ts loaded
 /**
  * Backend Discovery Service
  * Automatically finds and connects to available A1Betting backend
@@ -5,9 +6,26 @@
  */
 
 const _COMMON_PORTS = [8000, 8001];
-const _HEALTH_PATH = '/api/health/status';
+const _HEALTH_PATH = '/health';
 
 export async function discoverBackend(): Promise<string | null> {
+  // Debug log to check if real discoverBackend is called
+  // eslint-disable-next-line no-console
+  console.log('[REAL] discoverBackend called');
+
+  // In development mode, try the proxy first
+  if (import.meta.env.DEV) {
+    try {
+      const res = await fetch('/health', { method: 'GET' });
+      if (res.ok) {
+        console.log('[A1BETTING DISCOVERY] Found backend via proxy');
+        return ''; // Empty string means use relative URLs (proxy)
+      }
+    } catch {
+      // Proxy failed, continue with direct port discovery
+    }
+  }
+
   for (const _port of _COMMON_PORTS) {
     const _url = `http://localhost:${_port}${_HEALTH_PATH}`;
     try {

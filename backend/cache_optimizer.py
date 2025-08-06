@@ -17,7 +17,8 @@ from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
 import redis.asyncio as redis
-from config import config_manager
+
+from backend.config_manager import config_manager
 from backend.utils.serialization_utils import safe_dumps, safe_loads
 
 logger = logging.getLogger(__name__)
@@ -509,7 +510,6 @@ class MultiTierCache:
             # Consider promoting to L1 if frequently accessed
             if self.access_patterns[key] >= self.promotion_threshold:
                 self.l1_cache.set(key, value, ttl=3600)  # 1 hour in L1
-                
 
             return value
 

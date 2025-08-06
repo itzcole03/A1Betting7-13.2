@@ -18,9 +18,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import joblib
 import numpy as np
 from cachetools import TTLCache
-from config import config_manager
 from database import db_manager
-from feature_engineering import FeatureEngineering
 from prometheus_client import Counter, Histogram
 from sklearn.ensemble import RandomForestRegressor
 from utils.prediction_utils import (
@@ -29,6 +27,9 @@ from utils.prediction_utils import (
     feature_compatibility,
     model_correlation,
 )
+
+from backend.config_manager import config_manager
+from backend.feature_engineering import FeatureEngineering
 
 logger = logging.getLogger(__name__)
 

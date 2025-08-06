@@ -2,10 +2,17 @@
 module.exports = {
   rootDir: ".",
   testEnvironment: "jest-fixed-jsdom",
-  setupFilesAfterEnv: ["<rootDir>/frontend/jest.setup.ts"],
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   moduleFileExtensions: ["js", "jsx", "ts", "tsx", "json"],
   transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest",
+    "^.+\\.(ts|tsx)$": [
+      "ts-jest",
+      {
+        tsconfig: {
+          jsx: "react-jsx",
+        },
+      },
+    ],
     "^.+\\.(js|jsx)$": "babel-jest",
   },
   testMatch: [
@@ -18,14 +25,19 @@ module.exports = {
     "/build/",
     "/dist/",
     "/out/",
-    "/test-artifacts/",
-    "/legacy/",
-    "/deprecated/",
-    "/broken/",
-    "/old/",
-    "/backup/",
-    "/temp/",
-    "/tmp/",
+    "/frontend/src/.*test-artifacts/",
+    "/frontend/src/.*legacy/",
+    "/frontend/src/.*deprecated/",
+    "/frontend/src/.*broken/",
+    "/frontend/src/.*old/",
+    "/frontend/src/.*backup/",
+    "/frontend/src/.*temp/",
+    "/frontend/src/.*tmp/",
+    "/frontend/src/.*node_modules/",
+    "/frontend/src/.*electron-dist/",
+    "/frontend/src/.*build/",
+    "/frontend/src/.*dist/",
+    "/frontend/src/.*out/",
   ],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/frontend/src/$1",
@@ -38,6 +50,22 @@ module.exports = {
     "^src/services/__mocks__/(.*)$":
       "<rootDir>/frontend/src/services/__mocks__/$1",
     "^src/hooks/(.*)$": "<rootDir>/frontend/src/hooks/__mocks__/$1",
+    // Mock framer-motion for tests
+    "^framer-motion$": "<rootDir>/frontend/src/__mocks__/framer-motion.js",
+    "^framer-motion/(.*)$": "<rootDir>/frontend/src/__mocks__/framer-motion.js",
+  },
+  globals: {
+    "import.meta": {
+      env: {
+        VITE_API_URL: "http://localhost:8000",
+        VITE_WS_ENDPOINT: "ws://localhost:8000/ws",
+        VITE_WS_URL: "ws://localhost:8000/ws",
+        VITE_THEODDS_API_KEY: "test-key",
+        VITE_SPORTRADAR_API_KEY: "test-key",
+        VITE_DAILYFANTASY_API_KEY: "test-key",
+        VITE_PRIZEPICKS_API_KEY: "test-key",
+      },
+    },
   },
   collectCoverageFrom: [
     "frontend/src/**/*.{ts,tsx}",
@@ -66,18 +94,12 @@ module.exports = {
   testEnvironmentOptions: {
     url: "http://localhost",
   },
+  setupFiles: ["<rootDir>/jest.env.js"],
   modulePaths: ["<rootDir>/frontend/src"],
   clearMocks: true,
   resetMocks: true,
   restoreMocks: true,
   testTimeout: 10000,
-  globals: {
-    "ts-jest": {
-      tsconfig: {
-        jsx: "react-jsx",
-      },
-    },
-  },
   preset: "ts-jest",
   transformIgnorePatterns: [
     "node_modules/(?!(.*\\.mjs$|@testing-library|@tanstack|zustand|framer-motion))",

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Betting Recommendation Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #1a1a1a;
+        color: #fff;
+      }
+      .test-case {
+        background: #2a2a2a;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border-left: 4px solid #00ff88;
+      }
+      .confidence {
+        color: #00ff88;
+        font-weight: bold;
+      }
+      .recommendation {
+        color: #ffd700;
+        font-weight: bold;
+      }
+      h1 {
+        color: #00ff88;
+      }
+      h2 {
+        color: #00aaff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🎯 Betting Recommendation Logic Test</h1>
+    <p>
+      Testing the new betting recommendation functionality that generates
+      actionable advice like:
+    </p>
+    <p>
+      <em
+        >"We suggest betting the UNDER on Mike Yastrzemski (1.5 hits + rbi)
+        versus the Mets"</em
+      >
+    </p>
+
+    <h2>Test Cases:</h2>
+
+    <div class="test-case">
+      <h3>High Confidence (75%) - Should recommend OVER</h3>
+      <p><strong>Player:</strong> Mike Yastrzemski</p>
+      <p><strong>Stat:</strong> Hits + RBI</p>
+      <p><strong>Line:</strong> 1.5</p>
+      <p><strong>Confidence:</strong> <span class="confidence">75%</span></p>
+      <p><strong>Matchup:</strong> Giants vs Mets</p>
+      <p>
+        <strong>Expected Result:</strong>
+        <span class="recommendation"
+          >"We suggest betting the OVER on Mike Yastrzemski (1.5 hits + RBI)
+          versus Mets"</span
+        >
+      </p>
+    </div>
+
+    <div class="test-case">
+      <h3>Medium Confidence (60%) - Should recommend UNDER</h3>
+      <p><strong>Player:</strong> Fernando Tatis Jr.</p>
+      <p><strong>Stat:</strong> Hits</p>
+      <p><strong>Line:</strong> 1.5</p>
+      <p><strong>Confidence:</strong> <span class="confidence">60%</span></p>
+      <p><strong>Matchup:</strong> Padres @ Dodgers</p>
+      <p>
+        <strong>Expected Result:</strong>
+        <span class="recommendation"
+          >"Lean UNDER on Fernando Tatis Jr. (1.5 hits) versus Dodgers"</span
+        >
+      </p>
+    </div>
+
+    <div class="test-case">
+      <h3>Low Confidence (45%) - Should be cautious</h3>
+      <p><strong>Player:</strong> Ronald Acuña Jr.</p>
+      <p><strong>Stat:</strong> Stolen Bases</p>
+      <p><strong>Line:</strong> 0.5</p>
+      <p><strong>Confidence:</strong> <span class="confidence">45%</span></p>
+      <p><strong>Matchup:</strong> Braves vs Phillies</p>
+      <p>
+        <strong>Expected Result:</strong>
+        <span class="recommendation"
+          >"Monitoring Ronald Acuña Jr. (0.5 stolen bases) versus Phillies -
+          proceed with caution"</span
+        >
+      </p>
+    </div>
+
+    <div class="test-case">
+      <h3>High Confidence Basketball (85%) - Should recommend OVER</h3>
+      <p><strong>Player:</strong> LeBron James</p>
+      <p><strong>Stat:</strong> Points</p>
+      <p><strong>Line:</strong> 25.5</p>
+      <p><strong>Confidence:</strong> <span class="confidence">85%</span></p>
+      <p><strong>Matchup:</strong> Lakers vs Warriors</p>
+      <p>
+        <strong>Expected Result:</strong>
+        <span class="recommendation"
+          >"We suggest betting the OVER on LeBron James (25.5 points) versus
+          Warriors"</span
+        >
+      </p>
+    </div>
+
+    <script>
+      // Mock the betting recommendation functions for testing
+      function generateBettingRecommendation(proj) {
+        try {
+          const player = proj.player || "Unknown Player";
+          const stat = proj.stat || "Unknown Stat";
+          const line = proj.line || 0;
+          const confidence = proj.confidence || 0;
+
+          const recommendation = confidence > 65 ? "OVER" : "UNDER";
+          const opponent = extractOpponentFromMatchup(proj.matchup);
+          const formattedStat = formatStatName(stat, line);
+
+          if (confidence < 50) {
+            return `Monitoring ${player} (${formattedStat}) versus ${opponent} - proceed with caution`;
+          } else if (confidence < 60) {
+            return `Lean ${recommendation} on ${player} (${formattedStat}) versus ${opponent}`;
+          } else {
+            return `We suggest betting the ${recommendation} on ${player} (${formattedStat}) versus ${opponent}`;
+          }
+        } catch (error) {
+          console.warn("Error generating betting recommendation:", error);
+          return proj.stat
+            ? `Prop type: ${proj.stat}`
+            : "No summary available.";
+        }
+      }
+
+      function extractOpponentFromMatchup(matchup) {
+        if (!matchup || matchup === "N/A") return "TBD";
+
+        try {
+          const vsMatch = matchup.match(/(?:vs|@|versus)\s+(.+?)(?:\s|$)/i);
+          if (vsMatch) {
+            return vsMatch[1].trim();
+          }
+
+          const dashMatch = matchup.match(/\s-\s(.+?)(?:\s|$)/);
+          if (dashMatch) {
+            return dashMatch[1].trim();
+          }
+
+          return matchup.length > 20
+            ? matchup.substring(0, 20) + "..."
+            : matchup;
+        } catch (error) {
+          console.warn("Error extracting opponent from matchup:", error);
+          return "TBD";
+        }
+      }
+
+      function formatStatName(stat, line) {
+        try {
+          const lowerStat = stat.toLowerCase();
+
+          if (lowerStat.includes("hit") && lowerStat.includes("rbi")) {
+            return `${line} hits + RBI`;
+          } else if (lowerStat.includes("hit")) {
+            return `${line} hits`;
+          } else if (lowerStat.includes("run") && lowerStat.includes("rbi")) {
+            return `${line} runs + RBI`;
+          } else if (lowerStat.includes("point")) {
+            return `${line} points`;
+          } else if (lowerStat.includes("rebound")) {
+            return `${line} rebounds`;
+          } else if (lowerStat.includes("assist")) {
+            return `${line} assists`;
+          } else if (lowerStat.includes("yard")) {
+            return `${line} yards`;
+          } else if (lowerStat.includes("reception")) {
+            return `${line} receptions`;
+          } else if (lowerStat.includes("stolen")) {
+            return `${line} stolen bases`;
+          } else {
+            return `${line} ${stat.toLowerCase()}`;
+          }
+        } catch (error) {
+          console.warn("Error formatting stat name:", error);
+          return `${line} ${stat}`;
+        }
+      }
+
+      // Test cases
+      const testCases = [
+        {
+          player: "Mike Yastrzemski",
+          stat: "Hits + RBI",
+          line: 1.5,
+          confidence: 75,
+          matchup: "Giants vs Mets",
+        },
+        {
+          player: "Fernando Tatis Jr.",
+          stat: "Hits",
+          line: 1.5,
+          confidence: 60,
+          matchup: "Padres @ Dodgers",
+        },
+        {
+          player: "Ronald Acuña Jr.",
+          stat: "Stolen Bases",
+          line: 0.5,
+          confidence: 45,
+          matchup: "Braves vs Phillies",
+        },
+        {
+          player: "LeBron James",
+          stat: "Points",
+          line: 25.5,
+          confidence: 85,
+          matchup: "Lakers vs Warriors",
+        },
+      ];
+
+      // Run tests and display results
+      console.log("🎯 Betting Recommendation Test Results:");
+      testCases.forEach((testCase, index) => {
+        const result = generateBettingRecommendation(testCase);
+        console.log(`Test ${index + 1}: ${result}`);
+      });
+
+      // Display results in page
+      setTimeout(() => {
+        const testElements = document.querySelectorAll(".test-case");
+        testCases.forEach((testCase, index) => {
+          if (testElements[index]) {
+            const result = generateBettingRecommendation(testCase);
+            const resultElement = document.createElement("p");
+            resultElement.innerHTML = `<strong>Actual Result:</strong> <span class="recommendation">"${result}"</span>`;
+            testElements[index].appendChild(resultElement);
+          }
+        });
+      }, 100);
+    </script>
+  </body>
+</html>

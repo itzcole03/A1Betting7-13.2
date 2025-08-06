@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Position Filtering Test</title>
+    <script>
+      // Simulate the position filtering logic
+      function testPositionFiltering() {
+        console.log("=== Position Filtering Test ===");
+
+        // Mock data with different player positions and stat types
+        const mockProps = [
+          {
+            id: "1",
+            player: "Aaron Judge",
+            stat: "home_runs",
+            line: 1.5,
+            overOdds: 150,
+            underOdds: -180,
+            _originalData: { position: "9" }, // Right Field
+          },
+          {
+            id: "2",
+            player: "Gerrit Cole",
+            stat: "strikeouts",
+            line: 7.5,
+            overOdds: 120,
+            underOdds: -140,
+            _originalData: { position: "1" }, // Pitcher
+          },
+          {
+            id: "3",
+            player: "Aaron Judge",
+            stat: "strikeouts", // This should be filtered out (batter can't have pitcher stat)
+            line: 6.5,
+            overOdds: 130,
+            underOdds: -150,
+            _originalData: { position: "9" }, // Right Field
+          },
+          {
+            id: "4",
+            player: "Gerrit Cole",
+            stat: "home_runs", // This should be filtered out (pitcher can't have batter stat)
+            line: 0.5,
+            overOdds: 200,
+            underOdds: -250,
+            _originalData: { position: "1" }, // Pitcher
+          },
+          {
+            id: "5",
+            player: "Team Total",
+            stat: "totals",
+            line: 8.5,
+            overOdds: -110,
+            underOdds: -110,
+            _originalData: { position: null }, // Team prop
+          },
+        ];
+
+        // Position filtering logic (same as implemented in TypeScript)
+        const pitcherStatTypes = [
+          "strikeouts",
+          "walks_allowed",
+          "hits_allowed",
+          "earned_runs",
+          "innings_pitched",
+          "wins",
+          "saves",
+          "whip",
+          "era",
+          "pitches_thrown",
+          "first_inning_runs_allowed",
+          "pitching_outs",
+          "pitcher_strikeouts",
+          "pitcher_walks",
+          "pitcher_hits_allowed",
+        ];
+
+        const batterStatTypes = [
+          "hits",
+          "home_runs",
+          "runs_batted_in",
+          "runs_scored",
+          "stolen_bases",
+          "total_bases",
+          "doubles",
+          "triples",
+          "walks",
+          "strikeouts_as_batter",
+          "batting_average",
+          "on_base_percentage",
+          "slugging_percentage",
+          "singles",
+          "extra_base_hits",
+          "bases_on_balls",
+        ];
+
+        const filteredProps = mockProps.filter((prop) => {
+          // Skip filtering for team totals or game props
+          if (
+            !prop.player ||
+            prop.player.toLowerCase().includes("total") ||
+            prop.player.toLowerCase().includes("game") ||
+            prop.stat?.toLowerCase() === "totals"
+          ) {
+            console.log(
+              `Keeping team/game prop: ${prop.player} - ${prop.stat}`
+            );
+            return true;
+          }
+
+          const statType = prop.stat?.toLowerCase() || "";
+          const originalData = prop._originalData;
+          const position = originalData?.position || "";
+
+          // Check if we have position data
+          if (!position) {
+            console.log(`No position data for ${prop.player}, keeping prop`);
+            return true;
+          }
+
+          // Position "1" indicates pitcher in baseball
+          const isPitcher =
+            position === "1" || position === 1 || position === "P";
+          const isPitcherStat = pitcherStatTypes.some((type) =>
+            statType.includes(type.toLowerCase())
+          );
+          const isBatterStat = batterStatTypes.some((type) =>
+            statType.includes(type.toLowerCase())
+          );
+
+          let shouldKeep = true;
+
+          if (isPitcher && isBatterStat) {
+            console.log(
+              `Filtering out batter stat "${statType}" for pitcher ${prop.player}`
+            );
+            shouldKeep = false;
+          } else if (!isPitcher && isPitcherStat) {
+            console.log(
+              `Filtering out pitcher stat "${statType}" for position player ${prop.player} (pos: ${position})`
+            );
+            shouldKeep = false;
+          } else {
+            console.log(
+              `Keeping ${isPitcher ? "pitcher" : "position player"} ${
+                prop.player
+              } with stat "${statType}"`
+            );
+          }
+
+          return shouldKeep;
+        });
+
+        console.log(
+          `Position filtering: ${mockProps.length} → ${filteredProps.length} props`
+        );
+        console.log(
+          "Original props:",
+          mockProps.map((p) => `${p.player} - ${p.stat}`)
+        );
+        console.log(
+          "Filtered props:",
+          filteredProps.map((p) => `${p.player} - ${p.stat}`)
+        );
+
+        // Expected results
+        const expectedFiltered = [
+          "Aaron Judge - home_runs",
+          "Gerrit Cole - strikeouts",
+          "Team Total - totals",
+        ];
+
+        const actualFiltered = filteredProps.map(
+          (p) => `${p.player} - ${p.stat}`
+        );
+
+        console.log("Expected:", expectedFiltered);
+        console.log("Actual:", actualFiltered);
+
+        const success =
+          JSON.stringify(expectedFiltered.sort()) ===
+          JSON.stringify(actualFiltered.sort());
+        console.log(`Test ${success ? "PASSED" : "FAILED"}`);
+
+        document.getElementById("result").innerHTML = `
+                <h2>Position Filtering Test Results</h2>
+                <p><strong>Status:</strong> ${
+                  success ? "PASSED ✅" : "FAILED ❌"
+                }</p>
+                <p><strong>Original props:</strong> ${mockProps.length}</p>
+                <p><strong>Filtered props:</strong> ${filteredProps.length}</p>
+                <div>
+                    <h3>Expected:</h3>
+                    <ul>${expectedFiltered
+                      .map((p) => `<li>${p}</li>`)
+                      .join("")}</ul>
+                </div>
+                <div>
+                    <h3>Actual:</h3>
+                    <ul>${actualFiltered
+                      .map((p) => `<li>${p}</li>`)
+                      .join("")}</ul>
+                </div>
+            `;
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Position Filtering Test</h1>
+    <button onclick="testPositionFiltering()">Run Test</button>
+    <div id="result"></div>
+  </body>
+</html>

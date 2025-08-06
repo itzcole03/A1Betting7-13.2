@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Batch Predictions Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .test-section {
+        margin-bottom: 30px;
+        padding: 15px;
+        border-left: 4px solid #007bff;
+        background-color: #f8f9fa;
+      }
+      .button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .button:hover {
+        background-color: #0056b3;
+      }
+      .success {
+        border-left-color: #28a745;
+        background-color: #d4edda;
+      }
+      .error {
+        border-left-color: #dc3545;
+        background-color: #f8d7da;
+      }
+      .log {
+        background-color: #f1f1f1;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+        font-family: monospace;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .status {
+        font-weight: bold;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎯 Batch Predictions API Test</h1>
+
+      <div class="test-section">
+        <h2>1. Test MLB Props Fetch</h2>
+        <button class="button" onclick="testMLBProps()">Fetch MLB Props</button>
+        <div id="mlb-status" class="status"></div>
+        <div id="mlb-log" class="log"></div>
+      </div>
+
+      <div class="test-section">
+        <h2>2. Test Batch Predictions (Frontend Method)</h2>
+        <button class="button" onclick="testBatchPredictions()">
+          Test Batch Predictions
+        </button>
+        <div id="batch-status" class="status"></div>
+        <div id="batch-log" class="log"></div>
+      </div>
+
+      <div class="test-section">
+        <h2>3. Test Direct Backend POST</h2>
+        <button class="button" onclick="testDirectPost()">
+          Test Direct POST
+        </button>
+        <div id="direct-status" class="status"></div>
+        <div id="direct-log" class="log"></div>
+      </div>
+    </div>
+
+    <script>
+      let mlbProps = [];
+
+      async function testMLBProps() {
+        const statusDiv = document.getElementById("mlb-status");
+        const logDiv = document.getElementById("mlb-log");
+
+        statusDiv.textContent = "🔄 Fetching MLB props...";
+        logDiv.textContent = "";
+
+        try {
+          const response = await fetch(
+            "http://localhost:8000/mlb/odds-comparison/?market_type=playerprops"
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          mlbProps = data || [];
+
+          statusDiv.textContent = `✅ Success: Fetched ${mlbProps.length} MLB props`;
+          statusDiv.className = "status success";
+
+          logDiv.textContent = `Response: ${JSON.stringify(
+            data,
+            null,
+            2
+          ).substring(0, 1000)}...`;
+
+          console.log("[MLB Props Test]", data);
+        } catch (error) {
+          statusDiv.textContent = `❌ Error: ${error.message}`;
+          statusDiv.className = "status error";
+          logDiv.textContent = error.stack || error.message;
+          console.error("[MLB Props Test]", error);
+        }
+      }
+
+      async function testBatchPredictions() {
+        const statusDiv = document.getElementById("batch-status");
+        const logDiv = document.getElementById("batch-log");
+
+        if (mlbProps.length === 0) {
+          statusDiv.textContent =
+            "⚠️ No MLB props available. Fetch them first.";
+          statusDiv.className = "status error";
+          return;
+        }
+
+        statusDiv.textContent = "🔄 Testing batch predictions...";
+        statusDiv.className = "status";
+        logDiv.textContent = "";
+
+        try {
+          // Take first 5 props for testing
+          const testProps = mlbProps.slice(0, 5).map((prop) => ({
+            id: prop.id,
+            player: prop.player,
+            stat: prop.stat,
+            line: prop.line,
+            overOdds: prop.overOdds,
+            underOdds: prop.underOdds,
+            confidence: prop.confidence,
+            sport: prop.sport || "MLB",
+            gameTime: prop.gameTime,
+            pickType: prop.pickType,
+          }));
+
+          logDiv.textContent += `Sending ${testProps.length} props to batch predictions...\n`;
+          logDiv.textContent += `Props: ${JSON.stringify(
+            testProps,
+            null,
+            2
+          )}\n\n`;
+
+          const response = await fetch(
+            "http://localhost:8000/api/unified/batch-predictions",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(testProps),
+            }
+          );
+
+          logDiv.textContent += `Response status: ${response.status}\n`;
+          logDiv.textContent += `Response headers: ${JSON.stringify(
+            Object.fromEntries(response.headers),
+            null,
+            2
+          )}\n\n`;
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+          }
+
+          const data = await response.json();
+
+          statusDiv.textContent = `✅ Success: Got ${
+            data.predictions?.length || 0
+          } predictions`;
+          statusDiv.className = "status success";
+
+          logDiv.textContent += `Response: ${JSON.stringify(data, null, 2)}`;
+
+          console.log("[Batch Predictions Test]", data);
+        } catch (error) {
+          statusDiv.textContent = `❌ Error: ${error.message}`;
+          statusDiv.className = "status error";
+          logDiv.textContent += `\nError: ${error.stack || error.message}`;
+          console.error("[Batch Predictions Test]", error);
+        }
+      }
+
+      async function testDirectPost() {
+        const statusDiv = document.getElementById("direct-status");
+        const logDiv = document.getElementById("direct-log");
+
+        statusDiv.textContent = "🔄 Testing direct POST...";
+        statusDiv.className = "status";
+        logDiv.textContent = "";
+
+        const sampleProps = [
+          {
+            id: "test-1",
+            player: "Test Player 1",
+            stat: "Total Hits",
+            line: 1.5,
+            overOdds: -110,
+            underOdds: -110,
+            sport: "MLB",
+          },
+          {
+            id: "test-2",
+            player: "Test Player 2",
+            stat: "Total RBIs",
+            line: 2.5,
+            overOdds: -120,
+            underOdds: 100,
+            sport: "MLB",
+          },
+        ];
+
+        try {
+          logDiv.textContent += `Sending sample props...\n`;
+          logDiv.textContent += `Props: ${JSON.stringify(
+            sampleProps,
+            null,
+            2
+          )}\n\n`;
+
+          const response = await fetch(
+            "http://localhost:8000/api/unified/batch-predictions",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(sampleProps),
+            }
+          );
+
+          logDiv.textContent += `Response status: ${response.status}\n`;
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+          }
+
+          const data = await response.json();
+
+          statusDiv.textContent = `✅ Success: Got ${
+            data.predictions?.length || 0
+          } predictions`;
+          statusDiv.className = "status success";
+
+          logDiv.textContent += `Response: ${JSON.stringify(data, null, 2)}`;
+
+          console.log("[Direct POST Test]", data);
+        } catch (error) {
+          statusDiv.textContent = `❌ Error: ${error.message}`;
+          statusDiv.className = "status error";
+          logDiv.textContent += `\nError: ${error.stack || error.message}`;
+          console.error("[Direct POST Test]", error);
+        }
+      }
+
+      // Auto-run MLB props test on page load
+      window.addEventListener("load", () => {
+        setTimeout(testMLBProps, 1000);
+      });
+    </script>
+  </body>
+</html>

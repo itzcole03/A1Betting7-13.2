@@ -1,12 +1,9 @@
-// Unmock AuthContext to use the real provider/hook for these tests
-jest.unmock('../AuthContext');
 import { act, render, screen } from '@testing-library/react';
-// import React from 'react';
 import React from 'react';
 import { _authService as authService, User } from '../../services/authService'; // Import AuthService and User type
 import { _AuthProvider as AuthProvider, useAuth } from '../AuthContext';
-
-// Mock AuthService
+// Unmock AuthContext to use the real provider/hook for these tests
+jest.unmock('../AuthContext');
 jest.mock('../../services/authService', () => ({
   _authService: {
     login: jest.fn(),

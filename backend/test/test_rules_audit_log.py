@@ -39,7 +39,6 @@ def test_audit_log_append_and_schema(tmp_path):
     assert found, "No correct update entry found in audit log."
 
 
-@pytest.mark.asyncio
 def test_reload_business_rules_audits(monkeypatch, tmp_path):
     # Setup: patch audit log path and business rules
     audit_log = tmp_path / "rules_audit_log.jsonl"

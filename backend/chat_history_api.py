@@ -44,7 +44,7 @@ conn.commit()
 
 
 def save_message(msg: ChatMessage):
-    ts = msg.timestamp or datetime.datetime.utcnow().isoformat()
+    ts = msg.timestamp or datetime.datetime.now(datetime.timezone.utc).isoformat()
     c.execute(
         "INSERT INTO chat_history VALUES (?, ?, ?, ?, ?)",
         (msg.user_id, msg.session_id, msg.role, msg.content, ts),

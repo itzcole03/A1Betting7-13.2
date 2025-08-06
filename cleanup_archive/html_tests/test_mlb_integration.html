@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MLB Integration Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 p-8">
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-3xl font-bold mb-8">MLB Tab Optimization Test</h1>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Backend API Tests -->
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h2 class="text-xl font-semibold mb-4">Backend API Tests</h2>
+          <div class="space-y-3">
+            <button
+              onclick="testMLBPropsAPI()"
+              class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Test MLB Props API
+            </button>
+            <button
+              onclick="testBatchPredictions()"
+              class="w-full bg-green-500 text-white px-4 py-2 rounded hover:green-600"
+            >
+              Test Batch Predictions
+            </button>
+            <button
+              onclick="testSportActivation()"
+              class="w-full bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+            >
+              Test Sport Activation
+            </button>
+          </div>
+          <div id="backend-results" class="mt-4 text-sm"></div>
+        </div>
+
+        <!-- Frontend Integration Tests -->
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h2 class="text-xl font-semibold mb-4">Frontend Integration Tests</h2>
+          <div class="space-y-3">
+            <button
+              onclick="testEnhancedDataManager()"
+              class="w-full bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+            >
+              Test Enhanced Data Manager
+            </button>
+            <button
+              onclick="testSportContextPropagation()"
+              class="w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+              Test Sport Context Propagation
+            </button>
+            <button
+              onclick="testDataValidation()"
+              class="w-full bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600"
+            >
+              Test Data Validation
+            </button>
+          </div>
+          <div id="frontend-results" class="mt-4 text-sm"></div>
+        </div>
+      </div>
+
+      <!-- Results Display -->
+      <div class="mt-8 bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+        <div
+          id="test-log"
+          class="bg-gray-50 p-4 rounded font-mono text-sm h-96 overflow-y-auto"
+        ></div>
+      </div>
+
+      <!-- Sample Data Display -->
+      <div class="mt-8 bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4">Sample MLB Data</h2>
+        <div
+          id="sample-data"
+          class="bg-gray-50 p-4 rounded text-sm h-64 overflow-y-auto"
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      const backendUrl = "http://localhost:8000";
+      const frontendUrl = "http://localhost:8173";
+
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        const logEl = document.getElementById("test-log");
+        const color =
+          type === "error"
+            ? "text-red-600"
+            : type === "success"
+            ? "text-green-600"
+            : "text-blue-600";
+        logEl.innerHTML += `<div class="${color}">[${timestamp}] ${message}</div>`;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function updateResults(elementId, content) {
+        document.getElementById(elementId).innerHTML = content;
+      }
+
+      async function testMLBPropsAPI() {
+        log("Testing MLB Props API...", "info");
+        try {
+          const response = await fetch(
+            `${backendUrl}/mlb/odds-comparison/?market_type=playerprops`
+          );
+          const data = await response.json();
+
+          if (Array.isArray(data) && data.length > 0) {
+            log(
+              `✅ MLB Props API Success: ${data.length} props received`,
+              "success"
+            );
+
+            // Analyze sport field presence
+            const withSport = data.filter((prop) => prop.sport).length;
+            const withoutSport = data.length - withSport;
+
+            log(
+              `📊 Sport field analysis: ${withSport} with sport field, ${withoutSport} without`,
+              "info"
+            );
+
+            // Show sample data structure
+            const sample = data[0];
+            const sampleFields = Object.keys(sample);
+            log(`📋 Sample prop fields: ${sampleFields.join(", ")}`, "info");
+
+            // Check for Statcast metrics
+            const statcastProps = data.filter(
+              (prop) =>
+                prop.stat_type &&
+                [
+                  "exit_velocity",
+                  "hard_hit_rate",
+                  "barrel_rate",
+                  "launch_angle",
+                ].includes(prop.stat_type)
+            );
+            log(
+              `🚀 Statcast metrics found: ${statcastProps.length} props`,
+              "success"
+            );
+
+            document.getElementById(
+              "sample-data"
+            ).innerHTML = `<pre>${JSON.stringify(
+              data.slice(0, 3),
+              null,
+              2
+            )}</pre>`;
+            updateResults(
+              "backend-results",
+              `<div class="text-green-600">✅ ${data.length} props loaded</div>`
+            );
+          } else {
+            log("❌ MLB Props API returned empty or invalid data", "error");
+            updateResults(
+              "backend-results",
+              '<div class="text-red-600">❌ No data received</div>'
+            );
+          }
+        } catch (error) {
+          log(`❌ MLB Props API Error: ${error.message}`, "error");
+          updateResults(
+            "backend-results",
+            `<div class="text-red-600">❌ ${error.message}</div>`
+          );
+        }
+      }
+
+      async function testBatchPredictions() {
+        log("Testing Batch Predictions...", "info");
+        try {
+          const sampleProp = {
+            id: "test-mlb-1",
+            player: "Test Player",
+            stat: "hits",
+            line: 1.5,
+            confidence: 75,
+            sport: "MLB",
+          };
+
+          const response = await fetch(
+            `${backendUrl}/api/unified/batch-predictions`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify([sampleProp]),
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.predictions && data.predictions.length > 0) {
+            const prediction = data.predictions[0];
+            log("✅ Batch Predictions Success", "success");
+            log(`🎯 Confidence: ${prediction.confidence}`, "info");
+            log(`🧠 Neural Score: ${prediction.neural_score}`, "info");
+            log(
+              `📊 Quantum Confidence: ${prediction.quantum_confidence}`,
+              "info"
+            );
+            log(`🎲 Kelly Fraction: ${prediction.kelly_fraction}`, "info");
+
+            if (prediction.shap_explanation) {
+              log("✅ SHAP Explanations present", "success");
+              const topFactors = prediction.shap_explanation.top_factors || [];
+              log(
+                `🔍 Top factors: ${topFactors.map((f) => f[0]).join(", ")}`,
+                "info"
+              );
+            }
+
+            updateResults(
+              "backend-results",
+              '<div class="text-green-600">✅ Enhanced analysis working</div>'
+            );
+          } else {
+            log("❌ Batch Predictions returned no results", "error");
+            updateResults(
+              "backend-results",
+              '<div class="text-red-600">❌ No predictions</div>'
+            );
+          }
+        } catch (error) {
+          log(`❌ Batch Predictions Error: ${error.message}`, "error");
+          updateResults(
+            "backend-results",
+            `<div class="text-red-600">❌ ${error.message}</div>`
+          );
+        }
+      }
+
+      async function testSportActivation() {
+        log("Testing Sport Activation...", "info");
+        try {
+          const response = await fetch(
+            `${backendUrl}/api/sports/activate/MLB`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.status === "ready") {
+            log("✅ MLB Sport Activation Success", "success");
+            log(`⚡ Load time: ${data.load_time.toFixed(3)}s`, "info");
+            log(`📋 Newly loaded: ${data.newly_loaded}`, "info");
+            updateResults(
+              "backend-results",
+              '<div class="text-green-600">✅ Sport activated</div>'
+            );
+          } else {
+            log(`❌ Sport activation failed: ${data.status}`, "error");
+            updateResults(
+              "backend-results",
+              '<div class="text-red-600">❌ Activation failed</div>'
+            );
+          }
+        } catch (error) {
+          log(`❌ Sport Activation Error: ${error.message}`, "error");
+          updateResults(
+            "backend-results",
+            `<div class="text-red-600">❌ ${error.message}</div>`
+          );
+        }
+      }
+
+      async function testEnhancedDataManager() {
+        log(
+          "Testing Enhanced Data Manager (simulating frontend behavior)...",
+          "info"
+        );
+
+        // Simulate the frontend data flow
+        try {
+          // Step 1: Fetch MLB props
+          const propsResponse = await fetch(
+            `${backendUrl}/mlb/odds-comparison/?market_type=playerprops`
+          );
+          const rawProps = await propsResponse.json();
+
+          if (Array.isArray(rawProps) && rawProps.length > 0) {
+            log(
+              `📥 Received ${rawProps.length} raw props from backend`,
+              "info"
+            );
+
+            // Step 2: Simulate mapToFeaturedProps with sport context
+            const sport = "MLB";
+            const featuredProps = rawProps.slice(0, 5).map((item) => {
+              return {
+                id:
+                  item.id ||
+                  item.event_id ||
+                  `${item.player_name}-${item.stat_type}`,
+                player: item.player_name || item.player || "Unknown",
+                matchup: item.matchup || item.event_name || "Unknown",
+                stat: item.stat_type || item.stat || "Unknown",
+                line: parseFloat(item.line || item.line_score || 0),
+                overOdds: parseFloat(item.odds || 0),
+                underOdds: parseFloat(item.odds || 0),
+                confidence: parseFloat(item.confidence || 75),
+                sport: sport || item.sport || "MLB", // Critical line - sport context propagation
+                gameTime: item.start_time || new Date().toISOString(),
+                pickType: item.stat_type || "prop",
+                _originalData: item,
+              };
+            });
+
+            log(
+              `🔄 Mapped ${featuredProps.length} props with sport context`,
+              "info"
+            );
+
+            // Step 3: Check sport field in mapped props
+            const validSportProps = featuredProps.filter(
+              (prop) => prop.sport && prop.sport !== "Unknown"
+            );
+            const invalidSportProps = featuredProps.filter(
+              (prop) => !prop.sport || prop.sport === "Unknown"
+            );
+
+            if (invalidSportProps.length === 0) {
+              log("✅ All props have valid sport context", "success");
+              updateResults(
+                "frontend-results",
+                '<div class="text-green-600">✅ Sport context working</div>'
+              );
+            } else {
+              log(
+                `⚠️ ${invalidSportProps.length} props with invalid sport context`,
+                "error"
+              );
+              updateResults(
+                "frontend-results",
+                '<div class="text-yellow-600">⚠️ Some sport issues</div>'
+              );
+            }
+
+            // Step 4: Test batch enhancement
+            log("🔄 Testing batch enhancement...", "info");
+            const batchResponse = await fetch(
+              `${backendUrl}/api/unified/batch-predictions`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(
+                  featuredProps.slice(0, 2).map((prop) => prop._originalData)
+                ),
+              }
+            );
+
+            const batchData = await batchResponse.json();
+            if (batchData.predictions && batchData.predictions.length > 0) {
+              log("✅ Batch enhancement successful", "success");
+              updateResults(
+                "frontend-results",
+                '<div class="text-green-600">✅ Full pipeline working</div>'
+              );
+            }
+          } else {
+            log("❌ No props data received", "error");
+            updateResults(
+              "frontend-results",
+              '<div class="text-red-600">❌ No data</div>'
+            );
+          }
+        } catch (error) {
+          log(`❌ Enhanced Data Manager Test Error: ${error.message}`, "error");
+          updateResults(
+            "frontend-results",
+            `<div class="text-red-600">❌ ${error.message}</div>`
+          );
+        }
+      }
+
+      async function testSportContextPropagation() {
+        log("Testing Sport Context Propagation...", "info");
+        try {
+          // Get sample MLB data
+          const response = await fetch(
+            `${backendUrl}/mlb/odds-comparison/?market_type=playerprops`
+          );
+          const data = await response.json();
+
+          if (Array.isArray(data) && data.length > 0) {
+            const sample = data[0];
+
+            // Test mapping scenarios
+            const scenarios = [
+              {
+                name: "With explicit sport parameter",
+                sport: "MLB",
+                expected: "MLB",
+              },
+              {
+                name: "With null sport parameter",
+                sport: null,
+                expected: "MLB",
+              },
+              {
+                name: "With undefined sport parameter",
+                sport: undefined,
+                expected: "MLB",
+              },
+            ];
+
+            for (const scenario of scenarios) {
+              const mappedProp = {
+                sport: scenario.sport || sample.sport || "MLB",
+              };
+
+              const result =
+                mappedProp.sport === scenario.expected ? "✅" : "❌";
+              log(
+                `${result} ${scenario.name}: sport="${mappedProp.sport}"`,
+                mappedProp.sport === scenario.expected ? "success" : "error"
+              );
+            }
+
+            // Test the actual raw data structure
+            const hasSportField = sample.hasOwnProperty("sport");
+            log(
+              `📋 Raw data has sport field: ${hasSportField}`,
+              hasSportField ? "success" : "info"
+            );
+
+            if (!hasSportField) {
+              log(
+                "ℹ️ Raw data relies on sport parameter propagation (expected for MLB API)",
+                "info"
+              );
+            }
+
+            updateResults(
+              "frontend-results",
+              '<div class="text-green-600">✅ Context propagation tested</div>'
+            );
+          } else {
+            log("❌ No test data available", "error");
+            updateResults(
+              "frontend-results",
+              '<div class="text-red-600">❌ No test data</div>'
+            );
+          }
+        } catch (error) {
+          log(`❌ Sport Context Test Error: ${error.message}`, "error");
+          updateResults(
+            "frontend-results",
+            `<div class="text-red-600">❌ ${error.message}</div>`
+          );
+        }
+      }
+
+      async function testDataValidation() {
+        log("Testing Data Validation...", "info");
+        try {
+          const response = await fetch(
+            `${backendUrl}/mlb/odds-comparison/?market_type=playerprops`
+          );
+          const data = await response.json();
+
+          if (Array.isArray(data) && data.length > 0) {
+            const sample = data[0];
+
+            // Test required fields
+            const requiredFields = [
+              "player_name",
+              "stat_type",
+              "line",
+              "confidence",
+            ];
+            const missingFields = requiredFields.filter(
+              (field) => !sample.hasOwnProperty(field)
+            );
+
+            if (missingFields.length === 0) {
+              log("✅ All required fields present", "success");
+            } else {
+              log(`⚠️ Missing fields: ${missingFields.join(", ")}`, "error");
+            }
+
+            // Test data types
+            const typeTests = [
+              { field: "line", type: "number", value: sample.line },
+              { field: "confidence", type: "number", value: sample.confidence },
+              {
+                field: "player_name",
+                type: "string",
+                value: sample.player_name,
+              },
+            ];
+
+            for (const test of typeTests) {
+              const actualType = typeof test.value;
+              const isValid = actualType === test.type;
+              log(
+                `${isValid ? "✅" : "❌"} ${
+                  test.field
+                }: ${actualType} (expected ${test.type})`,
+                isValid ? "success" : "error"
+              );
+            }
+
+            // Test confidence range
+            const confidence = parseFloat(sample.confidence);
+            const validConfidence = confidence >= 0 && confidence <= 100;
+            log(
+              `${
+                validConfidence ? "✅" : "❌"
+              } Confidence range: ${confidence}% (expected 0-100)`,
+              validConfidence ? "success" : "error"
+            );
+
+            updateResults(
+              "frontend-results",
+              '<div class="text-green-600">✅ Validation tests complete</div>'
+            );
+          } else {
+            log("❌ No validation data available", "error");
+            updateResults(
+              "frontend-results",
+              '<div class="text-red-600">❌ No data for validation</div>'
+            );
+          }
+        } catch (error) {
+          log(`❌ Data Validation Error: ${error.message}`, "error");
+          updateResults(
+            "frontend-results",
+            `<div class="text-red-600">❌ ${error.message}</div>`
+          );
+        }
+      }
+
+      // Auto-run basic tests on load
+      window.onload = function () {
+        log("🚀 MLB Integration Test Suite Started", "info");
+        log("Click buttons above to run individual tests", "info");
+      };
+    </script>
+  </body>
+</html>

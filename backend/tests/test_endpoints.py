@@ -3,9 +3,21 @@
 This module tests the FastAPI endpoints for feature extraction and prediction.
 """
 
+from unittest.mock import MagicMock
+
 from fastapi.testclient import TestClient
 
 from backend.main import app
+from backend.security_config import require_api_key
+
+
+# Mock the API key verification for tests
+def mock_require_api_key():
+    return True
+
+
+# Override the dependency
+app.dependency_overrides[require_api_key] = mock_require_api_key
 
 # Create test client with proper configuration
 try:
@@ -43,7 +55,9 @@ def test_features_endpoint():
 
 def test_predict_endpoint():
     """Test the /predict endpoint."""
-    response = client.post("/predict", json=SAMPLE_PAYLOAD)
+    # Include valid API key for test compatibility
+    headers = {"x-api-key": "test_api_key"}
+    response = client.post("/predict", json=SAMPLE_PAYLOAD, headers=headers)
     assert response.status_code == 200, f"Expected 200, got {response.status_code}"
 
     json_data = response.json()

@@ -1,18 +1,559 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="5" failures="0" errors="0" time="1.589">
-  <testsuite name="PropOllamaUnified" errors="0" failures="0" skipped="3" timestamp="2025-07-26T07:02:51" time="0.969" tests="5">
-    <testcase classname="PropOllamaUnified" name="loads and sorts best bets by confidence" time="0">
-      <skipped/>
+<testsuites name="jest tests" tests="159" failures="3" errors="0" time="13.977">
+  <testsuite name="AffiliateService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:45" time="5.401" tests="6">
+    <testcase classname="AffiliateService" name="fetches affiliate links" time="0.02">
     </testcase>
-    <testcase classname="PropOllamaUnified" name="shows confidence badge and bar" time="0">
-      <skipped/>
+    <testcase classname="AffiliateService" name="throws on affiliate links fetch failure" time="0.021">
     </testcase>
-    <testcase classname="PropOllamaUnified" name="expand/collapse explanation" time="0">
-      <skipped/>
+    <testcase classname="AffiliateService" name="tracks affiliate click" time="0.003">
     </testcase>
-    <testcase classname="PropOllamaUnified" name="handles empty state" time="0.066">
+    <testcase classname="AffiliateService" name="throws on affiliate click track failure" time="0.001">
     </testcase>
-    <testcase classname="PropOllamaUnified" name="is accessible (banner, buttons)" time="0.011">
+    <testcase classname="AffiliateService" name="fetches affiliate offers" time="0.002">
+    </testcase>
+    <testcase classname="AffiliateService" name="throws on affiliate offers fetch failure" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Minimal useState E2E" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:45" time="6.045" tests="1">
+    <testcase classname="Minimal useState E2E" name="renders and updates state" time="0.056">
+    </testcase>
+  </testsuite>
+  <testsuite name="AuthContext Admin Functionality" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:45" time="6.166" tests="5">
+    <testcase classname="AuthContext Admin Functionality" name="should detect admin user with admin email" time="0.072">
+    </testcase>
+    <testcase classname="AuthContext Admin Functionality" name="should detect admin user with cole email" time="0.009">
+    </testcase>
+    <testcase classname="AuthContext Admin Functionality" name="should not detect admin for regular user" time="0.009">
+    </testcase>
+    <testcase classname="AuthContext Admin Functionality" name="should return false for isAdmin when no user" time="0.005">
+    </testcase>
+    <testcase classname="AuthContext Admin Functionality" name="should clear admin status on logout" time="0.079">
+    </testcase>
+  </testsuite>
+  <testsuite name="LiveStream component" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:45" time="6.44" tests="3">
+    <testcase classname="LiveStream component" name="renders the onboarding banner and safety tips" time="0.114">
+    </testcase>
+    <testcase classname="LiveStream component" name="renders the header with the correct title and external link" time="0.128">
+    </testcase>
+    <testcase classname="LiveStream component" name="renders the button to open the live stream site" time="0.027">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="1" skipped="0" timestamp="2025-08-05T06:51:45" time="6.483" tests="3">
+    <testcase classname="" name="displays health check status" time="0.392">
+      <failure>Error: Configuration error:
+
+Could not locate module framer-motion mapped as:
+C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__mocks__\framer-motion.js.
+
+Please check your configuration for these entries:
+{
+  &quot;moduleNameMapper&quot;: {
+    &quot;/^framer-motion$/&quot;: &quot;C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__mocks__\framer-motion.js&quot;
+  },
+  &quot;resolver&quot;: undefined
+}
+    at createNoMappedModuleFoundError (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-resolve\build\index.js:1117:17)
+    at Resolver.resolveStubModuleName (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-resolve\build\index.js:1053:19)
+    at Resolver.resolveModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-resolve\build\index.js:804:25)
+    at Runtime._resolveCjsModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1140:32)
+    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:795:25)
+    at Runtime.requireActual (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:857:17)
+    at Object.requireActual (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1778:41)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__mocks__\framer-motion.ts:4:21)
+    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
+    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
+    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
+    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\user-friendly\PropOllamaMessages.tsx:1:1)
+    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
+    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
+    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
+    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\user-friendly\PropOllama.tsx:8:1)
+    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
+    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
+    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
+    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\services\__tests__\PropOllama.test.tsx:118:22)
+    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
+    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
+    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:275:16)
+    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:343:7)
+    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
+    </testcase>
+    <testcase classname="" name="displays AI response for valid message" time="0.04">
+    </testcase>
+    <testcase classname="" name="propOllamaService functions work correctly" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="WebSocketContext" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:45" time="6.574" tests="1">
+    <testcase classname="WebSocketContext" name="provides default values" time="0.244">
+    </testcase>
+  </testsuite>
+  <testsuite name="ThemeContext" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:50" time="1.217" tests="1">
+    <testcase classname="ThemeContext" name="provides default values and allows theme change" time="0.076">
+    </testcase>
+  </testsuite>
+  <testsuite name="location utils" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:51" time="0.54" tests="4">
+    <testcase classname="location utils" name="getLocation should return window.location" time="0.001">
+    </testcase>
+    <testcase classname="location utils" name="getQueryParams should parse query parameters correctly" time="0.002">
+    </testcase>
+    <testcase classname="location utils" name="navigateTo should be callable" time="0.026">
+    </testcase>
+    <testcase classname="location utils" name="reloadPage should be callable" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="PatternRecognitionService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:51" time="0.78" tests="1">
+    <testcase classname="PatternRecognitionService" name="detects pattern structure" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="App E2E Error State" errors="0" failures="1" skipped="0" timestamp="2025-08-05T06:51:45" time="6.862" tests="1">
+    <testcase classname="App E2E Error State" name="shows error state if API returns error" time="0.43">
+      <failure>Error: Configuration error:
+
+Could not locate module framer-motion mapped as:
+C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__mocks__\framer-motion.js.
+
+Please check your configuration for these entries:
+{
+  &quot;moduleNameMapper&quot;: {
+    &quot;/^framer-motion$/&quot;: &quot;C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__mocks__\framer-motion.js&quot;
+  },
+  &quot;resolver&quot;: undefined
+}
+    at createNoMappedModuleFoundError (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-resolve\build\index.js:1117:17)
+    at Resolver.resolveStubModuleName (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-resolve\build\index.js:1053:19)
+    at Resolver.resolveModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-resolve\build\index.js:804:25)
+    at Runtime._resolveCjsModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1140:32)
+    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:795:25)
+    at Runtime.requireActual (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:857:17)
+    at Object.requireActual (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1778:41)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__mocks__\framer-motion.ts:4:21)
+    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
+    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
+    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
+    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\auth\AuthPage.tsx:1:1)
+    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
+    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
+    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
+    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\App.tsx:6:1)
+    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
+    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
+    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
+    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
+    at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\App.e2e.error.test.tsx:20:18
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\App.e2e.error.test.tsx:20:18)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="propOllamaService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:51" time="0.718" tests="11">
+    <testcase classname="propOllamaService" name="sendChatMessage sends request to correct endpoint" time="0.064">
+    </testcase>
+    <testcase classname="propOllamaService" name="getPropOllamaHealth sends request to correct endpoint" time="0.005">
+    </testcase>
+    <testcase classname="propOllamaService" name="getAvailableModels sends request to correct endpoint" time="0.007">
+    </testcase>
+    <testcase classname="propOllamaService" name="getModelHealth sends request to correct endpoint" time="0.002">
+    </testcase>
+    <testcase classname="propOllamaService" name="handles network errors gracefully" time="0.009">
+    </testcase>
+    <testcase classname="propOllamaService" name="handles HTTP errors with details" time="0.003">
+    </testcase>
+    <testcase classname="propOllamaService" name="getConversationStarters returns array of suggestions" time="0.002">
+    </testcase>
+    <testcase classname="propOllamaService" name="getChatHistory returns chat history array" time="0.004">
+    </testcase>
+    <testcase classname="propOllamaService" name="clearChatHistory clears the chat history" time="0.002">
+    </testcase>
+    <testcase classname="propOllamaService" name="getSystemStatus returns system status" time="0.003">
+    </testcase>
+    <testcase classname="propOllamaService" name="formatShapExplanation formats SHAP values correctly" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="App E2E - Empty State" errors="0" failures="1" skipped="0" timestamp="2025-08-05T06:51:45" time="7.06" tests="1">
+    <testcase classname="App E2E - Empty State" name="shows empty state if no enhanced bets are returned" time="0.824">
+      <failure>Error: Configuration error:
+
+Could not locate module framer-motion mapped as:
+C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__mocks__\framer-motion.js.
+
+Please check your configuration for these entries:
+{
+  &quot;moduleNameMapper&quot;: {
+    &quot;/^framer-motion$/&quot;: &quot;C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__mocks__\framer-motion.js&quot;
+  },
+  &quot;resolver&quot;: undefined
+}
+    at createNoMappedModuleFoundError (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-resolve\build\index.js:1117:17)
+    at Resolver.resolveStubModuleName (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-resolve\build\index.js:1053:19)
+    at Resolver.resolveModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-resolve\build\index.js:804:25)
+    at Runtime._resolveCjsModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1140:32)
+    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:795:25)
+    at Runtime.requireActual (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:857:17)
+    at Object.requireActual (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1778:41)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__mocks__\framer-motion.ts:4:21)
+    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
+    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
+    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
+    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\auth\AuthPage.tsx:1:1)
+    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
+    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
+    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
+    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\App.tsx:6:1)
+    at Runtime._execModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:1266:24)
+    at Runtime._loadModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:942:12)
+    at Runtime.requireModule (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:830:12)
+    at Runtime.requireModuleOrMock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runtime\build\index.js:962:21)
+    at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\App.empty-state.e2e.test.tsx:40:18
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\App.empty-state.e2e.test.tsx:40:18)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="SocialSentimentService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.458" tests="3">
+    <testcase classname="SocialSentimentService" name="is a singleton" time="0.002">
+    </testcase>
+    <testcase classname="SocialSentimentService" name="throws if feature is disabled" time="0.007">
+    </testcase>
+    <testcase classname="SocialSentimentService" name="throws not implemented if enabled" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="RefereeService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.557" tests="8">
+    <testcase classname="RefereeService" name="fetches referee stats" time="0.002">
+    </testcase>
+    <testcase classname="RefereeService" name="throws on referee stats fetch failure" time="0.005">
+    </testcase>
+    <testcase classname="RefereeService" name="fetches batch referee stats" time="0.001">
+    </testcase>
+    <testcase classname="RefereeService" name="throws on batch referee stats fetch failure" time="0.001">
+    </testcase>
+    <testcase classname="RefereeService" name="searches referees" time="0.001">
+    </testcase>
+    <testcase classname="RefereeService" name="throws on search referees failure" time="0.001">
+    </testcase>
+    <testcase classname="RefereeService" name="fetches referee modeling" time="0">
+    </testcase>
+    <testcase classname="RefereeService" name="throws on referee modeling fetch failure" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="predictionService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.549" tests="1">
+    <testcase classname="predictionService" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="UnifiedBettingAnalytics" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.512" tests="1">
+    <testcase classname="UnifiedBettingAnalytics" name="should have at least one test" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="encryption utils" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:51" time="0.818" tests="3">
+    <testcase classname="encryption utils" name="should encrypt and decrypt data correctly" time="0.049">
+    </testcase>
+    <testcase classname="encryption utils" name="should throw on invalid decryption" time="0.008">
+    </testcase>
+    <testcase classname="encryption utils" name="should throw on invalid encryption input" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="VenueEffectModel" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.563" tests="1">
+    <testcase classname="VenueEffectModel" name="should run a basic test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="userSettings utils" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.474" tests="15">
+    <testcase classname="userSettings utils" name="getUserSettings should return default settings if nothing in localStorage" time="0.002">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserSettings should return parsed settings from localStorage" time="0.002">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserSettings should merge saved settings with defaults" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils" name="applySettings should apply dark mode class and background color" time="0.003">
+    </testcase>
+    <testcase classname="userSettings utils" name="applySettings should set font size" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils" name="saveUserSettings should save settings to localStorage and apply them" time="0.005">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserDisplayName should return name from localStorage if available" time="0.003">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserDisplayName should return name from settings if not in localStorage" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserDisplayName should return default if no name found" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserEmail should return email from localStorage if available" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserEmail should return email from settings if not in localStorage" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserEmail should return default if no email found" time="0">
+    </testcase>
+    <testcase classname="userSettings utils" name="isDarkMode should return dark mode setting" time="0.002">
+    </testcase>
+    <testcase classname="userSettings utils" name="isDarkMode should return default if settings not found" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils" name="initializeSettings should get and apply settings" time="0.016">
+    </testcase>
+  </testsuite>
+  <testsuite name="RefereeImpactModel" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.498" tests="1">
+    <testcase classname="RefereeImpactModel" name="should run a basic test" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="PropAnalysisAggregator" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.726" tests="11">
+    <testcase classname="PropAnalysisAggregator" name="getAnalysis returns cached analysis if available" time="0.012">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="getAnalysis returns stale analysis and refreshes in background" time="0.008">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="getAnalysis generates new analysis when cache is empty" time="0.002">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="getAnalysis handles errors and generates fallback content" time="0.009">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="getAnalysis rethrows error if fallback is not available" time="0.006">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="parseResponse extracts analysis sections correctly" time="0.058">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="parseResponse handles missing sections gracefully" time="0.001">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="buildPrompt creates appropriate prompt" time="0.002">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="parseResponse extracts analysis sections correctly" time="0.001">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="parseResponse handles missing sections gracefully" time="0.001">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator" name="buildPrompt creates appropriate prompt" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="BetRecommendationList" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.626" tests="1">
+    <testcase classname="BetRecommendationList" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="MetricsContext" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.884" tests="1">
+    <testcase classname="MetricsContext" name="provides default values and track function" time="0.009">
+    </testcase>
+  </testsuite>
+  <testsuite name="BankrollTracker" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.54" tests="1">
+    <testcase classname="BankrollTracker" name="should run a placeholder test" time="0.012">
+    </testcase>
+  </testsuite>
+  <testsuite name="ShapExplanation" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.719" tests="1">
+    <testcase classname="ShapExplanation" name="should run a placeholder test" time="0.029">
+    </testcase>
+  </testsuite>
+  <testsuite name="safeNumber utils" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.865" tests="13">
+    <testcase classname="safeNumber utils" name="safeNumber should format a number correctly" time="0.003">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeNumber should handle string input" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeNumber should handle invalid input with fallback" time="0.002">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safePercentage should format a percentage correctly" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safePercentage should handle invalid input with default fallback" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeCurrency should format currency correctly" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeCurrency should handle invalid input with default fallback" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeCompactNumber should format large numbers with suffixes" time="0.002">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeCompactNumber should handle invalid input with default fallback" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeDivision should perform division correctly" time="0.002">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeDivision should handle invalid input with fallback" time="0.011">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safePercentageChange should calculate percentage change correctly" time="0.002">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safePercentageChange should handle invalid input with default fallback" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="UserFriendlyApp" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.657" tests="1">
+    <testcase classname="UserFriendlyApp" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="DailyFantasyIntegration" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.595" tests="1">
+    <testcase classname="DailyFantasyIntegration" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ConfidenceBandChart" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.572" tests="1">
+    <testcase classname="ConfidenceBandChart" name="should run a placeholder test" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="AppContext" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="1.098" tests="1">
+    <testcase classname="AppContext" name="provides default values and allows updating user" time="0.042">
+    </testcase>
+  </testsuite>
+  <testsuite name="SocialSentimentAdapter" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:52" time="0.965" tests="3">
+    <testcase classname="SocialSentimentAdapter" name="should be available" time="0.032">
+    </testcase>
+    <testcase classname="SocialSentimentAdapter" name="should fetch sentiment data and cache it" time="0.004">
+    </testcase>
+    <testcase classname="SocialSentimentAdapter" name="should clear cache" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="RiskAssessmentMatrix" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.495" tests="1">
+    <testcase classname="RiskAssessmentMatrix" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ModelPerformanceTracker" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.671" tests="1">
+    <testcase classname="ModelPerformanceTracker" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="LineupSynergyModel" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.503" tests="1">
+    <testcase classname="LineupSynergyModel" name="should run a basic test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ShapExplanation" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.686" tests="1">
+    <testcase classname="ShapExplanation" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="FantasyPredictionEnhancer" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.476" tests="1">
+    <testcase classname="FantasyPredictionEnhancer" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="RiskAssessmentService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.66" tests="1">
+    <testcase classname="RiskAssessmentService" name="classifies risk correctly" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="PropOllamaError" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.808" tests="13">
+    <testcase classname="PropOllamaError" name="creates network error" time="0.012">
+    </testcase>
+    <testcase classname="PropOllamaError" name="creates timeout error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="creates LLM unavailable error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="creates data fetch error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="creates insufficient data error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="creates parsing error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="creates unknown error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="converts generic error to PropOllamaError" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="converts Axios error to PropOllamaError" time="0.043">
+    </testcase>
+    <testcase classname="PropOllamaError" name="converts Axios network error to PropOllamaError" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="converts Axios timeout error to PropOllamaError" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="handles error with details" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError" name="preserves PropOllamaError when converting from error" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="PredictionExplanationModal" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.499" tests="1">
+    <testcase classname="PredictionExplanationModal" name="should run a placeholder test" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="prizePicksService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.443" tests="1">
+    <testcase classname="prizePicksService" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ComprehensiveAdminDashboard" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:45" time="8.532" tests="3">
+    <testcase classname="ComprehensiveAdminDashboard" name="renders dashboard data and panels when loaded" time="0.701">
+    </testcase>
+    <testcase classname="ComprehensiveAdminDashboard" name="shows loading state" time="0.056">
+    </testcase>
+    <testcase classname="ComprehensiveAdminDashboard" name="shows error state" time="0.122">
+    </testcase>
+  </testsuite>
+  <testsuite name="cacheUtils" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.596" tests="1">
+    <testcase classname="cacheUtils" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="BetRecommendationCard" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.778" tests="1">
+    <testcase classname="BetRecommendationCard" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="PlayerFormModel" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.643" tests="1">
+    <testcase classname="PlayerFormModel" name="should run a basic test" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="Dashboard" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.586" tests="1">
+    <testcase classname="Dashboard" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="PredictionGenerator" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.611" tests="1">
+    <testcase classname="PredictionGenerator" name="should have at least one test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="bettingOpportunityService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.878" tests="1">
+    <testcase classname="bettingOpportunityService" name="should run a placeholder test" time="0.118">
+    </testcase>
+  </testsuite>
+  <testsuite name="confidenceSlice" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.592" tests="1">
+    <testcase classname="confidenceSlice" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="UnifiedPredictionService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.581" tests="1">
+    <testcase classname="UnifiedPredictionService" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="BestBetSelector" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.63" tests="1">
+    <testcase classname="BestBetSelector" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="advancedPredictionService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.653" tests="1">
+    <testcase classname="advancedPredictionService" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="marketAnalysisService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.872" tests="1">
+    <testcase classname="marketAnalysisService" name="should run a placeholder test" time="0.008">
+    </testcase>
+  </testsuite>
+  <testsuite name="FinalPredictionEngine" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:54" time="0.67" tests="1">
+    <testcase classname="FinalPredictionEngine" name="should run a placeholder test" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="Analytics Logging" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:54" time="0.624" tests="1">
+    <testcase classname="Analytics Logging" name="logs data without throwing" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="UserPersonalizationService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:53" time="0.917" tests="2">
+    <testcase classname="UserPersonalizationService" name="should return a singleton instance" time="0.001">
+    </testcase>
+    <testcase classname="UserPersonalizationService" name="should initialize with empty userProfiles and clusters" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="AnalysisCacheService" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:54" time="0.724" tests="12">
+    <testcase classname="AnalysisCacheService" name="getInstance returns singleton instance" time="0.002">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="generateCacheKey creates consistent keys" time="0.011">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="set and get work correctly" time="0.002">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="has returns true for existing item" time="0.002">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="has returns false for non-existent item" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="delete removes item from cache" time="0.003">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="clear removes all items from cache" time="0.004">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="get returns null for expired item and isStale for stale item" time="0.002">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="get returns stale item with isStale flag" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="getStats returns cache statistics" time="0.002">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="set with custom TTL" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService" name="localStorage integration" time="0.009">
+    </testcase>
+  </testsuite>
+  <testsuite name="PvPMatchupModel" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:54" time="0.659" tests="1">
+    <testcase classname="PvPMatchupModel" name="should run a basic test" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="DataPipeline" errors="0" failures="0" skipped="0" timestamp="2025-08-05T06:51:54" time="0.516" tests="1">
+    <testcase classname="DataPipeline" name="should run a dummy test" time="0.001">
     </testcase>
   </testsuite>
 </testsuites>

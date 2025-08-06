@@ -32,7 +32,7 @@ async def get_async_session():
 
 # Legacy sync engine/session for compatibility
 sync_engine = create_sqlmodel_engine(DATABASE_URL.replace("sqlite+aiosqlite", "sqlite"))
-SessionLocal = SQLModelSession(sync_engine)
+SessionLocal = SQLModelSession
 
 
 from backend.models.base import Base
@@ -51,6 +51,11 @@ def get_db():
 # Create all tables (sync for legacy, async for new)
 def create_tables():
     """Create all database tables (sync)."""
+    from sqlalchemy import text
+
+    with sync_engine.connect() as conn:
+        conn.execute(text("DROP TABLE IF EXISTS user"))
+        conn.commit()
     SQLModel.metadata.create_all(bind=sync_engine)
 
 

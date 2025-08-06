@@ -1,0 +1,425 @@
+# Network Security Policies for A1Betting7-13.2
+# Implements zero-trust networking with strict ingress/egress controls
+
+# Default Deny All Policy for Production Namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: a1betting-prod
+  labels:
+    security: zero-trust
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+# Allow Frontend to Backend Communication
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-to-backend
+  namespace: a1betting-prod
+  labels:
+    security: application-tier
+spec:
+  podSelector:
+    matchLabels:
+      app: a1betting-backend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: a1betting-frontend
+      ports:
+        - protocol: TCP
+          port: 8000
+
+---
+# Allow Backend to Database Communication
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-to-database
+  namespace: a1betting-prod
+  labels:
+    security: data-tier
+spec:
+  podSelector:
+    matchLabels:
+      app: postgresql
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: a1betting-backend
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# Allow Backend to pgBouncer Communication
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-to-pgbouncer
+  namespace: a1betting-prod
+  labels:
+    security: connection-pooling
+spec:
+  podSelector:
+    matchLabels:
+      app: pgbouncer
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: a1betting-backend
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# Allow pgBouncer to PostgreSQL Communication
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pgbouncer-to-postgres
+  namespace: a1betting-prod
+  labels:
+    security: database-pooling
+spec:
+  podSelector:
+    matchLabels:
+      app: postgresql
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: pgbouncer
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# Allow Backend to Redis Communication
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-to-redis
+  namespace: a1betting-prod
+  labels:
+    security: cache-tier
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: a1betting-backend
+      ports:
+        - protocol: TCP
+          port: 6379
+
+---
+# Allow Ingress Controller to Frontend
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ingress-to-frontend
+  namespace: a1betting-prod
+  labels:
+    security: ingress-tier
+spec:
+  podSelector:
+    matchLabels:
+      app: a1betting-frontend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+
+---
+# Allow Ingress Controller to Backend (for API endpoints)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ingress-to-backend
+  namespace: a1betting-prod
+  labels:
+    security: api-tier
+spec:
+  podSelector:
+    matchLabels:
+      app: a1betting-backend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8000
+
+---
+# Allow Monitoring to Scrape Metrics
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: monitoring-scrape
+  namespace: a1betting-prod
+  labels:
+    security: observability
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+        - podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 8000 # Backend metrics
+        - protocol: TCP
+          port: 9121 # Redis exporter
+        - protocol: TCP
+          port: 9187 # PostgreSQL exporter
+
+---
+# Allow DNS Resolution for All Pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: a1betting-prod
+  labels:
+    security: dns-resolution
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+---
+# Allow Backend External API Access
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-external-apis
+  namespace: a1betting-prod
+  labels:
+    security: external-access
+spec:
+  podSelector:
+    matchLabels:
+      app: a1betting-backend
+  policyTypes:
+    - Egress
+  egress:
+    # Allow HTTPS traffic to external APIs
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+---
+# Network Policy for Monitoring Namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: monitoring-network-policy
+  namespace: monitoring
+  labels:
+    security: monitoring-isolation
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow access to Grafana UI
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+    # Allow Prometheus to scrape metrics
+    - from:
+        - podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 9090
+        - protocol: TCP
+          port: 3000
+  egress:
+    # Allow Prometheus to scrape targets
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: a1betting-prod
+      ports:
+        - protocol: TCP
+          port: 8000
+        - protocol: TCP
+          port: 9121
+        - protocol: TCP
+          port: 9187
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow access to Kubernetes API
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+
+---
+# Security Scanner Network Policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: security-scanner-policy
+  namespace: a1betting-prod
+  labels:
+    security: vulnerability-scanning
+spec:
+  podSelector:
+    matchLabels:
+      app: security-scanner
+  policyTypes:
+    - Egress
+  egress:
+    # Allow access to vulnerability databases
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+
+---
+# Backup Network Policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backup-network-policy
+  namespace: a1betting-prod
+  labels:
+    security: backup-isolation
+spec:
+  podSelector:
+    matchLabels:
+      app: backup-operator
+  policyTypes:
+    - Egress
+  egress:
+    # Allow access to PostgreSQL for backups
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgresql
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Allow access to external backup storage (S3, etc.)
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+
+---
+# Inter-namespace Communication Policy (strict)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cross-namespace-policy
+  namespace: a1betting-prod
+  labels:
+    security: namespace-isolation
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Only allow specific cross-namespace traffic
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+  egress:
+    # Allow egress to monitoring for metrics
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+    # Allow egress to kube-system for DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system

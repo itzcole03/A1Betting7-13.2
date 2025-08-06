@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prop Card Expansion Debug Test</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        margin: 20px;
+        background: #1a1a1a;
+        color: white;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .card {
+        background: #2d2d2d;
+        border: 1px solid #444;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .card:hover {
+        background: #3d3d3d;
+      }
+      .card.expanded {
+        background: #1e3a8a;
+        border-color: #3b82f6;
+      }
+      .expanded-content {
+        margin-top: 15px;
+        padding: 15px;
+        background: #1a1a1a;
+        border-radius: 4px;
+      }
+      .debug-info {
+        background: #333;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+        font-family: monospace;
+        font-size: 12px;
+      }
+      .status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+      .status.expanded {
+        background: #059669;
+        color: white;
+      }
+      .status.collapsed {
+        background: #6b7280;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Prop Card Expansion Debug Test</h1>
+      <p>Testing single card expansion behavior to identify the issue.</p>
+
+      <div class="debug-info">
+        <div>
+          <strong>Current Expanded Card ID:</strong>
+          <span id="expandedId">None</span>
+        </div>
+        <div><strong>Click Count:</strong> <span id="clickCount">0</span></div>
+        <div>
+          <strong>Last Action:</strong> <span id="lastAction">None</span>
+        </div>
+      </div>
+
+      <h2>Test Cards</h2>
+      <div id="cardsContainer"></div>
+
+      <button
+        onclick="resetTest()"
+        style="
+          margin-top: 20px;
+          padding: 10px 20px;
+          background: #dc2626;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        "
+      >
+        Reset Test
+      </button>
+
+      <div class="debug-info" style="margin-top: 20px">
+        <h3>Expected Behavior:</h3>
+        <ul>
+          <li>Only ONE card should be expanded at a time</li>
+          <li>Clicking an expanded card should collapse it</li>
+          <li>
+            Clicking a different card should collapse the current and expand the
+            new one
+          </li>
+          <li>All other cards should remain collapsed</li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      // Simulate the React useState behavior
+      let expandedRowKey = null;
+      let clickCount = 0;
+
+      // Mock prop data
+      const mockProps = [
+        {
+          id: "prop-1",
+          player: "Aaron Judge",
+          stat: "Home Runs",
+          line: 1.5,
+          confidence: 85,
+        },
+        {
+          id: "prop-2",
+          player: "Mike Trout",
+          stat: "Hits",
+          line: 1.5,
+          confidence: 78,
+        },
+        {
+          id: "prop-3",
+          player: "Mookie Betts",
+          stat: "RBIs",
+          line: 1.5,
+          confidence: 72,
+        },
+        {
+          id: "prop-4",
+          player: "Ronald Acuña Jr.",
+          stat: "Stolen Bases",
+          line: 0.5,
+          confidence: 90,
+        },
+        {
+          id: "prop-5",
+          player: "Juan Soto",
+          stat: "Walks",
+          line: 1.5,
+          confidence: 88,
+        },
+      ];
+
+      // Simulate the setExpandedRowKey function
+      function setExpandedRowKey(newValue) {
+        const previousValue = expandedRowKey;
+        expandedRowKey = newValue;
+
+        console.log(
+          `[DEBUG] setExpandedRowKey: ${previousValue} -> ${newValue}`
+        );
+
+        updateDebugInfo(`setExpandedRowKey: ${previousValue} -> ${newValue}`);
+        renderCards();
+      }
+
+      // Simulate the handleExpand function from React component
+      function handleExpand(propId) {
+        clickCount++;
+        const isExpanded = expandedRowKey === propId;
+        const newValue = isExpanded ? null : propId;
+
+        console.log(
+          `[DEBUG] handleExpand called for ${propId}, isExpanded: ${isExpanded}, setting to: ${newValue}`
+        );
+
+        setExpandedRowKey(newValue);
+      }
+
+      function updateDebugInfo(action) {
+        document.getElementById("expandedId").textContent =
+          expandedRowKey || "None";
+        document.getElementById("clickCount").textContent = clickCount;
+        document.getElementById("lastAction").textContent = action;
+      }
+
+      function renderCards() {
+        const container = document.getElementById("cardsContainer");
+        container.innerHTML = "";
+
+        mockProps.forEach((prop) => {
+          const isExpanded = expandedRowKey === prop.id;
+
+          const cardDiv = document.createElement("div");
+          cardDiv.className = `card ${isExpanded ? "expanded" : ""}`;
+          cardDiv.onclick = () => handleExpand(prop.id);
+
+          cardDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${prop.player}</strong>
+                            <div style="font-size: 14px; color: #ccc;">${
+                              prop.stat
+                            } - Line: ${prop.line}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 18px; font-weight: bold;">${
+                              prop.confidence
+                            }%</div>
+                            <div class="status ${
+                              isExpanded ? "expanded" : "collapsed"
+                            }">
+                                ${isExpanded ? "EXPANDED" : "COLLAPSED"}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${
+                      isExpanded
+                        ? `
+                        <div class="expanded-content">
+                            <h4>Expanded Analysis for ${prop.player}</h4>
+                            <p>This is the detailed analysis that should only show for the expanded card.</p>
+                            <p><strong>Confidence:</strong> ${
+                              prop.confidence
+                            }%</p>
+                            <p><strong>Recommendation:</strong> ${
+                              prop.confidence >= 80
+                                ? "Strong"
+                                : prop.confidence >= 70
+                                ? "Moderate"
+                                : "Weak"
+                            }</p>
+                        </div>
+                    `
+                        : ""
+                    }
+                `;
+
+          container.appendChild(cardDiv);
+        });
+      }
+
+      function resetTest() {
+        expandedRowKey = null;
+        clickCount = 0;
+        updateDebugInfo("Reset");
+        renderCards();
+      }
+
+      // Test specific scenarios
+      function runAutomatedTests() {
+        console.log("Running automated expansion tests...");
+
+        // Test 1: Expand first card
+        console.log("Test 1: Expanding first card");
+        handleExpand("prop-1");
+
+        setTimeout(() => {
+          // Test 2: Expand different card (should collapse first and expand second)
+          console.log("Test 2: Expanding second card");
+          handleExpand("prop-2");
+
+          setTimeout(() => {
+            // Test 3: Click same card (should collapse)
+            console.log("Test 3: Collapsing second card");
+            handleExpand("prop-2");
+
+            setTimeout(() => {
+              console.log("Automated tests complete");
+            }, 1000);
+          }, 1000);
+        }, 1000);
+      }
+
+      // Initialize
+      renderCards();
+      updateDebugInfo("Initialized");
+
+      // Add test buttons
+      setTimeout(() => {
+        const container = document.querySelector(".container");
+        const testButton = document.createElement("button");
+        testButton.textContent = "Run Automated Tests";
+        testButton.style.cssText =
+          "margin: 10px; padding: 10px 20px; background: #059669; color: white; border: none; border-radius: 4px; cursor: pointer;";
+        testButton.onclick = runAutomatedTests;
+        container.appendChild(testButton);
+      }, 100);
+    </script>
+  </body>
+</html>

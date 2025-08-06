@@ -1,45 +1,72 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    // Modern ES2022 target for better performance and features
+    "target": "ES2022",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
     "module": "ESNext",
-    "types": ["@testing-library/jest-dom", "vite/client", "react", "react-dom", "framer-motion"],
+    "types": [
+      "@testing-library/jest-dom",
+      "vite/client",
+      "react",
+      "react-dom",
+      "framer-motion",
+      "node"
+    ],
 
-    "moduleResolution": "node",
+    // Enhanced module resolution for 2025
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
 
+    // Path mapping for better imports
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "src/*": ["src/*"]
+      "src/*": ["src/*"],
+      "@/components/*": ["src/components/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/services/*": ["src/services/*"],
+      "@/utils/*": ["src/utils/*"],
+      "@/types/*": ["src/types/*"]
     },
 
+    // Enhanced strict mode for better code quality
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "skipLibCheck": true
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": true,
+    "skipLibCheck": true,
+
+    // Modern TypeScript features
+    "verbatimModuleSyntax": false,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false
   },
 
-  "include": [
-    "src",
-    "src/**/*.ts",
-    "src/**/*.tsx",
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": [
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
-    "src/__tests__/**/*.ts",
-    "src/__tests__/**/*.tsx",
+    "src/__tests__/**/*",
     "./jest.setup.js",
-    "./jest.setup.ts"
+    "./jest.setup.ts",
+    "**/*.test.*",
+    "**/__tests__/**/*",
+    "node_modules",
+    "dist",
+    "dist-electron",
+    "build"
   ],
-
-  "exclude": ["node_modules", "dist", "dist-electron", "build"],
 
   "references": [{ "path": "./tsconfig.node.json" }]
 }

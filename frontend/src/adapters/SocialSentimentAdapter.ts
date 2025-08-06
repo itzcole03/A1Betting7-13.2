@@ -1,18 +1,33 @@
-﻿export class SocialSentimentAdapter {
-  private cache: unknown = null;
+﻿import { SocialSentimentData } from '../types/global';
+
+export type { SocialSentimentData };
+
+export class SocialSentimentAdapter {
+  private cache: SocialSentimentData[] | null = null;
 
   isAvailable(): Promise<boolean> {
     return Promise.resolve(true);
   }
 
-  fetch(): Promise<unknown[]> {
-    const data = [{ player: 'Test', sentiment: 'positive' }];
+  async fetch(): Promise<SocialSentimentData[]> {
+    const data: SocialSentimentData[] = [
+      {
+        player: 'Test Player',
+        sentiment: {
+          score: 0.5,
+          volume: 100,
+        },
+        trending: false,
+        keywords: ['basketball', 'performance'],
+        timestamp: new Date().toISOString(),
+      },
+    ];
     this.cache = data;
-    return Promise.resolve(data);
+    return data;
   }
 
-  getData(): Promise<unknown[] | null> {
-    return Promise.resolve(this.cache as unknown[] | null);
+  async getData(): Promise<SocialSentimentData[] | null> {
+    return this.cache;
   }
 
   clearCache(): void {

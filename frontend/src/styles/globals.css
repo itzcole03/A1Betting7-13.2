@@ -72,23 +72,23 @@ canvas {
 
 html {
   transition: font-size 0.2s ease;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* ===== SCROLLBAR STYLING ===== */
+/* Note: ::-webkit-scrollbar is not supported in Safari. No cross-browser custom scrollbar for Safari as of 2025. */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-
 ::-webkit-scrollbar-track {
   background: var(--cyber-darker);
 }
-
 ::-webkit-scrollbar-thumb {
   background: var(--cyber-primary);
   border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: var(--cyber-secondary);
 }

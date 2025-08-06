@@ -1,0 +1,322 @@
+{
+  "timestamp": 1754384513.1654549,
+  "summary": {
+    "total_tests": 59,
+    "passed_tests": 51,
+    "failed_tests": 8,
+    "pass_rate": 86.4406779661017
+  },
+  "results": {
+    "mlops_services": {
+      "Service Health Check": {
+        "success": true,
+        "details": "Status: healthy",
+        "timestamp": 1754384512.6713324
+      },
+      "Pipeline Creation": {
+        "success": true,
+        "details": "Pipeline ID: 54d7f523-dd14-4f73-82ee-c68a58b92d53",
+        "timestamp": 1754384512.6716082
+      },
+      "Model Registry": {
+        "success": true,
+        "details": "Available models: 0",
+        "timestamp": 1754384512.6716697
+      },
+      "Pipeline Listing": {
+        "success": true,
+        "details": "Active pipelines: 1",
+        "timestamp": 1754384512.6717122
+      }
+    },
+    "deployment_services": {
+      "Service Health Check": {
+        "success": true,
+        "details": "Status: healthy",
+        "timestamp": 1754384512.6743963
+      },
+      "Deployment Config": {
+        "success": true,
+        "details": "Config name: test",
+        "timestamp": 1754384512.6745322
+      },
+      "Deployment Status": {
+        "success": true,
+        "details": "Status available",
+        "timestamp": 1754384512.6746294
+      },
+      "Docker Images": {
+        "success": true,
+        "details": "Images listed: 2",
+        "timestamp": 1754384512.6747043
+      }
+    },
+    "monitoring_services": {
+      "Service Health Check": {
+        "success": true,
+        "details": "Status: healthy",
+        "timestamp": 1754384512.6776164
+      },
+      "System Metrics": {
+        "success": true,
+        "details": "Metrics collected: 3",
+        "timestamp": 1754384512.6904442
+      },
+      "Alert System": {
+        "success": true,
+        "details": "Active alerts: 0",
+        "timestamp": 1754384512.690478
+      },
+      "Auto-Healing": {
+        "success": true,
+        "details": "Healing enabled: False",
+        "timestamp": 1754384512.6905093
+      }
+    },
+    "security_services": {
+      "Service Health Check": {
+        "success": true,
+        "details": "Status: healthy",
+        "timestamp": 1754384512.7336907
+      },
+      "Model Security Scan": {
+        "success": true,
+        "details": "Scan score: 0.64",
+        "timestamp": 1754384512.7341747
+      },
+      "Access Policies": {
+        "success": true,
+        "details": "Policies configured: 3",
+        "timestamp": 1754384512.7342305
+      },
+      "Audit Logging": {
+        "success": true,
+        "details": "Recent events: 1",
+        "timestamp": 1754384512.7342813
+      }
+    },
+    "api_routes": {
+      "Route Registration": {
+        "success": true,
+        "details": "Phase 3 routes: 27",
+        "timestamp": 1754384513.1599727
+      },
+      "MLOps Routes": {
+        "success": true,
+        "details": "MLOps endpoints: 6",
+        "timestamp": 1754384513.1600413
+      },
+      "Deployment Routes": {
+        "success": true,
+        "details": "Deployment endpoints: 5",
+        "timestamp": 1754384513.160135
+      },
+      "Monitoring Routes": {
+        "success": true,
+        "details": "Monitoring endpoints: 6",
+        "timestamp": 1754384513.160182
+      },
+      "Security Routes": {
+        "success": true,
+        "details": "Security endpoints: 4",
+        "timestamp": 1754384513.1602213
+      },
+      "Endpoint /api/phase3/health": {
+        "success": true,
+        "details": "Available: True",
+        "timestamp": 1754384513.160273
+      },
+      "Endpoint /api/phase3/mlops/health": {
+        "success": false,
+        "details": "Available: False",
+        "timestamp": 1754384513.1603491
+      },
+      "Endpoint /api/phase3/deployment/health": {
+        "success": false,
+        "details": "Available: False",
+        "timestamp": 1754384513.1603937
+      },
+      "Endpoint /api/phase3/monitoring/health": {
+        "success": false,
+        "details": "Available: False",
+        "timestamp": 1754384513.1604853
+      },
+      "Endpoint /api/phase3/security/health": {
+        "success": false,
+        "details": "Available: False",
+        "timestamp": 1754384513.1605434
+      }
+    },
+    "integration": {
+      "MLOps Pipeline Service File": {
+        "success": true,
+        "details": "backend/services/mlops_pipeline_service.py (20930 bytes)",
+        "timestamp": 1754384506.4580598
+      },
+      "Production Deployment Service File": {
+        "success": true,
+        "details": "backend/services/production_deployment_service.py (23343 bytes)",
+        "timestamp": 1754384506.458289
+      },
+      "Autonomous Monitoring Service File": {
+        "success": true,
+        "details": "backend/services/autonomous_monitoring_service.py (30107 bytes)",
+        "timestamp": 1754384506.4585936
+      },
+      "Advanced Security Service File": {
+        "success": true,
+        "details": "backend/services/advanced_security_service.py (38669 bytes)",
+        "timestamp": 1754384506.4588535
+      },
+      "Phase 3 Routes File": {
+        "success": true,
+        "details": "backend/routes/phase3_routes.py (24733 bytes)",
+        "timestamp": 1754384506.4592266
+      },
+      "Backend Deployment File": {
+        "success": true,
+        "details": "k8s/backend-deployment.yaml (4642 bytes)",
+        "timestamp": 1754384506.4595418
+      },
+      "Frontend Deployment File": {
+        "success": true,
+        "details": "k8s/frontend-deployment.yaml (5708 bytes)",
+        "timestamp": 1754384506.4598355
+      },
+      "Infrastructure Config File": {
+        "success": true,
+        "details": "k8s/infrastructure.yaml (7477 bytes)",
+        "timestamp": 1754384506.4602213
+      },
+      "CI/CD Pipeline File": {
+        "success": true,
+        "details": ".github/workflows/ci-cd.yml (31174 bytes)",
+        "timestamp": 1754384506.4609149
+      },
+      "Production Dockerfile File": {
+        "success": true,
+        "details": "Dockerfile.backend.prod (3632 bytes)",
+        "timestamp": 1754384506.4611483
+      },
+      "MLOps Pipeline Service Import": {
+        "success": true,
+        "details": "Module backend.services.mlops_pipeline_service available",
+        "timestamp": 1754384509.904433
+      },
+      "Production Deployment Service Import": {
+        "success": true,
+        "details": "Module backend.services.production_deployment_service available",
+        "timestamp": 1754384509.9045725
+      },
+      "Autonomous Monitoring Service Import": {
+        "success": true,
+        "details": "Module backend.services.autonomous_monitoring_service available",
+        "timestamp": 1754384509.90467
+      },
+      "Advanced Security Service Import": {
+        "success": true,
+        "details": "Module backend.services.advanced_security_service available",
+        "timestamp": 1754384509.9047618
+      },
+      "Phase 3 Routes Import": {
+        "success": true,
+        "details": "Module backend.routes.phase3_routes available",
+        "timestamp": 1754384512.6671572
+      },
+      "Production Integration Import": {
+        "success": true,
+        "details": "Module backend.production_integration available",
+        "timestamp": 1754384512.6673486
+      }
+    },
+    "dependencies": {
+      "Core: FastAPI": {
+        "success": true,
+        "details": "Module fastapi available",
+        "timestamp": 1754384513.160855
+      },
+      "Core: Uvicorn": {
+        "success": true,
+        "details": "Module uvicorn available",
+        "timestamp": 1754384513.1616168
+      },
+      "Core: SQLAlchemy": {
+        "success": true,
+        "details": "Module sqlalchemy available",
+        "timestamp": 1754384513.1616704
+      },
+      "Core: Pydantic": {
+        "success": true,
+        "details": "Module pydantic available",
+        "timestamp": 1754384513.1617832
+      },
+      "Core: Redis": {
+        "success": true,
+        "details": "Module redis available",
+        "timestamp": 1754384513.1618578
+      },
+      "Core: Asyncio": {
+        "success": true,
+        "details": "Module asyncio available",
+        "timestamp": 1754384513.1619391
+      },
+      "Optional: PyTorch": {
+        "success": true,
+        "details": "Module torch available",
+        "timestamp": 1754384513.1620033
+      },
+      "Optional: Transformers": {
+        "success": false,
+        "details": "Module transformers not found",
+        "timestamp": 1754384513.1624534
+      },
+      "Optional: MLflow": {
+        "success": false,
+        "details": "Module mlflow not found",
+        "timestamp": 1754384513.1627307
+      },
+      "Optional: Optuna": {
+        "success": true,
+        "details": "Module optuna available",
+        "timestamp": 1754384513.1627808
+      },
+      "Optional: Docker": {
+        "success": false,
+        "details": "Module docker not found",
+        "timestamp": 1754384513.1630828
+      },
+      "Optional: Kubernetes": {
+        "success": false,
+        "details": "Module kubernetes not found",
+        "timestamp": 1754384513.163682
+      },
+      "Optional: PyJWT": {
+        "success": true,
+        "details": "Module jwt available",
+        "timestamp": 1754384513.1637297
+      },
+      "Optional: Cryptography": {
+        "success": true,
+        "details": "Module cryptography available",
+        "timestamp": 1754384513.163774
+      }
+    },
+    "performance": {
+      "Modern ML Import": {
+        "success": true,
+        "details": "Import time: 0.000s",
+        "timestamp": 1754384513.1640146
+      },
+      "Health Check Speed": {
+        "success": true,
+        "details": "Health check: 0.000s",
+        "timestamp": 1754384513.1641965
+      },
+      "Performance Optimizer": {
+        "success": true,
+        "details": "Optimizer health: 0.000s",
+        "timestamp": 1754384513.1642578
+      }
+    }
+  }
+}

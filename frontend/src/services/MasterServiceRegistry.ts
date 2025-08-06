@@ -33,7 +33,7 @@ import { _lineupService } from './lineupService';
 // import { PredictionService } from './predictionService';
 // import { NotificationService } from './notificationService';
 // import { PerformanceTrackingService } from './PerformanceTrackingService';
-// import { SecurityService } from './SecurityService';
+import { SecurityService } from './unified/SecurityService';
 
 /**
  * Health status for a registered service.
@@ -143,6 +143,7 @@ class MasterServiceRegistry {
       { name: 'errors', service: UnifiedErrorService.getInstance() },
       { name: 'logger', service: UnifiedLogger.getInstance() },
       { name: 'websocket', service: UnifiedWebSocketService.getInstance() },
+      { name: 'security', service: SecurityService.getInstance() },
     ];
 
     for (const { name, service } of _unifiedServices) {
@@ -220,7 +221,7 @@ class MasterServiceRegistry {
       // { name: 'predictionSpecialized', service: new PredictionService() },
       // { name: 'notificationSpecialized', service: new NotificationService() },
       // { name: 'performance', service: new PerformanceTrackingService() },
-      // { name: 'security', service: new SecurityService() },
+      { name: 'security', service: SecurityService.getInstance() },
     ];
 
     for (const { name, service } of _specializedServices) {
@@ -379,6 +380,10 @@ class MasterServiceRegistry {
 
   get websocket(): UnifiedWebSocketService {
     return this.getService<UnifiedWebSocketService>('websocket')!;
+  }
+
+  get security(): SecurityService {
+    return this.getService<SecurityService>('security')!;
   }
 
   // Service orchestration methods
@@ -558,6 +563,9 @@ export const _services = {
   },
   get websocket() {
     return _masterServiceRegistry.websocket;
+  },
+  get security() {
+    return _masterServiceRegistry.security;
   },
 };
 

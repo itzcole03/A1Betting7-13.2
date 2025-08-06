@@ -1,41 +1,71 @@
 // This file contains the migrated and refactored FeatureEngineeringService from the legacy workspace.
 // Implements feature engineering, selection, validation, transformation, monitoring, caching, and registry logic for the frontend analytics pipeline.
 
-//
-import type { EngineeredFeatures, FeatureConfig, RawPlayerData } from '@/types';
-import { FeatureSelector } from './FeatureSelector';
-// ...other imports for transformer, validator, store, registry, cache, monitor, logger...
+// Define interfaces locally since the global types are incomplete
+interface EngineeredFeatures {
+  numerical: number[];
+  categorical: string[];
+  temporal: number[];
+  metadata: {
+    timestamp: number;
+    version: string;
+    source: string;
+  };
+}
+
+interface FeatureConfig {
+  version: string;
+  features: {
+    numerical: boolean;
+    categorical: boolean;
+    temporal: boolean;
+  };
+}
+
+interface RawPlayerData {
+  id: string;
+  name: string;
+  team: string;
+  position: string;
+  stats: Record<string, number>;
+  [key: string]: unknown;
+}
 
 export class FeatureEngineeringService {
-  private featureSelector: FeatureSelector;
-  private cache: Map<string, EngineeredFeatures>;
-  private config: FeatureConfig;
-
-  constructor(config: FeatureConfig) {
-    this.config = config;
-    this.featureSelector = new FeatureSelector();
-    this.cache = new Map();
+  constructor(private config: FeatureConfig) {
+    // Config is stored as a private field for potential future use
   }
 
   public async engineerFeatures(rawData: RawPlayerData[]): Promise<EngineeredFeatures> {
     // Feature engineering implementation
-    const _features: EngineeredFeatures = {
+    const features: EngineeredFeatures = {
       numerical: [],
       categorical: [],
       temporal: [],
       metadata: {
         timestamp: Date.now(),
-        version: '1.0.0',
+        version: this.config.version,
         source: 'FeatureEngineeringService',
       },
     };
 
-    // Process raw data and extract features
-    for (const _data of rawData) {
-      // Implement feature extraction logic
-      features.numerical.push(...this.extractNumericalFeatures(data));
-      features.categorical.push(...this.extractCategoricalFeatures(data));
-      features.temporal.push(...this.extractTemporalFeatures(data));
+    // Process raw data and extract features based on config
+    for (const data of rawData) {
+      // Implement feature extraction logic based on configuration
+      if (this.config.features.numerical) {
+        const numericalFeatures = this.extractNumericalFeatures(data);
+        features.numerical.push(...numericalFeatures);
+      }
+
+      if (this.config.features.categorical) {
+        const categoricalFeatures = this.extractCategoricalFeatures(data);
+        features.categorical.push(...categoricalFeatures);
+      }
+
+      if (this.config.features.temporal) {
+        const temporalFeatures = this.extractTemporalFeatures(data);
+        features.temporal.push(...temporalFeatures);
+      }
     }
 
     return features;
@@ -43,17 +73,36 @@ export class FeatureEngineeringService {
 
   private extractNumericalFeatures(data: RawPlayerData): number[] {
     // Implementation for numerical feature extraction
-    return [];
+    const numericalFeatures: number[] = [];
+
+    // Extract numerical features from stats
+    for (const [, value] of Object.entries(data.stats)) {
+      if (typeof value === 'number') {
+        numericalFeatures.push(value);
+      }
+    }
+
+    return numericalFeatures;
   }
 
   private extractCategoricalFeatures(data: RawPlayerData): string[] {
     // Implementation for categorical feature extraction
-    return [];
+    const categoricalFeatures: string[] = [];
+
+    // Add categorical features like team, position
+    categoricalFeatures.push(data.team, data.position);
+
+    return categoricalFeatures;
   }
 
-  private extractTemporalFeatures(data: RawPlayerData): number[] {
+  private extractTemporalFeatures(_data: RawPlayerData): number[] {
     // Implementation for temporal feature extraction
-    return [];
+    const temporalFeatures: number[] = [];
+
+    // Add timestamp-based features (for now, just current timestamp)
+    temporalFeatures.push(Date.now());
+
+    return temporalFeatures;
   }
 
   public getMetrics() {

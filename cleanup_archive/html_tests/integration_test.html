@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Integration Test - Sport Context Fix</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      .info {
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+      }
+      pre {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 3px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>A1Betting Integration Test - Sport Context Fix Verification</h1>
+
+    <div id="backend-health" class="test-section">
+      <h2>1. Backend Health Check</h2>
+      <p>Status: <span id="health-status">Testing...</span></p>
+      <pre id="health-response"></pre>
+    </div>
+
+    <div id="mlb-activation" class="test-section">
+      <h2>2. MLB Sport Activation</h2>
+      <p>Status: <span id="activation-status">Testing...</span></p>
+      <pre id="activation-response"></pre>
+    </div>
+
+    <div id="mlb-props" class="test-section">
+      <h2>3. MLB Props Data Fetch</h2>
+      <p>Status: <span id="props-status">Testing...</span></p>
+      <p>Props Count: <span id="props-count">-</span></p>
+      <pre id="props-response"></pre>
+    </div>
+
+    <div id="sport-context" class="test-section">
+      <h2>4. Sport Context Verification</h2>
+      <p>Status: <span id="context-status">Testing...</span></p>
+      <p>
+        Props with correct sport field: <span id="correct-sport-count">-</span>
+      </p>
+      <p>Props with "Unknown" sport: <span id="unknown-sport-count">-</span></p>
+      <pre id="context-response"></pre>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:8001";
+
+      async function runTests() {
+        // Test 1: Backend Health
+        try {
+          const healthResponse = await fetch(`${API_BASE}/health`);
+          const healthData = await healthResponse.json();
+          document.getElementById("health-status").textContent = "PASS";
+          document.getElementById("backend-health").classList.add("success");
+          document.getElementById("health-response").textContent =
+            JSON.stringify(healthData, null, 2);
+        } catch (error) {
+          document.getElementById("health-status").textContent =
+            "FAIL: " + error.message;
+          document.getElementById("backend-health").classList.add("error");
+          document.getElementById("health-response").textContent =
+            error.message;
+          return; // Don't continue if backend is down
+        }
+
+        // Test 2: MLB Activation
+        try {
+          const activationResponse = await fetch(
+            `${API_BASE}/api/sports/activate/MLB`,
+            {
+              method: "POST",
+            }
+          );
+          const activationData = await activationResponse.json();
+          document.getElementById("activation-status").textContent = "PASS";
+          document.getElementById("mlb-activation").classList.add("success");
+          document.getElementById("activation-response").textContent =
+            JSON.stringify(activationData, null, 2);
+        } catch (error) {
+          document.getElementById("activation-status").textContent =
+            "FAIL: " + error.message;
+          document.getElementById("mlb-activation").classList.add("error");
+          document.getElementById("activation-response").textContent =
+            error.message;
+        }
+
+        // Test 3: MLB Props Data
+        try {
+          const propsResponse = await fetch(
+            `${API_BASE}/mlb/odds-comparison/?market_type=playerprops`
+          );
+          const propsData = await propsResponse.json();
+          document.getElementById("props-status").textContent = "PASS";
+          document.getElementById("mlb-props").classList.add("success");
+          document.getElementById("props-count").textContent = propsData.length;
+
+          // Show first 3 props as sample
+          const sampleProps = propsData.slice(0, 3);
+          document.getElementById("props-response").textContent =
+            JSON.stringify(sampleProps, null, 2);
+
+          // Test 4: Sport Context Verification
+          const correctSportCount = propsData.filter(
+            (prop) => prop.sport && prop.sport !== "Unknown"
+          ).length;
+          const unknownSportCount = propsData.filter(
+            (prop) => !prop.sport || prop.sport === "Unknown"
+          ).length;
+
+          document.getElementById("correct-sport-count").textContent =
+            correctSportCount;
+          document.getElementById("unknown-sport-count").textContent =
+            unknownSportCount;
+
+          if (unknownSportCount === 0 && correctSportCount > 0) {
+            document.getElementById("context-status").textContent =
+              "PASS - All props have correct sport context";
+            document.getElementById("sport-context").classList.add("success");
+          } else {
+            document.getElementById(
+              "context-status"
+            ).textContent = `PARTIAL - ${unknownSportCount} props have "Unknown" sport`;
+            document.getElementById("sport-context").classList.add("info");
+          }
+
+          // Show sport field analysis
+          const sportAnalysis = {
+            total_props: propsData.length,
+            correct_sport_count: correctSportCount,
+            unknown_sport_count: unknownSportCount,
+            sample_sports: [
+              ...new Set(propsData.map((p) => p.sport).filter(Boolean)),
+            ].slice(0, 5),
+          };
+          document.getElementById("context-response").textContent =
+            JSON.stringify(sportAnalysis, null, 2);
+        } catch (error) {
+          document.getElementById("props-status").textContent =
+            "FAIL: " + error.message;
+          document.getElementById("mlb-props").classList.add("error");
+          document.getElementById("props-response").textContent = error.message;
+
+          document.getElementById("context-status").textContent =
+            "SKIPPED - Props fetch failed";
+          document.getElementById("sport-context").classList.add("error");
+        }
+      }
+
+      // Run tests when page loads
+      runTests();
+    </script>
+  </body>
+</html>

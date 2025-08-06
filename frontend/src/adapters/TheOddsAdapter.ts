@@ -54,7 +54,7 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
 
   public async isAvailable(): Promise<boolean> {
     try {
-      const _response = await fetch(`${this.config.baseUrl}/status?apiKey=${this.config.apiKey}`);
+      const response = await fetch(`${this.config.baseUrl}/status?apiKey=${this.config.apiKey}`);
       return response.ok;
     } catch {
       return false;
@@ -62,10 +62,7 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
   }
 
   public async fetchData(): Promise<TheOddsData> {
-    const _trace = this.monitor.startTrace('the-odds-fetch', {
-      category: 'adapter.fetch',
-      description: 'Fetching odds data',
-    });
+    const trace = this.monitor.startTrace('the-odds-fetch');
 
     try {
       if (this.isCacheValid()) {
@@ -73,7 +70,7 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
         return this.cache.data!;
       }
 
-      const _data = await this.fetchOddsData();
+      const data = await this.fetchOddsData();
 
       this.cache = {
         data,
@@ -81,13 +78,13 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
       };
 
       // Update game status for each event
-      for (const _event of data.events) {
+      for (const event of data.events) {
         await this.eventBus.publish('game:status', {
           game: {
-            id: event.id,
-            homeTeam: event.home_team,
-            awayTeam: event.away_team,
-            startTime: event.commence_time,
+            id: (event as any).id,
+            homeTeam: (event as any).home_team,
+            awayTeam: (event as any).away_team,
+            startTime: (event as any).commence_time,
             status: 'scheduled',
           },
           timestamp: Date.now(),
@@ -103,7 +100,7 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
   }
 
   private async fetchOddsData(): Promise<TheOddsData> {
-    const _response = await fetch(
+    const response = await fetch(
       `${this.config.baseUrl}/odds?apiKey=${this.config.apiKey}&regions=us&markets=h2h,spreads,totals`
     );
 

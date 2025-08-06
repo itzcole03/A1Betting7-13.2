@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Condensed Props Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background: #1a1a1a;
+        color: white;
+      }
+      .test-section {
+        border: 1px solid #333;
+        padding: 15px;
+        margin: 10px 0;
+        background: #2a2a2a;
+      }
+      .success {
+        color: #4ade80;
+      }
+      .error {
+        color: #ef4444;
+      }
+      .info {
+        color: #60a5fa;
+      }
+      pre {
+        background: #1a1a1a;
+        padding: 10px;
+        overflow-x: auto;
+        font-size: 12px;
+      }
+      .mock-card {
+        background: #374151;
+        border-radius: 12px;
+        padding: 16px;
+        margin: 8px 0;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 1px solid #4b5563;
+      }
+      .mock-card:hover {
+        background: #4b5563;
+      }
+      .mock-card.expanded {
+        background: #4b5563;
+        border: 2px solid #3b82f6;
+      }
+      .confidence-circle {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        border: 4px solid #10b981;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #10b981;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Condensed Props Card Test</h1>
+
+    <div class="test-section">
+      <h2>Mock Condensed Cards (Click to Expand)</h2>
+      <p class="info">This demonstrates the new condensed card layout</p>
+
+      <div id="mock-cards">
+        <div class="mock-card" onclick="toggleCard(this, 'card1')">
+          <div style="display: flex; align-items: center; justify-between;">
+            <div style="display: flex; align-items: center; gap: 12px">
+              <div class="confidence-circle">
+                <div style="text-align: center">
+                  <div style="font-size: 18px; font-weight: bold">75</div>
+                  <div style="font-size: 10px; opacity: 0.75">/100</div>
+                </div>
+              </div>
+              <div>
+                <div style="font-size: 18px; font-weight: 600">
+                  Philadelphia Phillies vs Detroit Tigers
+                </div>
+                <div style="font-size: 14px; color: #9ca3af">
+                  Philadelphia Phillies vs Detroit Tigers
+                </div>
+              </div>
+            </div>
+            <div style="text-align: right">
+              <div style="font-weight: 500">Total Runs</div>
+              <div style="font-size: 14px; color: #d1d5db">Line: 7.5</div>
+              <div style="font-size: 12px; color: #9ca3af; margin-top: 4px">
+                O:1.94 U:1.88
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: center; margin-top: 12px">
+            <div
+              style="
+                width: 24px;
+                height: 4px;
+                background: #4b5563;
+                border-radius: 2px;
+                transition: all 0.3s;
+              "
+            ></div>
+          </div>
+          <div
+            id="card1-expanded"
+            style="
+              display: none;
+              margin-top: 16px;
+              padding-top: 16px;
+              border-top: 1px solid #4b5563;
+            "
+          >
+            <div
+              style="
+                background: #1f2937;
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 12px;
+              "
+            >
+              <div style="font-weight: 600; margin-bottom: 4px">
+                At a Glance
+              </div>
+              <div style="font-size: 14px; color: #d1d5db">
+                Prop type: Total Runs
+              </div>
+            </div>
+            <div style="background: #1f2937; padding: 12px; border-radius: 8px">
+              <div style="font-weight: 600; margin-bottom: 4px">
+                Deep AI Analysis
+              </div>
+              <div style="font-size: 14px; color: #d1d5db">
+                Analysis shows favorable conditions for OVER based on recent
+                team performance and weather conditions.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mock-card" onclick="toggleCard(this, 'card2')">
+          <div style="display: flex; align-items: center; justify-between;">
+            <div style="display: flex; align-items: center; gap: 12px">
+              <div
+                class="confidence-circle"
+                style="border-color: #f59e0b; color: #f59e0b"
+              >
+                <div style="text-align: center">
+                  <div style="font-size: 18px; font-weight: bold">65</div>
+                  <div style="font-size: 10px; opacity: 0.75">/100</div>
+                </div>
+              </div>
+              <div>
+                <div style="font-size: 18px; font-weight: 600">
+                  Detroit Tigers (Team)
+                </div>
+                <div style="font-size: 14px; color: #9ca3af">
+                  Philadelphia Phillies vs Detroit Tigers
+                </div>
+              </div>
+            </div>
+            <div style="text-align: right">
+              <div style="font-weight: 500">Moneyline</div>
+              <div style="font-size: 14px; color: #d1d5db">Line: 0</div>
+              <div style="font-size: 12px; color: #9ca3af; margin-top: 4px">
+                O:2.38
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: center; margin-top: 12px">
+            <div
+              style="
+                width: 24px;
+                height: 4px;
+                background: #4b5563;
+                border-radius: 2px;
+                transition: all 0.3s;
+              "
+            ></div>
+          </div>
+          <div
+            id="card2-expanded"
+            style="
+              display: none;
+              margin-top: 16px;
+              padding-top: 16px;
+              border-top: 1px solid #4b5563;
+            "
+          >
+            <div style="background: #1f2937; padding: 12px; border-radius: 8px">
+              <div style="font-weight: 600; margin-bottom: 4px">
+                Deep AI Analysis
+              </div>
+              <div style="font-size: 14px; color: #d1d5db">
+                Tigers are showing strong recent form but face tough opponent.
+                Moderate confidence in this pick.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>Implementation Status</h2>
+      <div class="success">✅ CondensedPropCard component created</div>
+      <div class="success">
+        ✅ PropOllamaUnified updated to use condensed cards
+      </div>
+      <div class="success">
+        ✅ Grid layout adapted for condensed vs expanded views
+      </div>
+      <div class="success">✅ Click-to-expand functionality implemented</div>
+      <div class="info">
+        🔄 Testing condensed card UI in real application...
+      </div>
+    </div>
+
+    <script>
+      function toggleCard(cardElement, cardId) {
+        const expandedDiv = document.getElementById(cardId + "-expanded");
+        const isCurrentlyExpanded = expandedDiv.style.display !== "none";
+
+        // Close all other cards
+        document.querySelectorAll('[id$="-expanded"]').forEach((div) => {
+          div.style.display = "none";
+        });
+        document.querySelectorAll(".mock-card").forEach((card) => {
+          card.classList.remove("expanded");
+        });
+
+        if (!isCurrentlyExpanded) {
+          expandedDiv.style.display = "block";
+          cardElement.classList.add("expanded");
+        }
+      }
+    </script>
+  </body>
+</html>

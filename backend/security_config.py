@@ -25,7 +25,7 @@ Production-grade security settings and JWT authentication.
 import logging
 import os
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
 from fastapi import HTTPException, status
@@ -87,9 +87,9 @@ class SecurityManager:
             to_encode = data.copy()
 
             if expires_delta:
-                expire = datetime.utcnow() + expires_delta
+                expire = datetime.now(timezone.utc) + expires_delta
             else:
-                expire = datetime.utcnow() + timedelta(
+                expire = datetime.now(timezone.utc) + timedelta(
                     minutes=self.token_expire_minutes
                 )
 
@@ -272,7 +272,7 @@ class RateLimiter:
 
     def is_allowed(self, key: str, limit_config: Dict[str, int]) -> bool:
         """Check if request is within rate limit"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         window_start = now - timedelta(seconds=limit_config["window"])
 
         # Clean old requests

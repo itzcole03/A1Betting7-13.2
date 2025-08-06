@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Game Stats Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #1a1a1a;
+        color: white;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .test-section {
+        background: #2a2a2a;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        border: 1px solid #444;
+      }
+      .status {
+        padding: 8px 16px;
+        margin: 8px 0;
+        border-radius: 4px;
+      }
+      .success {
+        background-color: #4caf50;
+      }
+      .error {
+        background-color: #f44336;
+      }
+      .info {
+        background-color: #2196f3;
+      }
+      .test-button {
+        background: #ffc107;
+        color: #000;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .test-button:hover {
+        background: #ffb300;
+      }
+      .result {
+        background: #333;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 10px 0;
+        white-space: pre-wrap;
+        font-family: monospace;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🏟️ Live Game Stats Implementation Test</h1>
+
+      <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="status" class="status info">
+          Ready to test live game stats feature
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>1. Backend API Tests</h3>
+        <button class="test-button" onclick="testTodaysGamesAPI()">
+          Test Today's Games API
+        </button>
+        <button class="test-button" onclick="testLiveGameStatsAPI()">
+          Test Live Game Stats API
+        </button>
+        <div id="api-results" class="result"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>2. Frontend Integration Test</h3>
+        <p>To test the frontend integration:</p>
+        <ol>
+          <li>
+            Open the main application at
+            <a href="http://localhost:5173" target="_blank"
+              >http://localhost:5173</a
+            >
+          </li>
+          <li>Navigate to the "Prop Betting" section</li>
+          <li>Click "Show Upcoming Games" to view available games</li>
+          <li>Select a game (Tigers @ Phillies should show as "Live")</li>
+          <li>
+            You should see live game stats displayed instead of just "No props
+            available"
+          </li>
+        </ol>
+      </div>
+
+      <div class="test-section">
+        <h3>3. Expected Features</h3>
+        <ul>
+          <li>✅ Live game score display (Tigers @ Phillies: 0-0)</li>
+          <li>✅ Current inning and game state (Top 1st, In Progress)</li>
+          <li>✅ Team stats (hits, errors)</li>
+          <li>✅ Venue information (Citizens Bank Park)</li>
+          <li>✅ Auto-refresh every 30 seconds</li>
+          <li>✅ Visual indicators for live games (red dot, animations)</li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h3>4. Implementation Summary</h3>
+        <div class="result">
+          ✅ COMPLETED: Live Stats/Box Score Feature Implementation Backend
+          Changes: - Added /mlb/live-game-stats/{game_id} endpoint in
+          mlb_extras.py - Fetches real-time game data from MLB Stats API -
+          Returns structured JSON with teams, scores, inning, venue Frontend
+          Changes: - Created LiveGameStats.tsx component with auto-refresh -
+          Updated PropOllamaUnified.tsx to include game_id in data flow -
+          Integrated live stats display when games selected but no props
+          available - Enhanced user experience with visual indicators and
+          animations Key Features: - Real-time score updates every 30 seconds
+          for live games - Team stats (hits, runs, errors) display - Game status
+          and inning information - Responsive design with modern UI components -
+          Graceful error handling and loading states The feature activates
+          automatically when: 1. User selects an upcoming game from the games
+          list 2. Selected game has no available props 3. Game data includes a
+          valid game_id 4. Live stats component replaces "No props available"
+          message
+        </div>
+      </div>
+    </div>
+
+    <script>
+      async function testTodaysGamesAPI() {
+        const statusEl = document.getElementById("status");
+        const resultsEl = document.getElementById("api-results");
+
+        statusEl.textContent = "Testing Today's Games API...";
+        statusEl.className = "status info";
+
+        try {
+          const response = await fetch("/mlb/todays-games");
+          const data = await response.json();
+
+          resultsEl.textContent = `Today's Games API Response:\n${JSON.stringify(
+            data,
+            null,
+            2
+          )}`;
+
+          if (data.status === "ok" && data.games && data.games.length > 0) {
+            statusEl.textContent = `✅ Today's Games API working - Found ${data.games.length} games`;
+            statusEl.className = "status success";
+          } else {
+            statusEl.textContent = "⚠️ Today's Games API returned no games";
+            statusEl.className = "status error";
+          }
+        } catch (error) {
+          statusEl.textContent = `❌ Error testing Today's Games API: ${error.message}`;
+          statusEl.className = "status error";
+          resultsEl.textContent = `Error: ${error.message}`;
+        }
+      }
+
+      async function testLiveGameStatsAPI() {
+        const statusEl = document.getElementById("status");
+        const resultsEl = document.getElementById("api-results");
+
+        statusEl.textContent = "Testing Live Game Stats API...";
+        statusEl.className = "status info";
+
+        try {
+          // Test with Tigers @ Phillies game ID
+          const gameId = 776890;
+          const response = await fetch(`/mlb/live-game-stats/${gameId}`);
+          const data = await response.json();
+
+          resultsEl.textContent = `Live Game Stats API Response (Game ${gameId}):\n${JSON.stringify(
+            data,
+            null,
+            2
+          )}`;
+
+          if (data.status === "ok" && data.teams) {
+            statusEl.textContent = `✅ Live Game Stats API working - ${data.teams.away.name} @ ${data.teams.home.name} (${data.game_state.status})`;
+            statusEl.className = "status success";
+          } else {
+            statusEl.textContent = "⚠️ Live Game Stats API returned error";
+            statusEl.className = "status error";
+          }
+        } catch (error) {
+          statusEl.textContent = `❌ Error testing Live Game Stats API: ${error.message}`;
+          statusEl.className = "status error";
+          resultsEl.textContent = `Error: ${error.message}`;
+        }
+      }
+
+      // Auto-test on page load
+      window.addEventListener("load", () => {
+        testTodaysGamesAPI();
+      });
+    </script>
+  </body>
+</html>

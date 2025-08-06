@@ -34,15 +34,37 @@ class DatabaseConfig:
     """Database configuration"""
 
     url: str = "sqlite:///./a1betting.db"
+    fallback_url: str = "sqlite+aiosqlite:///./a1betting_fallback.db"
     pool_size: int = 20
     max_overflow: int = 30
+    connection_timeout: int = 10
+    retry_attempts: int = 3
 
     @classmethod
     def from_env(cls) -> "DatabaseConfig":
         return cls(
-            url=os.getenv("DATABASE_URL", cls.url),
-            pool_size=int(os.getenv("DB_POOL_SIZE", str(cls.pool_size))),
-            max_overflow=int(os.getenv("DB_MAX_OVERFLOW", str(cls.max_overflow))),
+            url=os.getenv("A1BETTING_DATABASE_URL")
+            or os.getenv("DATABASE_URL")
+            or cls.url,
+            fallback_url=os.getenv("A1BETTING_FALLBACK_DATABASE_URL")
+            or cls.fallback_url,
+            pool_size=int(
+                os.getenv("A1BETTING_DB_POOL_SIZE")
+                or os.getenv("DB_POOL_SIZE")
+                or str(cls.pool_size)
+            ),
+            max_overflow=int(
+                os.getenv("A1BETTING_DB_MAX_OVERFLOW")
+                or os.getenv("DB_MAX_OVERFLOW")
+                or str(cls.max_overflow)
+            ),
+            connection_timeout=int(
+                os.getenv("A1BETTING_DB_CONNECTION_TIMEOUT")
+                or str(cls.connection_timeout)
+            ),
+            retry_attempts=int(
+                os.getenv("A1BETTING_DB_RETRY_ATTEMPTS") or str(cls.retry_attempts)
+            ),
         )
 
 
@@ -88,8 +110,15 @@ class SecurityConfig:
     """Security and authentication configuration"""
 
     jwt_secret_key: str = "dev-secret-key"
+    jwt_algorithm: str = "HS256"
+    jwt_access_token_expire_minutes: int = 30
+    jwt_refresh_token_expire_days: int = 7
+    bcrypt_rounds: int = 12
     max_requests_per_minute: int = 100
     rate_limit_window_seconds: int = 60
+    rate_limit_burst: int = 10
+    enable_rate_limiting: bool = True
+    enable_ssl_redirect: bool = False
     cors_origins: Optional[List[str]] = None
 
     def __post_init__(self):
@@ -312,6 +341,25 @@ class A1BettingConfig:
     def get_database_url(self) -> str:
         """Get the appropriate database URL"""
         return self.database.url
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get configuration value by key with optional default"""
+        # Support nested attribute access with dots
+        if "." in key:
+            obj: Any = self
+            for part in key.split("."):
+                obj = getattr(obj, part, None)
+                if obj is None:
+                    return os.getenv(key.upper().replace(".", "_"), default)
+            return obj
+
+        # Check if it's an environment variable
+        env_value = os.getenv(key.upper(), None)
+        if env_value is not None:
+            return env_value
+
+        # Check if it's a direct attribute
+        return getattr(self, key, default)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to dictionary (excluding sensitive data)"""

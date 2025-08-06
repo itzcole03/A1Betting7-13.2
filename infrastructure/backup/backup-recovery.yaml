@@ -1,0 +1,527 @@
+# Backup and Disaster Recovery Configuration for A1Betting7-13.2
+# Automated backup procedures with point-in-time recovery capabilities
+
+# PostgreSQL Backup CronJob
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: a1betting-prod
+  labels:
+    app: postgres-backup
+    component: backup
+spec:
+  schedule: "0 2 * * *" # Daily at 2 AM
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: postgres-backup
+        spec:
+          serviceAccountName: backup-operator
+          restartPolicy: OnFailure
+          containers:
+            - name: postgres-backup
+              image: postgres:15-alpine
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  set -e
+                  echo "Starting PostgreSQL backup..."
+
+                  # Create backup directory
+                  mkdir -p /backup
+
+                  # Generate backup filename with timestamp
+                  BACKUP_FILE="/backup/postgres-backup-$(date +%Y%m%d-%H%M%S).sql.gz"
+
+                  # Perform backup with compression
+                  pg_dump $DATABASE_URL --no-password --verbose | gzip > $BACKUP_FILE
+
+                  # Verify backup integrity
+                  if [ -s "$BACKUP_FILE" ]; then
+                    echo "Backup completed successfully: $BACKUP_FILE"
+                    echo "Backup size: $(du -h $BACKUP_FILE | cut -f1)"
+                  else
+                    echo "Backup failed: file is empty"
+                    exit 1
+                  fi
+
+                  # Upload to S3 if configured
+                  if [ -n "$S3_BACKUP_BUCKET" ]; then
+                    echo "Uploading backup to S3..."
+                    aws s3 cp $BACKUP_FILE s3://$S3_BACKUP_BUCKET/postgres/$(basename $BACKUP_FILE)
+                    echo "S3 upload completed"
+                  fi
+
+                  # Cleanup old local backups (keep last 3 days)
+                  find /backup -name "postgres-backup-*.sql.gz" -mtime +3 -delete
+
+                  echo "Backup process completed"
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-credentials
+                      key: connection-string
+                - name: S3_BACKUP_BUCKET
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-credentials
+                      key: s3-bucket
+                      optional: true
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-credentials
+                      key: aws-access-key-id
+                      optional: true
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-credentials
+                      key: aws-secret-access-key
+                      optional: true
+                - name: AWS_DEFAULT_REGION
+                  value: "us-east-1"
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backup
+              resources:
+                requests:
+                  memory: "256Mi"
+                  cpu: "100m"
+                limits:
+                  memory: "512Mi"
+                  cpu: "200m"
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: backup-pvc
+
+---
+# Backup Storage PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backup-pvc
+  namespace: a1betting-prod
+  labels:
+    app: backup-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: standard
+
+---
+# Redis Backup CronJob
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: redis-backup
+  namespace: a1betting-prod
+  labels:
+    app: redis-backup
+    component: backup
+spec:
+  schedule: "0 3 * * *" # Daily at 3 AM
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: redis-backup
+        spec:
+          serviceAccountName: backup-operator
+          restartPolicy: OnFailure
+          containers:
+            - name: redis-backup
+              image: redis:7-alpine
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  echo "Starting Redis backup..."
+
+                  # Create backup directory
+                  mkdir -p /backup
+
+                  # Generate backup filename with timestamp
+                  BACKUP_FILE="/backup/redis-backup-$(date +%Y%m%d-%H%M%S).rdb"
+
+                  # Create Redis backup
+                  redis-cli --rdb $BACKUP_FILE -h redis-service -a $REDIS_PASSWORD
+
+                  # Compress backup
+                  gzip $BACKUP_FILE
+                  BACKUP_FILE="${BACKUP_FILE}.gz"
+
+                  # Verify backup integrity
+                  if [ -s "$BACKUP_FILE" ]; then
+                    echo "Backup completed successfully: $BACKUP_FILE"
+                    echo "Backup size: $(du -h $BACKUP_FILE | cut -f1)"
+                  else
+                    echo "Backup failed: file is empty"
+                    exit 1
+                  fi
+
+                  # Upload to S3 if configured
+                  if [ -n "$S3_BACKUP_BUCKET" ]; then
+                    echo "Uploading backup to S3..."
+                    aws s3 cp $BACKUP_FILE s3://$S3_BACKUP_BUCKET/redis/$(basename $BACKUP_FILE)
+                    echo "S3 upload completed"
+                  fi
+
+                  # Cleanup old local backups (keep last 3 days)
+                  find /backup -name "redis-backup-*.rdb.gz" -mtime +3 -delete
+
+                  echo "Redis backup process completed"
+              env:
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: redis-credentials
+                      key: password
+                - name: S3_BACKUP_BUCKET
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-credentials
+                      key: s3-bucket
+                      optional: true
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-credentials
+                      key: aws-access-key-id
+                      optional: true
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-credentials
+                      key: aws-secret-access-key
+                      optional: true
+                - name: AWS_DEFAULT_REGION
+                  value: "us-east-1"
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backup
+              resources:
+                requests:
+                  memory: "128Mi"
+                  cpu: "50m"
+                limits:
+                  memory: "256Mi"
+                  cpu: "100m"
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: backup-pvc
+
+---
+# Application Configuration Backup
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: config-backup
+  namespace: a1betting-prod
+  labels:
+    app: config-backup
+    component: backup
+spec:
+  schedule: "0 4 * * *" # Daily at 4 AM
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: config-backup
+        spec:
+          serviceAccountName: backup-operator
+          restartPolicy: OnFailure
+          containers:
+            - name: config-backup
+              image: bitnami/kubectl:latest
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  set -e
+                  echo "Starting configuration backup..."
+
+                  # Create backup directory
+                  mkdir -p /backup/config
+
+                  # Generate backup filename with timestamp
+                  BACKUP_DIR="/backup/config/config-backup-$(date +%Y%m%d-%H%M%S)"
+                  mkdir -p $BACKUP_DIR
+
+                  # Backup secrets (without sensitive data)
+                  kubectl get secrets -n a1betting-prod -o yaml | sed 's/data:/data: [REDACTED]/' > $BACKUP_DIR/secrets.yaml
+
+                  # Backup configmaps
+                  kubectl get configmaps -n a1betting-prod -o yaml > $BACKUP_DIR/configmaps.yaml
+
+                  # Backup deployments
+                  kubectl get deployments -n a1betting-prod -o yaml > $BACKUP_DIR/deployments.yaml
+
+                  # Backup services
+                  kubectl get services -n a1betting-prod -o yaml > $BACKUP_DIR/services.yaml
+
+                  # Backup ingress
+                  kubectl get ingress -n a1betting-prod -o yaml > $BACKUP_DIR/ingress.yaml
+
+                  # Backup network policies
+                  kubectl get networkpolicies -n a1betting-prod -o yaml > $BACKUP_DIR/networkpolicies.yaml
+
+                  # Create compressed archive
+                  cd /backup/config
+                  tar -czf $(basename $BACKUP_DIR).tar.gz $(basename $BACKUP_DIR)
+                  rm -rf $BACKUP_DIR
+
+                  echo "Configuration backup completed: $(basename $BACKUP_DIR).tar.gz"
+
+                  # Upload to S3 if configured
+                  if [ -n "$S3_BACKUP_BUCKET" ]; then
+                    echo "Uploading config backup to S3..."
+                    aws s3 cp $(basename $BACKUP_DIR).tar.gz s3://$S3_BACKUP_BUCKET/config/$(basename $BACKUP_DIR).tar.gz
+                    echo "S3 upload completed"
+                  fi
+
+                  # Cleanup old local backups (keep last 7 days)
+                  find /backup/config -name "config-backup-*.tar.gz" -mtime +7 -delete
+
+                  echo "Configuration backup process completed"
+              env:
+                - name: S3_BACKUP_BUCKET
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-credentials
+                      key: s3-bucket
+                      optional: true
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-credentials
+                      key: aws-access-key-id
+                      optional: true
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-credentials
+                      key: aws-secret-access-key
+                      optional: true
+                - name: AWS_DEFAULT_REGION
+                  value: "us-east-1"
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backup
+              resources:
+                requests:
+                  memory: "128Mi"
+                  cpu: "50m"
+                limits:
+                  memory: "256Mi"
+                  cpu: "100m"
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: backup-pvc
+
+---
+# Disaster Recovery Job Template
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: disaster-recovery-template
+  namespace: a1betting-prod
+  labels:
+    app: disaster-recovery
+    component: recovery
+  annotations:
+    description: "Template job for disaster recovery - modify and apply as needed"
+spec:
+  template:
+    metadata:
+      labels:
+        app: disaster-recovery
+    spec:
+      serviceAccountName: backup-operator
+      restartPolicy: Never
+      containers:
+        - name: disaster-recovery
+          image: postgres:15-alpine
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              echo "Starting disaster recovery process..."
+
+              # Variables (set these before running)
+              BACKUP_FILE="${BACKUP_FILE:-}"
+              RECOVERY_MODE="${RECOVERY_MODE:-full}"  # full, partial, config-only
+
+              if [ -z "$BACKUP_FILE" ]; then
+                echo "Error: BACKUP_FILE environment variable must be set"
+                exit 1
+              fi
+
+              echo "Recovery mode: $RECOVERY_MODE"
+              echo "Backup file: $BACKUP_FILE"
+
+              case $RECOVERY_MODE in
+                "full")
+                  echo "Performing full database recovery..."
+                  # Download backup from S3 if needed
+                  if [[ $BACKUP_FILE == s3://* ]]; then
+                    aws s3 cp $BACKUP_FILE /tmp/backup.sql.gz
+                    BACKUP_FILE="/tmp/backup.sql.gz"
+                  fi
+                  
+                  # Restore database
+                  gunzip -c $BACKUP_FILE | psql $DATABASE_URL
+                  echo "Database recovery completed"
+                  ;;
+                
+                "partial")
+                  echo "Performing partial recovery..."
+                  # Custom partial recovery logic here
+                  ;;
+                
+                "config-only")
+                  echo "Performing configuration recovery..."
+                  # Restore Kubernetes configurations
+                  ;;
+                
+                *)
+                  echo "Unknown recovery mode: $RECOVERY_MODE"
+                  exit 1
+                  ;;
+              esac
+
+              echo "Disaster recovery process completed"
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: connection-string
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: backup-credentials
+                  key: aws-access-key-id
+                  optional: true
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backup-credentials
+                  key: aws-secret-access-key
+                  optional: true
+            - name: AWS_DEFAULT_REGION
+              value: "us-east-1"
+            # Set these when creating the actual recovery job
+            - name: BACKUP_FILE
+              value: "" # Set to backup file path or S3 URL
+            - name: RECOVERY_MODE
+              value: "full" # full, partial, config-only
+          volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+      volumes:
+        - name: backup-storage
+          persistentVolumeClaim:
+            claimName: backup-pvc
+
+---
+# Backup Monitoring Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: backup-monitor
+  namespace: a1betting-prod
+  labels:
+    app: backup-monitor
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: metrics
+  selector:
+    app: backup-monitor
+
+---
+# Backup Status Dashboard ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  backup-monitoring.json: |
+    {
+      "dashboard": {
+        "id": 5,
+        "title": "A1Betting Backup & Recovery Monitoring",
+        "tags": ["a1betting", "backup", "disaster-recovery"],
+        "panels": [
+          {
+            "id": 1,
+            "title": "Backup Success Rate",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "rate(backup_jobs_success_total[24h]) / rate(backup_jobs_total[24h]) * 100",
+                "legendFormat": "Success Rate %"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "title": "Last Successful Backup",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "time() - backup_last_success_timestamp",
+                "legendFormat": "Hours Ago"
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "title": "Backup Size Trend",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "backup_size_bytes",
+                "legendFormat": "Backup Size (Bytes)"
+              }
+            ]
+          }
+        ]
+      }
+    }

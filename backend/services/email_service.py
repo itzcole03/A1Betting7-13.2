@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import jwt
 
@@ -15,7 +15,7 @@ def send_verification_email(email: str, token: str):
 def generate_verification_token(user_id: str) -> str:
     payload = {
         "sub": user_id,
-        "exp": datetime.utcnow() + timedelta(hours=24),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=24),
         "type": "email_verification",
     }
     token = jwt.encode(payload, config.secret_key, algorithm="HS256")

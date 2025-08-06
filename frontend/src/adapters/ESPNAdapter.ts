@@ -41,34 +41,32 @@ export class ESPNAdapter {
   }
 
   public async fetch(): Promise<ESPNData> {
-    const _startTime = Date.now(); // Simple timing for performance
     if (this.isCacheValid()) {
       return this.cache.data!;
     }
     const [games, headlines] = await Promise.all([this.fetchGames(), this.fetchHeadlines()]);
-    const _data: ESPNData = { games, headlines };
+    const data: ESPNData = { games, headlines };
     this.cache = { data, timestamp: Date.now() };
     this.eventBus.emit('espn-updated', { data });
     // Log fetch duration
-    const _duration = Date.now() - startTime;
     // console.log(`[ESPNAdapter] Fetch completed in ${duration}ms`);
     return data;
   }
 
   private async fetchGames(): Promise<ESPNGame[]> {
-    const _url = 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard';
+    const url = 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard';
     try {
-      const _response = await fetch(url);
-      const _json = await response.json();
+      const response = await fetch(url);
+      const json = await response.json();
       return (json.events || []).map((event: unknown) => {
-        const _eventData = event as Record<string, unknown>;
-        const _competitions = eventData.competitions as unknown[];
-        const _competitors = (competitions?.[0] as Record<string, unknown>)
+        const eventData = event as Record<string, unknown>;
+        const competitions = eventData.competitions as unknown[];
+        const competitors = (competitions?.[0] as Record<string, unknown>)
           ?.competitors as unknown[];
-        const _homeCompetitor = competitors?.find(
+        const homeCompetitor = competitors?.find(
           (c: unknown) => (c as Record<string, unknown>).homeAway === 'home'
         ) as Record<string, unknown> | undefined;
-        const _awayCompetitor = competitors?.find(
+        const awayCompetitor = competitors?.find(
           (c: unknown) => (c as Record<string, unknown>).homeAway === 'away'
         ) as Record<string, unknown> | undefined;
         return {
@@ -88,17 +86,17 @@ export class ESPNAdapter {
   }
 
   private async fetchHeadlines(): Promise<ESPNHeadline[]> {
-    const _url = 'https://www.espn.com/espn/rss/nba/news';
+    const url = 'https://www.espn.com/espn/rss/nba/news';
     try {
-      const _response = await fetch(url);
-      const _text = await response.text();
-      const _parser = new DOMParser();
-      const _xml = parser.parseFromString(text, 'text/xml');
-      const _items = xml.querySelectorAll('item');
-      return Array.from(items).map(item => {
-        const _title = item.querySelector('title')?.textContent || '';
-        const _link = item.querySelector('link')?.textContent || '';
-        const _pubDate = item.querySelector('pubDate')?.textContent || '';
+      const response = await fetch(url);
+      const text = await response.text();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(text, 'text/xml');
+      const items = xml.querySelectorAll('item');
+      return Array.from(items).map((item: Element) => {
+        const title = item.querySelector('title')?.textContent || '';
+        const link = item.querySelector('link')?.textContent || '';
+        const pubDate = item.querySelector('pubDate')?.textContent || '';
         return { title, link, pubDate };
       });
     } catch {
@@ -107,7 +105,7 @@ export class ESPNAdapter {
   }
 
   private isCacheValid(): boolean {
-    const _cacheTimeout = 5 * 60 * 1000; // 5 minutes
+    const cacheTimeout = 5 * 60 * 1000; // 5 minutes
     return this.cache.data !== null && Date.now() - this.cache.timestamp < cacheTimeout;
   }
 

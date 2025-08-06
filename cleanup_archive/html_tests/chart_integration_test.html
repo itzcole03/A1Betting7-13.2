@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enhanced PropCard Chart Integration Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Enhanced Statistics Chart Styles */
+      .group:hover .transition-all {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Accessibility: Focus states for keyboard navigation in charts */
+      [role="button"]:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+      }
+
+      /* Mobile responsiveness for statistics charts */
+      @media (max-width: 640px) {
+        .flex.items-end.gap-2 {
+          gap: 0.25rem;
+        }
+
+        .w-6 {
+          width: 1rem;
+        }
+
+        .text-xs {
+          font-size: 0.625rem;
+        }
+      }
+
+      /* Reduced motion for accessibility */
+      @media (prefers-reduced-motion: reduce) {
+        .transition-all {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-white p-8">
+    <div class="max-w-md mx-auto">
+      <h1 class="text-2xl font-bold mb-6 text-center">
+        Enhanced Chart Integration Test
+      </h1>
+
+      <!-- PropCard-style container -->
+      <div
+        class="bg-black rounded-2xl p-5 mb-6 shadow-lg border border-gray-800"
+      >
+        <div class="flex flex-col items-center mb-4">
+          <div class="relative mb-2">
+            <div
+              class="w-24 h-24 rounded-full bg-gray-900 flex items-center justify-center border-4 border-green-500 text-3xl font-bold text-green-400"
+            >
+              85/100
+            </div>
+          </div>
+          <div class="text-xl font-bold text-white text-center">Mike Trout</div>
+          <div class="text-sm text-gray-400 text-center">OF · LAA</div>
+        </div>
+
+        <!-- Enhanced Statistics Section -->
+        <div class="bg-gray-900 rounded-lg p-3 mb-3">
+          <div class="text-white font-semibold mb-1">Statistics</div>
+          <div
+            class="flex items-end gap-2 mt-2"
+            role="img"
+            aria-label="Player performance chart showing recent games and averages"
+          >
+            <!-- Sample data matching the master chart -->
+            <div class="flex flex-col items-center group">
+              <div
+                class="w-6 rounded-t-lg mb-1 transition-all duration-200 cursor-pointer bg-yellow-400 hover:bg-yellow-300"
+                style="height: 42px"
+                title="07/30: 70% of target line"
+                role="button"
+                tabindex="0"
+                aria-label="Game on July 30th, 70% of target performance"
+              ></div>
+              <div
+                class="text-xs text-gray-300 group-hover:text-white transition-colors"
+              >
+                07/30
+              </div>
+            </div>
+
+            <div class="flex flex-col items-center group">
+              <div
+                class="w-6 rounded-t-lg mb-1 transition-all duration-200 cursor-pointer bg-yellow-400 hover:bg-yellow-300"
+                style="height: 54px"
+                title="08/01: 90% of target line"
+                role="button"
+                tabindex="0"
+                aria-label="Game on August 1st, 90% of target performance"
+              ></div>
+              <div
+                class="text-xs text-gray-300 group-hover:text-white transition-colors"
+              >
+                08/01
+              </div>
+            </div>
+
+            <div class="flex flex-col items-center group">
+              <div
+                class="w-6 rounded-t-lg mb-1 transition-all duration-200 cursor-pointer bg-green-400 hover:bg-green-300"
+                style="height: 60px"
+                title="08/09: 100% - Target achieved!"
+                role="button"
+                tabindex="0"
+                aria-label="Game on August 9th, 100% target achieved"
+              ></div>
+              <div
+                class="text-xs text-gray-300 group-hover:text-white transition-colors"
+              >
+                08/09
+              </div>
+            </div>
+
+            <div class="flex flex-col items-center group">
+              <div
+                class="w-6 rounded-t-lg mb-1 transition-all duration-200 cursor-pointer bg-blue-400 hover:bg-blue-300"
+                style="height: 44px"
+                title="Season Average: 73% of target lines"
+                role="button"
+                tabindex="0"
+                aria-label="Season average, 73% of target performance"
+              ></div>
+              <div
+                class="text-xs text-gray-300 group-hover:text-white transition-colors"
+              >
+                Season Avg
+              </div>
+            </div>
+
+            <div class="flex flex-col items-center group">
+              <div
+                class="w-6 rounded-t-lg mb-1 transition-all duration-200 cursor-pointer bg-red-400 hover:bg-red-300"
+                style="height: 38px"
+                title="vs This Opponent: 63% of target lines"
+                role="button"
+                tabindex="0"
+                aria-label="Versus this opponent, 63% of target performance"
+              ></div>
+              <div
+                class="text-xs text-gray-300 group-hover:text-white transition-colors"
+              >
+                vs Opp
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center text-gray-400 text-sm">
+        <p>✅ Hover effects working</p>
+        <p>✅ Color coding implemented</p>
+        <p>✅ Tooltips functional</p>
+        <p>✅ Accessibility features added</p>
+        <p>✅ Mobile responsive</p>
+      </div>
+    </div>
+  </body>
+</html>

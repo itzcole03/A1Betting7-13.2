@@ -1,0 +1,180 @@
+# Pre-commit configuration for A1Betting7-13.2
+# Ensures code quality and consistency across the project
+
+repos:
+  # General code formatting and linting
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-executables-have-shebangs
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+      - id: pretty-format-json
+        args: ["--autofix", "--no-sort-keys"]
+
+  # Python specific hooks
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        language_version: python3
+        files: '^backend/.*\.py$'
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+        files: '^backend/.*\.py$'
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        files: '^backend/.*\.py$'
+        additional_dependencies:
+          - flake8-docstrings
+          - flake8-bugbear
+          - flake8-comprehensions
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
+    hooks:
+      - id: mypy
+        files: '^backend/.*\.py$'
+        additional_dependencies:
+          - types-requests
+          - types-redis
+          - types-python-dateutil
+
+  # Security scanning for Python
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: ["-r", "backend/", "-f", "json", "-o", "bandit-report.json"]
+        files: '^backend/.*\.py$'
+
+  # JavaScript/TypeScript specific hooks
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        files: '^frontend/.*\.(js|jsx|ts|tsx|json|css|md)$'
+        exclude: "^frontend/dist/.*$"
+
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.55.0
+    hooks:
+      - id: eslint
+        files: '^frontend/.*\.(js|jsx|ts|tsx)$'
+        exclude: "^frontend/dist/.*$"
+        additional_dependencies:
+          - "@typescript-eslint/eslint-plugin@^8.38.0"
+          - "@typescript-eslint/parser@^8.38.0"
+          - "eslint-plugin-react@^7.37.5"
+          - "eslint-plugin-react-hooks@^5.2.0"
+
+  # TypeScript type checking
+  - repo: local
+    hooks:
+      - id: typescript-check
+        name: TypeScript Type Check
+        entry: bash -c 'cd frontend && npm run type-check'
+        language: system
+        files: '^frontend/.*\.(ts|tsx)$'
+        exclude: "^frontend/dist/.*$"
+        pass_filenames: false
+
+  # Docker hooks
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        files: "^.*Dockerfile.*$"
+
+  # YAML and JSON linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.33.0
+    hooks:
+      - id: yamllint
+        args: [-c=.yamllint.yml]
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.38.0
+    hooks:
+      - id: markdownlint
+        args: ["--config", ".markdownlint.yml"]
+
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+
+  # Git hooks
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: 3.13.0
+    hooks:
+      - id: commitizen
+      - id: commitizen-branch
+        stages: [push]
+
+  # Security scanning for dependencies
+  - repo: local
+    hooks:
+      - id: safety-check
+        name: Python Safety Check
+        entry: bash -c 'cd backend && safety check'
+        language: system
+        files: '^backend/requirements.*\.txt$'
+        pass_filenames: false
+
+      - id: npm-audit
+        name: NPM Security Audit
+        entry: bash -c 'cd frontend && npm audit --audit-level moderate'
+        language: system
+        files: '^frontend/(package\.json|package-lock\.json)$'
+        pass_filenames: false
+
+  # Performance checks
+  - repo: local
+    hooks:
+      - id: bundle-size-check
+        name: Bundle Size Check
+        entry: bash -c 'cd frontend && npm run build && npx bundlesize'
+        language: system
+        files: '^frontend/.*\.(js|jsx|ts|tsx|css)$'
+        exclude: "^frontend/dist/.*$"
+        pass_filenames: false
+
+# Global configuration
+default_install_hook_types: [pre-commit, pre-push, commit-msg]
+fail_fast: false
+minimum_pre_commit_version: 3.0.0
+
+# CI/CD specific configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ""
+  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

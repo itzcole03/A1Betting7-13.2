@@ -39,7 +39,7 @@ class EnhancedPrizePicksServiceV2:
             "Accept": "application/json",
         }
         logger.info("[MOCK] Returning fast mock PrizePicks props for diagnostics.")
-        now = "2025-07-19T01:42:00Z"
+        now = "2025-08-01T01:42:00Z"
         return [
             {
                 "id": "mock_mlb_judge_1",

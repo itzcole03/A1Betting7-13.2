@@ -1,0 +1,360 @@
+# Multi-stage Optimized Dockerfile for React Frontend
+# Implements performance optimizations, security hardening, and modern best practices
+
+# Build arguments
+ARG NODE_VERSION=20
+ARG NGINX_VERSION=1.25-alpine
+ARG BUILD_DATE
+ARG VCS_REF
+
+# ================================
+# Base Node Stage
+# ================================
+FROM node:${NODE_VERSION}-alpine as base
+
+# Metadata
+LABEL maintainer="A1Betting Team" \
+      version="2.0.0" \
+      description="A1Betting React Frontend - Optimized Production Build" \
+      build-date="${BUILD_DATE}" \
+      vcs-ref="${VCS_REF}"
+
+# Install security updates and build dependencies
+RUN apk update && apk upgrade && \
+    apk add --no-cache \
+    curl \
+    git \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/cache/apk/*
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001 -G nodejs
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# ================================
+# Dependencies Stage
+# ================================
+FROM base as dependencies
+
+# Install all dependencies with optimizations
+RUN npm ci --only=production --no-audit --no-fund && \
+    npm cache clean --force
+
+# ================================
+# Development Dependencies Stage
+# ================================
+FROM base as dev-dependencies
+
+# Install all dependencies including dev
+RUN npm ci --no-audit --no-fund && \
+    npm cache clean --force
+
+# ================================
+# Development Stage
+# ================================
+FROM dev-dependencies as development
+
+# Copy source code
+COPY --chown=nextjs:nodejs . .
+
+# Set development environment
+ENV NODE_ENV=development \
+    VITE_ENVIRONMENT=development \
+    VITE_BACKEND_URL=http://localhost:8000
+
+# Switch to non-root user
+USER nextjs
+
+# Expose Vite dev server port
+EXPOSE 5173
+
+# Health check for development
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:5173/ || exit 1
+
+# Development command
+CMD ["npm", "run", "dev"]
+
+# ================================
+# Build Stage
+# ================================
+FROM dev-dependencies as build
+
+# Copy source code
+COPY --chown=nextjs:nodejs . .
+
+# Set build environment variables
+ENV NODE_ENV=production \
+    VITE_ENVIRONMENT=production \
+    GENERATE_SOURCEMAP=false \
+    CI=true
+
+# Build optimizations
+RUN npm run build && \
+    npm run analyze || true && \
+    du -sh dist/* || true
+
+# Verify build output
+RUN ls -la dist/ && \
+    find dist -name "*.js" -exec gzip -k {} \; && \
+    find dist -name "*.css" -exec gzip -k {} \; && \
+    echo "Build completed successfully"
+
+# ================================
+# Production Runtime Stage
+# ================================
+FROM nginx:${NGINX_VERSION} as production
+
+# Install security updates
+RUN apk update && apk upgrade && \
+    apk add --no-cache curl && \
+    rm -rf /var/cache/apk/*
+
+# Create non-root user for nginx
+RUN addgroup -g 1001 -S nginx-app && \
+    adduser -S nginx-app -u 1001 -G nginx-app
+
+# Copy built application
+COPY --from=build --chown=nginx-app:nginx-app /app/dist /usr/share/nginx/html
+
+# Create optimized nginx configuration
+RUN cat > /etc/nginx/nginx.conf << 'EOF'
+user nginx-app;
+worker_processes auto;
+worker_rlimit_nofile 65535;
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 1024;
+    use epoll;
+    multi_accept on;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    
+    # Logging
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                   '$status $body_bytes_sent "$http_referer" '
+                   '"$http_user_agent" "$http_x_forwarded_for"';
+    access_log /var/log/nginx/access.log main;
+    error_log /var/log/nginx/error.log warn;
+    
+    # Performance optimizations
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    keepalive_requests 100;
+    types_hash_max_size 2048;
+    client_max_body_size 16M;
+    
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        application/json
+        application/javascript
+        application/xml+rss
+        application/atom+xml
+        image/svg+xml;
+    
+    # Brotli compression (if available)
+    brotli on;
+    brotli_comp_level 6;
+    brotli_types
+        text/plain
+        text/css
+        application/json
+        application/javascript
+        text/xml
+        application/xml
+        application/xml+rss
+        text/javascript;
+    
+    # Security headers
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' ws: wss: http://localhost:8000 https:; frame-ancestors 'none';" always;
+    
+    # Rate limiting
+    limit_req_zone $binary_remote_addr zone=api:10m rate=100r/m;
+    limit_req_zone $binary_remote_addr zone=static:10m rate=200r/m;
+    
+    server {
+        listen 80;
+        listen [::]:80;
+        server_name _;
+        root /usr/share/nginx/html;
+        index index.html;
+        
+        # Security
+        server_tokens off;
+        
+        # Static file caching
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+            add_header Vary "Accept-Encoding";
+            limit_req zone=static burst=20 nodelay;
+        }
+        
+        # HTML files - no cache for SPA
+        location ~* \.html$ {
+            expires -1;
+            add_header Cache-Control "no-cache, no-store, must-revalidate";
+            add_header Pragma "no-cache";
+        }
+        
+        # API proxy
+        location /api/ {
+            limit_req zone=api burst=10 nodelay;
+            proxy_pass http://backend:8000/api/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_connect_timeout 5s;
+            proxy_send_timeout 60s;
+            proxy_read_timeout 60s;
+            proxy_buffering off;
+        }
+        
+        # WebSocket support
+        location /ws/ {
+            proxy_pass http://backend:8000/ws/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
+        
+        # SPA fallback
+        location / {
+            try_files $uri $uri/ /index.html;
+            add_header Cache-Control "no-cache, no-store, must-revalidate";
+        }
+        
+        # Health check
+        location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
+        
+        # Security.txt
+        location = /.well-known/security.txt {
+            return 200 "Contact: security@a1betting.com\nExpires: 2024-12-31T23:59:59.000Z\n";
+            add_header Content-Type text/plain;
+        }
+    }
+}
+EOF
+
+# Create cache directories
+RUN mkdir -p /var/cache/nginx/client_temp \
+             /var/cache/nginx/proxy_temp \
+             /var/cache/nginx/fastcgi_temp \
+             /var/cache/nginx/uwsgi_temp \
+             /var/cache/nginx/scgi_temp && \
+    chown -R nginx-app:nginx-app /var/cache/nginx \
+                                 /var/log/nginx \
+                                 /etc/nginx/conf.d \
+                                 /usr/share/nginx/html
+
+# Switch to non-root user
+USER nginx-app
+
+# Expose port
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost/health || exit 1
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
+
+# ================================
+# Testing Stage
+# ================================
+FROM dev-dependencies as testing
+
+# Copy source and test files
+COPY --chown=nextjs:nodejs . .
+
+# Set test environment
+ENV NODE_ENV=test \
+    CI=true
+
+# Switch to non-root user
+USER nextjs
+
+# Test command
+CMD ["npm", "run", "test:ci"]
+
+# ================================
+# E2E Testing Stage
+# ================================
+FROM mcr.microsoft.com/playwright:v1.40.0-focal as e2e-testing
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --no-audit --no-fund
+
+# Copy source and e2e tests
+COPY --chown=pwuser:pwuser . .
+
+# Install Playwright browsers
+RUN npx playwright install
+
+# Set test environment
+ENV NODE_ENV=test \
+    CI=true
+
+# Switch to non-root user
+USER pwuser
+
+# E2E test command
+CMD ["npm", "run", "test:e2e"]
+
+# ================================
+# Security Scanning Stage
+# ================================
+FROM dev-dependencies as security-scan
+
+# Install security tools
+RUN npm install -g audit-ci retire snyk
+
+# Copy source for scanning
+COPY --chown=nextjs:nodejs . .
+
+# Switch to non-root user
+USER nextjs
+
+# Security scan command
+CMD ["sh", "-c", "npm audit --audit-level moderate && retire --path . && echo 'Security scan completed'"]

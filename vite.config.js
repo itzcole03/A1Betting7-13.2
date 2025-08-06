@@ -21,6 +21,53 @@ export default defineConfig(({ mode }) => {
     root: path.resolve(__dirname, "."),
     build: {
       outDir: "dist",
+      // Enable code splitting and performance optimizations
+      rollupOptions: {
+        output: {
+          // Manual chunks for better caching
+          manualChunks: {
+            // React ecosystem
+            "react-vendor": ["react", "react-dom", "react-router-dom"],
+
+            // UI libraries
+            "ui-vendor": ["@headlessui/react", "@heroicons/react"],
+
+            // Data fetching and state management
+            "state-vendor": ["zustand", "swr"],
+
+            // Analytics and ML visualization
+            "chart-vendor": ["chart.js", "react-chartjs-2"],
+
+            // Utilities
+            "utils-vendor": ["date-fns", "lodash"],
+          },
+          // Optimize chunk file names
+          chunkFileNames: (chunkInfo) => {
+            const facadeModuleId = chunkInfo.facadeModuleId
+              ? chunkInfo.facadeModuleId
+                  .split("/")
+                  .pop()
+                  .replace(/\.\w+$/, "")
+              : "unknown";
+            return `js/[name]-[hash].js`;
+          },
+          entryFileNames: "js/[name]-[hash].js",
+          assetFileNames: "assets/[name]-[hash].[ext]",
+        },
+      },
+      // Performance optimizations
+      target: "esnext",
+      minify: "terser",
+      terserOptions: {
+        compress: {
+          drop_console: false, // Keep console for debugging in production
+          drop_debugger: true,
+        },
+      },
+      // Enable tree shaking
+      treeshake: true,
+      // Increase chunk size limit for better optimization
+      chunkSizeWarningLimit: 1000,
     },
     resolve: {
       alias: {

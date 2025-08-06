@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Flow Test</title>
+  </head>
+  <body>
+    <h1>Data Flow Test Page</h1>
+    <div id="test-results"></div>
+
+    <script>
+      console.log("*** DATA FLOW TEST STARTING ***");
+
+      async function testDataFlow() {
+        const results = document.getElementById("test-results");
+        results.innerHTML = "<p>Testing data flow...</p>";
+
+        try {
+          console.log("[TEST] Step 1: Activate MLB sport...");
+          const activateResponse = await fetch(
+            "http://localhost:8000/api/sports/activate/MLB",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+          const activateData = await activateResponse.json();
+          console.log("[TEST] *** ACTIVATION RESULT ***", activateData);
+          results.innerHTML += `<p>✅ Sport activation: ${JSON.stringify(
+            activateData
+          )}</p>`;
+
+          console.log("[TEST] Step 2: Fetch today's games...");
+          const gamesResponse = await fetch(
+            "http://localhost:8000/mlb/todays-games"
+          );
+          const gamesData = await gamesResponse.json();
+          console.log("[TEST] *** GAMES DATA ***", gamesData);
+          results.innerHTML += `<p>✅ Games data: ${
+            gamesData.games ? gamesData.games.length : 0
+          } games found</p>`;
+
+          console.log("[TEST] Step 3: Fetch props data...");
+          const propsResponse = await fetch(
+            "http://localhost:8000/mlb/odds-comparison/?market_type=playerprops&limit=5"
+          );
+          const propsData = await propsResponse.json();
+          console.log("[TEST] *** PROPS DATA ***", propsData);
+          results.innerHTML += `<p>✅ Props data: ${
+            Array.isArray(propsData) ? propsData.length : 0
+          } props found</p>`;
+
+          console.log("[TEST] *** DATA FLOW TEST COMPLETED SUCCESSFULLY ***");
+          results.innerHTML +=
+            "<p><strong>✅ DATA FLOW TEST COMPLETED SUCCESSFULLY!</strong></p>";
+        } catch (error) {
+          console.error("[TEST] *** DATA FLOW TEST ERROR ***", error);
+          results.innerHTML += `<p><strong>❌ ERROR: ${error.message}</strong></p>`;
+        }
+      }
+
+      // Run the test immediately
+      testDataFlow();
+
+      // Also run test every 10 seconds to see if data keeps flowing
+      setInterval(testDataFlow, 10000);
+    </script>
+  </body>
+</html>

@@ -11,7 +11,7 @@ import {
   RawPrizePicksIncludedPlayer,
   RawPrizePicksProjection,
 } from './../api/PrizePicksAPI'; // Updated import path
-import { unifiedMonitor } from './../core/UnifiedMonitor'; // Updated import path
+import { UnifiedMonitor } from './../core/UnifiedMonitor'; // Updated import path
 
 interface PrizePicksAdapterConfig {
   apiKey?: string; // VITE_PRIZEPICKS_API_KEY - made optional
@@ -26,6 +26,7 @@ export class PrizePicksAdapter {
 
   private readonly prizePicksApi: PrizePicksAPI;
   private readonly config: PrizePicksAdapterConfig;
+  private readonly unifiedMonitor: UnifiedMonitor;
   private cache: {
     data: PrizePicksData | null;
     timestamp: number;
@@ -38,9 +39,10 @@ export class PrizePicksAdapter {
       ...config,
     };
     this.prizePicksApi = new PrizePicksAPI({
-      apiKey: this.config.apiKey, // This will be an empty string if not in .env
+      apiKey: this.config.apiKey || '', // Ensure string, not undefined
       baseUrl: this.config.baseUrl || 'https://api.prizepicks.com',
     });
+    this.unifiedMonitor = UnifiedMonitor.getInstance();
     this.cache = {
       data: null,
       timestamp: 0,
@@ -53,9 +55,7 @@ export class PrizePicksAdapter {
   }
 
   public async fetch(): Promise<PrizePicksData> {
-    const _trace = unifiedMonitor.startTrace('PrizePicksAdapter.fetch', {
-      category: 'adapter.fetch',
-    });
+    const trace = this.unifiedMonitor.startTrace('PrizePicksAdapter.fetch');
 
     try {
       if (this.isCacheValid()) {
@@ -63,18 +63,18 @@ export class PrizePicksAdapter {
       }
 
       // Fetch data from API
-      const _apiResponse = await this.prizePicksApi.getProjections();
-      const _transformedData = this.transformData(apiResponse);
+      const apiResponse = await this.prizePicksApi.getProjections();
+      const transformedData = this.transformData(apiResponse);
 
       this.cache = {
         data: transformedData,
         timestamp: Date.now(),
       };
 
-      unifiedMonitor.endTrace(trace);
+      this.unifiedMonitor.endTrace(trace);
       return transformedData;
     } catch (error) {
-      unifiedMonitor.endTrace(trace);
+      this.unifiedMonitor.endTrace(trace);
       throw error;
     }
   }
@@ -82,13 +82,13 @@ export class PrizePicksAdapter {
   private transformData(
     apiResponse: PrizePicksAPIResponse<RawPrizePicksProjection>
   ): PrizePicksData {
-    const _includedPlayersMap = new Map<string, PrizePicksPlayer>();
-    const _includedLeaguesMap = new Map<string, PrizePicksLeague>();
+    const includedPlayersMap = new Map<string, PrizePicksPlayer>();
+    const includedLeaguesMap = new Map<string, PrizePicksLeague>();
 
     if (apiResponse.included) {
-      apiResponse.included.forEach((item: unknown) => {
+      apiResponse.included.forEach((item: any) => {
         if (item.type === 'new_player') {
-          const _rawPlayer = item as RawPrizePicksIncludedPlayer;
+          const rawPlayer = item as RawPrizePicksIncludedPlayer;
           includedPlayersMap.set(rawPlayer.id, {
             id: rawPlayer.id,
             name: rawPlayer.attributes.name,
@@ -97,28 +97,47 @@ export class PrizePicksAdapter {
             image_url: rawPlayer.attributes.image_url,
           });
         } else if (item.type === 'league') {
-          const _rawLeague = item as RawPrizePicksIncludedLeague;
+          const rawLeague = item as RawPrizePicksIncludedLeague;
           includedLeaguesMap.set(rawLeague.id, {
             id: rawLeague.id,
             name: rawLeague.attributes.name,
             sport: rawLeague.attributes.sport,
+            abbreviation: rawLeague.attributes.abbreviation || rawLeague.attributes.name,
+            active: rawLeague.attributes.active ?? true,
           });
         }
       });
     }
 
-    const _projections: PrizePicksProjection[] = apiResponse.data.map((rawProj: unknown) => {
-      const _playerId = rawProj.relationships?.new_player?.data?.id || '';
-      const _playerDetail = includedPlayersMap.get(playerId);
+    const projections: PrizePicksProjection[] = apiResponse.data.map((rawProj: any) => {
+      const playerId = rawProj.relationships?.new_player?.data?.id || '';
+      const playerDetail = includedPlayersMap.get(playerId);
 
       return {
         id: rawProj.id,
-        playerId: playerId,
+        player_id: playerId,
+        playerId: playerId, // Legacy alias
         player: playerDetail,
-        statType: rawProj.attributes.stat_type,
-        line: rawProj.attributes.line_score,
+        player_name: playerDetail?.name || 'Unknown Player',
+        team: playerDetail?.team || 'Unknown Team',
+        position: playerDetail?.position || 'Unknown',
+        league: 'Unknown League',
+        sport: 'Unknown Sport',
+        stat_type: rawProj.attributes.stat_type,
+        statType: rawProj.attributes.stat_type, // Legacy alias
+        line_score: rawProj.attributes.line_score,
+        line: rawProj.attributes.line_score, // Legacy alias
+        over_odds: 1.0, // Default value
+        under_odds: 1.0, // Default value
         description: rawProj.attributes.description,
-        startTime: rawProj.attributes.start_time,
+        start_time: rawProj.attributes.start_time,
+        startTime: rawProj.attributes.start_time, // Legacy alias
+        // Required fields from PrizePicksProjection interface
+        status: rawProj.attributes.status || 'active',
+        rank: rawProj.attributes.rank || 0,
+        is_promo: rawProj.attributes.is_promo || false,
+        confidence: rawProj.attributes.confidence || 0.5,
+        market_efficiency: rawProj.attributes.market_efficiency || 0.5,
       };
     });
 
@@ -132,7 +151,7 @@ export class PrizePicksAdapter {
 
   private isCacheValid(): boolean {
     if (!this.cache.data) return false;
-    const _age = Date.now() - this.cache.timestamp;
+    const age = Date.now() - this.cache.timestamp;
     return age < (this.config.cacheTimeout || 0);
   }
 

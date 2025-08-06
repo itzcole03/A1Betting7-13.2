@@ -37,12 +37,37 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
   const _handlers = useRef<Record<string, ((data: unknown) => void)[]>>({});
 
   useEffect(() => {
-    // Use process.env for VITE_WS_URL with a fallback for test compatibility
-    const _wsUrl = process.env.VITE_WS_URL || process.env.WS_URL || 'ws://localhost:8000/ws';
+    // Dynamically determine WebSocket URL based on current location
+    const getWebSocketUrl = () => {
+      if (process.env.NODE_ENV === 'development') {
+        // In development, connect to backend WebSocket server
+        return 'ws://localhost:8000/ws';
+      } else {
+        // Production WebSocket URL
+        return process.env.VITE_WS_URL || process.env.WS_URL || 'ws://localhost:8000/ws';
+      }
+    };
+
+    const _wsUrl = getWebSocketUrl();
+    console.log(`[WebSocket] Connecting to: ${_wsUrl}`);
     const _ws = new WebSocket(_wsUrl);
     _wsRef.current = _ws;
-    _ws.onopen = () => setConnected(true);
-    _ws.onclose = () => setConnected(false);
+
+    _ws.onopen = () => {
+      console.log(`[WebSocket] Connected successfully to: ${_wsUrl}`);
+      setConnected(true);
+    };
+
+    _ws.onclose = event => {
+      console.log(`[WebSocket] Connection closed:`, event.code, event.reason);
+      setConnected(false);
+    };
+
+    _ws.onerror = error => {
+      console.warn(`[WebSocket] Connection error (non-critical):`, error);
+      // WebSocket errors are non-critical - the app should work without real-time features
+    };
+
     _ws.onmessage = event => {
       try {
         const _data = JSON.parse(event.data);

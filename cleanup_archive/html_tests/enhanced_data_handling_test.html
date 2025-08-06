@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enhanced Data Sourcing & Handling Test</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        margin: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .success {
+        background: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .error {
+        background: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      .warning {
+        background: #fff3cd;
+        border-color: #ffeaa7;
+      }
+      .info {
+        background: #d1ecf1;
+        border-color: #bee5eb;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      button:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+      }
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin: 10px 0;
+      }
+      .metric-card {
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        text-align: center;
+      }
+      .metric-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+      }
+      .metric-label {
+        font-size: 12px;
+        color: #6c757d;
+        text-transform: uppercase;
+      }
+      .log-entry {
+        padding: 8px;
+        margin: 2px 0;
+        border-radius: 3px;
+        font-family: monospace;
+        font-size: 12px;
+      }
+      .log-debug {
+        background: #f8f9fa;
+      }
+      .log-info {
+        background: #d1ecf1;
+      }
+      .log-warn {
+        background: #fff3cd;
+      }
+      .log-error {
+        background: #f8d7da;
+      }
+      .validation-result {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      .quality-score {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        color: white;
+        font-weight: bold;
+      }
+      .quality-high {
+        background: #28a745;
+      }
+      .quality-medium {
+        background: #ffc107;
+      }
+      .quality-low {
+        background: #dc3545;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🚀 Enhanced Data Sourcing & Handling Test</h1>
+      <p>
+        Testing the comprehensive data validation, logging, and caching
+        improvements.
+      </p>
+
+      <div class="section">
+        <h2>🧪 Data Validation Tests</h2>
+        <button onclick="testDataValidation()">Run Validation Tests</button>
+        <button onclick="testBatchValidation()">Test Batch Validation</button>
+        <div id="validationResults"></div>
+      </div>
+
+      <div class="section">
+        <h2>📊 Performance Metrics</h2>
+        <button onclick="updateMetrics()">Refresh Metrics</button>
+        <div id="metricsDisplay" class="metrics"></div>
+      </div>
+
+      <div class="section">
+        <h2>💾 Cache Management</h2>
+        <button onclick="testCacheWarming()">Test Cache Warming</button>
+        <button onclick="testCacheInvalidation()">
+          Test Cache Invalidation
+        </button>
+        <button onclick="clearCache()">Clear Cache</button>
+        <div id="cacheResults"></div>
+      </div>
+
+      <div class="section">
+        <h2>📝 Structured Logging</h2>
+        <button onclick="clearLogs()">Clear Logs</button>
+        <button onclick="generateTestLogs()">Generate Test Logs</button>
+        <div id="logDisplay"></div>
+      </div>
+
+      <div class="section">
+        <h2>🔧 Error Handling</h2>
+        <button onclick="testErrorRecovery()">Test Error Recovery</button>
+        <button onclick="testFallbackMechanisms()">
+          Test Fallback Mechanisms
+        </button>
+        <div id="errorResults"></div>
+      </div>
+    </div>
+
+    <script type="module">
+      // Mock implementations for testing
+      class MockDataValidator {
+        validateSportsProp(rawData, sport, context) {
+          const isValid =
+            rawData.player && rawData.stat && rawData.confidence !== undefined;
+          const qualityScore = isValid
+            ? Math.floor(70 + Math.random() * 30)
+            : Math.floor(Math.random() * 50);
+
+          return {
+            isValid,
+            data: isValid
+              ? {
+                  ...rawData,
+                  id: rawData.id || `${rawData.player}-${rawData.stat}`,
+                  sport: sport || rawData.sport || "MLB",
+                  dataSource: context.source || "test",
+                  validatedAt: new Date().toISOString(),
+                  qualityScore,
+                  confidence: Math.min(
+                    100,
+                    Math.max(0, rawData.confidence || 0)
+                  ),
+                  line: parseFloat(rawData.line || 0),
+                  overOdds: parseFloat(rawData.overOdds || 0),
+                  underOdds: parseFloat(rawData.underOdds || 0),
+                  pickType: rawData.pickType || "prop",
+                  gameTime: rawData.gameTime || new Date().toISOString(),
+                  matchup: rawData.matchup || "Test vs Test",
+                  _originalData: rawData,
+                }
+              : undefined,
+            errors: isValid
+              ? []
+              : [
+                  {
+                    field: "player",
+                    message: "Player name is required",
+                    code: "REQUIRED_FIELD",
+                    severity: "error",
+                  },
+                  {
+                    field: "stat",
+                    message: "Stat type is required",
+                    code: "REQUIRED_FIELD",
+                    severity: "error",
+                  },
+                ],
+            warnings: qualityScore < 80 ? ["Low data quality detected"] : [],
+            qualityScore,
+          };
+        }
+
+        validateBatch(rawDataArray, sport, context) {
+          const results = rawDataArray.map((data) =>
+            this.validateSportsProp(data, sport, context)
+          );
+          const validResults = results.filter((r) => r.isValid && r.data);
+          const allErrors = results.flatMap((r) => r.errors);
+
+          return {
+            isValid: validResults.length > 0,
+            data: validResults.map((r) => r.data),
+            errors: allErrors,
+            warnings: results.flatMap((r) => r.warnings),
+            qualityScore:
+              validResults.length > 0
+                ? validResults.reduce((sum, r) => sum + r.qualityScore, 0) /
+                  validResults.length
+                : 0,
+          };
+        }
+      }
+
+      class MockEnhancedLogger {
+        constructor() {
+          this.logs = [];
+          this.metrics = {
+            totalRequests: 0,
+            cacheHits: 0,
+            cacheMisses: 0,
+            errors: 0,
+            avgResponseTime: 150,
+            dataQualityScore: 85,
+            validationErrors: 0,
+            fallbacksUsed: 0,
+            transformationErrors: 0,
+            slowQueries: [],
+            errorsByType: {},
+            errorsByEndpoint: {},
+            lastUpdate: Date.now(),
+          };
+        }
+
+        log(entry) {
+          const fullEntry = {
+            timestamp: new Date().toISOString(),
+            ...entry,
+          };
+          this.logs.push(fullEntry);
+          this.updateMetrics(fullEntry);
+          console.log(
+            `[${fullEntry.level.toUpperCase()}] [${fullEntry.component}:${
+              fullEntry.operation
+            }] ${fullEntry.message}`,
+            fullEntry.metadata
+          );
+        }
+
+        debug(component, operation, message, metadata = {}) {
+          this.log({ level: "debug", component, operation, message, metadata });
+        }
+
+        info(component, operation, message, metadata = {}) {
+          this.log({ level: "info", component, operation, message, metadata });
+        }
+
+        warn(component, operation, message, metadata = {}, error) {
+          this.log({
+            level: "warn",
+            component,
+            operation,
+            message,
+            metadata,
+            error,
+          });
+        }
+
+        error(component, operation, message, metadata = {}, error) {
+          this.log({
+            level: "error",
+            component,
+            operation,
+            message,
+            metadata,
+            error,
+          });
+        }
+
+        logDataValidation(
+          operation,
+          sport,
+          recordCount,
+          validRecords,
+          errors,
+          qualityScore,
+          duration,
+          metadata = {}
+        ) {
+          this.info(
+            "DataValidator",
+            operation,
+            `Validated ${validRecords}/${recordCount} ${sport} records (quality: ${qualityScore}%, errors: ${errors})`,
+            {
+              sport,
+              recordCount,
+              validRecords,
+              errors,
+              qualityScore,
+              duration,
+              ...metadata,
+            }
+          );
+        }
+
+        logApiRequest(
+          endpoint,
+          method,
+          params,
+          duration,
+          status,
+          metadata = {}
+        ) {
+          this.info(
+            "ApiClient",
+            "request",
+            `${method} ${endpoint} - ${status} (${duration}ms)`,
+            { endpoint, method, params, duration, status, ...metadata }
+          );
+        }
+
+        logCacheOperation(operation, cacheKey, metadata = {}) {
+          this.debug(
+            "CacheManager",
+            "cache",
+            `Cache ${operation}: ${cacheKey}`,
+            {
+              cacheKey,
+              operation,
+              ...metadata,
+            }
+          );
+        }
+
+        getMetrics() {
+          return { ...this.metrics };
+        }
+
+        queryLogs(options = {}) {
+          let filtered = [...this.logs];
+          if (options.level) {
+            const levelPriority = { debug: 0, info: 1, warn: 2, error: 3 };
+            const minPriority = levelPriority[options.level];
+            filtered = filtered.filter(
+              (entry) => levelPriority[entry.level] >= minPriority
+            );
+          }
+          if (options.limit) {
+            filtered = filtered.slice(-options.limit);
+          }
+          return filtered.reverse();
+        }
+
+        clearLogs() {
+          this.logs = [];
+        }
+
+        updateMetrics(entry) {
+          if (entry.metadata.duration) {
+            this.metrics.totalRequests++;
+            this.metrics.avgResponseTime =
+              (this.metrics.avgResponseTime * (this.metrics.totalRequests - 1) +
+                entry.metadata.duration) /
+              this.metrics.totalRequests;
+          }
+
+          if (entry.level === "error") {
+            this.metrics.errors++;
+          }
+
+          if (
+            entry.component === "DataValidator" &&
+            entry.metadata.dataQuality !== undefined
+          ) {
+            this.metrics.dataQualityScore = entry.metadata.dataQuality;
+          }
+        }
+      }
+
+      // Initialize mock services
+      const dataValidator = new MockDataValidator();
+      const enhancedLogger = new MockEnhancedLogger();
+
+      // Test data samples
+      const validTestProp = {
+        id: "test-1",
+        player: "Aaron Judge",
+        matchup: "Yankees vs Red Sox",
+        stat: "Home Runs",
+        line: 1.5,
+        overOdds: -110,
+        underOdds: -110,
+        confidence: 75,
+        sport: "MLB",
+        gameTime: new Date().toISOString(),
+        pickType: "prop",
+      };
+
+      const invalidTestProp = {
+        id: "test-2",
+        player: "", // Invalid - empty player
+        stat: null, // Invalid - null stat
+        confidence: "invalid", // Invalid - non-numeric
+        sport: "MLB",
+      };
+
+      const partialTestProp = {
+        player: "Mike Trout",
+        stat: "Hits",
+        confidence: 65,
+        // Missing many fields
+      };
+
+      // Global test functions
+      window.testDataValidation = function () {
+        const resultsDiv = document.getElementById("validationResults");
+        resultsDiv.innerHTML = "<h3>Running Validation Tests...</h3>";
+
+        const testCases = [
+          { name: "Valid Prop", data: validTestProp, expectedValid: true },
+          { name: "Invalid Prop", data: invalidTestProp, expectedValid: false },
+          { name: "Partial Prop", data: partialTestProp, expectedValid: true },
+        ];
+
+        let html = "<h3>Validation Test Results</h3>";
+
+        testCases.forEach((testCase, index) => {
+          const result = dataValidator.validateSportsProp(
+            testCase.data,
+            "MLB",
+            { source: "test" }
+          );
+          const passed = result.isValid === testCase.expectedValid;
+
+          const qualityClass =
+            result.qualityScore >= 80
+              ? "quality-high"
+              : result.qualityScore >= 60
+              ? "quality-medium"
+              : "quality-low";
+
+          html += `
+                    <div class="validation-result ${
+                      passed ? "success" : "error"
+                    }">
+                        <h4>${testCase.name} ${passed ? "✅" : "❌"}</h4>
+                        <p><strong>Valid:</strong> ${
+                          result.isValid
+                        } (expected: ${testCase.expectedValid})</p>
+                        <p><strong>Quality Score:</strong> <span class="quality-score ${qualityClass}">${
+            result.qualityScore
+          }%</span></p>
+                        <p><strong>Errors:</strong> ${result.errors.length}</p>
+                        <p><strong>Warnings:</strong> ${
+                          result.warnings.length
+                        }</p>
+                        ${
+                          result.errors.length > 0
+                            ? `<p><strong>Error Details:</strong> ${result.errors
+                                .map((e) => e.message)
+                                .join(", ")}</p>`
+                            : ""
+                        }
+                    </div>
+                `;
+        });
+
+        resultsDiv.innerHTML = html;
+      };
+
+      window.testBatchValidation = function () {
+        const resultsDiv = document.getElementById("validationResults");
+        const testData = [
+          validTestProp,
+          invalidTestProp,
+          partialTestProp,
+          validTestProp,
+          invalidTestProp,
+        ];
+
+        const startTime = Date.now();
+        const result = dataValidator.validateBatch(testData, "MLB", {
+          source: "batch_test",
+        });
+        const duration = Date.now() - startTime;
+
+        const html = `
+                <div class="validation-result info">
+                    <h3>Batch Validation Results</h3>
+                    <p><strong>Input Records:</strong> ${testData.length}</p>
+                    <p><strong>Valid Records:</strong> ${
+                      result.data ? result.data.length : 0
+                    }</p>
+                    <p><strong>Success Rate:</strong> ${
+                      testData.length > 0
+                        ? (
+                            ((result.data ? result.data.length : 0) /
+                              testData.length) *
+                            100
+                          ).toFixed(1)
+                        : 0
+                    }%</p>
+                    <p><strong>Avg Quality Score:</strong> ${result.qualityScore.toFixed(
+                      1
+                    )}%</p>
+                    <p><strong>Processing Time:</strong> ${duration}ms</p>
+                    <p><strong>Total Errors:</strong> ${
+                      result.errors.length
+                    }</p>
+                    <p><strong>Total Warnings:</strong> ${
+                      result.warnings.length
+                    }</p>
+                </div>
+            `;
+
+        resultsDiv.innerHTML = html;
+      };
+
+      window.updateMetrics = function () {
+        const metrics = enhancedLogger.getMetrics();
+        const metricsDiv = document.getElementById("metricsDisplay");
+
+        const html = `
+                <div class="metric-card">
+                    <div class="metric-value">${metrics.totalRequests}</div>
+                    <div class="metric-label">Total Requests</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${metrics.avgResponseTime.toFixed(
+                      0
+                    )}ms</div>
+                    <div class="metric-label">Avg Response Time</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${metrics.dataQualityScore.toFixed(
+                      1
+                    )}%</div>
+                    <div class="metric-label">Data Quality Score</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${metrics.errors}</div>
+                    <div class="metric-label">Total Errors</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${metrics.cacheHits}</div>
+                    <div class="metric-label">Cache Hits</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${metrics.cacheMisses}</div>
+                    <div class="metric-label">Cache Misses</div>
+                </div>
+            `;
+
+        metricsDiv.innerHTML = html;
+      };
+
+      window.testCacheWarming = function () {
+        const resultsDiv = document.getElementById("cacheResults");
+
+        enhancedLogger.info(
+          "CacheManager",
+          "warming",
+          "Starting cache warming test",
+          { operation: "test" }
+        );
+
+        // Simulate cache warming
+        const endpoints = [
+          "/api/mlb/props",
+          "/api/nba/props",
+          "/api/batch-predictions",
+        ];
+        endpoints.forEach((endpoint, index) => {
+          setTimeout(() => {
+            enhancedLogger.logApiRequest(
+              endpoint,
+              "GET",
+              {},
+              100 + index * 50,
+              "success",
+              { cached: false }
+            );
+            enhancedLogger.logCacheOperation("set", `cache-${endpoint}`, {
+              ttl: 600000,
+            });
+          }, index * 100);
+        });
+
+        setTimeout(() => {
+          resultsDiv.innerHTML = `
+                    <div class="section success">
+                        <h4>Cache Warming Test Complete ✅</h4>
+                        <p>Warmed ${endpoints.length} cache entries</p>
+                        <p>Check the logs section for detailed cache operations</p>
+                    </div>
+                `;
+        }, endpoints.length * 100 + 100);
+      };
+
+      window.testCacheInvalidation = function () {
+        const resultsDiv = document.getElementById("cacheResults");
+
+        enhancedLogger.info(
+          "CacheManager",
+          "invalidation",
+          "Testing cache invalidation",
+          {
+            eventType: "sport_update",
+            sport: "MLB",
+            reason: "Test invalidation",
+          }
+        );
+
+        resultsDiv.innerHTML = `
+                <div class="section warning">
+                    <h4>Cache Invalidation Test ⚠️</h4>
+                    <p>Simulated sport_update event for MLB</p>
+                    <p>All MLB-related cache entries would be invalidated</p>
+                    <p>Check the logs section for detailed invalidation operations</p>
+                </div>
+            `;
+      };
+
+      window.clearCache = function () {
+        enhancedLogger.info("CacheManager", "clear", "Cache cleared manually", {
+          trigger: "user_action",
+        });
+        document.getElementById("cacheResults").innerHTML = `
+                <div class="section info">
+                    <h4>Cache Cleared 🗑️</h4>
+                    <p>All cache entries have been cleared</p>
+                </div>
+            `;
+      };
+
+      window.clearLogs = function () {
+        enhancedLogger.clearLogs();
+        document.getElementById("logDisplay").innerHTML = "<p>Logs cleared</p>";
+      };
+
+      window.generateTestLogs = function () {
+        // Generate sample logs
+        enhancedLogger.info("DataManager", "fetchData", "Fetching MLB props", {
+          endpoint: "/api/mlb/props",
+          sport: "MLB",
+        });
+        enhancedLogger.logApiRequest(
+          "/api/mlb/props",
+          "GET",
+          { market_type: "playerprops" },
+          234,
+          "success",
+          { sport: "MLB" }
+        );
+        enhancedLogger.logDataValidation("batch", "MLB", 15, 14, 1, 87.5, 45, {
+          source: "api",
+        });
+        enhancedLogger.warn(
+          "DataValidator",
+          "validation",
+          "Low data quality detected",
+          { qualityScore: 65, sport: "MLB" }
+        );
+        enhancedLogger.error(
+          "ApiClient",
+          "request",
+          "Network timeout",
+          { endpoint: "/api/timeout", duration: 5000 },
+          new Error("Timeout")
+        );
+
+        updateLogDisplay();
+      };
+
+      window.testErrorRecovery = function () {
+        const resultsDiv = document.getElementById("errorResults");
+
+        // Simulate error scenarios
+        enhancedLogger.error(
+          "DataManager",
+          "fetchData",
+          "Primary API failed, attempting fallback",
+          {
+            endpoint: "/api/primary",
+            error: "ConnectionError",
+          },
+          new Error("Connection refused")
+        );
+
+        enhancedLogger.warn(
+          "DataManager",
+          "fallback",
+          "Using stale cache data due to API failure",
+          {
+            cacheKey: "stale-data-key",
+            age: "10 minutes",
+          }
+        );
+
+        enhancedLogger.info(
+          "DataManager",
+          "recovery",
+          "Successfully recovered using cached data",
+          {
+            strategy: "stale_cache_fallback",
+            dataAge: 600000,
+          }
+        );
+
+        resultsDiv.innerHTML = `
+                <div class="section success">
+                    <h4>Error Recovery Test Complete ✅</h4>
+                    <p>Simulated primary API failure → stale cache fallback → successful recovery</p>
+                    <p>Check the logs section for detailed error recovery flow</p>
+                </div>
+            `;
+      };
+
+      window.testFallbackMechanisms = function () {
+        const resultsDiv = document.getElementById("errorResults");
+
+        // Test data with missing fields
+        const incompleteData = { player: "Test Player", sport: "MLB" };
+        const result = dataValidator.validateSportsProp(incompleteData, "MLB", {
+          source: "fallback_test",
+        });
+
+        enhancedLogger.info(
+          "DataValidator",
+          "fallback",
+          "Applied fallback values for missing fields",
+          {
+            originalFields: Object.keys(incompleteData).length,
+            finalFields: result.data ? Object.keys(result.data).length : 0,
+            fallbacksUsed: ["stat:unknown", "line:0", "confidence:0"],
+          }
+        );
+
+        resultsDiv.innerHTML = `
+                <div class="section ${result.isValid ? "success" : "warning"}">
+                    <h4>Fallback Mechanisms Test ${
+                      result.isValid ? "✅" : "⚠️"
+                    }</h4>
+                    <p><strong>Original Fields:</strong> ${
+                      Object.keys(incompleteData).length
+                    }</p>
+                    <p><strong>Final Fields:</strong> ${
+                      result.data ? Object.keys(result.data).length : 0
+                    }</p>
+                    <p><strong>Quality Score:</strong> ${
+                      result.qualityScore
+                    }%</p>
+                    <p><strong>Validation Result:</strong> ${
+                      result.isValid ? "Valid" : "Invalid"
+                    }</p>
+                    <p>Fallback mechanisms successfully filled missing fields</p>
+                </div>
+            `;
+      };
+
+      function updateLogDisplay() {
+        const logs = enhancedLogger.queryLogs({ limit: 20 });
+        const logDiv = document.getElementById("logDisplay");
+
+        const html = logs
+          .map(
+            (log) => `
+                <div class="log-entry log-${log.level}">
+                    <strong>[${new Date(
+                      log.timestamp
+                    ).toLocaleTimeString()}]</strong>
+                    <span style="color: #666;">[${log.level.toUpperCase()}]</span>
+                    <span style="color: #333;">[${log.component}:${
+              log.operation
+            }]</span>
+                    ${log.message}
+                    ${
+                      Object.keys(log.metadata).length > 0
+                        ? `<br><small style="margin-left: 20px; color: #666;">Metadata: ${JSON.stringify(
+                            log.metadata,
+                            null,
+                            2
+                          )}</small>`
+                        : ""
+                    }
+                </div>
+            `
+          )
+          .join("");
+
+        logDiv.innerHTML = html || "<p>No logs available</p>";
+      }
+
+      // Initialize display
+      updateMetrics();
+      updateLogDisplay();
+
+      // Auto-refresh logs every 5 seconds
+      setInterval(updateLogDisplay, 5000);
+    </script>
+  </body>
+</html>

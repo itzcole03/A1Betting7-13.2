@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// Only import these once below
 import { useAuth } from '../contexts/AuthContext';
 
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 const _Register = () => {
   const [formData, setFormData] = useState({
     username: '',
@@ -36,7 +37,6 @@ const _Register = () => {
       return;
     }
     if (!formData.email.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(formData.email)) {
-      setError('A valid email address is required');
       setLoading(false);
       return;
     }

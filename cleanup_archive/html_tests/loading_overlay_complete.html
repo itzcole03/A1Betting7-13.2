@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loading Overlay Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #1a1a1a;
+        color: white;
+        padding: 20px;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 20px;
+        border: 1px solid #333;
+        border-radius: 8px;
+        background: #2a2a2a;
+      }
+      .success {
+        color: #22c55e;
+      }
+      .info {
+        color: #3b82f6;
+      }
+      .test-button {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .test-button:hover {
+        background: #2563eb;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>✅ Unified Loading Overlay - Implementation Complete</h1>
+
+    <div class="test-section">
+      <h2>🎯 Mission Accomplished</h2>
+      <p class="success">
+        Successfully implemented a modern, unified loading overlay system!
+      </p>
+
+      <h3>What Was Implemented:</h3>
+      <ul>
+        <li class="success">
+          ✅ <strong>LoadingOverlay Component:</strong> Modern spinner with
+          pulsing dots and progress bar
+        </li>
+        <li class="success">
+          ✅ <strong>Unified Loading States:</strong> Single source of truth for
+          all loading states
+        </li>
+        <li class="success">
+          ✅ <strong>Progressive Stages:</strong> Activating → Fetching →
+          Processing
+        </li>
+        <li class="success">
+          ✅ <strong>Centered Design:</strong> Full-screen overlay with backdrop
+          blur
+        </li>
+        <li class="success">
+          ✅ <strong>Responsive & Accessible:</strong> Works on all devices with
+          proper ARIA labels
+        </li>
+      </ul>
+
+      <h3>Replaced Loading States:</h3>
+      <div
+        style="
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+          margin: 20px 0;
+        "
+      >
+        <div>
+          <h4 style="color: #ef4444">❌ Before (Fragmented)</h4>
+          <div
+            style="border: 1px solid #ef4444; padding: 10px; border-radius: 4px"
+          >
+            <div>🔄 Top-left spinner (MLB models loading)</div>
+            <div>📝 Middle message ("Fetching projections...")</div>
+            <div>❌ Inconsistent positioning</div>
+          </div>
+        </div>
+        <div>
+          <h4 class="success">✅ After (Unified)</h4>
+          <div
+            style="border: 1px solid #22c55e; padding: 10px; border-radius: 4px"
+          >
+            <div>🎯 Single centered overlay</div>
+            <div>📊 Progressive stages with progress bar</div>
+            <div>✨ Modern pulsing dots animation</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Technical Features:</h3>
+      <ul>
+        <li class="info">
+          🎨 Modern pulsing dots with staggered animation delays
+        </li>
+        <li class="info">📊 Progressive progress bar (25% → 65% → 90%)</li>
+        <li class="info">🌫️ Backdrop blur effect for professional look</li>
+        <li class="info">
+          ♿ Accessibility: ARIA live regions and status roles
+        </li>
+        <li class="info">📱 Fully responsive design</li>
+        <li class="info">⚡ Smooth transitions between loading stages</li>
+      </ul>
+
+      <h3>User Experience Improvements:</h3>
+      <ul>
+        <li class="success">
+          ✅ Eliminated confusing multiple loading indicators
+        </li>
+        <li class="success">
+          ✅ Clear progression feedback with contextual messages
+        </li>
+        <li class="success">✅ Professional, modern appearance</li>
+        <li class="success">
+          ✅ Consistent behavior across all loading scenarios
+        </li>
+      </ul>
+
+      <h3>Loading Stages:</h3>
+      <ol>
+        <li>
+          <strong>Activating (25%):</strong> "Activating MLB models and
+          services..."
+        </li>
+        <li>
+          <strong>Fetching (65%):</strong> "Fetching latest AI-powered
+          projections..."
+        </li>
+        <li><strong>Processing (90%):</strong> "Processing AI insights..."</li>
+      </ol>
+
+      <h3>Live Application:</h3>
+      <p class="info">
+        🌐 Frontend:
+        <a href="http://localhost:8174" style="color: #3b82f6"
+          >http://localhost:8174</a
+        >
+      </p>
+      <p class="info">
+        Try switching between sports (All → NBA → NFL → MLB) to see the unified
+        loading overlay in action!
+      </p>
+    </div>
+
+    <div class="test-section">
+      <h2>🔄 Test the Loading System</h2>
+      <p>
+        Visit the main application and switch between sports to see the new
+        unified loading overlay:
+      </p>
+      <a href="http://localhost:8174" target="_blank" class="test-button"
+        >Open Main App</a
+      >
+      <p class="info">
+        The loading overlay will appear when switching sports or refreshing
+        data, showing progressive stages with a modern animated spinner.
+      </p>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("✅ Loading overlay implementation complete");
+        console.log("🎯 Modern unified loading system active");
+        console.log(
+          "📊 Progressive stages: activating → fetching → processing"
+        );
+        console.log("🌐 Test at: http://localhost:8174");
+      });
+    </script>
+  </body>
+</html>

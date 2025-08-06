@@ -15,18 +15,90 @@ from pydantic import BaseModel, Field
 # ==========================================================================
 
 
-class BetAnalysisResponse(BaseModel):
-    """Response model for bet analysis (multi-prop)"""
+# =========================
+# ENRICHED PROP MODEL (for detailed frontend display)
+# =========================
 
-    analysis: str
-    confidence: float
-    recommendation: str
-    key_factors: List[str]
-    processing_time: float
-    cached: bool = False
-    enriched_props: List[Dict[str, Any]] = (
-        []
-    )  # Full enrichment/prediction data for each prop
+
+class PlayerInfo(BaseModel):
+    """Player information for enriched prop display."""
+
+    name: str = Field(..., description="Player's full name")
+    team: str = Field(..., description="Player's team name or abbreviation")
+    position: str = Field(..., description="Player's position (e.g., 'P', 'OF')")
+    image_url: Optional[str] = Field(None, description="URL to player image/avatar")
+    score: Optional[float] = Field(
+        None, description="Player's projected or actual score"
+    )
+
+
+class StatisticPoint(BaseModel):
+    """Single statistic for a player or prop (e.g., 'AVG', 'HR')."""
+
+    label: str = Field(..., description="Label for the statistic (e.g., 'AVG', 'HR')")
+    value: float = Field(..., description="Value for the statistic")
+
+
+class Insight(BaseModel):
+    """Insight or note about the prop, player, or matchup."""
+
+    type: str = Field(
+        ..., description="Type of insight (e.g., 'trend', 'defense', 'pitcher')"
+    )
+    text: str = Field(..., description="Insight text or explanation")
+
+
+class EnrichedProp(BaseModel):
+    """Detailed prop model for frontend display, including player info, stats, and insights."""
+
+    player_info: PlayerInfo = Field(..., description="Player information")
+    summary: str = Field(..., description="Short summary of the prop or bet")
+    deep_analysis: str = Field(..., description="Detailed analysis and reasoning")
+    statistics: List[StatisticPoint] = Field(
+        ..., description="List of key statistics for the prop/player"
+    )
+    insights: List[Insight] = Field(
+        ..., description="List of insights or notes about the prop/player"
+    )
+    # Optionally, keep legacy fields for compatibility
+    prop_id: Optional[str] = Field(
+        None, description="Legacy: Unique identifier for the prop"
+    )
+    stat_type: Optional[str] = Field(
+        None, description="Legacy: Statistic type (e.g., 'HR', 'SO')"
+    )
+    line: Optional[float] = Field(None, description="Legacy: Betting line for the prop")
+    recommendation: Optional[str] = Field(
+        None, description="Legacy: Model recommendation (e.g., 'over', 'under')"
+    )
+    confidence: Optional[float] = Field(
+        None, description="Legacy: Model confidence score (0-1)"
+    )
+
+
+class BetAnalysisResponse(BaseModel):
+    """Response model for bet analysis (multi-prop, frontend-ready)."""
+
+    analysis: str = Field(..., description="Overall analysis summary for the bet(s)")
+    confidence: float = Field(..., description="Overall model confidence (0-1)")
+    recommendation: str = Field(
+        ..., description="Overall recommendation (e.g., 'over', 'under', 'no bet')"
+    )
+    key_factors: List[str] = Field(
+        ..., description="List of key factors influencing the analysis"
+    )
+    processing_time: float = Field(
+        ..., description="Time taken to process the analysis (seconds)"
+    )
+    cached: bool = Field(
+        default=False, description="Whether the response was served from cache"
+    )
+    enriched_props: List[EnrichedProp] = Field(
+        default_factory=list, description="List of enriched prop objects for display"
+    )
+    error: str = Field(
+        default="", description="Error message if any (empty string if no error)"
+    )
 
 
 """
@@ -203,6 +275,9 @@ class UserRegistration(BaseModel):
     password: str
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    risk_tolerance: Optional[str] = "moderate"
+    preferred_stake: Optional[float] = 50.0
+    bookmakers: Optional[list] = Field(default_factory=list)
 
 
 class UserLogin(BaseModel):

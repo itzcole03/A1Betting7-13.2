@@ -283,7 +283,7 @@ async def get_prizepicks_props():
     return {
         "status": "success",
         "mode": "ml_powered_phase_3",
-        "projections": projections,
+        "props": projections,
         "total_projections": len(projections),
         "last_updated": "2025-07-10T22:15:00Z",
         "ml_models_active": prediction_engine._is_ml_ready(),

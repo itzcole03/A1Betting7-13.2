@@ -1,0 +1,78 @@
+{
+  "baseline": {
+    "total_requests": 25,
+    "successful_requests": 25,
+    "total_time_seconds": 0.2764701843261719,
+    "throughput_rps": 90.42566402207657,
+    "average_latency_ms": 10.505,
+    "median_latency_ms": 5.523,
+    "p95_latency_ms": 26.8334,
+    "success_rate": 1.0
+  },
+  "optimized": {
+    "total_requests": 25,
+    "successful_requests": 25,
+    "cached_responses": 0,
+    "total_time_seconds": 0.4616515636444092,
+    "throughput_rps": 54.15339612984924,
+    "average_latency_ms": 17.86216,
+    "median_latency_ms": 9.136,
+    "p95_latency_ms": 54.91369999999999,
+    "success_rate": 1.0,
+    "cache_hit_rate": 0.0
+  },
+  "comparison": {
+    "throughput_improvement_percent": -40.11,
+    "average_latency_improvement_percent": -70.03,
+    "p95_latency_improvement_percent": -104.65,
+    "cache_hit_rate": 0.0,
+    "baseline_throughput_rps": 90.42566402207657,
+    "optimized_throughput_rps": 54.15339612984924,
+    "baseline_avg_latency_ms": 10.505,
+    "optimized_avg_latency_ms": 17.86216,
+    "performance_summary": "\u26a0\ufe0f Throughput decreased by 40.1% | \u274c Latency increased by 70.0% | \ud83d\udd0d No cache hits detected"
+  },
+  "system_info": {
+    "initial_stats": {
+      "phase2_stats": {
+        "predictions_made": 0,
+        "average_processing_time": 0.0,
+        "model_accuracies": {},
+        "cache_hit_rate": 0.0
+      },
+      "timestamp": "2025-08-05T03:59:26.730413",
+      "services_active": false
+    },
+    "final_stats": {
+      "phase2_stats": {
+        "predictions_made": 25,
+        "average_processing_time": 0.004237718582153319,
+        "model_accuracies": {},
+        "cache_hit_rate": 0.0
+      },
+      "timestamp": "2025-08-05T03:59:27.474254",
+      "services_active": false
+    },
+    "health_status": {
+      "phase2_available": true,
+      "services": {
+        "performance_optimizer": {
+          "available": true,
+          "gpu_available": false,
+          "device": "unknown"
+        },
+        "intelligent_cache": {
+          "available": true,
+          "status": "operational"
+        },
+        "real_time_updates": {
+          "available": true,
+          "status": "operational"
+        }
+      },
+      "overall_status": "healthy",
+      "integration_rate": 100.0
+    },
+    "timestamp": "2025-08-05T03:59:27.476598"
+  }
+}

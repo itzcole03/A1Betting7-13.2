@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Game Detection Verification</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: linear-gradient(135deg, #dc3545 0%, #28a745 100%);
+        color: white;
+        border-radius: 8px;
+      }
+      .live-game {
+        background: #dc3545;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+        border-left: 5px solid #721c24;
+      }
+      .scheduled-game {
+        background: #28a745;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+        border-left: 5px solid #155724;
+      }
+      .game-details {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .game-info {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+      .status-live {
+        display: inline-block;
+        background: #ff4757;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-left: 10px;
+        animation: pulse 1.5s infinite;
+      }
+      .status-scheduled {
+        display: inline-block;
+        background: #2ed573;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-left: 10px;
+      }
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.6;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      .summary {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        border-left: 4px solid #2196f3;
+      }
+      .btn {
+        background: #2196f3;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .btn:hover {
+        background: #1976d2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔴 Live Game Detection Test</h1>
+        <p>Verifying Tigers @ Phillies live game is properly detected</p>
+      </div>
+
+      <button class="btn" onclick="checkLiveGames()">
+        🔄 Check Live Games
+      </button>
+
+      <div id="summary" class="summary" style="display: none">
+        <strong>Detection Results:</strong>
+        <div id="summaryContent"></div>
+      </div>
+
+      <div id="results"></div>
+    </div>
+
+    <script>
+      async function checkLiveGames() {
+        const resultsDiv = document.getElementById("results");
+        const summaryDiv = document.getElementById("summary");
+        const summaryContent = document.getElementById("summaryContent");
+
+        resultsDiv.innerHTML = "<p>🔄 Checking for live games...</p>";
+        summaryDiv.style.display = "none";
+
+        try {
+          const response = await fetch(
+            "http://127.0.0.1:8000/mlb/todays-games"
+          );
+          const data = await response.json();
+
+          if (data.status === "ok" && data.games) {
+            let liveGames = [];
+            let tigersPhilliesFound = false;
+            let liveCount = 0;
+            let scheduledCount = 0;
+
+            data.games.forEach((game) => {
+              const isLive =
+                game.status &&
+                (game.status.toLowerCase() === "live" ||
+                  game.status.toLowerCase() === "in progress" ||
+                  game.status.toLowerCase() === "warmup" ||
+                  game.status.toLowerCase() === "pre-game");
+
+              if (isLive) {
+                liveGames.push(game);
+                liveCount++;
+              } else {
+                scheduledCount++;
+              }
+
+              // Check for Tigers @ Phillies specifically
+              const away = game.away.toLowerCase();
+              const home = game.home.toLowerCase();
+              if (
+                (away.includes("tigers") && home.includes("phillies")) ||
+                (away.includes("phillies") && home.includes("tigers"))
+              ) {
+                tigersPhilliesFound = true;
+
+                if (isLive) {
+                  console.log("✅ FOUND LIVE Tigers @ Phillies game!", game);
+                }
+              }
+            });
+
+            // Display results
+            let html = "";
+
+            // Live games first
+            if (liveGames.length > 0) {
+              html += "<h3>🔴 LIVE GAMES DETECTED:</h3>";
+              liveGames.forEach((game) => {
+                const isTargetGame =
+                  (game.away.toLowerCase().includes("tigers") &&
+                    game.home.toLowerCase().includes("phillies")) ||
+                  (game.away.toLowerCase().includes("phillies") &&
+                    game.home.toLowerCase().includes("tigers"));
+
+                html += `
+                                <div class="${
+                                  isTargetGame ? "live-game" : "live-game"
+                                }" style="${
+                  isTargetGame
+                    ? "border: 3px solid #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.5);"
+                    : ""
+                }">
+                                    <div class="game-details">
+                                        ${game.away} @ ${game.home}
+                                        <span class="status-live">🔴 ${
+                                          game.status
+                                        }</span>
+                                        ${
+                                          isTargetGame
+                                            ? '<span style="background: #ffd700; color: #000; padding: 4px 8px; border-radius: 4px; margin-left: 10px;">⭐ TARGET GAME</span>'
+                                            : ""
+                                        }
+                                    </div>
+                                    <div class="game-info">📍 ${
+                                      game.venue
+                                    } | Game ID: ${game.game_id}</div>
+                                </div>
+                            `;
+              });
+            } else {
+              html += "<h3>❌ No live games currently detected</h3>";
+            }
+
+            // Summary
+            summaryContent.innerHTML = `
+                        <div><strong>Total Games:</strong> ${
+                          data.games.length
+                        }</div>
+                        <div><strong>Live Games:</strong> ${liveCount}</div>
+                        <div><strong>Scheduled Games:</strong> ${scheduledCount}</div>
+                        <div><strong>Tigers @ Phillies Found:</strong> ${
+                          tigersPhilliesFound ? "✅ Yes" : "❌ No"
+                        }</div>
+                        <div><strong>Live Tigers @ Phillies:</strong> ${
+                          liveGames.some(
+                            (g) =>
+                              (g.away.toLowerCase().includes("tigers") &&
+                                g.home.toLowerCase().includes("phillies")) ||
+                              (g.away.toLowerCase().includes("phillies") &&
+                                g.home.toLowerCase().includes("tigers"))
+                          )
+                            ? "✅ YES - DETECTED!"
+                            : "❌ Not detected"
+                        }</div>
+                    `;
+            summaryDiv.style.display = "block";
+
+            resultsDiv.innerHTML = html;
+          } else {
+            resultsDiv.innerHTML =
+              "<p>❌ Error: Could not fetch games data</p>";
+          }
+        } catch (error) {
+          resultsDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+        }
+      }
+
+      // Auto-check on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(checkLiveGames, 500);
+      });
+    </script>
+  </body>
+</html>

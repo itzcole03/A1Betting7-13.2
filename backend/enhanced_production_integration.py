@@ -1,0 +1,680 @@
+"""
+Enhanced Production Integration with Phase 1 Optimizations
+Integrates 2024-2025 FastAPI best practices with existing A1Betting infrastructure.
+"""
+
+import logging
+from contextlib import asynccontextmanager
+from typing import Any, Dict
+
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import JSONResponse, Response
+
+# Import our enhanced Phase 1 components
+from .config.settings import get_settings
+from .middleware.comprehensive_middleware import (
+    CompressionMiddleware,
+    PerformanceMonitoringMiddleware,
+    RequestLoggingMiddleware,
+    RequestTrackingMiddleware,
+    SecurityHeadersMiddleware,
+)
+
+# Try to import structured logging, fallback to basic logging
+try:
+    from .utils.structured_logging import (
+        app_logger,
+        performance_logger,
+        security_logger,
+    )
+except ImportError:
+    import logging
+
+    app_logger = logging.getLogger("app")
+    performance_logger = logging.getLogger("performance")
+    security_logger = logging.getLogger("security")
+    app_logger.warning("Structured logging not available, using basic logging")
+
+# Try to import exception handlers, fallback to basic handling
+try:
+    from .exceptions.handlers import (
+        DatabaseErrorHandler,
+        GeneralExceptionHandler,
+        RateLimitErrorHandler,
+        SecurityErrorHandler,
+        ValidationErrorHandler,
+    )
+
+    EXCEPTION_HANDLERS_AVAILABLE = True
+except ImportError:
+    EXCEPTION_HANDLERS_AVAILABLE = False
+    app_logger.warning("Enhanced exception handlers not available")
+
+# Try to import health checks, create basic fallback
+try:
+    from .health.health_checks import router as health_router
+
+    HEALTH_CHECKS_AVAILABLE = True
+except ImportError:
+    from fastapi import APIRouter
+
+    health_router = APIRouter()
+
+    @health_router.get("/health")
+    async def basic_health():
+        return {"status": "healthy", "message": "Basic health check"}
+
+    HEALTH_CHECKS_AVAILABLE = False
+    app_logger.warning(
+        "Enhanced health checks not available, using basic health endpoint"
+    )
+
+# Import existing components for backward compatibility
+from .enhanced_database import db_manager
+from .services.enhanced_caching_service import cache_service
+from .services.sports_initialization import (
+    initialize_sports_services,
+    shutdown_sports_services,
+)
+
+# Import rate limiting
+try:
+    from slowapi import Limiter, _rate_limit_exceeded_handler
+    from slowapi.errors import RateLimitExceeded
+
+    from .services.rate_limiting_service import (
+        custom_rate_limit_handler,
+        enhanced_rate_limiter,
+        rate_limit_middleware,
+    )
+
+    RATE_LIMITING_AVAILABLE = True
+except ImportError:
+    RATE_LIMITING_AVAILABLE = False
+    app_logger.warning(
+        "Rate limiting not available - install slowapi for production use"
+    )
+
+
+class EnhancedProductionApp:
+    """
+    Enhanced Production FastAPI application incorporating 2024-2025 best practices
+    """
+
+    def __init__(self):
+        self.settings = get_settings()
+        self.logger = app_logger
+        self.app: FastAPI = None
+
+    @asynccontextmanager
+    async def lifespan(self, app: FastAPI):
+        """Enhanced application lifespan management with comprehensive initialization"""
+
+        # Startup phase
+        self.logger.info("🚀 Starting A1Betting Enhanced Production Application...")
+        startup_tasks = []
+
+        try:
+            # Phase 1: Core Infrastructure
+            self.logger.info("Phase 1: Initializing core infrastructure...")
+
+            # Initialize database with enhanced error handling
+            try:
+                db_initialized = await db_manager.initialize()
+                if not db_initialized:
+                    raise RuntimeError("Database initialization failed")
+                self.logger.info("✅ Database initialized successfully")
+                startup_tasks.append("database")
+            except Exception as e:
+                self.logger.error(f"❌ Database initialization failed: {e}")
+                raise
+
+            # Initialize cache service
+            try:
+                await cache_service.initialize()
+                self.logger.info("✅ Cache service initialized successfully")
+                startup_tasks.append("cache")
+            except Exception as e:
+                self.logger.warning(f"⚠️ Cache service initialization failed: {e}")
+                # Continue without cache if Redis is not available
+
+            # Initialize rate limiter if available
+            if RATE_LIMITING_AVAILABLE:
+                try:
+                    await enhanced_rate_limiter.init_redis()
+                    self.logger.info("✅ Rate limiter initialized successfully")
+                    startup_tasks.append("rate_limiter")
+                except Exception as e:
+                    self.logger.warning(f"⚠️ Rate limiter initialization failed: {e}")
+
+            # Phase 2: Enhanced Services
+            self.logger.info("Phase 2: Initializing enhanced services...")
+
+            # Initialize intelligent cache service
+            try:
+                from .services.intelligent_cache_service import (
+                    intelligent_cache_service,
+                )
+
+                await intelligent_cache_service.initialize()
+                self.logger.info(
+                    "✅ Intelligent cache service initialized successfully"
+                )
+                startup_tasks.append("intelligent_cache")
+            except Exception as e:
+                self.logger.warning(
+                    "⚠️ Intelligent cache service initialization failed: %s", str(e)
+                )
+
+            # Initialize enhanced data pipeline
+            try:
+                from .services.enhanced_data_pipeline import enhanced_data_pipeline
+
+                await enhanced_data_pipeline.initialize()
+                self.logger.info("✅ Enhanced data pipeline initialized successfully")
+                startup_tasks.append("data_pipeline")
+            except Exception as e:
+                self.logger.warning(
+                    "⚠️ Enhanced data pipeline initialization failed: %s", str(e)
+                )
+
+            # Phase 3: Sports Services
+            self.logger.info("Phase 3: Initializing sports services...")
+
+            try:
+                sports_status = await initialize_sports_services()
+                self.logger.info(
+                    f"✅ Sports services initialized: {sports_status['total_services']} services"
+                )
+                if sports_status["failed_services"]:
+                    self.logger.warning(
+                        f"⚠️ Failed services: {sports_status['failed_services']}"
+                    )
+                startup_tasks.append("sports_services")
+            except Exception as e:
+                self.logger.warning(f"⚠️ Sports services initialization failed: {e}")
+
+            # Phase 4: Phase 2 Performance Services
+            self.logger.info("Phase 4: Initializing Phase 2 performance services...")
+
+            # Initialize async connection pool
+            try:
+                from .services.async_connection_pool import (
+                    async_connection_pool_manager,
+                )
+
+                await async_connection_pool_manager.initialize()
+                self.logger.info("✅ Async connection pool initialized successfully")
+                startup_tasks.append("connection_pool")
+            except Exception as e:
+                self.logger.warning(
+                    f"⚠️ Async connection pool initialization failed: {e}"
+                )
+
+            # Initialize advanced caching system
+            try:
+                from .services.advanced_caching_system import advanced_caching_system
+
+                await advanced_caching_system.initialize()
+                self.logger.info("✅ Advanced caching system initialized successfully")
+                startup_tasks.append("advanced_cache")
+            except Exception as e:
+                self.logger.warning(
+                    f"⚠️ Advanced caching system initialization failed: {e}"
+                )
+
+            # Initialize query optimizer
+            try:
+                from .services.query_optimizer import query_optimizer
+
+                # Query optimizer doesn't need explicit initialization
+                self.logger.info("✅ Query optimizer ready")
+                startup_tasks.append("query_optimizer")
+            except Exception as e:
+                self.logger.warning(f"⚠️ Query optimizer initialization failed: {e}")
+
+            # Initialize background task manager
+            try:
+                from .services.background_task_manager import background_task_manager
+
+                await background_task_manager.start()
+                self.logger.info("✅ Background task manager started successfully")
+                startup_tasks.append("background_tasks")
+            except Exception as e:
+                self.logger.warning(
+                    f"⚠️ Background task manager initialization failed: {e}"
+                )
+
+            # Initialize response optimizer
+            try:
+                from .services.response_optimizer import response_optimizer
+
+                # Response optimizer doesn't need explicit initialization
+                self.logger.info("✅ Response optimizer ready")
+                startup_tasks.append("response_optimizer")
+            except Exception as e:
+                self.logger.warning(f"⚠️ Response optimizer initialization failed: {e}")
+
+            # Phase 5: Modern ML Services (Optional)
+            self.logger.info("Phase 5: Initializing modern ML services...")
+
+            try:
+                from .routes.enhanced_api import initialize_enhanced_services
+
+                enhanced_initialized = await initialize_enhanced_services()
+                if enhanced_initialized:
+                    self.logger.info("✅ Enhanced services initialized successfully")
+                    startup_tasks.append("enhanced_services")
+                else:
+                    self.logger.warning("⚠️ Enhanced services initialization failed")
+            except Exception as e:
+                self.logger.warning(
+                    "⚠️ Enhanced services initialization failed: %s", str(e)
+                )
+
+            # Application ready
+            self.logger.info(
+                f"🎉 Application startup completed! Services: {', '.join(startup_tasks)}"
+            )
+            performance_logger.logger.info(
+                f"Startup completed with {len(startup_tasks)} services initialized"
+            )
+
+            yield
+
+        except Exception as e:
+            self.logger.error(f"💥 Application startup failed: {e}", exc_info=True)
+            raise
+        finally:
+            # Shutdown phase
+            self.logger.info(
+                "🔄 Shutting down A1Betting Enhanced Production Application..."
+            )
+
+            shutdown_tasks = []
+
+            try:
+                # Shutdown enhanced services
+                try:
+                    from .routes.enhanced_api import shutdown_enhanced_services
+
+                    await shutdown_enhanced_services()
+                    shutdown_tasks.append("enhanced_services")
+                except Exception as e:
+                    self.logger.warning(
+                        "Error shutting down enhanced services: %s", str(e)
+                    )
+
+                # Shutdown Phase 2 performance services
+                try:
+                    from .services.background_task_manager import (
+                        background_task_manager,
+                    )
+
+                    await background_task_manager.stop()
+                    shutdown_tasks.append("background_tasks")
+                except Exception as e:
+                    self.logger.warning(
+                        f"Error shutting down background task manager: {e}"
+                    )
+
+                try:
+                    from .services.async_connection_pool import (
+                        async_connection_pool_manager,
+                    )
+
+                    await async_connection_pool_manager.shutdown()
+                    shutdown_tasks.append("connection_pool")
+                except Exception as e:
+                    self.logger.warning(f"Error shutting down connection pool: {e}")
+
+                try:
+                    from .services.advanced_caching_system import (
+                        advanced_caching_system,
+                    )
+
+                    await advanced_caching_system.shutdown()
+                    shutdown_tasks.append("advanced_cache")
+                except Exception as e:
+                    self.logger.warning(f"Error shutting down advanced caching: {e}")
+
+                # Shutdown data pipeline
+                try:
+                    from .services.enhanced_data_pipeline import enhanced_data_pipeline
+
+                    await enhanced_data_pipeline.shutdown()
+                    shutdown_tasks.append("data_pipeline")
+                except Exception as e:
+                    self.logger.warning("Error shutting down data pipeline: %s", str(e))
+
+                # Shutdown intelligent cache
+                try:
+                    from .services.intelligent_cache_service import (
+                        intelligent_cache_service,
+                    )
+
+                    await intelligent_cache_service.shutdown()
+                    shutdown_tasks.append("intelligent_cache")
+                except Exception as e:
+                    self.logger.warning(
+                        "Error shutting down intelligent cache: %s", str(e)
+                    )
+
+                # Shutdown core services
+                await shutdown_sports_services()
+                await db_manager.close()
+                await cache_service.close()
+                shutdown_tasks.extend(["sports_services", "database", "cache"])
+
+                self.logger.info(
+                    f"✅ Shutdown completed! Services: {', '.join(shutdown_tasks)}"
+                )
+            except Exception as e:
+                self.logger.error(f"Error during shutdown: {e}")
+
+    def create_app(self) -> FastAPI:
+        """Create and configure the enhanced production FastAPI application"""
+
+        # Create FastAPI app with enhanced metadata
+        self.app = FastAPI(
+            title=self.settings.app.app_name,
+            version=self.settings.app.app_version,
+            description=self.settings.app.app_description,
+            lifespan=self.lifespan,
+            # Environment-based documentation
+            docs_url="/docs" if self.settings.app.enable_docs else None,
+            redoc_url="/redoc" if self.settings.app.enable_docs else None,
+            openapi_url="/openapi.json" if self.settings.app.enable_docs else None,
+        )
+
+        # Add middleware in correct order (reverse order of execution)
+        self._add_enhanced_middleware()
+
+        # Add exception handlers
+        self._add_enhanced_exception_handlers()
+
+        # Add routes
+        self._add_enhanced_routes()
+
+        return self.app
+
+    def _add_enhanced_middleware(self):
+        """Add enhanced middleware stack following 2024-2025 best practices"""
+
+        # 1. Request Tracking (outermost - for correlation ID and timing)
+        self.app.add_middleware(RequestTrackingMiddleware)
+
+        # 2. Request Logging (structured logging for all requests)
+        self.app.add_middleware(RequestLoggingMiddleware)
+
+        # 3. Performance Monitoring
+        self.app.add_middleware(PerformanceMonitoringMiddleware)
+
+        # 4. Security Headers (OWASP compliance)
+        self.app.add_middleware(SecurityHeadersMiddleware)
+
+        # 5. Compression (optimize responses)
+        self.app.add_middleware(CompressionMiddleware)
+
+        # 6. Rate Limiting (if available)
+        if RATE_LIMITING_AVAILABLE:
+            self.app.middleware("http")(rate_limit_middleware)
+
+        # 7. Trusted Host (production security)
+        if self.settings.environment.value == "production":
+            self.app.add_middleware(
+                TrustedHostMiddleware,
+                allowed_hosts=self.settings.security.allowed_hosts,
+            )
+
+        # 8. CORS (innermost - specific to API requests)
+        cors_origins = self._get_cors_origins()
+        self.logger.info(
+            f"Configuring CORS with origins: {cors_origins[:3]}..."
+            if len(cors_origins) > 3
+            else f"CORS origins: {cors_origins}"
+        )
+
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=cors_origins,
+            allow_credentials=self.settings.security.cors_credentials,
+            allow_methods=self.settings.security.cors_methods,
+            allow_headers=self.settings.security.cors_headers,
+            expose_headers=[
+                "X-Correlation-ID",
+                "X-Response-Time",
+                "X-RateLimit-Limit",
+                "X-RateLimit-Remaining",
+                "X-RateLimit-Reset",
+            ],
+        )
+
+    def _get_cors_origins(self) -> list:
+        """Get CORS origins based on environment"""
+        if self.settings.environment.value == "development":
+            return [
+                "http://localhost:8173",  # Vite dev server
+                "http://localhost:3000",  # React dev server
+                "http://localhost:5173",  # Alternative Vite port
+                "http://127.0.0.1:8173",
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:5173",
+                "*",  # Allow all in development
+            ]
+        else:
+            return self.settings.security.cors_origins
+
+    def _add_enhanced_exception_handlers(self):
+        """Add comprehensive exception handlers"""
+
+        if not EXCEPTION_HANDLERS_AVAILABLE:
+            self.logger.warning(
+                "Enhanced exception handlers not available, using basic handlers"
+            )
+
+            # Basic exception handler
+            @self.app.exception_handler(Exception)
+            async def basic_exception_handler(request: Request, exc: Exception):
+                self.logger.error("Unhandled exception: %s", str(exc), exc_info=True)
+                return JSONResponse(
+                    status_code=500,
+                    content={"error": "Internal server error", "detail": str(exc)},
+                )
+
+            return
+
+        # Rate limiting handler (if available)
+        if RATE_LIMITING_AVAILABLE:
+            self.app.add_exception_handler(
+                RateLimitExceeded, RateLimitErrorHandler().handle
+            )
+
+        # Validation errors
+        from pydantic import ValidationError
+
+        self.app.add_exception_handler(ValidationError, ValidationErrorHandler().handle)
+
+        # Database errors
+        try:
+            from sqlalchemy.exc import SQLAlchemyError
+
+            self.app.add_exception_handler(
+                SQLAlchemyError, DatabaseErrorHandler().handle
+            )
+        except ImportError:
+            pass
+
+        # HTTP exceptions
+        self.app.add_exception_handler(HTTPException, SecurityErrorHandler().handle)
+
+        # General exception handler (catch-all)
+        self.app.add_exception_handler(Exception, GeneralExceptionHandler().handle)
+
+    def _add_enhanced_routes(self):
+        """Add application routes with enhanced error handling"""
+
+        # Phase 1: Health and monitoring routes
+        self.app.include_router(health_router, tags=["Health"])
+        self.logger.info("✅ Health check routes included")
+
+        # Phase 2: Core API routes
+        self._include_core_routes()
+
+        # Phase 3: Enhanced feature routes
+        self._include_enhanced_routes()
+
+        # Phase 4: Development and debug routes
+        self._include_development_routes()
+
+        # Root endpoint
+        @self.app.get("/", tags=["Root"])
+        async def root():
+            """Enhanced root endpoint with application information"""
+            return {
+                "name": self.settings.app.app_name,
+                "version": self.settings.app.app_version,
+                "description": self.settings.app.app_description,
+                "environment": self.settings.environment.value,
+                "status": "operational",
+                "docs_url": "/docs" if self.settings.app.enable_docs else None,
+                "health_url": "/health",
+                "api_version": "v1",
+            }
+
+    def _include_core_routes(self):
+        """Include core application routes"""
+
+        routes_included = []
+
+        # MLB routes (primary sport)
+        try:
+            from .routes import mlb_extras
+
+            self.app.include_router(mlb_extras.router, prefix="/mlb", tags=["MLB"])
+            routes_included.append("mlb_extras")
+        except ImportError as e:
+            self.logger.warning("Could not import mlb_extras router: %s", str(e))
+
+        # Unified API routes
+        try:
+            from .routes import unified_api
+
+            self.app.include_router(
+                unified_api.router, prefix="/api", tags=["Unified API"]
+            )
+            routes_included.append("unified_api")
+        except ImportError as e:
+            self.logger.warning("Could not import unified_api router: %s", str(e))
+
+        # Authentication routes
+        try:
+            from .routes import auth
+
+            self.app.include_router(
+                auth.router, prefix="/auth", tags=["Authentication"]
+            )
+            routes_included.append("auth")
+        except ImportError as e:
+            self.logger.warning("Could not import auth router: %s", str(e))
+
+        self.logger.info(f"✅ Core routes included: {', '.join(routes_included)}")
+
+    def _include_enhanced_routes(self):
+        """Include enhanced feature routes"""
+
+        enhanced_routes = []
+
+        # Modern ML routes
+        try:
+            from .routes import modern_ml_routes
+
+            self.app.include_router(modern_ml_routes.router, tags=["Modern ML"])
+            enhanced_routes.append("modern_ml")
+        except ImportError as e:
+            self.logger.warning("Could not import modern_ml_routes router: %s", str(e))
+
+        # Phase 3 MLOps routes
+        try:
+            from .routes import phase3_routes
+
+            self.app.include_router(phase3_routes.router, tags=["MLOps"])
+            enhanced_routes.append("phase3_mlops")
+        except ImportError as e:
+            self.logger.warning("Could not import phase3_routes router: %s", str(e))
+
+        # Data validation routes
+        try:
+            from .routes import enhanced_data_validation_routes
+
+            self.app.include_router(
+                enhanced_data_validation_routes.router, tags=["Data Validation"]
+            )
+            enhanced_routes.append("data_validation")
+        except ImportError as e:
+            self.logger.warning(
+                "Could not import data_validation_routes router: %s", str(e)
+            )
+
+        # WebSocket routes for real-time features
+        try:
+            from . import ws
+
+            self.app.include_router(ws.router, tags=["WebSocket"])
+            enhanced_routes.append("websocket")
+        except ImportError as e:
+            self.logger.warning("Could not import WebSocket router: %s", str(e))
+
+        if enhanced_routes:
+            self.logger.info(
+                f"✅ Enhanced routes included: {', '.join(enhanced_routes)}"
+            )
+        else:
+            self.logger.warning("⚠️ No enhanced routes were included")
+
+    def _include_development_routes(self):
+        """Include development and debugging routes"""
+
+        if not self.settings.app.enable_debug_routes:
+            return
+
+        debug_routes = []
+
+        # Debug API routes
+        try:
+            from .routes import debug_api
+
+            self.app.include_router(debug_api.router, prefix="/debug", tags=["Debug"])
+            debug_routes.append("debug_api")
+        except ImportError as e:
+            self.logger.warning("Could not import debug_api router: %s", str(e))
+
+        # Monitoring routes
+        try:
+            from .monitoring.data_optimization_monitoring import monitoring_router
+
+            self.app.include_router(monitoring_router, tags=["Monitoring"])
+            debug_routes.append("monitoring")
+        except ImportError as e:
+            self.logger.warning("Could not import monitoring router: %s", str(e))
+
+        if debug_routes:
+            self.logger.info(f"✅ Debug routes included: {', '.join(debug_routes)}")
+
+
+# Factory function for creating the enhanced application
+def create_enhanced_app() -> FastAPI:
+    """
+    Factory function to create the enhanced production application
+    """
+    app_factory = EnhancedProductionApp()
+    return app_factory.create_app()
+
+
+# For backward compatibility, create the app instance
+enhanced_app = create_enhanced_app()
+
+# Export for use in main.py
+app = enhanced_app

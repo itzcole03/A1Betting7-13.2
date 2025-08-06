@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debug Prop Selection Issue</title>
+  </head>
+  <body>
+    <h1>Debug: No Props Available Issue</h1>
+
+    <div id="test-results">
+      <h2>Testing API Endpoints</h2>
+      <div id="games-test"></div>
+      <div id="props-test"></div>
+      <div id="filtering-test"></div>
+    </div>
+
+    <script>
+      async function testEndpoints() {
+        try {
+          console.log("Testing /mlb/todays-games endpoint...");
+          const gamesResponse = await fetch(
+            "http://localhost:8000/mlb/todays-games"
+          );
+          const gamesData = await gamesResponse.json();
+          console.log("Games data:", gamesData);
+          document.getElementById("games-test").innerHTML = `
+                    <h3>Games Data (${gamesData.games?.length || 0} games)</h3>
+                    <pre>${JSON.stringify(gamesData, null, 2).substring(
+                      0,
+                      1000
+                    )}...</pre>
+                `;
+
+          console.log("Testing /mlb/odds-comparison/ endpoint...");
+          const propsResponse = await fetch(
+            "http://localhost:8000/mlb/odds-comparison/?market_type=playerprops&limit=20"
+          );
+          const propsData = await propsResponse.json();
+          console.log("Props data:", propsData);
+          document.getElementById("props-test").innerHTML = `
+                    <h3>Props Data (${propsData.length || 0} props)</h3>
+                    <pre>${JSON.stringify(propsData, null, 2).substring(
+                      0,
+                      1500
+                    )}...</pre>
+                `;
+
+          // Test filtering logic
+          if (
+            gamesData.games &&
+            gamesData.games.length > 0 &&
+            propsData &&
+            propsData.length > 0
+          ) {
+            const firstGame = gamesData.games[0];
+            console.log("Testing filtering for first game:", firstGame);
+
+            // Simulate the filtering logic from the frontend
+            const matchedProps = propsData.filter((prop) => {
+              // Test exact event name match
+              if (prop.event_name === firstGame.event_name) {
+                return true;
+              }
+
+              // Test team name matching
+              const propTeamName = prop.team_name;
+              if (propTeamName) {
+                // Check if prop team matches game teams
+                if (
+                  firstGame.away
+                    .toLowerCase()
+                    .includes(propTeamName.toLowerCase()) ||
+                  firstGame.home
+                    .toLowerCase()
+                    .includes(propTeamName.toLowerCase()) ||
+                  propTeamName
+                    .toLowerCase()
+                    .includes(firstGame.away.toLowerCase()) ||
+                  propTeamName
+                    .toLowerCase()
+                    .includes(firstGame.home.toLowerCase())
+                ) {
+                  return true;
+                }
+              }
+
+              return false;
+            });
+
+            document.getElementById("filtering-test").innerHTML = `
+                        <h3>Filtering Test Results</h3>
+                        <p><strong>Selected Game:</strong> ${
+                          firstGame.event_name
+                        }</p>
+                        <p><strong>Game Teams:</strong> ${firstGame.away} @ ${
+              firstGame.home
+            }</p>
+                        <p><strong>Matched Props:</strong> ${
+                          matchedProps.length
+                        } out of ${propsData.length}</p>
+                        <h4>Sample Matched Props:</h4>
+                        <pre>${JSON.stringify(
+                          matchedProps.slice(0, 5),
+                          null,
+                          2
+                        )}</pre>
+                        
+                        <h4>Sample All Props (for comparison):</h4>
+                        <pre>${JSON.stringify(
+                          propsData.slice(0, 5).map((p) => ({
+                            player: p.player_name,
+                            team: p.team_name,
+                            event: p.event_name,
+                            stat: p.stat_type,
+                          })),
+                          null,
+                          2
+                        )}</pre>
+                    `;
+          }
+        } catch (error) {
+          console.error("Error testing endpoints:", error);
+          document.getElementById("test-results").innerHTML += `
+                    <div style="color: red;">
+                        <h3>Error:</h3>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+        }
+      }
+
+      // Run tests when page loads
+      testEndpoints();
+    </script>
+  </body>
+</html>

@@ -1,6 +1,10 @@
+// Users can browse and select live sports streams directly from the embedded site.
+// Duplicate export removed. Only one export default function LiveStream should exist in this file.
 // LiveStream.tsx
 // Modern live stream page with embedded preview of https://gostreameast.link/official/
 // Users can browse and select live sports streams directly from the embedded site.
+// Users can browse and select live sports streams directly from the embedded site.
+// Duplicate export removed. Only one export default function LiveStream should exist in this file.
 
 export default function LiveStream() {
   return (
@@ -33,9 +37,9 @@ export default function LiveStream() {
           >
             StreamEast
           </a>
-          .
-          <span className='text-yellow-300'> Tip:</span> Use the site navigation to select your sport
-          or event. For best experience, use an ad blocker and open streams in a new tab if needed.
+          .<span className='text-yellow-300'> Tip:</span> Use the site navigation to select your
+          sport or event. For best experience, use an ad blocker and open streams in a new tab if
+          needed.
         </p>
       </header>
       <main className='flex-1 flex flex-col items-center justify-center p-4 text-white'>

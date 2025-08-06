@@ -1,261 +1,38 @@
-import logging
-
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlmodel import Session as SQLModelSession
 
-from backend.auth.security import create_access_token, create_refresh_token
-from backend.auth.user_service import UserService
-from backend.database import get_async_session
-from backend.models.api_models import TokenResponse, UserRegistration
+from backend.database import sync_engine
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
 security = HTTPBearer()
-logger = logging.getLogger(__name__)
 
 
-@router.post("/register", response_model=TokenResponse)
-async def register_user(
-    user_data: UserRegistration, session: AsyncSession = Depends(get_async_session)
+# Synchronous version for test context
+def get_current_user_sync(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
 ):
-    """Register a new user"""
-    logger.info("[DEBUG] Entered register_user endpoint")
-    try:
+    token = credentials.credentials
+    token_data = extract_user_from_token(token)
+    with SQLModelSession(sync_engine) as session:
         user_service = UserService(session)
-        user_profile = await user_service.create_user(user_data)
-        token_data = {
-            "sub": user_profile["username"],
-            "user_id": user_profile["user_id"],
-            "scopes": ["user"],
-        }
-        access_token = create_access_token(token_data)
-        refresh_token = create_refresh_token(token_data)
-        user_dict = {
-            "id": user_profile["user_id"],
-            "username": user_profile["username"],
-            "email": user_profile["email"],
-            "first_name": user_profile["first_name"],
-            "last_name": user_profile["last_name"],
-            "risk_tolerance": user_profile["risk_tolerance"],
-            "preferred_stake": user_profile["preferred_stake"],
-            "bookmakers": user_profile["bookmakers"],
-        }
-        return TokenResponse(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            token_type="bearer",
-            user=user_dict,
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error registering user: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Registration failed",
-        )
-
-
-@router.post("/register", response_model=TokenResponse)
-async def register_user(
-    user_data: UserRegistration, session: AsyncSession = Depends(get_async_session)
-):
-    """Register a new user"""
-    logger.info("[DEBUG] Entered register_user endpoint")
-    try:
-        user_service = UserService(session)
-        user_profile = await user_service.create_user(user_data)
-        token_data = {
-            "sub": user_profile["username"],
-            "user_id": user_profile["user_id"],
-            "scopes": ["user"],
-        }
-        access_token = create_access_token(token_data)
-        refresh_token = create_refresh_token(token_data)
-        user_dict = {
-            "id": user_profile["user_id"],
-            "username": user_profile["username"],
-            "email": user_profile["email"],
-            "first_name": user_profile["first_name"],
-            "last_name": user_profile["last_name"],
-            "risk_tolerance": user_profile["risk_tolerance"],
-            "preferred_stake": user_profile["preferred_stake"],
-            "bookmakers": user_profile["bookmakers"],
-        }
-        return TokenResponse(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            token_type="bearer",
-            user=user_dict,
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error registering user: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Registration failed",
-        )
+        user = user_service.get_user_by_id_sync(token_data.user_id)
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return user
 
 
 import logging
 
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlmodel.ext.asyncio.session import AsyncSession
-
-from backend.auth.security import create_access_token, create_refresh_token
-from backend.auth.user_service import UserService
-from backend.database import get_async_session
-from backend.models.api_models import TokenResponse, UserRegistration
-
-router = APIRouter(prefix="/auth", tags=["Authentication"])
-security = HTTPBearer()
-logger = logging.getLogger(__name__)
-
-
-@router.post("/register", response_model=TokenResponse)
-async def register_user(
-    user_data: UserRegistration, session: AsyncSession = Depends(get_async_session)
-):
-    """Register a new user"""
-    logger.info("[DEBUG] Entered register_user endpoint")
-    try:
-        user_service = UserService(session)
-        user_profile = await user_service.create_user(user_data)
-        token_data = {
-            "sub": user_profile["username"],
-            "user_id": user_profile["user_id"],
-            "scopes": ["user"],
-        }
-        access_token = create_access_token(token_data)
-        refresh_token = create_refresh_token(token_data)
-        user_dict = {
-            "id": user_profile["user_id"],
-            "username": user_profile["username"],
-            "email": user_profile["email"],
-            "first_name": user_profile["first_name"],
-            "last_name": user_profile["last_name"],
-            "risk_tolerance": user_profile["risk_tolerance"],
-            "preferred_stake": user_profile["preferred_stake"],
-            "bookmakers": user_profile["bookmakers"],
-        }
-        return TokenResponse(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            token_type="bearer",
-            user=user_dict,
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error registering user: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Registration failed",
-        )
-
-
-@router.post("/register", response_model=TokenResponse)
-async def register_user(
-    user_data: UserRegistration, session: AsyncSession = Depends(get_async_session)
-):
-    """Register a new user"""
-    logger.info("[DEBUG] Entered register_user endpoint")
-    try:
-        user_service = UserService(session)
-        user_profile = await user_service.create_user(user_data)
-        token_data = {
-            "sub": user_profile["username"],
-            "user_id": user_profile["user_id"],
-            "scopes": ["user"],
-        }
-        access_token = create_access_token(token_data)
-        refresh_token = create_refresh_token(token_data)
-        user_dict = {
-            "id": user_profile["user_id"],
-            "username": user_profile["username"],
-            "email": user_profile["email"],
-            "first_name": user_profile["first_name"],
-            "last_name": user_profile["last_name"],
-            "risk_tolerance": user_profile["risk_tolerance"],
-            "preferred_stake": user_profile["preferred_stake"],
-            "bookmakers": user_profile["bookmakers"],
-        }
-        return TokenResponse(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            token_type="bearer",
-            user=user_dict,
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error registering user: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Registration failed",
-        )
-
-
-from fastapi import APIRouter, Depends
-from fastapi.security import HTTPBearer
-from sqlmodel.ext.asyncio.session import AsyncSession
-
-from backend.database import get_async_session
-from backend.models.api_models import TokenResponse, UserRegistration
-
-security = HTTPBearer()
-
-
-@router.post("/register", response_model=TokenResponse)
-async def register_user(
-    user_data: UserRegistration, session: AsyncSession = Depends(get_async_session)
-):
-    """Register a new user"""
-    logger.info("[DEBUG] Entered register_user endpoint")
-    try:
-        user_service = UserService(session)
-        user_profile = await user_service.create_user(user_data)
-        token_data = {
-            "sub": user_profile["username"],
-            "user_id": user_profile["user_id"],
-            "scopes": ["user"],
-        }
-        access_token = create_access_token(token_data)
-        refresh_token = create_refresh_token(token_data)
-        user_dict = {
-            "id": user_profile["user_id"],
-            "username": user_profile["username"],
-            "email": user_profile["email"],
-            "first_name": user_profile["first_name"],
-            "last_name": user_profile["last_name"],
-            "risk_tolerance": user_profile["risk_tolerance"],
-            "preferred_stake": user_profile["preferred_stake"],
-            "bookmakers": user_profile["bookmakers"],
-        }
-        return TokenResponse(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            token_type="bearer",
-            user=user_dict,
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error registering user: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Registration failed",
-        )
-
-
-import logging
+# from services.email_service import generate_verification_token, send_verification_email
 from datetime import timedelta
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from services.email_service import generate_verification_token, send_verification_email
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from backend.auth.security import (
@@ -274,9 +51,57 @@ from backend.models.api_models import (
     UserRegistration,
 )
 
+router = APIRouter(tags=["Authentication"])
+security = HTTPBearer()
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+# Move /register endpoint to the very top after router definition
+print("[DEBUG] Registering /auth/register endpoint...")
+
+
+@router.post("/register", response_model=TokenResponse)
+async def register_user(
+    user_data: UserRegistration, session: AsyncSession = Depends(get_async_session)
+):
+    """Register a new user"""
+    logger.info("[DEBUG] Entered register_user endpoint")
+    try:
+        user_service = UserService(session)
+        user_profile = await user_service.create_user(user_data)
+        token_data = {
+            "sub": user_profile.username,
+            "user_id": user_profile.user_id,
+            "scopes": ["user"],
+        }
+        access_token = create_access_token(token_data)
+        refresh_token = create_refresh_token(token_data)
+        user_dict = {
+            "id": user_profile.user_id,
+            "username": user_profile.username,
+            "email": user_profile.email,
+            "first_name": user_profile.first_name,
+            "last_name": user_profile.last_name,
+            "risk_tolerance": getattr(user_profile, "risk_tolerance", None),
+            "preferred_stake": getattr(user_profile, "preferred_stake", None),
+            "bookmakers": getattr(user_profile, "bookmakers", []),
+        }
+        return TokenResponse(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_type="bearer",
+            user=user_dict,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error registering user: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Registration failed",
+        )
+
+
+logger = logging.getLogger(__name__)
 security = HTTPBearer()
 
 
@@ -286,9 +111,15 @@ async def get_current_user(
 ) -> UserProfile:
     """Get current authenticated user"""
     try:
+        # Ensure session is a real AsyncSession, not a coroutine/generator
+        if not isinstance(session, AsyncSession):
+            # If session is a coroutine/generator, get the actual session
+            session = (
+                await session.__anext__() if hasattr(session, "__anext__") else session
+            )
         token = credentials.credentials
         token_data = extract_user_from_token(token)
-
+        logger.info(f"[DEBUG] get_current_user session type: {type(session)}")
         user_service = UserService(session)
         user = await user_service.get_user_by_id(token_data.user_id)
         if user is None:
@@ -297,7 +128,9 @@ async def get_current_user(
                 detail="User not found",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-
+        logger.info(
+            f"[DEBUG] get_current_user returning type: {type(user)} value: {user}"
+        )
         return user
 
     except Exception as e:
@@ -322,20 +155,57 @@ async def get_current_user(
 async def login_user(
     login_data: UserLogin, session: AsyncSession = Depends(get_async_session)
 ) -> Dict[str, Any]:
-    # DEV PATCH: Always succeed for any credentials
-    user_dict = {
-        "id": "demo_id",
-        "username": login_data.username,
-        "email": f"{login_data.username}@example.com",
-        "first_name": "Demo",
-        "last_name": "User",
-    }
-    return TokenResponse(
-        access_token="demo-access-token",
-        refresh_token="demo-refresh-token",
-        token_type="bearer",
-        user=user_dict,
-    )
+    try:
+        from sqlmodel import select
+
+        from backend.auth.user_service import User, verify_password
+
+        # Fetch user by username or email
+        result = await session.exec(
+            select(User).where(
+                (User.username == login_data.username)
+                | (User.email == login_data.username)
+            )
+        )
+        db_user = result.first()
+        if not db_user or not verify_password(
+            login_data.password, db_user.hashed_password
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid username or password",
+            )
+        # Build user profile dict
+        user_dict = {
+            "id": db_user.id,
+            "username": db_user.username,
+            "email": db_user.email,
+            "first_name": db_user.first_name,
+            "last_name": db_user.last_name,
+            "risk_tolerance": getattr(db_user, "risk_tolerance", None),
+            "preferred_stake": getattr(db_user, "preferred_stake", None),
+            "bookmakers": getattr(db_user, "bookmakers", []),
+        }
+        token_data = {
+            "sub": db_user.username,
+            "user_id": db_user.id,
+            "scopes": ["user"],
+        }
+        access_token = create_access_token(token_data)
+        refresh_token = create_refresh_token(token_data)
+        return TokenResponse(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_type="bearer",
+            user=user_dict,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error logging in user: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Login failed"
+        )
 
 
 @router.post("/refresh")

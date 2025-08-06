@@ -1,0 +1,19 @@
+{
+  "scan_timestamp": "2025-07-29T18:03:47.389550",
+  "total_vulnerabilities": 25,
+  "vulnerabilities_by_type": {
+    "hardcoded_credentials": 19,
+    "dynamic_execution": 6
+  },
+  "critical_files": [
+    "routes\\trending_suggestions.py",
+    "tests\\test_api_key_auth.py",
+    "tests\\test_api_v1.py",
+    "routes\\auth.py",
+    "seed_admin.py",
+    "auth\\user_service.py",
+    "routes\\propollama.py",
+    "test_user_model.py",
+    "services\\comprehensive_sportsbook_integration.py"
+  ]
+}

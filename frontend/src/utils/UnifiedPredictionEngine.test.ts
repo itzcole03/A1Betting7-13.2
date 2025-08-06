@@ -2,6 +2,12 @@ import { EventBus } from '@/core/EventBus';
 import { PredictionContext, UnifiedPredictionEngine } from '@/core/UnifiedPredictionEngine';
 import { BettingOpportunity, MarketUpdate } from '@/types/core';
 import { jest } from '@jest/globals';
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+afterAll(() => {
+  jest.useRealTimers();
+});
 
 const _traceHandler = jest.fn();
 

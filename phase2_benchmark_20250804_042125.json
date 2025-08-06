@@ -1,0 +1,63 @@
+{
+  "baseline": {
+    "total_requests": 25,
+    "successful_requests": 25,
+    "total_time_seconds": 0.27318549156188965,
+    "throughput_rps": 91.51291255281139,
+    "average_latency_ms": 10.31964,
+    "median_latency_ms": 4.2509999999999994,
+    "p95_latency_ms": 26.5927,
+    "success_rate": 1.0
+  },
+  "optimized": {
+    "total_requests": 25,
+    "successful_requests": 25,
+    "cached_responses": 0,
+    "total_time_seconds": 0.3319098949432373,
+    "throughput_rps": 75.32164717257213,
+    "average_latency_ms": 12.63148,
+    "median_latency_ms": 7.068,
+    "p95_latency_ms": 36.3707,
+    "success_rate": 1.0,
+    "cache_hit_rate": 0.0
+  },
+  "comparison": {
+    "throughput_improvement_percent": -17.69,
+    "average_latency_improvement_percent": -22.4,
+    "p95_latency_improvement_percent": -36.77,
+    "cache_hit_rate": 0.0,
+    "baseline_throughput_rps": 91.51291255281139,
+    "optimized_throughput_rps": 75.32164717257213,
+    "baseline_avg_latency_ms": 10.31964,
+    "optimized_avg_latency_ms": 12.63148,
+    "performance_summary": "\u26a0\ufe0f Throughput decreased by 17.7% | \u274c Latency increased by 22.4% | \ud83d\udd0d No cache hits detected"
+  },
+  "system_info": {
+    "initial_stats": {
+      "phase2_stats": {
+        "predictions_made": 1,
+        "average_processing_time": 0.001016378402709961,
+        "model_accuracies": {},
+        "cache_hit_rate": 0.0
+      },
+      "timestamp": "2025-08-04T04:21:19.865062",
+      "services_active": false
+    },
+    "final_stats": {
+      "phase2_stats": {
+        "predictions_made": 26,
+        "average_processing_time": 0.0035219467603243315,
+        "model_accuracies": {},
+        "cache_hit_rate": 0.0
+      },
+      "timestamp": "2025-08-04T04:21:25.493598",
+      "services_active": false
+    },
+    "health_status": {
+      "phase2_available": false,
+      "services": {},
+      "overall_status": "healthy"
+    },
+    "timestamp": "2025-08-04T04:21:25.495426"
+  }
+}

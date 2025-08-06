@@ -14,7 +14,8 @@ from enum import Enum, IntEnum
 from typing import Any, Callable, Dict, List, Optional
 
 import redis.asyncio as redis
-from config import config_manager
+
+from backend.config_manager import config_manager
 from backend.utils.serialization_utils import (
     register_serializable,
     safe_dumps,
@@ -195,7 +196,6 @@ class TaskQueue:
                     "expired",
                 )
 
-            
             return True
 
         except Exception as e:  # pylint: disable=broad-exception-caught

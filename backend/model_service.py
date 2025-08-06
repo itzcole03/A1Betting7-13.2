@@ -55,7 +55,7 @@ class ModelServiceConfig(BaseSettings):
 
 
 try:
-    from config import config_manager
+    from backend.config_manager import config_manager
 except ImportError:
     logger.warning("config_manager not available, using Pydantic BaseSettings")
     config_manager = ModelServiceConfig()
@@ -69,7 +69,7 @@ except ImportError:
     db_manager = None
 
 try:
-    from feature_engineering import FeatureEngineering
+    from backend.feature_engineering import FeatureEngineering
 except ImportError:
     logger.warning("feature_engineering not available, using mock implementation")
 

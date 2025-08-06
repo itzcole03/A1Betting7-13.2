@@ -1552,7 +1552,7 @@ class UltraAccuracyEngine:
             class MAMLModel:
                 def __init__(
                     self,
-                    input_dim=10,
+                    input_dim=4,  # PATCHED: Use 4 features for Iris
                     hidden_dim=32,
                     output_dim=1,
                     meta_lr=0.01,
@@ -1696,7 +1696,9 @@ class UltraAccuracyEngine:
             from tensorflow.keras.optimizers import Adam
 
             class PrototypicalNetwork:
-                def __init__(self, input_dim=10, hidden_dim=64, embedding_dim=32):
+                def __init__(
+                    self, input_dim=4, hidden_dim=64, embedding_dim=32
+                ):  # PATCHED: Use 4 features for Iris
                     self.input_dim = input_dim
                     self.hidden_dim = hidden_dim
                     self.embedding_dim = embedding_dim
@@ -1806,7 +1808,9 @@ class UltraAccuracyEngine:
             from tensorflow.keras.optimizers import Adam
 
             class RelationNetwork:
-                def __init__(self, input_dim=10, hidden_dim=64, relation_dim=32):
+                def __init__(
+                    self, input_dim=4, hidden_dim=64, relation_dim=32
+                ):  # PATCHED: Use 4 features for Iris
                     self.input_dim = input_dim
                     self.hidden_dim = hidden_dim
                     self.relation_dim = relation_dim
@@ -1931,7 +1935,9 @@ class UltraAccuracyEngine:
             from tensorflow.keras.optimizers import Adam
 
             class LearningToLearnModel:
-                def __init__(self, input_dim=10, hidden_dim=64, lstm_units=32):
+                def __init__(
+                    self, input_dim=4, hidden_dim=64, lstm_units=32
+                ):  # PATCHED: Use 4 features for Iris
                     self.input_dim = input_dim
                     self.hidden_dim = hidden_dim
                     self.lstm_units = lstm_units
