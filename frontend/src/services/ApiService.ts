@@ -3,9 +3,9 @@
  * Consolidates all API functionality with authentication, retries, and error management
  */
 
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosError, AxiosInstance } from 'axios';
 import EventEmitter from 'eventemitter3';
-import { discoverBackend } from './backendDiscovery';
+import { withRequestCorrelation } from './withRequestCorrelation';
 
 export interface ApiServiceEvents {
   error: (error: Error) => void;
@@ -65,7 +65,7 @@ export abstract class BaseApiService extends EventEmitter<ApiServiceEvents> {
 
     // Request interceptor
     client.interceptors.request.use(
-      (config) => {
+      config => {
         const token = localStorage.getItem('auth_token');
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -73,7 +73,7 @@ export abstract class BaseApiService extends EventEmitter<ApiServiceEvents> {
         this.emit('request', config.url || '');
         return config;
       },
-      (error) => {
+      error => {
         this.handleError(error);
         return Promise.reject(error);
       }
@@ -81,7 +81,7 @@ export abstract class BaseApiService extends EventEmitter<ApiServiceEvents> {
 
     // Response interceptor
     client.interceptors.response.use(
-      (response) => {
+      response => {
         const apiResponse: ApiResponse<any> = {
           data: response.data,
           status: response.status,
@@ -91,7 +91,7 @@ export abstract class BaseApiService extends EventEmitter<ApiServiceEvents> {
         this.handleResponse(apiResponse);
         return response;
       },
-      (error) => {
+      error => {
         this.handleError(error);
         return Promise.reject(error);
       }
@@ -119,17 +119,19 @@ export abstract class BaseApiService extends EventEmitter<ApiServiceEvents> {
 export class ApiService extends BaseApiService {
   private cache = new Map<string, { data: any; timestamp: number }>();
 
-  async get<T>(endpoint: string, params?: Record<string, unknown>): Promise<T> {
-    try {
-      const response = await this.client.get<T>(endpoint, { params });
-      return response.data;
-    } catch (error) {
-      this.handleError(error as Error);
-      throw error;
+  get = withRequestCorrelation(
+    async <T>(endpoint: string, params?: Record<string, unknown>): Promise<T> => {
+      try {
+        const response = await this.client.get<T>(endpoint, { params });
+        return response.data;
+      } catch (error) {
+        this.handleError(error as Error);
+        throw error;
+      }
     }
-  }
+  );
 
-  async post<T>(endpoint: string, data: unknown): Promise<T> {
+  post = withRequestCorrelation(async <T>(endpoint: string, data: unknown): Promise<T> => {
     try {
       const response = await this.client.post<T>(endpoint, data);
       return response.data;
@@ -137,9 +139,9 @@ export class ApiService extends BaseApiService {
       this.handleError(error as Error);
       throw error;
     }
-  }
+  });
 
-  async put<T>(endpoint: string, data: unknown): Promise<T> {
+  put = withRequestCorrelation(async <T>(endpoint: string, data: unknown): Promise<T> => {
     try {
       const response = await this.client.put<T>(endpoint, data);
       return response.data;
@@ -147,9 +149,9 @@ export class ApiService extends BaseApiService {
       this.handleError(error as Error);
       throw error;
     }
-  }
+  });
 
-  async delete<T>(endpoint: string): Promise<T> {
+  delete = withRequestCorrelation(async <T>(endpoint: string): Promise<T> => {
     try {
       const response = await this.client.delete<T>(endpoint);
       return response.data;
@@ -157,13 +159,17 @@ export class ApiService extends BaseApiService {
       this.handleError(error as Error);
       throw error;
     }
-  }
+  });
 
   // Cached get method
-  async getCached<T>(endpoint: string, params?: Record<string, unknown>, cacheTime = 5 * 60 * 1000): Promise<T> {
+  async getCached<T>(
+    endpoint: string,
+    params?: Record<string, unknown>,
+    cacheTime = 5 * 60 * 1000
+  ): Promise<T> {
     const cacheKey = `${endpoint}_${JSON.stringify(params || {})}`;
     const cached = this.cache.get(cacheKey);
-    
+
     if (cached && Date.now() - cached.timestamp < cacheTime) {
       return cached.data;
     }
@@ -183,4 +189,3 @@ export class ApiService extends BaseApiService {
 export const apiService = new ApiService();
 
 // Export types for use by other services
-export type { ApiServiceEvents, ApiConfig, ApiResponse, RequestConfig };

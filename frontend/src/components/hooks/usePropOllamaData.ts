@@ -6,6 +6,7 @@
  */
 
 import { useCallback, useEffect, useRef } from 'react';
+import { activateSport } from '../../services/SportsService';
 import {
   FeaturedProp,
   fetchBatchPredictions,
@@ -69,13 +70,24 @@ export function usePropOllamaData({ state, actions }: UsePropOllamaDataProps) {
   // Main data fetching function
   const activateSportAndFetchData = useCallback(
     async (retryCount = 0) => {
-      console.log(`[PropOllamaData] Starting data fetch for sport: ${state.filters.selectedSport}`);
+      console.log(
+        `[PropOllamaData] Starting data fetch for sport: ${state.filters.selectedSport} (retry: ${retryCount})`
+      );
+
+      // Circuit breaker: prevent excessive retries
+      if (retryCount >= 3) {
+        console.error('[PropOllamaData] Maximum retry attempts reached, aborting fetch');
+        actions.setError('Failed to load data after multiple attempts. Please refresh the page.');
+        actions.setIsLoading(false);
+        return;
+      }
 
       actions.setIsLoading(true);
       actions.setPropLoadingProgress(0);
       actions.setError(null);
       actions.setLoadingStage({ stage: 'fetching', progress: 0, message: 'Initializing...' });
       actions.setLoadingMessage('Initializing...');
+
       try {
         const selectedSport = state.filters.selectedSport;
 
@@ -111,34 +123,41 @@ export function usePropOllamaData({ state, actions }: UsePropOllamaDataProps) {
           actions.setLoadingMessage(`Activating ${selectedSport} service...`);
 
           try {
-            const activationResponse = await fetch(`/api/sports/activate/${selectedSport}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-            });
+            console.log(`[PropOllamaData] Attempting to activate ${selectedSport} service...`);
+            const activationData = await activateSport(selectedSport);
+            console.log(
+              `[PropOllamaData] ${selectedSport} service activation result:`,
+              activationData
+            );
 
-            if (activationResponse.ok) {
-              const activationData = await activationResponse.json();
-              console.log(`[PropOllamaData] ${selectedSport} service activation:`, activationData);
+            if (activationData.version_used) {
+              console.warn(
+                `[PropOllamaData] API version used for activation: ${activationData.version_used}`
+              );
+            }
+            actions.updateSportActivationStatus(selectedSport, { [selectedSport]: 'ready' });
 
-              actions.updateSportActivationStatus(selectedSport, { [selectedSport]: 'ready' });
-
-              if (activationData.newly_loaded) {
-                console.log(
-                  `[PropOllamaData] ${selectedSport} models loaded in ${activationData.load_time.toFixed(
-                    2
-                  )}s`
-                );
-              }
-            } else {
-              console.warn(`[PropOllamaData] Sport activation failed for ${selectedSport}`);
-              actions.updateSportActivationStatus(selectedSport, { [selectedSport]: 'error' });
+            if (activationData.newly_loaded) {
+              console.log(
+                `[PropOllamaData] ${selectedSport} models loaded in ${
+                  activationData.load_time?.toFixed?.(2) ?? '?'
+                }s`
+              );
             }
           } catch (activationError) {
-            console.warn(
+            console.error(
               `[PropOllamaData] Sport activation error for ${selectedSport}:`,
               activationError
             );
+            console.error('[PropOllamaData] Activation error details:', {
+              message: activationError instanceof Error ? activationError.message : 'Unknown error',
+              name: activationError instanceof Error ? activationError.name : 'Unknown',
+              stack: activationError instanceof Error ? activationError.stack : undefined,
+            });
             actions.updateSportActivationStatus(selectedSport, { [selectedSport]: 'error' });
+
+            // Don't fail the entire data fetch if sport activation fails
+            console.warn('[PropOllamaData] Continuing with data fetch despite activation error');
           }
         }
 
@@ -179,6 +198,9 @@ export function usePropOllamaData({ state, actions }: UsePropOllamaDataProps) {
             );
             actions.setPropLoadingProgress(20 + (offset / 3000) * 30);
 
+            console.log(
+              `[PropOllamaData] Fetching props batch: offset=${offset}, batchSize=${batchSize}`
+            );
             const batchProps = await fetchFeaturedProps(selectedSport, state.filters.propType, {
               limit: batchSize,
               offset: offset,
@@ -186,6 +208,12 @@ export function usePropOllamaData({ state, actions }: UsePropOllamaDataProps) {
               useCache: true,
               realtime: false,
               priority: 'high',
+            });
+
+            console.log(`[PropOllamaData] Batch fetch result:`, {
+              propsReceived: batchProps?.length || 0,
+              offset,
+              hasData: !!batchProps,
             });
 
             if (batchProps && batchProps.length > 0) {
@@ -196,9 +224,13 @@ export function usePropOllamaData({ state, actions }: UsePropOllamaDataProps) {
               );
 
               if (batchProps.length < batchSize) {
+                console.log(
+                  '[PropOllamaData] Received fewer props than requested, ending pagination'
+                );
                 hasMoreProps = false;
               }
             } else {
+              console.log('[PropOllamaData] No props returned from batch, ending pagination');
               hasMoreProps = false;
             }
           } catch (batchError) {
@@ -206,6 +238,15 @@ export function usePropOllamaData({ state, actions }: UsePropOllamaDataProps) {
               `[PropOllamaData] Error fetching props batch at offset ${offset}:`,
               batchError
             );
+            console.error('[PropOllamaData] Batch error details:', {
+              message: batchError instanceof Error ? batchError.message : 'Unknown error',
+              name: batchError instanceof Error ? batchError.name : 'Unknown',
+              offset,
+              totalPropsSoFar: allProps.length,
+            });
+
+            // Continue with what we have rather than failing completely
+            console.warn('[PropOllamaData] Continuing with props fetched so far');
             hasMoreProps = false;
           }
         }
@@ -286,13 +327,31 @@ export function usePropOllamaData({ state, actions }: UsePropOllamaDataProps) {
         console.log(`[PropOllamaData] Data loading complete for ${selectedSport}`);
       } catch (error) {
         console.error('[PropOllamaData] Error in data fetching:', error);
-        actions.setError(error instanceof Error ? error.message : 'Unknown error occurred');
+        console.error('[PropOllamaData] Data fetch error details:', {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          name: error instanceof Error ? error.name : 'Unknown',
+          retryCount,
+          selectedSport: state.filters.selectedSport,
+        });
 
-        // Retry logic
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        actions.setError(`Failed to load data: ${errorMessage}`);
+
+        // Retry logic with exponential backoff
         if (retryCount < 2) {
-          console.log(`[PropOllamaData] Retrying data fetch (attempt ${retryCount + 1})`);
-          setTimeout(() => activateSportAndFetchData(retryCount + 1), 2000);
+          const delay = Math.min(1000 * (retryCount + 1), 5000); // 1s, 2s, max 5s
+          console.log(
+            `[PropOllamaData] Retrying data fetch in ${delay}ms (attempt ${retryCount + 1})`
+          );
+          setTimeout(() => {
+            activateSportAndFetchData(retryCount + 1);
+          }, delay);
           return;
+        } else {
+          console.error('[PropOllamaData] All retry attempts exhausted');
+          actions.setError(
+            'Failed to load data after multiple attempts. Please try refreshing the page.'
+          );
         }
       } finally {
         actions.setIsLoading(false);
@@ -316,19 +375,40 @@ export function usePropOllamaData({ state, actions }: UsePropOllamaDataProps) {
     console.error(
       `[PropOllamaData] *** MAIN USEEFFECT TRIGGERED *** - sport: ${state.filters.selectedSport}, propType: ${state.filters.propType}, statType: ${state.filters.selectedStatType}`
     );
+    console.log('[PropOllamaData] Effect dependencies:', {
+      selectedSport: state.filters.selectedSport,
+      propType: state.filters.propType,
+      selectedStatType: state.filters.selectedStatType,
+      hasActions: !!actions,
+      actionsIsStable: typeof actions === 'object',
+    });
 
     let cancelled = false;
 
     const fetchData = async () => {
       console.error('[PropOllamaData] *** About to call activateSportAndFetchData... ***');
+      console.log('[PropOllamaData] Fetch data execution context:', {
+        cancelled,
+        sport: state.filters.selectedSport,
+        timestamp: new Date().toISOString(),
+      });
+
       if (!cancelled) {
-        await activateSportAndFetchData();
+        try {
+          await activateSportAndFetchData();
+          console.log('[PropOllamaData] *** activateSportAndFetchData completed successfully ***');
+        } catch (error) {
+          console.error('[PropOllamaData] *** activateSportAndFetchData failed ***', error);
+        }
+      } else {
+        console.log('[PropOllamaData] Fetch cancelled before execution');
       }
     };
 
     fetchData();
 
     return () => {
+      console.log('[PropOllamaData] Effect cleanup - cancelling fetch');
       cancelled = true;
     };
   }, [

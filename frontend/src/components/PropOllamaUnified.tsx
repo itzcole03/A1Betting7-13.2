@@ -9,6 +9,7 @@ import {
   fetchBatchPredictions,
   fetchFeaturedProps,
 } from '../services/unified/FeaturedPropsService';
+import { activateSport } from '../services/SportsService';
 import { EnhancedBetsResponse } from '../types/enhancedBetting';
 import { EnhancedApiClient } from '../utils/enhancedApiClient';
 import ComprehensivePropsLoader from './ComprehensivePropsLoader';
@@ -33,35 +34,26 @@ const sports = ['All', 'NBA', 'NFL', 'NHL', 'MLB'];
 
 // Local type for selected prop in bet slip
 type SelectedProp = {
-  id: string;
-  player: string;
-  statType: string;
-  line: number | string;
-  choice: string;
-  odds: number;
-};
-
-// Utility to safely render cell values
-function safeCell(val: any) {
-  if (val === undefined || val === null) return '';
-  if (typeof val === 'number' && isNaN(val)) return '';
-  return String(val);
-}
-
-// Filter props to only include players from teams with upcoming games
-function filterPropsForUpcomingGames(
-  props: FeaturedProp[],
-  upcomingGames: Array<{
-    game_id?: number;
-    home: string;
-    away: string;
-    time: string;
-    event_name: string;
-    status?: string;
-    venue?: string;
-  }>
-): FeaturedProp[] {
-  if (!upcomingGames || upcomingGames.length === 0) {
+          try {
+            const activationData = await activateSport(selectedSport);
+            console.log(
+              `[PropOllamaUnified] ${selectedSport} service activation:`,
+              activationData
+            );
+            if (activationData.version_used) {
+              console.warn(`[PropOllamaUnified] API version used for activation: ${activationData.version_used}`);
+            }
+            setSportActivationStatus(prev => ({ ...prev, [selectedSport]: 'ready' }));
+            // Show user feedback if models were newly loaded
+            if (activationData.newly_loaded) {
+              console.log(
+                `🚀 ${selectedSport} models loaded in ${activationData.load_time?.toFixed?.(2) ?? '?'}s`
+              );
+            }
+          } catch (activationError) {
+            console.warn(`[PropOllamaUnified] Sport activation error for ${selectedSport}:`, activationError);
+            setSportActivationStatus(prev => ({ ...prev, [selectedSport]: 'error' }));
+          }
     console.log('[PropOllamaUnified] No upcoming games, returning all props');
     return props;
   }
@@ -633,29 +625,20 @@ const PropOllamaUnified: React.FC = () => {
           setSportActivationStatus(prev => ({ ...prev, [selectedSport]: 'loading' }));
 
           try {
-            const activationResponse = await fetch(`/api/sports/activate/${selectedSport}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-            });
-
-            if (activationResponse.ok) {
-              const activationData = await activationResponse.json();
+            const activationData = await activateSport(selectedSport);
+            console.log(
+              `[PropOllamaUnified] ${selectedSport} service activation:`,
+              activationData
+            );
+            if (activationData.version_used) {
+              console.warn(`[PropOllamaUnified] API version used for activation: ${activationData.version_used}`);
+            }
+            setSportActivationStatus(prev => ({ ...prev, [selectedSport]: 'ready' }));
+            // Show user feedback if models were newly loaded
+            if (activationData.newly_loaded) {
               console.log(
-                `[PropOllamaUnified] ${selectedSport} service activation:`,
-                activationData
+                `🚀 ${selectedSport} models loaded in ${activationData.load_time?.toFixed?.(2) ?? '?'}s`
               );
-
-              setSportActivationStatus(prev => ({ ...prev, [selectedSport]: 'ready' }));
-
-              // Show user feedback if models were newly loaded
-              if (activationData.newly_loaded) {
-                console.log(
-                  `🚀 ${selectedSport} models loaded in ${activationData.load_time.toFixed(2)}s`
-                );
-              }
-            } else {
-              console.warn(`[PropOllamaUnified] Sport activation failed for ${selectedSport}`);
-              setSportActivationStatus(prev => ({ ...prev, [selectedSport]: 'error' }));
             }
           } catch (activationError) {
             console.warn(

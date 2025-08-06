@@ -4,7 +4,8 @@
  * to directly test the API endpoints that PropOllama should be using
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { activateSport } from '../../services/SportsService';
 
 interface DirectTestResult {
   endpoint: string;
@@ -15,6 +16,7 @@ interface DirectTestResult {
   error?: string;
   duration: number;
   timestamp: string;
+  versionUsed?: string;
 }
 
 const DirectDataFetchTest: React.FC = () => {
@@ -43,9 +45,10 @@ const DirectDataFetchTest: React.FC = () => {
       method: 'GET',
     },
     {
-      name: 'Sport Activation - MLB',
-      endpoint: 'http://localhost:8000/api/sports/activate/MLB',
+      name: 'Sport Activation - MLB (v2)',
+      endpoint: '/api/v2/sports/activate',
       method: 'POST',
+      useV2: true,
     },
     {
       name: 'Frontend Health (via proxy)',
@@ -64,48 +67,48 @@ const DirectDataFetchTest: React.FC = () => {
       const startTime = Date.now();
       try {
         console.log(`[DirectDataFetchTest] Testing: ${test.name} - ${test.endpoint}`);
-
-        const fetchOptions: RequestInit = {
-          method: test.method,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        };
-
-        const response = await fetch(test.endpoint, fetchOptions);
-        const duration = Date.now() - startTime;
-
         let data;
         let dataCount = 0;
-
-        try {
-          data = await response.json();
-          if (Array.isArray(data)) {
-            dataCount = data.length;
-          } else if (data && typeof data === 'object') {
-            dataCount = Object.keys(data).length;
+        let ok = false;
+        let status = 0;
+        if (test.useV2) {
+          // Use new versioned service with fallback and logging
+          data = await activateSport('MLB');
+          ok = data?.success;
+          dataCount = 1;
+          status = 200;
+        } else {
+          const fetchOptions: RequestInit = {
+            method: test.method,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          };
+          const response = await fetch(test.endpoint, fetchOptions);
+          status = response.status;
+          try {
+            data = await response.json();
+            dataCount = Array.isArray(data) ? data.length : data?.games?.length || 0;
+            ok = response.ok;
+          } catch (err) {
+            data = null;
           }
-        } catch (jsonError) {
-          data = 'Response not JSON';
         }
-
+        const duration = Date.now() - startTime;
         setResults(prev => [
           ...prev,
           {
             endpoint: test.endpoint,
             method: test.method,
-            success: response.ok,
+            success: ok,
             dataCount,
             data: Array.isArray(data) ? `Array(${data.length})` : data,
             duration,
             timestamp: new Date().toISOString(),
+            versionUsed: data?.version_used,
           },
         ]);
-
-        console.log(
-          `[DirectDataFetchTest] ✅ ${test.name}: ${response.status} (${duration}ms)`,
-          data
-        );
+        console.log(`[DirectDataFetchTest] ✅ ${test.name}: ${status} (${duration}ms)`, data);
       } catch (error) {
         const duration = Date.now() - startTime;
         setResults(prev => [
@@ -120,27 +123,17 @@ const DirectDataFetchTest: React.FC = () => {
             timestamp: new Date().toISOString(),
           },
         ]);
-
-        console.error(`[DirectDataFetchTest] ❌ ${test.name}:`, error);
       }
     }
-
     setIsRunning(false);
   };
 
-  useEffect(() => {
-    // Auto-run tests on component mount
-    setTimeout(runDirectTests, 1000); // Small delay to let the component render
-  }, []);
-
   return (
-    <div className='direct-data-fetch-test bg-slate-900/50 p-6 rounded-lg border border-yellow-500'>
-      <h2 className='text-xl font-bold text-yellow-400 mb-4'>🔍 Direct PropOllama API Tests</h2>
-
+    <div className='p-6'>
       <button
+        className='bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded mb-6 font-bold shadow'
         onClick={runDirectTests}
         disabled={isRunning}
-        className='bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-600 text-white px-6 py-2 rounded font-medium mb-6'
       >
         {isRunning ? '🔄 Running Tests...' : '▶️ Run Direct API Tests'}
       </button>
@@ -171,6 +164,9 @@ const DirectDataFetchTest: React.FC = () => {
             {result.success && result.dataCount > 0 && (
               <div className='text-xs bg-green-900/30 p-2 rounded mb-2'>
                 📊 Data received: {result.dataCount} items
+                {result.versionUsed && (
+                  <span className='ml-2 text-yellow-300'>[API version: {result.versionUsed}]</span>
+                )}
               </div>
             )}
 

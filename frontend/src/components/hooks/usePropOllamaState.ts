@@ -6,7 +6,7 @@
  * state logic into a reusable hook.
  */
 
-import { useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { EnhancedPropAnalysis } from '../../services/EnhancedPropAnalysisService';
 import { FeaturedProp } from '../../services/unified/FeaturedPropsService';
 import { EnhancedBetsResponse } from '../../types/enhancedBetting';
@@ -262,37 +262,69 @@ export function usePropOllamaState(): [PropOllamaState, PropOllamaActions] {
     ensembleResult,
   };
 
-  // Combine actions
-  const actions: PropOllamaActions = {
-    setConnectionHealth,
-    setProjections,
-    setUnifiedResponse,
-    setUpcomingGames,
-    setSelectedGame,
-    updateFilters,
-    updateSorting,
-    updateDisplayOptions,
-    setIsLoading,
-    setError,
-    setRenderError,
-    setLoadingStage,
-    setLoadingMessage,
-    updateEnhancedAnalysisCache,
-    setLoadingAnalysis,
-    setAnalyzingPropId,
-    updatePropAnalystResponse,
-    setSelectedProps,
-    addSelectedProp,
-    removeSelectedProp,
-    setEntryAmount,
-    setInitialLoadingComplete,
-    setClicksEnabled,
-    setPropLoadingProgress,
-    updateSportActivationStatus,
-    setEnsembleLoading,
-    setEnsembleError,
-    setEnsembleResult,
-  };
+  // Memoize actions to prevent unnecessary re-renders and effect loops
+  const actions: PropOllamaActions = React.useMemo(
+    () => ({
+      setConnectionHealth,
+      setProjections,
+      setUnifiedResponse,
+      setUpcomingGames,
+      setSelectedGame,
+      updateFilters,
+      updateSorting,
+      updateDisplayOptions,
+      setIsLoading,
+      setError,
+      setRenderError,
+      setLoadingStage,
+      setLoadingMessage,
+      updateEnhancedAnalysisCache,
+      setLoadingAnalysis,
+      setAnalyzingPropId,
+      updatePropAnalystResponse,
+      setSelectedProps,
+      addSelectedProp,
+      removeSelectedProp,
+      setEntryAmount,
+      setInitialLoadingComplete,
+      setClicksEnabled,
+      setPropLoadingProgress,
+      updateSportActivationStatus,
+      setEnsembleLoading,
+      setEnsembleError,
+      setEnsembleResult,
+    }),
+    [
+      setConnectionHealth,
+      setProjections,
+      setUnifiedResponse,
+      setUpcomingGames,
+      setSelectedGame,
+      updateFilters,
+      updateSorting,
+      updateDisplayOptions,
+      setIsLoading,
+      setError,
+      setRenderError,
+      setLoadingStage,
+      setLoadingMessage,
+      updateEnhancedAnalysisCache,
+      setLoadingAnalysis,
+      setAnalyzingPropId,
+      updatePropAnalystResponse,
+      setSelectedProps,
+      addSelectedProp,
+      removeSelectedProp,
+      setEntryAmount,
+      setInitialLoadingComplete,
+      setClicksEnabled,
+      setPropLoadingProgress,
+      updateSportActivationStatus,
+      setEnsembleLoading,
+      setEnsembleError,
+      setEnsembleResult,
+    ]
+  );
 
   return [state, actions];
 }

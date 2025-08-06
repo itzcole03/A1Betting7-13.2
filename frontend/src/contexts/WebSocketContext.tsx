@@ -58,30 +58,44 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
         console.log(`[WebSocket] Connected successfully to: ${_wsUrl}`);
         setConnected(true);
         reconnectAttempts.current = 0;
+
+        // Send a ping to verify connection is working
+        if (_ws.readyState === WebSocket.OPEN) {
+          _ws.send(JSON.stringify({ event: 'ping', timestamp: Date.now() }));
+        }
       };
 
       _ws.onclose = event => {
-        console.log(`[WebSocket] Connection closed:`, event.code, event.reason);
+        console.log(`[WebSocket] Connection closed:`, event.code, event.reason, event.wasClean);
         setConnected(false);
-        if (!isUnmounted) {
-          // Exponential backoff for reconnection
-          const delay = Math.min(1000 * 2 ** reconnectAttempts.current, 30000);
-          reconnectAttempts.current += 1;
-          if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
-          reconnectTimeout.current = setTimeout(() => {
-            connectWebSocket();
-          }, delay);
-          console.warn(
-            `[WebSocket] Attempting to reconnect in ${delay / 1000}s (attempt ${
-              reconnectAttempts.current
-            })`
-          );
+
+        // Only attempt reconnect for non-normal closures and if component is still mounted
+        if (!isUnmounted && event.code !== 1000) {
+          // Exponential backoff for reconnection with maximum attempts
+          if (reconnectAttempts.current < 10) {
+            const delay = Math.min(1000 * 2 ** reconnectAttempts.current, 30000);
+            reconnectAttempts.current += 1;
+            if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
+            reconnectTimeout.current = setTimeout(() => {
+              console.log(`[WebSocket] Reconnecting... (attempt ${reconnectAttempts.current})`);
+              connectWebSocket();
+            }, delay);
+            console.warn(
+              `[WebSocket] Attempting to reconnect in ${delay / 1000}s (attempt ${
+                reconnectAttempts.current
+              })`
+            );
+          } else {
+            console.error('[WebSocket] Maximum reconnection attempts reached. Giving up.');
+          }
         }
       };
 
       _ws.onerror = error => {
-        console.warn(`[WebSocket] Connection error (non-critical):`, error);
+        console.warn(`[WebSocket] Connection error (non-critical, app will continue):`, error);
         // WebSocket errors are non-critical - the app should work without real-time features
+        // Reset connection state but don't throw errors
+        setConnected(false);
       };
 
       _ws.onmessage = event => {

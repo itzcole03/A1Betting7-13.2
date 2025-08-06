@@ -32,6 +32,7 @@ except ImportError:
     logger = logging.getLogger(__name__)
     logger.info("🚀 Starting A1Betting Backend (basic logging)...")
 
+
 # Try enhanced production integration first, fallback to original
 try:
     from backend.enhanced_production_integration import create_enhanced_app
@@ -52,6 +53,15 @@ except ImportError as e:
             "❌ Both integrations failed: enhanced=%s, original=%s", str(e), str(e2)
         )
         raise RuntimeError("No production integration available") from e2
+
+# Add request correlation middleware
+try:
+    from backend.middleware.request_correlation import correlation_middleware
+
+    app.middleware("http")(correlation_middleware)
+    logger.info("✅ Request correlation middleware enabled")
+except Exception as e:
+    logger.warning(f"⚠️ Could not enable request correlation middleware: {e}")
 
 
 # Utility function for error responses (backward compatibility)

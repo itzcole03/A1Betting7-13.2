@@ -7,6 +7,7 @@ import AuthPage from './components/auth/AuthPage';
 import PasswordChangeForm from './components/auth/PasswordChangeForm';
 import { ErrorBoundary } from './components/core/ErrorBoundary';
 import ServiceWorkerUpdateNotification from './components/core/ServiceWorkerUpdateNotification';
+import { ErrorBoundaryVersion } from './components/ErrorBoundaryVersion';
 import { _AppProvider } from './contexts/AppContext';
 import { _AuthProvider, useAuth } from './contexts/AuthContext';
 import { _ThemeProvider } from './contexts/ThemeContext';
@@ -15,6 +16,7 @@ import { OnboardingProvider } from './onboarding/OnboardingContext';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import { discoverBackend } from './services/backendDiscovery';
 import { serviceWorkerManager } from './services/serviceWorkerManager';
+import { checkApiVersionCompatibility } from './services/SportsService';
 import { webVitalsService } from './services/webVitalsService';
 import { UpdateModal } from './update/UpdateModal';
 import { getBackendUrl } from './utils/getBackendUrl';
@@ -50,9 +52,9 @@ function App() {
   // Always use the proper backend URL for direct connection
   const [apiUrl, setApiUrl] = useState(getBackendUrl());
   const [backendHealthy, setBackendHealthy] = useState(true);
-  const expectedVersion = '1.0.0';
+  const expectedVersion = '2.0.0';
 
-  // Register service worker on app start
+  // Register service worker and check API version compatibility on app start
   useEffect(() => {
     console.log('[APP] Registering service worker with 2025 best practices');
     serviceWorkerManager.register().then(registration => {
@@ -61,6 +63,16 @@ function App() {
         webVitalsService.trackCustomMetric('sw_registration', 1);
       }
     });
+    // Check API version compatibility
+    checkApiVersionCompatibility()
+      .then(version => {
+        console.log(`[APP] API version compatibility check: ${version}`);
+      })
+      .catch(err => {
+        // Log and throw to trigger ErrorBoundaryVersion
+        console.error('[APP] API version compatibility error:', err);
+        throw err;
+      });
   }, []);
 
   useEffect(() => {
@@ -76,6 +88,7 @@ function App() {
           const versionTimeoutId = setTimeout(() => versionController.abort(), 10000); // 10s timeout
           let versionRes;
           try {
+            console.log(`[APP] Attempting version check: ${url}/api/version`);
             versionRes = await fetch(`${url}/api/version`, { signal: versionController.signal });
           } catch (err) {
             if (
@@ -92,11 +105,34 @@ function App() {
           } finally {
             clearTimeout(versionTimeoutId);
           }
+
           if (versionRes && versionRes.ok) {
-            const data = await versionRes.json();
-            if (data.version !== expectedVersion) {
-              console.warn(`[APP] Backend version mismatch - Possible resolution conflict`);
+            try {
+              const data = await versionRes.json();
+              console.log('[APP] Backend version response:', data);
+
+              if (data && typeof data === 'object' && 'version' in data) {
+                const backendVersion = data.version;
+                console.log(
+                  `[APP] Version comparison: backend=${backendVersion}, expected=${expectedVersion}`
+                );
+
+                if (backendVersion !== expectedVersion) {
+                  console.warn(
+                    `[APP] Backend version mismatch: expected ${expectedVersion}, got ${backendVersion}`
+                  );
+                  // Don't trigger reload - just log warning and continue
+                } else {
+                  console.log('[APP] Backend version check passed ✓');
+                }
+              } else {
+                console.warn('[APP] Invalid version response structure:', data);
+              }
+            } catch (parseError) {
+              console.error('[APP] Failed to parse version response:', parseError);
             }
+          } else {
+            console.warn('[APP] Version endpoint not available or returned error');
           }
         }
       } catch (err) {
@@ -124,22 +160,24 @@ function App() {
   }
 
   return (
-    <QueryClientProvider client={new QueryClient()}>
-      <_AppProvider>
-        <_ThemeProvider>
-          <_WebSocketProvider>
-            <_AuthProvider>
-              <BrowserRouter>
-                <Routes>
-                  <Route path='/reset-password' element={<ResetPasswordPage />} />
-                  <Route path='*' element={<_AppContent />} />
-                </Routes>
-              </BrowserRouter>
-            </_AuthProvider>
-          </_WebSocketProvider>
-        </_ThemeProvider>
-      </_AppProvider>
-    </QueryClientProvider>
+    <ErrorBoundaryVersion>
+      <QueryClientProvider client={new QueryClient()}>
+        <_AppProvider>
+          <_ThemeProvider>
+            <_WebSocketProvider>
+              <_AuthProvider>
+                <BrowserRouter>
+                  <Routes>
+                    <Route path='/reset-password' element={<ResetPasswordPage />} />
+                    <Route path='*' element={<_AppContent />} />
+                  </Routes>
+                </BrowserRouter>
+              </_AuthProvider>
+            </_WebSocketProvider>
+          </_ThemeProvider>
+        </_AppProvider>
+      </QueryClientProvider>
+    </ErrorBoundaryVersion>
   );
 }
 

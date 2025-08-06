@@ -19,11 +19,20 @@
 - It enables safe, non-breaking upgrades and clear deprecation/migration paths.
 - Including a `version` field in responses supports traceability and debugging.
 
-### Migration Plan
+### Sports Activation Endpoint Version Compatibility (2025-08-05)
 
-- All new endpoints will use `/api/v1/` and include a `version` field in responses.
-- Existing endpoints will be migrated to `/api/v1/` as part of the next major release cycle.
-- Deprecated endpoints will be removed after a 90-day deprecation window.
+- The frontend now uses a version detection and fallback strategy for the `/api/sports/activate` endpoint.
+- It attempts `/api/v2/sports/activate` first; if unavailable, it falls back to `/api/sports/activate/{sport}` (v1) with a warning and logs deprecated usage.
+- All activation responses include a `version_used` field for diagnostics.
+- Version mismatch and endpoint errors are handled with a standardized error boundary and user-friendly messages.
+- A version compatibility check runs at app initialization and logs if only deprecated endpoints are available.
+
+#### Migration Notes
+
+- All frontend and test code now uses the new versioned service abstraction for sport activation.
+- Deprecated endpoint usage is logged for future removal.
+
+---
 
 ### Audit Note
 

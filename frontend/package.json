@@ -61,7 +61,6 @@
     "zod": "^4.0.14",
     "zustand": "^5.0.7"
   },
-  "peerDependencies": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -91,6 +90,7 @@
     "jest-localstorage-mock": "^2.4.26",
     "msw": "^2.10.4",
     "vite": "^7.0.6",
+    "vitest": "^3.2.4",
     "web-streams-polyfill": "^4.1.0",
     "whatwg-fetch": "^3.6.20"
   }

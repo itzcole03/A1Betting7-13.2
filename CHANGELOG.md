@@ -1,3 +1,14 @@
+# [2025-08-05] - API Version Compatibility & Sports Activation Migration
+
+### 🚀 ENHANCED: API Version Compatibility and Fallback for Sports Activation
+
+- **FEATURE**: Frontend now detects and uses the best available `/api/sports/activate` endpoint (tries v2, falls back to v1 with warning).
+- **IMPROVEMENT**: All activation responses include a `version_used` field for diagnostics and logging.
+- **ERROR HANDLING**: Standardized error boundary for version mismatch and endpoint failures, with user-friendly messages.
+- **LOGGING**: Deprecated endpoint usage is logged for future migration/removal.
+- **COMPONENTS UPDATED**: All affected hooks, components, and tests now use the new versioned service abstraction.
+- **DOCS**: API documentation updated with version compatibility and migration notes.
+
 # [2025-07-29] - MLB Odds Fallback & Alerting Bugfix
 
 ### 🐞 FIXED: MLB Odds Fallback Logic
