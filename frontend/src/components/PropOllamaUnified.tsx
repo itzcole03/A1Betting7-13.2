@@ -4,12 +4,12 @@ import {
   enhancedPropAnalysisService,
 } from '../services/EnhancedPropAnalysisService';
 import { PropAnalysisAggregator } from '../services/PropAnalysisAggregator';
+import { activateSport } from '../services/SportsService';
 import {
   FeaturedProp,
   fetchBatchPredictions,
   fetchFeaturedProps,
 } from '../services/unified/FeaturedPropsService';
-import { activateSport } from '../services/SportsService';
 import { EnhancedBetsResponse } from '../types/enhancedBetting';
 import { EnhancedApiClient } from '../utils/enhancedApiClient';
 import ComprehensivePropsLoader from './ComprehensivePropsLoader';
@@ -30,30 +30,25 @@ if (typeof window !== 'undefined') {
   console.log('[PropOllamaUnified] React version:', React.version, 'object:', React);
 }
 
+// Import SelectedProp from shared types
+import { SelectedProp, UpcomingGame } from './shared/PropOllamaTypes';
+
 const sports = ['All', 'NBA', 'NFL', 'NHL', 'MLB'];
 
-// Local type for selected prop in bet slip
-type SelectedProp = {
-          try {
-            const activationData = await activateSport(selectedSport);
-            console.log(
-              `[PropOllamaUnified] ${selectedSport} service activation:`,
-              activationData
-            );
-            if (activationData.version_used) {
-              console.warn(`[PropOllamaUnified] API version used for activation: ${activationData.version_used}`);
-            }
-            setSportActivationStatus(prev => ({ ...prev, [selectedSport]: 'ready' }));
-            // Show user feedback if models were newly loaded
-            if (activationData.newly_loaded) {
-              console.log(
-                `🚀 ${selectedSport} models loaded in ${activationData.load_time?.toFixed?.(2) ?? '?'}s`
-              );
-            }
-          } catch (activationError) {
-            console.warn(`[PropOllamaUnified] Sport activation error for ${selectedSport}:`, activationError);
-            setSportActivationStatus(prev => ({ ...prev, [selectedSport]: 'error' }));
-          }
+/**
+ * Safe cell rendering helper
+ */
+const safeCell = (value: any): React.ReactNode => {
+  if (value === null || value === undefined) return '-';
+  if (typeof value === 'string' && value.trim() === '') return '-';
+  return String(value);
+};
+
+/**
+ * Filter props based on upcoming games to prioritize today's matchups
+ */
+const filterPropsByUpcomingGames = (props: any[], upcomingGames: UpcomingGame[]): any[] => {
+  if (!upcomingGames || upcomingGames.length === 0) {
     console.log('[PropOllamaUnified] No upcoming games, returning all props');
     return props;
   }
@@ -138,7 +133,7 @@ type SelectedProp = {
   );
 
   return filteredProps;
-}
+};
 
 const PropOllamaUnified: React.FC = () => {
   // Initialize enhanced API client with connection resilience
@@ -626,18 +621,19 @@ const PropOllamaUnified: React.FC = () => {
 
           try {
             const activationData = await activateSport(selectedSport);
-            console.log(
-              `[PropOllamaUnified] ${selectedSport} service activation:`,
-              activationData
-            );
+            console.log(`[PropOllamaUnified] ${selectedSport} service activation:`, activationData);
             if (activationData.version_used) {
-              console.warn(`[PropOllamaUnified] API version used for activation: ${activationData.version_used}`);
+              console.warn(
+                `[PropOllamaUnified] API version used for activation: ${activationData.version_used}`
+              );
             }
             setSportActivationStatus(prev => ({ ...prev, [selectedSport]: 'ready' }));
             // Show user feedback if models were newly loaded
             if (activationData.newly_loaded) {
               console.log(
-                `🚀 ${selectedSport} models loaded in ${activationData.load_time?.toFixed?.(2) ?? '?'}s`
+                `🚀 ${selectedSport} models loaded in ${
+                  activationData.load_time?.toFixed?.(2) ?? '?'
+                }s`
               );
             }
           } catch (activationError) {
@@ -888,7 +884,7 @@ const PropOllamaUnified: React.FC = () => {
         setUnifiedResponse(null);
 
         // Filter props to only include players from teams with upcoming games
-        const filteredProps = filterPropsForUpcomingGames(enriched_props, upcomingGames);
+        const filteredProps = filterPropsByUpcomingGames(enriched_props, upcomingGames);
         console.log(
           `[PropOllamaUnified] ${new Date().toISOString()} Filtered props from ${
             enriched_props.length

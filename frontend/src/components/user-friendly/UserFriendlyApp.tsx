@@ -1,4 +1,4 @@
-import { BarChart3, Brain, Home, Menu, Target, TrendingUp, X, Zap } from 'lucide-react';
+import { BarChart3, Brain, Home, Menu, Target, TrendingUp, User, X, Zap } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import PropOllamaContainer from '../containers/PropOllamaContainer';
@@ -10,6 +10,7 @@ const UnifiedBettingInterface = React.lazy(() => import('../betting/UnifiedBetti
 const ArbitrageOpportunities = React.lazy(
   () => import('../features/betting/ArbitrageOpportunities')
 );
+const PlayerDashboard = React.lazy(() => import('../player/PlayerDashboard'));
 
 const UserFriendlyApp: React.FC = () => {
   console.error('[UserFriendlyApp] *** COMPONENT MOUNTING *** - PATH:', window.location.pathname);
@@ -19,6 +20,12 @@ const UserFriendlyApp: React.FC = () => {
 
   const navigation = [
     { name: 'Sports Analytics', href: '/', icon: Home, current: location.pathname === '/' },
+    {
+      name: 'Player Research',
+      href: '/player',
+      icon: User,
+      current: location.pathname.startsWith('/player'),
+    },
     {
       name: 'AI/ML Models',
       href: '/ml-models',
@@ -159,6 +166,7 @@ const UserFriendlyApp: React.FC = () => {
                   );
                 })()}
               />
+              <Route path='/player/:playerId?' element={<PlayerDashboard />} />
               <Route path='/ml-models' element={<MLModelCenter />} />
               <Route path='/betting' element={<UnifiedBettingInterface />} />
               <Route path='/arbitrage' element={<ArbitrageOpportunities />} />
