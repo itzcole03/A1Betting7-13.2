@@ -118,12 +118,15 @@ class AutonomousMonitoringService:
         self.monitoring_tasks: List[asyncio.Task] = []
         self.alert_callbacks: List[Callable] = []
         self.auto_healing_enabled = True
+        self._monitoring_started = False
 
-        # Start monitoring tasks
-        asyncio.create_task(self._start_monitoring_tasks())
+        # Monitoring tasks will be started when needed
 
     async def _start_monitoring_tasks(self):
         """Start background monitoring tasks"""
+        if self._monitoring_started:
+            return
+
         try:
             # System metrics monitoring
             self.monitoring_tasks.append(
@@ -144,10 +147,16 @@ class AutonomousMonitoringService:
                     asyncio.create_task(self._auto_healing_monitor())
                 )
 
+            self._monitoring_started = True
             self.logger.info("🔍 Started autonomous monitoring tasks")
 
         except Exception as e:
             self.logger.error(f"Failed to start monitoring tasks: {e}")
+
+    async def initialize_monitoring(self):
+        """Initialize monitoring (called when event loop is available)"""
+        if not self._monitoring_started:
+            await self._start_monitoring_tasks()
 
     async def _monitor_system_metrics(self):
         """Monitor system performance metrics"""

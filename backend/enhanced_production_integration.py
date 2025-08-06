@@ -71,13 +71,33 @@ except ImportError:
         "Enhanced health checks not available, using basic health endpoint"
     )
 
-# Import existing components for backward compatibility
-from .enhanced_database import db_manager
-from .services.enhanced_caching_service import cache_service
-from .services.sports_initialization import (
-    initialize_sports_services,
-    shutdown_sports_services,
-)
+# Import existing components for backward compatibility with error handling
+try:
+    from .enhanced_database import db_manager
+
+    DB_AVAILABLE = True
+except ImportError:
+    DB_AVAILABLE = False
+    app_logger.warning("Enhanced database not available")
+
+try:
+    from .services.enhanced_caching_service import cache_service
+
+    CACHE_SERVICE_AVAILABLE = True
+except ImportError:
+    CACHE_SERVICE_AVAILABLE = False
+    app_logger.warning("Enhanced caching service not available")
+
+try:
+    from .services.sports_initialization import (
+        initialize_sports_services,
+        shutdown_sports_services,
+    )
+
+    SPORTS_INIT_AVAILABLE = True
+except ImportError:
+    SPORTS_INIT_AVAILABLE = False
+    app_logger.warning("Sports initialization not available")
 
 # Import rate limiting
 try:
@@ -132,13 +152,15 @@ class EnhancedProductionApp:
                 raise
 
             # Initialize cache service
-            try:
-                await cache_service.initialize()
-                self.logger.info("✅ Cache service initialized successfully")
-                startup_tasks.append("cache")
-            except Exception as e:
-                self.logger.warning(f"⚠️ Cache service initialization failed: {e}")
-                # Continue without cache if Redis is not available
+            if CACHE_SERVICE_AVAILABLE:
+                try:
+                    await cache_service.initialize()
+                    self.logger.info("✅ Cache service initialized successfully")
+                    startup_tasks.append("cache")
+                except Exception as e:
+                    self.logger.warning(f"⚠️ Cache service initialization failed: {e}")
+            else:
+                self.logger.info("ℹ️ Cache service not available")
 
             # Initialize rate limiter if available
             if RATE_LIMITING_AVAILABLE:
@@ -184,14 +206,18 @@ class EnhancedProductionApp:
             self.logger.info("Phase 3: Initializing sports services...")
 
             try:
-                sports_status = await initialize_sports_services()
-                self.logger.info(
-                    f"✅ Sports services initialized: {sports_status['total_services']} services"
-                )
-                if sports_status["failed_services"]:
-                    self.logger.warning(
-                        f"⚠️ Failed services: {sports_status['failed_services']}"
+                if SPORTS_INIT_AVAILABLE:
+                    sports_status = await initialize_sports_services()
+                    self.logger.info(
+                        f"✅ Sports services initialized: {sports_status['total_services']} services"
                     )
+                    if sports_status["failed_services"]:
+                        self.logger.warning(
+                            f"⚠️ Failed services: {sports_status['failed_services']}"
+                        )
+                    startup_tasks.append("sports_services")
+                else:
+                    self.logger.info("ℹ️ Sports initialization services not available")
                 startup_tasks.append("sports_services")
             except Exception as e:
                 self.logger.warning(f"⚠️ Sports services initialization failed: {e}")
@@ -220,6 +246,8 @@ class EnhancedProductionApp:
                 await advanced_caching_system.initialize()
                 self.logger.info("✅ Advanced caching system initialized successfully")
                 startup_tasks.append("advanced_cache")
+            except ImportError:
+                self.logger.warning("⚠️ Advanced caching system not available")
             except Exception as e:
                 self.logger.warning(
                     f"⚠️ Advanced caching system initialization failed: {e}"
@@ -337,6 +365,10 @@ class EnhancedProductionApp:
 
                     await advanced_caching_system.shutdown()
                     shutdown_tasks.append("advanced_cache")
+                except ImportError:
+                    self.logger.info(
+                        "Advanced caching system not available for shutdown"
+                    )
                 except Exception as e:
                     self.logger.warning(f"Error shutting down advanced caching: {e}")
 
@@ -363,10 +395,17 @@ class EnhancedProductionApp:
                     )
 
                 # Shutdown core services
-                await shutdown_sports_services()
-                await db_manager.close()
-                await cache_service.close()
-                shutdown_tasks.extend(["sports_services", "database", "cache"])
+                if SPORTS_INIT_AVAILABLE:
+                    await shutdown_sports_services()
+                    shutdown_tasks.append("sports_services")
+
+                if DB_AVAILABLE:
+                    await db_manager.close()
+                    shutdown_tasks.append("database")
+
+                if CACHE_SERVICE_AVAILABLE:
+                    await cache_service.close()
+                    shutdown_tasks.append("cache")
 
                 self.logger.info(
                     f"✅ Shutdown completed! Services: {', '.join(shutdown_tasks)}"
@@ -388,6 +427,18 @@ class EnhancedProductionApp:
             redoc_url="/redoc" if self.settings.app.enable_docs else None,
             openapi_url="/openapi.json" if self.settings.app.enable_docs else None,
         )
+
+        # Configure Enhanced OpenAPI System (Priority 1 - API Contract Enhancement)
+        if self.settings.app.enable_docs:
+            try:
+                from .config.enhanced_openapi import setup_enhanced_docs
+
+                setup_enhanced_docs(self.app)
+                self.logger.info("✅ Enhanced OpenAPI documentation configured")
+            except ImportError as e:
+                self.logger.warning(
+                    f"Enhanced OpenAPI not available, using standard: {e}"
+                )
 
         # Add middleware in correct order (reverse order of execution)
         self._add_enhanced_middleware()
@@ -516,6 +567,9 @@ class EnhancedProductionApp:
     def _add_enhanced_routes(self):
         """Add application routes with enhanced error handling"""
 
+        # Phase 0: API Versioning routes (NEW - Priority 1)
+        self._include_versioned_api_routes()
+
         # Phase 1: Health and monitoring routes
         self.app.include_router(health_router, tags=["Health"])
         self.logger.info("✅ Health check routes included")
@@ -541,8 +595,43 @@ class EnhancedProductionApp:
                 "status": "operational",
                 "docs_url": "/docs" if self.settings.app.enable_docs else None,
                 "health_url": "/health",
-                "api_version": "v1",
+                "api_version": "v2",  # Updated to reflect current version
             }
+
+    def _include_versioned_api_routes(self):
+        """Include versioned API routes (Priority 1 - API Contract Enhancement)"""
+
+        versioned_routes = []
+
+        try:
+            from .routes.versioned_api_routes import (
+                APIVersionMiddleware,
+                v1_router,
+                v2_router,
+                version_router,
+            )
+
+            # Add version middleware
+            self.app.add_middleware(APIVersionMiddleware)
+
+            # Include version info routes
+            self.app.include_router(version_router, tags=["API Version"])
+
+            # Include versioned API routes
+            self.app.include_router(v1_router, tags=["API v1 (Deprecated)"])
+            self.app.include_router(v2_router, tags=["API v2 (Current)"])
+
+            versioned_routes.extend(["version_info", "v1_api", "v2_api"])
+
+        except ImportError as e:
+            self.logger.warning(f"Could not import versioned API routes: {e}")
+
+        if versioned_routes:
+            self.logger.info(
+                f"✅ Versioned API routes included: {', '.join(versioned_routes)}"
+            )
+        else:
+            self.logger.warning("⚠️ No versioned API routes were included")
 
     def _include_core_routes(self):
         """Include core application routes"""
@@ -556,7 +645,7 @@ class EnhancedProductionApp:
             self.app.include_router(mlb_extras.router, prefix="/mlb", tags=["MLB"])
             routes_included.append("mlb_extras")
         except ImportError as e:
-            self.logger.warning("Could not import mlb_extras router: %s", str(e))
+            self.logger.warning(f"Could not import mlb_extras router: {str(e)}")
 
         # Unified API routes
         try:
@@ -567,7 +656,7 @@ class EnhancedProductionApp:
             )
             routes_included.append("unified_api")
         except ImportError as e:
-            self.logger.warning("Could not import unified_api router: %s", str(e))
+            self.logger.warning(f"Could not import unified_api router: {str(e)}")
 
         # Authentication routes
         try:
@@ -578,7 +667,7 @@ class EnhancedProductionApp:
             )
             routes_included.append("auth")
         except ImportError as e:
-            self.logger.warning("Could not import auth router: %s", str(e))
+            self.logger.warning(f"Could not import auth router: {str(e)}")
 
         self.logger.info(f"✅ Core routes included: {', '.join(routes_included)}")
 
@@ -594,7 +683,7 @@ class EnhancedProductionApp:
             self.app.include_router(modern_ml_routes.router, tags=["Modern ML"])
             enhanced_routes.append("modern_ml")
         except ImportError as e:
-            self.logger.warning("Could not import modern_ml_routes router: %s", str(e))
+            self.logger.warning(f"Could not import modern_ml_routes router: {str(e)}")
 
         # Phase 3 MLOps routes
         try:
@@ -603,7 +692,7 @@ class EnhancedProductionApp:
             self.app.include_router(phase3_routes.router, tags=["MLOps"])
             enhanced_routes.append("phase3_mlops")
         except ImportError as e:
-            self.logger.warning("Could not import phase3_routes router: %s", str(e))
+            self.logger.warning(f"Could not import phase3_routes router: {str(e)}")
 
         # Data validation routes
         try:
@@ -615,7 +704,7 @@ class EnhancedProductionApp:
             enhanced_routes.append("data_validation")
         except ImportError as e:
             self.logger.warning(
-                "Could not import data_validation_routes router: %s", str(e)
+                f"Could not import data_validation_routes router: {str(e)}"
             )
 
         # WebSocket routes for real-time features
@@ -625,7 +714,33 @@ class EnhancedProductionApp:
             self.app.include_router(ws.router, tags=["WebSocket"])
             enhanced_routes.append("websocket")
         except ImportError as e:
-            self.logger.warning("Could not import WebSocket router: %s", str(e))
+            self.logger.warning(f"Could not import WebSocket router: {str(e)}")
+
+        # Priority 2 Real-time routes (NEW)
+        try:
+            from .routes import priority2_realtime_routes
+
+            self.app.include_router(
+                priority2_realtime_routes.router, tags=["Real-time Priority 2"]
+            )
+            enhanced_routes.append("priority2_realtime")
+        except ImportError as e:
+            self.logger.warning(
+                f"Could not import priority2_realtime_routes router: {str(e)}"
+            )
+
+        # Priority 2 Demo routes (Simplified demonstration)
+        try:
+            from .routes import priority2_demo_routes
+
+            self.app.include_router(
+                priority2_demo_routes.router, tags=["Priority 2 Demo"]
+            )
+            enhanced_routes.append("priority2_demo")
+        except ImportError as e:
+            self.logger.warning(
+                f"Could not import priority2_demo_routes router: {str(e)}"
+            )
 
         if enhanced_routes:
             self.logger.info(

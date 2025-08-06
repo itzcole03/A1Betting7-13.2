@@ -40,8 +40,7 @@ try:
     logger.info("✅ Enhanced production integration loaded successfully")
 except ImportError as e:
     logger.warning(
-        "⚠️ Enhanced integration not available (%s), falling back to original",
-        error=str(e),
+        "⚠️ Enhanced integration not available (%s), falling back to original", str(e)
     )
     try:
         from backend.production_integration import create_production_app

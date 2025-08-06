@@ -146,8 +146,8 @@ class AdvancedSecurityService:
         # Setup default security policies
         self._setup_default_policies()
 
-        # Start security monitoring
-        asyncio.create_task(self._start_security_monitoring())
+        # Security monitoring will be started when needed
+        self._monitoring_started = False
 
     def _setup_encryption(self):
         """Setup encryption for sensitive data"""
@@ -207,6 +207,9 @@ class AdvancedSecurityService:
 
     async def _start_security_monitoring(self):
         """Start background security monitoring tasks"""
+        if self._monitoring_started:
+            return
+
         try:
             # Token cleanup task
             asyncio.create_task(self._cleanup_expired_tokens())
@@ -217,10 +220,16 @@ class AdvancedSecurityService:
             # Compliance monitoring
             asyncio.create_task(self._monitor_compliance())
 
+            self._monitoring_started = True
             self.logger.info("🔒 Security monitoring started")
 
         except Exception as e:
             self.logger.error(f"Failed to start security monitoring: {e}")
+
+    async def initialize_monitoring(self):
+        """Initialize security monitoring (called when event loop is available)"""
+        if not self._monitoring_started:
+            await self._start_security_monitoring()
 
     async def scan_model_security(
         self, model_path: str, model_metadata: Optional[Dict[str, Any]] = None
