@@ -1,3 +1,5 @@
+# Prevent accidental check-in of nested frontend directories
+/frontend/frontend/
 # Node modules
 node_modules/
 **/node_modules/

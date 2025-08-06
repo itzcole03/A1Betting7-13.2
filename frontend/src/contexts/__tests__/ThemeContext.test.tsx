@@ -4,6 +4,7 @@ import { _ThemeProvider, _useTheme } from '../ThemeContext';
 describe('ThemeContext', () => {
   function TestComponent() {
     const ctx = _useTheme();
+    import React from 'react';
     return <div data-testid='theme-context'>{ctx ? 'context-present' : 'context-absent'}</div>;
   }
 

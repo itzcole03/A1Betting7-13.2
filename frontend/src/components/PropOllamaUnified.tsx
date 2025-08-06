@@ -1810,10 +1810,19 @@ const PropOllamaUnified: React.FC = () => {
         {/* Main Content Layout */}
         {/* Top-level fallback/analysis content for error or empty state */}
         {(error || visibleProjections.length === 0) && !isLoading && (
-          <div className='flex flex-col items-center gap-2 mb-4'>
+          <div className='flex flex-col items-center gap-2 mb-4' data-testid='fallback-container'>
             {error && (
-              <div className='text-center text-red-400 py-4' role='alert'>
+              <div
+                className='text-center text-red-400 py-4'
+                role='alert'
+                data-testid='error-banner'
+              >
                 {typeof error === 'string' ? error : 'Error: Unable to load props.'}
+              </div>
+            )}
+            {!error && visibleProjections.length === 0 && (
+              <div className='text-center text-gray-400 py-4' data-testid='empty-state'>
+                No props available for the selected filters.
               </div>
             )}
           </div>
@@ -1833,8 +1842,18 @@ const PropOllamaUnified: React.FC = () => {
                 className={`
               ${expandedRowKey ? 'flex flex-col gap-6' : 'grid grid-cols-1 md:grid-cols-2 gap-4'}
             `}
+                data-testid='prop-cards-container'
               >
                 {/* Loading state now handled by LoadingOverlay */}
+                {isLoading && (
+                  <div data-testid='loading-overlay'>
+                    <LoadingOverlay
+                      message={loadingMessage || 'Loading props...'}
+                      isVisible={true}
+                      stage={loadingStage || 'fetching'}
+                    />
+                  </div>
+                )}
                 {!isLoading && (
                   <>
                     {visibleProjections.length > 0 ? (

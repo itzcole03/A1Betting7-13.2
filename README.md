@@ -1,3 +1,22 @@
+# 🚫 Directory Discipline: Avoid Nested frontend/frontend
+
+**Always run frontend commands from the root-level `frontend/` directory.**
+
+> **Warning:** If you find yourself in `frontend/frontend`, you are in the wrong directory. Go up one level!
+
+**Quick Start Example:**
+
+```bash
+# Always start from the project root!
+cd ~/Downloads/A1Betting7-13.2
+cd frontend
+npm run test
+```
+
+**If you see a nested `frontend/frontend/` directory, remove or archive it.**
+
+**.gitignore and scripts will prevent accidental check-in or running from the wrong directory.**
+
 # A1Betting7-13.2 - AI-Powered Sports Analytics Platform
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Python](https://img.shields.io/badge/python-3.8%2B-blue) ![TypeScript](https://img.shields.io/badge/typescript-%5E5.0-blue) ![Build](https://img.shields.io/badge/build-in-progress-orange) ![Status](https://img.shields.io/badge/status-development-yellow)
