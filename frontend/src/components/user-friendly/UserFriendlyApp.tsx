@@ -14,6 +14,7 @@ const PlayerDashboard = React.lazy(() => import('../player/PlayerDashboardContai
 const PlayerDashboardTest = React.lazy(() => import('../../pages/PlayerDashboardTest'));
 
 const UserFriendlyApp: React.FC = () => {
+  console.count('[UserFriendlyApp] RENDER');
   console.error('[UserFriendlyApp] *** COMPONENT MOUNTING *** - PATH:', window.location.pathname);
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true); // Default to open on desktop

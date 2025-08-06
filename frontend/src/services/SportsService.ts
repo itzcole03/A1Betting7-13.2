@@ -2,8 +2,8 @@
 import { httpFetch } from './HttpClient';
 
 export interface ActivateSportResponse {
-  success: boolean;
-  message: string;
+  status: string; // e.g. 'success'
+  message?: string;
   error_code?: string;
   current_version?: string;
   migration_guide?: string;

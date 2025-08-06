@@ -23,11 +23,12 @@ const sortOptions: { value: SortByType; label: string }[] = [
   { value: 'analytics_score', label: 'Analytics Score' },
 ];
 
-export const PropSorting: React.FC<PropSortingProps> = ({
+const PropSortingComponent: React.FC<PropSortingProps> = ({
   sorting,
   onSortingChange,
   className = '',
 }) => {
+  console.count('[PropSorting] RENDER');
   return (
     <div
       className={`flex items-center gap-8 p-3 bg-slate-800/50 backdrop-blur-sm border border-slate-600 rounded-lg mb-4 text-white ${className}`}
@@ -98,3 +99,5 @@ export const PropSorting: React.FC<PropSortingProps> = ({
     </div>
   );
 };
+
+export const PropSorting = React.memo(PropSortingComponent);

@@ -175,6 +175,7 @@ from backend.routes.propollama import router as propollama_router
 from backend.routes.propollama_router import router as propollama_router2
 from backend.routes.real_time_analysis import router as real_time_analysis_router
 from backend.routes.shap import router as shap_router
+from backend.routes.sports_routes import router as sports_router
 from backend.routes.trending_suggestions import router as trending_suggestions_router
 from backend.routes.unified_api import router as unified_api_router
 from backend.routes.user import router as user_router
@@ -265,6 +266,7 @@ app.include_router(real_time_analysis_router)
 app.include_router(shap_router)
 app.include_router(trending_suggestions_router)
 app.include_router(user_router)
+app.include_router(sports_router)
 import time
 from datetime import datetime, timezone
 

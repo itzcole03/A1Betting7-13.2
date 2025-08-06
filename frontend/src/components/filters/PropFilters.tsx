@@ -27,7 +27,7 @@ interface PropFiltersProps {
   className?: string;
 }
 
-export const PropFilters: React.FC<PropFiltersProps> = ({
+const PropFiltersComponent: React.FC<PropFiltersProps> = ({
   filters,
   onFiltersChange,
   sports,
@@ -37,6 +37,7 @@ export const PropFilters: React.FC<PropFiltersProps> = ({
   onGameSelect,
   className = '',
 }) => {
+  console.count('[PropFilters] RENDER');
   return (
     <div
       className={`flex flex-wrap gap-4 p-4 bg-slate-800/50 backdrop-blur-sm rounded-lg border border-slate-600 mb-4 space-y-4 ${className}`}
@@ -217,3 +218,5 @@ export const PropFilters: React.FC<PropFiltersProps> = ({
     </div>
   );
 };
+
+export const PropFilters = React.memo(PropFiltersComponent);

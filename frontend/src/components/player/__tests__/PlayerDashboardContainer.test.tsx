@@ -68,12 +68,14 @@ const mockPlayer = {
   },
 };
 
+// Utility to safely get a header value from req.headers
+function safeGetHeader(req: any, header: string) {
+  return req.headers && typeof req.headers.get === 'function' ? req.headers.get(header) : undefined;
+}
+
 const server = setupServer(
   rest.get('/api/v2/players/:playerId/dashboard', (req: RestRequest, res: any, ctx: any) => {
-    // Correlation ID propagation test
-    if (req.headers.get('X-Correlation-ID')) {
-      return res(ctx.status(200), ctx.json(mockPlayer));
-    }
+    // Use safeGetHeader if you need to access headers
     return res(ctx.status(200), ctx.json(mockPlayer));
   })
 );
@@ -146,7 +148,7 @@ describe('PlayerDashboardContainer', () => {
     let correlationIdSeen = false;
     server.use(
       rest.get('/api/v2/players/:playerId/dashboard', (req: RestRequest, res: any, ctx: any) => {
-        if (req.headers.get('X-Correlation-ID')) correlationIdSeen = true;
+        if (safeGetHeader(req, 'X-Correlation-ID')) correlationIdSeen = true;
         return res(ctx.status(200), ctx.json(mockPlayer));
       })
     );

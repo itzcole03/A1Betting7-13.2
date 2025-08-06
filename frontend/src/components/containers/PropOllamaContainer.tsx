@@ -1,4 +1,5 @@
 import React from 'react';
+import { httpFetch } from '../../services/HttpClient';
 import { BetSlipComponent } from '../betting/BetSlipComponent';
 import DirectDataFetchTest from '../debug/DirectDataFetchTest';
 import FeaturedPropsServiceTest from '../debug/FeaturedPropsServiceTest';
@@ -6,7 +7,6 @@ import SimpleDirectAPITest from '../debug/SimpleDirectAPITest';
 import SimplePropOllamaDebugContainer from '../debug/SimplePropOllamaDebugContainer';
 import EnhancedErrorBoundary from '../EnhancedErrorBoundary';
 import { PropFilters } from '../filters/PropFilters';
-import { usePropOllamaData } from '../hooks/usePropOllamaData';
 import { usePropOllamaState } from '../hooks/usePropOllamaState';
 import { PropList } from '../lists/PropList';
 import LoadingOverlay from '../LoadingOverlay';
@@ -21,30 +21,44 @@ import { GameStatsPanel } from '../stats/GameStatsPanel';
  * into manageable, reusable pieces with proper separation of concerns.
  */
 const PropOllamaContainer: React.FC = () => {
+  console.count('[PropOllamaContainer] RENDER');
   console.error('[PropOllamaContainer] *** COMPONENT RENDERING - CHECK THIS! ***');
 
   // Make a test API call to verify the component is actually running
   React.useEffect(() => {
     console.error('[PropOllamaContainer] *** USEEFFECT RUNNING - MAKING TEST CALL ***');
-    fetch('/api/health')
+    httpFetch('/api/v2/health')
       .then(response => response.json())
       .then(data => {
         console.error('[PropOllamaContainer] *** TEST CALL SUCCESS ***', data);
-      })
-      .catch(error => {
-        console.error('[PropOllamaContainer] *** TEST CALL ERROR ***', error);
       });
   }, []);
 
+  // State and actions hooks
   const [state, actions] = usePropOllamaState();
-  console.error(
-    '[PropOllamaContainer] State initialized, selectedSport:',
-    state.filters.selectedSport
-  );
 
-  // Initialize data fetching hook (RE-ENABLED WITH DEBUG FALLBACK)
-  usePropOllamaData({ state, actions });
-  console.error('[PropOllamaContainer] Data fetching hook enabled with debug fallback');
+  // Memoized handlers for children
+  const handleFiltersChange = React.useCallback(actions.updateFilters, [actions]);
+  const handleSortingChange = React.useCallback(actions.updateSorting, [actions]);
+  const handleGameSelect = React.useCallback(
+    (game: any) => {
+      if (game) actions.setSelectedGame(game);
+    },
+    [actions]
+  );
+  const handleStatsGameSelect = React.useCallback(
+    (gameId: number) => {
+      const game = state.upcomingGames.find((g: any) => g.game_id === gameId);
+      if (game) {
+        actions.setSelectedGame({
+          game_id: gameId,
+          home: game.home,
+          away: game.away,
+        });
+      }
+    },
+    [actions, state.upcomingGames]
+  );
 
   return (
     <EnhancedErrorBoundary>
@@ -85,38 +99,25 @@ const PropOllamaContainer: React.FC = () => {
           <div className='filters-section bg-slate-800/50 backdrop-blur-sm p-6 rounded-lg border border-slate-600'>
             <PropFilters
               filters={state.filters}
-              onFiltersChange={actions.updateFilters}
+              onFiltersChange={handleFiltersChange}
               sports={['All', 'NBA', 'NFL', 'NHL', 'MLB']}
               statTypes={['All', 'Points', 'Rebounds', 'Assists', 'Home Runs', 'RBIs', 'Hits']}
               upcomingGames={state.upcomingGames}
               selectedGame={state.selectedGame}
-              onGameSelect={game => {
-                if (game) {
-                  actions.setSelectedGame(game);
-                }
-              }}
+              onGameSelect={handleGameSelect}
             />
           </div>
 
           {/* Sorting */}
           <div className='sorting-section bg-slate-800/50 backdrop-blur-sm p-6 rounded-lg border border-slate-600'>
-            <PropSorting sorting={state.sorting} onSortingChange={actions.updateSorting} />
+            <PropSorting sorting={state.sorting} onSortingChange={handleSortingChange} />
           </div>
 
           {/* Game Stats */}
           <div className='stats-section bg-slate-800/50 backdrop-blur-sm p-6 rounded-lg border border-slate-600'>
             <GameStatsPanel
               selectedGameId={state.selectedGame?.game_id || null}
-              onGameSelect={gameId => {
-                const game = state.upcomingGames.find(g => g.game_id === gameId);
-                if (game) {
-                  actions.setSelectedGame({
-                    game_id: gameId,
-                    home: game.home,
-                    away: game.away,
-                  });
-                }
-              }}
+              onGameSelect={handleStatsGameSelect}
               games={state.upcomingGames}
               loading={state.isLoading}
             />
@@ -132,13 +133,12 @@ const PropOllamaContainer: React.FC = () => {
               loading={state.isLoading}
               expandedRowKey={state.displayOptions.expandedRowKey}
               onExpandToggle={key => actions.updateDisplayOptions({ expandedRowKey: key })}
-              onAnalysisRequest={prop => {
+              onAnalysisRequest={async prop => {
                 console.log('Analysis requested for', prop);
+                return Promise.resolve();
               }}
-              enhancedAnalysisCache={state.enhancedAnalysisCache}
-              loadingAnalysis={Object.fromEntries(
-                Array.from(state.loadingAnalysis).map(id => [id, true])
-              )}
+              enhancedAnalysisCache={state.enhancedAnalysisCache as unknown as Map<string, any>}
+              loadingAnalysis={state.loadingAnalysis as unknown as Set<string>}
               sortBy={state.sorting.sortBy}
               searchTerm={state.filters.searchTerm}
               useVirtualization={state.displayOptions.useVirtualization}

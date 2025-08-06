@@ -106,3 +106,21 @@ afterEach(() => {
   jest.restoreAllMocks();
   // Timer cleanup is now managed by each test file as needed
 });
+
+// --- MSW global patch: ensure req.headers.get exists on all MSW requests ---
+// This monkey-patch ensures that all MSW request objects have a .get method on headers, preventing TypeError in tests
+try {
+  const { rest } = require('msw');
+  const origRestGet = rest.get;
+  const origRestPost = rest.post;
+  const patchHeaders = resolver => (req, res, ctx) => {
+    if (req && req.headers && typeof req.headers.get !== 'function') {
+      req.headers.get = () => undefined;
+    }
+    return resolver(req, res, ctx);
+  };
+  rest.get = (path, resolver) => origRestGet(path, patchHeaders(resolver));
+  rest.post = (path, resolver) => origRestPost(path, patchHeaders(resolver));
+} catch (e) {
+  // MSW not available, skip patch
+}

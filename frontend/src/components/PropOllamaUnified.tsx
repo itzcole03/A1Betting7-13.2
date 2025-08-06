@@ -3,6 +3,7 @@ import {
   EnhancedPropAnalysis,
   enhancedPropAnalysisService,
 } from '../services/EnhancedPropAnalysisService';
+import { httpFetch } from '../services/HttpClient';
 import { PropAnalysisAggregator } from '../services/PropAnalysisAggregator';
 import { activateSport } from '../services/SportsService';
 import {
@@ -595,10 +596,13 @@ const PropOllamaUnified: React.FC = () => {
         if (previousSport && previousSport !== selectedSport && previousSport !== 'All') {
           try {
             console.log(`🧹 Cleaning up previous sport: ${previousSport}`);
-            const deactivationResponse = await fetch(`/api/sports/deactivate/${previousSport}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-            });
+            const deactivationResponse = await httpFetch(
+              `/api/sports/deactivate/${previousSport}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+              }
+            );
 
             if (deactivationResponse.ok) {
               console.log(`✅ ${previousSport} service deactivated successfully`);
@@ -1467,7 +1471,7 @@ const PropOllamaUnified: React.FC = () => {
         return anonymousId;
       };
 
-      const response = await fetch('/api/propollama/final_analysis', {
+      const response = await httpFetch('/api/propollama/final_analysis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

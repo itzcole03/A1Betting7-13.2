@@ -16,7 +16,8 @@ describe('API Version Compatibility', () => {
 
   it('should activate sport and return version_used', async () => {
     const result = await activateSport('MLB');
-    expect(result).toHaveProperty('success');
+    expect(result).toHaveProperty('status');
+    expect(result.status).toBe('success');
     expect(result).toHaveProperty('version_used');
     expect(['v2', 'v1']).toContain(result.version_used);
   });
@@ -24,7 +25,15 @@ describe('API Version Compatibility', () => {
   it('should throw a user-friendly error if no version is available', async () => {
     // Simulate by temporarily monkey-patching fetch
     const originalFetch = global.fetch;
-    global.fetch = jest.fn(() => Promise.resolve({ ok: false, status: 404 }));
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: false,
+        status: 404,
+        statusText: 'Not Found',
+        headers: { get: () => null },
+        json: async () => ({}),
+      } as unknown as Response)
+    );
     await expect(checkApiVersionCompatibility()).rejects.toThrow(
       'No compatible sports activation API found'
     );

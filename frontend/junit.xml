@@ -1,0 +1,1713 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="184" failures="10" errors="0" time="6.597">
+  <testsuite name="AffiliateService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:44" time="1.523" tests="6">
+    <testcase classname="AffiliateService fetches affiliate links" name="AffiliateService fetches affiliate links" time="0.01">
+    </testcase>
+    <testcase classname="AffiliateService throws on affiliate links fetch failure" name="AffiliateService throws on affiliate links fetch failure" time="0.008">
+    </testcase>
+    <testcase classname="AffiliateService tracks affiliate click" name="AffiliateService tracks affiliate click" time="0.001">
+    </testcase>
+    <testcase classname="AffiliateService throws on affiliate click track failure" name="AffiliateService throws on affiliate click track failure" time="0.001">
+    </testcase>
+    <testcase classname="AffiliateService fetches affiliate offers" name="AffiliateService fetches affiliate offers" time="0.001">
+    </testcase>
+    <testcase classname="AffiliateService throws on affiliate offers fetch failure" name="AffiliateService throws on affiliate offers fetch failure" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="MetricsContext" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:44" time="1.686" tests="1">
+    <testcase classname="MetricsContext provides default values and track function" name="MetricsContext provides default values and track function" time="0.033">
+    </testcase>
+  </testsuite>
+  <testsuite name="Minimal useState E2E" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:44" time="1.682" tests="1">
+    <testcase classname="Minimal useState E2E renders and updates state" name="Minimal useState E2E renders and updates state" time="0.043">
+    </testcase>
+  </testsuite>
+  <testsuite name="ThemeContext" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:44" time="1.713" tests="1">
+    <testcase classname="ThemeContext provides default values and allows theme change" name="ThemeContext provides default values and allows theme change" time="0.046">
+    </testcase>
+  </testsuite>
+  <testsuite name="WebSocketContext" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:44" time="1.827" tests="4">
+    <testcase classname="WebSocketContext provides default values" name="WebSocketContext provides default values" time="0.137">
+    </testcase>
+    <testcase classname="WebSocketContext handles transient connection failures and recovery" name="WebSocketContext handles transient connection failures and recovery" time="0.02">
+    </testcase>
+    <testcase classname="WebSocketContext reconnects immediately on network online event" name="WebSocketContext reconnects immediately on network online event" time="0.01">
+    </testcase>
+    <testcase classname="WebSocketContext exposes lastError in context on error" name="WebSocketContext exposes lastError in context on error" time="0.006">
+    </testcase>
+  </testsuite>
+  <testsuite name="PvPMatchupModel" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.196" tests="1">
+    <testcase classname="PvPMatchupModel should run a basic test" name="PvPMatchupModel should run a basic test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="LiveStream component" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:44" time="1.924" tests="3">
+    <testcase classname="LiveStream component renders the onboarding banner and safety tips" name="LiveStream component renders the onboarding banner and safety tips" time="0.054">
+    </testcase>
+    <testcase classname="LiveStream component renders the header with the correct title and external link" name="LiveStream component renders the header with the correct title and external link" time="0.086">
+    </testcase>
+    <testcase classname="LiveStream component renders the button to open the live stream site" name="LiveStream component renders the button to open the live stream site" time="0.013">
+    </testcase>
+  </testsuite>
+  <testsuite name="PatternRecognitionService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.256" tests="1">
+    <testcase classname="PatternRecognitionService detects pattern structure" name="PatternRecognitionService detects pattern structure" time="0.009">
+    </testcase>
+  </testsuite>
+  <testsuite name="AppContext" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.353" tests="1">
+    <testcase classname="AppContext provides default values and allows updating user" name="AppContext provides default values and allows updating user" time="0.006">
+    </testcase>
+  </testsuite>
+  <testsuite name="AuthContext Admin Functionality" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.552" tests="5">
+    <testcase classname="AuthContext Admin Functionality should detect admin user with admin email" name="AuthContext Admin Functionality should detect admin user with admin email" time="0.029">
+    </testcase>
+    <testcase classname="AuthContext Admin Functionality should detect admin user with cole email" name="AuthContext Admin Functionality should detect admin user with cole email" time="0.004">
+    </testcase>
+    <testcase classname="AuthContext Admin Functionality should not detect admin for regular user" name="AuthContext Admin Functionality should not detect admin for regular user" time="0.003">
+    </testcase>
+    <testcase classname="AuthContext Admin Functionality should return false for isAdmin when no user" name="AuthContext Admin Functionality should return false for isAdmin when no user" time="0.003">
+    </testcase>
+    <testcase classname="AuthContext Admin Functionality should clear admin status on logout" name="AuthContext Admin Functionality should clear admin status on logout" time="0.026">
+    </testcase>
+  </testsuite>
+  <testsuite name="encryption utils" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.247" tests="3">
+    <testcase classname="encryption utils should encrypt and decrypt data correctly" name="encryption utils should encrypt and decrypt data correctly" time="0.004">
+    </testcase>
+    <testcase classname="encryption utils should throw on invalid decryption" name="encryption utils should throw on invalid decryption" time="0.007">
+    </testcase>
+    <testcase classname="encryption utils should throw on invalid encryption input" name="encryption utils should throw on invalid encryption input" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="App E2E Error State" errors="0" failures="1" skipped="0" timestamp="2025-08-06T08:12:44" time="2.168" tests="1">
+    <testcase classname="App E2E Error State shows error state if API returns error" name="App E2E Error State shows error state if API returns error" time="0.389">
+      <failure>ReferenceError: React is not defined
+    at React (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\App.e2e.error.test.tsx:27:9)
+    at Object.process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:790:22)
+    at Object.process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react-dom\cjs\react-dom-test-utils.development.js:22:20)
+    at Object.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\App.e2e.error.test.tsx:25:7)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="UnifiedOllama" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:44" time="2.183" tests="3">
+    <testcase classname="UnifiedOllama renders onboarding banner and chat input" name="UnifiedOllama renders onboarding banner and chat input" time="0.067">
+    </testcase>
+    <testcase classname="UnifiedOllama shows best bets sidebar" name="UnifiedOllama shows best bets sidebar" time="0.015">
+    </testcase>
+    <testcase classname="UnifiedOllama allows user to type and send a message" name="UnifiedOllama allows user to type and send a message" time="0.107">
+    </testcase>
+  </testsuite>
+  <testsuite name="RiskAssessmentService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.271" tests="1">
+    <testcase classname="RiskAssessmentService classifies risk correctly" name="RiskAssessmentService classifies risk correctly" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:44" time="2.244" tests="3">
+    <testcase classname=" displays health check status" name=" displays health check status" time="0.549">
+    </testcase>
+    <testcase classname=" displays AI response for valid message" name=" displays AI response for valid message" time="0">
+    </testcase>
+    <testcase classname=" propOllamaService functions work correctly" name=" propOllamaService functions work correctly" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="BestBetSelector" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.321" tests="1">
+    <testcase classname="BestBetSelector should run a placeholder test" name="BestBetSelector should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="PropAnalysisAggregator" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.304" tests="11">
+    <testcase classname="PropAnalysisAggregator getAnalysis returns cached analysis if available" name="PropAnalysisAggregator getAnalysis returns cached analysis if available" time="0.003">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator getAnalysis returns stale analysis and refreshes in background" name="PropAnalysisAggregator getAnalysis returns stale analysis and refreshes in background" time="0.004">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator getAnalysis generates new analysis when cache is empty" name="PropAnalysisAggregator getAnalysis generates new analysis when cache is empty" time="0.002">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator getAnalysis handles errors and generates fallback content" name="PropAnalysisAggregator getAnalysis handles errors and generates fallback content" time="0.01">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator getAnalysis rethrows error if fallback is not available" name="PropAnalysisAggregator getAnalysis rethrows error if fallback is not available" time="0.013">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator parseResponse extracts analysis sections correctly" name="PropAnalysisAggregator parseResponse extracts analysis sections correctly" time="0.001">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator parseResponse handles missing sections gracefully" name="PropAnalysisAggregator parseResponse handles missing sections gracefully" time="0.001">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator buildPrompt creates appropriate prompt" name="PropAnalysisAggregator buildPrompt creates appropriate prompt" time="0.001">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator parseResponse extracts analysis sections correctly" name="PropAnalysisAggregator parseResponse extracts analysis sections correctly" time="0">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator parseResponse handles missing sections gracefully" name="PropAnalysisAggregator parseResponse handles missing sections gracefully" time="0.001">
+    </testcase>
+    <testcase classname="PropAnalysisAggregator buildPrompt creates appropriate prompt" name="PropAnalysisAggregator buildPrompt creates appropriate prompt" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:44" time="2.316" tests="3">
+    <testcase classname=" displays health check status" name=" displays health check status" time="0.168">
+    </testcase>
+    <testcase classname=" displays backend error message" name=" displays backend error message" time="0.103">
+    </testcase>
+    <testcase classname=" displays AI response for valid message" name=" displays AI response for valid message" time="0.081">
+    </testcase>
+  </testsuite>
+  <testsuite name="A1Betting App Flows" errors="0" failures="1" skipped="0" timestamp="2025-08-06T08:12:44" time="2.342" tests="3">
+    <testcase classname="A1Betting App Flows Registration form validation and submission" name="A1Betting App Flows Registration form validation and submission" time="0.072">
+      <failure>ReferenceError: React is not defined
+    at _Register (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\Register.tsx:70:3)
+    at Object.react_stack_bottom_frame (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react-dom\cjs\react-dom-client.development.js:23863:20)
+    at renderWithHooks (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react-dom\cjs\react-dom-client.development.js:5529:22)
+    at updateFunctionComponent (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react-dom\cjs\react-dom-client.development.js:8897:19)
+    at beginWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react-dom\cjs\react-dom-client.development.js:10522:18)
+    at runWithFiberInDEV (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
+    at performUnitOfWork (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react-dom\cjs\react-dom-client.development.js:15140:22)
+    at workLoopSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react-dom\cjs\react-dom-client.development.js:14956:41)
+    at renderRootSync (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react-dom\cjs\react-dom-client.development.js:14936:11)
+    at performWorkOnRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react-dom\cjs\react-dom-client.development.js:14462:44)
+    at performWorkOnRootViaSchedulerTask (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react-dom\cjs\react-dom-client.development.js:16216:7)
+    at flushActQueue (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:566:34)
+    at process.env.NODE_ENV.exports.act (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\react\cjs\react.development.js:860:10)
+    at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\@testing-library\react\dist\act-compat.js:47:25
+    at renderRoot (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\@testing-library\react\dist\pure.js:190:26)
+    at render (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\@testing-library\react\dist\pure.js:292:10)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\components\__tests__\AppFlows.test.tsx:45:11)
+    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
+    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
+    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-runner\build\testWorker.js:275:16)
+    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-runner\build\testWorker.js:343:7)
+    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
+    </testcase>
+    <testcase classname="A1Betting App Flows Login form validation and submission" name="A1Betting App Flows Login form validation and submission" time="0.174">
+    </testcase>
+    <testcase classname="A1Betting App Flows BetSlip validation and submission" name="A1Betting App Flows BetSlip validation and submission" time="0.042">
+    </testcase>
+  </testsuite>
+  <testsuite name="FantasyPredictionEnhancer" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.269" tests="1">
+    <testcase classname="FantasyPredictionEnhancer should run a placeholder test" name="FantasyPredictionEnhancer should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="App E2E - Empty State" errors="0" failures="1" skipped="0" timestamp="2025-08-06T08:12:44" time="2.412" tests="1">
+    <testcase classname="App E2E - Empty State shows empty state if no enhanced bets are returned" name="App E2E - Empty State shows empty state if no enhanced bets are returned" time="0.555">
+      <failure>ReferenceError: React is not defined
+    at Object.React (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\App.empty-state.e2e.test.tsx:41:12)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="ComprehensiveAdminDashboard" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:44" time="2.444" tests="3">
+    <testcase classname="ComprehensiveAdminDashboard renders dashboard data and panels when loaded" name="ComprehensiveAdminDashboard renders dashboard data and panels when loaded" time="0.474">
+    </testcase>
+    <testcase classname="ComprehensiveAdminDashboard shows loading state" name="ComprehensiveAdminDashboard shows loading state" time="0.005">
+    </testcase>
+    <testcase classname="ComprehensiveAdminDashboard shows error state" name="ComprehensiveAdminDashboard shows error state" time="0.06">
+    </testcase>
+  </testsuite>
+  <testsuite name="AnalysisCacheService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.296" tests="12">
+    <testcase classname="AnalysisCacheService getInstance returns singleton instance" name="AnalysisCacheService getInstance returns singleton instance" time="0.002">
+    </testcase>
+    <testcase classname="AnalysisCacheService generateCacheKey creates consistent keys" name="AnalysisCacheService generateCacheKey creates consistent keys" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService set and get work correctly" name="AnalysisCacheService set and get work correctly" time="0.002">
+    </testcase>
+    <testcase classname="AnalysisCacheService has returns true for existing item" name="AnalysisCacheService has returns true for existing item" time="0">
+    </testcase>
+    <testcase classname="AnalysisCacheService has returns false for non-existent item" name="AnalysisCacheService has returns false for non-existent item" time="0">
+    </testcase>
+    <testcase classname="AnalysisCacheService delete removes item from cache" name="AnalysisCacheService delete removes item from cache" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService clear removes all items from cache" name="AnalysisCacheService clear removes all items from cache" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService get returns null for expired item and isStale for stale item" name="AnalysisCacheService get returns null for expired item and isStale for stale item" time="0">
+    </testcase>
+    <testcase classname="AnalysisCacheService get returns stale item with isStale flag" name="AnalysisCacheService get returns stale item with isStale flag" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService getStats returns cache statistics" name="AnalysisCacheService getStats returns cache statistics" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService set with custom TTL" name="AnalysisCacheService set with custom TTL" time="0.001">
+    </testcase>
+    <testcase classname="AnalysisCacheService localStorage integration" name="AnalysisCacheService localStorage integration" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="RefereeService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.401" tests="8">
+    <testcase classname="RefereeService fetches referee stats" name="RefereeService fetches referee stats" time="0.002">
+    </testcase>
+    <testcase classname="RefereeService throws on referee stats fetch failure" name="RefereeService throws on referee stats fetch failure" time="0.005">
+    </testcase>
+    <testcase classname="RefereeService fetches batch referee stats" name="RefereeService fetches batch referee stats" time="0.001">
+    </testcase>
+    <testcase classname="RefereeService throws on batch referee stats fetch failure" name="RefereeService throws on batch referee stats fetch failure" time="0.001">
+    </testcase>
+    <testcase classname="RefereeService searches referees" name="RefereeService searches referees" time="0">
+    </testcase>
+    <testcase classname="RefereeService throws on search referees failure" name="RefereeService throws on search referees failure" time="0">
+    </testcase>
+    <testcase classname="RefereeService fetches referee modeling" name="RefereeService fetches referee modeling" time="0.001">
+    </testcase>
+    <testcase classname="RefereeService throws on referee modeling fetch failure" name="RefereeService throws on referee modeling fetch failure" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="propOllamaService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.328" tests="11">
+    <testcase classname="propOllamaService sendChatMessage sends request to correct endpoint" name="propOllamaService sendChatMessage sends request to correct endpoint" time="0.01">
+    </testcase>
+    <testcase classname="propOllamaService getPropOllamaHealth sends request to correct endpoint" name="propOllamaService getPropOllamaHealth sends request to correct endpoint" time="0.001">
+    </testcase>
+    <testcase classname="propOllamaService getAvailableModels sends request to correct endpoint" name="propOllamaService getAvailableModels sends request to correct endpoint" time="0.002">
+    </testcase>
+    <testcase classname="propOllamaService getModelHealth sends request to correct endpoint" name="propOllamaService getModelHealth sends request to correct endpoint" time="0.001">
+    </testcase>
+    <testcase classname="propOllamaService handles network errors gracefully" name="propOllamaService handles network errors gracefully" time="0.013">
+    </testcase>
+    <testcase classname="propOllamaService handles HTTP errors with details" name="propOllamaService handles HTTP errors with details" time="0.002">
+    </testcase>
+    <testcase classname="propOllamaService getConversationStarters returns array of suggestions" name="propOllamaService getConversationStarters returns array of suggestions" time="0.002">
+    </testcase>
+    <testcase classname="propOllamaService getChatHistory returns chat history array" name="propOllamaService getChatHistory returns chat history array" time="0.001">
+    </testcase>
+    <testcase classname="propOllamaService clearChatHistory clears the chat history" name="propOllamaService clearChatHistory clears the chat history" time="0.002">
+    </testcase>
+    <testcase classname="propOllamaService getSystemStatus returns system status" name="propOllamaService getSystemStatus returns system status" time="0.001">
+    </testcase>
+    <testcase classname="propOllamaService formatShapExplanation formats SHAP values correctly" name="propOllamaService formatShapExplanation formats SHAP values correctly" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="advancedPredictionService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.244" tests="1">
+    <testcase classname="advancedPredictionService should run a placeholder test" name="advancedPredictionService should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="RefereeImpactModel" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.34" tests="1">
+    <testcase classname="RefereeImpactModel should run a basic test" name="RefereeImpactModel should run a basic test" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="cacheUtils" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.201" tests="1">
+    <testcase classname="cacheUtils should run a placeholder test" name="cacheUtils should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="location utils" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.342" tests="4">
+    <testcase classname="location utils getLocation should return window.location" name="location utils getLocation should return window.location" time="0.001">
+    </testcase>
+    <testcase classname="location utils getQueryParams should parse query parameters correctly" name="location utils getQueryParams should parse query parameters correctly" time="0.002">
+    </testcase>
+    <testcase classname="location utils navigateTo should be callable" name="location utils navigateTo should be callable" time="0.045">
+    </testcase>
+    <testcase classname="location utils reloadPage should be callable" name="location utils reloadPage should be callable" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="RiskAssessmentMatrix" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.258" tests="1">
+    <testcase classname="RiskAssessmentMatrix should run a placeholder test" name="RiskAssessmentMatrix should run a placeholder test" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="userSettings utils" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.225" tests="15">
+    <testcase classname="userSettings utils getUserSettings should return default settings if nothing in localStorage" name="userSettings utils getUserSettings should return default settings if nothing in localStorage" time="0.002">
+    </testcase>
+    <testcase classname="userSettings utils getUserSettings should return parsed settings from localStorage" name="userSettings utils getUserSettings should return parsed settings from localStorage" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils getUserSettings should merge saved settings with defaults" name="userSettings utils getUserSettings should merge saved settings with defaults" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils applySettings should apply dark mode class and background color" name="userSettings utils applySettings should apply dark mode class and background color" time="0.002">
+    </testcase>
+    <testcase classname="userSettings utils applySettings should set font size" name="userSettings utils applySettings should set font size" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils saveUserSettings should save settings to localStorage and apply them" name="userSettings utils saveUserSettings should save settings to localStorage and apply them" time="0.002">
+    </testcase>
+    <testcase classname="userSettings utils getUserDisplayName should return name from localStorage if available" name="userSettings utils getUserDisplayName should return name from localStorage if available" time="0">
+    </testcase>
+    <testcase classname="userSettings utils getUserDisplayName should return name from settings if not in localStorage" name="userSettings utils getUserDisplayName should return name from settings if not in localStorage" time="0">
+    </testcase>
+    <testcase classname="userSettings utils getUserDisplayName should return default if no name found" name="userSettings utils getUserDisplayName should return default if no name found" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils getUserEmail should return email from localStorage if available" name="userSettings utils getUserEmail should return email from localStorage if available" time="0">
+    </testcase>
+    <testcase classname="userSettings utils getUserEmail should return email from settings if not in localStorage" name="userSettings utils getUserEmail should return email from settings if not in localStorage" time="0">
+    </testcase>
+    <testcase classname="userSettings utils getUserEmail should return default if no email found" name="userSettings utils getUserEmail should return default if no email found" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils isDarkMode should return dark mode setting" name="userSettings utils isDarkMode should return dark mode setting" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils isDarkMode should return default if settings not found" name="userSettings utils isDarkMode should return default if settings not found" time="0">
+    </testcase>
+    <testcase classname="userSettings utils initializeSettings should get and apply settings" name="userSettings utils initializeSettings should get and apply settings" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="predictionService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.202" tests="1">
+    <testcase classname="predictionService should run a placeholder test" name="predictionService should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="SocialSentimentService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.227" tests="3">
+    <testcase classname="SocialSentimentService is a singleton" name="SocialSentimentService is a singleton" time="0.001">
+    </testcase>
+    <testcase classname="SocialSentimentService throws if feature is disabled" name="SocialSentimentService throws if feature is disabled" time="0.005">
+    </testcase>
+    <testcase classname="SocialSentimentService throws not implemented if enabled" name="SocialSentimentService throws not implemented if enabled" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="BankrollTracker" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.258" tests="1">
+    <testcase classname="BankrollTracker should run a placeholder test" name="BankrollTracker should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="API Version Compatibility" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:46" time="0.397" tests="4">
+    <testcase classname="API Version Compatibility should detect available API version" name="API Version Compatibility should detect available API version" time="0.115">
+    </testcase>
+    <testcase classname="API Version Compatibility should not throw if a compatible version is available" name="API Version Compatibility should not throw if a compatible version is available" time="0.016">
+    </testcase>
+    <testcase classname="API Version Compatibility should activate sport and return version_used" name="API Version Compatibility should activate sport and return version_used" time="0.023">
+    </testcase>
+    <testcase classname="API Version Compatibility should throw a user-friendly error if no version is available" name="API Version Compatibility should throw a user-friendly error if no version is available" time="0.009">
+    </testcase>
+  </testsuite>
+  <testsuite name="BetRecommendationList" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.302" tests="1">
+    <testcase classname="BetRecommendationList should run a placeholder test" name="BetRecommendationList should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="UserFriendlyApp" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.188" tests="1">
+    <testcase classname="UserFriendlyApp should run a placeholder test" name="UserFriendlyApp should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Analytics Logging" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.202" tests="1">
+    <testcase classname="Analytics Logging logs data without throwing" name="Analytics Logging logs data without throwing" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="PredictionExplanationModal" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.231" tests="1">
+    <testcase classname="PredictionExplanationModal should run a placeholder test" name="PredictionExplanationModal should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="confidenceSlice" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.212" tests="1">
+    <testcase classname="confidenceSlice should run a placeholder test" name="confidenceSlice should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="UnifiedPredictionService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.291" tests="1">
+    <testcase classname="UnifiedPredictionService should run a placeholder test" name="UnifiedPredictionService should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="SocialSentimentAdapter" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.266" tests="3">
+    <testcase classname="SocialSentimentAdapter should be available" name="SocialSentimentAdapter should be available" time="0.001">
+    </testcase>
+    <testcase classname="SocialSentimentAdapter should fetch sentiment data and cache it" name="SocialSentimentAdapter should fetch sentiment data and cache it" time="0.002">
+    </testcase>
+    <testcase classname="SocialSentimentAdapter should clear cache" name="SocialSentimentAdapter should clear cache" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="PropOllamaError" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.229" tests="13">
+    <testcase classname="PropOllamaError creates network error" name="PropOllamaError creates network error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError creates timeout error" name="PropOllamaError creates timeout error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError creates LLM unavailable error" name="PropOllamaError creates LLM unavailable error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError creates data fetch error" name="PropOllamaError creates data fetch error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError creates insufficient data error" name="PropOllamaError creates insufficient data error" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError creates parsing error" name="PropOllamaError creates parsing error" time="0">
+    </testcase>
+    <testcase classname="PropOllamaError creates unknown error" name="PropOllamaError creates unknown error" time="0">
+    </testcase>
+    <testcase classname="PropOllamaError converts generic error to PropOllamaError" name="PropOllamaError converts generic error to PropOllamaError" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError converts Axios error to PropOllamaError" name="PropOllamaError converts Axios error to PropOllamaError" time="0">
+    </testcase>
+    <testcase classname="PropOllamaError converts Axios network error to PropOllamaError" name="PropOllamaError converts Axios network error to PropOllamaError" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError converts Axios timeout error to PropOllamaError" name="PropOllamaError converts Axios timeout error to PropOllamaError" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError handles error with details" name="PropOllamaError handles error with details" time="0.001">
+    </testcase>
+    <testcase classname="PropOllamaError preserves PropOllamaError when converting from error" name="PropOllamaError preserves PropOllamaError when converting from error" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="safeNumber utils" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.322" tests="13">
+    <testcase classname="safeNumber utils safeNumber should format a number correctly" name="safeNumber utils safeNumber should format a number correctly" time="0.002">
+    </testcase>
+    <testcase classname="safeNumber utils safeNumber should handle string input" name="safeNumber utils safeNumber should handle string input" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils safeNumber should handle invalid input with fallback" name="safeNumber utils safeNumber should handle invalid input with fallback" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils safePercentage should format a percentage correctly" name="safeNumber utils safePercentage should format a percentage correctly" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils safePercentage should handle invalid input with default fallback" name="safeNumber utils safePercentage should handle invalid input with default fallback" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils safeCurrency should format currency correctly" name="safeNumber utils safeCurrency should format currency correctly" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils safeCurrency should handle invalid input with default fallback" name="safeNumber utils safeCurrency should handle invalid input with default fallback" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils safeCompactNumber should format large numbers with suffixes" name="safeNumber utils safeCompactNumber should format large numbers with suffixes" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils safeCompactNumber should handle invalid input with default fallback" name="safeNumber utils safeCompactNumber should handle invalid input with default fallback" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils safeDivision should perform division correctly" name="safeNumber utils safeDivision should perform division correctly" time="0.002">
+    </testcase>
+    <testcase classname="safeNumber utils safeDivision should handle invalid input with fallback" name="safeNumber utils safeDivision should handle invalid input with fallback" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils safePercentageChange should calculate percentage change correctly" name="safeNumber utils safePercentageChange should calculate percentage change correctly" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils safePercentageChange should handle invalid input with default fallback" name="safeNumber utils safePercentageChange should handle invalid input with default fallback" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="VenueEffectModel" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.21" tests="1">
+    <testcase classname="VenueEffectModel should run a basic test" name="VenueEffectModel should run a basic test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ShapExplanation" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.291" tests="1">
+    <testcase classname="ShapExplanation should run a placeholder test" name="ShapExplanation should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Dashboard" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.233" tests="1">
+    <testcase classname="Dashboard should run a placeholder test" name="Dashboard should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ConfidenceBandChart" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.223" tests="1">
+    <testcase classname="ConfidenceBandChart should run a placeholder test" name="ConfidenceBandChart should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="FinalPredictionEngine" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.264" tests="1">
+    <testcase classname="FinalPredictionEngine should run a placeholder test" name="FinalPredictionEngine should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="DataPipeline" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.244" tests="1">
+    <testcase classname="DataPipeline should run a dummy test" name="DataPipeline should run a dummy test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="UnifiedBettingAnalytics" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.252" tests="1">
+    <testcase classname="UnifiedBettingAnalytics should have at least one test" name="UnifiedBettingAnalytics should have at least one test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="PredictionGenerator" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.231" tests="1">
+    <testcase classname="PredictionGenerator should have at least one test" name="PredictionGenerator should have at least one test" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="UserPersonalizationService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.25" tests="2">
+    <testcase classname="UserPersonalizationService should return a singleton instance" name="UserPersonalizationService should return a singleton instance" time="0.001">
+    </testcase>
+    <testcase classname="UserPersonalizationService should initialize with empty userProfiles and clusters" name="UserPersonalizationService should initialize with empty userProfiles and clusters" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="bettingOpportunityService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.223" tests="1">
+    <testcase classname="bettingOpportunityService should run a placeholder test" name="bettingOpportunityService should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ShapExplanation" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.21" tests="1">
+    <testcase classname="ShapExplanation should run a placeholder test" name="ShapExplanation should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="LineupSynergyModel" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.232" tests="1">
+    <testcase classname="LineupSynergyModel should run a basic test" name="LineupSynergyModel should run a basic test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="prizePicksService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.244" tests="1">
+    <testcase classname="prizePicksService should run a placeholder test" name="prizePicksService should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ModelPerformanceTracker" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.214" tests="1">
+    <testcase classname="ModelPerformanceTracker should run a placeholder test" name="ModelPerformanceTracker should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="BetRecommendationCard" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.189" tests="1">
+    <testcase classname="BetRecommendationCard should run a placeholder test" name="BetRecommendationCard should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="PlayerFormModel" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.209" tests="1">
+    <testcase classname="PlayerFormModel should run a basic test" name="PlayerFormModel should run a basic test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="DailyFantasyIntegration" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.244" tests="1">
+    <testcase classname="DailyFantasyIntegration should run a placeholder test" name="DailyFantasyIntegration should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="marketAnalysisService" errors="0" failures="0" skipped="0" timestamp="2025-08-06T08:12:47" time="0.204" tests="1">
+    <testcase classname="marketAnalysisService should run a placeholder test" name="marketAnalysisService should run a placeholder test" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="PropOllamaUnified E2E" errors="0" failures="5" skipped="0" timestamp="2025-08-06T08:12:44" time="3.91" tests="7">
+    <testcase classname="PropOllamaUnified E2E renders the component" name="PropOllamaUnified E2E renders the component" time="0.213">
+    </testcase>
+    <testcase classname="PropOllamaUnified E2E simple prop card render test" name="PropOllamaUnified E2E simple prop card render test" time="0.04">
+    </testcase>
+    <testcase classname="PropOllamaUnified E2E shows loading state while fetching analysis" name="PropOllamaUnified E2E shows loading state while fetching analysis" time="0.159">
+      <failure>Error: expect(received).toBeInTheDocument()
+
+received value must be an HTMLElement or an SVGElement.
+Received has value: null
+
+Ignored nodes: comments, script, style
+&lt;html&gt;
+  &lt;head /&gt;
+  &lt;body
+    data-theme=&quot;light&quot;
+  &gt;
+    &lt;div&gt;
+      &lt;div
+        class=&quot;max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6&quot;
+      &gt;
+        &lt;div
+          class=&quot;mb-6&quot;
+        &gt;
+          &lt;div
+            aria-label=&quot;Sport Tabs&quot;
+            class=&quot;flex gap-2&quot;
+            role=&quot;tablist&quot;
+          &gt;
+            &lt;button
+              aria-label=&quot;All&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              All
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NBA&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NBA
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NFL&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NFL
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NHL&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NHL
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;MLB&quot;
+              aria-selected=&quot;true&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-yellow-500 text-black shadow-lg  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;0&quot;
+            &gt;
+              MLB
+            &lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div
+          class=&quot;mb-6 bg-slate-800/50 backdrop-blur-sm border border-slate-600 rounded-xl p-4&quot;
+        &gt;
+          &lt;div
+            class=&quot;flex flex-wrap items-center gap-4 mb-4&quot;
+          &gt;
+            &lt;div
+              class=&quot;flex items-center gap-2&quot;
+            &gt;
+              &lt;label
+                class=&quot;text-sm font-medium text-gray-300 whitespace-nowrap&quot;
+                for=&quot;stat-type-select&quot;
+              &gt;
+                Stat Type:
+              &lt;/label&gt;
+              &lt;select
+                class=&quot;px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent min-w-[160px]&quot;
+                id=&quot;stat-type-select&quot;
+              &gt;
+                &lt;option
+                  value=&quot;Popular&quot;
+                &gt;
+                  🔥 
+                  Popular
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;pitcher_strikeouts&quot;
+                &gt;
+                  Pitcher Strikeouts
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;total_bases&quot;
+                &gt;
+                  Total Bases
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;innings_runs_allowed&quot;
+                &gt;
+                  1st Inning Runs Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hitter_fantasy_score&quot;
+                &gt;
+                  Hitter Fantasy Score
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hits_runs_rbis&quot;
+                &gt;
+                  Hits+Runs+RBIs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;home_runs&quot;
+                &gt;
+                  Home Runs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hits_allowed&quot;
+                &gt;
+                  Hits Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;stolen_bases&quot;
+                &gt;
+                  Stolen Bases
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;walks_allowed&quot;
+                &gt;
+                  Walks Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;singles&quot;
+                &gt;
+                  Singles
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;pitching_outs&quot;
+                &gt;
+                  Pitching Outs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;walks&quot;
+                &gt;
+                  Walks
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;earned_runs_allowed&quot;
+                &gt;
+                  Earned Runs Allowed...
+    at __EXTERNAL_MATCHER_TRAP__ (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\expect\build\index.js:2240:22)
+    at Object.throwingMatcher [as toBeInTheDocument] (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\expect\build\index.js:2241:6)
+    at toBeInTheDocument (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\components\PropOllamaUnified.e2e.test.tsx:356:9)
+    at runWithExpensiveErrorDiagnosticsDisabled (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\config.js:47:12)
+    at checkCallback (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\wait-for.js:124:77)
+    at C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\wait-for.js:82:9</failure>
+    </testcase>
+    <testcase classname="PropOllamaUnified E2E handles error when fetching analysis" name="PropOllamaUnified E2E handles error when fetching analysis" time="0.111">
+      <failure>Error: expect(received).toBeInTheDocument()
+
+received value must be an HTMLElement or an SVGElement.
+Received has value: null
+
+Ignored nodes: comments, script, style
+&lt;html&gt;
+  &lt;head /&gt;
+  &lt;body
+    data-theme=&quot;light&quot;
+  &gt;
+    &lt;div&gt;
+      &lt;div
+        class=&quot;max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6&quot;
+      &gt;
+        &lt;div
+          class=&quot;mb-6&quot;
+        &gt;
+          &lt;div
+            aria-label=&quot;Sport Tabs&quot;
+            class=&quot;flex gap-2&quot;
+            role=&quot;tablist&quot;
+          &gt;
+            &lt;button
+              aria-label=&quot;All&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              All
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NBA&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NBA
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NFL&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NFL
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NHL&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NHL
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;MLB&quot;
+              aria-selected=&quot;true&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-yellow-500 text-black shadow-lg  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;0&quot;
+            &gt;
+              MLB
+            &lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div
+          class=&quot;mb-6 bg-slate-800/50 backdrop-blur-sm border border-slate-600 rounded-xl p-4&quot;
+        &gt;
+          &lt;div
+            class=&quot;flex flex-wrap items-center gap-4 mb-4&quot;
+          &gt;
+            &lt;div
+              class=&quot;flex items-center gap-2&quot;
+            &gt;
+              &lt;label
+                class=&quot;text-sm font-medium text-gray-300 whitespace-nowrap&quot;
+                for=&quot;stat-type-select&quot;
+              &gt;
+                Stat Type:
+              &lt;/label&gt;
+              &lt;select
+                class=&quot;px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent min-w-[160px]&quot;
+                id=&quot;stat-type-select&quot;
+              &gt;
+                &lt;option
+                  value=&quot;Popular&quot;
+                &gt;
+                  🔥 
+                  Popular
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;pitcher_strikeouts&quot;
+                &gt;
+                  Pitcher Strikeouts
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;total_bases&quot;
+                &gt;
+                  Total Bases
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;innings_runs_allowed&quot;
+                &gt;
+                  1st Inning Runs Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hitter_fantasy_score&quot;
+                &gt;
+                  Hitter Fantasy Score
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hits_runs_rbis&quot;
+                &gt;
+                  Hits+Runs+RBIs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;home_runs&quot;
+                &gt;
+                  Home Runs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hits_allowed&quot;
+                &gt;
+                  Hits Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;stolen_bases&quot;
+                &gt;
+                  Stolen Bases
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;walks_allowed&quot;
+                &gt;
+                  Walks Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;singles&quot;
+                &gt;
+                  Singles
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;pitching_outs&quot;
+                &gt;
+                  Pitching Outs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;walks&quot;
+                &gt;
+                  Walks
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;earned_runs_allowed&quot;
+                &gt;
+                  Earned Runs Allowed...
+    at __EXTERNAL_MATCHER_TRAP__ (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\expect\build\index.js:2240:22)
+    at Object.throwingMatcher [as toBeInTheDocument] (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\expect\build\index.js:2241:6)
+    at toBeInTheDocument (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\components\PropOllamaUnified.e2e.test.tsx:384:9)
+    at runWithExpensiveErrorDiagnosticsDisabled (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\config.js:47:12)
+    at checkCallback (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\wait-for.js:124:77)
+    at C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\wait-for.js:82:9</failure>
+    </testcase>
+    <testcase classname="PropOllamaUnified E2E shows fallback content when LLM is unavailable" name="PropOllamaUnified E2E shows fallback content when LLM is unavailable" time="0.095">
+      <failure>Error: expect(received).toBeInTheDocument()
+
+received value must be an HTMLElement or an SVGElement.
+Received has value: null
+
+Ignored nodes: comments, script, style
+&lt;html&gt;
+  &lt;head /&gt;
+  &lt;body
+    data-theme=&quot;light&quot;
+  &gt;
+    &lt;div&gt;
+      &lt;div
+        class=&quot;max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6&quot;
+      &gt;
+        &lt;div
+          class=&quot;mb-6&quot;
+        &gt;
+          &lt;div
+            aria-label=&quot;Sport Tabs&quot;
+            class=&quot;flex gap-2&quot;
+            role=&quot;tablist&quot;
+          &gt;
+            &lt;button
+              aria-label=&quot;All&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              All
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NBA&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NBA
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NFL&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NFL
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NHL&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NHL
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;MLB&quot;
+              aria-selected=&quot;true&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-yellow-500 text-black shadow-lg  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;0&quot;
+            &gt;
+              MLB
+            &lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div
+          class=&quot;mb-6 bg-slate-800/50 backdrop-blur-sm border border-slate-600 rounded-xl p-4&quot;
+        &gt;
+          &lt;div
+            class=&quot;flex flex-wrap items-center gap-4 mb-4&quot;
+          &gt;
+            &lt;div
+              class=&quot;flex items-center gap-2&quot;
+            &gt;
+              &lt;label
+                class=&quot;text-sm font-medium text-gray-300 whitespace-nowrap&quot;
+                for=&quot;stat-type-select&quot;
+              &gt;
+                Stat Type:
+              &lt;/label&gt;
+              &lt;select
+                class=&quot;px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent min-w-[160px]&quot;
+                id=&quot;stat-type-select&quot;
+              &gt;
+                &lt;option
+                  value=&quot;Popular&quot;
+                &gt;
+                  🔥 
+                  Popular
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;pitcher_strikeouts&quot;
+                &gt;
+                  Pitcher Strikeouts
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;total_bases&quot;
+                &gt;
+                  Total Bases
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;innings_runs_allowed&quot;
+                &gt;
+                  1st Inning Runs Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hitter_fantasy_score&quot;
+                &gt;
+                  Hitter Fantasy Score
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hits_runs_rbis&quot;
+                &gt;
+                  Hits+Runs+RBIs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;home_runs&quot;
+                &gt;
+                  Home Runs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hits_allowed&quot;
+                &gt;
+                  Hits Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;stolen_bases&quot;
+                &gt;
+                  Stolen Bases
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;walks_allowed&quot;
+                &gt;
+                  Walks Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;singles&quot;
+                &gt;
+                  Singles
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;pitching_outs&quot;
+                &gt;
+                  Pitching Outs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;walks&quot;
+                &gt;
+                  Walks
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;earned_runs_allowed&quot;
+                &gt;
+                  Earned Runs Allowed...
+    at __EXTERNAL_MATCHER_TRAP__ (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\expect\build\index.js:2240:22)
+    at Object.throwingMatcher [as toBeInTheDocument] (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\expect\build\index.js:2241:6)
+    at toBeInTheDocument (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\components\PropOllamaUnified.e2e.test.tsx:417:73)
+    at runWithExpensiveErrorDiagnosticsDisabled (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\config.js:47:12)
+    at checkCallback (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\wait-for.js:124:77)
+    at C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\wait-for.js:82:9</failure>
+    </testcase>
+    <testcase classname="PropOllamaUnified E2E shows stale content when refreshing in background" name="PropOllamaUnified E2E shows stale content when refreshing in background" time="0.07">
+      <failure>Error: expect(received).toBeInTheDocument()
+
+received value must be an HTMLElement or an SVGElement.
+Received has value: null
+
+Ignored nodes: comments, script, style
+&lt;html&gt;
+  &lt;head /&gt;
+  &lt;body
+    data-theme=&quot;light&quot;
+  &gt;
+    &lt;div&gt;
+      &lt;div
+        class=&quot;max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6&quot;
+      &gt;
+        &lt;div
+          class=&quot;mb-6&quot;
+        &gt;
+          &lt;div
+            aria-label=&quot;Sport Tabs&quot;
+            class=&quot;flex gap-2&quot;
+            role=&quot;tablist&quot;
+          &gt;
+            &lt;button
+              aria-label=&quot;All&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              All
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NBA&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NBA
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NFL&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NFL
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NHL&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NHL
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;MLB&quot;
+              aria-selected=&quot;true&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-yellow-500 text-black shadow-lg  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;0&quot;
+            &gt;
+              MLB
+            &lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div
+          class=&quot;mb-6 bg-slate-800/50 backdrop-blur-sm border border-slate-600 rounded-xl p-4&quot;
+        &gt;
+          &lt;div
+            class=&quot;flex flex-wrap items-center gap-4 mb-4&quot;
+          &gt;
+            &lt;div
+              class=&quot;flex items-center gap-2&quot;
+            &gt;
+              &lt;label
+                class=&quot;text-sm font-medium text-gray-300 whitespace-nowrap&quot;
+                for=&quot;stat-type-select&quot;
+              &gt;
+                Stat Type:
+              &lt;/label&gt;
+              &lt;select
+                class=&quot;px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent min-w-[160px]&quot;
+                id=&quot;stat-type-select&quot;
+              &gt;
+                &lt;option
+                  value=&quot;Popular&quot;
+                &gt;
+                  🔥 
+                  Popular
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;pitcher_strikeouts&quot;
+                &gt;
+                  Pitcher Strikeouts
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;total_bases&quot;
+                &gt;
+                  Total Bases
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;innings_runs_allowed&quot;
+                &gt;
+                  1st Inning Runs Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hitter_fantasy_score&quot;
+                &gt;
+                  Hitter Fantasy Score
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hits_runs_rbis&quot;
+                &gt;
+                  Hits+Runs+RBIs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;home_runs&quot;
+                &gt;
+                  Home Runs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hits_allowed&quot;
+                &gt;
+                  Hits Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;stolen_bases&quot;
+                &gt;
+                  Stolen Bases
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;walks_allowed&quot;
+                &gt;
+                  Walks Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;singles&quot;
+                &gt;
+                  Singles
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;pitching_outs&quot;
+                &gt;
+                  Pitching Outs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;walks&quot;
+                &gt;
+                  Walks
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;earned_runs_allowed&quot;
+                &gt;
+                  Earned Runs Allowed...
+    at __EXTERNAL_MATCHER_TRAP__ (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\expect\build\index.js:2240:22)
+    at Object.throwingMatcher [as toBeInTheDocument] (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\expect\build\index.js:2241:6)
+    at toBeInTheDocument (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\components\PropOllamaUnified.e2e.test.tsx:451:73)
+    at runWithExpensiveErrorDiagnosticsDisabled (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\config.js:47:12)
+    at checkCallback (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\wait-for.js:124:77)
+    at C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\wait-for.js:82:9</failure>
+    </testcase>
+    <testcase classname="PropOllamaUnified E2E collapses expanded row when clicked again" name="PropOllamaUnified E2E collapses expanded row when clicked again" time="0.119">
+      <failure>Error: expect(received).toBeInTheDocument()
+
+received value must be an HTMLElement or an SVGElement.
+Received has value: null
+
+Ignored nodes: comments, script, style
+&lt;html&gt;
+  &lt;head /&gt;
+  &lt;body
+    data-theme=&quot;light&quot;
+  &gt;
+    &lt;div&gt;
+      &lt;div
+        class=&quot;max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6&quot;
+      &gt;
+        &lt;div
+          class=&quot;mb-6&quot;
+        &gt;
+          &lt;div
+            aria-label=&quot;Sport Tabs&quot;
+            class=&quot;flex gap-2&quot;
+            role=&quot;tablist&quot;
+          &gt;
+            &lt;button
+              aria-label=&quot;All&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              All
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NBA&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NBA
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NFL&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NFL
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;NHL&quot;
+              aria-selected=&quot;false&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-slate-800 text-white hover:bg-yellow-600 hover:text-black  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;-1&quot;
+            &gt;
+              NHL
+            &lt;/button&gt;
+            &lt;button
+              aria-label=&quot;MLB&quot;
+              aria-selected=&quot;true&quot;
+              class=&quot;px-4 py-2 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 relative bg-yellow-500 text-black shadow-lg  &quot;
+              role=&quot;tab&quot;
+              tabindex=&quot;0&quot;
+            &gt;
+              MLB
+            &lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div
+          class=&quot;mb-6 bg-slate-800/50 backdrop-blur-sm border border-slate-600 rounded-xl p-4&quot;
+        &gt;
+          &lt;div
+            class=&quot;flex flex-wrap items-center gap-4 mb-4&quot;
+          &gt;
+            &lt;div
+              class=&quot;flex items-center gap-2&quot;
+            &gt;
+              &lt;label
+                class=&quot;text-sm font-medium text-gray-300 whitespace-nowrap&quot;
+                for=&quot;stat-type-select&quot;
+              &gt;
+                Stat Type:
+              &lt;/label&gt;
+              &lt;select
+                class=&quot;px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent min-w-[160px]&quot;
+                id=&quot;stat-type-select&quot;
+              &gt;
+                &lt;option
+                  value=&quot;Popular&quot;
+                &gt;
+                  🔥 
+                  Popular
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;pitcher_strikeouts&quot;
+                &gt;
+                  Pitcher Strikeouts
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;total_bases&quot;
+                &gt;
+                  Total Bases
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;innings_runs_allowed&quot;
+                &gt;
+                  1st Inning Runs Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hitter_fantasy_score&quot;
+                &gt;
+                  Hitter Fantasy Score
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hits_runs_rbis&quot;
+                &gt;
+                  Hits+Runs+RBIs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;home_runs&quot;
+                &gt;
+                  Home Runs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;hits_allowed&quot;
+                &gt;
+                  Hits Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;stolen_bases&quot;
+                &gt;
+                  Stolen Bases
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;walks_allowed&quot;
+                &gt;
+                  Walks Allowed
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;singles&quot;
+                &gt;
+                  Singles
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;pitching_outs&quot;
+                &gt;
+                  Pitching Outs
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;walks&quot;
+                &gt;
+                  Walks
+                &lt;/option&gt;
+                &lt;option
+                  value=&quot;earned_runs_allowed&quot;
+                &gt;
+                  Earned Runs Allowed...
+    at __EXTERNAL_MATCHER_TRAP__ (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\expect\build\index.js:2240:22)
+    at Object.throwingMatcher [as toBeInTheDocument] (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\expect\build\index.js:2241:6)
+    at toBeInTheDocument (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\components\PropOllamaUnified.e2e.test.tsx:471:73)
+    at runWithExpensiveErrorDiagnosticsDisabled (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\config.js:47:12)
+    at checkCallback (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\wait-for.js:124:77)
+    at C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\wait-for.js:82:9</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="App E2E" errors="0" failures="2" skipped="0" timestamp="2025-08-06T08:12:44" time="4.667" tests="2">
+    <testcase classname="App E2E renders the main headings and prop cards" name="App E2E renders the main headings and prop cards" time="1.169">
+      <failure>Error: Unable to find role=&quot;tab&quot; and name `/MLB/i`
+
+Ignored nodes: comments, script, style
+&lt;body
+  data-theme=&quot;light&quot;
+&gt;
+  &lt;div&gt;
+    &lt;div
+      class=&quot;min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white&quot;
+    &gt;
+      &lt;div
+        class=&quot;fixed top-4 left-4 z-50&quot;
+      &gt;
+        &lt;button
+          class=&quot;bg-slate-800/90 backdrop-blur-sm p-3 rounded-lg text-white hover:bg-slate-700 transition-all duration-200 shadow-lg border border-slate-600 hover:shadow-xl&quot;
+          title=&quot;Close Sidebar&quot;
+        &gt;
+          &lt;svg
+            class=&quot;lucide lucide-x w-5 h-5&quot;
+            fill=&quot;none&quot;
+            height=&quot;24&quot;
+            stroke=&quot;currentColor&quot;
+            stroke-linecap=&quot;round&quot;
+            stroke-linejoin=&quot;round&quot;
+            stroke-width=&quot;2&quot;
+            viewBox=&quot;0 0 24 24&quot;
+            width=&quot;24&quot;
+            xmlns=&quot;http://www.w3.org/2000/svg&quot;
+          &gt;
+            &lt;path
+              d=&quot;M18 6 6 18&quot;
+            /&gt;
+            &lt;path
+              d=&quot;m6 6 12 12&quot;
+            /&gt;
+          &lt;/svg&gt;
+        &lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div
+        class=&quot;fixed inset-y-0 left-0 z-40 w-72 bg-slate-800/98 backdrop-blur-md border-r border-slate-600/50 shadow-2xl transform transition-all duration-300 ease-in-out translate-x-0 opacity-100&quot;
+      &gt;
+        &lt;div
+          class=&quot;flex flex-col h-full&quot;
+        &gt;
+          &lt;div
+            class=&quot;flex items-center justify-center h-16 bg-slate-900/50 border-b border-slate-600&quot;
+          &gt;
+            &lt;div
+              class=&quot;flex items-center space-x-2&quot;
+            &gt;
+              &lt;svg
+                class=&quot;lucide lucide-zap h-8 w-8 text-yellow-400&quot;
+                fill=&quot;none&quot;
+                height=&quot;24&quot;
+                stroke=&quot;currentColor&quot;
+                stroke-linecap=&quot;round&quot;
+                stroke-linejoin=&quot;round&quot;
+                stroke-width=&quot;2&quot;
+                viewBox=&quot;0 0 24 24&quot;
+                width=&quot;24&quot;
+                xmlns=&quot;http://www.w3.org/2000/svg&quot;
+              &gt;
+                &lt;path
+                  d=&quot;M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z&quot;
+                /&gt;
+              &lt;/svg&gt;
+              &lt;span
+                class=&quot;text-xl font-bold&quot;
+              &gt;
+                A1 Betting
+              &lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+          &lt;nav
+            class=&quot;flex-1 px-4 py-6 space-y-2&quot;
+          &gt;
+            &lt;a
+              class=&quot;flex items-center px-4 py-3 rounded-lg font-medium transition-colors bg-yellow-500 text-black&quot;
+              data-discover=&quot;true&quot;
+              href=&quot;/&quot;
+            &gt;
+              &lt;svg
+                class=&quot;lucide lucide-home mr-3 h-5 w-5&quot;
+                fill=&quot;none&quot;
+                height=&quot;24&quot;
+                stroke=&quot;currentColor&quot;
+                stroke-linecap=&quot;round&quot;
+                stroke-linejoin=&quot;round&quot;
+                stroke-width=&quot;2&quot;
+                viewBox=&quot;0 0 24 24&quot;
+                width=&quot;24&quot;
+                xmlns=&quot;http://www.w3.org/2000/svg&quot;
+              &gt;
+                &lt;path
+                  d=&quot;m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z&quot;
+                /&gt;
+                &lt;polyline
+                  points=&quot;9 22 9 12 15 12 15 22&quot;
+                /&gt;
+              &lt;/svg&gt;
+              Sports Analytics
+            &lt;/a&gt;
+            &lt;a
+              class=&quot;flex items-center px-4 py-3 rounded-lg font-medium transition-colors text-gray-300 hover:bg-slate-700 hover:text-white&quot;
+              data-discover=&quot;true&quot;
+              href=&quot;/player&quot;
+            &gt;
+              &lt;svg
+                class=&quot;lucide lucide-user mr-3 h-5 w-5&quot;
+                fill=&quot;none&quot;
+                height=&quot;24&quot;
+                stroke=&quot;currentColor&quot;
+                stroke-linecap=&quot;round&quot;
+                stroke-linejoin=&quot;round&quot;
+                stroke-width=&quot;2&quot;
+                viewBox=&quot;0 0 24 24&quot;
+                width=&quot;24&quot;
+                xmlns=&quot;http://www.w3.org/2000/svg&quot;
+              &gt;
+                &lt;path
+                  d=&quot;M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2&quot;
+                /&gt;
+                &lt;circle
+                  cx=&quot;12&quot;
+                  cy=&quot;7&quot;
+                  r=&quot;4&quot;
+                /&gt;
+              &lt;/svg&gt;
+              Player Research
+            &lt;/a&gt;
+            &lt;a
+              class=&quot;flex items-center px-4 py-3 rounded-lg font-medium transition-colors text-gray-300 hover:bg-slate-700 hover:text-white&quot;
+              data-discover=&quot;true&quot;
+              href=&quot;/test-dashboard&quot;
+            &gt;
+              &lt;svg
+                class=&quot;lucide lucide-zap mr-3 h-5 w-5&quot;
+                fill=&quot;none&quot;
+                height=&quot;24&quot;
+                stroke=&quot;currentColor&quot;
+                stroke-linecap=&quot;round&quot;
+                stroke-linejoin=&quot;round&quot;
+                stroke-width=&quot;2&quot;
+                viewBox=&quot;0 0 24 24&quot;
+                width=&quot;24&quot;
+                xmlns=&quot;http:/...
+    at waitForWrapper (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\wait-for.js:163:27)
+    at C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\query-helpers.js:86:33
+    at Object.findByRole (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\App.e2e.test.tsx:179:33)
+    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
+    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
+    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-runner\build\testWorker.js:275:16)
+    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-runner\build\testWorker.js:343:7)
+    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
+    </testcase>
+    <testcase classname="App E2E shows error state if API returns error" name="App E2E shows error state if API returns error" time="1.053">
+      <failure>Error: Found multiple elements with the text: content =&gt; /Cannot connect|Error|Failed|Unable to load/i.test(content)
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+&lt;span
+  class=&quot;px-2 py-1 rounded-full text-xs font-medium text-red-600 bg-red-100&quot;
+&gt;
+  ERROR
+&lt;/span&gt;
+
+Ignored nodes: comments, script, style
+&lt;pre
+  class=&quot;text-xs text-gray-400 bg-slate-900/50 p-3 rounded mt-2 overflow-auto&quot;
+&gt;
+  {
+  &quot;selectedSport&quot;: &quot;MLB&quot;,
+  &quot;isLoading&quot;: true,
+  &quot;error&quot;: null,
+  &quot;propsCount&quot;: 0,
+  &quot;loadingMessage&quot;: &quot;Fetching props...&quot;
+}
+&lt;/pre&gt;
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+&lt;body
+  data-theme=&quot;light&quot;
+&gt;
+  &lt;div&gt;
+    &lt;div
+      class=&quot;min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white&quot;
+    &gt;
+      &lt;div
+        class=&quot;fixed top-4 left-4 z-50&quot;
+      &gt;
+        &lt;button
+          class=&quot;bg-slate-800/90 backdrop-blur-sm p-3 rounded-lg text-white hover:bg-slate-700 transition-all duration-200 shadow-lg border border-slate-600 hover:shadow-xl&quot;
+          title=&quot;Close Sidebar&quot;
+        &gt;
+          &lt;svg
+            class=&quot;lucide lucide-x w-5 h-5&quot;
+            fill=&quot;none&quot;
+            height=&quot;24&quot;
+            stroke=&quot;currentColor&quot;
+            stroke-linecap=&quot;round&quot;
+            stroke-linejoin=&quot;round&quot;
+            stroke-width=&quot;2&quot;
+            viewBox=&quot;0 0 24 24&quot;
+            width=&quot;24&quot;
+            xmlns=&quot;http://www.w3.org/2000/svg&quot;
+          &gt;
+            &lt;path
+              d=&quot;M18 6 6 18&quot;
+            /&gt;
+            &lt;path
+              d=&quot;m6 6 12 12&quot;
+            /&gt;
+          &lt;/svg&gt;
+        &lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div
+        class=&quot;fixed inset-y-0 left-0 z-40 w-72 bg-slate-800/98 backdrop-blur-md border-r border-slate-600/50 shadow-2xl transform transition-all duration-300 ease-in-out translate-x-0 opacity-100&quot;
+      &gt;
+        &lt;div
+          class=&quot;flex flex-col h-full&quot;
+        &gt;
+          &lt;div
+            class=&quot;flex items-center justify-center h-16 bg-slate-900/50 border-b border-slate-600&quot;
+          &gt;
+            &lt;div
+              class=&quot;flex items-center space-x-2&quot;
+            &gt;
+              &lt;svg
+                class=&quot;lucide lucide-zap h-8 w-8 text-yellow-400&quot;
+                fill=&quot;none&quot;
+                height=&quot;24&quot;
+                stroke=&quot;currentColor&quot;
+                stroke-linecap=&quot;round&quot;
+                stroke-linejoin=&quot;round&quot;
+                stroke-width=&quot;2&quot;
+                viewBox=&quot;0 0 24 24&quot;
+                width=&quot;24&quot;
+                xmlns=&quot;http://www.w3.org/2000/svg&quot;
+              &gt;
+                &lt;path
+                  d=&quot;M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z&quot;
+                /&gt;
+              &lt;/svg&gt;
+              &lt;span
+                class=&quot;text-xl font-bold&quot;
+              &gt;
+                A1 Betting
+              &lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+          &lt;nav
+            class=&quot;flex-1 px-4 py-6 space-y-2&quot;
+          &gt;
+            &lt;a
+              class=&quot;flex items-center px-4 py-3 rounded-lg font-medium transition-colors bg-yellow-500 text-black&quot;
+              data-discover=&quot;true&quot;
+              href=&quot;/&quot;
+            &gt;
+              &lt;svg
+                class=&quot;lucide lucide-home mr-3 h-5 w-5&quot;
+                fill=&quot;none&quot;
+                height=&quot;24&quot;
+                stroke=&quot;currentColor&quot;
+                stroke-linecap=&quot;round&quot;
+                stroke-linejoin=&quot;round&quot;
+                stroke-width=&quot;2&quot;
+                viewBox=&quot;0 0 24 24&quot;
+                width=&quot;24&quot;
+                xmlns=&quot;http://www.w3.org/2000/svg&quot;
+              &gt;
+                &lt;path
+                  d=&quot;m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z&quot;
+                /&gt;
+                &lt;polyline
+                  points=&quot;9 22 9 12 15 12 15 22&quot;
+                /&gt;
+              &lt;/svg&gt;
+              Sports Analytics
+            &lt;/a&gt;
+            &lt;a
+              class=&quot;flex items-center px-4 py-3 rounded-lg font-medium transition-colors text-gray-300 hover:bg-slate-700 hover:text-white&quot;
+              data-discover=&quot;true&quot;
+              href=&quot;/player&quot;
+            &gt;
+              &lt;svg
+                class=&quot;lucide lucide-user mr-3 h-5 w-5&quot;
+                fill=&quot;none&quot;
+                height=&quot;24&quot;
+                stroke=&quot;currentColor&quot;
+                stroke-linecap=&quot;round&quot;
+                stroke-linejoin=&quot;round&quot;
+                stroke-width=&quot;2&quot;
+                viewBox=&quot;0 0 24 24&quot;
+                width=&quot;24&quot;
+                xmlns=&quot;http://www.w3.org/2000/svg&quot;
+              &gt;
+                &lt;path
+                  d=&quot;M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2&quot;
+                /&gt;
+                &lt;circle
+                  cx=&quot;12&quot;
+                  cy=&quot;7&quot;
+                  r=&quot;4&quot;
+                /&gt;
+              &lt;/svg&gt;
+              Player Research
+            &lt;/a&gt;
+            &lt;a
+              class=&quot;flex items-center px-4 py-3 rounded-lg font-medium transition-colors text-gray-300 hover:bg-slate-700 hover:text-white&quot;
+              data-discover=&quot;true&quot;
+              href=&quot;/test-dashboard&quot;
+            &gt;
+              &lt;svg
+                class=&quot;lucide lucide-zap mr-3 h-5 w-5&quot;
+                fill=&quot;none&quot;
+                height=&quot;24&quot;
+                stroke=&quot;currentColor&quot;
+                stroke-linecap=&quot;round&quot;
+                stroke-linejoin=&quot;round&quot;
+                stroke-width=&quot;2&quot;
+                viewBox=&quot;0 0 24 24&quot;
+                width=&quot;24&quot;
+                xmlns=&quot;http:/...
+    at waitForWrapper (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\@testing-library\dom\dist\wait-for.js:163:27)
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\__tests__\App.e2e.test.tsx:206:18)
+    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
+    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
+    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
+    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-runner\build\testWorker.js:275:16)
+    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-runner\build\testWorker.js:343:7)
+    at Object.worker (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\node_modules\jest-runner\build\testWorker.js:497:12)</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

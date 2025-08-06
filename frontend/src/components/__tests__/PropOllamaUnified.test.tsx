@@ -24,6 +24,33 @@ const CompositeProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   </QueryClientProvider>
 );
 
+// Helper to mock /mlb/todays-games fetch
+const mockUpcomingGames = () => {
+  jest.spyOn(global, 'fetch').mockImplementation((url: RequestInfo, options?: RequestInit) => {
+    if (typeof url === 'string' && url.includes('/mlb/todays-games')) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          status: 'ok',
+          games: [
+            {
+              game_id: 123,
+              home: 'BOS',
+              away: 'NYY',
+              time: '2025-08-01T19:00:00Z',
+              event_name: 'NYY @ BOS',
+              status: 'Warmup',
+              venue: 'Fenway Park',
+            },
+          ],
+        }),
+      } as Response);
+    }
+    // fallback to default fetch for other URLs
+    return (global.fetch as any).origFetch(url, options);
+  });
+};
+
 describe('PropOllamaUnified', () => {
   it('loads and sorts best bets by confidence', async () => {
     const mlbMockData = [
@@ -70,21 +97,17 @@ describe('PropOllamaUnified', () => {
     );
     const mlbTab = await screen.findByRole('tab', { name: /MLB/i });
     mlbTab.click();
-    // Wait for visibleProjections to be logged in the component
-    // Wait for both player names to appear in the DOM (at least one match for each)
-    const judgeMatches = await screen.findAllByText(/Aaron Judge/i);
-    const deversMatches = await screen.findAllByText(/Rafael Devers/i);
-    expect(judgeMatches.length).toBeGreaterThan(0);
-    expect(deversMatches.length).toBeGreaterThan(0);
     // Wait for both cards to be present and assert their order and content
-    await waitFor(() => {
-      const wrappers = screen.getAllByTestId('prop-card-wrapper');
+    await waitFor(async () => {
+      const wrappers = await screen.findAllByTestId('prop-card-wrapper');
       expect(wrappers.length).toBeGreaterThanOrEqual(2);
-      // Debug: print card titles
       wrappers.forEach((wrapper, i) => {
-        const title = wrapper.querySelector('div.text-white.font-bold.text-lg.leading-tight');
+        // Debug: print card HTML and player name
         // eslint-disable-next-line no-console
-        console.log(`Card ${i} title (wrapper):`, title && title.textContent);
+        console.log(`Card ${i} HTML:`, wrapper.outerHTML);
+        const playerDiv = wrapper.querySelector('div.text-white.font-bold.text-lg.leading-tight');
+        // eslint-disable-next-line no-console
+        console.log(`Card ${i} player:`, playerDiv && playerDiv.textContent);
       });
       const cardTitles = wrappers.map(
         wrapper =>
@@ -101,7 +124,9 @@ describe('PropOllamaUnified', () => {
   it('shows confidence badge and bar', async () => {
     // (moved below, after cards is defined)
     // (moved below, after cards is defined)
+    mockUpcomingGames();
     const mlbMockData = [
+    const mlbTab = await screen.findByRole('tab', { name: /MLB/i });
       {
         id: 'game1-judge',
         player: 'Aaron Judge',
@@ -142,14 +167,9 @@ describe('PropOllamaUnified', () => {
     );
     const mlbTab = await screen.findByRole('tab', { name: /MLB/i });
     mlbTab.click();
-    // Wait for both player names to appear in the DOM (at least one match for each)
-    const judgeMatches = await screen.findAllByText(/Aaron Judge/i);
-    const deversMatches = await screen.findAllByText(/Rafael Devers/i);
-    expect(judgeMatches.length).toBeGreaterThan(0);
-    expect(deversMatches.length).toBeGreaterThan(0);
     // Wait for both cards to be present and assert their badges
-    await waitFor(() => {
-      const wrappers = screen.getAllByTestId('prop-card-wrapper');
+    await waitFor(async () => {
+      const wrappers = await screen.findAllByTestId('prop-card-wrapper');
       expect(wrappers.length).toBeGreaterThanOrEqual(2);
       const cardTitles = wrappers.map(
         wrapper =>
@@ -161,35 +181,21 @@ describe('PropOllamaUnified', () => {
       expect(cardTitles[0]).toMatch(/Aaron Judge/i);
       expect(cardTitles[1]).toMatch(/Rafael Devers/i);
       // Now check the badges for each card
-      const badge0 = wrappers[0].querySelector('.bg-black.text-green-400');
-      const badge1 = wrappers[1].querySelector('.bg-black.text-green-400');
-      expect(badge0 && badge0.textContent).toMatch(/C/); // Grade should be C (for confidence level)
-      expect(badge1 && badge1.textContent).toMatch(/C/); // Grade should be C (for confidence level)
-      // Debug: log the full HTML of both cards
+      const badge0 = wrappers[0].querySelector('span.bg-black.text-green-400');
+      const badge1 = wrappers[1].querySelector('span.bg-black.text-green-400');
+      // Debug: log the badge text and card HTML
+      // eslint-disable-next-line no-console
+      console.log('Card 0 badge:', badge0 && badge0.textContent);
+      // eslint-disable-next-line no-console
+      console.log('Card 1 badge:', badge1 && badge1.textContent);
       // eslint-disable-next-line no-console
       console.log('Card 0 HTML (badge):', wrappers[0].outerHTML);
       // eslint-disable-next-line no-console
       console.log('Card 1 HTML (badge):', wrappers[1].outerHTML);
-      // The badge is a div with class 'w-24 h-24 ... text-green-400' and contains the score
-      // We'll use querySelector to directly target the badge and check its textContent
-      // To ensure correct sorting, check the card titles first
-      const card0TitleBadge = wrappers[0].querySelector(
-        '.text-white.font-bold.text-lg.leading-tight'
-      );
-      const card1TitleBadge = wrappers[1].querySelector(
-        '.text-white.font-bold.text-lg.leading-tight'
-      );
-      // Debug: log the text content of both card titles
-      // eslint-disable-next-line no-console
-      console.log('Card 0 title (badge):', card0TitleBadge && card0TitleBadge.textContent);
-      // eslint-disable-next-line no-console
-      console.log('Card 1 title (badge):', card1TitleBadge && card1TitleBadge.textContent);
-      expect(card0TitleBadge && card0TitleBadge.textContent).toMatch(/Aaron Judge/i);
-      expect(card1TitleBadge && card1TitleBadge.textContent).toMatch(/Rafael Devers/i);
-      // Now check the badges in the same order
+      expect(badge0 && badge0.textContent).toMatch(/C/); // Grade should be C (for confidence level)
+      expect(badge1 && badge1.textContent).toMatch(/C/); // Grade should be C (for confidence level)
       expect(badge0).toBeTruthy();
       expect(badge1).toBeTruthy();
-      // Additional assertions for badge text
       if (badge0 && badge0.textContent && badge1 && badge1.textContent) {
         expect(badge0.textContent.trim()).toBe('C');
         expect(badge1.textContent.trim()).toBe('C');
@@ -198,7 +204,9 @@ describe('PropOllamaUnified', () => {
   });
 
   it('expand/collapse explanation', async () => {
+    mockUpcomingGames();
     const mlbMockData = [
+    const mlbTab = await screen.findByRole('tab', { name: /MLB/i });
       {
         id: 'game1-judge',
         player: 'Aaron Judge',
@@ -264,7 +272,8 @@ describe('PropOllamaUnified', () => {
 });
 
 it('renders MLB odds and props as cards when backend returns MLB data', async () => {
-  const mlbMockData = [
+    mockUpcomingGames();
+    const mlbMockData = [
     {
       id: 'game1-judge',
       player: 'Aaron Judge',
@@ -296,6 +305,7 @@ it('renders MLB odds and props as cards when backend returns MLB data', async ()
     </CompositeProvider>
   );
   // Set sport filter to 'MLB' to ensure both cards are visible
+  mockUpcomingGames();
   const mlbTab = await screen.findByRole('tab', { name: /MLB/i });
   mlbTab.click();
   await waitFor(() => {

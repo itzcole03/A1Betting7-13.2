@@ -6,6 +6,7 @@
  */
 
 import { useCallback, useEffect, useRef } from 'react';
+import { httpFetch } from '../../services/HttpClient';
 import { activateSport } from '../../services/SportsService';
 import {
   FeaturedProp,
@@ -43,7 +44,7 @@ export function usePropOllamaData({ state, actions }: UsePropOllamaDataProps) {
   // TEST: Make a simple API call to verify the hook is running
   useEffect(() => {
     console.error('[PropOllamaData] *** IMMEDIATE TEST CALL TO VERIFY HOOK WORKS ***');
-    fetch('/api/health')
+    httpFetch('/api/v2/health')
       .then(() => console.error('[PropOllamaData] *** HOOK TEST CALL SUCCESS ***'))
       .catch(error => console.error('[PropOllamaData] *** HOOK TEST CALL ERROR ***', error));
   }, []);
@@ -96,10 +97,13 @@ export function usePropOllamaData({ state, actions }: UsePropOllamaDataProps) {
         if (previousSport && previousSport !== selectedSport && previousSport !== 'All') {
           try {
             console.log(`[PropOllamaData] Cleaning up previous sport: ${previousSport}`);
-            const deactivationResponse = await fetch(`/api/sports/deactivate/${previousSport}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-            });
+            const deactivationResponse = await httpFetch(
+              `/api/sports/deactivate/${previousSport}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+              }
+            );
 
             if (deactivationResponse.ok) {
               console.log(`[PropOllamaData] ${previousSport} service deactivated successfully`);

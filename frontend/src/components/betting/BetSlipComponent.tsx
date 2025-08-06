@@ -17,7 +17,7 @@ interface BetSlipComponentProps {
   className?: string;
 }
 
-export const BetSlipComponent: React.FC<BetSlipComponentProps> = ({
+const BetSlipComponentInner: React.FC<BetSlipComponentProps> = ({
   selectedProps,
   entryAmount,
   onEntryAmountChange,
@@ -26,6 +26,7 @@ export const BetSlipComponent: React.FC<BetSlipComponentProps> = ({
   onPlaceBet,
   className = '',
 }) => {
+  console.count('[BetSlipComponent] RENDER');
   // Calculate total odds and potential payout
   const totalOdds = selectedProps.reduce((total, prop) => {
     const odds = typeof prop.odds === 'number' ? prop.odds : 0;
@@ -342,3 +343,5 @@ export const BetSlipComponent: React.FC<BetSlipComponentProps> = ({
     </div>
   );
 };
+
+export const BetSlipComponent = React.memo(BetSlipComponentInner);

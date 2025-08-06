@@ -348,16 +348,26 @@ class CompressionMiddleware(BaseHTTPMiddleware):
         }
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        import logging
+
+        logger = logging.getLogger("compression")
         if not self.settings.performance.enable_compression:
+            logger.info("Compression disabled in settings.")
             return await call_next(request)
 
         response = await call_next(request)
 
         # Check if compression is appropriate
         if self._should_compress(request, response):
-            # Add compression header
+            logger.info(
+                f"Applying gzip compression to {request.url.path} (Accept-Encoding: {request.headers.get('accept-encoding')})"
+            )
             response.headers["Content-Encoding"] = "gzip"
             response.headers["Vary"] = "Accept-Encoding"
+        else:
+            logger.info(
+                f"Not compressing {request.url.path}. Headers: {dict(response.headers)}"
+            )
 
         return response
 

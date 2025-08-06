@@ -89,8 +89,8 @@ export class ErrorHandler {
    * Update error metrics for monitoring
    */
   private updateErrorMetrics(error: Error, context: string): void {
-    const _key = `${context}_${error.name}`;
-    const _existing = this.errorMetrics.get(key) || {
+    const key = `${context}_${error.name}`;
+    const existing = this.errorMetrics.get(key) || {
       count: 0,
       lastError: error,
       timestamp: Date.now(),
@@ -129,7 +129,7 @@ export class ErrorHandler {
    * @param listener - The listener function to remove
    */
   public removeErrorListener(listener: (error: Error, context: string) => void): void {
-    const _index = this.errorListeners.indexOf(listener);
+    const index = this.errorListeners.indexOf(listener);
     if (index !== -1) {
       this.errorListeners.splice(index, 1);
     }
@@ -157,10 +157,10 @@ export class ErrorHandler {
   public wrapFunction<T extends (...args: unknown[]) => unknown>(fn: T, context: string): T {
     return ((...args: unknown[]) => {
       try {
-        const _result = fn(...args);
+        const result = fn(...args);
         // Handle async functions
-        if (result && typeof result.catch === 'function') {
-          return result.catch((error: Error) => {
+        if (result && typeof (result as any).catch === 'function') {
+          return (result as Promise<unknown>).catch((error: Error) => {
             this.handleError(error, context);
             throw error;
           });
@@ -180,15 +180,15 @@ export class ErrorHandler {
    */
   public handleWebSocketError(error: Error, context: string = 'websocket_operation'): void {
     // Check if this is a known non-critical WebSocket error
-    const _nonCriticalErrors = [
+    const nonCriticalErrors = [
       'WebSocket closed without opened',
       'WebSocket connection timeout',
       'WebSocket connection failed',
       'Connection refused',
     ];
 
-    const _isNonCritical = nonCriticalErrors.some(
-      pattern => error.message?.includes(pattern) || error.toString().includes(pattern)
+    const isNonCritical = nonCriticalErrors.some(
+      (pattern: string) => error.message?.includes(pattern) || error.toString().includes(pattern)
     );
 
     if (isNonCritical) {
@@ -232,4 +232,4 @@ export class ErrorHandler {
 
 // Create and export a default instance
 const _errorHandler = ErrorHandler.getInstance();
-export default errorHandler;
+export default _errorHandler;

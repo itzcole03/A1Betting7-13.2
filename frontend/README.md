@@ -31,6 +31,7 @@ The PropOllama frontend is now completely operational with a modern, responsive 
 - **Tailwind CSS**: Utility-first styling system
 - **Zustand**: Lightweight state management
 - **Hot Reload**: Instant updates during development
+- **Production-Grade WebSocket Management**: Robust real-time connection with exponential backoff, immediate reconnect on network changes, and full connection status/error context via React Context. All timers and listeners are cleaned up on unmount. See `src/contexts/WebSocketContext.tsx`.
 
 ## 🛠️ Development Setup
 
@@ -67,12 +68,15 @@ npm run test      # Run Jest tests
 npm run test:watch # Run tests in watch mode
 ```
 
-### Code Quality
+### WebSocket Connection Test Coverage
 
-```bash
-npm run lint      # Run ESLint
-npm run type-check # TypeScript checking
-```
+The WebSocket context is fully covered by tests simulating:
+
+- Transient connection failures and automatic recovery (exponential backoff)
+- Network offline/online events and immediate reconnect
+- Status and error context exposure for robust UI feedback
+
+See `src/contexts/__tests__/WebSocketContext.test.tsx` for details.
 
 ## 📁 Project Structure
 
@@ -306,9 +310,15 @@ Main application shell providing:
 - **Testing**: Write tests for new components and features
 - **Documentation**: Update documentation for significant changes
 
-## 🐛 Troubleshooting
+### Troubleshooting
 
-### Common Issues
+#### WebSocket Connection Status & Errors
+
+- The UI exposes real-time WebSocket connection status (`connecting`, `connected`, `reconnecting`, `disconnected`) and last error via context.
+- If you see repeated reconnects or errors, check the backend WebSocket endpoint and browser network tab for details.
+- All connection and error states are observable in the UI and can be tested via `WebSocketContext.test.tsx`.
+
+#### Common Issues
 
 **Port Already in Use**
 

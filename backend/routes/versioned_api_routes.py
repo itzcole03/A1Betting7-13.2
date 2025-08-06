@@ -146,7 +146,31 @@ async def v1_get_props(game_id: Optional[str] = None):
 # =============================================================================
 
 # V2 Router with enhanced features
+from pydantic import BaseModel
+
+from backend.services.unified_error_handler import handle_error
+from backend.services.unified_logging import get_logger
+
+logger = get_logger("sports_routes")
+
 v2_router = VersionedAPIRouter(version="v2", tags=["v2"])
+
+
+class SportActivateRequest(BaseModel):
+    sport: str
+
+
+@v2_router.post("/sports/activate", status_code=200)
+async def activate_sport(request: SportActivateRequest):
+    try:
+        sport = request.sport.upper()
+        logger.info(f"Activating sport: {sport}")
+        # Here you would add logic to activate/configure the sport in the backend
+        # For now, just return a success response
+        return {"status": "success", "sport": sport}
+    except Exception as e:
+        error_info = handle_error(e, message="Failed to activate sport")
+        raise HTTPException(status_code=500, detail=error_info.user_message)
 
 
 @v2_router.get("/health", response_model=APIResponse)

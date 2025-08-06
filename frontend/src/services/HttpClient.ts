@@ -6,24 +6,35 @@ export interface HttpRequestOptions extends RequestInit {
   logLabel?: string;
 }
 
+import { VITE_API_URL } from '../constants';
+
 export async function httpFetch(url: string, options: HttpRequestOptions = {}): Promise<Response> {
   const { version, logLabel, ...fetchOptions } = options;
-  const headers = {
-    ...(fetchOptions.headers || {}),
+  // Explicitly type headers as Record<string, string> for safe indexing
+  const headers: Record<string, string> = {
+    ...((fetchOptions.headers as Record<string, string>) || {}),
     ...getRequestContext(version),
   };
   const label = logLabel || 'HttpClient';
   const requestId = headers['X-Request-ID'];
   const start = performance.now();
+
+  // Always prepend base URL to relative paths (starting with '/') that are not already absolute
+  let finalUrl = url;
+  if (url.startsWith('/') && !/^https?:\/\//.test(url)) {
+    const base = VITE_API_URL || 'http://localhost:8000';
+    finalUrl = base.replace(/\/$/, '') + url;
+  }
+
   // eslint-disable-next-line no-console
-  console.log(`[${label}] [${requestId}] Request:`, url, fetchOptions);
+  console.log(`[${label}] [${requestId}] Request:`, finalUrl, fetchOptions);
   try {
-    const response = await fetch(url, { ...fetchOptions, headers });
+    const response = await fetch(finalUrl, { ...fetchOptions, headers });
     const duration = performance.now() - start;
     // eslint-disable-next-line no-console
     console.log(
       `[${label}] [${requestId}] Response:`,
-      url,
+      finalUrl,
       `Status: ${response.status}`,
       `Duration: ${duration.toFixed(1)}ms`
     );
@@ -33,7 +44,7 @@ export async function httpFetch(url: string, options: HttpRequestOptions = {}): 
     // eslint-disable-next-line no-console
     console.error(
       `[${label}] [${requestId}] Error:`,
-      url,
+      finalUrl,
       error,
       `Duration: ${duration.toFixed(1)}ms`
     );
