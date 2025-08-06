@@ -65,9 +65,33 @@ pip-selfcheck.json
 .hypothesis/
 .pytest_cache/
 
-# Database
+# Database files - all types
 a1betting.db
+a1betting_fallback.db
 *.sqlite3
+*.db
+*_target.db
+*_test*.db
+*_verification*.db
+model_performance.db
+chat_history.db
+prizepicks_data.db
+real_training_data.db
+users.db
+
+# Large ML/Data files
+*.pkl
+*.pickle
+data/statcast_features/
+data/ml_models/
+data/cached_models/
+data/training_data/
+cleanup_archive/test_databases/
+cleanup_archive/*/
+*.h5
+*.hdf5
+*.parquet
+*.feather
 
 # Cursor AI IDE local config
 .cursor/
@@ -77,3 +101,15 @@ extracted_chat_data_*.json
 gitingest_summary.txt
 supervisor_chats/*.json
 frontend/electron-dist/
+
+# Performance test files
+*_performance_*.json
+*_benchmark_*.json
+*_metrics_*.json
+
+# Verification and test artifacts
+phase*_verification_*.db
+phase*_performance_*.db
+test_*.html
+restore_*.py
+*_COMPLETE.py
