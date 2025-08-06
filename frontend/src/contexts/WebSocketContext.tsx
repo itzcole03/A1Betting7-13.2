@@ -35,51 +35,73 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
   const [connected, setConnected] = useState(false);
   const _wsRef = useRef<WebSocket | null>(null);
   const _handlers = useRef<Record<string, ((data: unknown) => void)[]>>({});
+  const reconnectAttempts = useRef(0);
+  const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Dynamically determine WebSocket URL based on current location
+    let isUnmounted = false;
     const getWebSocketUrl = () => {
       if (process.env.NODE_ENV === 'development') {
-        // In development, connect to backend WebSocket server
         return 'ws://localhost:8000/ws';
       } else {
-        // Production WebSocket URL
         return process.env.VITE_WS_URL || process.env.WS_URL || 'ws://localhost:8000/ws';
       }
     };
 
-    const _wsUrl = getWebSocketUrl();
-    console.log(`[WebSocket] Connecting to: ${_wsUrl}`);
-    const _ws = new WebSocket(_wsUrl);
-    _wsRef.current = _ws;
+    const connectWebSocket = () => {
+      const _wsUrl = getWebSocketUrl();
+      console.log(`[WebSocket] Connecting to: ${_wsUrl}`);
+      const _ws = new WebSocket(_wsUrl);
+      _wsRef.current = _ws;
 
-    _ws.onopen = () => {
-      console.log(`[WebSocket] Connected successfully to: ${_wsUrl}`);
-      setConnected(true);
-    };
+      _ws.onopen = () => {
+        console.log(`[WebSocket] Connected successfully to: ${_wsUrl}`);
+        setConnected(true);
+        reconnectAttempts.current = 0;
+      };
 
-    _ws.onclose = event => {
-      console.log(`[WebSocket] Connection closed:`, event.code, event.reason);
-      setConnected(false);
-    };
-
-    _ws.onerror = error => {
-      console.warn(`[WebSocket] Connection error (non-critical):`, error);
-      // WebSocket errors are non-critical - the app should work without real-time features
-    };
-
-    _ws.onmessage = event => {
-      try {
-        const _data = JSON.parse(event.data);
-        if (_data.event && _handlers.current[_data.event]) {
-          _handlers.current[_data.event].forEach(fn => fn(_data.payload));
+      _ws.onclose = event => {
+        console.log(`[WebSocket] Connection closed:`, event.code, event.reason);
+        setConnected(false);
+        if (!isUnmounted) {
+          // Exponential backoff for reconnection
+          const delay = Math.min(1000 * 2 ** reconnectAttempts.current, 30000);
+          reconnectAttempts.current += 1;
+          if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
+          reconnectTimeout.current = setTimeout(() => {
+            connectWebSocket();
+          }, delay);
+          console.warn(
+            `[WebSocket] Attempting to reconnect in ${delay / 1000}s (attempt ${
+              reconnectAttempts.current
+            })`
+          );
         }
-      } catch (e) {
-        console.error('WebSocket message error', e);
-      }
+      };
+
+      _ws.onerror = error => {
+        console.warn(`[WebSocket] Connection error (non-critical):`, error);
+        // WebSocket errors are non-critical - the app should work without real-time features
+      };
+
+      _ws.onmessage = event => {
+        try {
+          const _data = JSON.parse(event.data);
+          if (_data.event && _handlers.current[_data.event]) {
+            _handlers.current[_data.event].forEach(fn => fn(_data.payload));
+          }
+        } catch (e) {
+          console.error('WebSocket message error', e);
+        }
+      };
     };
+
+    connectWebSocket();
+
     return () => {
-      _ws.close();
+      isUnmounted = true;
+      if (_wsRef.current) _wsRef.current.close();
+      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
     };
   }, []);
 

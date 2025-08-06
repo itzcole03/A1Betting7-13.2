@@ -1,5 +1,9 @@
 import React from 'react';
 import { BetSlipComponent } from '../betting/BetSlipComponent';
+import DirectDataFetchTest from '../debug/DirectDataFetchTest';
+import FeaturedPropsServiceTest from '../debug/FeaturedPropsServiceTest';
+import SimpleDirectAPITest from '../debug/SimpleDirectAPITest';
+import SimplePropOllamaDebugContainer from '../debug/SimplePropOllamaDebugContainer';
 import EnhancedErrorBoundary from '../EnhancedErrorBoundary';
 import { PropFilters } from '../filters/PropFilters';
 import { usePropOllamaData } from '../hooks/usePropOllamaData';
@@ -38,9 +42,9 @@ const PropOllamaContainer: React.FC = () => {
     state.filters.selectedSport
   );
 
-  // Initialize data fetching hook (RESTORED)
+  // Initialize data fetching hook (RE-ENABLED WITH DEBUG FALLBACK)
   usePropOllamaData({ state, actions });
-  console.error('[PropOllamaContainer] Data fetching hook restored and should trigger API calls');
+  console.error('[PropOllamaContainer] Data fetching hook enabled with debug fallback');
 
   return (
     <EnhancedErrorBoundary>
@@ -60,6 +64,19 @@ const PropOllamaContainer: React.FC = () => {
             }}
             performanceMetrics={{}}
           />
+        </div>
+
+        {/* DEBUG: Data Fetch Testing */}
+        <div className='debug-section mb-8'>
+          {/* Top row - API tests */}
+          <div className='grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6'>
+            <DirectDataFetchTest />
+            <FeaturedPropsServiceTest />
+            <SimpleDirectAPITest />
+          </div>
+
+          {/* Bottom row - PropOllama debug */}
+          <SimplePropOllamaDebugContainer />
         </div>
 
         {/* Control Panel */}

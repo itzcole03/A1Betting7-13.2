@@ -6,6 +6,7 @@
  * in the frontend analytics table using the enhanced data manager.
  */
 
+import { debugEnhancedDataManager } from '../DebugEnhancedDataManager';
 import { enhancedDataManager } from '../EnhancedDataManager';
 
 export interface FeaturedProp {
@@ -193,9 +194,30 @@ export async function fetchFeaturedProps(
         return props;
       } catch (enhancedError) {
         console.warn(
-          '[FeaturedPropsService] Enhanced manager failed, falling back to direct API',
+          '[FeaturedPropsService] Enhanced manager failed, trying debug manager',
           enhancedError
         );
+
+        // Try debug manager as second fallback
+        try {
+          console.log(`[FeaturedPropsService] Trying debug manager...`);
+          const debugProps = await debugEnhancedDataManager.fetchSportsProps(
+            sport,
+            marketType || 'player',
+            {
+              statTypes,
+              limit,
+              offset,
+            }
+          );
+          console.log(`[FeaturedPropsService] Debug manager succeeded: ${debugProps.length} props`);
+          return debugProps;
+        } catch (debugError) {
+          console.warn(
+            '[FeaturedPropsService] Debug manager also failed, falling back to direct API',
+            debugError
+          );
+        }
 
         // Fallback to direct API call with absolute URL
         const endpoint = `http://localhost:8000/mlb/odds-comparison/`;

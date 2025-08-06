@@ -159,45 +159,45 @@ const _AppContent: React.FC = () => {
     );
   }
 
-  // AUTO-LOGIN for testing (restore user session)
-  React.useEffect(() => {
-    if (!isAuthenticated && !loading) {
-      console.log('[APP] *** AUTO-LOGIN: Attempting to restore user session ***');
+  // AUTO-LOGIN for testing (restore user session) - DISABLED to prevent infinite refresh
+  // React.useEffect(() => {
+  //   if (!isAuthenticated && !loading) {
+  //     console.log('[APP] *** AUTO-LOGIN: Attempting to restore user session ***');
 
-      const autoLogin = async () => {
-        try {
-          const loginResponse = await fetch('/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              username: 'admin',
-              email: 'ncr@a1betting.com',
-              password: 'A1Betting1337!',
-            }),
-          });
+  //     const autoLogin = async () => {
+  //       try {
+  //         const loginResponse = await fetch('/auth/login', {
+  //           method: 'POST',
+  //           headers: { 'Content-Type': 'application/json' },
+  //           body: JSON.stringify({
+  //             username: 'admin',
+  //             email: 'ncr@a1betting.com',
+  //             password: 'A1Betting1337!',
+  //           }),
+  //         });
 
-          if (loginResponse.ok) {
-            const loginData = await loginResponse.json();
-            console.log('[APP] *** AUTO-LOGIN SUCCESS ***', loginData);
+  //         if (loginResponse.ok) {
+  //           const loginData = await loginResponse.json();
+  //           console.log('[APP] *** AUTO-LOGIN SUCCESS ***', loginData);
 
-            // Store the token in localStorage (this should trigger auth context update)
-            localStorage.setItem('access_token', loginData.access_token);
-            localStorage.setItem('refresh_token', loginData.refresh_token);
+  //           // Store the token in localStorage (this should trigger auth context update)
+  //           localStorage.setItem('access_token', loginData.access_token);
+  //           localStorage.setItem('refresh_token', loginData.refresh_token);
 
-            // Force page reload to re-trigger authentication
-            window.location.reload();
-          } else {
-            console.error('[APP] *** AUTO-LOGIN FAILED ***', await loginResponse.text());
-          }
-        } catch (error) {
-          console.error('[APP] *** AUTO-LOGIN ERROR ***', error);
-        }
-      };
+  //           // Force page reload to re-trigger authentication
+  //           window.location.reload();
+  //         } else {
+  //           console.error('[APP] *** AUTO-LOGIN FAILED ***', await loginResponse.text());
+  //         }
+  //       } catch (error) {
+  //         console.error('[APP] *** AUTO-LOGIN ERROR ***', error);
+  //       }
+  //     };
 
-      // Delay the auto-login slightly to avoid race conditions
-      setTimeout(autoLogin, 1000);
-    }
-  }, [isAuthenticated, loading]);
+  //     // Delay the auto-login slightly to avoid race conditions
+  //     setTimeout(autoLogin, 1000);
+  //   }
+  // }, [isAuthenticated, loading]);
 
   // Fix handlePasswordChange reference
   const handlePasswordChange = async (
