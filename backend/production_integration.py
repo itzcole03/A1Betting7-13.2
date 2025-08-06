@@ -427,6 +427,17 @@ class ProductionApp:
         except Exception as e:
             self.logger.error(f"Error including Phase 3 routes: {e}")
 
+        # Include Player Dashboard routes for comprehensive player analytics
+        try:
+            from backend.routes import player_dashboard_routes
+
+            self.app.include_router(player_dashboard_routes.router)
+            self.logger.info("✅ Player Dashboard routes included successfully")
+        except ImportError:
+            self.logger.warning("⚠️ Could not import player_dashboard_routes router")
+        except Exception as e:
+            self.logger.error(f"Error including Player Dashboard routes: {e}")
+
         # Include Data Validation routes for cross-source data quality assurance
         try:
             from backend.routes import data_validation_routes

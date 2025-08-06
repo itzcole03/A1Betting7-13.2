@@ -68,6 +68,185 @@ class FetcherConfig:
 
 
 class UnifiedDataFetcher:
+
+    async def fetch_player_info(
+        self, player_id: str, sport: str, correlation_id: str = None
+    ) -> dict:
+        """Fetch and normalize basic player info."""
+        correlation_id = (
+            correlation_id or f"playerinfo-{player_id}-{datetime.utcnow().timestamp()}"
+        )
+        for attempt in range(1, self.config.max_retries + 1):
+            try:
+                logger.info(
+                    f"[CID={correlation_id}] Fetching player info for {player_id} (attempt {attempt})"
+                )
+                # Example: Replace with real data source
+                # Simulate fetch
+                player_info = {
+                    "id": player_id,
+                    "name": "Aaron Judge",
+                    "team": "NYY",
+                    "position": "RF",
+                    "sport": sport,
+                    "active": True,
+                    "injury_status": None,
+                }
+                return player_info
+            except Exception as e:
+                logger.error(f"[CID={correlation_id}] Error fetching player info: {e}")
+                if attempt == self.config.max_retries:
+                    raise
+                await asyncio.sleep(self.config.retry_delay * attempt)
+
+    async def fetch_player_season_stats(
+        self, player_id: str, sport: str, correlation_id: str = None
+    ) -> dict:
+        """Fetch and normalize player season stats."""
+        correlation_id = (
+            correlation_id or f"playerstats-{player_id}-{datetime.utcnow().timestamp()}"
+        )
+        for attempt in range(1, self.config.max_retries + 1):
+            try:
+                logger.info(
+                    f"[CID={correlation_id}] Fetching season stats for {player_id} (attempt {attempt})"
+                )
+                # Example: Replace with real data source
+                stats = {
+                    "hits": 120,
+                    "home_runs": 35,
+                    "rbis": 90,
+                    "batting_average": 0.285,
+                    "on_base_percentage": 0.390,
+                    "slugging_percentage": 0.540,
+                    "ops": 0.930,
+                    "strikeouts": 110,
+                    "walks": 60,
+                    "games_played": 102,
+                    "plate_appearances": 420,
+                    "at_bats": 380,
+                    "runs": 80,
+                    "doubles": 22,
+                    "triples": 1,
+                    "stolen_bases": 5,
+                    "war": 4.2,
+                    "babip": 0.310,
+                    "wrc_plus": 145,
+                    "barrel_rate": 15.2,
+                    "hard_hit_rate": 48.1,
+                    "exit_velocity": 92.5,
+                    "launch_angle": 14.3,
+                }
+                return stats
+            except Exception as e:
+                logger.error(f"[CID={correlation_id}] Error fetching season stats: {e}")
+                if attempt == self.config.max_retries:
+                    raise
+                await asyncio.sleep(self.config.retry_delay * attempt)
+
+    async def fetch_player_recent_games(
+        self, player_id: str, sport: str, limit: int = 10, correlation_id: str = None
+    ) -> list:
+        """Fetch and normalize recent games."""
+        correlation_id = (
+            correlation_id or f"recentgames-{player_id}-{datetime.utcnow().timestamp()}"
+        )
+        for attempt in range(1, self.config.max_retries + 1):
+            try:
+                logger.info(
+                    f"[CID={correlation_id}] Fetching recent games for {player_id} (attempt {attempt})"
+                )
+                # Example: Replace with real data source
+                games = [
+                    {
+                        "date": "2025-08-01",
+                        "opponent": "BOS",
+                        "home": True,
+                        "result": "W",
+                        "stats": {
+                            "hits": 2,
+                            "home_runs": 1,
+                            "rbis": 3,
+                            "batting_average": 0.333,
+                            "ops": 1.200,
+                        },
+                        "game_score": 8.5,
+                        "weather": {
+                            "temperature": 78,
+                            "wind_speed": 10,
+                            "wind_direction": "NW",
+                        },
+                    }
+                    for _ in range(limit)
+                ]
+                return games
+            except Exception as e:
+                logger.error(f"[CID={correlation_id}] Error fetching recent games: {e}")
+                if attempt == self.config.max_retries:
+                    raise
+                await asyncio.sleep(self.config.retry_delay * attempt)
+
+    async def fetch_player_prop_history(
+        self, player_id: str, sport: str, correlation_id: str = None
+    ) -> list:
+        """Fetch and normalize player prop history."""
+        correlation_id = (
+            correlation_id or f"prophistory-{player_id}-{datetime.utcnow().timestamp()}"
+        )
+        for attempt in range(1, self.config.max_retries + 1):
+            try:
+                logger.info(
+                    f"[CID={correlation_id}] Fetching prop history for {player_id} (attempt {attempt})"
+                )
+                # Example: Replace with real data source
+                props = [
+                    {
+                        "date": "2025-08-01",
+                        "prop_type": "home_runs",
+                        "line": 1.5,
+                        "actual": 1.0,
+                        "outcome": "under",
+                        "odds": -110,
+                        "sportsbook": "DraftKings",
+                    }
+                    for _ in range(10)
+                ]
+                return props
+            except Exception as e:
+                logger.error(f"[CID={correlation_id}] Error fetching prop history: {e}")
+                if attempt == self.config.max_retries:
+                    raise
+                await asyncio.sleep(self.config.retry_delay * attempt)
+
+    async def fetch_player_performance_trends(
+        self, player_id: str, sport: str, correlation_id: str = None
+    ) -> dict:
+        """Fetch and normalize player performance trends."""
+        correlation_id = (
+            correlation_id or f"trends-{player_id}-{datetime.utcnow().timestamp()}"
+        )
+        for attempt in range(1, self.config.max_retries + 1):
+            try:
+                logger.info(
+                    f"[CID={correlation_id}] Fetching performance trends for {player_id} (attempt {attempt})"
+                )
+                # Example: Replace with real data source
+                trends = {
+                    "last_7_days": {"avg": 0.320, "hr": 3, "rbis": 8},
+                    "last_30_days": {"avg": 0.295, "hr": 10, "rbis": 25},
+                    "home_vs_away": {"home": {"avg": 0.310}, "away": {"avg": 0.280}},
+                    "vs_lefties": {"avg": 0.340},
+                    "vs_righties": {"avg": 0.270},
+                }
+                return trends
+            except Exception as e:
+                logger.error(
+                    f"[CID={correlation_id}] Error fetching performance trends: {e}"
+                )
+                if attempt == self.config.max_retries:
+                    raise
+                await asyncio.sleep(self.config.retry_delay * attempt)
+
     """
     Unified data fetching service with intelligent ensemble integration
     and comprehensive error handling.

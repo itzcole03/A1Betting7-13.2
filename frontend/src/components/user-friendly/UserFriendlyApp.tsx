@@ -10,7 +10,8 @@ const UnifiedBettingInterface = React.lazy(() => import('../betting/UnifiedBetti
 const ArbitrageOpportunities = React.lazy(
   () => import('../features/betting/ArbitrageOpportunities')
 );
-const PlayerDashboard = React.lazy(() => import('../player/PlayerDashboard'));
+const PlayerDashboard = React.lazy(() => import('../player/PlayerDashboardContainer'));
+const PlayerDashboardTest = React.lazy(() => import('../../pages/PlayerDashboardTest'));
 
 const UserFriendlyApp: React.FC = () => {
   console.error('[UserFriendlyApp] *** COMPONENT MOUNTING *** - PATH:', window.location.pathname);
@@ -25,6 +26,12 @@ const UserFriendlyApp: React.FC = () => {
       href: '/player',
       icon: User,
       current: location.pathname.startsWith('/player'),
+    },
+    {
+      name: 'Dashboard Test',
+      href: '/test-dashboard',
+      icon: Zap,
+      current: location.pathname === '/test-dashboard',
     },
     {
       name: 'AI/ML Models',
@@ -167,6 +174,7 @@ const UserFriendlyApp: React.FC = () => {
                 })()}
               />
               <Route path='/player/:playerId?' element={<PlayerDashboard />} />
+              <Route path='/test-dashboard' element={<PlayerDashboardTest />} />
               <Route path='/ml-models' element={<MLModelCenter />} />
               <Route path='/betting' element={<UnifiedBettingInterface />} />
               <Route path='/arbitrage' element={<ArbitrageOpportunities />} />

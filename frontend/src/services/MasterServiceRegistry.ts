@@ -17,6 +17,7 @@ import { UnifiedStateService } from './unified/UnifiedStateService';
 import { UnifiedWebSocketService } from './unified/UnifiedWebSocketService';
 
 // Import specific feature services
+import { PlayerDataService } from './data/PlayerDataService';
 import { _injuryService } from './injuryService';
 import { _lineupService } from './lineupService';
 
@@ -164,6 +165,7 @@ class MasterServiceRegistry {
     const _featureServices = [
       { name: 'injuries', service: _injuryService },
       { name: 'lineups', service: _lineupService },
+      { name: 'playerData', service: PlayerDataService.getInstance() },
     ];
 
     for (const { name, service } of _featureServices) {

@@ -388,6 +388,20 @@ The API implements smart rate limiting to respect sportsbook provider limits:
 - **diversification_score**: Cross-sport diversification score
 - **bets**: Array of BetOpportunity objects
 
+### PlayerDashboardResponse
+
+- `id` (str): Player ID
+- `name` (str): Player name
+- `team` (str): Team abbreviation
+- `position` (str): Player position
+- `sport` (str): Sport
+- `active` (bool): Active status
+- `injury_status` (str|null): Injury status
+- `season_stats` (object): Season stats (see fields above)
+- `recent_games` (array): Recent games (see fields above)
+- `prop_history` (array): Prop history (see fields above)
+- `performance_trends` (object): Performance trends (see fields above)
+
 ## Integration Examples
 
 ### JavaScript/TypeScript
@@ -875,3 +889,113 @@ These endpoints are provided by `backend/test_app.py` for lightweight health che
 ---
 
 > **Note:** These endpoints are for development/testing only and should not be used in production. For full API details, see the main documentation above.
+
+---
+
+## Player Dashboard API (2025-08-05)
+
+### GET `/api/v2/players/{player_id}/dashboard`
+
+- **Description:** Get comprehensive player dashboard data including stats, trends, and prop history.
+- **Params:**
+  - `player_id` (str): Player ID or slug
+  - `sport` (str, query, default: 'MLB'): Sport (MLB, NBA, NFL, etc.)
+- **Returns:** `PlayerDashboardResponse` (see below)
+
+#### Example Request
+
+```
+GET /api/v2/players/aaron-judge/dashboard?sport=MLB
+```
+
+#### Example Response
+
+```json
+{
+  "id": "aaron-judge",
+  "name": "Aaron Judge",
+  "team": "NYY",
+  "position": "RF",
+  "sport": "MLB",
+  "active": true,
+  "injury_status": null,
+  "season_stats": {
+    "hits": 120,
+    "home_runs": 35,
+    "rbis": 90,
+    "batting_average": 0.285,
+    "on_base_percentage": 0.39,
+    "slugging_percentage": 0.54,
+    "ops": 0.93,
+    "strikeouts": 110,
+    "walks": 60,
+    "games_played": 102,
+    "plate_appearances": 420,
+    "at_bats": 380,
+    "runs": 80,
+    "doubles": 22,
+    "triples": 1,
+    "stolen_bases": 5,
+    "war": 4.2,
+    "babip": 0.31,
+    "wrc_plus": 145,
+    "barrel_rate": 15.2,
+    "hard_hit_rate": 48.1,
+    "exit_velocity": 92.5,
+    "launch_angle": 14.3
+  },
+  "recent_games": [
+    {
+      "date": "2025-08-01",
+      "opponent": "BOS",
+      "home": true,
+      "result": "W",
+      "stats": {
+        "hits": 2,
+        "home_runs": 1,
+        "rbis": 3,
+        "batting_average": 0.333,
+        "ops": 1.2
+      },
+      "game_score": 8.5,
+      "weather": { "temperature": 78, "wind_speed": 10, "wind_direction": "NW" }
+    }
+    // ...more games
+  ],
+  "prop_history": [
+    {
+      "date": "2025-08-01",
+      "prop_type": "home_runs",
+      "line": 1.5,
+      "actual": 1.0,
+      "outcome": "under",
+      "odds": -110,
+      "sportsbook": "DraftKings"
+    }
+    // ...more props
+  ],
+  "performance_trends": {
+    "last_7_days": { "avg": 0.32, "hr": 3, "rbis": 8 },
+    "last_30_days": { "avg": 0.295, "hr": 10, "rbis": 25 },
+    "home_vs_away": { "home": { "avg": 0.31 }, "away": { "avg": 0.28 } },
+    "vs_lefties": { "avg": 0.34 },
+    "vs_righties": { "avg": 0.27 }
+  }
+}
+```
+
+#### Response Model: PlayerDashboardResponse
+
+- `id` (str): Player ID
+- `name` (str): Player name
+- `team` (str): Team abbreviation
+- `position` (str): Player position
+- `sport` (str): Sport
+- `active` (bool): Active status
+- `injury_status` (str|null): Injury status
+- `season_stats` (object): Season stats (see fields above)
+- `recent_games` (array): Recent games (see fields above)
+- `prop_history` (array): Prop history (see fields above)
+- `performance_trends` (object): Performance trends (see fields above)
+
+---
