@@ -122,10 +122,23 @@ export class BackendHealthChecker {
    */
   private async testEndpoint(endpoint: string, port?: number): Promise<BackendHealthInfo> {
     const startTime = Date.now();
-    
+
     try {
+      const isCloudEnvironment = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+      // In cloud environment, don't try direct localhost connections
+      if (port && isCloudEnvironment) {
+        return {
+          isHealthy: false,
+          responseTime: 0,
+          port,
+          endpoint,
+          error: 'Direct localhost connections not available in cloud environment'
+        };
+      }
+
       const url = port ? `http://localhost:${port}${endpoint}` : endpoint;
-      
+
       const response = await fetch(url, {
         method: 'GET',
         signal: AbortSignal.timeout(3000),
@@ -161,12 +174,13 @@ export class BackendHealthChecker {
       }
     } catch (error: any) {
       const responseTime = Date.now() - startTime;
+      const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         isHealthy: false,
         responseTime,
         port,
         endpoint,
-        error: error.name === 'AbortError' ? 'Timeout' : error.message
+        error: error.name === 'AbortError' ? 'Timeout' : errorMessage
       };
     }
   }
