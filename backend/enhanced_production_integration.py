@@ -363,7 +363,7 @@ class EnhancedProductionApp:
 
                 await intelligent_cache_service.initialize()
                 self.logger.info(
-                    "✅ Intelligent cache service initialized successfully"
+                    "��� Intelligent cache service initialized successfully"
                 )
                 startup_tasks.append("intelligent_cache")
             except Exception as e:
@@ -917,7 +917,7 @@ class EnhancedProductionApp:
         # NEW: AI-powered analytics routes (Ollama integration)
         if NEW_ROUTES_AVAILABLE:
             try:
-                self.app.include_router(ai_router, tags=["AI Analytics"])
+                self.app.include_router(ai_router, prefix="/api", tags=["AI Analytics"])
                 enhanced_routes.append("ai_analytics")
                 self.logger.info("✅ AI Analytics routes (Ollama integration) included")
             except Exception as e:
