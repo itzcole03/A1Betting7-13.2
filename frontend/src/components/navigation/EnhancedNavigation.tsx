@@ -244,10 +244,7 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
     <>
       {/* Mobile/Desktop Toggle Button */}
       <button
-        onClick={(e) => {
-          console.log('[EnhancedNavigation] Button clicked, isOpen:', isOpen, 'event:', e);
-          onToggle();
-        }}
+        onClick={onToggle}
         className="fixed top-4 left-4 z-[60] bg-slate-800/90 backdrop-blur-sm p-3 rounded-xl text-white hover:bg-slate-700 transition-all duration-200 shadow-lg border border-slate-600 hover:shadow-xl"
         title={isOpen ? 'Close Navigation' : 'Open Navigation'}
       >
