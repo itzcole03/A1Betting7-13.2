@@ -628,13 +628,14 @@ class EnhancedIntegrationManager:
     async def close(self):
         """Cleanup integration manager resources"""
         logger.info("🔄 Shutting down Enhanced Integration Manager...")
-        
-        # Close all services
+
+        # Close all services in reverse order of initialization
+        await event_driven_cache.close()
+        await data_quality_monitor.close()
         await sportradar_service.close()
         await enhanced_data_pipeline.close()
         await intelligent_cache_service.close()
-        await data_quality_monitor.close()
-        
+
         self.initialized = False
         logger.info("✅ Enhanced Integration Manager shutdown completed")
 
