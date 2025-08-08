@@ -1,0 +1,25 @@
+
+---
+id: dataingest
+title: Data Ingestion Optimization
+category: backend
+description: Optimize real-time data ingestion from TheOdds API with timeouts, circuit breaker, logging, and monitoring.
+location: backend/app/services/data_ingestion.py
+tags: [data-ingestion, backend, api, reliability, monitoring]
+---
+# God Prompt: /dataingest
+
+**Context:**
+-   **Goal:** Optimize real-time data ingestion from TheOdds API for improved efficiency and reliability.
+-   **Location:** `backend/app/services/data_ingestion.py` (or suggest a new module if more appropriate for a large pipeline).
+-   **Current Issue:** Occasional hanging during API calls to TheOdds API, leading to data staleness and potential resource exhaustion.
+-   **Requirements:**
+    -   Implement aggressive timeouts (e.g., 30 seconds) for all external API requests to prevent indefinite hanging.
+    -   Apply a robust circuit breaker pattern (e.g., using `tenacity` library or a custom implementation) for retries with exponential backoff on transient errors, and a fallback mechanism.
+    -   Add comprehensive logging for successful data fetches, failures, retries, and circuit breaker state changes.
+    -   Consider graceful degradation strategies (e.g., serving slightly stale cached data if the API is unresponsive for an extended period).
+    -   Ensure proper process monitoring for background data ingestion tasks, including health checks and alerts for prolonged failures.
+    -   Optimize data parsing and storage to handle large volumes efficiently, considering the 3000+ file context and overall system load.
+
+**Task:**
+Refactor the `fetch_odds_data` function (or create a new data ingestion pipeline) to include robust timeout mechanisms, a circuit breaker pattern, and comprehensive logging. Provide example usage and considerations for deployment in a large-scale, real-time environment.

@@ -189,12 +189,27 @@ class MasterServiceRegistry {
 
     for (const { name, service } of _featureServices) {
       try {
+        console.log(`[MasterServiceRegistry] Initializing feature service: ${name}`);
+
         if ((service as any).initialize) {
           await (service as any).initialize();
         }
         this.registerService(name, service);
         this.updateServiceHealth(name, 'healthy', 0);
+
+        console.log(`[MasterServiceRegistry] Successfully initialized feature service: ${name}`);
       } catch (error) {
+        console.error(`[MasterServiceRegistry] Failed to initialize feature service: ${name}`, error);
+
+        // Check if this is the "item is not defined" error
+        if (error instanceof ReferenceError && error.message.includes('item')) {
+          console.error(`[MasterServiceRegistry] ReferenceError in ${name} service:`, {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+          });
+        }
+
         this.log('error', `Failed to initialize feature service: ${name}`, error);
         this.updateServiceHealth(name, 'degraded', -1);
       }
@@ -297,16 +312,28 @@ class MasterServiceRegistry {
         try {
           const _startTime = Date.now();
 
-          // Perform health check
+          // Perform health check with timeout
           if ((service as any).healthCheck) {
-            await (service as any).healthCheck();
+            await Promise.race([
+              (service as any).healthCheck(),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Health check timeout')), 5000)
+              )
+            ]);
           } else if ((service as any).ping) {
-            await (service as any).ping();
+            await Promise.race([
+              (service as any).ping(),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Ping timeout')), 3000)
+              )
+            ]);
           }
 
           const _responseTime = Date.now() - _startTime;
           this.updateServiceHealth(name, 'healthy', _responseTime);
         } catch (error) {
+          // Log health check failures as warnings since they're non-critical
+          this.log('warn', `Service health check failed: ${name}`, error);
           this.updateServiceHealth(name, 'degraded', -1);
           const _health = this.serviceHealth.get(name);
           if (_health) {

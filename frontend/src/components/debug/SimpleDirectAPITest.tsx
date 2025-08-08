@@ -69,7 +69,13 @@ const SimpleDirectAPITest: React.FC = () => {
 
   useEffect(() => {
     // Auto-run on mount
-    setTimeout(fetchSimpleProps, 3000);
+    const timeoutId = setTimeout(() => {
+      fetchSimpleProps().catch(error => {
+        console.error('[SimpleDirectAPITest] Auto-run failed:', error);
+      });
+    }, 3000);
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (

@@ -1,3 +1,50 @@
+# GitHub Copilot Instructions for A1Betting7-13.2
+
+## Project Overview
+
+A1Betting7-13.2 is a professional sports betting intelligence platform. It features a React 18 + TypeScript + Vite + Electron frontend, a FastAPI + Python 3.11+ backend, and a sophisticated ML ensemble (47+ models) for real-time data analysis from sources like PrizePicks, SportRadar, and TheOdds API. The ML engine utilizes XGBoost, Neural Networks, LSTM, and explores Quantum algorithms. The goal is to provide comprehensive stats, user-friendly data visualization (like PropFinder), and AI-driven betting analysis (like PropGPT).
+
+## Core Directives
+
+1.  **Adhere to A1Betting Technical Excellence Standards:**
+
+    - **Frontend:** Prioritize React 18 best practices, TypeScript strict mode, Vite optimizations, and Electron compatibility. Ensure responsive UI/UX for all devices.
+    - **Backend:** Develop FastAPI endpoints with Pydantic models for input validation, robust error handling, and adherence to security patterns (JWT, rate limiting, API key management).
+    - **Machine Learning:** When generating ML-related code, consider the existing ensemble (XGBoost, NN, LSTM) and data sources. Focus on efficient data processing, model inference, and integration with the FastAPI backend.
+    - **Code Quality:** Maintain >90% test coverage (Jest/Vitest/Pytest), zero ESLint/Prettier warnings, and strict TypeScript error-free code.
+    - **Performance:** Aim for API responses <200ms and optimized frontend rendering.
+    - **Security:** Implement secure coding practices, input validation, and proper authentication/authorization.
+
+2.  **Emphasize User Experience (UI/UX):**
+
+    - For frontend tasks, prioritize intuitive data presentation, clear visualizations, and user-friendly interactions, drawing inspiration from PropFinder's data display clarity.
+    - Consider how AI-driven insights can be presented in an easily digestible and actionable manner, similar to PropGPT's focus on clear analysis.
+
+3.  **Data-Driven Approach:**
+
+    - All features and analyses should be grounded in the real-time data sources (PrizePicks, SportRadar, TheOdds API). Ensure data integrity and efficient data flow.
+
+4.  **Scalability and Maintainability:**
+
+    - Write modular, reusable, and well-documented code. Consider future scalability for both frontend components and backend ML services.
+
+5.  **Testing:**
+
+    - Generate unit and integration tests for all new features and bug fixes. Ensure tests cover edge cases and adhere to existing testing frameworks (Jest, Vitest, Pytest).
+
+6.  **Documentation:**
+
+    - Provide clear comments for complex logic and update relevant documentation (e.g., READMEs, API docs) as part of any task.
+
+7.  **Problem Solving:**
+    - When encountering issues, follow the "Sequential Thinking Framework" (Analyze, Research, Plan, Execute, Validate, Document) outlined in the `A1Betting Elite Autonomous Developer Mode` document.
+
+## Specific Contextual Directives
+
+- **Frontend Components:** When creating or modifying React components, prioritize functional components, hooks, and adherence to the project's component library (if any).
+- **API Endpoints:** For FastAPI, use `async/await` where appropriate, define clear request/response models with Pydantic, and integrate with existing services.
+- **ML Model Integration:** When connecting ML models to the API, ensure efficient data serialization/deserialization and minimal latency.
+
 # A1Betting7-13.2: Supreme Copilot & Developer Instructions
 
 Welcome to the definitive, self-sufficient guide for developing, maintaining, and extending A1Betting7-13.2. This document is all you (or Copilot) will ever need—no further instruction required.

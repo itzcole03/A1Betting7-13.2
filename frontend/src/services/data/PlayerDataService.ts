@@ -125,10 +125,27 @@ export class PlayerDataService {
   private readonly SEARCH_CACHE_TTL = 2 * 60 * 1000; // 2 minutes
 
   private constructor() {
-    this.logger = UnifiedLogger.getInstance();
-    this.cache = UnifiedCache.getInstance();
-    this.apiService = ApiServiceClass.getInstance();
-    this.errorService = UnifiedErrorService.getInstance();
+    try {
+      console.log('[PlayerDataService] Initializing PlayerDataService...');
+      this.logger = UnifiedLogger.getInstance();
+      this.cache = UnifiedCache.getInstance();
+      this.apiService = ApiServiceClass.getInstance();
+      this.errorService = UnifiedErrorService.getInstance();
+      console.log('[PlayerDataService] PlayerDataService initialized successfully');
+    } catch (error) {
+      console.error('[PlayerDataService] Error during initialization:', error);
+
+      // Check if this is the "item is not defined" error
+      if (error instanceof ReferenceError && error.message.includes('item')) {
+        console.error('[PlayerDataService] ReferenceError during initialization:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
+      }
+
+      throw error;
+    }
   }
 
   static getInstance(): PlayerDataService {
@@ -390,11 +407,12 @@ export class PlayerDataService {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      // Test basic API connectivity
-      await this.apiService.get('/api/v2/health');
+      // Test basic API connectivity with shorter timeout
+      await this.apiService.get('/api/v2/health', { timeout: 5000 });
       return true;
     } catch (error) {
-      // this.logger.error('PlayerDataService', 'Health check failed', error as Error);
+      // Health check failures are non-critical, log as warning
+      this.logger.warn('PlayerDataService', 'Health check failed (non-critical)', error as Error);
       return false;
     }
   }

@@ -1,18 +1,22 @@
-# Sport-by-Sport Automation Scripts
+# Automation Scripts
 
-This directory contains automation scripts for ETL, feature engineering, model training, evaluation, and deployment for each sport (MLB, NBA, etc.).
+This directory contains example automation scripts for each stage of the sport-by-sport pipeline in A1Betting7-13.2.
+
+## Scripts
+
+- `etl_run.py`: Runs ETL for a given sport, logs results.
+- `feature_engineering.py`: Extracts/transforms features, logs stats/anomalies.
+- `train_model.py`: Retrains model, runs validation/backtests, logs metrics.
+- `deploy_model.py`: Deploys model to API endpoint, runs smoke tests.
+- `monitor_pipeline.py`: Monitors pipeline health, sends alerts on failures/anomalies.
 
 ## Usage
 
-- `run_etl.sh <SPORT>`: Run ETL pipeline for the given sport (default: MLB)
-- `run_feature_engineering.sh <SPORT>`: Run feature engineering after ETL
-- `run_model_training.sh <SPORT>`: Run model training and evaluation
-- `run_deploy.sh <SPORT>`: Deploy updated models to API endpoints
+- Customize each script for your sport and pipeline requirements.
+- Integrate with Docker Compose and CI/CD for reproducible, automated workflows.
+- Use logging and monitoring to track pipeline health and performance.
 
-All logs are saved in `automation/logs/`.
+## Integration
 
-## Best Practices
-
-- Schedule these scripts via cron, Airflow, or CI/CD for full automation.
-- Monitor logs and set up alerts for failures or anomalies.
-- Update and document scripts as new sports are added.
+- Reference these scripts in `AUTOMATION_GUIDE.md` and your CI/CD workflows.
+- Add sport-specific logic and alerting as needed.

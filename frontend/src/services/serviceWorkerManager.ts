@@ -128,8 +128,14 @@ class ServiceWorkerManager {
     // Check if sync is supported
     if ('sync' in registration) {
       try {
-        (registration as any).sync.register('analytics-sync');
-        console.log('[ServiceWorker] Background sync enabled');
+        // Add error handling for sync registration
+        const syncManager = (registration as any).sync;
+        if (syncManager && typeof syncManager.register === 'function') {
+          syncManager.register('analytics-sync').catch((error: any) => {
+            console.log('[ServiceWorker] Sync registration failed:', error);
+          });
+          console.log('[ServiceWorker] Background sync enabled');
+        }
       } catch (error) {
         console.log('[ServiceWorker] Background sync not available:', error);
       }

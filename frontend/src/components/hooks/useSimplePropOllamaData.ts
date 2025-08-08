@@ -65,7 +65,9 @@ export function useSimplePropOllamaData({ state, actions }: UseSimplePropOllamaD
   // Effect to trigger data fetching when sport changes
   useEffect(() => {
     console.log('[useSimplePropOllamaData] Sport changed to:', state.filters.selectedSport);
-    fetchData();
+    fetchData().catch(error => {
+      console.error('[useSimplePropOllamaData] useEffect fetchData failed:', error);
+    });
   }, [state.filters.selectedSport, fetchData]);
 
   return {

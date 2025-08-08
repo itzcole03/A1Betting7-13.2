@@ -44,7 +44,11 @@ const SimplePropOllamaDebugContainer: React.FC = () => {
 
       {/* Manual Fetch Button */}
       <button
-        onClick={fetchData}
+        onClick={() => {
+          fetchData().catch(error => {
+            console.error('[SimplePropOllamaDebugContainer] Manual fetch failed:', error);
+          });
+        }}
         disabled={state.isLoading}
         className='bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-600 text-white px-4 py-2 rounded mb-4'
       >

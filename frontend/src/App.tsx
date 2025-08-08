@@ -28,6 +28,32 @@ console.log(
   '[APP] Starting App.tsx rendering with React 19 features - Checking for module resolution issues'
 );
 
+// Global unhandled promise rejection handler
+window.addEventListener('unhandledrejection', (event) => {
+  const error = event.reason;
+
+  // Handle WebSocket errors specifically (non-critical)
+  if (error && typeof error.toString === 'function') {
+    const errorStr = error.toString();
+    if (errorStr.includes('WebSocket') || errorStr.includes('closed without opened')) {
+      console.warn('[Global] WebSocket connection error (non-critical):', error);
+      event.preventDefault();
+      return;
+    }
+  }
+
+  // Handle fetch failures from health checks (non-critical)
+  if (error && error.message && error.message.includes('Failed to fetch')) {
+    console.warn('[Global] Fetch error (likely health check, non-critical):', error);
+    event.preventDefault();
+    return;
+  }
+
+  // Log other unhandled promise rejections as errors
+  console.error('[Global] Unhandled promise rejection detected', error);
+  event.preventDefault();
+});
+
 // Lazy load components with performance tracking
 const LazyOnboardingFlow = createLazyComponent(
   () => import('./onboarding/OnboardingFlow').then(module => ({ default: module.OnboardingFlow })),
@@ -57,12 +83,17 @@ function App() {
   // Register service worker and check API version compatibility on app start
   useEffect(() => {
     console.log('[APP] Registering service worker with 2025 best practices');
-    serviceWorkerManager.register().then(registration => {
-      if (registration) {
-        console.log('[APP] Service worker registered successfully');
-        webVitalsService.trackCustomMetric('sw_registration', 1);
-      }
-    });
+    serviceWorkerManager.register()
+      .then(registration => {
+        if (registration) {
+          console.log('[APP] Service worker registered successfully');
+          webVitalsService.trackCustomMetric('sw_registration', 1);
+        }
+      })
+      .catch(error => {
+        console.error('[APP] Service worker registration failed:', error);
+      });
+
     // Check API version compatibility
     checkApiVersionCompatibility()
       .then(version => {

@@ -1,0 +1,28 @@
+
+---
+id: aibetreco
+title: AI Betting Recommendation Endpoint
+category: backend
+description: Generate a FastAPI betting recommendation endpoint with ML integration, robust validation, and tests.
+location: backend/app/api/endpoints/recommendations.py
+api_endpoint: /api/recommendations/predict
+response_model: BettingRecommendation
+tags: [fastapi, ml, backend, pydantic, testing]
+---
+# God Prompt: /aibetreco
+
+**Context:**
+-   **Goal:** Develop a new AI-driven betting recommendation endpoint in the backend.
+-   **Backend Location:** `backend/app/api/endpoints/recommendations.py`
+-   **ML Integration:** Utilize the existing ML ensemble. Assume a `ml_service.predict_betting_opportunity(data)` function exists (or suggest its creation) that returns a `BettingRecommendation` object (define Pydantic model for this).
+-   **Data Input:** Requires `game_id`, `player_id` (optional), `prop_type` (e.g., 'points', 'rebounds').
+-   **Output:** Return a `BettingRecommendation` Pydantic model including recommended prop, confidence score, and brief AI reasoning (if available from ML service).
+-   **Requirements:**
+    -   Define a FastAPI `POST` endpoint `/api/recommendations/predict` with robust request validation using Pydantic models.
+    -   Implement the logic to call the `ml_service` for predictions, ensuring efficient data passing and minimal latency.
+    -   Handle potential errors from the ML service or data processing gracefully, returning appropriate HTTP responses.
+    -   Ensure the endpoint is optimized for response time (<500ms for heavy operations, <200ms for standard).
+    -   Add comprehensive unit and integration tests for the endpoint, including mocking the ML service and data inputs.
+
+**Task:**
+Generate the FastAPI endpoint, Pydantic models for request/response, and integrate with the ML service. Focus on robust error handling, data validation, performance, and clear API design that aligns with the A1Betting backend architecture. Consider how this endpoint will be consumed by the frontend.

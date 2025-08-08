@@ -1,0 +1,28 @@
+
+---
+id: playerdash
+title: Player Dashboard Component
+category: frontend
+description: Implement a player statistics dashboard in the frontend with rich data visualization and backend integration.
+location: frontend/src/components/PlayerDashboard.tsx
+api_endpoint: /api/player/{playerId}/performance
+response_model: PlayerPerformanceData
+tags: [react, frontend, dashboard, data-visualization, testing]
+---
+# God Prompt: /playerdash
+
+**Context:**
+-   **Goal:** Implement a new player statistics dashboard component in the frontend.
+-   **Frontend Location:** `frontend/src/components/PlayerDashboard.tsx`
+-   **Backend API:** Expects data from `/api/player/{playerId}/performance` (returns `PlayerPerformanceData` interface, define if not exists).
+-   **Design Inspiration:** PropFinder's Player Dashboard (focus on clear trends, matchup analysis, advanced stats visualization, user-friendly layout).
+-   **Requirements:**
+    -   Display player name, team, and position prominently.
+    -   Show recent game logs (last 5-10 games) with key stats (points, rebounds, assists, etc.) in a clear, sortable table.
+    -   Include interactive charts (e.g., line chart, bar chart) visualizing selected stat trends over recent games. Allow dynamic selection of stats.
+    -   Ensure the component is highly responsive and integrates seamlessly with existing A1Betting frontend styles and component library.
+    -   Implement efficient data fetching from the backend API, including loading states and error handling.
+    -   Write comprehensive unit and integration tests for data fetching, component rendering, and user interactions.
+
+**Task:**
+Generate the React TypeScript functional component `PlayerDashboard`. Focus on robust data fetching, intuitive UI/UX for data presentation, and adherence to the A1Betting architectural patterns for frontend-backend communication. Include necessary imports, type definitions, and placeholder for API calls.

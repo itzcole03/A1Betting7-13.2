@@ -345,3 +345,41 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Built with ❤️ by the PropOllama Team**
 
 _Last Updated: August 2025_
+
+# 🚦 Workflow & Coding Guidelines
+
+This project uses strict workflow and coding guidelines for all development and automation agents. For full details, see `.github/instructions/copilot-instructions.md`.
+
+## Project Context & Coding Guidelines
+
+- **Directory Discipline:** Always run backend commands from the project root, and frontend commands from the `frontend/` subdirectory. Never violate this rule.
+- **Unified Services:** Use unified backend services (`unified_data_fetcher`, `unified_cache_service`, etc.) for all new features and integrations.
+- **Frontend Service Registry:** Access all frontend services via `MasterServiceRegistry.getInstance().getService('data')`.
+- **Modular Architecture:** Use container/component patterns, extract state to hooks, and virtualize lists >100 items.
+- **ML/LLM Integration:** Use try/except import patterns for robust fallback if dependencies are missing.
+- **Testing:** Backend uses `pytest`, Alembic; frontend uses Jest, Playwright, ESLint, Prettier, type-check.
+- **Performance:** Use virtualization for large datasets, structured logging, and unified error handling.
+- **Enterprise Prop Generation:** Use `ComprehensivePropGenerator` and `/mlb/comprehensive-props/{game_id}?optimize_performance=true`.
+- **Monitoring:** Integrate health checks and performance monitoring in all services.
+- **TypeScript Compliance:** Use explicit type definitions, local interfaces, and proper type guards.
+
+## Workflow Checklist
+
+```markdown
+- [ ] Run backend commands from project root (`A1Betting7-13.2/`)
+- [ ] Run frontend commands from `frontend/` subdirectory
+- [ ] Use unified backend services for all new features
+- [ ] Access frontend services via `MasterServiceRegistry`
+- [ ] Use modular container/component architecture
+- [ ] Extract state to dedicated hooks
+- [ ] Virtualize lists >100 items
+- [ ] Use try/except import patterns for ML/LLM integration
+- [ ] Use `ComprehensivePropGenerator` for prop generation
+- [ ] Integrate health checks and performance monitoring
+- [ ] Use explicit TypeScript types and interfaces
+- [ ] Run backend tests with `pytest`, Alembic
+- [ ] Run frontend tests with Jest, Playwright, ESLint, Prettier, type-check
+- [ ] Use structured logging and unified error handling
+```
+
+For more details, see `.github/instructions/copilot-instructions.md` and `.github/instructions/setup.instructions.instructions.md`.

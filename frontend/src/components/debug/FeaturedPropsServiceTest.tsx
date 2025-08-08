@@ -100,7 +100,13 @@ const FeaturedPropsServiceTest: React.FC = () => {
 
   useEffect(() => {
     // Auto-run tests on component mount with delay
-    setTimeout(runServiceTests, 2000);
+    const timeoutId = setTimeout(() => {
+      runServiceTests().catch(error => {
+        console.error('[FeaturedPropsServiceTest] Auto-run failed:', error);
+      });
+    }, 2000);
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (

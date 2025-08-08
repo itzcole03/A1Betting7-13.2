@@ -31,6 +31,9 @@ const PropOllamaContainer: React.FC = () => {
       .then(response => response.json())
       .then(data => {
         console.error('[PropOllamaContainer] *** TEST CALL SUCCESS ***', data);
+      })
+      .catch(error => {
+        console.error('[PropOllamaContainer] *** TEST CALL FAILED ***', error);
       });
   }, []);
 

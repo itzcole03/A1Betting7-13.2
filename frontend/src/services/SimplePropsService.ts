@@ -39,15 +39,15 @@ export async function fetchPropsSimple(
       options,
     });
 
-    // Direct API call without any managers or services
+    // Use proxy paths instead of direct localhost to avoid CORS issues
     let endpoint = '';
     const params = new URLSearchParams();
 
     if (sport === 'MLB') {
-      endpoint = 'http://localhost:8000/mlb/odds-comparison/';
+      endpoint = '/mlb/odds-comparison/';
       params.append('market_type', marketType === 'player' ? 'playerprops' : 'regular');
     } else {
-      endpoint = `http://localhost:8000/api/props/${sport || 'general'}`;
+      endpoint = `/api/props/${sport || 'general'}`;
       params.append('market_type', marketType === 'player' ? 'playerprops' : 'regular');
     }
 

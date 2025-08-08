@@ -128,6 +128,16 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
       setLastError('WebSocket connection error');
       if (verboseLogging)
         console.warn(`[WebSocket] Connection error (non-critical, app will continue):`, error);
+
+      // Handle WebSocket errors gracefully to prevent unhandled promise rejections
+      try {
+        if (_ws.readyState === WebSocket.CONNECTING) {
+          // Close the connection if it's still trying to connect
+          _ws.close();
+        }
+      } catch (closeError) {
+        console.warn('[WebSocket] Error during cleanup:', closeError);
+      }
     };
 
     _ws.onmessage = event => {

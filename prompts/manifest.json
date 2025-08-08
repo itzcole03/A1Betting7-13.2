@@ -1,0 +1,48 @@
+[
+  {
+    "id": "aibetreco",
+    "title": "AI Betting Recommendation Endpoint",
+    "category": "backend",
+    "description": "Generate a FastAPI betting recommendation endpoint with ML integration, robust validation, and tests.",
+    "location": "backend/app/api/endpoints/recommendations.py",
+    "api_endpoint": "/api/recommendations/predict",
+    "response_model": "BettingRecommendation",
+    "tags": ["fastapi", "ml", "backend", "pydantic", "testing"],
+    "filename": "aibetreco.prompt"
+  },
+  {
+    "id": "dataingest",
+    "title": "Data Ingestion Optimization",
+    "category": "backend",
+    "description": "Optimize real-time data ingestion from TheOdds API with timeouts, circuit breaker, logging, and monitoring.",
+    "location": "backend/app/services/data_ingestion.py",
+    "tags": ["data-ingestion", "backend", "api", "reliability", "monitoring"],
+    "filename": "dataingest.prompt"
+  },
+  {
+    "id": "mobileref",
+    "title": "Mobile Refactor (React Native)",
+    "category": "frontend",
+    "description": "Refactor SharedStatDisplay.tsx for React Native/mobile compatibility, abstracting platform-specific logic.",
+    "location": "frontend/src/components/SharedStatDisplay.tsx",
+    "tags": [
+      "react-native",
+      "frontend",
+      "refactor",
+      "mobile",
+      "cross-platform"
+    ],
+    "filename": "mobileref.prompt"
+  },
+  {
+    "id": "playerdash",
+    "title": "Player Dashboard Component",
+    "category": "frontend",
+    "description": "Implement a player statistics dashboard in the frontend with rich data visualization and backend integration.",
+    "location": "frontend/src/components/PlayerDashboard.tsx",
+    "api_endpoint": "/api/player/{playerId}/performance",
+    "response_model": "PlayerPerformanceData",
+    "tags": ["react", "frontend", "dashboard", "data-visualization", "testing"],
+    "filename": "playerdash.prompt"
+  }
+]

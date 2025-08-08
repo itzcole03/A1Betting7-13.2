@@ -1,0 +1,17 @@
+# God Prompt: /mobileref
+
+**Context:**
+-   **Goal:** Refactor a core frontend component for optimal mobile app compatibility (React Native).
+-   **Target File:** `frontend/src/components/SharedStatDisplay.tsx` (a generic component displaying a single statistic, representative of components needing cross-platform adaptation).
+-   **Overall Objective:** Prepare A1Betting for a future React Native mobile application, ensuring core UI logic is easily portable.
+-   **Requirements:**
+    -   Eliminate all direct DOM manipulation (e.g., `document.getElementById`, `window` object usage) and replace with React-idiomatic approaches.
+    -   Refactor styling to use platform-agnostic methods (e.g., inline styles, CSS-in-JS solutions that compile to React Native styles, or a design system that supports both web and native).
+    -   Strictly separate presentation logic from business logic and data fetching concerns.
+    -   Adhere to standard React patterns (functional components, hooks) that are compatible with React Native.
+    -   Consider how user interactions (gestures, touch events) would replace traditional mouse events and suggest appropriate abstractions.
+    -   Identify and comment on any remaining web-specific dependencies or APIs that would require native module development in React Native.
+
+**Task:**
+Review and refactor `SharedStatDisplay.tsx` to maximize its compatibility with React Native. Focus on abstracting platform-specific elements, promoting reusable logic, and providing clear comments on the path to full React Native portability. Ensure the refactored component still functions correctly within the existing Electron/web frontend.
+
