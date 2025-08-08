@@ -233,8 +233,8 @@ export function logSuppressedErrorStats() {
   }
 }
 
-// Auto-initialize in development - TEMPORARILY DISABLED FOR DEBUGGING
-if (false && import.meta.env.DEV) {
+// Auto-initialize in development
+if (import.meta.env.DEV) {
   initializeConsoleErrorSuppression();
 
   // Log stats every 30 seconds in development
