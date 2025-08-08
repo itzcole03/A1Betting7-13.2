@@ -38,36 +38,69 @@ export class BackendHealthChecker {
 
     logger.info('[BackendHealth] Checking backend connectivity...');
 
-    // Try common backend configurations
-    const testCases = [
-      { port: 8000, endpoint: '/api/health' },
-      { port: 8000, endpoint: '/health' },
-      { port: 8001, endpoint: '/api/health' },
-      { port: 8001, endpoint: '/health' },
-      { port: 3000, endpoint: '/api/health' },
-      { port: 3000, endpoint: '/health' },
-      { port: 5000, endpoint: '/api/health' },
-      { port: 5000, endpoint: '/health' },
-    ];
+    // In cloud environment, we can only test same-origin endpoints
+    const isCloudEnvironment = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
 
-    for (const testCase of testCases) {
-      try {
-        const result = await this.testEndpoint(testCase.endpoint, testCase.port);
-        if (result.isHealthy) {
-          this.setCachedResult(cacheKey, result);
-          logger.info('[BackendHealth] Backend found and healthy', {
+    if (isCloudEnvironment) {
+      // Only test proxy endpoints in cloud environment
+      const testCases = [
+        { endpoint: '/api/health' },
+        { endpoint: '/health' },
+        { endpoint: '/api/v1/cheatsheets/health' },
+      ];
+
+      for (const testCase of testCases) {
+        try {
+          const result = await this.testEndpoint(testCase.endpoint);
+          if (result.isHealthy) {
+            this.setCachedResult(cacheKey, result);
+            logger.info('[BackendHealth] Backend found and healthy (via proxy)', {
+              endpoint: testCase.endpoint,
+              responseTime: result.responseTime
+            });
+            return result;
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          logger.debug('[BackendHealth] Test failed', {
+            endpoint: testCase.endpoint,
+            error: errorMessage
+          });
+        }
+      }
+    } else {
+      // Local development - test multiple ports
+      const testCases = [
+        { port: 8000, endpoint: '/api/health' },
+        { port: 8000, endpoint: '/health' },
+        { port: 8001, endpoint: '/api/health' },
+        { port: 8001, endpoint: '/health' },
+        { port: 3000, endpoint: '/api/health' },
+        { port: 3000, endpoint: '/health' },
+        { port: 5000, endpoint: '/api/health' },
+        { port: 5000, endpoint: '/health' },
+      ];
+
+      for (const testCase of testCases) {
+        try {
+          const result = await this.testEndpoint(testCase.endpoint, testCase.port);
+          if (result.isHealthy) {
+            this.setCachedResult(cacheKey, result);
+            logger.info('[BackendHealth] Backend found and healthy', {
+              port: testCase.port,
+              endpoint: testCase.endpoint,
+              responseTime: result.responseTime
+            });
+            return result;
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          logger.debug('[BackendHealth] Test failed', {
             port: testCase.port,
             endpoint: testCase.endpoint,
-            responseTime: result.responseTime
+            error: errorMessage
           });
-          return result;
         }
-      } catch (error) {
-        logger.debug('[BackendHealth] Test failed', {
-          port: testCase.port,
-          endpoint: testCase.endpoint,
-          error: error.message
-        });
       }
     }
 
@@ -75,7 +108,9 @@ export class BackendHealthChecker {
     const failureResult: BackendHealthInfo = {
       isHealthy: false,
       responseTime: 0,
-      error: 'No backend found on common ports (8000, 8001, 3000, 5000)'
+      error: isCloudEnvironment
+        ? 'Backend not responding via proxy - check if backend is connected to this cloud environment'
+        : 'No backend found on common ports (8000, 8001, 3000, 5000)'
     };
 
     this.setCachedResult(cacheKey, failureResult);
