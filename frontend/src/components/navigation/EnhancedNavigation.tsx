@@ -197,6 +197,16 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       description: 'Detailed performance analytics',
       category: 'analytics',
     },
+    {
+      id: 'propfinder-comparison',
+      name: 'vs PropFinder',
+      href: '/comparison',
+      icon: Star,
+      badge: 'NEW',
+      description: '4x faster, free forever comparison',
+      category: 'main',
+      isNew: true,
+    },
   ];
 
   const categories = [
