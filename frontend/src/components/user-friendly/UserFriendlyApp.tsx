@@ -25,8 +25,6 @@ const KellyCalculator = React.lazy(() => import('../features/risk/KellyCalculato
 const PropFinderCompetitorDashboard = React.lazy(() => import('../welcome/PropFinderCompetitorDashboard'));
 
 const UserFriendlyApp: React.FC = () => {
-  console.count('[UserFriendlyApp] RENDER');
-  console.log('[UserFriendlyApp] Rendering on path:', window.location.pathname);
   const location = useLocation();
   const [navigationOpen, setNavigationOpen] = useState(false);
   const [useOptimizedMode, setUseOptimizedMode] = useState(false);
