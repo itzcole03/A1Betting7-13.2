@@ -123,8 +123,17 @@ export const CheatsheetsDashboard: React.FC = () => {
       });
 
     } catch (err) {
-      console.error('[CheatsheetsDashboard] Service failed:', err);
-      setError(`Service error: ${err.message}`);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error('[CheatsheetsDashboard] Service failed:', errorMessage);
+
+      const isCloudEnvironment = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+      if (isCloudEnvironment) {
+        setError('Using demo data - Backend not connected to cloud environment');
+      } else {
+        setError(`Service error: ${errorMessage}`);
+      }
+
       setApiHealth(false);
       setDataSource('fallback');
 
