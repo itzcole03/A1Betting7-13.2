@@ -38,6 +38,13 @@ const UserFriendlyApp: React.FC = () => {
       badge: null
     },
     {
+      name: 'Bet Tracking',
+      href: '/tracking',
+      icon: Activity,
+      current: location.pathname.startsWith('/tracking'),
+      badge: 'NEW'
+    },
+    {
       name: 'Odds Comparison',
       href: '/odds-comparison',
       icon: TrendingUp,
