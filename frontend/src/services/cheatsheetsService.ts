@@ -293,7 +293,7 @@ class CheatsheetsService {
     const books = ['DraftKings', 'FanDuel', 'BetMGM', 'Caesars', 'BetRivers'];
     const teams = ['NYY', 'LAD', 'ATL', 'SD', 'BOS', 'SF', 'NYM', 'LAA'];
 
-    logger.info('[CheatsheetsService] Generating fallback data - API unavailable');
+    logger.info('Generating fallback data - API unavailable', undefined, 'CheatsheetsService');
 
     const opportunities: PropOpportunity[] = [];
     
