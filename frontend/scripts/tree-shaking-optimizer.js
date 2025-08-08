@@ -451,11 +451,11 @@ async function analyzeTreeShaking() {
 }
 
 // Run the analysis
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   analyzeTreeShaking().catch(error => {
     console.error('❌ Tree shaking analysis failed:', error);
     process.exit(1);
   });
 }
 
-module.exports = { analyzeTreeShaking };
+export { analyzeTreeShaking };
