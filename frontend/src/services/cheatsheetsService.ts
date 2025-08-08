@@ -104,8 +104,9 @@ class CheatsheetsService {
 
       return data;
     } catch (error) {
-      logger.error('[CheatsheetsService] Failed to fetch opportunities', { 
-        error: error.message,
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error('[CheatsheetsService] Failed to fetch opportunities', {
+        error: errorMessage,
         filters,
         duration: Date.now() - startTime
       });
