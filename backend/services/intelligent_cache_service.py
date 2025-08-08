@@ -268,6 +268,260 @@ class IntelligentCacheService:
             logger.error(f"❌ Pattern invalidation error for {pattern}", exc_info=e)
             return 0
 
+    async def set_sport_data(
+        self,
+        sport: str,
+        data_category: str,
+        key: str,
+        value: Any,
+        game_id: str = None,
+        user_id: str = None,
+        base_ttl: int = None
+    ) -> bool:
+        """Set sport data with intelligent TTL based on volatility models"""
+        try:
+            from backend.services.sport_volatility_models import sport_volatility_models, SportType, DataCategory
+
+            # Convert strings to enums
+            sport_enum = SportType(sport.lower()) if sport else None
+            category_enum = None
+
+            # Map data category string to enum
+            category_mapping = {
+                'live_scores': DataCategory.LIVE_SCORES,
+                'live_odds': DataCategory.LIVE_ODDS,
+                'pre_game_odds': DataCategory.PRE_GAME_ODDS,
+                'player_stats': DataCategory.PLAYER_STATS,
+                'team_stats': DataCategory.TEAM_STATS,
+                'injury_reports': DataCategory.INJURY_REPORTS,
+                'game_schedules': DataCategory.GAME_SCHEDULES,
+                'player_props': DataCategory.PLAYER_PROPS,
+                'news_updates': DataCategory.NEWS_UPDATES
+            }
+
+            category_enum = category_mapping.get(data_category.lower())
+
+            if sport_enum and category_enum:
+                # Get dynamic TTL from volatility model
+                access_count = 1
+                if key in self.access_patterns:
+                    access_count = self.access_patterns[key].access_frequency
+
+                dynamic_ttl = await sport_volatility_models.get_dynamic_ttl(
+                    sport=sport_enum,
+                    data_category=category_enum,
+                    game_id=game_id,
+                    user_id=user_id,
+                    access_count=access_count
+                )
+
+                # Track user access
+                if user_id:
+                    await sport_volatility_models.track_user_access(user_id, sport_enum, category_enum)
+
+                # Use the dynamic TTL
+                ttl_to_use = dynamic_ttl
+
+                logger.debug(f"🎯 Sport-aware cache set: {key} with TTL {ttl_to_use}s ({sport}:{data_category})")
+
+            else:
+                # Fallback to base TTL if provided, otherwise default
+                ttl_to_use = base_ttl if base_ttl else 3600
+                logger.debug(f"⚠️ Using fallback TTL {ttl_to_use}s for {key}")
+
+            # Set with calculated TTL
+            return await self.set(
+                key=key,
+                value=value,
+                ttl_seconds=ttl_to_use,
+                user_context=user_id
+            )
+
+        except Exception as e:
+            logger.error(f"❌ Error in sport-aware cache set: {e}")
+            # Fallback to regular set
+            return await self.set(key, value, base_ttl or 3600)
+
+    async def get_sport_data(
+        self,
+        sport: str,
+        data_category: str,
+        key: str,
+        user_id: str = None,
+        default: Any = None
+    ) -> Any:
+        """Get sport data with user tracking for volatility optimization"""
+        try:
+            from backend.services.sport_volatility_models import sport_volatility_models, SportType, DataCategory
+
+            # Get the data
+            result = await self.get(key, default, user_context=user_id)
+
+            # Track access for volatility modeling
+            try:
+                sport_enum = SportType(sport.lower()) if sport else None
+                category_mapping = {
+                    'live_scores': DataCategory.LIVE_SCORES,
+                    'live_odds': DataCategory.LIVE_ODDS,
+                    'pre_game_odds': DataCategory.PRE_GAME_ODDS,
+                    'player_stats': DataCategory.PLAYER_STATS,
+                    'team_stats': DataCategory.TEAM_STATS,
+                    'injury_reports': DataCategory.INJURY_REPORTS,
+                    'game_schedules': DataCategory.GAME_SCHEDULES,
+                    'player_props': DataCategory.PLAYER_PROPS,
+                    'news_updates': DataCategory.NEWS_UPDATES
+                }
+                category_enum = category_mapping.get(data_category.lower())
+
+                if sport_enum and category_enum and user_id:
+                    await sport_volatility_models.track_user_access(user_id, sport_enum, category_enum)
+
+            except Exception as e:
+                logger.debug(f"⚠️ Error tracking sport data access: {e}")
+
+            return result
+
+        except Exception as e:
+            logger.error(f"❌ Error in sport-aware cache get: {e}")
+            return await self.get(key, default)
+
+    async def warm_sport_cache(self, sport: str, priority_data: List[str] = None) -> int:
+        """Warm cache for sport-specific data based on volatility priorities"""
+        try:
+            from backend.services.sport_volatility_models import sport_volatility_models, SportType
+
+            sport_enum = SportType(sport.lower()) if sport else None
+            if not sport_enum:
+                logger.warning(f"⚠️ Unknown sport for cache warming: {sport}")
+                return 0
+
+            # Get cache warming priorities
+            priorities = await sport_volatility_models.get_cache_warming_priorities(sport_enum)
+
+            warming_count = 0
+
+            # Focus on high-priority data categories
+            for data_category, priority_score in priorities[:5]:  # Top 5 priorities
+                try:
+                    # Generate cache warming patterns for this data category
+                    patterns = self._generate_warming_patterns(sport, data_category.value)
+
+                    if patterns:
+                        # Create a dummy data fetcher for warming
+                        async def sport_data_fetcher(pattern):
+                            # In production, this would fetch actual data
+                            # For now, return None to indicate warming attempt
+                            return None
+
+                        await self.warm_cache(
+                            patterns=patterns,
+                            data_fetcher=sport_data_fetcher,
+                            priority="high" if priority_score > 100 else "normal"
+                        )
+
+                        warming_count += len(patterns)
+
+                except Exception as e:
+                    logger.error(f"❌ Error warming cache for {data_category.value}: {e}")
+
+            logger.info(f"🔥 Warmed {warming_count} cache patterns for {sport}")
+            return warming_count
+
+        except Exception as e:
+            logger.error(f"❌ Error in sport cache warming: {e}")
+            return 0
+
+    def _generate_warming_patterns(self, sport: str, data_category: str) -> List[str]:
+        """Generate cache key patterns for warming based on sport and data category"""
+        patterns = []
+
+        base_patterns = {
+            'live_scores': [
+                f"sportradar_live_{sport}",
+                f"{sport}_live_games",
+                f"live_scores_{sport}_today"
+            ],
+            'live_odds': [
+                f"odds_live_{sport}",
+                f"{sport}_live_betting",
+                f"live_odds_{sport}_games"
+            ],
+            'player_stats': [
+                f"player_stats_{sport}_*",
+                f"{sport}_player_profiles_*",
+                f"stats_{sport}_players_*"
+            ],
+            'injury_reports': [
+                f"injuries_{sport}",
+                f"{sport}_injury_report",
+                f"injury_updates_{sport}"
+            ],
+            'game_schedules': [
+                f"schedule_{sport}",
+                f"{sport}_upcoming_games",
+                f"games_{sport}_schedule"
+            ]
+        }
+
+        return base_patterns.get(data_category, [f"{sport}_{data_category}"])
+
+    async def get_sport_cache_metrics(self) -> Dict[str, Any]:
+        """Get sport-specific cache metrics and volatility insights"""
+        try:
+            from backend.services.sport_volatility_models import sport_volatility_models
+
+            # Get basic cache metrics
+            base_metrics = await self.get_metrics()
+
+            # Get volatility model summary
+            volatility_summary = sport_volatility_models.get_volatility_summary()
+
+            # Analyze cache keys by sport
+            sport_analysis = {}
+            for key in list(self.access_patterns.keys())[:100]:  # Sample first 100 keys
+                sport_type, data_category, user_id = self._parse_cache_key_for_volatility(key)
+
+                if sport_type:
+                    sport_name = sport_type.value
+                    if sport_name not in sport_analysis:
+                        sport_analysis[sport_name] = {
+                            "total_keys": 0,
+                            "categories": {},
+                            "avg_access_frequency": 0,
+                            "total_accesses": 0
+                        }
+
+                    sport_analysis[sport_name]["total_keys"] += 1
+
+                    if data_category:
+                        category_name = data_category.value
+                        if category_name not in sport_analysis[sport_name]["categories"]:
+                            sport_analysis[sport_name]["categories"][category_name] = 0
+                        sport_analysis[sport_name]["categories"][category_name] += 1
+
+                    # Add access frequency
+                    pattern = self.access_patterns[key]
+                    sport_analysis[sport_name]["total_accesses"] += pattern.access_frequency
+
+            # Calculate averages
+            for sport_data in sport_analysis.values():
+                if sport_data["total_keys"] > 0:
+                    sport_data["avg_access_frequency"] = (
+                        sport_data["total_accesses"] / sport_data["total_keys"]
+                    )
+
+            return {
+                "base_metrics": asdict(base_metrics),
+                "volatility_models": volatility_summary,
+                "sport_analysis": sport_analysis,
+                "total_sport_aware_keys": sum(s["total_keys"] for s in sport_analysis.values()),
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+
+        except Exception as e:
+            logger.error(f"❌ Error getting sport cache metrics: {e}")
+            return {"error": str(e)}
+
     async def get_metrics(self) -> CacheMetrics:
         """Get current cache performance metrics"""
         # Calculate hit rate
