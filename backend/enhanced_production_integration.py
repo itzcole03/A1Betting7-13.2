@@ -575,6 +575,17 @@ class EnhancedProductionApp:
                         "Error shutting down intelligent cache: %s", str(e)
                     )
 
+                # Shutdown notification service
+                try:
+                    from .services.realtime_notification_service import notification_service
+
+                    await notification_service.shutdown()
+                    shutdown_tasks.append("notification_service")
+                except Exception as e:
+                    self.logger.warning(
+                        "Error shutting down notification service: %s", str(e)
+                    )
+
                 # Shutdown core services
                 if SPORTS_INIT_AVAILABLE:
                     await shutdown_sports_services()
