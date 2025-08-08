@@ -17,11 +17,15 @@
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
+import { fileURLToPath } from 'url';
+
 const readFile = promisify(fs.readFile);
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
 
 // Configuration
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const SRC_DIR = path.join(__dirname, '..', 'src');
 const REPORTS_DIR = path.join(__dirname, '..', 'reports');
 const EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx'];
