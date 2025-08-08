@@ -69,10 +69,10 @@ class CheatsheetsService {
     // Check cache first for fast response
     const cached = this.getCachedData(cacheKey);
     if (cached) {
-      logger.info('[CheatsheetsService] Cache hit', { 
-        cacheKey, 
-        age: Date.now() - cached.timestamp 
-      });
+      logger.info('Cache hit', {
+        cacheKey,
+        age: Date.now() - cached.timestamp
+      }, 'CheatsheetsService');
       return cached.data;
     }
 
