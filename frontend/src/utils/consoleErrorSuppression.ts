@@ -219,6 +219,7 @@ export function initializeConsoleErrorSuppression() {
     // Override console methods
     console.error = enhancedConsoleError;
     console.warn = enhancedConsoleWarn;
+    console.log = enhancedConsoleLog;
     
     // Add global error handler for unhandled promise rejections
     window.addEventListener('unhandledrejection', (event) => {
