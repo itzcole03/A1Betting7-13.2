@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App'; // Change to import the correct App component
 import { logger } from './utils/logger';
 import './utils/tracing';
+import './utils/consoleErrorSuppression'; // Initialize console error filtering
 
 // Import Builder.io registry to register components
 import '../builder-registry';
