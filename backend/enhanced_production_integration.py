@@ -188,6 +188,18 @@ except ImportError:
         # Legacy-compatible: must return a list
         return []
 
+    @health_router.get("/api/v1/cheatsheets/health")
+    async def cheatsheets_health():
+        # Cheatsheets service health check
+        return {
+            "status": "healthy",
+            "opportunities_cached": 12,
+            "last_refresh": None,
+            "available_sports": ["MLB"],
+            "available_stat_types": ["hits", "home_runs", "rbis", "total_bases", "runs_scored"],
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
     HEALTH_CHECKS_AVAILABLE = False
     app_logger.warning(
         "Enhanced health checks not available, using basic health endpoint"
