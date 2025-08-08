@@ -19,6 +19,7 @@ import {
   WifiOff
 } from 'lucide-react';
 import { cheatsheetsService, type PropOpportunity, type CheatsheetFilters as ServiceFilters } from '../../../services/cheatsheetsService';
+import BackendConnectionTest from '../../debug/BackendConnectionTest';
 
 interface CheatsheetFilters {
   minEdge: number;
