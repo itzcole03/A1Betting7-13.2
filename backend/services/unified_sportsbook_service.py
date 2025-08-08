@@ -136,10 +136,14 @@ class UnifiedSportsbookService:
         
         self.max_concurrent_requests = max_concurrent_requests
         self.timeout_seconds = timeout_seconds
-        
+        self.enable_notifications = enable_notifications
+
         # Initialize API clients
         self.clients = {}
         self._init_clients()
+
+        # Previous odds cache for change detection
+        self.previous_odds_cache = {}
         
         # Performance tracking
         self.performance_stats = {
