@@ -105,10 +105,10 @@ class CheatsheetsService {
       return data;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error('[CheatsheetsService] Failed to fetch opportunities', {
-        error: errorMessage,
+      logger.error('[CheatsheetsService] Failed to fetch opportunities', errorMessage, {
         filters,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
+        stack: error instanceof Error ? error.stack : undefined
       });
       
       // Return fallback data instead of throwing
