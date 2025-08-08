@@ -145,9 +145,19 @@ export const CheatsheetsDashboard: React.FC = () => {
       try {
         const diagnostics = await cheatsheetsService.getDiagnosticInfo();
         const suggestions = diagnostics.suggestions.join('. ');
-        setError(`Backend connectivity issue: ${suggestions}`);
+
+        // Check if we're in a cloud environment
+        const isCloudEnvironment = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+        if (isCloudEnvironment) {
+          setError('Using demo data - Backend connection not available in cloud environment. For live data, run locally.');
+        } else {
+          setError(`Backend connectivity issue: ${suggestions}`);
+        }
       } catch (diagError) {
-        setError('Backend not responding - check if backend is running on port 8000');
+        const errorMessage = diagError instanceof Error ? diagError.message : String(diagError);
+        console.warn('[CheatsheetsDashboard] Diagnostic error:', errorMessage);
+        setError('Backend not responding - using demo data');
       }
     }
 
