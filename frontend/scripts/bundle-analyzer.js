@@ -128,7 +128,22 @@ async function analyzeJavaScriptChunks() {
  */
 async function analyzeCSSAssets() {
   try {
-    const files = await readdir(ASSETS_DIR);
+    let files = [];
+    let searchDir = ASSETS_DIR;
+
+    // Check if CSS files are in a separate css/ directory
+    if (fs.existsSync(CSS_DIR)) {
+      searchDir = CSS_DIR;
+      files = await readdir(CSS_DIR);
+    } else if (fs.existsSync(ASSETS_DIR)) {
+      searchDir = ASSETS_DIR;
+      files = await readdir(ASSETS_DIR);
+    } else {
+      // Fallback: search in dist root
+      searchDir = DIST_DIR;
+      files = await readdir(DIST_DIR);
+    }
+
     const cssFiles = files.filter(file => file.endsWith('.css'));
     
     const assets = [];
