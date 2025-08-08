@@ -924,6 +924,15 @@ class EnhancedProductionApp:
             except Exception as e:
                 self.logger.warning(f"Could not include risk_tools_routes router: {str(e)}")
 
+            # Phase 2.2: Multiple Sportsbook Integration Routes
+            try:
+                from .routes.multiple_sportsbook_routes import router as sportsbook_router
+                self.app.include_router(sportsbook_router, tags=["Multiple Sportsbook"])
+                enhanced_routes.append("multiple_sportsbook")
+                self.logger.info("✅ Multiple sportsbook integration routes included")
+            except Exception as e:
+                self.logger.warning(f"Could not include multiple_sportsbook_routes router: {str(e)}")
+
             # NEW: Model Registry routes (ML Model Management)
             try:
                 from .routes.model_registry_routes import router as model_registry_router
