@@ -150,13 +150,19 @@ class EnhancedIntegrationManager:
 
     def _setup_realtime_quality_monitoring(self):
         """Set up real-time data quality monitoring for incoming data"""
-        
-        # Subscribe to Sportradar updates for quality monitoring
+
+        # Subscribe to Sportradar updates for quality monitoring and cache events
         async def sportradar_quality_callback(data):
             await self._monitor_incoming_data(DataSourceType.SPORTRADAR, data)
-        
+
+            # Emit cache invalidation events based on data updates
+            await self._emit_cache_events_from_data(DataSourceType.SPORTRADAR, data)
+
         for sport in self.active_sports:
             sportradar_service.subscribe_to_updates(sport, sportradar_quality_callback)
+
+        # Set up event-driven cache listeners
+        self._setup_cache_event_listeners()
 
     async def _monitor_incoming_data(self, data_source: DataSourceType, data: Dict[str, Any]):
         """Monitor incoming data for quality issues"""
