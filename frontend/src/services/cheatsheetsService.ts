@@ -131,7 +131,7 @@ class CheatsheetsService {
       return await response.json();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.warn('[CheatsheetsService] Failed to fetch summary', errorMessage);
+      logger.warn(`Failed to fetch summary: ${errorMessage}`, undefined, 'CheatsheetsService');
       return {
         total_opportunities: 0,
         avg_edge: 0,
