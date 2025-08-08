@@ -11,6 +11,7 @@ const ArbitrageOpportunities = React.lazy(
   () => import('../features/betting/ArbitrageOpportunities')
 );
 const PlayerDashboard = React.lazy(() => import('../player/PlayerDashboardWrapper'));
+const EnhancedPlayerDashboard = React.lazy(() => import('../player/EnhancedPlayerDashboard'));
 const PlayerDashboardTest = React.lazy(() => import('../../pages/PlayerDashboardTest'));
 
 // NEW: PropFinder-competing features
