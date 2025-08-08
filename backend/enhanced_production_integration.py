@@ -1016,6 +1016,24 @@ class EnhancedProductionApp:
         except ImportError as e:
             self.logger.warning(f"Could not import WebSocket router: {str(e)}")
 
+        # Enhanced Real-time Notification WebSocket routes
+        try:
+            from .routes.realtime_websocket_routes import router as realtime_ws_router
+
+            self.app.include_router(realtime_ws_router, tags=["Real-time Notifications"])
+            enhanced_routes.append("realtime_notifications")
+        except ImportError as e:
+            self.logger.warning(f"Could not import realtime WebSocket router: {str(e)}")
+
+        # Enhanced Sportsbook routes with notifications
+        try:
+            from .routes.enhanced_sportsbook_routes import router as enhanced_sportsbook_router
+
+            self.app.include_router(enhanced_sportsbook_router, tags=["Enhanced Sportsbook"])
+            enhanced_routes.append("enhanced_sportsbook")
+        except ImportError as e:
+            self.logger.warning(f"Could not import enhanced sportsbook router: {str(e)}")
+
         # Priority 2 Real-time routes (NEW)
         try:
             from .routes import priority2_realtime_routes
