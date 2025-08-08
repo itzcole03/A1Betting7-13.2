@@ -417,7 +417,11 @@ class EnhancedProductionApp:
                 startup_tasks.append("connection_pool")
             except Exception as e:
                 self.logger.warning(
+<<<<<<< HEAD
                     f"���️ Async connection pool initialization failed: {e}"
+=======
+                    f"⚠��� Async connection pool initialization failed: {e}"
+>>>>>>> 31ef5995fbaf6f491c846cb67b932a4376640eec
                 )
 
             # Initialize advanced caching system
@@ -1067,6 +1071,20 @@ class EnhancedProductionApp:
         except ImportError as e:
             self.logger.warning(
                 f"Could not import priority2_demo_routes router: {str(e)}"
+            )
+
+        # Optimized Real-Time Data routes (NEW - A1Betting optimization implementation)
+        try:
+            from .routes import optimized_real_time_routes
+
+            self.app.include_router(
+                optimized_real_time_routes.router, tags=["Optimized Real-Time Data"]
+            )
+            enhanced_routes.append("optimized_realtime")
+            self.logger.info("✅ Optimized real-time data routes included")
+        except ImportError as e:
+            self.logger.warning(
+                f"Could not import optimized_real_time_routes router: {str(e)}"
             )
 
         if enhanced_routes:

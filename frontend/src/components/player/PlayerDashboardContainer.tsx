@@ -3,9 +3,10 @@
  * Follows PropFinder modular architecture with comprehensive state management
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { usePlayerDashboardState } from '../../hooks/usePlayerDashboardState';
-import { Brain, TrendingUp, History, User } from 'lucide-react';
+import { useOptimizedPlayerData, useOptimizedPlayerSearch } from '../../hooks/useOptimizedPlayerData';
+import { Brain, TrendingUp, History, User, Zap, Clock, Activity } from 'lucide-react';
 import PlayerOverview from './PlayerOverview';
 import PlayerPropHistory from './PlayerPropHistory';
 import PlayerStatTrends from './PlayerStatTrends';
@@ -126,6 +127,8 @@ interface PlayerDashboardContainerProps {
   sport?: string;
   onPlayerChange?: (playerId: string) => void;
   onClose?: () => void;
+  useOptimizedData?: boolean; // NEW: Toggle between optimized and standard data loading
+  enableRealTimeUpdates?: boolean; // NEW: Enable real-time WebSocket updates (only for optimized mode)
 }
 
 export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> = ({
@@ -133,15 +136,39 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
   sport = 'MLB',
   onPlayerChange,
   onClose,
+  useOptimizedData = false,
+  enableRealTimeUpdates = true,
 }) => {
   const [playerId, setPlayerId] = useState<string>(initialPlayerId || '');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Player[]>([]);
+
+  // Use search results from appropriate source
+  const displaySearchResults = useOptimizedData ? optimizedSearch.searchResults : searchResults;
   const [showSearch, setShowSearch] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'trends' | 'history' | 'ai'>('overview');
 
-  // Use unified dashboard state hook
-  const { player, loading, error, reload } = usePlayerDashboardState({ playerId, sport });
+  // Choose between optimized and standard data loading
+  const standardData = usePlayerDashboardState({ playerId, sport });
+  const optimizedData = useOptimizedPlayerData({
+    playerId,
+    sport,
+    enableRealTimeUpdates: useOptimizedData && enableRealTimeUpdates,
+    fallbackToCache: true
+  });
+  const optimizedSearch = useOptimizedPlayerSearch();
+
+  // Create stable reference for optimized search to prevent infinite loops
+  const optimizedSearchRef = useRef(optimizedSearch);
+  optimizedSearchRef.current = optimizedSearch;
+
+  // Select the appropriate data source
+  const { player, loading, error, reload } = useOptimizedData ? {
+    player: optimizedData.player,
+    loading: optimizedData.loading,
+    error: optimizedData.error,
+    reload: optimizedData.refresh
+  } : standardData;
 
   // Search players (keep as before, but use registry)
   const handlePlayerSelect = useCallback(
@@ -150,12 +177,15 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
       setShowSearch(false);
       setSearchQuery('');
       setSearchResults([]);
+      if (optimizedSearchRef.current && optimizedSearchRef.current.clearSearch) {
+        optimizedSearchRef.current.clearSearch();
+      }
       onPlayerChange?.(selectedPlayerId);
     },
     [onPlayerChange]
   );
 
-  // Search players using PlayerDataService from registry
+  // Search players using optimized or standard service
   React.useEffect(() => {
     let active = true;
     const doSearch = async () => {
@@ -163,20 +193,32 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
         setSearchResults([]);
         return;
       }
-      // Get PlayerDataService from registry
-      const { default: registry } = await import('../../services/MasterServiceRegistry');
-      const playerDataService = registry.getService ? registry.getService('playerData') : undefined;
-      if (playerDataService && typeof playerDataService.searchPlayers === 'function') {
+
+      if (useOptimizedData) {
+        // Use optimized search
         try {
-          const results = await playerDataService.searchPlayers(searchQuery, sport, 10);
-          if (active) setSearchResults(results);
+          await optimizedSearchRef.current.searchPlayers(searchQuery, sport, 10);
+          // Don't set search results here, let the hook manage it
         } catch {
           if (active) setSearchResults([]);
         }
       } else {
-        setSearchResults([]);
+        // Use standard search (existing implementation)
+        const { default: registry } = await import('../../services/MasterServiceRegistry');
+        const playerDataService = registry.getService ? registry.getService('playerData') : undefined;
+        if (playerDataService && typeof playerDataService.searchPlayers === 'function') {
+          try {
+            const results = await playerDataService.searchPlayers(searchQuery, sport, 10);
+            if (active) setSearchResults(results);
+          } catch {
+            if (active) setSearchResults([]);
+          }
+        } else {
+          setSearchResults([]);
+        }
       }
     };
+
     if (searchQuery) {
       const debounceTimeout = setTimeout(doSearch, 300);
       return () => {
@@ -185,8 +227,21 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
       };
     } else {
       setSearchResults([]);
+      if (optimizedSearchRef.current && optimizedSearchRef.current.clearSearch) {
+        optimizedSearchRef.current.clearSearch();
+      }
     }
-  }, [searchQuery, sport]);
+  }, [searchQuery, sport, useOptimizedData]);
+
+  // Effect to handle mode switching
+  useEffect(() => {
+    // Clear search when switching between optimized and standard modes
+    setSearchResults([]);
+    if (optimizedSearchRef.current && optimizedSearchRef.current.clearSearch) {
+      optimizedSearchRef.current.clearSearch();
+    }
+    setSearchQuery('');
+  }, [useOptimizedData]);
 
   // Show search interface when no playerId is provided
   if (!playerId || playerId.trim() === '') {
@@ -194,9 +249,22 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
       <div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'>
         <div className='max-w-4xl mx-auto px-4 py-8'>
           <div className='text-center mb-8'>
-            <h1 className='text-3xl font-bold text-white mb-4'>Player Research</h1>
-            <p className='text-slate-300'>Search for a player to view their dashboard and analytics</p>
+          <div className='flex items-center justify-center gap-3 mb-4'>
+            <h1 className='text-3xl font-bold text-white'>Player Research</h1>
+            {useOptimizedData && (
+              <div className='flex items-center gap-1 px-3 py-1 bg-blue-900/50 text-blue-300 rounded-lg text-sm'>
+                <Zap className="w-4 h-4" />
+                Optimized
+              </div>
+            )}
           </div>
+          <p className='text-slate-300'>
+            {useOptimizedData
+              ? 'Enhanced with real-time data optimization and intelligent caching'
+              : 'Search for a player to view their dashboard and analytics'
+            }
+          </p>
+        </div>
 
           {/* Search Interface */}
           <div className='bg-slate-800/50 backdrop-blur rounded-lg p-6 mb-8'>
@@ -210,9 +278,9 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
               />
 
               {/* Search Results */}
-              {searchResults.length > 0 && (
+              {displaySearchResults.length > 0 && (
                 <div className='absolute top-full left-0 right-0 bg-slate-700 border border-slate-600 rounded-lg mt-1 max-h-60 overflow-y-auto z-10'>
-                  {searchResults.map((result) => (
+                  {displaySearchResults.map((result) => (
                     <button
                       key={result.id}
                       onClick={() => handlePlayerSelect(result.id)}
@@ -261,10 +329,62 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'>
-      {/* Header (unchanged) */}
+      {/* Enhanced Header with optimization indicators */}
       <div className='bg-slate-800 border-b border-slate-700 px-6 py-4'>
-        {/* ...existing code... */}
-        {/* (Header code omitted for brevity) */}
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-4'>
+            <h1 className='text-xl font-bold text-white'>Player Dashboard</h1>
+            {player && (
+              <div className='text-slate-300'>
+                <span className='font-medium'>{player.name}</span>
+                <span className='mx-2'>•</span>
+                <span>{player.team} {player.position}</span>
+              </div>
+            )}
+          </div>
+
+          <div className='flex items-center gap-3'>
+            {useOptimizedData && (
+              <>
+                {/* Real-time status indicator */}
+                <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs ${
+                  optimizedData.isRealTime ? 'bg-green-900/50 text-green-300' : 'bg-slate-700 text-slate-400'
+                }`}>
+                  {optimizedData.isRealTime ? <Activity className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                  {optimizedData.isRealTime ? 'Live' : 'Cached'}
+                </div>
+
+                {/* Data quality indicator */}
+                <div className={`px-2 py-1 rounded text-xs ${
+                  optimizedData.dataQuality === 'high' ? 'bg-green-900/50 text-green-300' :
+                  optimizedData.dataQuality === 'medium' ? 'bg-yellow-900/50 text-yellow-300' :
+                  'bg-orange-900/50 text-orange-300'
+                }`}>
+                  {optimizedData.dataQuality} quality
+                </div>
+
+                {/* Performance indicator */}
+                {optimizedData.responseTime && (
+                  <div className='px-2 py-1 bg-slate-700 text-slate-300 rounded text-xs'>
+                    {optimizedData.responseTime}ms
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Refresh button */}
+            <button
+              onClick={reload}
+              disabled={loading}
+              className='text-slate-400 hover:text-white transition-colors disabled:opacity-50'
+              title="Refresh data"
+            >
+              <svg className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Main Content with tabbed interface */}
@@ -347,8 +467,16 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
 Season Stats: ${JSON.stringify(player.season_stats, null, 2)}
 Sport: ${player.sport}
 Active: ${player.active}
+${useOptimizedData ? `
+Data Optimization: Real-time optimized data enabled
+Real-time Status: ${optimizedData.isRealTime ? 'Live updates active' : 'Using cached data'}
+Data Quality: ${optimizedData.dataQuality}
+Data Sources: ${optimizedData.dataSources.join(', ')}
+Response Time: ${optimizedData.responseTime || 'N/A'}ms
+Cache Hit: ${optimizedData.cacheHit ? 'Yes' : 'No'}
+Last Updated: ${optimizedData.lastUpdated ? optimizedData.lastUpdated.toLocaleString() : 'N/A'}` : ''}
 ${player.injury_status ? `Injury Status: ${player.injury_status}` : ''}` : 'No player data available'}
-                question="Please analyze this player's performance, trends, and potential prop opportunities. Include insights about recent form, matchup considerations, and any notable patterns."
+                question={`Please analyze this player's performance, trends, and potential prop opportunities. Include insights about recent form, matchup considerations, and any notable patterns.${useOptimizedData ? ' Note: This analysis uses real-time optimized data with enhanced performance monitoring.' : ''}`}
                 playerIds={player ? [player.id] : undefined}
                 sport={sport}
                 className="min-h-[500px]"
