@@ -43,8 +43,18 @@ export const BackendConnectionTest: React.FC = () => {
 
   const testConnection = async (test: ConnectionTest): Promise<ConnectionTest> => {
     const startTime = Date.now();
-    
+
     try {
+      // Skip cross-origin requests in cloud environment
+      if (isCloudEnvironment && test.url.startsWith('http://localhost')) {
+        return {
+          ...test,
+          status: 'failed',
+          error: 'Cross-origin localhost requests blocked in cloud environment',
+          responseTime: 0
+        };
+      }
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -73,10 +83,11 @@ export const BackendConnectionTest: React.FC = () => {
       }
     } catch (error: any) {
       const responseTime = Date.now() - startTime;
+      const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         ...test,
         status: 'failed',
-        error: error.name === 'AbortError' ? 'Timeout (5s)' : error.message,
+        error: error.name === 'AbortError' ? 'Timeout (5s)' : errorMessage,
         responseTime
       };
     }
@@ -219,7 +230,7 @@ export const BackendConnectionTest: React.FC = () => {
           <li>• Ensure the backend is running on the correct port (usually 8000)</li>
           <li>• Check if the backend is binding to 0.0.0.0 (not just 127.0.0.1)</li>
           <li>• Verify CORS is properly configured in the backend</li>
-          <li>• Check firewall settings allow connections to the backend port</li>
+          <li>�� Check firewall settings allow connections to the backend port</li>
           <li>• Confirm the backend API routes are properly registered</li>
         </ul>
       </div>
