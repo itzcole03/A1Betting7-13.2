@@ -515,17 +515,108 @@ class UnifiedSportsbookService:
             total_time = stats['avg_response_time'] * stats['requests']
             stats['avg_response_time'] = (total_time + response_time) / (stats['requests'] + 1)
     
+    async def detect_odds_changes(self, new_odds: List[UnifiedOdds]):
+        """Detect and notify about odds changes"""
+        if not self.enable_notifications:
+            return
+
+        for odds in new_odds:
+            odds_key = f"{odds.provider}_{odds.player_name}_{odds.bet_type}_{odds.line}_{odds.side}"
+
+            if odds_key in self.previous_odds_cache:
+                previous_odds = self.previous_odds_cache[odds_key]
+
+                # Check for significant odds change (>= 10 points)
+                odds_diff = abs(odds.odds - previous_odds.odds)
+                if odds_diff >= 10:
+                    try:
+                        await send_odds_change_notification(
+                            sport=odds.sport,
+                            event=f"{odds.player_name} {odds.bet_type} {odds.line} {odds.side}",
+                            old_odds=previous_odds.odds,
+                            new_odds=odds.odds,
+                            sportsbook=odds.provider,
+                            player_name=odds.player_name
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to send odds change notification: {e}")
+
+            # Update cache
+            self.previous_odds_cache[odds_key] = odds
+
+    async def detect_high_value_bets(self, all_odds: List[UnifiedOdds], min_ev: float = 5.0):
+        """Detect and notify about high expected value bets"""
+        if not self.enable_notifications:
+            return
+
+        # Group by player and bet type for analysis
+        grouped_odds = {}
+        for odds in all_odds:
+            key = (odds.player_name, odds.bet_type, odds.line)
+            if key not in grouped_odds:
+                grouped_odds[key] = []
+            grouped_odds[key].append(odds)
+
+        for (player_name, bet_type, line), odds_list in grouped_odds.items():
+            if len(odds_list) < 2:
+                continue
+
+            # Calculate market average odds
+            avg_decimal_odds = statistics.mean(odds.decimal_odds for odds in odds_list)
+            implied_prob = 1 / avg_decimal_odds
+
+            # Find best odds
+            best_odds = max(odds_list, key=lambda x: x.decimal_odds)
+            best_decimal = best_odds.decimal_odds
+
+            # Calculate expected value
+            # EV = (probability * payout) - stake
+            # Simplified: if our odds are better than market average by significant margin
+            ev_percentage = ((best_decimal - avg_decimal_odds) / avg_decimal_odds) * 100
+
+            if ev_percentage >= min_ev:
+                # Calculate confidence based on number of sportsbooks
+                confidence = min(90, 60 + (len(odds_list) * 5))  # Max 90%
+
+                try:
+                    await send_high_value_bet_notification(
+                        sport=best_odds.sport,
+                        event=f"{player_name} {bet_type} {line}",
+                        expected_value=ev_percentage,
+                        confidence=confidence,
+                        recommended_stake=100.0,  # Default stake
+                        player_name=player_name
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to send high value bet notification: {e}")
+
+    async def get_all_player_props_with_notifications(self, sport: str, player_name: Optional[str] = None) -> List[UnifiedOdds]:
+        """Get player props and send notifications for changes and opportunities"""
+        all_props = await self.get_all_player_props(sport, player_name)
+
+        if self.enable_notifications and all_props:
+            # Detect odds changes
+            await self.detect_odds_changes(all_props)
+
+            # Detect high value bets
+            await self.detect_high_value_bets(all_props)
+
+            # Find and notify about arbitrage opportunities
+            arbitrage_ops = await self.find_arbitrage_opportunities(all_props, min_profit=1.0)
+
+        return all_props
+
     def get_performance_report(self) -> Dict[str, Any]:
         """Get performance report for all providers"""
         return {
             'providers': self.performance_stats,
             'summary': {
                 'total_providers': len(self.enabled_providers),
-                'healthy_providers': sum(1 for stats in self.performance_stats.values() 
+                'healthy_providers': sum(1 for stats in self.performance_stats.values()
                                        if stats['reliability_score'] > 0.8),
-                'avg_reliability': statistics.mean(stats['reliability_score'] 
+                'avg_reliability': statistics.mean(stats['reliability_score']
                                                  for stats in self.performance_stats.values()),
-                'fastest_provider': min(self.performance_stats.items(), 
+                'fastest_provider': min(self.performance_stats.items(),
                                       key=lambda x: x[1]['avg_response_time'])[0]
             }
         }
