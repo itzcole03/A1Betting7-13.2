@@ -343,6 +343,18 @@ class EnhancedProductionApp:
             # Phase 2: Enhanced Services
             self.logger.info("Phase 2: Initializing enhanced services...")
 
+            # Initialize real-time notification service
+            try:
+                from .services.realtime_notification_service import notification_service
+
+                await notification_service.initialize()
+                self.logger.info("✅ Real-time notification service initialized successfully")
+                startup_tasks.append("notification_service")
+            except Exception as e:
+                self.logger.warning(
+                    "⚠️ Real-time notification service initialization failed: %s", str(e)
+                )
+
             # Initialize intelligent cache service
             try:
                 from .services.intelligent_cache_service import (
