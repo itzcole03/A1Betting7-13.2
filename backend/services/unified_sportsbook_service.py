@@ -409,26 +409,26 @@ class UnifiedSportsbookService:
         
         return False, 0.0
     
-    def find_arbitrage_opportunities(self, all_odds: List[UnifiedOdds], min_profit: float = 2.0) -> List[ArbitrageOpportunity]:
+    async def find_arbitrage_opportunities(self, all_odds: List[UnifiedOdds], min_profit: float = 2.0) -> List[ArbitrageOpportunity]:
         """Find arbitrage opportunities across all sportsbooks"""
         best_odds = self.find_best_odds(all_odds)
-        
+
         arbitrage_opportunities = []
-        
+
         for odds in best_odds:
             if odds.arbitrage_opportunity and odds.arbitrage_profit >= min_profit:
                 # Calculate stake percentages
                 over_decimal = odds.best_over_decimal
                 under_decimal = odds.best_under_decimal
-                
+
                 over_stake_pct = (1 / over_decimal) / ((1 / over_decimal) + (1 / under_decimal))
                 under_stake_pct = (1 / under_decimal) / ((1 / over_decimal) + (1 / under_decimal))
-                
+
                 # Determine confidence and time sensitivity
                 confidence = self._calculate_arbitrage_confidence(odds)
                 time_sensitivity = self._calculate_time_sensitivity(odds)
-                
-                arbitrage_opportunities.append(ArbitrageOpportunity(
+
+                arb_opportunity = ArbitrageOpportunity(
                     player_name=odds.player_name,
                     bet_type=odds.bet_type,
                     line=odds.line,
@@ -443,11 +443,26 @@ class UnifiedSportsbookService:
                     expected_return=odds.arbitrage_profit,  # Simplified
                     confidence_level=confidence,
                     time_sensitivity=time_sensitivity
-                ))
-        
+                )
+
+                arbitrage_opportunities.append(arb_opportunity)
+
+                # Send arbitrage notification
+                if self.enable_notifications:
+                    try:
+                        await send_arbitrage_notification(
+                            sport=odds.all_odds[0].sport if odds.all_odds else "unknown",
+                            event=f"{odds.player_name} {odds.bet_type} {odds.line}",
+                            profit_margin=odds.arbitrage_profit,
+                            sportsbooks=[odds.best_over_provider, odds.best_under_provider],
+                            player_name=odds.player_name
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to send arbitrage notification: {e}")
+
         # Sort by profit potential
         arbitrage_opportunities.sort(key=lambda x: x.guaranteed_profit_percentage, reverse=True)
-        
+
         return arbitrage_opportunities
     
     def _calculate_arbitrage_confidence(self, odds: BestOdds) -> str:
