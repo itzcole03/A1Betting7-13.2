@@ -23,10 +23,8 @@ function safeImportMetaEnv(key: string): string | undefined {
 const isTest =
   (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test') ||
   safeImportMetaEnv('MODE') === 'test';
-const otelEnabled =
-  !isTest &&
-  (safeImportMetaEnv('VITE_OTEL_ENABLED') === 'true' ||
-    (typeof process !== 'undefined' && process.env && process.env.VITE_OTEL_ENABLED === 'true'));
+// Temporarily disable OpenTelemetry until packages are properly installed
+const otelEnabled = false;
 
 if (otelEnabled) {
   (async () => {
