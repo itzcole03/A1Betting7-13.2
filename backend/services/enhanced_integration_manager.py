@@ -480,25 +480,30 @@ class EnhancedIntegrationManager:
 
     async def get_data_quality_dashboard(self) -> Dict[str, Any]:
         """
-        Get comprehensive data quality dashboard
+        Get comprehensive data quality dashboard with event-driven cache metrics
         Implements Phase 1 recommendation: Data quality monitoring
         """
         try:
             # Get quality dashboard from monitor
             dashboard = await data_quality_monitor.get_quality_dashboard()
-            
+
             # Add integration-specific metrics
             dashboard["integration_metrics"] = self.integration_metrics.copy()
-            
+
             # Add service health status
             dashboard["service_health"] = {
                 "sportradar": await sportradar_service.get_health_status(),
                 "data_pipeline": await enhanced_data_pipeline.get_health_status(),
-                "cache_service": await intelligent_cache_service.get_metrics()
+                "cache_service": await intelligent_cache_service.get_metrics(),
+                "event_driven_cache": await event_driven_cache.get_invalidation_stats(),
+                "sport_volatility": sport_volatility_models.get_volatility_summary()
             }
-            
+
+            # Add enhanced cache metrics
+            dashboard["enhanced_cache_metrics"] = await intelligent_cache_service.get_sport_cache_metrics()
+
             return dashboard
-            
+
         except Exception as e:
             logger.error(f"❌ Error getting data quality dashboard: {e}")
             return {"error": str(e)}
