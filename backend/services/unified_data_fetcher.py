@@ -32,6 +32,10 @@ from backend.models.api_models import (
 
 logger = logging.getLogger(__name__)
 
+class DataFetchError(Exception):
+    """Custom exception for data fetching errors"""
+    pass
+
 
 class SportSeason(Enum):
     """Sports and their typical seasons"""
