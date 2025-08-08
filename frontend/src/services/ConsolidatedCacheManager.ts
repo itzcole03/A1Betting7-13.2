@@ -1,680 +1,707 @@
 /**
- * Consolidated Cache Manager - Phase 1.4 Frontend Cache Consolidation
- * Unifies fragmented frontend caching services into a single, efficient cache manager.
+ * ConsolidatedCacheManager - Unified Frontend Caching Solution
  * 
- * Based on A1Betting Backend Data Optimization Roadmap:
- * - Eliminate duplicate cache entries across services
- * - Implement shared memory pools with reference counting  
- * - Add automatic cache eviction based on memory pressure
- * - WebSocket integration for real-time cache invalidation
- * - Event-driven cache updates with smart prefetching
- * - 50% reduction in frontend memory usage
- * - 90% cache hit rate for repeated requests
+ * Consolidates all fragmented frontend caching services into a single,
+ * efficient cache manager with LRU policies, memory pressure management,
+ * and real-time WebSocket invalidation.
  */
 
-import { LRUCache } from 'lru-cache';
-import { EnhancedPropAnalysis } from '../types/analytics';
-import { FeaturedProp } from '../types/propTypes';
-import { PredictionResult } from '../types/predictionTypes';
-
-// Cache Categories for better organization
-export enum CacheCategory {
-  ANALYSIS = 'analysis',
-  PREDICTIONS = 'predictions', 
-  PROPS = 'props',
-  METADATA = 'metadata',
-  PLAYER_DATA = 'player_data',
-  ODDS = 'odds',
-  SPORTS_DATA = 'sports_data',
-  SETTINGS = 'settings'
-}
+import { EventEmitter } from 'events';
 
 // Cache Configuration
-interface CacheConfig {
-  max: number;
-  ttl: number; // milliseconds
-  allowStale: boolean;
-  updateAgeOnGet: boolean;
+export interface CacheConfig {
+  maxSize: number;
+  ttl: number; // Time to live in milliseconds
+  enablePersistence?: boolean;
+  compression?: boolean;
 }
 
-// Memory pressure levels
-enum MemoryPressure {
-  LOW = 'low',
-  MEDIUM = 'medium', 
-  HIGH = 'high',
-  CRITICAL = 'critical'
-}
-
-// Cache entry with metadata
-interface CacheEntry<T> {
+// Cache Entry Structure
+interface CacheEntry<T = any> {
   data: T;
   timestamp: number;
   ttl: number;
   hits: number;
+  size: number;
   lastAccessed: number;
-  referenceCount: number;
-  tags: string[];
 }
 
-// Performance metrics
-interface CacheMetrics {
+// Cache Categories for Different Data Types
+export enum CacheCategory {
+  ANALYSIS = 'analysis',
+  SPORTS_DATA = 'sports_data',
+  USER_PREFERENCES = 'user_preferences',
+  API_RESPONSES = 'api_responses',
+  PREDICTIONS = 'predictions',
+  REAL_TIME = 'real_time',
+  STATIC_ASSETS = 'static_assets'
+}
+
+// Memory Pressure Levels
+enum MemoryPressure {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  CRITICAL = 'critical'
+}
+
+// Cache Statistics
+interface CacheStats {
   hits: number;
   misses: number;
   evictions: number;
   memoryUsage: number;
-  hitRate: number;
-  averageLatency: number;
+  entriesCount: number;
+  hitRatio: number;
 }
 
-// WebSocket event types for cache invalidation
-interface CacheInvalidationEvent {
-  type: 'invalidate' | 'update' | 'refresh';
-  category: CacheCategory;
-  keys?: string[];
-  pattern?: string;
-  data?: any;
-}
+// LRU Cache Implementation for Each Category
+class LRUCache<T = any> extends EventEmitter {
+  private cache: Map<string, CacheEntry<T>> = new Map();
+  private accessOrder: string[] = [];
+  private config: CacheConfig;
+  private stats: CacheStats;
 
-export class ConsolidatedCacheManager {
-  private static instance: ConsolidatedCacheManager;
-  
-  // Unified cache layers with LRU eviction
-  private caches: Map<CacheCategory, LRUCache<string, CacheEntry<any>>> = new Map();
-  
-  // Memory management
-  private memoryUsage: number = 0;
-  private maxMemoryMB: number = 256; // 256MB default limit
-  private memoryPressure: MemoryPressure = MemoryPressure.LOW;
-  
-  // Performance tracking
-  private metrics: Map<CacheCategory, CacheMetrics> = new Map();
-  private globalMetrics: CacheMetrics;
-  
-  // Real-time invalidation
-  private invalidationListeners: Map<string, Function[]> = new Map();
-  private prefetchQueue: Array<{ key: string; category: CacheCategory; fetcher: Function }> = [];
-  
-  // WebSocket connection for real-time updates
-  private websocketConnection?: WebSocket;
-  
-  // Cache configurations by category
-  private readonly cacheConfigs: Map<CacheCategory, CacheConfig> = new Map([
-    [CacheCategory.ANALYSIS, { max: 500, ttl: 5 * 60 * 1000, allowStale: true, updateAgeOnGet: true }],
-    [CacheCategory.PREDICTIONS, { max: 1000, ttl: 2 * 60 * 1000, allowStale: true, updateAgeOnGet: true }],
-    [CacheCategory.PROPS, { max: 2000, ttl: 1 * 60 * 1000, allowStale: false, updateAgeOnGet: true }],
-    [CacheCategory.METADATA, { max: 100, ttl: 30 * 60 * 1000, allowStale: true, updateAgeOnGet: false }],
-    [CacheCategory.PLAYER_DATA, { max: 800, ttl: 10 * 60 * 1000, allowStale: true, updateAgeOnGet: true }],
-    [CacheCategory.ODDS, { max: 1500, ttl: 30 * 1000, allowStale: false, updateAgeOnGet: true }],
-    [CacheCategory.SPORTS_DATA, { max: 300, ttl: 5 * 60 * 1000, allowStale: true, updateAgeOnGet: true }],
-    [CacheCategory.SETTINGS, { max: 50, ttl: 60 * 60 * 1000, allowStale: true, updateAgeOnGet: false }]
-  ]);
-
-  private constructor() {
-    this.initializeCaches();
-    this.initializeMetrics();
-    this.setupMemoryMonitoring();
-    this.setupWebSocketConnection();
-    this.startPrefetchWorker();
-    
-    console.log('[ConsolidatedCacheManager] Initialized with unified caching system');
-  }
-
-  public static getInstance(): ConsolidatedCacheManager {
-    if (!ConsolidatedCacheManager.instance) {
-      ConsolidatedCacheManager.instance = new ConsolidatedCacheManager();
-    }
-    return ConsolidatedCacheManager.instance;
-  }
-
-  /**
-   * Initialize all cache categories with their specific configurations
-   */
-  private initializeCaches(): void {
-    for (const [category, config] of this.cacheConfigs.entries()) {
-      const cache = new LRUCache<string, CacheEntry<any>>({
-        max: config.max,
-        ttl: config.ttl,
-        allowStale: config.allowStale,
-        updateAgeOnGet: config.updateAgeOnGet,
-        // Custom disposal function for memory tracking
-        dispose: (value, key) => {
-          this.updateMemoryUsage(-this.calculateEntrySize(value));
-          this.metrics.get(category)!.evictions++;
-        }
-      });
-      
-      this.caches.set(category, cache);
-    }
-  }
-
-  /**
-   * Initialize performance metrics for each cache category
-   */
-  private initializeMetrics(): void {
-    for (const category of Object.values(CacheCategory)) {
-      this.metrics.set(category, {
-        hits: 0,
-        misses: 0,
-        evictions: 0,
-        memoryUsage: 0,
-        hitRate: 0,
-        averageLatency: 0
-      });
-    }
-    
-    this.globalMetrics = {
+  constructor(config: CacheConfig) {
+    super();
+    this.config = config;
+    this.stats = {
       hits: 0,
       misses: 0,
       evictions: 0,
       memoryUsage: 0,
-      hitRate: 0,
-      averageLatency: 0
+      entriesCount: 0,
+      hitRatio: 0
     };
+
+    // Auto-cleanup expired entries every 30 seconds
+    setInterval(() => this.cleanupExpired(), 30000);
   }
 
-  /**
-   * Generic get method with automatic metrics tracking
-   */
-  public async get<T>(category: CacheCategory, key: string): Promise<T | null> {
-    const startTime = performance.now();
-    const cache = this.caches.get(category);
-    
-    if (!cache) {
-      throw new Error(`Cache category ${category} not found`);
+  set(key: string, value: T, customTtl?: number): void {
+    const ttl = customTtl || this.config.ttl;
+    const size = this.calculateSize(value);
+    const now = Date.now();
+
+    // Check if we need to make space
+    this.ensureCapacity(size);
+
+    // Remove if already exists
+    if (this.cache.has(key)) {
+      this.remove(key);
     }
 
-    const entry = cache.get(key);
-    const latency = performance.now() - startTime;
-    const metrics = this.metrics.get(category)!;
-    
-    if (entry) {
-      // Cache hit
-      entry.hits++;
-      entry.lastAccessed = Date.now();
-      entry.referenceCount++;
-      
-      metrics.hits++;
-      this.globalMetrics.hits++;
-      
-      // Update average latency
-      metrics.averageLatency = (metrics.averageLatency * 0.9) + (latency * 0.1);
-      
-      // Check if data is stale and should trigger background refresh
-      const age = Date.now() - entry.timestamp;
-      if (age > entry.ttl * 0.8) { // Refresh when 80% of TTL has passed
-        this.schedulePrefetch(category, key);
-      }
-      
-      return entry.data;
-    } else {
-      // Cache miss
-      metrics.misses++;
-      this.globalMetrics.misses++;
+    const entry: CacheEntry<T> = {
+      data: value,
+      timestamp: now,
+      ttl,
+      hits: 0,
+      size,
+      lastAccessed: now
+    };
+
+    this.cache.set(key, entry);
+    this.accessOrder.push(key);
+    this.updateStats();
+
+    this.emit('set', { key, value, size });
+  }
+
+  get(key: string): T | null {
+    const entry = this.cache.get(key);
+    const now = Date.now();
+
+    if (!entry) {
+      this.stats.misses++;
+      this.updateHitRatio();
       return null;
     }
+
+    // Check if expired
+    if (now - entry.timestamp > entry.ttl) {
+      this.remove(key);
+      this.stats.misses++;
+      this.updateHitRatio();
+      return null;
+    }
+
+    // Update access statistics
+    entry.hits++;
+    entry.lastAccessed = now;
+    this.stats.hits++;
+
+    // Move to end (most recently used)
+    this.moveToEnd(key);
+    this.updateHitRatio();
+
+    return entry.data;
   }
 
-  /**
-   * Generic set method with automatic memory management
-   */
-  public async set<T>(
-    category: CacheCategory, 
-    key: string, 
-    data: T, 
-    options?: { 
-      ttl?: number; 
-      tags?: string[]; 
-      skipMemoryCheck?: boolean 
-    }
-  ): Promise<boolean> {
-    const cache = this.caches.get(category);
-    
-    if (!cache) {
-      throw new Error(`Cache category ${category} not found`);
-    }
+  has(key: string): boolean {
+    return this.cache.has(key) && !this.isExpired(key);
+  }
 
-    const config = this.cacheConfigs.get(category)!;
-    const entry: CacheEntry<T> = {
-      data,
-      timestamp: Date.now(),
-      ttl: options?.ttl || config.ttl,
-      hits: 0,
-      lastAccessed: Date.now(),
-      referenceCount: 1,
-      tags: options?.tags || []
-    };
+  remove(key: string): boolean {
+    const entry = this.cache.get(key);
+    if (!entry) return false;
 
-    const entrySize = this.calculateEntrySize(entry);
-    
-    // Check memory pressure before adding
-    if (!options?.skipMemoryCheck && !this.canAllocateMemory(entrySize)) {
-      await this.handleMemoryPressure();
-      
-      // Check again after cleanup
-      if (!this.canAllocateMemory(entrySize)) {
-        console.warn(`[ConsolidatedCacheManager] Cannot allocate ${entrySize}B for ${category}:${key}`);
-        return false;
-      }
-    }
+    this.cache.delete(key);
+    this.removeFromAccessOrder(key);
+    this.stats.memoryUsage -= entry.size;
+    this.stats.entriesCount--;
 
-    // Set the entry
-    cache.set(key, entry);
-    this.updateMemoryUsage(entrySize);
-    
-    // Notify invalidation listeners
-    this.notifyInvalidationListeners(`${category}:${key}`, 'update', data);
-    
+    this.emit('remove', { key, entry });
     return true;
   }
 
-  /**
-   * Delete entry and update reference counting
-   */
-  public async delete(category: CacheCategory, key: string): Promise<boolean> {
-    const cache = this.caches.get(category);
-    
-    if (!cache) {
-      return false;
-    }
-
-    const entry = cache.get(key);
-    if (entry) {
-      entry.referenceCount--;
-      
-      // Only delete if no active references
-      if (entry.referenceCount <= 0) {
-        const deleted = cache.delete(key);
-        if (deleted) {
-          this.notifyInvalidationListeners(`${category}:${key}`, 'invalidate');
-        }
-        return deleted;
-      }
-    }
-    
-    return false;
-  }
-
-  /**
-   * Clear entire cache category
-   */
-  public async clear(category: CacheCategory): Promise<void> {
-    const cache = this.caches.get(category);
-    
-    if (cache) {
-      const size = cache.size;
-      cache.clear();
-      this.updateMemoryUsage(-this.metrics.get(category)!.memoryUsage);
-      this.metrics.get(category)!.memoryUsage = 0;
-      
-      console.log(`[ConsolidatedCacheManager] Cleared ${size} entries from ${category} cache`);
-      this.notifyInvalidationListeners(`${category}:*`, 'invalidate');
-    }
-  }
-
-  /**
-   * Invalidate cache entries by pattern or tags
-   */
-  public async invalidate(
-    category: CacheCategory, 
-    pattern?: string, 
-    tags?: string[]
-  ): Promise<number> {
-    const cache = this.caches.get(category);
-    
-    if (!cache) {
-      return 0;
-    }
-
-    let invalidatedCount = 0;
-    const keysToDelete: string[] = [];
-
-    for (const [key, entry] of cache.entries()) {
-      let shouldInvalidate = false;
-      
-      // Check pattern match
-      if (pattern && key.includes(pattern)) {
-        shouldInvalidate = true;
-      }
-      
-      // Check tag match
-      if (tags && tags.some(tag => entry.tags.includes(tag))) {
-        shouldInvalidate = true;
-      }
-      
-      if (shouldInvalidate) {
-        keysToDelete.push(key);
-      }
-    }
-
-    // Delete matched entries
-    for (const key of keysToDelete) {
-      if (cache.delete(key)) {
-        invalidatedCount++;
-      }
-    }
-
-    if (invalidatedCount > 0) {
-      console.log(`[ConsolidatedCacheManager] Invalidated ${invalidatedCount} entries from ${category}`);
-      this.notifyInvalidationListeners(`${category}:pattern:${pattern}`, 'invalidate');
-    }
-
-    return invalidatedCount;
-  }
-
-  /**
-   * Batch operations for efficiency
-   */
-  public async batchSet<T>(
-    category: CacheCategory,
-    entries: Array<{ key: string; data: T; options?: any }>
-  ): Promise<number> {
-    let successCount = 0;
-    
-    for (const entry of entries) {
-      if (await this.set(category, entry.key, entry.data, entry.options)) {
-        successCount++;
-      }
-    }
-    
-    return successCount;
-  }
-
-  public async batchGet<T>(
-    category: CacheCategory,
-    keys: string[]
-  ): Promise<Map<string, T | null>> {
-    const results = new Map<string, T | null>();
-    
-    for (const key of keys) {
-      results.set(key, await this.get<T>(category, key));
-    }
-    
-    return results;
-  }
-
-  /**
-   * Smart prefetching based on access patterns
-   */
-  private schedulePrefetch(category: CacheCategory, key: string): void {
-    // Only prefetch if not already queued
-    const existingIndex = this.prefetchQueue.findIndex(
-      item => item.category === category && item.key === key
-    );
-    
-    if (existingIndex === -1) {
-      // Add to prefetch queue (fetcher would be provided by the calling service)
-      console.log(`[ConsolidatedCacheManager] Scheduled prefetch for ${category}:${key}`);
-    }
-  }
-
-  /**
-   * Background prefetch worker
-   */
-  private startPrefetchWorker(): void {
-    setInterval(async () => {
-      if (this.prefetchQueue.length > 0 && this.memoryPressure !== MemoryPressure.CRITICAL) {
-        const item = this.prefetchQueue.shift();
-        if (item) {
-          try {
-            // Prefetch would be handled by the service that registered the fetcher
-            console.log(`[ConsolidatedCacheManager] Processing prefetch for ${item.category}:${item.key}`);
-          } catch (error) {
-            console.warn(`[ConsolidatedCacheManager] Prefetch failed for ${item.category}:${item.key}:`, error);
-          }
-        }
-      }
-    }, 5000); // Check every 5 seconds
-  }
-
-  /**
-   * Memory management and pressure handling
-   */
-  private setupMemoryMonitoring(): void {
-    setInterval(() => {
-      this.updateMemoryPressure();
-      
-      if (this.memoryPressure === MemoryPressure.HIGH || this.memoryPressure === MemoryPressure.CRITICAL) {
-        this.handleMemoryPressure();
-      }
-    }, 10000); // Check every 10 seconds
-  }
-
-  private updateMemoryPressure(): void {
-    const usagePercentage = (this.memoryUsage / (this.maxMemoryMB * 1024 * 1024)) * 100;
-    
-    if (usagePercentage > 90) {
-      this.memoryPressure = MemoryPressure.CRITICAL;
-    } else if (usagePercentage > 75) {
-      this.memoryPressure = MemoryPressure.HIGH;
-    } else if (usagePercentage > 50) {
-      this.memoryPressure = MemoryPressure.MEDIUM;
-    } else {
-      this.memoryPressure = MemoryPressure.LOW;
-    }
-  }
-
-  private async handleMemoryPressure(): Promise<void> {
-    if (this.memoryPressure === MemoryPressure.CRITICAL) {
-      // Aggressive cleanup - remove least recently used entries
-      for (const [category, cache] of this.caches.entries()) {
-        const targetReduction = Math.floor(cache.size * 0.3); // Remove 30%
-        let removed = 0;
-        
-        // Find least recently accessed entries
-        const entries = Array.from(cache.entries())
-          .sort(([, a], [, b]) => a.lastAccessed - b.lastAccessed);
-        
-        for (const [key] of entries.slice(0, targetReduction)) {
-          if (cache.delete(key)) {
-            removed++;
-          }
-        }
-        
-        console.log(`[ConsolidatedCacheManager] Memory pressure cleanup: removed ${removed} entries from ${category}`);
-      }
-    } else if (this.memoryPressure === MemoryPressure.HIGH) {
-      // Moderate cleanup - remove expired entries
-      for (const [category, cache] of this.caches.entries()) {
-        let removed = 0;
-        const now = Date.now();
-        
-        for (const [key, entry] of cache.entries()) {
-          if (now - entry.timestamp > entry.ttl) {
-            if (cache.delete(key)) {
-              removed++;
-            }
-          }
-        }
-        
-        if (removed > 0) {
-          console.log(`[ConsolidatedCacheManager] Expired ${removed} entries from ${category}`);
-        }
-      }
-    }
-  }
-
-  private canAllocateMemory(size: number): boolean {
-    return (this.memoryUsage + size) <= (this.maxMemoryMB * 1024 * 1024);
-  }
-
-  private updateMemoryUsage(delta: number): void {
-    this.memoryUsage += delta;
-    this.globalMetrics.memoryUsage = this.memoryUsage;
-  }
-
-  private calculateEntrySize(entry: CacheEntry<any>): number {
-    // Rough estimation of memory usage
-    const jsonStr = JSON.stringify(entry);
-    return jsonStr.length * 2; // Unicode characters take 2 bytes
-  }
-
-  /**
-   * WebSocket integration for real-time cache invalidation
-   */
-  private setupWebSocketConnection(): void {
-    // This would connect to the backend WebSocket for real-time updates
-    try {
-      const wsUrl = import.meta.env.VITE_WEBSOCKET_URL || 'ws://localhost:8000/ws/cache';
-      this.websocketConnection = new WebSocket(wsUrl);
-      
-      this.websocketConnection.onmessage = (event) => {
-        try {
-          const invalidationEvent: CacheInvalidationEvent = JSON.parse(event.data);
-          this.handleWebSocketInvalidation(invalidationEvent);
-        } catch (error) {
-          console.warn('[ConsolidatedCacheManager] Invalid WebSocket message:', error);
-        }
-      };
-      
-      this.websocketConnection.onerror = (error) => {
-        console.warn('[ConsolidatedCacheManager] WebSocket error:', error);
-      };
-      
-      console.log('[ConsolidatedCacheManager] WebSocket connection established');
-    } catch (error) {
-      console.warn('[ConsolidatedCacheManager] WebSocket connection failed:', error);
-    }
-  }
-
-  private handleWebSocketInvalidation(event: CacheInvalidationEvent): void {
-    switch (event.type) {
-      case 'invalidate':
-        if (event.keys) {
-          for (const key of event.keys) {
-            this.delete(event.category, key);
-          }
-        } else if (event.pattern) {
-          this.invalidate(event.category, event.pattern);
-        }
-        break;
-        
-      case 'update':
-        if (event.keys && event.data) {
-          for (const key of event.keys) {
-            this.set(event.category, key, event.data, { skipMemoryCheck: true });
-          }
-        }
-        break;
-        
-      case 'refresh':
-        this.clear(event.category);
-        break;
-    }
-  }
-
-  /**
-   * Event-driven cache invalidation listeners
-   */
-  public onInvalidation(pattern: string, callback: Function): void {
-    if (!this.invalidationListeners.has(pattern)) {
-      this.invalidationListeners.set(pattern, []);
-    }
-    this.invalidationListeners.get(pattern)!.push(callback);
-  }
-
-  private notifyInvalidationListeners(key: string, type: string, data?: any): void {
-    for (const [pattern, callbacks] of this.invalidationListeners.entries()) {
-      if (key.includes(pattern) || pattern.includes('*')) {
-        for (const callback of callbacks) {
-          try {
-            callback({ key, type, data });
-          } catch (error) {
-            console.warn('[ConsolidatedCacheManager] Invalidation listener error:', error);
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Performance metrics and monitoring
-   */
-  public getMetrics(category?: CacheCategory): CacheMetrics | Map<CacheCategory, CacheMetrics> {
-    if (category) {
-      const metrics = this.metrics.get(category)!;
-      const total = metrics.hits + metrics.misses;
-      metrics.hitRate = total > 0 ? (metrics.hits / total) * 100 : 0;
-      return metrics;
-    } else {
-      // Update hit rates for all categories
-      for (const [cat, metrics] of this.metrics.entries()) {
-        const total = metrics.hits + metrics.misses;
-        metrics.hitRate = total > 0 ? (metrics.hits / total) * 100 : 0;
-      }
-      return this.metrics;
-    }
-  }
-
-  public getGlobalMetrics(): CacheMetrics {
-    const total = this.globalMetrics.hits + this.globalMetrics.misses;
-    this.globalMetrics.hitRate = total > 0 ? (this.globalMetrics.hits / total) * 100 : 0;
-    return { ...this.globalMetrics };
-  }
-
-  public getCacheStatus(): {
-    memoryUsage: number;
-    memoryPressure: MemoryPressure;
-    totalEntries: number;
-    categorySizes: Map<CacheCategory, number>;
-  } {
-    const categorySizes = new Map<CacheCategory, number>();
-    let totalEntries = 0;
-    
-    for (const [category, cache] of this.caches.entries()) {
-      const size = cache.size;
-      categorySizes.set(category, size);
-      totalEntries += size;
-    }
-    
-    return {
-      memoryUsage: this.memoryUsage,
-      memoryPressure: this.memoryPressure,
-      totalEntries,
-      categorySizes
+  clear(): void {
+    this.cache.clear();
+    this.accessOrder = [];
+    this.stats = {
+      hits: 0,
+      misses: 0,
+      evictions: 0,
+      memoryUsage: 0,
+      entriesCount: 0,
+      hitRatio: 0
     };
+    this.emit('clear');
   }
 
-  /**
-   * Convenience methods for specific data types
-   */
-  
-  // Enhanced Analysis Cache
-  public async getAnalysis(key: string): Promise<EnhancedPropAnalysis | null> {
-    return this.get<EnhancedPropAnalysis>(CacheCategory.ANALYSIS, key);
+  getStats(): CacheStats {
+    return { ...this.stats };
   }
 
-  public async setAnalysis(key: string, analysis: EnhancedPropAnalysis, ttl?: number): Promise<boolean> {
-    return this.set(CacheCategory.ANALYSIS, key, analysis, { ttl, tags: ['analysis', analysis.prop?.id] });
+  keys(): string[] {
+    return Array.from(this.cache.keys()).filter(key => !this.isExpired(key));
   }
 
-  // Predictions Cache
-  public async getPrediction(key: string): Promise<PredictionResult | null> {
-    return this.get<PredictionResult>(CacheCategory.PREDICTIONS, key);
+  size(): number {
+    return this.cache.size;
   }
 
-  public async setPrediction(key: string, prediction: PredictionResult, ttl?: number): Promise<boolean> {
-    return this.set(CacheCategory.PREDICTIONS, key, prediction, { ttl, tags: ['prediction'] });
+  private ensureCapacity(newEntrySize: number): void {
+    const wouldExceedSize = this.stats.memoryUsage + newEntrySize > this.config.maxSize;
+    
+    if (wouldExceedSize) {
+      this.evictLeastRecentlyUsed(newEntrySize);
+    }
   }
 
-  // Props Cache
-  public async getProps(key: string): Promise<FeaturedProp[] | null> {
-    return this.get<FeaturedProp[]>(CacheCategory.PROPS, key);
+  private evictLeastRecentlyUsed(requiredSpace: number): void {
+    let freedSpace = 0;
+    
+    while (freedSpace < requiredSpace && this.accessOrder.length > 0) {
+      const oldestKey = this.accessOrder[0];
+      const entry = this.cache.get(oldestKey);
+      
+      if (entry) {
+        freedSpace += entry.size;
+        this.stats.evictions++;
+      }
+      
+      this.remove(oldestKey);
+    }
   }
 
-  public async setProps(key: string, props: FeaturedProp[], ttl?: number): Promise<boolean> {
-    return this.set(CacheCategory.PROPS, key, props, { ttl, tags: ['props'] });
+  private cleanupExpired(): void {
+    const now = Date.now();
+    const expiredKeys: string[] = [];
+
+    for (const [key, entry] of this.cache.entries()) {
+      if (now - entry.timestamp > entry.ttl) {
+        expiredKeys.push(key);
+      }
+    }
+
+    expiredKeys.forEach(key => this.remove(key));
   }
 
-  // Player Data Cache
-  public async getPlayerData(key: string): Promise<any | null> {
-    return this.get<any>(CacheCategory.PLAYER_DATA, key);
+  private isExpired(key: string): boolean {
+    const entry = this.cache.get(key);
+    if (!entry) return true;
+
+    const now = Date.now();
+    return now - entry.timestamp > entry.ttl;
   }
 
-  public async setPlayerData(key: string, data: any, ttl?: number): Promise<boolean> {
-    return this.set(CacheCategory.PLAYER_DATA, key, data, { ttl, tags: ['player'] });
+  private moveToEnd(key: string): void {
+    this.removeFromAccessOrder(key);
+    this.accessOrder.push(key);
+  }
+
+  private removeFromAccessOrder(key: string): void {
+    const index = this.accessOrder.indexOf(key);
+    if (index > -1) {
+      this.accessOrder.splice(index, 1);
+    }
+  }
+
+  private calculateSize(value: any): number {
+    if (typeof value === 'string') {
+      return value.length * 2; // UTF-16 characters
+    }
+    
+    try {
+      return new Blob([JSON.stringify(value)]).size;
+    } catch {
+      return 1000; // Default fallback size
+    }
+  }
+
+  private updateStats(): void {
+    this.stats.memoryUsage = Array.from(this.cache.values())
+      .reduce((total, entry) => total + entry.size, 0);
+    this.stats.entriesCount = this.cache.size;
+  }
+
+  private updateHitRatio(): void {
+    const total = this.stats.hits + this.stats.misses;
+    this.stats.hitRatio = total > 0 ? this.stats.hits / total : 0;
   }
 }
 
-// Export singleton instance
-export const consolidatedCache = ConsolidatedCacheManager.getInstance();
-export default consolidatedCache;
+// Main Consolidated Cache Manager
+export class ConsolidatedCacheManager extends EventEmitter {
+  private caches: Map<CacheCategory, LRUCache> = new Map();
+  private memoryPressureLevel: MemoryPressure = MemoryPressure.LOW;
+  private totalMemoryLimit: number;
+  private webSocketConnection?: WebSocket;
+  private isInitialized: boolean = false;
+
+  // Default configurations for each cache category
+  private readonly defaultConfigs: Record<CacheCategory, CacheConfig> = {
+    [CacheCategory.ANALYSIS]: {
+      maxSize: 50 * 1024 * 1024, // 50MB
+      ttl: 30 * 60 * 1000, // 30 minutes
+      enablePersistence: true,
+      compression: true
+    },
+    [CacheCategory.SPORTS_DATA]: {
+      maxSize: 100 * 1024 * 1024, // 100MB
+      ttl: 5 * 60 * 1000, // 5 minutes
+      enablePersistence: false,
+      compression: true
+    },
+    [CacheCategory.USER_PREFERENCES]: {
+      maxSize: 5 * 1024 * 1024, // 5MB
+      ttl: 24 * 60 * 60 * 1000, // 24 hours
+      enablePersistence: true,
+      compression: false
+    },
+    [CacheCategory.API_RESPONSES]: {
+      maxSize: 75 * 1024 * 1024, // 75MB
+      ttl: 2 * 60 * 1000, // 2 minutes
+      enablePersistence: false,
+      compression: true
+    },
+    [CacheCategory.PREDICTIONS]: {
+      maxSize: 25 * 1024 * 1024, // 25MB
+      ttl: 10 * 60 * 1000, // 10 minutes
+      enablePersistence: true,
+      compression: true
+    },
+    [CacheCategory.REAL_TIME]: {
+      maxSize: 30 * 1024 * 1024, // 30MB
+      ttl: 30 * 1000, // 30 seconds
+      enablePersistence: false,
+      compression: false
+    },
+    [CacheCategory.STATIC_ASSETS]: {
+      maxSize: 20 * 1024 * 1024, // 20MB
+      ttl: 60 * 60 * 1000, // 1 hour
+      enablePersistence: true,
+      compression: false
+    }
+  };
+
+  constructor(totalMemoryLimit: number = 300 * 1024 * 1024) { // 300MB default
+    super();
+    this.totalMemoryLimit = totalMemoryLimit;
+    this.initialize();
+  }
+
+  private initialize(): void {
+    // Initialize all cache categories
+    Object.values(CacheCategory).forEach(category => {
+      const config = this.defaultConfigs[category];
+      const cache = new LRUCache(config);
+      
+      // Forward cache events
+      cache.on('set', (data) => this.emit('cache-set', { category, ...data }));
+      cache.on('remove', (data) => this.emit('cache-remove', { category, ...data }));
+      cache.on('clear', () => this.emit('cache-clear', { category }));
+      
+      this.caches.set(category, cache);
+    });
+
+    // Set up memory pressure monitoring
+    this.startMemoryPressureMonitoring();
+    
+    // Initialize WebSocket for real-time invalidation
+    this.initializeWebSocket();
+    
+    this.isInitialized = true;
+    this.emit('initialized');
+  }
+
+  // Core Cache Operations
+  set<T>(category: CacheCategory, key: string, value: T, ttl?: number): void {
+    if (!this.isInitialized) {
+      throw new Error('ConsolidatedCacheManager not initialized');
+    }
+
+    const cache = this.caches.get(category);
+    if (!cache) {
+      throw new Error(`Cache category ${category} not found`);
+    }
+
+    // Apply memory pressure adjustments
+    const adjustedTtl = this.adjustTtlForMemoryPressure(ttl || this.defaultConfigs[category].ttl);
+    
+    cache.set(key, value, adjustedTtl);
+    this.checkMemoryPressure();
+  }
+
+  get<T>(category: CacheCategory, key: string): T | null {
+    if (!this.isInitialized) {
+      return null;
+    }
+
+    const cache = this.caches.get(category);
+    if (!cache) {
+      return null;
+    }
+
+    return cache.get(key);
+  }
+
+  has(category: CacheCategory, key: string): boolean {
+    const cache = this.caches.get(category);
+    return cache ? cache.has(key) : false;
+  }
+
+  remove(category: CacheCategory, key: string): boolean {
+    const cache = this.caches.get(category);
+    return cache ? cache.remove(key) : false;
+  }
+
+  clear(category?: CacheCategory): void {
+    if (category) {
+      const cache = this.caches.get(category);
+      if (cache) {
+        cache.clear();
+      }
+    } else {
+      // Clear all caches
+      this.caches.forEach(cache => cache.clear());
+    }
+  }
+
+  // Advanced Cache Operations
+  getMultiple<T>(category: CacheCategory, keys: string[]): Record<string, T | null> {
+    const result: Record<string, T | null> = {};
+    keys.forEach(key => {
+      result[key] = this.get<T>(category, key);
+    });
+    return result;
+  }
+
+  setMultiple<T>(category: CacheCategory, entries: Record<string, T>, ttl?: number): void {
+    Object.entries(entries).forEach(([key, value]) => {
+      this.set(category, key, value, ttl);
+    });
+  }
+
+  invalidatePattern(category: CacheCategory, pattern: RegExp): number {
+    const cache = this.caches.get(category);
+    if (!cache) return 0;
+
+    const keysToRemove = cache.keys().filter(key => pattern.test(key));
+    keysToRemove.forEach(key => cache.remove(key));
+    
+    return keysToRemove.length;
+  }
+
+  // Cache Statistics and Monitoring
+  getStats(category?: CacheCategory): Record<string, CacheStats> | CacheStats {
+    if (category) {
+      const cache = this.caches.get(category);
+      return cache ? cache.getStats() : {} as CacheStats;
+    }
+
+    const allStats: Record<string, CacheStats> = {};
+    this.caches.forEach((cache, category) => {
+      allStats[category] = cache.getStats();
+    });
+    
+    return allStats;
+  }
+
+  getTotalMemoryUsage(): number {
+    let total = 0;
+    this.caches.forEach(cache => {
+      total += cache.getStats().memoryUsage;
+    });
+    return total;
+  }
+
+  getMemoryPressureLevel(): MemoryPressure {
+    return this.memoryPressureLevel;
+  }
+
+  // Memory Pressure Management
+  private checkMemoryPressure(): void {
+    const totalUsage = this.getTotalMemoryUsage();
+    const usageRatio = totalUsage / this.totalMemoryLimit;
+
+    let newPressureLevel: MemoryPressure;
+    
+    if (usageRatio > 0.9) {
+      newPressureLevel = MemoryPressure.CRITICAL;
+    } else if (usageRatio > 0.75) {
+      newPressureLevel = MemoryPressure.HIGH;
+    } else if (usageRatio > 0.5) {
+      newPressureLevel = MemoryPressure.MEDIUM;
+    } else {
+      newPressureLevel = MemoryPressure.LOW;
+    }
+
+    if (newPressureLevel !== this.memoryPressureLevel) {
+      this.memoryPressureLevel = newPressureLevel;
+      this.handleMemoryPressureChange(newPressureLevel);
+      this.emit('memory-pressure-change', { level: newPressureLevel, usage: totalUsage });
+    }
+  }
+
+  private handleMemoryPressureChange(level: MemoryPressure): void {
+    switch (level) {
+      case MemoryPressure.CRITICAL:
+        // Aggressive cleanup
+        this.clear(CacheCategory.REAL_TIME);
+        this.clear(CacheCategory.API_RESPONSES);
+        break;
+        
+      case MemoryPressure.HIGH:
+        // Clear short-lived caches
+        this.clear(CacheCategory.REAL_TIME);
+        break;
+        
+      case MemoryPressure.MEDIUM:
+        // Reduce TTL for new entries
+        break;
+        
+      case MemoryPressure.LOW:
+        // Normal operation
+        break;
+    }
+  }
+
+  private adjustTtlForMemoryPressure(baseTtl: number): number {
+    switch (this.memoryPressureLevel) {
+      case MemoryPressure.CRITICAL:
+        return baseTtl * 0.25; // Reduce TTL to 25%
+      case MemoryPressure.HIGH:
+        return baseTtl * 0.5;  // Reduce TTL to 50%
+      case MemoryPressure.MEDIUM:
+        return baseTtl * 0.75; // Reduce TTL to 75%
+      default:
+        return baseTtl;
+    }
+  }
+
+  private startMemoryPressureMonitoring(): void {
+    // Check memory pressure every 10 seconds
+    setInterval(() => {
+      this.checkMemoryPressure();
+    }, 10000);
+  }
+
+  // WebSocket Integration for Real-time Cache Invalidation
+  private initializeWebSocket(): void {
+    const wsUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:8000/ws/cache';
+    
+    try {
+      this.webSocketConnection = new WebSocket(wsUrl);
+      
+      this.webSocketConnection.onopen = () => {
+        this.emit('websocket-connected');
+      };
+      
+      this.webSocketConnection.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          this.handleWebSocketMessage(message);
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error);
+        }
+      };
+      
+      this.webSocketConnection.onclose = () => {
+        this.emit('websocket-disconnected');
+        // Attempt reconnection after 5 seconds
+        setTimeout(() => this.initializeWebSocket(), 5000);
+      };
+      
+      this.webSocketConnection.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+      
+    } catch (error) {
+      console.warn('WebSocket initialization failed:', error);
+    }
+  }
+
+  private handleWebSocketMessage(message: any): void {
+    const { type, category, key, pattern } = message;
+    
+    switch (type) {
+      case 'invalidate':
+        if (category && key) {
+          this.remove(category, key);
+        }
+        break;
+        
+      case 'invalidate-pattern':
+        if (category && pattern) {
+          this.invalidatePattern(category, new RegExp(pattern));
+        }
+        break;
+        
+      case 'clear':
+        if (category) {
+          this.clear(category);
+        }
+        break;
+        
+      case 'clear-all':
+        this.clear();
+        break;
+    }
+  }
+
+  // Persistence Operations
+  async persistCache(category: CacheCategory): Promise<void> {
+    const cache = this.caches.get(category);
+    const config = this.defaultConfigs[category];
+    
+    if (!cache || !config.enablePersistence) {
+      return;
+    }
+
+    try {
+      const cacheData = cache.keys().reduce((acc, key) => {
+        const value = cache.get(key);
+        if (value !== null) {
+          acc[key] = value;
+        }
+        return acc;
+      }, {} as Record<string, any>);
+
+      localStorage.setItem(`cache_${category}`, JSON.stringify(cacheData));
+      this.emit('cache-persisted', { category });
+    } catch (error) {
+      console.error(`Failed to persist cache ${category}:`, error);
+    }
+  }
+
+  async loadPersistedCache(category: CacheCategory): Promise<void> {
+    const config = this.defaultConfigs[category];
+    
+    if (!config.enablePersistence) {
+      return;
+    }
+
+    try {
+      const persistedData = localStorage.getItem(`cache_${category}`);
+      if (persistedData) {
+        const cacheData = JSON.parse(persistedData);
+        Object.entries(cacheData).forEach(([key, value]) => {
+          this.set(category, key, value);
+        });
+        this.emit('cache-loaded', { category });
+      }
+    } catch (error) {
+      console.error(`Failed to load persisted cache ${category}:`, error);
+    }
+  }
+
+  // Utility Methods
+  exportCacheData(category?: CacheCategory): any {
+    if (category) {
+      const cache = this.caches.get(category);
+      if (!cache) return null;
+      
+      return cache.keys().reduce((acc, key) => {
+        acc[key] = cache.get(key);
+        return acc;
+      }, {} as Record<string, any>);
+    }
+
+    const exportData: Record<string, any> = {};
+    this.caches.forEach((cache, category) => {
+      exportData[category] = this.exportCacheData(category);
+    });
+    
+    return exportData;
+  }
+
+  importCacheData(data: any, category?: CacheCategory): void {
+    if (category && data) {
+      Object.entries(data).forEach(([key, value]) => {
+        this.set(category, key, value);
+      });
+    } else if (data && typeof data === 'object') {
+      Object.entries(data).forEach(([cat, categoryData]) => {
+        if (Object.values(CacheCategory).includes(cat as CacheCategory)) {
+          this.importCacheData(categoryData, cat as CacheCategory);
+        }
+      });
+    }
+  }
+
+  // Cleanup and Destruction
+  destroy(): void {
+    // Close WebSocket connection
+    if (this.webSocketConnection) {
+      this.webSocketConnection.close();
+    }
+
+    // Clear all caches
+    this.clear();
+
+    // Remove all listeners
+    this.removeAllListeners();
+
+    this.isInitialized = false;
+  }
+}
+
+// Singleton instance
+let cacheManagerInstance: ConsolidatedCacheManager | null = null;
+
+export const getCacheManager = (): ConsolidatedCacheManager => {
+  if (!cacheManagerInstance) {
+    cacheManagerInstance = new ConsolidatedCacheManager();
+  }
+  return cacheManagerInstance;
+};
+
+// Convenience functions for common operations
+export const cacheGet = <T>(category: CacheCategory, key: string): T | null => {
+  return getCacheManager().get<T>(category, key);
+};
+
+export const cacheSet = <T>(category: CacheCategory, key: string, value: T, ttl?: number): void => {
+  getCacheManager().set(category, key, value, ttl);
+};
+
+export const cacheRemove = (category: CacheCategory, key: string): boolean => {
+  return getCacheManager().remove(category, key);
+};
+
+export const cacheClear = (category?: CacheCategory): void => {
+  getCacheManager().clear(category);
+};
+
+export default ConsolidatedCacheManager;
