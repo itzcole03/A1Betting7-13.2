@@ -15,14 +15,29 @@ interface ConnectionTest {
 }
 
 export const BackendConnectionTest: React.FC = () => {
-  const [tests, setTests] = useState<ConnectionTest[]>([
-    { name: 'Backend Health (Port 8000)', url: '/api/health', status: 'pending' },
-    { name: 'Cheatsheets Health', url: '/api/v1/cheatsheets/health', status: 'pending' },
-    { name: 'Backend Health Alt (Port 8000)', url: 'http://localhost:8000/health', status: 'pending' },
-    { name: 'Backend Health (Port 8001)', url: 'http://localhost:8001/health', status: 'pending' },
-    { name: 'Backend Health (Port 3000)', url: 'http://localhost:3000/health', status: 'pending' },
-    { name: 'Backend Docs', url: '/api/docs', status: 'pending' },
-  ]);
+  const isCloudEnvironment = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+  const [tests, setTests] = useState<ConnectionTest[]>(() => {
+    if (isCloudEnvironment) {
+      // In cloud environment, only test proxy endpoints
+      return [
+        { name: 'Backend Health (via proxy)', url: '/api/health', status: 'pending' },
+        { name: 'Cheatsheets Health', url: '/api/v1/cheatsheets/health', status: 'pending' },
+        { name: 'Backend Docs', url: '/api/docs', status: 'pending' },
+        { name: 'Root Health', url: '/health', status: 'pending' },
+      ];
+    } else {
+      // Local development - test multiple ports
+      return [
+        { name: 'Backend Health (Port 8000)', url: '/api/health', status: 'pending' },
+        { name: 'Cheatsheets Health', url: '/api/v1/cheatsheets/health', status: 'pending' },
+        { name: 'Backend Health Alt (Port 8000)', url: 'http://localhost:8000/health', status: 'pending' },
+        { name: 'Backend Health (Port 8001)', url: 'http://localhost:8001/health', status: 'pending' },
+        { name: 'Backend Health (Port 3000)', url: 'http://localhost:3000/health', status: 'pending' },
+        { name: 'Backend Docs', url: '/api/docs', status: 'pending' },
+      ];
+    }
+  });
 
   const [isRunning, setIsRunning] = useState(false);
 
