@@ -375,19 +375,6 @@ export default defineConfig(({ mode, command }) => {
     // CSS optimization
     css: {
       devSourcemap: !isProduction,
-      postcss: isProduction ? {
-        plugins: {
-          autoprefixer: {},
-          cssnano: {
-            preset: ['default', {
-              discardComments: { removeAll: true },
-              normalizeWhitespace: true,
-              mergeLonghand: true,
-              mergeRules: true,
-            }],
-          },
-        },
-      } : undefined,
     },
 
     // Enable experimental features for better performance
