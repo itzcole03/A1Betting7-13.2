@@ -212,15 +212,25 @@ export function initializeConsoleErrorSuppression() {
     
     // Add global error handler for window errors
     window.addEventListener('error', (event) => {
-      const errorMessage = event.message || event.error?.message || '';
+      const errorMessage = event.message || event.error?.message || event.error?.toString() || '';
       const knownError = isKnownNonCriticalError(errorMessage);
-      
+
       if (knownError) {
         event.preventDefault(); // Prevent the error from being logged
         console.debug(`[Suppressed Window Error] ${knownError.description}:`, event.error);
         return;
       }
-      
+
+      // Additional check for specific error sources
+      if (event.filename?.includes('sw_iframe.html') ||
+          event.filename?.includes('gtm.js') ||
+          event.filename?.includes('monaco-editor') ||
+          event.filename?.includes('fs.js')) {
+        event.preventDefault();
+        console.debug(`[Suppressed External Script Error] ${event.filename}:`, event.error);
+        return;
+      }
+
       // Allow genuine errors through
       originalConsole.error('[Window Error]', event.error);
     });
