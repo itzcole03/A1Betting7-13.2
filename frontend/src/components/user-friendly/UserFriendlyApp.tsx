@@ -226,8 +226,8 @@ const UserFriendlyApp: React.FC = () => {
               <Route
                 path='/player/:playerId?'
                 element={(() => {
-                  console.log('[UserFriendlyApp] Rendering Player Dashboard route');
-                  return <PlayerDashboard />;
+                  console.log('[UserFriendlyApp] Rendering Enhanced Player Dashboard route');
+                  return <EnhancedPlayerDashboard />;
                 })()}
               />
 
