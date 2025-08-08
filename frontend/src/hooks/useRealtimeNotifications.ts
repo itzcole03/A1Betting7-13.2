@@ -3,7 +3,7 @@
  * Provides easy integration with the WebSocket notification service
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { 
   realtimeNotificationService, 
   NotificationMessage, 
