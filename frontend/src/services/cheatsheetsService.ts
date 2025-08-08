@@ -5,6 +5,7 @@
  */
 
 import { logger } from '../utils/logger';
+import { backendHealthChecker } from '../utils/backendHealth';
 
 export interface PropOpportunity {
   id: string;
