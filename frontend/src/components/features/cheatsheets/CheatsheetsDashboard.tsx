@@ -224,11 +224,22 @@ export const CheatsheetsDashboard: React.FC = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={exportToCSV}
-                disabled={filteredOpportunities.length === 0}
+                disabled={filteredOpportunities.length === 0 || loading}
                 className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Export CSV
+              </button>
+              <button
+                onClick={() => {
+                  cheatsheetsService.clearCache();
+                  fetchOpportunities();
+                }}
+                className="flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                title="Clear cache and refresh"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Force Refresh
               </button>
               <button
                 onClick={() => setShowFilters(!showFilters)}
