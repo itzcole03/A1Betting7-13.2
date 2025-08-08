@@ -60,29 +60,9 @@ export default defineConfig(({ mode, command }) => {
       react({
         // Enable React Fast Refresh for better dev experience
         fastRefresh: !isProduction,
-        babel: {
-          plugins: [
-            // Remove development-only code in production
-            isProduction && ['babel-plugin-dev-expression', { strip: true }],
-          ].filter(Boolean),
-        },
       }),
       viteTsconfigPaths(),
-      isProduction && createHtmlPlugin({
-        minify: {
-          removeComments: true,
-          collapseWhitespace: true,
-          removeRedundantAttributes: true,
-          useShortDoctype: true,
-          removeEmptyAttributes: true,
-          removeStyleLinkTypeAttributes: true,
-          keepClosingSlash: true,
-          minifyJS: true,
-          minifyCSS: true,
-          minifyURLs: true,
-        },
-      }),
-    ].filter(Boolean),
+    ],
 
     resolve: {
       alias: {
