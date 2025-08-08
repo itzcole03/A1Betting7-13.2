@@ -941,7 +941,7 @@ class EnhancedProductionApp:
 
             # NEW: Risk Tools routes (Kelly Criterion)
             try:
-                self.app.include_router(risk_tools_router, tags=["Risk Management"])
+                self.app.include_router(risk_tools_router, prefix="/api", tags=["Risk Management"])
                 enhanced_routes.append("risk_tools")
                 self.logger.info("✅ Risk management (Kelly Criterion) routes included")
             except Exception as e:
