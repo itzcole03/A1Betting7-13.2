@@ -42,7 +42,19 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            await manager.broadcast(f"Prediction update: {data}")
+            import json
+            from datetime import datetime
+
+            # Always broadcast as JSON object
+            await manager.broadcast(
+                json.dumps(
+                    {
+                        "type": "PREDICTION_UPDATE",
+                        "payload": data,
+                        "timestamp": datetime.utcnow().isoformat(),
+                    }
+                )
+            )
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         logging.info({"event": "ws_disconnect", "reason": "client disconnected"})

@@ -1,0 +1,442 @@
+Directory structure:
+└── itzcole03-a1betting7-13.2/
+    ├── backend/
+    │   ├── README.md
+    │   ├── =2.2.7
+    │   ├── __init__.py
+    │   ├── admin_api.py
+    │   ├── advanced_best_practices_manager.py
+    │   ├── ADVANCED_BEST_PRACTICES_REPORT_20250701_151152.json
+    │   ├── advanced_feature_engineering.py
+    │   ├── agent_planner.py
+    │   ├── alembic.ini
+    │   ├── api_sports_personalization.py
+    │   ├── arbitrage_engine.py
+    │   ├── Attached HTML and CSS Context.txt
+    │   ├── auth.py
+    │   ├── auth_service.py
+    │   ├── autonomous_project_development_handler.py
+    │   ├── autonomous_recursive_orchestrator.py
+    │   ├── BACKEND_FILE_USAGE_ANALYSIS.md
+    │   ├── background_agents.py
+    │   ├── cache_optimizer.py
+    │   ├── chat_history_api.py
+    │   ├── cleanup_console_statements.py
+    │   ├── command_registry.py
+    │   ├── complete_stub_endpoints.py
+    │   ├── config_manager.py
+    │   ├── config_shim.py
+    │   ├── data_pipeline.py
+    │   ├── data_sources.py
+    │   ├── database.py
+    │   ├── database_health_checker.py
+    │   ├── deploy_production.sh
+    │   ├── direct_ollama_test.py
+    │   ├── Dockerfile
+    │   ├── enhanced_api_routes.py
+    │   ├── enhanced_database.py
+    │   ├── enhanced_ensemble_engine.py
+    │   ├── enhanced_feature_engineering.py
+    │   ├── enhanced_model_service.py
+    │   ├── enhanced_prediction_engine.py
+    │   ├── enhanced_production_integration.py
+    │   ├── ENHANCED_PROPOLLAMA_DOCUMENTATION.md
+    │   ├── enhanced_realtime_system.py
+    │   ├── enhanced_requirements.txt
+    │   ├── enhanced_revolutionary_api.py
+    │   ├── enhanced_risk_management.py
+    │   ├── enhanced_router_manager.py
+    │   ├── ensemble_optimizer.py
+    │   ├── ensure_all_tables.py
+    │   ├── eslint.config.js
+    │   ├── ETL_IMPLEMENTATION_PLAN.md
+    │   ├── ETL_INTEGRATION_TEST_PLAN.md
+    │   ├── etl_mlb.py
+    │   ├── ETL_PIPELINE_ARCHITECTURE.md
+    │   ├── etl_providerx_sample.py
+    │   ├── etl_test_db_setup.py
+    │   ├── event_mappings.json
+    │   ├── feature_cache.py
+    │   ├── feature_engineering.py
+    │   ├── feature_flags.py
+    │   ├── feature_logger.py
+    │   ├── feature_monitor.py
+    │   ├── feature_registry.py
+    │   ├── feature_selector.py
+    │   ├── feature_transformation.py
+    │   ├── feature_validator.py
+    │   ├── filtered_prediction_api.py
+    │   ├── fix_metrics.py
+    │   ├── health_api.py
+    │   ├── health_monitor.py
+    │   ├── HISTORICAL_SCHEMA_DOC.md
+    │   ├── integration_test_meta_learning.py
+    │   ├── integration_test_nas.py
+    │   ├── integration_test_quantum.py
+    │   ├── integration_test_real_metrics.py
+    │   ├── LAUNCHER_GUIDE.md
+    │   ├── llm_routes.py
+    │   ├── llm_toggle_api.py
+    │   ├── main.py
+    │   ├── memory_bank.py
+    │   ├── mlb_team_alias_table.csv
+    │   ├── model_service.py
+    │   ├── monitoring_service.py
+    │   ├── otel_instrumentation.py
+    │   ├── performance_test_meta_learning.py
+    │   ├── performance_test_nas.py
+    │   ├── performance_test_quantum.py
+    │   ├── performance_test_real_metrics.py
+    │   ├── PHASE_0_4_PROGRESS_REPORT.md
+    │   ├── PHASE_1_COMPLETION_REPORT.md
+    │   ├── PHASE_2_COMPLETION_REPORT.md
+    │   ├── PHASE_3_COMPLETION_REPORT.md
+    │   ├── PHASE_4_COMPLETION_REPORT.md
+    │   ├── phase_6_integration_test.py
+    │   ├── phase_7_production_launch.py
+    │   ├── PHASE_9_REALITY_ASSESSMENT.md
+    │   ├── prediction_api.py
+    │   ├── prediction_engine.py
+    │   ├── prizepicks_cookies.json
+    │   ├── production_api.py
+    │   ├── PRODUCTION_FEATURES.md
+    │   ├── production_integration.py
+    │   ├── production_operation_manager.py
+    │   ├── PRODUCTION_OPERATION_REPORT_20250701_145354.json
+    │   ├── pytest.ini
+    │   ├── quantum_enhanced_coordinator.py
+    │   ├── real_arbitrage_engine.py
+    │   ├── real_data_validation_report.json
+    │   ├── realtime_accuracy_monitor.py
+    │   ├── realtime_engine.py
+    │   ├── recursive_intelligence_coordinator.py
+    │   ├── redis_rate_limiter.py
+    │   ├── REFACTORING_PLAN.md
+    │   ├── REFACTORING_PROGRESS.md
+    │   ├── requirements-minimal.txt
+    │   ├── requirements.txt
+    │   ├── requirements_complete.txt
+    │   ├── requirements_production.txt
+    │   ├── revolutionary_accuracy_engine.py
+    │   ├── revolutionary_api.py
+    │   ├── riai_coordinator.py
+    │   ├── RIAI_EVOLUTION_REPORT.json
+    │   ├── ROADMAP.md
+    │   ├── rules_audit_log.jsonl
+    │   ├── run_security_scan.sh
+    │   ├── SCHEMA_EXPANSION_PROPOSAL.md
+    │   ├── security_config.py
+    │   ├── security_hardening.py
+    │   ├── security_report.json
+    │   ├── SECURITY_SCAN_GUIDE.md
+    │   ├── security_scanner.py
+    │   ├── seed_admin.py
+    │   ├── self_modifying_engine.py
+    │   ├── shap_explainer.py
+    │   ├── specialist_apis.py
+    │   ├── sports_prediction_personalization.py
+    │   ├── start_backend.ps1
+    │   ├── start_cloud_integration.bat
+    │   ├── start_cloud_integration.py
+    │   ├── start_complete_backend.bat
+    │   ├── start_python_backend.bat
+    │   ├── start_python_backend.sh
+    │   ├── start_simple.bat
+    │   ├── statcast_api.py
+    │   ├── system_monitor.py
+    │   ├── task_processor.py
+    │   ├── test_payloads.json
+    │   ├── test_props.json
+    │   ├── ultra_accuracy_engine_simple.py
+    │   ├── ultra_accuracy_routes.py
+    │   ├── unified_feature_service.py
+    │   ├── USER_MODEL_SECURITY.md
+    │   ├── user_models.py
+    │   ├── validate_complete_integration.py
+    │   ├── validate_enhanced_engine.py
+    │   ├── ws.py
+    │   ├── .env.example
+    │   ├── alembic/
+    │   │   ├── README
+    │   │   ├── env.py
+    │   │   ├── script.py.mako
+    │   │   └── versions/
+    │   │       ├── 079780825cba_add_historical_data_models_casino_score_.py
+    │   │       ├── 37f2139975d0_initial_migration.py
+    │   │       ├── 504fcf5dc2f5_add_teams_events_odds_tables.py
+    │   │       ├── 6e6dad7a7f13_update_historical_schema.py
+    │   │       ├── 9beb31b07eb3_sync_models_and_schema.py
+    │   │       ├── a488fec67a2b_unified_base_for_match_and_historical_.py
+    │   │       └── f06f8a0fc07c_add_teams_events_odds_tables.py
+    │   ├── auth/
+    │   │   ├── __init__.py
+    │   │   ├── security.py
+    │   │   └── user_service.py
+    │   ├── cleanup_phase1/
+    │   │   ├── PHASE1_CLEANUP_PLAN.md
+    │   │   ├── PHASE1_COMPLETION_SUMMARY.md
+    │   │   ├── PHASE2_IMPLEMENTATION_PLAN.md
+    │   │   └── archived_files/
+    │   │       ├── analytics.py
+    │   │       ├── analytics_api.py
+    │   │       ├── backend_8001.py
+    │   │       ├── config.py
+    │   │       ├── main_enhanced_prod.py
+    │   │       ├── main_integrated.py
+    │   │       ├── main_minimal.py
+    │   │       ├── minimal_backend.py
+    │   │       ├── quick_backend.py
+    │   │       ├── real_prizepicks_backend.py
+    │   │       ├── run_backend.py
+    │   │       ├── simple_backend.py
+    │   │       ├── simple_healthy_backend.py
+    │   │       ├── simple_propollama_backend.py
+    │   │       ├── test_backend.py
+    │   │       └── working_backend.py
+    │   ├── config/
+    │   │   ├── business_rules.yaml
+    │   │   ├── enhanced_openapi.py
+    │   │   ├── prompt_templates.yaml
+    │   │   └── settings.py
+    │   ├── exceptions/
+    │   │   ├── api_exceptions.py
+    │   │   └── handlers.py
+    │   ├── health/
+    │   │   └── health_checks.py
+    │   ├── logs/
+    │   │   └── errors.jsonl
+    │   ├── maps/
+    │   │   └── SFBB MLB Team Map - SFBB Team Map.csv
+    │   ├── middleware/
+    │   │   ├── __init__.py
+    │   │   ├── advanced_rate_limiting.py
+    │   │   ├── caching.py
+    │   │   ├── comprehensive_middleware.py
+    │   │   ├── error_handlers.py
+    │   │   ├── metrics_middleware.py
+    │   │   ├── rate_limit.py
+    │   │   ├── request_correlation.py
+    │   │   ├── request_tracking.py
+    │   │   └── security_middleware.py
+    │   ├── models/
+    │   │   ├── __all_models__.py
+    │   │   ├── __init__.py
+    │   │   ├── all_models.py
+    │   │   ├── api_models.py
+    │   │   ├── base.py
+    │   │   ├── bet.py
+    │   │   ├── comprehensive_api_models.py
+    │   │   ├── expanded_models.py
+    │   │   ├── historical.py
+    │   │   ├── match.py
+    │   │   ├── model_performance.py
+    │   │   ├── modern_architectures.py
+    │   │   ├── nba_models.py
+    │   │   ├── nfl_models.py
+    │   │   ├── nhl_models.py
+    │   │   ├── player_models.py
+    │   │   ├── prediction.py
+    │   │   ├── projection_history.py
+    │   │   ├── user.py
+    │   │   └── win_probability_model.pkl
+    │   ├── monitoring/
+    │   │   └── data_optimization_monitoring.py
+    │   ├── routes/
+    │   │   ├── __init__.py
+    │   │   ├── admin.py
+    │   │   ├── analytics_routes.py
+    │   │   ├── auth.py
+    │   │   ├── betting.py
+    │   │   ├── data_validation_routes.py
+    │   │   ├── debug_api.py
+    │   │   ├── diagnostics.py
+    │   │   ├── enhanced_api.py
+    │   │   ├── enhanced_data_validation_routes.py
+    │   │   ├── fanduel.py
+    │   │   ├── feedback.py
+    │   │   ├── health.py
+    │   │   ├── lazy_sport_routes.py
+    │   │   ├── metrics.py
+    │   │   ├── modern_async_routes.py
+    │   │   ├── modern_ml_routes.py
+    │   │   ├── nba_routes.py
+    │   │   ├── optimized_routes.py
+    │   │   ├── performance.py
+    │   │   ├── phase2_routes.py
+    │   │   ├── phase3_routes.py
+    │   │   ├── player_dashboard_routes.py
+    │   │   ├── priority2_demo_routes.py
+    │   │   ├── priority2_realtime_routes.py
+    │   │   ├── prizepicks.py
+    │   │   ├── prizepicks_router.py
+    │   │   ├── prizepicks_simple.py
+    │   │   ├── production_health_routes.py
+    │   │   ├── propollama_router.py
+    │   │   ├── real_time_analysis.py
+    │   │   ├── shap.py
+    │   │   ├── sports_routes.py
+    │   │   ├── trending_suggestions.py
+    │   │   ├── unified_api.py
+    │   │   ├── unified_sports_routes.py
+    │   │   ├── user.py
+    │   │   └── versioned_api_routes.py
+    │   ├── services/
+    │   │   ├── __init__.py
+    │   │   ├── advanced_bayesian_ensemble.py
+    │   │   ├── advanced_ensemble_service.py
+    │   │   ├── advanced_feature_engine.py
+    │   │   ├── advanced_ml_service.py
+    │   │   ├── advanced_prediction_framework.py
+    │   │   ├── advanced_security_service.py
+    │   │   ├── async_connection_pool.py
+    │   │   ├── async_performance_optimizer.py
+    │   │   ├── auth_service.py
+    │   │   ├── automated_feature_engineering.py
+    │   │   ├── autonomous_monitoring_service.py
+    │   │   ├── background_task_manager.py
+    │   │   ├── bankroll_service.py
+    │   │   ├── baseball_savant_client.py
+    │   │   ├── batch_prop_analysis_service.py
+    │   │   ├── calculations.py
+    │   │   ├── comprehensive_feature_engine.py
+    │   │   ├── comprehensive_observability.py
+    │   │   ├── comprehensive_sportsbook_integration.py
+    │   │   ├── data_fetchers.py
+    │   │   ├── data_validation_integration.py
+    │   │   ├── data_validation_orchestrator.py
+    │   │   ├── database_migration_service.py
+    │   │   ├── database_service.py
+    │   │   ├── distributed_processing.py
+    │   │   ├── email_service.py
+    │   │   ├── enhanced_async_pipeline.py
+    │   │   ├── enhanced_connection_pool.py
+    │   │   ├── enhanced_data_pipeline.py
+    │   │   ├── enhanced_data_validation_integration.py
+    │   │   ├── enhanced_database_migration_service.py
+    │   │   ├── enhanced_feature_engineering.py
+    │   │   ├── enhanced_ml_ensemble_service.py
+    │   │   ├── enhanced_ml_model_pipeline.py
+    │   │   ├── enhanced_ml_service.py
+    │   │   ├── enhanced_monitoring_alerting.py
+    │   │   ├── enhanced_prizepicks_service.py
+    │   │   ├── enhanced_prizepicks_service_v2.py
+    │   │   ├── enhanced_prop_analysis_service_fixed.py
+    │   │   ├── enhanced_realtime_websocket.py
+    │   │   ├── enhanced_resilience_service.py
+    │   │   ├── enterprise_data_pipeline.py
+    │   │   ├── generate_realistic_mock_odds.py
+    │   │   ├── inference_optimization.py
+    │   │   ├── intelligent_cache_service.py
+    │   │   ├── intelligent_ensemble_system.py
+    │   │   ├── lazy_sport_manager.py
+    │   │   ├── maximum_accuracy_prediction_api.py
+    │   │   ├── mlb_feature_engineering.py
+    │   │   ├── mlb_stats_api_client.py
+    │   │   ├── mlops_pipeline_service.py
+    │   │   ├── model_performance_tracker.py
+    │   │   ├── modern_async_architecture.py
+    │   │   ├── modern_ml_data_bridge.py
+    │   │   ├── modern_ml_integration.py
+    │   │   ├── modern_ml_service.py
+    │   │   ├── multi_sport_ensemble_manager.py
+    │   │   ├── nba_service_client.py
+    │   │   ├── nfl_service_client.py
+    │   │   ├── nhl_service_client.py
+    │   │   ├── optimized_baseball_savant_client.py
+    │   │   ├── optimized_data_service.py
+    │   │   ├── optimized_data_validation_orchestrator.py
+    │   │   ├── optimized_redis_service.py
+    │   │   ├── performance_optimization.py
+    │   │   ├── phase2_integration.py
+    │   │   ├── pipeline_integration_service.py
+    │   │   ├── player_dashboard_service.py
+    │   │   ├── player_id_mapping_service.py
+    │   │   ├── production_deployment_service.py
+    │   │   ├── production_logging_service.py
+    │   │   ├── propollama_intelligence_service.py
+    │   │   ├── quantum_optimization_service.py
+    │   │   ├── query_optimizer.py
+    │   │   ├── rate_limiting_service.py
+    │   │   ├── real_data_integration.py
+    │   │   ├── real_data_service.py
+    │   │   ├── real_ml_service.py
+    │   │   ├── real_ml_training_service.py
+    │   │   ├── real_prizepicks_service.py
+    │   │   ├── real_shap_service.py
+    │   │   ├── real_sportsbook_service.py
+    │   │   ├── real_time_analysis_engine.py
+    │   │   ├── real_time_performance_metrics.py
+    │   │   ├── real_time_prediction_engine.py
+    │   │   ├── real_time_updates.py
+    │   │   ├── real_ultra_accuracy_engine.py
+    │   │   ├── realtime_analytics_engine.py
+    │   │   ├── realtime_integration_service.py
+    │   │   ├── realtime_prop_updates.py
+    │   │   ├── realtime_websocket_service.py
+    │   │   ├── response_optimizer.py
+    │   │   ├── service_adapters.py
+    │   │   ├── simple_player_dashboard_service.py
+    │   │   ├── sport_service_base.py
+    │   │   ├── sports_initialization.py
+    │   │   ├── stat_projection_models.py
+    │   │   ├── statcast_data_pipeline.py
+    │   │   ├── statcast_ml_integration.py
+    │   │   ├── statcast_ml_integration_simple.py
+    │   │   ├── transaction_service.py
+    │   │   ├── unified_cache_service.py
+    │   │   ├── unified_config.py
+    │   │   ├── unified_data_fetcher.py
+    │   │   ├── unified_data_pipeline.py
+    │   │   ├── unified_error_handler.py
+    │   │   ├── unified_logging.py
+    │   │   ├── unified_prediction_service.py
+    │   │   └── user_auth_service.py
+    │   ├── src/
+    │   │   └── auth.py
+    │   ├── test/
+    │   │   ├── test_propollama_business_logic.py
+    │   │   └── test_rules_audit_log.py
+    │   ├── testing/
+    │   │   └── comprehensive_test_framework.py
+    │   ├── tests/
+    │   │   ├── __init__.py
+    │   │   ├── conftest.py
+    │   │   ├── test_api_key_auth.py
+    │   │   ├── test_api_models.py
+    │   │   ├── test_api_models_metadata.py
+    │   │   ├── test_api_v1.py
+    │   │   ├── test_background_task_stability.py
+    │   │   ├── test_comprehensive_prop_generator.py
+    │   │   ├── test_endpoints.py
+    │   │   ├── test_error_handling.py
+    │   │   ├── test_health_endpoints.py
+    │   │   ├── test_meta_learning.py
+    │   │   ├── test_mlb_extras.py
+    │   │   ├── test_modern_async_architecture.py
+    │   │   ├── test_nas_implementation.py
+    │   │   ├── test_player_dashboard.py
+    │   │   ├── test_prizepicks_endpoints.py
+    │   │   ├── test_production_integration.py
+    │   │   ├── test_propollama_api.py
+    │   │   ├── test_quantum_ensemble.py
+    │   │   ├── test_real_metrics.py
+    │   │   └── test_security_endpoints.py
+    │   └── utils/
+    │       ├── __init__.py
+    │       ├── circuit_breaker.py
+    │       ├── enhanced_logging.py
+    │       ├── error_handler.py
+    │       ├── llm_engine.py
+    │       ├── metrics_collector.py
+    │       ├── prediction_utils.py
+    │       ├── rate_limiter.py
+    │       ├── request_logging.py
+    │       ├── seasonal_utils.py
+    │       ├── serialization_utils.py
+    │       └── structured_logging.py
+    ├── frontend/
+    │   ├── README.md
+    │   ├── A1Betting-master-27-25-main-main.code-workspace
+    │   ├── ADMIN_MODE.md
+    │   ├── ADVANCED_T
+(Content truncated due to size limit. Use page ranges or line ranges to read remaining content)

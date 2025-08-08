@@ -120,7 +120,10 @@ class ConnectionResilience {
         }, this.config.timeout);
 
         // Use full URL for health endpoint
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+        // Use getEnvVar for robust env access
+        // @ts-ignore
+        const { getEnvVar } = await import('./getEnvVar');
+        const backendUrl = getEnvVar('VITE_BACKEND_URL', 'http://localhost:8000');
         const healthUrl = `${backendUrl}${this.config.endpoint}`;
 
         const response = await fetch(healthUrl, {

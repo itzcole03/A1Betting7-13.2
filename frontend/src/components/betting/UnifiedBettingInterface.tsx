@@ -1,15 +1,17 @@
+import { BetSlipComponent } from '@/components/betting/BetSlipComponent';
+import { BettingFilters } from '@/components/filters/BettingFilters';
+import { useUnifiedBettingState } from '@/hooks/useUnifiedBettingState';
 import {
   AlertTriangle,
   BarChart3,
   DollarSign,
-  Filter,
   Plus,
   Settings,
   Target,
   TrendingUp,
   X,
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 // Types and Interfaces
 interface BettingOpportunity {
@@ -35,173 +37,25 @@ interface BetSlipItem {
 }
 
 const UnifiedBettingInterface: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('opportunities');
-  const [opportunities, setOpportunities] = useState<BettingOpportunity[]>([]);
-  const [betSlip, setBetSlip] = useState<BetSlipItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [sportFilter, setSportFilter] = useState<string>('all');
-  const [marketFilter, setMarketFilter] = useState<string>('all');
-  const [minEdge, setMinEdge] = useState<number>(5);
-  const [minConfidence, setMinConfidence] = useState<number>(70);
-
-  // Mock data for demonstration
-  useEffect(() => {
-    const mockOpportunities: BettingOpportunity[] = [
-      {
-        id: 'opp-1',
-        sport: 'MLB',
-        market: 'Player Hits',
-        selection: 'Mookie Betts Over 1.5 Hits',
-        odds: 2.1,
-        edge: 8.5,
-        confidence: 82,
-        recommended_stake: 150,
-        max_stake: 500,
-        expected_value: 12.75,
-        bookmaker: 'DraftKings',
-        game_time: '2025-01-05T19:00:00Z',
-      },
-      {
-        id: 'opp-2',
-        sport: 'MLB',
-        market: 'Player RBIs',
-        selection: 'Ronald Acuña Jr. Over 0.5 RBIs',
-        odds: 1.85,
-        edge: 12.3,
-        confidence: 89,
-        recommended_stake: 200,
-        max_stake: 750,
-        expected_value: 24.6,
-        bookmaker: 'FanDuel',
-        game_time: '2025-01-05T19:30:00Z',
-      },
-      {
-        id: 'opp-3',
-        sport: 'MLB',
-        market: 'Team Total',
-        selection: 'Dodgers Over 4.5 Runs',
-        odds: 1.92,
-        edge: 6.8,
-        confidence: 75,
-        recommended_stake: 100,
-        max_stake: 400,
-        expected_value: 6.8,
-        bookmaker: 'BetMGM',
-        game_time: '2025-01-05T20:00:00Z',
-      },
-    ];
-
-    setOpportunities(mockOpportunities);
-  }, []);
-
-  const getEdgeColor = (edge: number) => {
-    if (edge >= 10) return 'text-green-600 bg-green-100';
-    if (edge >= 5) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
-  };
-
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return 'text-green-600 bg-green-100';
-    if (confidence >= 70) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
-  };
-
-  const addToBetSlip = (opportunity: BettingOpportunity) => {
-    const newItem: BetSlipItem = {
-      opportunity_id: opportunity.id,
-      stake: opportunity.recommended_stake,
-      potential_win: opportunity.recommended_stake * (opportunity.odds - 1),
-      status: 'pending',
-    };
-    setBetSlip(prev => [...prev, newItem]);
-  };
-
-  const removeFromBetSlip = (opportunityId: string) => {
-    setBetSlip(prev => prev.filter(item => item.opportunity_id !== opportunityId));
-  };
-
-  const getOpportunityById = (id: string) => {
-    return opportunities.find(opp => opp.id === id);
-  };
-
-  const filteredOpportunities = opportunities.filter(opp => {
-    if (sportFilter !== 'all' && opp.sport !== sportFilter) return false;
-    if (marketFilter !== 'all' && opp.market !== marketFilter) return false;
-    if (opp.edge < minEdge) return false;
-    if (opp.confidence < minConfidence) return false;
-    return true;
-  });
+  const {
+    activeTab,
+    setActiveTab,
+    opportunities,
+    betSlip,
+    loading,
+    error,
+    setError,
+    filters,
+    setFilters,
+    addToBetSlip,
+    removeFromBetSlip,
+    getOpportunityById,
+    filteredOpportunities,
+  } = useUnifiedBettingState();
 
   const renderOpportunities = () => (
     <div className='space-y-6'>
-      {/* Filters */}
-      <div className='bg-white rounded-lg shadow-md p-6'>
-        <h3 className='text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2'>
-          <Filter className='w-5 h-5' />
-          <span>Filters</span>
-        </h3>
-        <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>Sport</label>
-            <select
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500'
-              value={sportFilter}
-              onChange={e => setSportFilter(e.target.value)}
-            >
-              <option value='all'>All Sports</option>
-              <option value='MLB'>MLB</option>
-              <option value='NBA'>NBA</option>
-              <option value='NFL'>NFL</option>
-            </select>
-          </div>
-
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>Market</label>
-            <select
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500'
-              value={marketFilter}
-              onChange={e => setMarketFilter(e.target.value)}
-            >
-              <option value='all'>All Markets</option>
-              <option value='Player Hits'>Player Hits</option>
-              <option value='Player RBIs'>Player RBIs</option>
-              <option value='Team Total'>Team Total</option>
-            </select>
-          </div>
-
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>Min Edge (%)</label>
-            <input
-              type='range'
-              min='0'
-              max='20'
-              step='0.5'
-              value={minEdge}
-              onChange={e => setMinEdge(Number(e.target.value))}
-              className='w-full'
-            />
-            <span className='text-sm text-gray-500'>{minEdge}%</span>
-          </div>
-
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Min Confidence (%)
-            </label>
-            <input
-              type='range'
-              min='50'
-              max='100'
-              step='1'
-              value={minConfidence}
-              onChange={e => setMinConfidence(Number(e.target.value))}
-              className='w-full'
-            />
-            <span className='text-sm text-gray-500'>{minConfidence}%</span>
-          </div>
-        </div>
-      </div>
-
+      <BettingFilters filters={filters} setFilters={setFilters} />
       {/* Opportunities List */}
       <div className='bg-white rounded-lg shadow-md'>
         <div className='px-6 py-4 border-b border-gray-200'>
@@ -210,166 +64,73 @@ const UnifiedBettingInterface: React.FC = () => {
           </h3>
         </div>
         <div className='divide-y divide-gray-200'>
-          {filteredOpportunities.map(opportunity => (
-            <div key={opportunity.id} className='p-6 hover:bg-gray-50'>
-              <div className='flex items-center justify-between'>
-                <div className='flex-1'>
-                  <div className='flex items-center space-x-3 mb-2'>
-                    <span className='text-sm font-medium text-blue-600'>{opportunity.sport}</span>
-                    <span className='text-sm text-gray-500'>{opportunity.market}</span>
-                    <span className='text-xs text-gray-400'>{opportunity.bookmaker}</span>
-                  </div>
-                  <h4 className='text-lg font-semibold text-gray-900 mb-2'>
-                    {opportunity.selection}
-                  </h4>
-                  <div className='flex items-center space-x-4 text-sm text-gray-600'>
-                    <span>Odds: {opportunity.odds.toFixed(2)}</span>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getEdgeColor(
-                        opportunity.edge
-                      )}`}
-                    >
-                      Edge: {opportunity.edge.toFixed(1)}%
-                    </span>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getConfidenceColor(
-                        opportunity.confidence
-                      )}`}
-                    >
-                      Confidence: {opportunity.confidence}%
-                    </span>
-                  </div>
-                </div>
-                <div className='text-right'>
-                  <div className='mb-2'>
-                    <span className='text-sm text-gray-500'>Recommended Stake:</span>
-                    <div className='text-lg font-bold text-gray-900'>
-                      ${opportunity.recommended_stake}
+          {filteredOpportunities.map(
+            (opportunity: import('../../hooks/useUnifiedBettingState').BettingOpportunity) => (
+              <div key={opportunity.id} className='p-6 hover:bg-gray-50'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex-1'>
+                    <div className='flex items-center space-x-3 mb-2'>
+                      <span className='text-sm font-medium text-blue-600'>{opportunity.sport}</span>
+                      <span className='text-sm text-gray-500'>{opportunity.market}</span>
+                      <span className='text-xs text-gray-400'>{opportunity.bookmaker}</span>
+                    </div>
+                    <h4 className='text-lg font-semibold text-gray-900 mb-2'>
+                      {opportunity.selection}
+                    </h4>
+                    <div className='flex items-center space-x-4 text-sm text-gray-600'>
+                      <span>Odds: {opportunity.odds.toFixed(2)}</span>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${opportunity.edgeColor}`}
+                      >
+                        Edge: {opportunity.edge.toFixed(1)}%
+                      </span>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${opportunity.confidenceColor}`}
+                      >
+                        Confidence: {opportunity.confidence}%
+                      </span>
                     </div>
                   </div>
-                  <div className='mb-3'>
-                    <span className='text-sm text-gray-500'>Expected Value:</span>
-                    <div className='text-sm font-semibold text-green-600'>
-                      +${opportunity.expected_value.toFixed(2)}
+                  <div className='text-right'>
+                    <div className='mb-2'>
+                      <span className='text-sm text-gray-500'>Recommended Stake:</span>
+                      <div className='text-lg font-bold text-gray-900'>
+                        ${opportunity.recommended_stake}
+                      </div>
                     </div>
+                    <div className='mb-3'>
+                      <span className='text-sm text-gray-500'>Expected Value:</span>
+                      <div className='text-sm font-semibold text-green-600'>
+                        +${opportunity.expected_value.toFixed(2)}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => addToBetSlip(opportunity)}
+                      className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm flex items-center space-x-2'
+                      disabled={betSlip.some(
+                        (item: import('../../hooks/useUnifiedBettingState').BetSlipItem) =>
+                          item.opportunity_id === opportunity.id
+                      )}
+                    >
+                      <Plus className='w-4 h-4' />
+                      <span>Add to Bet Slip</span>
+                    </button>
                   </div>
-                  <button
-                    onClick={() => addToBetSlip(opportunity)}
-                    className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm flex items-center space-x-2'
-                    disabled={betSlip.some(item => item.opportunity_id === opportunity.id)}
-                  >
-                    <Plus className='w-4 h-4' />
-                    <span>Add to Bet Slip</span>
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          )}
         </div>
       </div>
     </div>
   );
 
   const renderBetSlip = () => (
-    <div className='space-y-6'>
-      <div className='bg-white rounded-lg shadow-md'>
-        <div className='px-6 py-4 border-b border-gray-200'>
-          <h3 className='text-lg font-semibold text-gray-900'>Bet Slip ({betSlip.length} bets)</h3>
-        </div>
-        {betSlip.length === 0 ? (
-          <div className='p-6 text-center text-gray-500'>
-            <Target className='w-12 h-12 mx-auto mb-4 text-gray-300' />
-            <p>No bets in your slip yet</p>
-            <p className='text-sm'>Add opportunities from the Opportunities tab</p>
-          </div>
-        ) : (
-          <div className='divide-y divide-gray-200'>
-            {betSlip.map(item => {
-              const opportunity = getOpportunityById(item.opportunity_id);
-              if (!opportunity) return null;
-
-              return (
-                <div key={item.opportunity_id} className='p-6'>
-                  <div className='flex items-center justify-between mb-3'>
-                    <div>
-                      <h4 className='font-semibold text-gray-900'>{opportunity.selection}</h4>
-                      <p className='text-sm text-gray-500'>
-                        {opportunity.sport} • {opportunity.market}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => removeFromBetSlip(item.opportunity_id)}
-                      className='text-red-500 hover:text-red-700'
-                    >
-                      <X className='w-4 h-4' />
-                    </button>
-                  </div>
-                  <div className='grid grid-cols-3 gap-4'>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Stake ($)
-                      </label>
-                      <input
-                        type='number'
-                        min='1'
-                        max={opportunity.max_stake}
-                        value={item.stake}
-                        onChange={e => {
-                          const newStake = Number(e.target.value);
-                          setBetSlip(prev =>
-                            prev.map(betItem =>
-                              betItem.opportunity_id === item.opportunity_id
-                                ? {
-                                    ...betItem,
-                                    stake: newStake,
-                                    potential_win: newStake * (opportunity.odds - 1),
-                                  }
-                                : betItem
-                            )
-                          );
-                        }}
-                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500'
-                      />
-                    </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>Odds</label>
-                      <div className='px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-900'>
-                        {opportunity.odds.toFixed(2)}
-                      </div>
-                    </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Potential Win
-                      </label>
-                      <div className='px-3 py-2 bg-green-50 border border-green-200 rounded-md text-green-700 font-semibold'>
-                        ${item.potential_win.toFixed(2)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            <div className='p-6 bg-gray-50'>
-              <div className='flex justify-between items-center mb-4'>
-                <span className='text-lg font-semibold text-gray-900'>Total Stake:</span>
-                <span className='text-lg font-bold text-gray-900'>
-                  ${betSlip.reduce((sum, item) => sum + item.stake, 0).toFixed(2)}
-                </span>
-              </div>
-              <div className='flex justify-between items-center mb-4'>
-                <span className='text-lg font-semibold text-gray-900'>Potential Payout:</span>
-                <span className='text-lg font-bold text-green-600'>
-                  ${betSlip.reduce((sum, item) => sum + item.potential_win, 0).toFixed(2)}
-                </span>
-              </div>
-              <button className='w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-semibold'>
-                Place All Bets
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+    <BetSlipComponent
+      betSlip={betSlip}
+      getOpportunityById={getOpportunityById}
+      removeFromBetSlip={removeFromBetSlip}
+    />
   );
 
   const renderContent = () => {
@@ -388,7 +149,10 @@ const UnifiedBettingInterface: React.FC = () => {
       <div className='max-w-7xl mx-auto'>
         {/* Header */}
         <div className='mb-6'>
-          <h1 className='text-3xl font-bold text-gray-900 flex items-center space-x-3'>
+          <h1
+            className='text-3xl font-bold text-gray-900 flex items-center space-x-3'
+            data-testid='betting-interface-heading'
+          >
             <TrendingUp className='w-8 h-8 text-green-600' />
             <span>Unified Betting Interface</span>
           </h1>

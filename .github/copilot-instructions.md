@@ -1,68 +1,129 @@
 # Copilot Agent Instructions: A1Betting7-13.2
 
-## Architecture & Service Boundaries
+## Big Picture Architecture
 
-A1Betting7-13.2 is a full-stack sports analytics platform for AI-powered prop generation and betting insights. It uses FastAPI (Python) for backend APIs and React (TypeScript) for the frontend. Key backend services include modern ML pipelines, advanced caching, real-time updates, and comprehensive prop generation. All data flows use real MLB APIs—no mock data.
+A1Betting7-13.2 is a full-stack, AI-powered sports analytics and prop betting platform. The backend (Python/FastAPI) provides modular APIs, ML/LLM inference, and real-time data, while the frontend (React/TypeScript) delivers a modern, virtualized UI with robust state management and desktop (Electron) support.
 
-**🆕 Recent Major Optimization (2025-08-05):**
-
-- **Service Consolidation**: 3 duplicate data fetchers → `unified_data_fetcher.py` (413 lines)
-- **Cache Unification**: 4 different cache services → `unified_cache_service.py` (123 lines, backwards compatible)
-- **Frontend Modularization**: 2427-line monolithic component → specialized modular components
-- **Comprehensive Infrastructure**: Unified error handling, logging, and configuration systems
-- **86.4% Phase 3 verification success rate** (51/59 tests passed)
-
-**Major Components:**
-
-- Backend: `backend/main.py` (entry), `backend/production_integration.py` (app factory)
-- Frontend: `frontend/src/App.tsx`, `frontend/src/components/containers/PropOllamaContainer.tsx`
-- Unified Services: `unified_data_fetcher.py`, `unified_cache_service.py`, `unified_error_handler.py`, `unified_logging.py`, `unified_config.py`
-- Prop Generation: `backend/services/comprehensive_prop_generator.py`
-- Modern ML: `backend/services/modern_ml_service.py`, `backend/models/modern_architectures.py`
-- Real-time: `backend/services/real_time_updates.py`
+- **Backend Entrypoints:** `backend/main.py` (dev), `backend/production_integration.py` (prod)
+- **Frontend Entrypoint:** `frontend/src/App.tsx`
+- **Unified Services:** All backend data, cache, error, and logging services are consolidated (see `backend/services/unified_*`).
+- **ML/LLM:** Modern ML is in `backend/services/modern_ml_service.py`, with graceful fallback to legacy services.
+- **Frontend State:** Zustand stores (`store/`), React Context (`contexts/`), custom hooks (`hooks/`).
+- **Service Registry:** `frontend/src/services/MasterServiceRegistry.ts` (singleton, health monitoring)
+- **Virtualization:** `VirtualizedPropList.tsx` for large datasets; always use for >100 items.
+- **Styling:** Tailwind CSS, dark/cyber theme. No Material-UI.
 
 ## Developer Workflows
 
-**Build & Run:**
+**Strict Directory Discipline for All Commands**
 
-- Backend: `python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload`
-- Frontend: `cd frontend && npm run dev`
-- Always check workspace root for `frontend/` and `backend/` folders.
+> **MANDATORY:** Copilot agents must always run all commands in the correct working directory. Never assume the current directory—always `cd` to the appropriate location before running any command. This applies to all backend and frontend operations, including tests, builds, and scripts.
 
-**Testing:**
+- **Backend:**
 
-- Backend: `pytest` (unit/integration)
-- Frontend: `npm run test` (Jest), `npm run test:e2e` (Playwright)
+  - **Before running any backend command, ensure you are in the project root.**
+    - Example:
+      ```bash
+      cd /path/to/A1Betting7-13.2
+      python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+      pytest
+      python phase2_verification.py
+      ```
+  - **Never run backend commands from the `backend/` subdirectory.**
 
-**Unified Services Architecture (NEW):**
+- **Frontend:**
 
-- Backend unified services: `unified_data_fetcher.py`, `unified_cache_service.py`, `unified_error_handler.py`, `unified_logging.py`, `unified_config.py`
-- Frontend unified services: `MasterServiceRegistry.ts` orchestrates all services with health monitoring
-- All services follow singleton pattern with backwards compatibility
+  - **Before running any frontend command, always `cd frontend`.**
+    - Example:
+      ```bash
+      cd /path/to/A1Betting7-13.2/frontend
+      npm run dev
+      npm run test
+      npm run lint
+      ```
+  - **Never run frontend commands from the project root or any other directory.**
 
-**Performance & Verification:**
+- **Debug:**
+  - Backend: `/api/debug/status`, `/api/diagnostics/health`, `/api/performance/metrics`
+  - Frontend: `DebugApiStatus.tsx`, `IntegrationStatus.tsx`, `ApiHealthIndicator.tsx`
 
-- Phase 2: `python phase2_verification.py`, `python phase2_performance_benchmark.py`
-- Phase 3: `python phase3_verification.py`, `python phase3_performance_benchmark.py`
+**If a command fails, always check and correct the working directory before retrying.**
 
-**Debugging:**
+**Summary Table:**
 
-- Backend endpoints: `/api/debug/status`, `/api/diagnostics/health`, `/api/performance/metrics`
-- Frontend: `DebugApiStatus.tsx`, `IntegrationStatus.tsx`, `ApiHealthIndicator.tsx`
+| Task              | Directory to Run Command In       |
+| ----------------- | --------------------------------- |
+| Backend run/test  | Project root (`A1Betting7-13.2/`) |
+| Frontend run/test | `frontend/` subdirectory          |
+| Backend scripts   | Project root                      |
+| Frontend scripts  | `frontend/` subdirectory          |
 
-## Project-Specific Patterns
+**Never violate this rule. Directory discipline is critical for all automation and agent workflows.**
 
-**🆕 Unified Services Architecture (Critical):**
+## Project-Specific Patterns & Conventions
 
-```python
-# Backend - Use unified services with backwards compatibility
-from backend.services.unified_data_fetcher import unified_data_fetcher
-from backend.services.unified_cache_service import unified_cache_service
+- **Backend Unified Services:**
+  - Always use `unified_data_fetcher`, `unified_cache_service`, `unified_error_handler`, `unified_logging`, `unified_config` for new features.
+  - Example: `data = await unified_data_fetcher.fetch_mlb_games(sport="MLB")`
+- **Frontend Service Registry:**
+  - Use `MasterServiceRegistry.getInstance().getService('data')` for all service access.
+- **Component/State:**
+  - Modular container/component pattern (`PropOllamaContainer`, `PropList`, `MLModelCenter`).
+  - State via Zustand stores and custom hooks (`usePropOllamaState`).
+  - Always pass sport context: `mapToFeaturedProps(props, sport)`.
+  - Virtualize lists >100 items with `VirtualizedPropList`.
+- **ML/LLM Integration:**
+  - Use try/except import patterns for robust fallback if dependencies are missing.
+  - Example:
+    ```python
+    try:
+        from backend.services.modern_ml_service import modern_ml_service
+        result = await modern_ml_service.predict(request)
+    except ImportError:
+        from backend.services.enhanced_prop_analysis_service import legacy_predict
+        result = await legacy_predict(request)
+    ```
+- **Enterprise Prop Generation:**
+  - Use `ComprehensivePropGenerator` for universal prop coverage.
+  - API: `/mlb/comprehensive-props/{game_id}?optimize_performance=true`
+  - Frontend: `<ComprehensivePropsLoader gameId={selectedGameId} onPropsGenerated={setProps} />`
+- **Testing:**
+  - Backend: `pytest`, Alembic for migrations
+  - Frontend: Jest, Playwright, ESLint, Prettier, type-check
+
+**Background Tasks:**
+
+- Use asyncio-based managers (`background_task_manager.py`), not Celery
+- Redis is used for caching and queueing
+
+**API/Integration:**
+
+- All data flows use real MLB APIs (no mock data in production)
+- API endpoints are modular, e.g. `/mlb/comprehensive-props/{game_id}?optimize_performance=true`
+
+**Testing & Linting:**
+
+- Backend: `pytest`, Alembic for migrations
+- Frontend: Jest, Playwright, ESLint, Prettier, type-check
+
+## Key Files & Directories
+
+- Backend: `backend/services/`, `backend/models/`, `backend/routes/`, `backend/main.py`
+- Frontend: `frontend/src/components/`, `frontend/src/services/`, `frontend/src/store/`, `frontend/src/hooks/`
+- Unified: `backend/services/unified_data_fetcher.py`, `backend/services/unified_cache_service.py`, `frontend/src/services/MasterServiceRegistry.ts`
+- Utility: `find_unused_imports.py` (AST-based import analysis)
+- Cleanup: `cleanup_archive/` (preserves removed files)
+
+---
+
+If any section is unclear or missing, please provide feedback for further refinement.
 
 # All unified services maintain backwards compatibility
+
 data = await unified_data_fetcher.fetch_mlb_games(sport="MLB")
 cached_result = unified_cache_service.get("key", default_value)
-```
+
+````
 
 ```typescript
 // Frontend - Master Service Registry pattern
@@ -73,7 +134,7 @@ const dataService = registry.getService("data");
 const cacheService = registry.getService("cache");
 
 // All services follow singleton pattern with health monitoring
-```
+````
 
 **Enterprise Prop Generation:**
 
@@ -121,11 +182,12 @@ const { props, loading, filters, sorting } = usePropOllamaState(gameId);
 **Virtualization for Large Datasets:**
 Use `VirtualizedPropList.tsx` for MLB datasets >100 props to avoid browser lag.
 
-## Integration Points & External Dependencies
+## Integration & External Dependencies
 
-- MLB Stats API, Baseball Savant, pybaseball: All data is real, not mocked
-- ML libraries: torch, transformers, ray, mlflow, featuretools (see `backend/requirements.txt`)
-- Frontend: TanStack Virtual, Recharts, Zustand, Framer Motion
+- **MLB Stats API, Baseball Savant, pybaseball:** All data is real, not mocked in production.
+- **ML Libraries:** torch, transformers, ray, mlflow, featuretools (see `backend/requirements.txt`).
+- **Frontend:** TanStack Virtual, Recharts, Zustand, Framer Motion, Lucide React.
+- **Electron:** Desktop deployment via `ElectronIntegration.tsx`.
 
 ## Key Files & Directories
 
@@ -155,11 +217,11 @@ Use `VirtualizedPropList.tsx` for MLB datasets >100 props to avoid browser lag.
 
 ## Troubleshooting & Best Practices
 
-- Always check port configuration (8000 backend, 5173 frontend)
-- Use `/mlb/todays-games` for valid game IDs
-- For empty props, check sport context and backend logs
-- All business rule violations are logged with bet IDs
-- Use virtualization for large prop lists
+- Always check port configuration (8000 backend, 5173 frontend).
+- Use `/mlb/todays-games` for valid game IDs.
+- For empty props, check sport context and backend logs.
+- Use virtualization for large prop lists.
+- All business rule violations are logged with bet IDs.
 
 ## 🎯 Phase 3: Enterprise AI/ML Trading Platform (NEW)
 
@@ -427,10 +489,10 @@ generator = ComprehensivePropGenerator()
 props = await generator.generate_game_props(
     game_id=game_id,
     optimize_performance=True  # Uses performance optimization
-)
 
-# Result: 100-130+ props with advanced analytics:
-# - Baseball Savant metrics (xBA, xSLG, barrel rate)
+---
+
+If any section is unclear or missing, please provide feedback for further refinement.
 # - ML confidence scoring with SHAP explanations
 # - Intelligent caching for repeated requests
 # - Advanced feature engineering

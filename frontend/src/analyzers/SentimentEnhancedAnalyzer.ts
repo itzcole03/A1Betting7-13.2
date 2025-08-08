@@ -1,10 +1,10 @@
-import { SocialSentimentData } from '@/adapters/SocialSentimentAdapter';
-import { SportsRadarData } from '@/adapters/SportsRadarAdapter';
-import { TheOddsData } from '@/adapters/TheOddsAdapter';
-import { EventBus } from '@/unified/EventBus';
-import { PerformanceMonitor } from '@/unified/PerformanceMonitor';
-import { Analyzer } from '@/utils/Analyzer';
-import { ProjectionAnalysis } from './ProjectionAnalyzer';
+import { SocialSentimentData } from '../adapters/SocialSentimentAdapter';
+import { SportsRadarData } from '../adapters/SportsRadarAdapter';
+import { TheOddsData } from '../adapters/TheOddsAdapter';
+import { EventBus } from '../core/EventBus';
+import { PerformanceMonitor } from '../unified/PerformanceMonitor';
+import { Analyzer } from '../utils/Analyzer';
+import { ProjectionAnalysis } from '../utils/ProjectionAnalyzer';
 
 export interface EnhancedAnalysis extends ProjectionAnalysis {
   confidence: number;
@@ -68,15 +68,15 @@ export class SentimentEnhancedAnalyzer implements Analyzer<AnalysisInput, Enhanc
   }
 
   public async analyze(input: AnalysisInput): Promise<EnhancedAnalysis[]> {
-    const _traceId = this.performanceMonitor.startTrace('sentiment-enhanced-analysis');
+    const traceId = this.performanceMonitor.startTrace('sentiment-enhanced-analysis');
 
     try {
-      const _enhancedAnalyses = input.projectionAnalysis.map(projection => {
-        const _sentiment = this.findPlayerSentiment(projection.player, input.sentimentData);
-        const _odds = this.findPlayerOdds(projection.player, input.oddsData);
-        const _injuries = this.findPlayerInjuries(projection.player, input.sportsRadarData);
+      const enhancedAnalyses = input.projectionAnalysis.map(projection => {
+        const sentiment = this.findPlayerSentiment(projection.player, input.sentimentData);
+        const odds = this.findPlayerOdds(projection.player, input.oddsData);
+        const injuries = this.findPlayerInjuries(projection.player, input.sportsRadarData);
 
-        const _enhancedConfidence = this.calculateEnhancedConfidence(
+        const enhancedConfidence = this.calculateEnhancedConfidence(
           projection.confidence,
           sentiment,
           odds,
@@ -125,8 +125,11 @@ export class SentimentEnhancedAnalyzer implements Analyzer<AnalysisInput, Enhanc
   }
 
   public async confidence(input: AnalysisInput): Promise<number> {
-    const _analyses = await this.analyze(input);
-    return analyses.reduce((acc, analysis) => acc + analysis.confidence, 0) / analyses.length;
+    const analyses = await this.analyze(input);
+    return (
+      analyses.reduce((acc: number, analysis: EnhancedAnalysis) => acc + analysis.confidence, 0) /
+      analyses.length
+    );
   }
 
   private findPlayerSentiment(
@@ -140,12 +143,12 @@ export class SentimentEnhancedAnalyzer implements Analyzer<AnalysisInput, Enhanc
     player: string,
     sportsData: SportsRadarData
   ): Array<{ player: string; status: string; type: string }> {
-    const _injuries: Array<{ player: string; status: string; type: string }> = [];
-
-    sportsData.games.forEach((game: unknown) => {
-      game.players.forEach((p: unknown) => {
-        if (p.name === player) {
-          p.injuries.forEach((injury: unknown) => {
+    const injuries: Array<{ player: string; status: string; type: string }> = [];
+    sportsData.games.forEach(game => {
+      if (!game.players) return;
+      game.players.forEach(p => {
+        if (p.name === player && p.injuries) {
+          p.injuries.forEach(injury => {
             injuries.push({
               player: p.name,
               status: injury.status,
@@ -155,7 +158,6 @@ export class SentimentEnhancedAnalyzer implements Analyzer<AnalysisInput, Enhanc
         }
       });
     });
-
     return injuries;
   }
 
@@ -181,7 +183,7 @@ export class SentimentEnhancedAnalyzer implements Analyzer<AnalysisInput, Enhanc
     odds?: unknown,
     injuries: Array<{ player: string; status: string; type: string }> = []
   ): number {
-    let _confidence = baseConfidence;
+    let confidence = baseConfidence;
 
     // Apply sentiment adjustment
     if (sentiment) {
@@ -195,7 +197,7 @@ export class SentimentEnhancedAnalyzer implements Analyzer<AnalysisInput, Enhanc
 
     // Apply injury adjustment
     if (injuries.length > 0) {
-      const _injuryImpact = injuries.reduce(
+      const injuryImpact = injuries.reduce(
         (acc, injury) => acc + this.calculateInjuryImpact(injury),
         0
       );

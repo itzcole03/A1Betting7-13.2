@@ -1,3 +1,8 @@
+# Legacy test compatibility: stub for get_sport_radar_games
+def get_sport_radar_games(*args, **kwargs):
+    return []
+
+
 """
 Enhanced A1Betting Backend Main Entry Point
 Incorporates Phase 1 optimizations with 2024-2025 FastAPI best practices

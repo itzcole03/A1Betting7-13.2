@@ -1,0 +1,215 @@
+
+=================================== ERRORS ====================================
+_____________ ERROR collecting backend/tests/test_api_key_auth.py _____________
+backend\enhanced_production_integration.py:26: in <module>
+    from .utils.structured_logging import (
+backend\utils\structured_logging.py:13: in <module>
+    from pythonjsonlogger import jsonlogger
+E   ModuleNotFoundError: No module named 'pythonjsonlogger'
+
+During handling of the above exception, another exception occurred:
+backend\tests\test_api_key_auth.py:4: in <module>
+    from backend.main import app
+backend\main.py:41: in <module>
+    from backend.enhanced_production_integration import create_enhanced_app
+backend\enhanced_production_integration.py:33: in <module>
+    @health_router.get("/api/v1/odds/{event_id}")
+     ^^^^^^^^^^^^^
+E   NameError: name 'health_router' is not defined
+------------------------------- Captured stdout -------------------------------
+\u2705 Loaded .env from: C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\.env
+------------------------------- Captured stderr -------------------------------
+2025-08-06 14:52:12,891 - backend.main - INFO - \U0001f680 Starting A1Betting Backend (basic logging)...
+________________ ERROR collecting backend/tests/test_api_v1.py ________________
+backend\enhanced_production_integration.py:26: in <module>
+    from .utils.structured_logging import (
+backend\utils\structured_logging.py:13: in <module>
+    from pythonjsonlogger import jsonlogger
+E   ModuleNotFoundError: No module named 'pythonjsonlogger'
+
+During handling of the above exception, another exception occurred:
+backend\tests\test_api_v1.py:11: in <module>
+    from backend.main import app
+backend\main.py:41: in <module>
+    from backend.enhanced_production_integration import create_enhanced_app
+backend\enhanced_production_integration.py:33: in <module>
+    @health_router.get("/api/v1/odds/{event_id}")
+     ^^^^^^^^^^^^^
+E   NameError: name 'health_router' is not defined
+------------------------------- Captured stdout -------------------------------
+\u2705 Loaded .env from: C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\.env
+------------------------------- Captured stderr -------------------------------
+2025-08-06 14:52:13,241 - backend.main - INFO - \U0001f680 Starting A1Betting Backend (basic logging)...
+______________ ERROR collecting backend/tests/test_endpoints.py _______________
+backend\enhanced_production_integration.py:26: in <module>
+    from .utils.structured_logging import (
+backend\utils\structured_logging.py:13: in <module>
+    from pythonjsonlogger import jsonlogger
+E   ModuleNotFoundError: No module named 'pythonjsonlogger'
+
+During handling of the above exception, another exception occurred:
+backend\tests\test_endpoints.py:10: in <module>
+    from backend.main import app
+backend\main.py:41: in <module>
+    from backend.enhanced_production_integration import create_enhanced_app
+backend\enhanced_production_integration.py:33: in <module>
+    @health_router.get("/api/v1/odds/{event_id}")
+     ^^^^^^^^^^^^^
+E   NameError: name 'health_router' is not defined
+------------------------------- Captured stdout -------------------------------
+\u2705 Loaded .env from: C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\.env
+------------------------------- Captured stderr -------------------------------
+2025-08-06 14:52:14,832 - backend.main - INFO - \U0001f680 Starting A1Betting Backend (basic logging)...
+____________ ERROR collecting backend/tests/test_error_handling.py ____________
+backend\enhanced_production_integration.py:26: in <module>
+    from .utils.structured_logging import (
+backend\utils\structured_logging.py:13: in <module>
+    from pythonjsonlogger import jsonlogger
+E   ModuleNotFoundError: No module named 'pythonjsonlogger'
+
+During handling of the above exception, another exception occurred:
+backend\tests\test_error_handling.py:4: in <module>
+    from backend.main import app
+backend\main.py:41: in <module>
+    from backend.enhanced_production_integration import create_enhanced_app
+backend\enhanced_production_integration.py:33: in <module>
+    @health_router.get("/api/v1/odds/{event_id}")
+     ^^^^^^^^^^^^^
+E   NameError: name 'health_router' is not defined
+------------------------------- Captured stdout -------------------------------
+\u2705 Loaded .env from: C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\.env
+------------------------------- Captured stderr -------------------------------
+2025-08-06 14:52:14,879 - backend.main - INFO - \U0001f680 Starting A1Betting Backend (basic logging)...
+___________ ERROR collecting backend/tests/test_health_endpoints.py ___________
+backend\enhanced_production_integration.py:26: in <module>
+    from .utils.structured_logging import (
+backend\utils\structured_logging.py:13: in <module>
+    from pythonjsonlogger import jsonlogger
+E   ModuleNotFoundError: No module named 'pythonjsonlogger'
+
+During handling of the above exception, another exception occurred:
+backend\tests\test_health_endpoints.py:4: in <module>
+    from backend.main import app
+backend\main.py:41: in <module>
+    from backend.enhanced_production_integration import create_enhanced_app
+backend\enhanced_production_integration.py:33: in <module>
+    @health_router.get("/api/v1/odds/{event_id}")
+     ^^^^^^^^^^^^^
+E   NameError: name 'health_router' is not defined
+------------------------------- Captured stdout -------------------------------
+\u2705 Loaded .env from: C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\.env
+------------------------------- Captured stderr -------------------------------
+2025-08-06 14:52:14,905 - backend.main - INFO - \U0001f680 Starting A1Betting Backend (basic logging)...
+______________ ERROR collecting backend/tests/test_mlb_extras.py ______________
+backend\enhanced_production_integration.py:26: in <module>
+    from .utils.structured_logging import (
+backend\utils\structured_logging.py:13: in <module>
+    from pythonjsonlogger import jsonlogger
+E   ModuleNotFoundError: No module named 'pythonjsonlogger'
+
+During handling of the above exception, another exception occurred:
+backend\tests\test_mlb_extras.py:8: in <module>
+    from backend.main import app
+backend\main.py:41: in <module>
+    from backend.enhanced_production_integration import create_enhanced_app
+backend\enhanced_production_integration.py:33: in <module>
+    @health_router.get("/api/v1/odds/{event_id}")
+     ^^^^^^^^^^^^^
+E   NameError: name 'health_router' is not defined
+------------------------------- Captured stdout -------------------------------
+\u2705 Loaded .env from: C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\.env
+------------------------------- Captured stderr -------------------------------
+2025-08-06 14:52:16,939 - backend.main - INFO - \U0001f680 Starting A1Betting Backend (basic logging)...
+___________ ERROR collecting backend/tests/test_player_dashboard.py ___________
+backend\enhanced_production_integration.py:26: in <module>
+    from .utils.structured_logging import (
+backend\utils\structured_logging.py:13: in <module>
+    from pythonjsonlogger import jsonlogger
+E   ModuleNotFoundError: No module named 'pythonjsonlogger'
+
+During handling of the above exception, another exception occurred:
+backend\tests\test_player_dashboard.py:6: in <module>
+    from backend.main import app
+backend\main.py:41: in <module>
+    from backend.enhanced_production_integration import create_enhanced_app
+backend\enhanced_production_integration.py:33: in <module>
+    @health_router.get("/api/v1/odds/{event_id}")
+     ^^^^^^^^^^^^^
+E   NameError: name 'health_router' is not defined
+------------------------------- Captured stdout -------------------------------
+\u2705 Loaded .env from: C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\.env
+------------------------------- Captured stderr -------------------------------
+2025-08-06 14:52:17,183 - backend.main - INFO - \U0001f680 Starting A1Betting Backend (basic logging)...
+_________ ERROR collecting backend/tests/test_prizepicks_endpoints.py _________
+backend\enhanced_production_integration.py:26: in <module>
+    from .utils.structured_logging import (
+backend\utils\structured_logging.py:13: in <module>
+    from pythonjsonlogger import jsonlogger
+E   ModuleNotFoundError: No module named 'pythonjsonlogger'
+
+During handling of the above exception, another exception occurred:
+backend\tests\test_prizepicks_endpoints.py:4: in <module>
+    from backend.main import app
+backend\main.py:41: in <module>
+    from backend.enhanced_production_integration import create_enhanced_app
+backend\enhanced_production_integration.py:33: in <module>
+    @health_router.get("/api/v1/odds/{event_id}")
+     ^^^^^^^^^^^^^
+E   NameError: name 'health_router' is not defined
+------------------------------- Captured stdout -------------------------------
+\u2705 Loaded .env from: C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\.env
+------------------------------- Captured stderr -------------------------------
+2025-08-06 14:52:17,224 - backend.main - INFO - \U0001f680 Starting A1Betting Backend (basic logging)...
+____________ ERROR collecting backend/tests/test_propollama_api.py ____________
+backend\enhanced_production_integration.py:26: in <module>
+    from .utils.structured_logging import (
+backend\utils\structured_logging.py:13: in <module>
+    from pythonjsonlogger import jsonlogger
+E   ModuleNotFoundError: No module named 'pythonjsonlogger'
+
+During handling of the above exception, another exception occurred:
+backend\tests\test_propollama_api.py:4: in <module>
+    from backend.main import app
+backend\main.py:41: in <module>
+    from backend.enhanced_production_integration import create_enhanced_app
+backend\enhanced_production_integration.py:33: in <module>
+    @health_router.get("/api/v1/odds/{event_id}")
+     ^^^^^^^^^^^^^
+E   NameError: name 'health_router' is not defined
+------------------------------- Captured stdout -------------------------------
+\u2705 Loaded .env from: C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\.env
+------------------------------- Captured stderr -------------------------------
+2025-08-06 14:52:17,292 - backend.main - INFO - \U0001f680 Starting A1Betting Backend (basic logging)...
+__________ ERROR collecting backend/tests/test_security_endpoints.py __________
+backend\enhanced_production_integration.py:26: in <module>
+    from .utils.structured_logging import (
+backend\utils\structured_logging.py:13: in <module>
+    from pythonjsonlogger import jsonlogger
+E   ModuleNotFoundError: No module named 'pythonjsonlogger'
+
+During handling of the above exception, another exception occurred:
+backend\tests\test_security_endpoints.py:4: in <module>
+    from backend.main import app
+backend\main.py:41: in <module>
+    from backend.enhanced_production_integration import create_enhanced_app
+backend\enhanced_production_integration.py:33: in <module>
+    @health_router.get("/api/v1/odds/{event_id}")
+     ^^^^^^^^^^^^^
+E   NameError: name 'health_router' is not defined
+------------------------------- Captured stdout -------------------------------
+\u2705 Loaded .env from: C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\.env
+------------------------------- Captured stderr -------------------------------
+2025-08-06 14:52:17,340 - backend.main - INFO - \U0001f680 Starting A1Betting Backend (basic logging)...
+=========================== short test summary info ===========================
+ERROR backend/tests/test_api_key_auth.py - NameError: name 'health_router' is...
+ERROR backend/tests/test_api_v1.py - NameError: name 'health_router' is not d...
+ERROR backend/tests/test_endpoints.py - NameError: name 'health_router' is no...
+ERROR backend/tests/test_error_handling.py - NameError: name 'health_router' ...
+ERROR backend/tests/test_health_endpoints.py - NameError: name 'health_router...
+ERROR backend/tests/test_mlb_extras.py - NameError: name 'health_router' is n...
+ERROR backend/tests/test_player_dashboard.py - NameError: name 'health_router...
+ERROR backend/tests/test_prizepicks_endpoints.py - NameError: name 'health_ro...
+ERROR backend/tests/test_propollama_api.py - NameError: name 'health_router' ...
+ERROR backend/tests/test_security_endpoints.py - NameError: name 'health_rout...
+!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
+12 warnings, 10 errors in 11.27s

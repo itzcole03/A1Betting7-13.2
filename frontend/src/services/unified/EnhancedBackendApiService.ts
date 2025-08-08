@@ -291,9 +291,13 @@ class EnhancedBackendApiService {
     this.logger = UnifiedLogger.getInstance();
     this.cache = UnifiedCache.getInstance();
     this.errorService = UnifiedErrorService.getInstance();
-    this.baseURL =
-      // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-      import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    // Use getEnvVar for robust env access
+    // @ts-ignore
+    const { getEnvVar } = require('../../utils/getEnvVar');
+    this.baseURL = getEnvVar(
+      'VITE_BACKEND_URL',
+      getEnvVar('VITE_API_URL', 'http://localhost:8000')
+    );
 
     this.client = axios.create({
       baseURL: this.baseURL,

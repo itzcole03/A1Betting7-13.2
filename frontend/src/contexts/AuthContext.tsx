@@ -39,7 +39,7 @@ const register = async (_email: string, _password: string) => {
 /**
  * React context for authentication state and actions.
  */
-const _AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const _AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 /**
  * AuthProvider component.
@@ -47,7 +47,11 @@ const _AuthContext = createContext<AuthContextType | undefined>(undefined);
  * @param {object} props - React children.
  * @returns {JSX.Element} The provider component.
  */
-export const _AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+/**
+ * useAuthState
+ * Custom hook to encapsulate authentication state logic for modularity and testability.
+ */
+function useAuthState(): AuthContextType {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +59,6 @@ export const _AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [requiresPasswordChange, setRequiresPasswordChange] = useState(false);
 
-  // Initialize auth state from storage on mount
   useEffect(() => {
     const _initializeAuth = () => {
       if (authService.isAuthenticated()) {
@@ -65,7 +68,7 @@ export const _AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           setIsAdmin(authService.isAdmin());
           setIsAuthenticated(true);
           setRequiresPasswordChange(authService.requiresPasswordChange());
-
+          // Structured logging for audit
           console.log(
             '🔐 [AUTH] Restored authentication for:',
             _storedUser.email,
@@ -75,18 +78,14 @@ export const _AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
       }
     };
-
-    // Small delay to ensure authService constructor has run
     setTimeout(_initializeAuth, 100);
   }, []);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
-    console.log('[AUTH] Attempting login for:', email);
     try {
       const _response: AuthResponse = await authService.login(email, password);
-      console.log('[AUTH] Login response:', _response);
       if (_response.success && _response.user) {
         setUser(_response.user);
         setIsAdmin(
@@ -94,23 +93,12 @@ export const _AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         );
         setIsAuthenticated(true);
         setRequiresPasswordChange(_response.requiresPasswordChange || false);
-        console.log('[AUTH] Login successful:', _response.user.email);
-        setTimeout(() => {
-          console.log('[AUTH] State after login:', {
-            user: _response.user,
-            isAdmin: _response.user.role === 'admin',
-            isAuthenticated: true,
-            requiresPasswordChange: _response.requiresPasswordChange || false,
-          });
-        }, 100);
       } else {
-        console.log('[AUTH] Login failed:', _response.message);
         throw new Error(_response.message || 'Login failed');
       }
     } catch (e: unknown) {
       setError((e as Error).message || 'Login failed');
-      console.log('[AUTH] Login error:', e);
-      throw e; // Re-throw for component handling
+      throw e;
     } finally {
       setLoading(false);
     }
@@ -137,9 +125,7 @@ export const _AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setError(null);
     try {
       const _response: AuthResponse = await authService.changePassword(data);
-
       if (_response.success) {
-        // Update user state to reflect password change
         const _updatedUser = authService.getUser();
         if (_updatedUser) {
           setUser(_updatedUser);
@@ -150,7 +136,7 @@ export const _AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       }
     } catch (e: unknown) {
       setError((e as Error).message || 'Password change failed');
-      throw e; // Re-throw for component handling
+      throw e;
     } finally {
       setLoading(false);
     }
@@ -160,7 +146,7 @@ export const _AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setError(null);
   };
 
-  const _contextValue: AuthContextType = {
+  return {
     user,
     loading,
     error,
@@ -173,8 +159,18 @@ export const _AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     clearError,
     register,
   };
+}
 
-  return <_AuthContext.Provider value={_contextValue}>{children}</_AuthContext.Provider>;
+/**
+ * AuthProvider component.
+ * Wrap your app with this provider to enable authentication state and actions.
+ * Uses useAuthState for modularity and testability.
+ * @param {object} props - React children.
+ * @returns {JSX.Element} The provider component.
+ */
+export const _AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const contextValue = useAuthState();
+  return <_AuthContext.Provider value={contextValue}>{children}</_AuthContext.Provider>;
 };
 
 /**

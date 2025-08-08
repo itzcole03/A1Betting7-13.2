@@ -75,6 +75,7 @@ class MasterServiceRegistry {
   private serviceHealth: Map<string, ServiceHealth> = new Map();
   private serviceMetrics: Map<string, ServiceMetrics> = new Map();
   public readonly configuration: ServiceConfiguration;
+  public verboseLogging: boolean = process.env.NODE_ENV === 'development';
   private isInitialized = false;
 
   constructor() {
@@ -132,16 +133,34 @@ class MasterServiceRegistry {
       this.configuration,
       typeof (this.configuration as any)?.getApiUrl
     );
+    // Register errors and state first for notification service dependency
     const _unifiedServices = [
       { name: 'api', service: ApiService },
+      { name: 'errors', service: UnifiedErrorService.getInstance() },
+      { name: 'state', service: UnifiedStateService.getInstance() },
+      {
+        name: 'notifications',
+        service: (() => {
+          try {
+            return new UnifiedNotificationService(this);
+          } catch (err) {
+            // Fallback stub for missing dependencies
+            return {
+              notifyUser: () => {},
+              dismissNotification: () => {},
+              markAsRead: () => {},
+              clearAll: () => {},
+              getUnreadCount: () => 0,
+              notify: () => {},
+            };
+          }
+        })(),
+      },
       { name: 'analytics', service: UnifiedAnalyticsService.getInstance(this) },
       { name: 'betting', service: UnifiedBettingService.getInstance() },
       { name: 'data', service: UnifiedDataService.getInstance() },
       { name: 'predictions', service: UnifiedPredictionService.getInstance() },
-      { name: 'notifications', service: new UnifiedNotificationService(this) },
-      { name: 'state', service: UnifiedStateService.getInstance() },
       { name: 'cache', service: UnifiedCache.getInstance() },
-      { name: 'errors', service: UnifiedErrorService.getInstance() },
       { name: 'logger', service: UnifiedLogger.getInstance() },
       { name: 'websocket', service: UnifiedWebSocketService.getInstance() },
       { name: 'security', service: SecurityService.getInstance() },
@@ -240,7 +259,7 @@ class MasterServiceRegistry {
     }
   }
 
-  private registerService(name: string, service: unknown): void {
+  public registerService(name: string, service: unknown): void {
     this.services.set(name, service);
     this.initializeServiceMetrics(name);
   }
@@ -256,7 +275,7 @@ class MasterServiceRegistry {
     });
   }
 
-  private updateServiceHealth(
+  public updateServiceHealth(
     name: string,
     status: ServiceHealth['status'],
     responseTime: number
@@ -484,6 +503,8 @@ class MasterServiceRegistry {
       if (_logger && (_logger as any)[level]) {
         (_logger as any)[level](message, data);
       } else {
+        // Only log debug/info if verboseLogging is enabled
+        if (['debug', 'info'].includes(level) && !this.verboseLogging) return;
         switch (level) {
           case 'debug':
             console.debug(`[MasterServiceRegistry] ${message}`, data || '');
@@ -571,4 +592,5 @@ export const _services = {
   },
 };
 
+export { MasterServiceRegistry };
 export default _masterServiceRegistry;

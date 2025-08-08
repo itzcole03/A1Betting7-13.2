@@ -14,7 +14,10 @@ export async function discoverBackend(): Promise<string | null> {
   console.log('[REAL] discoverBackend called');
 
   // In development mode, try the proxy first
-  if (import.meta.env.DEV) {
+  // Use getEnvVar for robust env access
+  // @ts-ignore
+  const { getEnvVar } = require('../utils/getEnvVar');
+  if (getEnvVar('DEV', '') === 'true') {
     try {
       const res = await fetch('/health', { method: 'GET' });
       if (res.ok) {

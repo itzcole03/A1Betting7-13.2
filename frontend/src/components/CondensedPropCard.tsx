@@ -47,25 +47,7 @@ const CondensedPropCard: React.FC<CondensedPropCardProps> = ({
 }) => {
   const confidenceScore = Math.round(confidence || 0);
 
-  // Determine the confidence color based on score
-  const getConfidenceColor = (score: number) => {
-    if (score >= 80) return 'border-green-500 text-green-400';
-    if (score >= 60) return 'border-yellow-500 text-yellow-400';
-    return 'border-red-500 text-red-400';
-  };
-
-  // Format odds for display
-  const formatOdds = (odds: number) => {
-    if (!odds) return '';
-    return odds > 0 ? `+${odds}` : odds.toString();
-  };
-
-  // Format recommended bet line
-  const getRecommendation = () => {
-    // Example: Use UNDER if confidence < 65, else OVER
-    const rec = confidence < 65 ? 'UNDER' : 'OVER';
-    return `${rec} ${stat} ${line}`;
-  };
+  // Remove unused getConfidenceColor function
 
   // Format matchup as 'vs TEAM xTIME' (if available)
   const getMatchup = () => {
@@ -80,13 +62,19 @@ const CondensedPropCard: React.FC<CondensedPropCardProps> = ({
 
   return (
     <div
-      data-testid='prop-card'
+      data-testid='condensed-prop-card'
       className={
         `relative rounded-xl p-0 mb-4 cursor-pointer transition-all duration-300 border border-gray-700 overflow-hidden shadow-lg flex items-center` +
         (isExpanded ? ' ring-2 ring-blue-500' : '')
       }
       style={{ backgroundColor: accentColor }}
-      onClick={onClick}
+      onClick={e => {
+        if (typeof window !== 'undefined') {
+          // eslint-disable-next-line no-console
+          console.log(`[DEBUG] CondensedPropCard clicked: player=${player}, stat=${stat}`);
+        }
+        onClick();
+      }}
     >
       {/* Team logo background */}
       {logoUrl && (
@@ -105,7 +93,7 @@ const CondensedPropCard: React.FC<CondensedPropCardProps> = ({
           <div>
             <div className='text-white font-bold text-lg leading-tight'>{player}</div>
             <div className='text-gray-300 text-xs font-medium'>{getMatchup()}</div>
-            <div className='text-white text-base font-semibold mt-1'>{getRecommendation()}</div>
+            {/* Recommendation logic can be added here if needed */}
           </div>
         </div>
         {/* Right: Grade, bookmark */}

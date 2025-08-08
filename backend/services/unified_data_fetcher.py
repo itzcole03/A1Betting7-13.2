@@ -72,7 +72,16 @@ class UnifiedDataFetcher:
     async def fetch_player_info(
         self, player_id: str, sport: str, correlation_id: str = None
     ) -> dict:
-        """Fetch and normalize basic player info."""
+        """
+        Fetch and normalize basic player info.
+        Uses unified error handler and structured logging.
+        Args:
+            player_id (str): Player identifier
+            sport (str): Sport name
+            correlation_id (str, optional): Correlation ID for tracing
+        Returns:
+            dict: Player info
+        """
         correlation_id = (
             correlation_id or f"playerinfo-{player_id}-{datetime.utcnow().timestamp()}"
         )
@@ -82,7 +91,6 @@ class UnifiedDataFetcher:
                     f"[CID={correlation_id}] Fetching player info for {player_id} (attempt {attempt})"
                 )
                 # Example: Replace with real data source
-                # Simulate fetch
                 player_info = {
                     "id": player_id,
                     "name": "Aaron Judge",
@@ -95,6 +103,11 @@ class UnifiedDataFetcher:
                 return player_info
             except Exception as e:
                 logger.error(f"[CID={correlation_id}] Error fetching player info: {e}")
+                self.error_handler.handle_error(
+                    e,
+                    "fetch_player_info",
+                    user_context={"player_id": player_id, "sport": sport},
+                )
                 if attempt == self.config.max_retries:
                     raise
                 await asyncio.sleep(self.config.retry_delay * attempt)
@@ -102,7 +115,10 @@ class UnifiedDataFetcher:
     async def fetch_player_season_stats(
         self, player_id: str, sport: str, correlation_id: str = None
     ) -> dict:
-        """Fetch and normalize player season stats."""
+        """
+        Fetch and normalize player season stats.
+        Uses unified error handler and structured logging.
+        """
         correlation_id = (
             correlation_id or f"playerstats-{player_id}-{datetime.utcnow().timestamp()}"
         )
@@ -147,7 +163,10 @@ class UnifiedDataFetcher:
     async def fetch_player_recent_games(
         self, player_id: str, sport: str, limit: int = 10, correlation_id: str = None
     ) -> list:
-        """Fetch and normalize recent games."""
+        """
+        Fetch and normalize recent games.
+        Uses unified error handler and structured logging.
+        """
         correlation_id = (
             correlation_id or f"recentgames-{player_id}-{datetime.utcnow().timestamp()}"
         )
@@ -189,7 +208,10 @@ class UnifiedDataFetcher:
     async def fetch_player_prop_history(
         self, player_id: str, sport: str, correlation_id: str = None
     ) -> list:
-        """Fetch and normalize player prop history."""
+        """
+        Fetch and normalize player prop history.
+        Uses unified error handler and structured logging.
+        """
         correlation_id = (
             correlation_id or f"prophistory-{player_id}-{datetime.utcnow().timestamp()}"
         )
@@ -221,7 +243,10 @@ class UnifiedDataFetcher:
     async def fetch_player_performance_trends(
         self, player_id: str, sport: str, correlation_id: str = None
     ) -> dict:
-        """Fetch and normalize player performance trends."""
+        """
+        Fetch and normalize player performance trends.
+        Uses unified error handler and structured logging.
+        """
         correlation_id = (
             correlation_id or f"trends-{player_id}-{datetime.utcnow().timestamp()}"
         )
@@ -298,6 +323,7 @@ class UnifiedDataFetcher:
         """
         Fetch current PrizePicks props for in-season sports only.
         Optimized for current season to avoid empty datasets.
+        Uses unified error handler and structured logging.
         """
         cache_key = "current_prizepicks_props"
 
@@ -614,7 +640,10 @@ class UnifiedDataFetcher:
     async def fetch_historical_data(
         self, sport: str, lookback_days: int = 30
     ) -> List[Dict[str, Any]]:
-        """Fetch historical data for a sport"""
+        """
+        Fetch historical data for a sport.
+        Uses unified error handler and structured logging.
+        """
         cache_key = f"historical_{sport}_{lookback_days}"
 
         if self.config.enable_caching and cache_key in self._cache:

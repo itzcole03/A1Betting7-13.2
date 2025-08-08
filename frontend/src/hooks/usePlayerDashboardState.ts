@@ -12,6 +12,7 @@ export function usePlayerDashboardState({ playerId, sport = 'MLB' }: UsePlayerDa
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorId, setErrorId] = useState<string | null>(null);
   const [correlationId, setCorrelationId] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [playerDataService, setPlayerDataService] = useState<any>(null);
@@ -45,10 +46,34 @@ export function usePlayerDashboardState({ playerId, sport = 'MLB' }: UsePlayerDa
         logger.info(
           `usePlayerDashboardState: Player loaded: ${playerData.name} [correlationId=${corrId}]`
         );
+        setErrorId(null);
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to load player';
         setError(errorMsg);
-        logger.error(`usePlayerDashboardState: ${errorMsg} [correlationId=${corrId}]`);
+        // Generate errorId using UnifiedErrorService if available
+        let generatedErrorId = null;
+        try {
+          const { UnifiedErrorService } = require('../services/unified/UnifiedErrorService');
+          generatedErrorId = UnifiedErrorService.getInstance().reportError(errorMsg, {
+            correlationId: corrId,
+            context: 'usePlayerDashboardState',
+          });
+        } catch (e) {
+          // Fallback: generate a local errorId
+          generatedErrorId = `player_error_${Date.now()}_${Math.random()
+            .toString(36)
+            .substr(2, 6)}`;
+        }
+        setErrorId(generatedErrorId);
+        if (generatedErrorId) {
+          logger.error(
+            `usePlayerDashboardState: ${errorMsg} [correlationId=${corrId}] errorId=${generatedErrorId}`
+          );
+        } else {
+          logger.error(
+            `usePlayerDashboardState: ${errorMsg} [correlationId=${corrId}] errorId is not defined`
+          );
+        }
       } finally {
         setLoading(false);
       }
@@ -66,6 +91,7 @@ export function usePlayerDashboardState({ playerId, sport = 'MLB' }: UsePlayerDa
     player,
     loading,
     error,
+    errorId,
     correlationId,
     reload: () => loadPlayer(playerId),
   };

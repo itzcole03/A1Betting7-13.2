@@ -4,344 +4,103 @@
  * Manages the selected props and bet slip functionality.
  */
 
-import React from 'react';
-import { SelectedProp, formatCurrency } from '../shared/PropOllamaTypes';
+import { BetSlipItem, BettingOpportunity } from '../../hooks/useUnifiedBettingState';
 
 interface BetSlipComponentProps {
-  selectedProps: SelectedProp[];
-  entryAmount: number;
-  onEntryAmountChange: (amount: number) => void;
-  onRemoveProp: (propId: string) => void;
-  onClearSlip: () => void;
-  onPlaceBet?: () => void;
-  className?: string;
+  betSlip: BetSlipItem[];
+  getOpportunityById: (id: string) => BettingOpportunity | undefined;
+  removeFromBetSlip: (id: string) => void;
 }
 
-const BetSlipComponentInner: React.FC<BetSlipComponentProps> = ({
-  selectedProps,
-  entryAmount,
-  onEntryAmountChange,
-  onRemoveProp,
-  onClearSlip,
-  onPlaceBet,
-  className = '',
+export const BetSlipComponent: React.FC<BetSlipComponentProps> = ({
+  betSlip,
+  getOpportunityById,
+  removeFromBetSlip,
 }) => {
-  console.count('[BetSlipComponent] RENDER');
-  // Calculate total odds and potential payout
-  const totalOdds = selectedProps.reduce((total, prop) => {
-    const odds = typeof prop.odds === 'number' ? prop.odds : 0;
-    return (
-      total +
-      Math.log(Math.abs(odds) > 100 ? (odds > 0 ? odds / 100 + 1 : 100 / Math.abs(odds) + 1) : 2)
-    );
-  }, 0);
-
-  const decimalOdds = Math.exp(totalOdds);
-  const potentialPayout = entryAmount * decimalOdds;
-  const potentialProfit = potentialPayout - entryAmount;
-
-  if (selectedProps.length === 0) {
-    return (
-      <div className={`bet-slip empty ${className}`}>
-        <h3 className='bet-slip-title'>Bet Slip</h3>
-        <p className='empty-message'>Select props to build your bet slip</p>
-
-        <style>{`
-          .bet-slip.empty {
-            padding: 1.5rem;
-            background: #f9fafb;
-            border: 2px dashed #d1d5db;
-            border-radius: 8px;
-            text-align: center;
-          }
-
-          .bet-slip-title {
-            margin: 0 0 1rem 0;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #374151;
-          }
-
-          .empty-message {
-            margin: 0;
-            color: #6b7280;
-            font-style: italic;
-          }
-        `}</style>
-      </div>
-    );
-  }
-
   return (
-    <div className={`bet-slip ${className}`}>
-      <div className='bet-slip-header'>
-        <h3 className='bet-slip-title'>Bet Slip ({selectedProps.length})</h3>
-        <button onClick={onClearSlip} className='clear-button'>
-          Clear All
-        </button>
-      </div>
-
-      <div className='selected-props'>
-        {selectedProps.map(prop => (
-          <div key={prop.id} className='selected-prop'>
-            <div className='prop-info'>
-              <div className='prop-player'>{prop.player}</div>
-              <div className='prop-details'>
-                {prop.statType} {prop.choice} {prop.line}
+    <div className='space-y-6'>
+      <div className='bg-white rounded-lg shadow-md' data-testid='bet-slip-section'>
+        <div className='px-6 py-4 border-b border-gray-200'>
+          <h3 className='text-lg font-semibold text-gray-900'>Bet Slip ({betSlip.length} bets)</h3>
+        </div>
+        {betSlip.length === 0 ? (
+          <div className='p-6 text-center text-gray-500' data-testid='bet-slip-empty'>
+            <p>No bets in your slip yet</p>
+            <p className='text-sm'>Add opportunities from the Opportunities tab</p>
+          </div>
+        ) : (
+          <div className='divide-y divide-gray-200'>
+            {betSlip.map((item: BetSlipItem) => {
+              const opportunity = getOpportunityById(item.opportunity_id);
+              if (!opportunity) return null;
+              return (
+                <div key={item.opportunity_id} className='p-6' data-testid='bet-slip-item'>
+                  <div className='flex items-center justify-between mb-3'>
+                    <div>
+                      <h4 className='font-semibold text-gray-900'>{opportunity.selection}</h4>
+                      <p className='text-sm text-gray-500'>
+                        {opportunity.sport} • {opportunity.market}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => removeFromBetSlip(item.opportunity_id)}
+                      className='text-red-500 hover:text-red-700'
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div className='grid grid-cols-3 gap-4'>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Stake ($)
+                      </label>
+                      <input
+                        type='number'
+                        min='1'
+                        max={opportunity.max_stake}
+                        value={item.stake}
+                        readOnly
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500'
+                      />
+                    </div>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>Odds</label>
+                      <div className='px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-900'>
+                        {opportunity.odds.toFixed(2)}
+                      </div>
+                    </div>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Potential Win
+                      </label>
+                      <div className='px-3 py-2 bg-green-50 border border-green-200 rounded-md text-green-700 font-semibold'>
+                        ${item.potential_win.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            <div className='p-6 bg-gray-50'>
+              <div className='flex justify-between items-center mb-4'>
+                <span className='text-lg font-semibold text-gray-900'>Total Stake:</span>
+                <span className='text-lg font-bold text-gray-900'>
+                  ${betSlip.reduce((sum, item) => sum + item.stake, 0).toFixed(2)}
+                </span>
               </div>
-              <div className='prop-odds'>
-                {typeof prop.odds === 'number'
-                  ? prop.odds > 0
-                    ? `+${prop.odds}`
-                    : prop.odds
-                  : prop.odds}
+              <div className='flex justify-between items-center mb-4'>
+                <span className='text-lg font-semibold text-gray-900'>Potential Payout:</span>
+                <span className='text-lg font-bold text-green-600'>
+                  ${betSlip.reduce((sum, item) => sum + item.potential_win, 0).toFixed(2)}
+                </span>
               </div>
+              <button className='w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-semibold'>
+                Place All Bets
+              </button>
             </div>
-            <button
-              onClick={() => onRemoveProp(prop.id)}
-              className='remove-button'
-              aria-label={`Remove ${prop.player} prop`}
-            >
-              ×
-            </button>
           </div>
-        ))}
-      </div>
-
-      <div className='bet-slip-controls'>
-        <div className='entry-amount-group'>
-          <label htmlFor='entry-amount' className='entry-label'>
-            Entry Amount:
-          </label>
-          <div className='amount-input-group'>
-            <span className='currency-symbol'>$</span>
-            <input
-              id='entry-amount'
-              type='number'
-              min='1'
-              max='10000'
-              step='1'
-              value={entryAmount}
-              onChange={e => onEntryAmountChange(Number(e.target.value))}
-              className='amount-input'
-            />
-          </div>
-        </div>
-
-        <div className='payout-info'>
-          <div className='payout-row'>
-            <span>Total Odds:</span>
-            <span className='odds-value'>{decimalOdds.toFixed(2)}x</span>
-          </div>
-          <div className='payout-row'>
-            <span>Potential Payout:</span>
-            <span className='payout-value'>{formatCurrency(potentialPayout)}</span>
-          </div>
-          <div className='payout-row profit'>
-            <span>Potential Profit:</span>
-            <span className='profit-value'>{formatCurrency(potentialProfit)}</span>
-          </div>
-        </div>
-
-        {onPlaceBet && (
-          <button onClick={onPlaceBet} className='place-bet-button'>
-            Place Bet
-          </button>
         )}
       </div>
-
-      <style>{`
-        .bet-slip {
-          background: white;
-          border: 1px solid #e5e7eb;
-          border-radius: 8px;
-          padding: 1.5rem;
-          min-width: 300px;
-        }
-
-        .bet-slip-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1rem;
-          padding-bottom: 0.75rem;
-          border-bottom: 1px solid #e5e7eb;
-        }
-
-        .bet-slip-title {
-          margin: 0;
-          font-size: 1.25rem;
-          font-weight: 600;
-          color: #111827;
-        }
-
-        .clear-button {
-          background: none;
-          border: 1px solid #d1d5db;
-          padding: 0.25rem 0.75rem;
-          border-radius: 4px;
-          font-size: 0.875rem;
-          color: #6b7280;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .clear-button:hover {
-          background: #f3f4f6;
-          color: #374151;
-        }
-
-        .selected-props {
-          margin-bottom: 1.5rem;
-        }
-
-        .selected-prop {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 0.75rem;
-          margin-bottom: 0.5rem;
-          background: #f9fafb;
-          border-radius: 6px;
-          border: 1px solid #e5e7eb;
-        }
-
-        .prop-info {
-          flex: 1;
-        }
-
-        .prop-player {
-          font-weight: 600;
-          color: #111827;
-          margin-bottom: 0.25rem;
-        }
-
-        .prop-details {
-          font-size: 0.875rem;
-          color: #6b7280;
-          margin-bottom: 0.25rem;
-        }
-
-        .prop-odds {
-          font-weight: 600;
-          color: #059669;
-        }
-
-        .remove-button {
-          background: #ef4444;
-          color: white;
-          border: none;
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          font-size: 16px;
-          line-height: 1;
-          transition: background-color 0.2s;
-        }
-
-        .remove-button:hover {
-          background: #dc2626;
-        }
-
-        .bet-slip-controls {
-          border-top: 1px solid #e5e7eb;
-          padding-top: 1rem;
-        }
-
-        .entry-amount-group {
-          margin-bottom: 1rem;
-        }
-
-        .entry-label {
-          display: block;
-          font-weight: 500;
-          color: #374151;
-          margin-bottom: 0.5rem;
-        }
-
-        .amount-input-group {
-          display: flex;
-          align-items: center;
-          border: 1px solid #d1d5db;
-          border-radius: 4px;
-          overflow: hidden;
-        }
-
-        .currency-symbol {
-          background: #f3f4f6;
-          padding: 0.5rem 0.75rem;
-          border-right: 1px solid #d1d5db;
-          font-weight: 500;
-          color: #374151;
-        }
-
-        .amount-input {
-          flex: 1;
-          border: none;
-          padding: 0.5rem 0.75rem;
-          font-size: 1rem;
-          outline: none;
-        }
-
-        .payout-info {
-          margin-bottom: 1rem;
-        }
-
-        .payout-row {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 0.5rem;
-          font-size: 0.875rem;
-        }
-
-        .payout-row.profit {
-          font-weight: 600;
-          padding-top: 0.5rem;
-          border-top: 1px solid #e5e7eb;
-        }
-
-        .odds-value {
-          color: #059669;
-          font-weight: 600;
-        }
-
-        .payout-value {
-          color: #111827;
-          font-weight: 500;
-        }
-
-        .profit-value {
-          color: #059669;
-          font-weight: 600;
-        }
-
-        .place-bet-button {
-          width: 100%;
-          background: #3b82f6;
-          color: white;
-          border: none;
-          padding: 0.75rem 1rem;
-          border-radius: 6px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background-color 0.2s;
-        }
-
-        .place-bet-button:hover {
-          background: #2563eb;
-        }
-
-        .place-bet-button:disabled {
-          background: #9ca3af;
-          cursor: not-allowed;
-        }
-      `}</style>
     </div>
   );
 };
-
-export const BetSlipComponent = React.memo(BetSlipComponentInner);

@@ -1,0 +1,81 @@
+{
+  "backend_health": {
+    "status": "healthy",
+    "response_code": 200,
+    "response_data": {
+      "status": "healthy",
+      "message": "Basic health check",
+      "uptime": 418,
+      "services": {
+        "propollama": "healthy",
+        "unified_api": "healthy",
+        "prediction_engine": "healthy",
+        "analytics": "healthy"
+      }
+    }
+  },
+  "modern_ml_health": {
+    "status": "unhealthy",
+    "response_code": 410,
+    "response_data": null
+  },
+  "phase2_health": {
+    "status": "unhealthy",
+    "response_code": 410,
+    "response_data": null
+  },
+  "real_data_integration": {
+    "/mlb/comprehensive-props/": {
+      "status": "error",
+      "error": "('Received response with content-encoding: gzip, but failed to decode it.', error('Error -3 while decompressing data: incorrect header check'))"
+    },
+    "/mlb/prizepicks-props/": {
+      "status": "error",
+      "error": "('Received response with content-encoding: gzip, but failed to decode it.', error('Error -3 while decompressing data: incorrect header check'))"
+    }
+  },
+  "performance_services": {
+    "start_services": {
+      "status": "error",
+      "response_code": 410,
+      "message": "{\"success\":false,\"message\":\"API version modern-ml is no longer supported\",\"error_code\":\"VERSION_NOT_"
+    },
+    "optimization_stats": {
+      "status": "error",
+      "response_code": 410,
+      "data": null
+    }
+  },
+  "baseline_predictions": {
+    "status": "error",
+    "response_code": 410,
+    "latency_ms": 18.95880699157715,
+    "data": null
+  },
+  "optimized_predictions": {
+    "Aaron_Judge_Home_Runs": {
+      "status": "error",
+      "response_code": 410,
+      "error": "{\"success\":false,\"message\":\"API version modern-ml is no longer supported\",\"error_code\":\"VERSION_NOT_SUPPORTED\",\"current_version\":\"v2\",\"migration_guide\":\"https://docs.a1betting.com/migration\"}",
+      "latency_ms": 3.5996437072753906
+    },
+    "Mookie_Betts_Hits": {
+      "status": "error",
+      "response_code": 410,
+      "error": "{\"success\":false,\"message\":\"API version modern-ml is no longer supported\",\"error_code\":\"VERSION_NOT_SUPPORTED\",\"current_version\":\"v2\",\"migration_guide\":\"https://docs.a1betting.com/migration\"}",
+      "latency_ms": 2.658843994140625
+    }
+  },
+  "verification_metadata": {
+    "timestamp": "2025-08-06T15:19:58.595335",
+    "total_tests": 7,
+    "completed_tests": 6,
+    "verification_summary": {
+      "total_tests": 7,
+      "passed_tests": 1,
+      "failed_tests": 6,
+      "success_rate": 0.14285714285714285,
+      "overall_status": "PARTIAL"
+    }
+  }
+}

@@ -1,48 +1,124 @@
-import { Box, CssBaseline, Typography } from '@mui/material';
-import { useState } from 'react';
-import { Admin, AppBar, Layout, Resource, TitlePortal } from 'react-admin';
-import authProvider from './authProvider';
-import dataProvider from './dataProvider';
-import AuditLogPage from './pages/AuditLogPage';
-import RulesPage from './pages/RulesPage';
-import ViolationsPage from './pages/ViolationsPage';
+import { render, screen } from '@testing-library/react';
+import App from '../App';
 
-const CustomAppBar = () => (
-  <AppBar>
-    <TitlePortal />
-    <Typography variant='h6' sx={{ flex: 1, ml: 2 }}>
-      Rule Management Admin
-    </Typography>
-  </AppBar>
-);
+let useAuthMock: any;
+jest.mock('../contexts/AuthContext', () => ({
+  _AuthProvider: ({ children }: any) => <>{children}</>,
+  useAuth: () => useAuthMock(),
+}));
+jest.mock('../contexts/AppContext', () => ({
+  _AppProvider: ({ children }: any) => <>{children}</>,
+}));
+jest.mock('../contexts/ThemeContext', () => ({
+  _ThemeProvider: ({ children }: any) => <>{children}</>,
+}));
+jest.mock('../contexts/WebSocketContext', () => ({
+  _WebSocketProvider: ({ children }: any) => <>{children}</>,
+}));
+jest.mock('../onboarding/OnboardingContext', () => ({
+  OnboardingProvider: ({ children }: any) => <>{children}</>,
+}));
+jest.mock('../components/auth/AuthPage', () => () => <div>AuthPage</div>);
+jest.mock('../components/auth/PasswordChangeForm', () => () => <div>PasswordChangeForm</div>);
+jest.mock('../components/core/ErrorBoundary', () => ({
+  ErrorBoundary: ({ children }: any) => <>{children}</>,
+}));
+jest.mock('../components/core/ServiceWorkerUpdateNotification', () => () => (
+  <div>ServiceWorkerUpdateNotification</div>
+));
+jest.mock('../components/ErrorBoundaryVersion', () => ({
+  ErrorBoundaryVersion: ({ children }: any) => <>{children}</>,
+}));
+jest.mock('../update/UpdateModal', () => () => <div>UpdateModal</div>);
+jest.mock('../components/user-friendly/UserFriendlyApp', () => () => <div>UserFriendlyApp</div>);
+jest.mock('../onboarding/OnboardingFlow', () => ({
+  OnboardingFlow: () => <div>OnboardingFlow</div>,
+}));
+jest.mock('../services/serviceWorkerManager', () => ({
+  serviceWorkerManager: { register: jest.fn(() => Promise.resolve({})) },
+}));
+jest.mock('../services/webVitalsService', () => ({
+  webVitalsService: { trackCustomMetric: jest.fn() },
+}));
+jest.mock('../services/SportsService', () => ({
+  checkApiVersionCompatibility: jest.fn(() => Promise.resolve('2.0.0')),
+}));
+jest.mock('../services/backendDiscovery', () => ({
+  discoverBackend: jest.fn(() => Promise.resolve('http://localhost:8000')),
+}));
+jest.mock('../utils/getBackendUrl', () => ({ getBackendUrl: () => 'http://localhost:8000' }));
+jest.mock('../utils/location', () => ({ getLocation: () => ({ reload: jest.fn() }) }));
+jest.mock('../utils/performance', () => ({
+  usePerformanceTracking: () => ({ trackOperation: jest.fn((name, fn) => fn()) }),
+}));
 
-const CustomLayout = (props: any) => <Layout {...props} appBar={CustomAppBar} />;
+describe('App', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    localStorage.clear();
+    useAuthMock = jest.fn(() => ({
+      isAuthenticated: false,
+      requiresPasswordChange: false,
+      changePassword: jest.fn(),
+      loading: false,
+      error: null,
+      user: null,
+    }));
+  });
 
-function App() {
-  // Placeholder: show login if not authenticated (to be replaced with real auth)
-  const [isAuthenticated] = useState(true); // TODO: wire to authProvider
-  if (!isAuthenticated) {
-    return (
-      <Box display='flex' alignItems='center' justifyContent='center' minHeight='100vh'>
-        <Typography variant='h4'>Admin Login (placeholder)</Typography>
-      </Box>
-    );
-  }
-  return (
-    <>
-      <CssBaseline />
-      <Admin
-        dataProvider={dataProvider}
-        authProvider={authProvider}
-        layout={CustomLayout}
-        title='Rule Management Admin'
-      >
-        <Resource name='rules' list={RulesPage} options={{ label: 'Business Rules' }} />
-        <Resource name='audit-log' list={AuditLogPage} options={{ label: 'Audit Log' }} />
-        <Resource name='violations' list={ViolationsPage} options={{ label: 'Violations' }} />
-      </Admin>
-    </>
-  );
-}
+  it('renders AuthPage when not authenticated', () => {
+    useAuthMock.mockReturnValue({
+      isAuthenticated: false,
+      requiresPasswordChange: false,
+      changePassword: jest.fn(),
+      loading: false,
+      error: null,
+      user: null,
+    });
+    localStorage.setItem('onboardingComplete', 'true');
+    render(<App />);
+    expect(screen.getByText('AuthPage')).toBeInTheDocument();
+  });
 
-export default App;
+  it('renders PasswordChangeForm when requiresPasswordChange is true', () => {
+    useAuthMock.mockReturnValue({
+      isAuthenticated: true,
+      requiresPasswordChange: true,
+      changePassword: jest.fn(),
+      loading: false,
+      error: null,
+      user: { id: '1' },
+    });
+    localStorage.setItem('onboardingComplete', 'true');
+    render(<App />);
+    expect(screen.getByText('PasswordChangeForm')).toBeInTheDocument();
+  });
+
+  it('renders UserFriendlyApp when authenticated and no password change required', () => {
+    useAuthMock.mockReturnValue({
+      isAuthenticated: true,
+      requiresPasswordChange: false,
+      changePassword: jest.fn(),
+      loading: false,
+      error: null,
+      user: { id: '1' },
+    });
+    localStorage.setItem('onboardingComplete', 'true');
+    render(<App />);
+    expect(screen.getByText('UserFriendlyApp')).toBeInTheDocument();
+  });
+
+  it('renders OnboardingFlow when not authenticated and onboarding not complete', () => {
+    useAuthMock.mockReturnValue({
+      isAuthenticated: false,
+      requiresPasswordChange: false,
+      changePassword: jest.fn(),
+      loading: false,
+      error: null,
+      user: null,
+    });
+    localStorage.removeItem('onboardingComplete');
+    render(<App />);
+    expect(screen.getByText('OnboardingFlow')).toBeInTheDocument();
+  });
+});

@@ -13,7 +13,7 @@ This script verifies that all Phase 2 components are working correctly:
 import json
 import time
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, Optional
 
 import requests
 
@@ -21,260 +21,108 @@ import requests
 class Phase2Verifier:
     """Verify Phase 2 implementation completeness"""
 
-    def __init__(self, base_url: str = "http://127.0.0.1:8000"):
+    def __init__(self, base_url: str = "http://127.0.0.1:8000/api/v2"):
         self.base_url = base_url
-        self.verification_results = {}
+        self.verification_results: Dict[str, Any] = {}
 
     def verify_backend_health(self) -> Dict[str, Any]:
-        """Verify basic backend health"""
+        """Verify basic backend health (v2) with robust JSON handling"""
         try:
             response = requests.get(f"{self.base_url}/health", timeout=5)
+            data = response.json() if response.status_code == 200 else {}
+            if isinstance(data, str):
+                try:
+                    data = json.loads(data)
+                except Exception:
+                    data = {"raw": data}
             return {
-                "status": "healthy" if response.status_code == 200 else "unhealthy",
-                "response_code": response.status_code,
-                "response_data": (
-                    response.json() if response.status_code == 200 else None
+                "status": (
+                    "healthy"
+                    if response.status_code == 200
+                    and isinstance(data, dict)
+                    and data.get("success")
+                    else "unhealthy"
                 ),
+                "response_code": response.status_code,
+                "response_data": data,
             }
         except Exception as e:
             return {"status": "error", "error": str(e)}
 
     def verify_modern_ml_health(self) -> Dict[str, Any]:
-        """Verify modern ML service health"""
-        try:
-            response = requests.get(f"{self.base_url}/api/modern-ml/health", timeout=5)
-            return {
-                "status": "healthy" if response.status_code == 200 else "unhealthy",
-                "response_code": response.status_code,
-                "response_data": (
-                    response.json() if response.status_code == 200 else None
-                ),
-            }
-        except Exception as e:
-            return {"status": "error", "error": str(e)}
+        """Skip: /ml-health endpoint does not exist in v2"""
+        return {
+            "status": "skipped",
+            "reason": "/ml-health endpoint not available in v2",
+        }
 
     def verify_phase2_health(self) -> Dict[str, Any]:
-        """Verify Phase 2 service health"""
-        try:
-            response = requests.get(
-                f"{self.base_url}/api/modern-ml/phase2/health", timeout=5
-            )
-            return {
-                "status": "healthy" if response.status_code == 200 else "unhealthy",
-                "response_code": response.status_code,
-                "response_data": (
-                    response.json() if response.status_code == 200 else None
-                ),
-            }
-        except Exception as e:
-            return {"status": "error", "error": str(e)}
+        """Skip: /phase2/health endpoint does not exist in v2"""
+        return {
+            "status": "skipped",
+            "reason": "/phase2/health endpoint not available in v2",
+        }
 
     def verify_real_data_integration(self) -> Dict[str, Any]:
-        """Verify real MLB data integration"""
-        endpoints_to_test = ["/mlb/comprehensive-props/", "/mlb/prizepicks-props/"]
-
+        """Verify real MLB data integration using v2 endpoints"""
         results = {}
-
-        for endpoint in endpoints_to_test:
-            try:
-                response = requests.get(f"{self.base_url}{endpoint}", timeout=10)
-
-                if response.status_code == 200:
-                    data = response.json()
-
-                    if endpoint == "/mlb/comprehensive-props/":
-                        # Extract coverage metrics
-                        coverage = data.get("coverage_metrics", {})
-                        results[endpoint] = {
-                            "status": "success",
-                            "total_props": coverage.get("total_props", 0),
-                            "unique_players": coverage.get("unique_players", 0),
-                            "stat_types": len(coverage.get("stat_types", [])),
-                            "response_size": len(str(data)),
-                        }
-
-                    elif endpoint == "/mlb/prizepicks-props/":
-                        # Count props
-                        props_count = len(data) if isinstance(data, list) else 0
-                        results[endpoint] = {
-                            "status": "success",
-                            "props_count": props_count,
-                            "response_size": len(str(data)),
-                        }
-
-                else:
-                    results[endpoint] = {
-                        "status": "error",
-                        "response_code": response.status_code,
-                        "error": response.text[:200],
-                    }
-
-            except Exception as e:
-                results[endpoint] = {"status": "error", "error": str(e)}
-
+        try:
+            games_response = requests.get(f"{self.base_url}/games", timeout=10)
+            games_data = (
+                games_response.json() if games_response.status_code == 200 else {}
+            )
+            games = games_data.get("data", {}).get("games", [])
+            if not games:
+                return {
+                    "status": "error",
+                    "error": "No games returned from /games endpoint",
+                }
+            game = next((g for g in games if g.get("game_id")), None)
+            if not game:
+                return {
+                    "status": "error",
+                    "error": "No valid game_id found in games list",
+                }
+            game_id = game["game_id"]
+            props_response = requests.get(
+                f"{self.base_url}/games/{game_id}/props", timeout=10
+            )
+            props_data = (
+                props_response.json() if props_response.status_code == 200 else {}
+            )
+            props = props_data.get("data", {}).get("props", [])
+            results["/api/v2/games/{game_id}/props"] = {
+                "status": "success" if props else "error",
+                "total_props": len(props),
+                "unique_players": len(
+                    set(p.get("player_id") for p in props if p.get("player_id"))
+                ),
+                "response_size": len(str(props_data)),
+            }
+        except Exception as e:
+            results["/api/v2/games/{game_id}/props"] = {
+                "status": "error",
+                "error": str(e),
+            }
         return results
 
     def verify_optimized_predictions(self) -> Dict[str, Any]:
-        """Verify optimized prediction functionality"""
-        test_cases = [
-            {
-                "name": "Aaron_Judge_Home_Runs",
-                "data": {
-                    "player_name": "Aaron Judge",
-                    "team": "NYY",
-                    "opponent_team": "BOS",
-                    "line_score": 1.5,
-                    "historical_data": [{"hr": 1}, {"hr": 0}, {"hr": 2}],
-                    "team_data": {"win_rate": 0.65, "avg_score": 5.8},
-                    "opponent_data": {"win_rate": 0.55, "avg_score": 5.2},
-                    "game_context": {"home_game": True, "temperature": 75},
-                },
-                "sport": "MLB",
-                "prop_type": "home_runs",
-            },
-            {
-                "name": "Mookie_Betts_Hits",
-                "data": {
-                    "player_name": "Mookie Betts",
-                    "team": "LAD",
-                    "opponent_team": "SFG",
-                    "line_score": 2.5,
-                    "historical_data": [{"hits": 3}, {"hits": 1}, {"hits": 2}],
-                    "team_data": {"win_rate": 0.72, "avg_score": 6.1},
-                    "opponent_data": {"win_rate": 0.48, "avg_score": 4.9},
-                    "game_context": {"home_game": False, "temperature": 68},
-                },
-                "sport": "MLB",
-                "prop_type": "hits",
-            },
-        ]
-
-        results = {}
-
-        for test_case in test_cases:
-            try:
-                start_time = time.time()
-
-                response = requests.post(
-                    f"{self.base_url}/api/modern-ml/phase2/optimized-prediction",
-                    json=test_case,
-                    timeout=10,
-                )
-
-                latency = (time.time() - start_time) * 1000
-
-                if response.status_code == 200:
-                    data = response.json()
-                    results[test_case["name"]] = {
-                        "status": "success",
-                        "prediction": data.get("prediction"),
-                        "confidence": data.get("confidence"),
-                        "processing_time": data.get("processing_time", 0),
-                        "models_used": data.get("models_used", []),
-                        "latency_ms": latency,
-                        "optimization_used": data.get("optimization_metadata", {}).get(
-                            "phase2_optimized", False
-                        ),
-                    }
-                else:
-                    results[test_case["name"]] = {
-                        "status": "error",
-                        "response_code": response.status_code,
-                        "error": response.text[:200],
-                        "latency_ms": latency,
-                    }
-
-            except Exception as e:
-                results[test_case["name"]] = {"status": "error", "error": str(e)}
-
-        return results
+        """Skip: /predict endpoint does not exist in v2"""
+        return {"status": "skipped", "reason": "/predict endpoint not available in v2"}
 
     def verify_performance_services(self) -> Dict[str, Any]:
-        """Verify performance optimization services"""
-        try:
-            # Start Phase 2 services
-            start_response = requests.post(
-                f"{self.base_url}/api/modern-ml/phase2/start-optimization"
-            )
-
-            # Wait a moment for services to initialize
-            time.sleep(2)
-
-            # Get optimization stats
-            stats_response = requests.get(
-                f"{self.base_url}/api/modern-ml/phase2/optimization-stats"
-            )
-
-            results = {
-                "start_services": {
-                    "status": (
-                        "success" if start_response.status_code == 202 else "error"
-                    ),
-                    "response_code": start_response.status_code,
-                    "message": (
-                        start_response.json().get("message", "")
-                        if start_response.status_code == 202
-                        else start_response.text[:100]
-                    ),
-                },
-                "optimization_stats": {
-                    "status": (
-                        "success" if stats_response.status_code == 200 else "error"
-                    ),
-                    "response_code": stats_response.status_code,
-                    "data": (
-                        stats_response.json()
-                        if stats_response.status_code == 200
-                        else None
-                    ),
-                },
-            }
-
-            return results
-
-        except Exception as e:
-            return {"status": "error", "error": str(e)}
-
-    def verify_baseline_predictions(self) -> Dict[str, Any]:
-        """Verify baseline prediction endpoint for comparison"""
-        test_request = {
-            "requests": [
-                {
-                    "data": {
-                        "player_name": "Mike Trout",
-                        "team": "LAA",
-                        "opponent_team": "HOU",
-                        "line_score": 2.0,
-                        "historical_data": [],
-                        "team_data": {"win_rate": 0.58},
-                        "opponent_data": {"win_rate": 0.68},
-                    },
-                    "sport": "MLB",
-                    "prop_type": "hits",
-                }
-            ]
+        """Skip: /performance endpoint does not exist in v2"""
+        return {
+            "status": "skipped",
+            "reason": "/performance endpoint not available in v2",
         }
 
-        try:
-            start_time = time.time()
-
-            response = requests.post(
-                f"{self.base_url}/api/unified/batch-predictions",
-                json=test_request,
-                timeout=10,
-            )
-
-            latency = (time.time() - start_time) * 1000
-
-            return {
-                "status": "success" if response.status_code == 200 else "error",
-                "response_code": response.status_code,
-                "latency_ms": latency,
-                "data": response.json() if response.status_code == 200 else None,
-            }
-
-        except Exception as e:
-            return {"status": "error", "error": str(e)}
+    def verify_baseline_predictions(self) -> Dict[str, Any]:
+        """Skip: /batch-predictions endpoint does not exist in v2"""
+        return {
+            "status": "skipped",
+            "reason": "/batch-predictions endpoint not available in v2",
+        }
 
     def run_comprehensive_verification(self) -> Dict[str, Any]:
         """Run complete Phase 2 verification"""
@@ -403,14 +251,14 @@ class Phase2Verifier:
 
         print("\n" + "=" * 60)
 
-    def save_results(self, filename: str = None):
+    def save_results(self, filename: Optional[str] = None):
         """Save verification results to file"""
         if filename is None:
             filename = (
                 f"phase2_verification_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
             )
 
-        with open(filename, "w") as f:
+        with open(filename, "w", encoding="utf-8") as f:
             json.dump(self.verification_results, f, indent=2, default=str)
 
         print(f"Verification results saved to: {filename}")

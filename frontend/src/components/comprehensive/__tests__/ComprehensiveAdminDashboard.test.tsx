@@ -204,9 +204,7 @@ describe('ComprehensiveAdminDashboard', () => {
   });
 
   it('shows error state', async () => {
-    import React from 'react';
-    import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-    import '@testing-library/jest-dom';
+    // imports moved to top level
     (useEnhancedBets as jest.Mock).mockImplementation(() => ({ isLoading: false, isError: true }));
     (usePortfolioOptimization as jest.Mock).mockImplementation(() => ({
       isLoading: false,

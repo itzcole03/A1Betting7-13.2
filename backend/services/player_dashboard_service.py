@@ -1,50 +1,8 @@
-from .unified_data_fetcher import unified_data_fetcher
-from ..models.player_models import PlayerDashboardResponse, PlayerSeasonStats, PlayerRecentGame, PlayerPropHistoryItem, PlayerPerformanceTrends
-    async def get_player_dashboard(self, player_id: str, request) -> PlayerDashboardResponse:
-        """Get comprehensive player dashboard data with unified fetcher, 30 min cache, and error/correlation handling"""
-        sport = request.query_params.get("sport", "MLB")
-        cache_key = f"player_dashboard:{sport}:{player_id}"
-        correlation_id = request.headers.get("X-Correlation-ID") or f"playerdash-{player_id}-{datetime.utcnow().timestamp()}"
-        try:
-            # Check cache (30 min TTL)
-            cached = self.cache_service.get(cache_key)
-            if cached:
-                logger.info(f"[CID={correlation_id}] Cache hit for {cache_key}")
-                return PlayerDashboardResponse.parse_obj(cached)
+"""
+PlayerDashboardService - Backend service for comprehensive player analytics
+Provides player data, statistics, trends, and predictions for the dashboard
+"""
 
-            # Fetch all data using unified_data_fetcher
-            logger.info(f"[CID={correlation_id}] Fetching dashboard for {player_id}")
-            player_info = await unified_data_fetcher.fetch_player_info(player_id, sport)
-            season_stats = await unified_data_fetcher.fetch_player_season_stats(player_id, sport)
-            recent_games = await unified_data_fetcher.fetch_player_recent_games(player_id, sport, limit=10)
-            prop_history = await unified_data_fetcher.fetch_player_prop_history(player_id, sport)
-            performance_trends = await unified_data_fetcher.fetch_player_performance_trends(player_id, sport)
-
-            # Normalize and build response
-            response = PlayerDashboardResponse(
-                id=player_info["id"],
-                name=player_info["name"],
-                team=player_info["team"],
-                position=player_info["position"],
-                sport=player_info["sport"],
-                active=player_info.get("active", True),
-                injury_status=player_info.get("injury_status"),
-                season_stats=PlayerSeasonStats(**season_stats),
-                recent_games=[PlayerRecentGame(**g) for g in recent_games],
-                prop_history=[PlayerPropHistoryItem(**p) for p in prop_history],
-                performance_trends=PlayerPerformanceTrends(**performance_trends),
-            )
-            # Cache for 30 min
-            self.cache_service.set(cache_key, response.dict(), ttl=1800)
-            logger.info(f"[CID={correlation_id}] Dashboard cached for {cache_key}")
-            return response
-        except Exception as e:
-            logger.error(f"[CID={correlation_id}] Error in get_player_dashboard: {e}")
-            raise self.error_handler.handle_error(
-                error=e,
-                context="get_player_dashboard",
-                user_context={"player_id": player_id, "correlation_id": correlation_id}
-            )
 """
 PlayerDashboardService - Backend service for comprehensive player analytics
 Provides player data, statistics, trends, and predictions for the dashboard
@@ -62,9 +20,9 @@ from .enhanced_prop_analysis_service import EnhancedPropAnalysisService
 from .mlb_stats_api_client import MLBStatsAPIClient
 from .unified_cache_service import unified_cache_service
 from .unified_error_handler import unified_error_handler
-from .unified_logging import unified_logging
+from .unified_logging import get_logger
 
-logger = unified_logging.get_logger("player_dashboard_service")
+logger = get_logger("player_dashboard_service")
 
 
 @dataclass
@@ -140,14 +98,27 @@ class PlayerData:
 
 class PlayerDashboardService:
 
-    async def get_player_dashboard(self, player_id: str, request) -> 'PlayerDashboardResponse':
+    async def get_player_dashboard(
+        self, player_id: str, request
+    ) -> "PlayerDashboardResponse":
         """Get comprehensive player dashboard data with unified fetcher, 30 min cache, and error/correlation handling"""
-        from .unified_data_fetcher import unified_data_fetcher
-        from ..models.player_models import PlayerDashboardResponse, PlayerSeasonStats, PlayerRecentGame, PlayerPropHistoryItem, PlayerPerformanceTrends
         from datetime import datetime
+
+        from ..models.player_models import (
+            PlayerDashboardResponse,
+            PlayerPerformanceTrends,
+            PlayerPropHistoryItem,
+            PlayerRecentGame,
+            PlayerSeasonStats,
+        )
+        from .unified_data_fetcher import unified_data_fetcher
+
         sport = request.query_params.get("sport", "MLB")
         cache_key = f"player_dashboard:{sport}:{player_id}"
-        correlation_id = request.headers.get("X-Correlation-ID") or f"playerdash-{player_id}-{datetime.utcnow().timestamp()}"
+        correlation_id = (
+            request.headers.get("X-Correlation-ID")
+            or f"playerdash-{player_id}-{datetime.utcnow().timestamp()}"
+        )
         try:
             # Check cache (30 min TTL)
             cached = self.cache_service.get(cache_key)
@@ -158,10 +129,20 @@ class PlayerDashboardService:
             # Fetch all data using unified_data_fetcher
             logger.info(f"[CID={correlation_id}] Fetching dashboard for {player_id}")
             player_info = await unified_data_fetcher.fetch_player_info(player_id, sport)
-            season_stats = await unified_data_fetcher.fetch_player_season_stats(player_id, sport)
-            recent_games = await unified_data_fetcher.fetch_player_recent_games(player_id, sport, limit=10)
-            prop_history = await unified_data_fetcher.fetch_player_prop_history(player_id, sport)
-            performance_trends = await unified_data_fetcher.fetch_player_performance_trends(player_id, sport)
+            season_stats = await unified_data_fetcher.fetch_player_season_stats(
+                player_id, sport
+            )
+            recent_games = await unified_data_fetcher.fetch_player_recent_games(
+                player_id, sport, limit=10
+            )
+            prop_history = await unified_data_fetcher.fetch_player_prop_history(
+                player_id, sport
+            )
+            performance_trends = (
+                await unified_data_fetcher.fetch_player_performance_trends(
+                    player_id, sport
+                )
+            )
 
             # Normalize and build response
             response = PlayerDashboardResponse(
@@ -186,8 +167,9 @@ class PlayerDashboardService:
             raise self.error_handler.handle_error(
                 error=e,
                 context="get_player_dashboard",
-                user_context={"player_id": player_id, "correlation_id": correlation_id}
+                user_context={"player_id": player_id, "correlation_id": correlation_id},
             )
+
     """Comprehensive service for player dashboard data and analytics"""
 
     def __init__(self):

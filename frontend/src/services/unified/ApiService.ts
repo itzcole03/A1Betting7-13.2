@@ -5,6 +5,15 @@
 
 import EventEmitter from 'eventemitter3';
 import { discoverBackend } from '../backendDiscovery';
+
+// Add missing ApiConfig interface
+type ApiConfig = {
+  baseURL: string;
+  timeout: number;
+  retryAttempts: number;
+  retryDelay: number;
+};
+
 // Abstract base class for API services (matches .d.ts)
 export interface ApiServiceEvents {
   error: (error: Error) => void;
@@ -22,16 +31,6 @@ export abstract class BaseApiService extends EventEmitter<ApiServiceEvents> {
   }
   protected abstract initializeClient(): unknown;
   protected abstract handleError(error: Error): void;
-  protected abstract handleResponse<T>(response: ApiResponse<T>): void;
-  abstract get<T>(endpoint: string, params?: Record<string, unknown>): Promise<T>;
-  abstract post<T>(endpoint: string, data: unknown): Promise<T>;
-}
-
-interface ApiConfig {
-  baseURL: string;
-  timeout: number;
-  retryAttempts: number;
-  retryDelay: number;
 }
 
 interface ApiResponse<T = unknown> {
@@ -50,20 +49,37 @@ interface RequestConfig {
   cacheTime?: number;
 }
 
-class ApiService {
+export class ApiService {
+  private static instance: ApiService;
   private config: ApiConfig;
   private cache: Map<string, { data: unknown; expires: number }> = new Map();
   private requestInterceptors: Array<(config: RequestConfig) => RequestConfig> = [];
   private responseInterceptors: Array<(response: ApiResponse) => ApiResponse> = [];
 
-  constructor() {
-    // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
+  private constructor() {
+    // Use getEnvVar for robust env access
+    // @ts-ignore
+    const getEnvVar = (() => {
+      try {
+        // Use dynamic import for Jest compatibility
+        return require('../../utils/getEnvVar').getEnvVar;
+      } catch (e) {
+        return (_key: string, fallback?: string) => fallback;
+      }
+    })();
     this.config = {
-      baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001',
+      baseURL: getEnvVar('VITE_API_BASE_URL', 'http://localhost:8001'),
       timeout: 30000,
       retryAttempts: 3,
       retryDelay: 1000,
     };
+  }
+
+  public static getInstance(): ApiService {
+    if (!ApiService.instance) {
+      ApiService.instance = new ApiService();
+    }
+    return ApiService.instance;
   }
 
   /**
@@ -146,9 +162,9 @@ class ApiService {
         };
 
         // Apply response interceptors
-        let _finalResponse = _apiResponse;
+        let _finalResponse: ApiResponse<T> = _apiResponse;
         for (const _interceptor of this.responseInterceptors) {
-          _finalResponse = _interceptor(_finalResponse);
+          _finalResponse = _interceptor(_finalResponse) as ApiResponse<T>;
         }
 
         // Cache successful GET requests
@@ -229,5 +245,4 @@ class ApiService {
   }
 }
 
-// (Removed duplicate export of BaseApiService and ApiResponse)
-export default new ApiService();
+export default ApiService.getInstance();

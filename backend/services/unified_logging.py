@@ -404,6 +404,8 @@ class OperationTracker:
 
 # Global instance
 unified_logger = UnifiedLogger("a1betting")
+# Backwards compatibility: provide unified_logging alias
+unified_logging = unified_logger
 
 
 # Convenience functions for backwards compatibility

@@ -63,93 +63,93 @@ export class UnifiedStateService extends BaseService {
     const _keys = path.split('.');
     let _current = this.state;
 
-    for (const _key of keys) {
-      if (current && typeof current === 'object' && key in current) {
-        current = current[key];
+    for (const _key of _keys) {
+      if (_current && typeof _current === 'object' && _key in _current) {
+        _current = (_current as any)[_key];
       } else {
         return defaultValue as T;
       }
     }
 
-    return current as T;
+    return _current as T;
   }
 
   set(path: string, value: unknown): void {
     const _keys = path.split('.');
-    const _lastKey = keys.pop()!;
+    const _lastKey = _keys.pop()!;
     let _current = this.state;
 
     // Navigate to the parent object
-    for (const _key of keys) {
-      if (!(key in current) || typeof current[key] !== 'object') {
-        current[key] = {};
+    for (const _key of _keys) {
+      if (!(_key in _current) || typeof (_current as any)[_key] !== 'object') {
+        (_current as any)[_key] = {};
       }
-      current = current[key];
+      _current = (_current as any)[_key];
     }
 
-    const _oldValue = current[lastKey];
-    current[lastKey] = value;
+    const _oldValue = (_current as any)[_lastKey];
+    (_current as any)[_lastKey] = value;
 
-    this.notifyListeners(path, value, oldValue);
+    this.notifyListeners(path, value, _oldValue);
     this.logger.debug('State updated', { path, value });
   }
 
   update(path: string, updater: (current: unknown) => unknown): void {
     const _currentValue = this.get(path);
-    const _newValue = updater(currentValue);
-    this.set(path, newValue);
+    const _newValue = updater(_currentValue);
+    this.set(path, _newValue);
   }
 
   merge(path: string, partial: unknown): void {
     const _currentValue = this.get(path, {});
-    const _newValue = { ...currentValue, ...partial };
-    this.set(path, newValue);
+    const _newValue = { ...(_currentValue as object), ...(partial as object) };
+    this.set(path, _newValue);
   }
 
   delete(path: string): void {
     const _keys = path.split('.');
-    const _lastKey = keys.pop()!;
+    const _lastKey = _keys.pop()!;
     let _current = this.state;
 
-    for (const _key of keys) {
-      if (!(key in current) || typeof current[key] !== 'object') {
+    for (const _key of _keys) {
+      if (!(_key in _current) || typeof (_current as any)[_key] !== 'object') {
         return; // Path doesn't exist
       }
-      current = current[key];
+      _current = (_current as any)[_key];
     }
 
-    const _oldValue = current[lastKey];
-    delete current[lastKey];
+    const _oldValue = (_current as any)[_lastKey];
+    delete (_current as any)[_lastKey];
 
-    this.notifyListeners(path, undefined, oldValue);
+    this.notifyListeners(path, undefined, _oldValue);
     this.logger.debug('State deleted', { path });
   }
 
   subscribe(path: string, callback: (newValue: unknown, oldValue: unknown) => void): string {
     const _id = `listener_${++this.listenerIdCounter}`;
-    this.listeners.push({ id, path, callback });
+    this.listeners.push({ id: _id, path, callback });
 
-    this.logger.debug('State listener added', { id, path });
-    return id;
+    this.logger.debug('State listener added', { id: _id, path });
+    return _id;
   }
 
   unsubscribe(listenerId: string): void {
     const _index = this.listeners.findIndex(l => l.id === listenerId);
-    if (index >= 0) {
-      this.listeners.splice(index, 1);
+    if (_index >= 0) {
+      this.listeners.splice(_index, 1);
       this.logger.debug('State listener removed', { listenerId });
     }
   }
 
   private notifyListeners(changedPath: string, newValue: unknown, oldValue: unknown): void {
     for (const _listener of this.listeners) {
-      if (this.pathMatches(changedPath, listener.path)) {
+      if (this.pathMatches(changedPath, _listener.path)) {
         try {
-          listener.callback(newValue, oldValue);
+          _listener.callback(newValue, oldValue);
         } catch (error) {
           this.logger.error('State listener error', {
-            listenerId: listener.id,
-            path: listener.path,
+            listenerId: _listener.id,
+            path: _listener.path,
             error,
           });
         }
@@ -183,7 +183,7 @@ export class UnifiedStateService extends BaseService {
     this.state = newState;
 
     // Notify all listeners that root state changed
-    this.notifyListeners('', newState, oldState);
+    this.notifyListeners('', newState, _oldState);
     this.logger.info('Full state replaced');
   }
 
@@ -196,7 +196,7 @@ export class UnifiedStateService extends BaseService {
   persist(): void {
     try {
       const _serializedState = JSON.stringify(this.state);
-      localStorage.setItem('app_state', serializedState);
+      localStorage.setItem('app_state', _serializedState);
       this.logger.debug('State persisted to localStorage');
     } catch (error) {
       this.logger.error('Failed to persist state', error);
@@ -206,9 +206,9 @@ export class UnifiedStateService extends BaseService {
   restore(): void {
     try {
       const _serializedState = localStorage.getItem('app_state');
-      if (serializedState) {
-        const _restoredState = JSON.parse(serializedState);
-        this.setState(restoredState);
+      if (_serializedState) {
+        const _restoredState = JSON.parse(_serializedState);
+        this.setState(_restoredState);
         this.logger.info('State restored from localStorage');
       }
     } catch (error) {

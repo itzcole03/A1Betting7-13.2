@@ -1720,15 +1720,27 @@ class ComprehensivePropGenerator:
     async def generate_game_props(
         self, game_id: int, optimize_performance: bool = True
     ) -> Dict[str, Any]:
-        """Generate comprehensive props with enterprise-grade systems and modern async patterns"""
+        """
+        Generate comprehensive props with enterprise-grade systems and modern async patterns.
+
+        Args:
+            game_id (int): MLB game ID.
+            optimize_performance (bool): Whether to use performance optimizations.
+
+        Returns:
+            Dict[str, Any]: Dictionary containing generated props, stats, and status.
+        """
         start_time = time.time()
         cache_key = f"game_props:{game_id}"
 
         logger.info(f"🚀 Starting comprehensive prop generation for game {game_id}")
         logger.debug(f"🔍 Optimize performance: {optimize_performance}")
 
-        # Check circuit breaker before expensive operations
-        if not self.circuit_breaker.is_callable():
+        # Circuit breaker: fail fast if open (check both state and is_callable)
+        if (
+            getattr(self.circuit_breaker, "state", None) == "OPEN"
+            or not self.circuit_breaker.is_callable()
+        ):
             logger.warning(
                 f"Circuit breaker open for game {game_id}, using minimal fallback"
             )
@@ -1739,14 +1751,13 @@ class ComprehensivePropGenerator:
                 "status": "circuit_breaker_open",
             }
 
-        # Check intelligent cache first
+        # Try cache first (with timeout)
         try:
-            async with asyncio.timeout(5.0):  # 5 second cache timeout
+            async with asyncio.timeout(5.0):
                 logger.debug(f"🔍 Checking cache for game {game_id}")
                 cached_props = await self.cache_service.get_cached_data(
                     cache_key, "game_props"
                 )
-
                 if cached_props:
                     logger.info(f"✅ Cache hit for game {game_id}")
                     self.generation_stats["cache_hits"] += 1
@@ -1754,14 +1765,11 @@ class ComprehensivePropGenerator:
                     logger.info(
                         f"📊 Retrieved {len(cached_props)} props from cache for game {game_id}"
                     )
-
-                    # Enhanced logging for cached props
                     logger.debug(
                         f"🔍 Cached props types: {[type(prop).__name__ for prop in cached_props[:3]]}"
                     )
-
                     try:
-                        # Convert cached props with error handling
+                        # Defensive conversion of cached props
                         converted_props = []
                         for i, prop in enumerate(cached_props):
                             try:
@@ -1778,7 +1786,6 @@ class ComprehensivePropGenerator:
                                     f"❌ Error converting cached prop {i}: {conversion_error}"
                                 )
                                 logger.debug(f"❌ Prop data: {prop}")
-
                         return {
                             "props": converted_props,
                             "phase2_stats": self.generation_stats,
@@ -1803,16 +1810,14 @@ class ComprehensivePropGenerator:
         self.generation_stats["cache_misses"] += 1
 
         try:
-            # Initialize enterprise services with timeout
-            async with asyncio.timeout(30.0):  # 30 second initialization timeout
+            # Initialize enterprise services (with timeout)
+            async with asyncio.timeout(30.0):
                 await self._initialize_enterprise_services()
-
             logger.info(f"🎯 Generating comprehensive props for game {game_id}")
 
-            # Get game information with caching and timeout
-            async with asyncio.timeout(15.0):  # 15 second game info timeout
+            # Get game info (with timeout)
+            async with asyncio.timeout(15.0):
                 game_info = await self._get_cached_game_info(game_id)
-
             if not game_info:
                 logger.error(f"Could not fetch game info for {game_id}")
                 self.circuit_breaker.record_failure()
@@ -1822,34 +1827,26 @@ class ComprehensivePropGenerator:
                     "status": "game_info_unavailable",
                 }
 
-            # 🔍 NEW: Data Collection and Cross-Validation
+            # Data validation and cross-validation
             validation_warnings = []
-            validated_game_data = game_info  # Default fallback
-
+            validated_game_data = game_info
             if DATA_VALIDATION_AVAILABLE:
                 try:
                     logger.info(
                         f"🔍 Collecting and validating data sources for game {game_id}"
                     )
-
-                    # Collect and validate data from multiple sources
-                    async with asyncio.timeout(20.0):  # 20 second validation timeout
+                    async with asyncio.timeout(20.0):
                         validated_data, warnings = (
                             await self._collect_and_validate_data_sources(game_id)
                         )
-
                     validation_warnings.extend(warnings)
-
-                    # Extract validated game info
                     if validated_data.get("game_info"):
-                        # Use consensus data if available
                         if "_validation" in str(validated_data.get("game_info", {})):
                             validated_game_data = validated_data["game_info"]
                             logger.info(
                                 f"✅ Using validated game data (confidence: {validated_game_data.get('_validation', {}).get('confidence_score', 'unknown')})"
                             )
                         else:
-                            # Use best available source
                             for source in ["baseball_savant", "mlb_client", "statsapi"]:
                                 if source in validated_data.get("game_info", {}):
                                     validated_game_data = validated_data["game_info"][
@@ -1859,16 +1856,11 @@ class ComprehensivePropGenerator:
                                         f"✅ Using {source} as primary game data source"
                                     )
                                     break
-
-                    # Log validation summary
                     validation_meta = validated_data.get("validation_metadata", {})
                     if validation_meta.get("validation_performed"):
                         logger.info(
-                            f"🔍 Data validation completed: "
-                            f"{len(validation_meta.get('sources_successful', []))} sources, "
-                            f"{len(validation_warnings)} warnings"
+                            f"🔍 Data validation completed: {len(validation_meta.get('sources_successful', []))} sources, {len(validation_warnings)} warnings"
                         )
-
                 except asyncio.TimeoutError:
                     logger.warning(
                         f"Data validation timeout for game {game_id} - using standard data"
@@ -1888,7 +1880,7 @@ class ComprehensivePropGenerator:
                     "Data validation not available - using standard data collection"
                 )
 
-            # Performance-optimized generation with async resource management
+            # Prop generation (performance-optimized if enabled)
             if optimize_performance and hasattr(self.performance_optimizer, "context"):
                 with self.performance_optimizer.context("prop_generation"):
                     async with self.resource_manager.get_session():
@@ -1899,21 +1891,17 @@ class ComprehensivePropGenerator:
                 async with self.resource_manager.get_session():
                     all_props = await self._generate_props_standard(validated_game_data)
 
-            # Apply enterprise ML enhancements with batching
+            # ML enhancements and ranking
             self.generation_stats["async_batch_operations"] += 1
             enhanced_props = await self._apply_enterprise_ml_enhancements(
                 all_props, game_info
             )
-
-            # Filter and rank by quality
             high_confidence_props = self._filter_and_rank_props(enhanced_props)
 
-            # Cache results with intelligent TTL
+            # Cache results (with timeout)
             try:
-                async with asyncio.timeout(10.0):  # 10 second cache timeout
+                async with asyncio.timeout(10.0):
                     cache_ttl = self._calculate_cache_ttl(game_info)
-
-                    # Enhanced logging for to_dict conversion
                     logger.debug(
                         f"🔍 Preparing to cache {len(high_confidence_props)} props"
                     )
@@ -1929,7 +1917,6 @@ class ComprehensivePropGenerator:
                                 logger.error(
                                     f"❌ Prop {i} missing to_dict method: {type(prop)} - {prop}"
                                 )
-                                # Convert to dict manually if it's a simple object
                                 if isinstance(prop, dict):
                                     cache_props.append(prop)
                                 else:
@@ -1941,12 +1928,8 @@ class ComprehensivePropGenerator:
                                 f"❌ Error converting prop {i} to dict: {prop_error}"
                             )
                             logger.error(f"❌ Prop type: {type(prop)}, content: {prop}")
-
                     await self.cache_service.cache_data(
-                        cache_key,
-                        cache_props,
-                        ttl=cache_ttl,
-                        category="game_props",
+                        cache_key, cache_props, ttl=cache_ttl, category="game_props"
                     )
             except asyncio.TimeoutError:
                 logger.warning(f"Cache storage timeout for game {game_id}")
@@ -1954,24 +1937,19 @@ class ComprehensivePropGenerator:
                 logger.warning(f"Caching failed: {e}")
                 logger.debug(f"Caching error details:", exc_info=True)
 
-            # Update performance stats
+            # Update stats
             generation_time = time.time() - start_time
             self.generation_stats["total_props_generated"] = len(enhanced_props)
             self.generation_stats["high_confidence_props"] = len(high_confidence_props)
-
-            # Record success for circuit breaker
             self.circuit_breaker.record_success()
-
             logger.info(
                 f"🎯 Generated {len(enhanced_props)} total props, {len(high_confidence_props)} high-confidence props for game {game_id} in {generation_time:.2f}s"
             )
-
-            # Include validation metrics and warnings
             logger.debug(
                 f"🔍 Creating result dict with {len(high_confidence_props)} props"
             )
 
-            # Enhanced logging for to_dict conversion in result
+            # Prepare result
             result_props = []
             for i, prop in enumerate(high_confidence_props):
                 try:
@@ -1984,14 +1962,12 @@ class ComprehensivePropGenerator:
                         logger.error(
                             f"❌ Result prop {i} missing to_dict method: {type(prop)} - {prop}"
                         )
-                        # Handle different prop types
                         if isinstance(prop, dict):
                             result_props.append(prop)
                         elif isinstance(prop, str):
                             logger.error(
                                 f"❌ String prop found where object expected: {prop}"
                             )
-                            # Skip string props that shouldn't be here
                             continue
                         else:
                             logger.error(
@@ -2010,8 +1986,6 @@ class ComprehensivePropGenerator:
                 "status": "success",
                 "generation_time": generation_time,
             }
-
-            # Add validation metadata if available
             if DATA_VALIDATION_AVAILABLE:
                 result["validation"] = {
                     "enabled": True,
@@ -2022,7 +1996,6 @@ class ComprehensivePropGenerator:
                         else {}
                     ),
                 }
-
             return result
 
         except asyncio.TimeoutError:

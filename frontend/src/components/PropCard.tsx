@@ -43,6 +43,21 @@ const PropCard: React.FC<PropCardProps> = ({
 }) => {
   const [showAnalysis, setShowAnalysis] = useState(false);
 
+  // Debug: print when PropCard is rendered and its props
+  // eslint-disable-next-line no-console
+  console.log('[DEBUG] PropCard rendered with props:', {
+    player,
+    team,
+    position,
+    score,
+    summary,
+    analysis,
+    stats,
+    insights,
+    hasAnalysis,
+    isAnalysisLoading,
+  });
+
   const handleToggleAnalysis = () => {
     if (!showAnalysis && !hasAnalysis && onRequestAnalysis) {
       // Request analysis if not shown and not available
@@ -93,9 +108,13 @@ const PropCard: React.FC<PropCardProps> = ({
 
       {/* Deep AI Analysis Toggle Section */}
       <div className='mb-3'>
+        {/* Debug: print when Deep AI Analysis button is rendered */}
+        // eslint-disable-next-line no-console console.log('[DEBUG] Rendering Deep AI Analysis
+        button');
         <button
           onClick={handleToggleAnalysis}
           className='w-full bg-gray-800 hover:bg-gray-700 rounded-lg p-3 transition-all duration-300 border border-gray-600 hover:border-gray-500 group'
+          aria-label='Deep AI Analysis'
         >
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-2'>
@@ -129,7 +148,6 @@ const PropCard: React.FC<PropCardProps> = ({
               : 'Click to generate detailed AI analysis'}
           </div>
         </button>
-
         {/* Analysis Content */}
         {showAnalysis && (
           <div className='bg-gray-900 rounded-lg p-4 mt-2 border-l-4 border-yellow-400'>
@@ -139,11 +157,17 @@ const PropCard: React.FC<PropCardProps> = ({
                 <span className='ml-3 text-gray-300'>Generating deep analysis...</span>
               </div>
             ) : analysis && analysis !== '' ? (
-              <div className='text-gray-200 text-sm leading-relaxed whitespace-pre-line'>
-                {analysis}
+              <div
+                data-testid='ai-take'
+                className='text-gray-200 text-sm leading-relaxed whitespace-pre-line'
+              >
+                AI's Take
+                <div>{analysis}</div>
               </div>
             ) : (
-              <div className='text-gray-400 text-sm italic'>No detailed analysis available.</div>
+              <div data-testid='no-analysis' className='text-gray-400 text-sm italic'>
+                No analysis available.
+              </div>
             )}
           </div>
         )}

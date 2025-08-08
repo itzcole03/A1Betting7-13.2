@@ -1,0 +1,1328 @@
+.......................................FFEFEFEFE........FF.FF..FFFFF.... [ 34%]
+.........F.F
+=================================== ERRORS ====================================
+_ ERROR at teardown of TestBackgroundTaskManagerStability.test_asyncio_coroutine_fix_validation _
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002BF4EB239D0>
+
+    @pytest.fixture
+    async def task_manager(self):
+        """Create a fresh task manager instance for testing"""
+        manager = BackgroundTaskManager()
+        yield manager
+        # Cleanup
+>       await manager.shutdown()
+              ^^^^^^^^^^^^^^^^
+E       AttributeError: 'BackgroundTaskManager' object has no attribute 'shutdown'
+
+backend\tests\test_background_task_stability.py:32: AttributeError
+_ ERROR at teardown of TestBackgroundTaskManagerStability.test_concurrent_task_processing_stability _
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002BF4EBBCCD0>
+
+    @pytest.fixture
+    async def task_manager(self):
+        """Create a fresh task manager instance for testing"""
+        manager = BackgroundTaskManager()
+        yield manager
+        # Cleanup
+>       await manager.shutdown()
+              ^^^^^^^^^^^^^^^^
+E       AttributeError: 'BackgroundTaskManager' object has no attribute 'shutdown'
+
+backend\tests\test_background_task_stability.py:32: AttributeError
+_ ERROR at teardown of TestBackgroundTaskManagerStability.test_task_priority_ordering_validation _
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002BF4EA290F0>
+
+    @pytest.fixture
+    async def task_manager(self):
+        """Create a fresh task manager instance for testing"""
+        manager = BackgroundTaskManager()
+        yield manager
+        # Cleanup
+>       await manager.shutdown()
+              ^^^^^^^^^^^^^^^^
+E       AttributeError: 'BackgroundTaskManager' object has no attribute 'shutdown'
+
+backend\tests\test_background_task_stability.py:32: AttributeError
+_ ERROR at teardown of TestBackgroundTaskManagerStability.test_error_recovery_and_logging _
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002BF4EA2A9E0>
+
+    @pytest.fixture
+    async def task_manager(self):
+        """Create a fresh task manager instance for testing"""
+        manager = BackgroundTaskManager()
+        yield manager
+        # Cleanup
+>       await manager.shutdown()
+              ^^^^^^^^^^^^^^^^
+E       AttributeError: 'BackgroundTaskManager' object has no attribute 'shutdown'
+
+backend\tests\test_background_task_stability.py:32: AttributeError
+================================== FAILURES ===================================
+___________________________ test_login_placeholder ____________________________
+
+    def test_login_placeholder():
+        response = client.post("/api/v1/auth/login")
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+backend\tests\test_auth_routes.py:14: AssertionError
+__ TestBackgroundTaskManagerStability.test_asyncio_coroutine_fix_validation ___
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002BF4EB239D0>
+task_manager = <services.background_task_manager.BackgroundTaskManager object at 0x000002BF3747AD50>
+
+    @pytest.mark.asyncio
+    async def test_asyncio_coroutine_fix_validation(self, task_manager):
+        """Test that the TaskQueue.get() fix prevents coroutine errors"""
+        # This test validates the critical fix: wrapping queue.get() with asyncio.create_task()
+    
+        # Add multiple tasks to different priority queues
+        test_tasks = [
+            ("high_task_1", TaskPriority.HIGH),
+            ("normal_task_1", TaskPriority.NORMAL),
+            ("low_task_1", TaskPriority.LOW),
+            ("high_task_2", TaskPriority.HIGH),
+            ("normal_task_2", TaskPriority.NORMAL),
+        ]
+    
+        for task_data, priority in test_tasks:
+>           await task_manager.add_task(task_data, priority)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_background_task_stability.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <services.background_task_manager.BackgroundTaskManager object at 0x000002BF3747AD50>
+func = 'high_task_1', name = None, config = None, delay = None
+args = (<TaskPriority.HIGH: 3>,), kwargs = {}
+task_id = 'c4257548-1d86-4455-b4b0-8325421b36c1'
+
+    def add_task(
+        self,
+        func: Callable,
+        *args,
+        name: Optional[str] = None,
+        config: Optional[TaskConfig] = None,
+        delay: Optional[float] = None,
+        **kwargs,
+    ) -> str:
+        """Add a background task"""
+    
+        task_id = str(uuid.uuid4())
+>       task_name = name or func.__name__
+                            ^^^^^^^^^^^^^
+E       AttributeError: 'str' object has no attribute '__name__'. Did you mean: '__ne__'?
+
+backend\services\background_task_manager.py:339: AttributeError
+_ TestBackgroundTaskManagerStability.test_concurrent_task_processing_stability _
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002BF4EBBCCD0>
+task_manager = <services.background_task_manager.BackgroundTaskManager object at 0x000002BF3773A850>
+
+    @pytest.mark.asyncio
+    async def test_concurrent_task_processing_stability(self, task_manager):
+        """Test stability under concurrent task processing loads"""
+    
+        # Simulate high-load concurrent processing
+        concurrent_workers = 5
+        tasks_per_worker = 10
+    
+        async def worker_simulation(worker_id: int):
+            """Simulate a worker processing tasks"""
+            processed = 0
+            for i in range(tasks_per_worker):
+                task_data = f"worker_{worker_id}_task_{i}"
+                await task_manager.add_task(task_data, TaskPriority.NORMAL)
+    
+                # Process the task
+                try:
+                    task = await asyncio.wait_for(
+                        task_manager.get_next_task(), timeout=2.0
+                    )
+                    processed += 1
+                    production_logger.log_background_task_status(
+                        str(task), "SUCCESS", {"worker_id": worker_id, "task_number": i}
+                    )
+                except Exception as e:
+                    production_logger.log_background_task_status(
+                        task_data, "FAILED", {"worker_id": worker_id, "error": str(e)}
+                    )
+    
+            return processed
+    
+        # Run concurrent workers
+        start_time = time.time()
+        workers = [
+            asyncio.create_task(worker_simulation(i)) for i in range(concurrent_workers)
+        ]
+        results = await asyncio.gather(*workers, return_exceptions=True)
+        execution_time = time.time() - start_time
+    
+        # Validate results
+        successful_workers = [r for r in results if isinstance(r, int)]
+        failed_workers = [r for r in results if isinstance(r, Exception)]
+    
+>       assert len(failed_workers) == 0, f"Some workers failed: {failed_workers}"
+E       AssertionError: Some workers failed: [AttributeError("'str' object has no attribute '__name__'"), AttributeError("'str' object has no attribute '__name__'"), AttributeError("'str' object has no attribute '__name__'"), AttributeError("'str' object has no attribute '__name__'"), AttributeError("'str' object has no attribute '__name__'")]
+E       assert 5 == 0
+E        +  where 5 = len([AttributeError("'str' object has no attribute '__name__'"), AttributeError("'str' object has no attribute '__name__'"...AttributeError("'str' object has no attribute '__name__'"), AttributeError("'str' object has no attribute '__name__'")])
+
+backend\tests\test_background_task_stability.py:136: AssertionError
+__ TestBackgroundTaskManagerStability.test_task_priority_ordering_validation __
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002BF4EA290F0>
+task_manager = <services.background_task_manager.BackgroundTaskManager object at 0x000002BF3773AE90>
+
+    @pytest.mark.asyncio
+    async def test_task_priority_ordering_validation(self, task_manager):
+        """Validate that task priority ordering works correctly with the asyncio fix"""
+    
+        # Add tasks in mixed priority order
+        test_cases = [
+            ("low_priority_task", TaskPriority.LOW),
+            ("high_priority_task_1", TaskPriority.HIGH),
+            ("normal_priority_task", TaskPriority.NORMAL),
+            ("high_priority_task_2", TaskPriority.HIGH),
+        ]
+    
+        for task_data, priority in test_cases:
+>           await task_manager.add_task(task_data, priority)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_background_task_stability.py:178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <services.background_task_manager.BackgroundTaskManager object at 0x000002BF3773AE90>
+func = 'low_priority_task', name = None, config = None, delay = None
+args = (<TaskPriority.LOW: 1>,), kwargs = {}
+task_id = 'd81bccfa-0904-422c-b62d-26490c210760'
+
+    def add_task(
+        self,
+        func: Callable,
+        *args,
+        name: Optional[str] = None,
+        config: Optional[TaskConfig] = None,
+        delay: Optional[float] = None,
+        **kwargs,
+    ) -> str:
+        """Add a background task"""
+    
+        task_id = str(uuid.uuid4())
+>       task_name = name or func.__name__
+                            ^^^^^^^^^^^^^
+E       AttributeError: 'str' object has no attribute '__name__'. Did you mean: '__ne__'?
+
+backend\services\background_task_manager.py:339: AttributeError
+_____ TestBackgroundTaskManagerStability.test_error_recovery_and_logging ______
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002BF4EA2A9E0>
+task_manager = <services.background_task_manager.BackgroundTaskManager object at 0x000002BF3773B110>
+
+    @pytest.mark.asyncio
+    async def test_error_recovery_and_logging(self, task_manager):
+        """Test error recovery mechanisms and comprehensive logging"""
+    
+        # Simulate various error conditions
+        error_scenarios = [
+            ("timeout_task", "PROCESSING_TIMEOUT"),
+            ("invalid_data_task", "INVALID_DATA"),
+            ("resource_unavailable_task", "RESOURCE_UNAVAILABLE"),
+        ]
+    
+        for task_data, error_type in error_scenarios:
+>           await task_manager.add_task(task_data, TaskPriority.HIGH)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_background_task_stability.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <services.background_task_manager.BackgroundTaskManager object at 0x000002BF3773B110>
+func = 'timeout_task', name = None, config = None, delay = None
+args = (<TaskPriority.HIGH: 3>,), kwargs = {}
+task_id = 'a0dc30ea-7ad1-4c64-973e-a7f05ecf47e1'
+
+    def add_task(
+        self,
+        func: Callable,
+        *args,
+        name: Optional[str] = None,
+        config: Optional[TaskConfig] = None,
+        delay: Optional[float] = None,
+        **kwargs,
+    ) -> str:
+        """Add a background task"""
+    
+        task_id = str(uuid.uuid4())
+>       task_name = name or func.__name__
+                            ^^^^^^^^^^^^^
+E       AttributeError: 'str' object has no attribute '__name__'. Did you mean: '__ne__'?
+
+backend\services\background_task_manager.py:339: AttributeError
+___________________________ test_features_endpoint ____________________________
+
+    def test_features_endpoint():
+        """Test the /features endpoint."""
+        response = client.post("/features", json=SAMPLE_PAYLOAD)
+>       assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+E       AssertionError: Expected 200, got 404
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+backend\tests\test_endpoints.py:42: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:53:34,216 - request - INFO - {"event": "request_start", "timestamp": 1754510014.2160406, "correlation_id": "19c52ac8-d9f9-4848-8c6d-6cf3c4ecb576", "method": "POST", "path": "/features", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient", "content-length": "121", "content-type": "application/json"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:53:34,216 - request - WARNING - {"event": "request_complete", "timestamp": 1754510014.2166429, "correlation_id": "19c52ac8-d9f9-4848-8c6d-6cf3c4ecb576", "method": "POST", "path": "/features", "status_code": 404, "process_time_ms": 0.6, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "eccdc821-7713-4099-b840-b3bdcef82760", "x-process-time": "0.26ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:53:34,216 - compression - INFO - Not compressing /features. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': 'eccdc821-7713-4099-b840-b3bdcef82760', 'x-process-time': '0.26ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.79ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:53:34,217 - backend.middleware.request_correlation - INFO - Request processed: POST /features
+------------------------------ Captured log call ------------------------------
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754510014.2160406, "correlation_id": "19c52ac8-d9f9-4848-8c6d-6cf3c4ecb576", "method": "POST", "path": "/features", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient", "content-length": "121", "content-type": "application/json"}, "client_ip": "testclient", "user_agent": "testclient"}
+WARNING  request:comprehensive_middleware.py:285 {"event": "request_complete", "timestamp": 1754510014.2166429, "correlation_id": "19c52ac8-d9f9-4848-8c6d-6cf3c4ecb576", "method": "POST", "path": "/features", "status_code": 404, "process_time_ms": 0.6, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "eccdc821-7713-4099-b840-b3bdcef82760", "x-process-time": "0.26ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /features. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': 'eccdc821-7713-4099-b840-b3bdcef82760', 'x-process-time': '0.26ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.79ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: POST /features
+____________________________ test_predict_endpoint ____________________________
+
+    def test_predict_endpoint():
+        """Test the /predict endpoint."""
+        # Include valid API key for test compatibility
+        headers = {"x-api-key": "test_api_key"}
+        response = client.post("/predict", json=SAMPLE_PAYLOAD, headers=headers)
+>       assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+E       AssertionError: Expected 200, got 401
+E       assert 401 == 200
+E        +  where 401 = <Response [401 Unauthorized]>.status_code
+
+backend\tests\test_endpoints.py:61: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:53:34,223 - backend.services.rate_limiting_service - ERROR - Rate limiting error for ip:testclient: Event loop is closed
+2025-08-06 14:53:34,223 - request - INFO - {"event": "request_start", "timestamp": 1754510014.223705, "correlation_id": "8668c06b-05c7-4f86-aae0-9cfb21ead029", "method": "POST", "path": "/predict", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient", "x-api-key": "test_api_key", "content-length": "121", "content-type": "application/json"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:53:34,224 - backend.security_config - ERROR - API key validation DB error: Could not locate a bind configured on mapper Mapper[User(users)], SQL expression or this Session.
+2025-08-06 14:53:34,224 - request - WARNING - {"event": "request_complete", "timestamp": 1754510014.2244918, "correlation_id": "8668c06b-05c7-4f86-aae0-9cfb21ead029", "method": "POST", "path": "/predict", "status_code": 401, "process_time_ms": 0.79, "response_headers": {"content-length": "39", "content-type": "application/json", "x-correlation-id": "f8374243-698a-424b-8949-56ea86038974", "x-process-time": "0.61ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:53:34,224 - compression - INFO - Not compressing /predict. Headers: {'content-length': '39', 'content-type': 'application/json', 'x-correlation-id': 'f8374243-698a-424b-8949-56ea86038974', 'x-process-time': '0.61ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.93ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:53:34,224 - backend.middleware.request_correlation - INFO - Request processed: POST /predict
+------------------------------ Captured log call ------------------------------
+ERROR    backend.services.rate_limiting_service:rate_limiting_service.py:157 Rate limiting error for ip:testclient: Event loop is closed
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754510014.223705, "correlation_id": "8668c06b-05c7-4f86-aae0-9cfb21ead029", "method": "POST", "path": "/predict", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient", "x-api-key": "test_api_key", "content-length": "121", "content-type": "application/json"}, "client_ip": "testclient", "user_agent": "testclient"}
+ERROR    backend.security_config:security_config.py:224 API key validation DB error: Could not locate a bind configured on mapper Mapper[User(users)], SQL expression or this Session.
+WARNING  request:comprehensive_middleware.py:285 {"event": "request_complete", "timestamp": 1754510014.2244918, "correlation_id": "8668c06b-05c7-4f86-aae0-9cfb21ead029", "method": "POST", "path": "/predict", "status_code": 401, "process_time_ms": 0.79, "response_headers": {"content-length": "39", "content-type": "application/json", "x-correlation-id": "f8374243-698a-424b-8949-56ea86038974", "x-process-time": "0.61ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /predict. Headers: {'content-length': '39', 'content-type': 'application/json', 'x-correlation-id': 'f8374243-698a-424b-8949-56ea86038974', 'x-process-time': '0.61ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.93ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: POST /predict
+_____________________________ test_invalid_input ______________________________
+
+    def test_invalid_input():
+        """Test API behavior with invalid input."""
+        invalid_payload = {"invalid": "data"}
+        response = client.post("/features", json=invalid_payload)
+>       assert (
+            response.status_code == 422
+        ), f"Expected 422 for invalid input, got {response.status_code}"
+E       AssertionError: Expected 422 for invalid input, got 404
+E       assert 404 == 422
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+backend\tests\test_endpoints.py:80: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:53:36,304 - backend.services.rate_limiting_service - ERROR - Rate limiting error for ip:testclient: Event loop is closed
+2025-08-06 14:53:36,304 - request - INFO - {"event": "request_start", "timestamp": 1754510016.3046966, "correlation_id": "f2366987-2ffd-4bb3-86c1-5a580268c9e6", "method": "POST", "path": "/features", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient", "content-length": "18", "content-type": "application/json"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:53:36,305 - request - WARNING - {"event": "request_complete", "timestamp": 1754510016.305117, "correlation_id": "f2366987-2ffd-4bb3-86c1-5a580268c9e6", "method": "POST", "path": "/features", "status_code": 404, "process_time_ms": 0.42, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "ee0db817-06bc-4559-94b4-1ab95b06f66d", "x-process-time": "0.25ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:53:36,305 - compression - INFO - Not compressing /features. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': 'ee0db817-06bc-4559-94b4-1ab95b06f66d', 'x-process-time': '0.25ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.57ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:53:36,305 - backend.middleware.request_correlation - INFO - Request processed: POST /features
+------------------------------ Captured log call ------------------------------
+ERROR    backend.services.rate_limiting_service:rate_limiting_service.py:157 Rate limiting error for ip:testclient: Event loop is closed
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754510016.3046966, "correlation_id": "f2366987-2ffd-4bb3-86c1-5a580268c9e6", "method": "POST", "path": "/features", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient", "content-length": "18", "content-type": "application/json"}, "client_ip": "testclient", "user_agent": "testclient"}
+WARNING  request:comprehensive_middleware.py:285 {"event": "request_complete", "timestamp": 1754510016.305117, "correlation_id": "f2366987-2ffd-4bb3-86c1-5a580268c9e6", "method": "POST", "path": "/features", "status_code": 404, "process_time_ms": 0.42, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "ee0db817-06bc-4559-94b4-1ab95b06f66d", "x-process-time": "0.25ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /features. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': 'ee0db817-06bc-4559-94b4-1ab95b06f66d', 'x-process-time': '0.25ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.57ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: POST /features
+______________________________ test_empty_stats _______________________________
+
+    def test_empty_stats():
+        """Test API behavior with empty stats."""
+        empty_payload = {"game_id": 123, "team_stats": {}, "player_stats": {}}
+        response = client.post("/features", json=empty_payload)
+>       assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+E       AssertionError: Expected 200, got 404
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+backend\tests\test_endpoints.py:89: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:53:38,352 - request - INFO - {"event": "request_start", "timestamp": 1754510018.3526604, "correlation_id": "195fc083-860c-4d75-a500-359b7e7f5ea8", "method": "POST", "path": "/features", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient", "content-length": "49", "content-type": "application/json"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:53:38,353 - request - WARNING - {"event": "request_complete", "timestamp": 1754510018.3534331, "correlation_id": "195fc083-860c-4d75-a500-359b7e7f5ea8", "method": "POST", "path": "/features", "status_code": 404, "process_time_ms": 0.77, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "c3463395-12b2-460d-9e35-baf3ab7688e7", "x-process-time": "0.27ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:53:38,353 - compression - INFO - Not compressing /features. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': 'c3463395-12b2-460d-9e35-baf3ab7688e7', 'x-process-time': '0.27ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '1.61ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:53:38,353 - backend.middleware.request_correlation - INFO - Request processed: POST /features
+------------------------------ Captured log call ------------------------------
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754510018.3526604, "correlation_id": "195fc083-860c-4d75-a500-359b7e7f5ea8", "method": "POST", "path": "/features", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient", "content-length": "49", "content-type": "application/json"}, "client_ip": "testclient", "user_agent": "testclient"}
+WARNING  request:comprehensive_middleware.py:285 {"event": "request_complete", "timestamp": 1754510018.3534331, "correlation_id": "195fc083-860c-4d75-a500-359b7e7f5ea8", "method": "POST", "path": "/features", "status_code": 404, "process_time_ms": 0.77, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "c3463395-12b2-460d-9e35-baf3ab7688e7", "x-process-time": "0.27ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /features. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': 'c3463395-12b2-460d-9e35-baf3ab7688e7', 'x-process-time': '0.27ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '1.61ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: POST /features
+________________________________ test_healthz _________________________________
+
+    def test_healthz():
+        response = client.get("/healthz")
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+backend\tests\test_health_endpoints.py:11: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:53:40,418 - request - INFO - {"event": "request_start", "timestamp": 1754510020.4187863, "correlation_id": "b0b061dc-e050-4c0e-a82c-5457df14193b", "method": "GET", "path": "/healthz", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:53:40,419 - request - WARNING - {"event": "request_complete", "timestamp": 1754510020.4197726, "correlation_id": "b0b061dc-e050-4c0e-a82c-5457df14193b", "method": "GET", "path": "/healthz", "status_code": 404, "process_time_ms": 0.99, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "70fa20b4-fc4e-4aa6-a2eb-1c6f8e05d423", "x-process-time": "0.42ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:53:40,420 - compression - INFO - Not compressing /healthz. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': '70fa20b4-fc4e-4aa6-a2eb-1c6f8e05d423', 'x-process-time': '0.42ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '1.32ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:53:40,420 - backend.middleware.request_correlation - INFO - Request processed: GET /healthz
+------------------------------ Captured log call ------------------------------
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754510020.4187863, "correlation_id": "b0b061dc-e050-4c0e-a82c-5457df14193b", "method": "GET", "path": "/healthz", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+WARNING  request:comprehensive_middleware.py:285 {"event": "request_complete", "timestamp": 1754510020.4197726, "correlation_id": "b0b061dc-e050-4c0e-a82c-5457df14193b", "method": "GET", "path": "/healthz", "status_code": 404, "process_time_ms": 0.99, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "70fa20b4-fc4e-4aa6-a2eb-1c6f8e05d423", "x-process-time": "0.42ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /healthz. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': '70fa20b4-fc4e-4aa6-a2eb-1c6f8e05d423', 'x-process-time': '0.42ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '1.32ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /healthz
+___________________________ test_api_health_status ____________________________
+
+    def test_api_health_status():
+        response = client.get("/api/health/status")
+        assert response.status_code == 200
+        assert "status" in response.json()
+>       assert "timestamp" in response.json()
+E       AssertionError: assert 'timestamp' in {'api_metrics': {'errors': 0, 'requests': 1000, 'uptime': 12345}, 'models': ['nba_v1', 'mlb_v1'], 'performance': 'ok', 'status': 'healthy'}
+E        +  where {'api_metrics': {'errors': 0, 'requests': 1000, 'uptime': 12345}, 'models': ['nba_v1', 'mlb_v1'], 'performance': 'ok', 'status': 'healthy'} = json()
+E        +    where json = <Response [200 OK]>.json
+
+backend\tests\test_health_endpoints.py:19: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:53:40,426 - backend.services.rate_limiting_service - ERROR - Rate limiting error for ip:testclient: Event loop is closed
+2025-08-06 14:53:40,426 - request - INFO - {"event": "request_start", "timestamp": 1754510020.4269402, "correlation_id": "46007a58-e220-4dd8-abf0-a2a0d1eb4ee1", "method": "GET", "path": "/api/health/status", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:53:40,427 - request - INFO - {"event": "request_complete", "timestamp": 1754510020.427263, "correlation_id": "46007a58-e220-4dd8-abf0-a2a0d1eb4ee1", "method": "GET", "path": "/api/health/status", "status_code": 200, "process_time_ms": 0.32, "response_headers": {"content-length": "126", "content-type": "application/json", "x-correlation-id": "b178ab59-783f-4e31-81d8-20a2dc71bc3d", "x-process-time": "0.15ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:53:40,427 - compression - INFO - Not compressing /api/health/status. Headers: {'content-length': '126', 'content-type': 'application/json', 'x-correlation-id': 'b178ab59-783f-4e31-81d8-20a2dc71bc3d', 'x-process-time': '0.15ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.48ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:53:40,427 - backend.middleware.request_correlation - INFO - Request processed: GET /api/health/status
+------------------------------ Captured log call ------------------------------
+ERROR    backend.services.rate_limiting_service:rate_limiting_service.py:157 Rate limiting error for ip:testclient: Event loop is closed
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754510020.4269402, "correlation_id": "46007a58-e220-4dd8-abf0-a2a0d1eb4ee1", "method": "GET", "path": "/api/health/status", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+INFO     request:comprehensive_middleware.py:287 {"event": "request_complete", "timestamp": 1754510020.427263, "correlation_id": "46007a58-e220-4dd8-abf0-a2a0d1eb4ee1", "method": "GET", "path": "/api/health/status", "status_code": 200, "process_time_ms": 0.32, "response_headers": {"content-length": "126", "content-type": "application/json", "x-correlation-id": "b178ab59-783f-4e31-81d8-20a2dc71bc3d", "x-process-time": "0.15ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/health/status. Headers: {'content-length': '126', 'content-type': 'application/json', 'x-correlation-id': 'b178ab59-783f-4e31-81d8-20a2dc71bc3d', 'x-process-time': '0.15ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.48ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/health/status
+________________________ test_api_health_comprehensive ________________________
+
+    def test_api_health_comprehensive():
+        response = client.get("/api/health/comprehensive")
+>       assert response.status_code == 200
+E       assert 410 == 200
+E        +  where 410 = <Response [410 Gone]>.status_code
+
+backend\tests\test_health_endpoints.py:24: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:53:40,432 - backend.middleware.request_correlation - INFO - Request processed: GET /api/health/comprehensive
+------------------------------ Captured log call ------------------------------
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/health/comprehensive
+__________________________ test_api_health_database ___________________________
+
+    def test_api_health_database():
+        response = client.get("/api/health/database")
+>       assert response.status_code == 200
+E       assert 410 == 200
+E        +  where 410 = <Response [410 Gone]>.status_code
+
+backend\tests\test_health_endpoints.py:32: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:53:40,436 - backend.middleware.request_correlation - INFO - Request processed: GET /api/health/database
+------------------------------ Captured log call ------------------------------
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/health/database
+________________________ test_api_health_data_sources _________________________
+
+    def test_api_health_data_sources():
+        response = client.get("/api/health/data-sources")
+>       assert response.status_code == 200
+E       assert 410 == 200
+E        +  where 410 = <Response [410 Gone]>.status_code
+
+backend\tests\test_health_endpoints.py:39: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:53:40,439 - backend.middleware.request_correlation - INFO - Request processed: GET /api/health/data-sources
+------------------------------ Captured log call ------------------------------
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/health/data-sources
+____________________________ test_get_action_shots ____________________________
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 77, in collapse_excgroups
+  |     yield
+  |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 183, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\anyio\_backends\_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\_pytest\runner.py", line 344, in from_call
+    |     result: TResult | None = func()
+    |                              ~~~~^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\_pytest\runner.py", line 246, in <lambda>
+    |     lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+    |             ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |     ~~~~~~~~~~~~~~^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\_pytest\logging.py", line 850, in pytest_runtest_call
+    |     yield
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |     ~~~~~~~~~~~~~~^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\_pytest\capture.py", line 900, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |     ~~~~~~~~~~~~~~^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\_pytest\skipping.py", line 263, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\_pytest\runner.py", line 178, in pytest_runtest_call
+    |     item.runtest()
+    |     ~~~~~~~~~~~~^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\_pytest\python.py", line 1671, in runtest
+    |     self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+    |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |     ~~~~~~~~~~~~~~^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_callers.py", line 53, in run_old_style_hookwrapper
+    |     return result.get_result()
+    |            ~~~~~~~~~~~~~~~~~^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_result.py", line 103, in get_result
+    |     raise exc.with_traceback(tb)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_callers.py", line 38, in run_old_style_hookwrapper
+    |     res = yield
+    |           ^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pluggy\_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\_pytest\python.py", line 157, in pytest_pyfunc_call
+    |     result = testfunction(**testargs)
+    |   File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\tests\test_mlb_extras.py", line 15, in test_get_action_shots
+    |     response = client.get("/mlb/action-shots/test-event-id")
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py", line 479, in get
+    |     return super().get(
+    |            ~~~~~~~~~~~^
+    |         url,
+    |         ^^^^
+    |     ...<6 lines>...
+    |         extensions=extensions,
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+    |     )
+    |     ^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py", line 1053, in get
+    |     return self.request(
+    |            ~~~~~~~~~~~~^
+    |         "GET",
+    |         ^^^^^^
+    |     ...<7 lines>...
+    |         extensions=extensions,
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+    |     )
+    |     ^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py", line 451, in request
+    |     return super().request(
+    |            ~~~~~~~~~~~~~~~^
+    |         method,
+    |         ^^^^^^^
+    |     ...<11 lines>...
+    |         extensions=extensions,
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+    |     )
+    |     ^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py", line 825, in request
+    |     return self.send(request, auth=auth, follow_redirects=follow_redirects)
+    |            ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py", line 914, in send
+    |     response = self._send_handling_auth(
+    |         request,
+    |     ...<2 lines>...
+    |         history=[],
+    |     )
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py", line 942, in _send_handling_auth
+    |     response = self._send_handling_redirects(
+    |         request,
+    |         follow_redirects=follow_redirects,
+    |         history=history,
+    |     )
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py", line 979, in _send_handling_redirects
+    |     response = self._send_single_request(request)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py", line 1014, in _send_single_request
+    |     response = transport.handle_request(request)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py", line 354, in handle_request
+    |     raise exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py", line 351, in handle_request
+    |     portal.call(self.app, scope, receive, send)
+    |     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\anyio\from_thread.py", line 290, in call
+    |     return cast(T_Retval, self.start_task_soon(func, *args).result())
+    |                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+    |   File "C:\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    |     return self.__get_result()
+    |            ~~~~~~~~~~~~~~~~~^^
+    |   File "C:\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    |     raise self._exception
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\anyio\from_thread.py", line 221, in _call_func
+    |     retval = await retval_or_awaitable
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\fastapi\applications.py", line 1054, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\applications.py", line 113, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    |     raise exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    |     raise exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\middleware\request_correlation.py", line 18, in correlation_middleware
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    |     raise app_exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\versioned_api_routes.py", line 544, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\cors.py", line 85, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    |     raise exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\rate_limiting_service.py", line 247, in rate_limit_middleware
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    |     raise app_exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    |     raise exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\middleware\comprehensive_middleware.py", line 358, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    |     raise app_exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    |     raise exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\middleware\comprehensive_middleware.py", line 77, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    |     raise app_exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    |     raise exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\middleware\comprehensive_middleware.py", line 142, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    |     raise app_exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    |     raise exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\middleware\comprehensive_middleware.py", line 215, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    |     raise app_exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    |     raise exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\middleware\comprehensive_middleware.py", line 43, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    |     raise app_exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 716, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 736, in app
+    |     await route.handle(scope, receive, send)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 290, in handle
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 78, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 75, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\fastapi\routing.py", line 302, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |     ...<3 lines>...
+    |     )
+    |     ^
+    |   File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\fastapi\routing.py", line 213, in run_endpoint_function
+    |     return await dependant.call(**values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\mlb_extras.py", line 347, in get_action_shots
+    |     return await client.fetch_action_shots_ap(event_id)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\mlb_provider_client.py", line 1644, in fetch_action_shots_ap
+    |     url = f"https://api.sportradar.com/mlb-images-trial3/ap/mlb/actionshots/events/mlb/{event_id}/manifest.json?api_key={self.sportradar_api_key}"
+    |                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^
+    | AttributeError: 'MLBProviderClient' object has no attribute 'sportradar_api_key'
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\tests\test_mlb_extras.py", line 15, in test_get_action_shots
+    response = client.get("/mlb/action-shots/test-event-id")
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py", line 479, in get
+    return super().get(
+           ~~~~~~~~~~~^
+        url,
+        ^^^^
+    ...<6 lines>...
+        extensions=extensions,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py", line 1053, in get
+    return self.request(
+           ~~~~~~~~~~~~^
+        "GET",
+        ^^^^^^
+    ...<7 lines>...
+        extensions=extensions,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py", line 451, in request
+    return super().request(
+           ~~~~~~~~~~~~~~~^
+        method,
+        ^^^^^^^
+    ...<11 lines>...
+        extensions=extensions,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py", line 914, in send
+    response = self._send_handling_auth(
+        request,
+    ...<2 lines>...
+        history=[],
+    )
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+        request,
+        follow_redirects=follow_redirects,
+        history=history,
+    )
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py", line 354, in handle_request
+    raise exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py", line 351, in handle_request
+    portal.call(self.app, scope, receive, send)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\anyio\from_thread.py", line 290, in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python313\Lib\concurrent\futures\_base.py", line 456, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Python313\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\anyio\from_thread.py", line 221, in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    raise exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\middleware\request_correlation.py", line 18, in correlation_middleware
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    raise app_exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\versioned_api_routes.py", line 544, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    raise exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\rate_limiting_service.py", line 247, in rate_limit_middleware
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    raise app_exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    raise exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\middleware\comprehensive_middleware.py", line 358, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    raise app_exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    raise exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\middleware\comprehensive_middleware.py", line 77, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    raise app_exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    raise exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\middleware\comprehensive_middleware.py", line 142, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    raise app_exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    raise exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\middleware\comprehensive_middleware.py", line 215, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    raise app_exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    raise exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\middleware\comprehensive_middleware.py", line 43, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 159, in call_next
+    raise app_exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\fastapi\routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\fastapi\routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\mlb_extras.py", line 347, in get_action_shots
+    return await client.fetch_action_shots_ap(event_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\mlb_provider_client.py", line 1644, in fetch_action_shots_ap
+    url = f"https://api.sportradar.com/mlb-images-trial3/ap/mlb/actionshots/events/mlb/{event_id}/manifest.json?api_key={self.sportradar_api_key}"
+                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MLBProviderClient' object has no attribute 'sportradar_api_key'
+
+During handling of the above exception, another exception occurred:
+
+    def test_get_action_shots():
+        # This will likely return 500 or empty if no API key or event_id is invalid, but endpoint should exist
+>       response = client.get("/mlb/action-shots/test-event-id")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_mlb_extras.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py:479: in get
+    return super().get(
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py:1053: in get
+    return self.request(
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py:451: in request
+    return super().request(
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py:354: in handle_request
+    raise exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py:351: in handle_request
+    portal.call(self.app, scope, receive, send)
+..\..\AppData\Roaming\Python\Python313\site-packages\anyio\from_thread.py:290: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\..\AppData\Roaming\Python\Python313\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:182: in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\contextlib.py:162: in __exit__
+    self.gen.throw(value)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py:83: in collapse_excgroups
+    raise exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:184: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\middleware\request_correlation.py:18: in correlation_middleware
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:159: in call_next
+    raise app_exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+backend\routes\versioned_api_routes.py:544: in __call__
+    await self.app(scope, receive, send)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\cors.py:85: in __call__
+    await self.app(scope, receive, send)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:182: in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\contextlib.py:162: in __exit__
+    self.gen.throw(value)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py:83: in collapse_excgroups
+    raise exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:184: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\services\rate_limiting_service.py:247: in rate_limit_middleware
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:159: in call_next
+    raise app_exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:182: in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\contextlib.py:162: in __exit__
+    self.gen.throw(value)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py:83: in collapse_excgroups
+    raise exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:184: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\middleware\comprehensive_middleware.py:358: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:159: in call_next
+    raise app_exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:182: in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\contextlib.py:162: in __exit__
+    self.gen.throw(value)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py:83: in collapse_excgroups
+    raise exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:184: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\middleware\comprehensive_middleware.py:77: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:159: in call_next
+    raise app_exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:182: in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\contextlib.py:162: in __exit__
+    self.gen.throw(value)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py:83: in collapse_excgroups
+    raise exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:184: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\middleware\comprehensive_middleware.py:142: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:159: in call_next
+    raise app_exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:182: in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\contextlib.py:162: in __exit__
+    self.gen.throw(value)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py:83: in collapse_excgroups
+    raise exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:184: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\middleware\comprehensive_middleware.py:215: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:159: in call_next
+    raise app_exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:182: in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\contextlib.py:162: in __exit__
+    self.gen.throw(value)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\_utils.py:83: in collapse_excgroups
+    raise exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:184: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\middleware\comprehensive_middleware.py:43: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:159: in call_next
+    raise app_exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py:716: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py:736: in app
+    await route.handle(scope, receive, send)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py:290: in handle
+    await self.app(scope, receive, send)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py:78: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py:75: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\fastapi\routing.py:302: in app
+    raw_response = await run_endpoint_function(
+..\..\AppData\Roaming\Python\Python313\site-packages\fastapi\routing.py:213: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\routes\mlb_extras.py:347: in get_action_shots
+    return await client.fetch_action_shots_ap(event_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.services.mlb_provider_client.MLBProviderClient object at 0x000002BF620D4BB0>
+event_id = 'test-event-id'
+
+    async def fetch_action_shots_ap(self, event_id: str) -> List[Dict[str, Any]]:
+        """
+        Fetch and cache AP Action Shots manifest for a given MLB event.
+        Returns a list of image asset dicts for the event.
+        """
+        # import json  # Unused
+    
+        redis_conn = await self._get_redis()
+        cache_key = f"mlb:action_shots:{event_id}"
+        cached = await redis_conn.get(cache_key)
+        if cached:
+            logger.info(
+                "[MLBProviderClient] Returning cached AP Action Shots for event %s.",
+                event_id,
+            )
+            MLBProviderClient.metrics_increment("mlb.action_shots.cache_hit")
+            return json.loads(cached)
+>       url = f"https://api.sportradar.com/mlb-images-trial3/ap/mlb/actionshots/events/mlb/{event_id}/manifest.json?api_key={self.sportradar_api_key}"
+                                                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'MLBProviderClient' object has no attribute 'sportradar_api_key'
+
+backend\services\mlb_provider_client.py:1644: AttributeError
+---------------------------- Captured stdout call -----------------------------
+2025-08-06 14:53:53,565 - a1betting.enhanced_data_pipeline - INFO - \U0001f4e1 Registered data source: theodds_api\n2025-08-06 14:53:53,565 - a1betting.enhanced_data_pipeline - INFO - \U0001f4e1 Registered data source: mlb_stats_api
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:53:53,564 - request - INFO - {"event": "request_start", "timestamp": 1754510033.5645504, "correlation_id": "877b3a01-09f5-481e-a2ad-7d688547e7cc", "method": "GET", "path": "/mlb/action-shots/test-event-id", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}\n2025-08-06 14:53:53,565 - a1betting.enhanced_data_pipeline - INFO - \U0001f4e1 Registered data source: theodds_api\n2025-08-06 14:53:53,565 - a1betting.enhanced_data_pipeline - INFO - \U0001f4e1 Registered data source: mlb_stats_api\n2025-08-06 14:53:55,617 - request - ERROR - {"event": "request_error", "timestamp": 1754510035.6179388, "correlation_id": "877b3a01-09f5-481e-a2ad-7d688547e7cc", "method": "GET", "path": "/mlb/action-shots/test-event-id", "error_type": "AttributeError", "error_message": "'MLBProviderClient' object has no attribute 'sportradar_api_key'", "process_time_ms": 2053.39}\n2025-08-06 14:53:55,618 - app - ERROR - Unhandled exception: 'MLBProviderClient' object has no attribute 'sportradar_api_key'\n  + Exception Group Traceback (most recent call last):\n  |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 77, in collapse_excgroups\n  |     yield\n  |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 183, in __call__\n  |     async with anyio.create_task_group() as task_group:\n  |                ~~~~~~~~~~~~~~~~~~~~~~~^^\n  |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\anyio\\_backends\\_asyncio.py", line 772, in __aexit__\n  |     raise BaseExceptionGroup(\n  |         "unhandled errors in a TaskGroup", self._exceptions\n  |     ) from None\n  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)\n  +-+---------------- 1 ----------------\n    | Traceback (most recent call last):\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\errors.py", line 164, in __call__\n    |     await self.app(scope, receive, _send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\request_correlation.py", line 18, in correlation_middleware\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\routes\\versioned_api_routes.py", line 544, in __call__\n    |     await self.app(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\cors.py", line 85, in __call__\n    |     await self.app(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\services\\rate_limiting_service.py", line 247, in rate_limit_middleware\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 358, in dispatch\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 77, in dispatch\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 142, in dispatch\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 215, in dispatch\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 43, in dispatch\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\exceptions.py", line 63, in __call__\n    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 53, in wrapped_app\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 42, in wrapped_app\n    |     await app(scope, receive, sender)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 716, in __call__\n    |     await self.middleware_stack(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 736, in app\n    |     await route.handle(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 290, in handle\n    |     await self.app(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 78, in app\n    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 53, in wrapped_app\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 42, in wrapped_app\n    |     await app(scope, receive, sender)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 75, in app\n    |     response = await f(request)\n    |                ^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\fastapi\\routing.py", line 302, in app\n    |     raw_response = await run_endpoint_function(\n    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |     ...<3 lines>...\n    |     )\n    |     ^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\fastapi\\routing.py", line 213, in run_endpoint_function\n    |     return await dependant.call(**values)\n    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\routes\\mlb_extras.py", line 347, in get_action_shots\n    |     return await client.fetch_action_shots_ap(event_id)\n    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\services\\mlb_provider_client.py", line 1644, in fetch_action_shots_ap\n    |     url = f"https://api.sportradar.com/mlb-images-trial3/ap/mlb/actionshots/events/mlb/{event_id}/manifest.json?api_key={self.sportradar_api_key}"\n    |                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^\n    | AttributeError: 'MLBProviderClient' object has no attribute 'sportradar_api_key'\n    +------------------------------------\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\errors.py", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\request_correlation.py", line 18, in correlation_middleware\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\routes\\versioned_api_routes.py", line 544, in __call__\n    await self.app(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\cors.py", line 85, in __call__\n    await self.app(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\services\\rate_limiting_service.py", line 247, in rate_limit_middleware\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 358, in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 77, in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 142, in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 215, in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 43, in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\exceptions.py", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 53, in wrapped_app\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 716, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 736, in app\n    await route.handle(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 290, in handle\n    await self.app(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 78, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 53, in wrapped_app\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 75, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\fastapi\\routing.py", line 302, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n    )\n    ^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\fastapi\\routing.py", line 213, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\routes\\mlb_extras.py", line 347, in get_action_shots\n    return await client.fetch_action_shots_ap(event_id)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\services\\mlb_provider_client.py", line 1644, in fetch_action_shots_ap\n    url = f"https://api.sportradar.com/mlb-images-trial3/ap/mlb/actionshots/events/mlb/{event_id}/manifest.json?api_key={self.sportradar_api_key}"\n                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'MLBProviderClient' object has no attribute 'sportradar_api_key'
+------------------------------ Captured log call ------------------------------
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754510033.5645504, "correlation_id": "877b3a01-09f5-481e-a2ad-7d688547e7cc", "method": "GET", "path": "/mlb/action-shots/test-event-id", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}\nINFO     a1betting.enhanced_data_pipeline:enhanced_logging.py:227 \U0001f4e1 Registered data source: theodds_api\nINFO     a1betting.enhanced_data_pipeline:enhanced_logging.py:227 \U0001f4e1 Registered data source: mlb_stats_api\nERROR    request:comprehensive_middleware.py:311 {"event": "request_error", "timestamp": 1754510035.6179388, "correlation_id": "877b3a01-09f5-481e-a2ad-7d688547e7cc", "method": "GET", "path": "/mlb/action-shots/test-event-id", "error_type": "AttributeError", "error_message": "'MLBProviderClient' object has no attribute 'sportradar_api_key'", "process_time_ms": 2053.39}\nERROR    app:enhanced_production_integration.py:645 Unhandled exception: 'MLBProviderClient' object has no attribute 'sportradar_api_key'\n  + Exception Group Traceback (most recent call last):\n  |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 77, in collapse_excgroups\n  |     yield\n  |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 183, in __call__\n  |     async with anyio.create_task_group() as task_group:\n  |                ~~~~~~~~~~~~~~~~~~~~~~~^^\n  |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\anyio\\_backends\\_asyncio.py", line 772, in __aexit__\n  |     raise BaseExceptionGroup(\n  |         "unhandled errors in a TaskGroup", self._exceptions\n  |     ) from None\n  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)\n  +-+---------------- 1 ----------------\n    | Traceback (most recent call last):\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\errors.py", line 164, in __call__\n    |     await self.app(scope, receive, _send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\request_correlation.py", line 18, in correlation_middleware\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\routes\\versioned_api_routes.py", line 544, in __call__\n    |     await self.app(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\cors.py", line 85, in __call__\n    |     await self.app(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\services\\rate_limiting_service.py", line 247, in rate_limit_middleware\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 358, in dispatch\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 77, in dispatch\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 142, in dispatch\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 215, in dispatch\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    |     with recv_stream, send_stream, collapse_excgroups():\n    |                                    ~~~~~~~~~~~~~~~~~~^^\n    |   File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    |     self.gen.throw(value)\n    |     ~~~~~~~~~~~~~~^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    |     response = await self.dispatch_func(request, call_next)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 43, in dispatch\n    |     response = await call_next(request)\n    |                ^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    |     raise app_exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    |     await self.app(scope, receive_or_disconnect, send_no_error)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\exceptions.py", line 63, in __call__\n    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 53, in wrapped_app\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 42, in wrapped_app\n    |     await app(scope, receive, sender)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 716, in __call__\n    |     await self.middleware_stack(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 736, in app\n    |     await route.handle(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 290, in handle\n    |     await self.app(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 78, in app\n    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 53, in wrapped_app\n    |     raise exc\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 42, in wrapped_app\n    |     await app(scope, receive, sender)\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 75, in app\n    |     response = await f(request)\n    |                ^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\fastapi\\routing.py", line 302, in app\n    |     raw_response = await run_endpoint_function(\n    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |     ...<3 lines>...\n    |     )\n    |     ^\n    |   File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\fastapi\\routing.py", line 213, in run_endpoint_function\n    |     return await dependant.call(**values)\n    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\routes\\mlb_extras.py", line 347, in get_action_shots\n    |     return await client.fetch_action_shots_ap(event_id)\n    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |   File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\services\\mlb_provider_client.py", line 1644, in fetch_action_shots_ap\n    |     url = f"https://api.sportradar.com/mlb-images-trial3/ap/mlb/actionshots/events/mlb/{event_id}/manifest.json?api_key={self.sportradar_api_key}"\n    |                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^\n    | AttributeError: 'MLBProviderClient' object has no attribute 'sportradar_api_key'\n    +------------------------------------\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\errors.py", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\request_correlation.py", line 18, in correlation_middleware\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\routes\\versioned_api_routes.py", line 544, in __call__\n    await self.app(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\cors.py", line 85, in __call__\n    await self.app(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\services\\rate_limiting_service.py", line 247, in rate_limit_middleware\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 358, in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 77, in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 142, in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 215, in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 182, in __call__\n    with recv_stream, send_stream, collapse_excgroups():\n                                   ~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Python313\\Lib\\contextlib.py", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_utils.py", line 83, in collapse_excgroups\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 184, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\middleware\\comprehensive_middleware.py", line 43, in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 159, in call_next\n    raise app_exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\base.py", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\middleware\\exceptions.py", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 53, in wrapped_app\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 716, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 736, in app\n    await route.handle(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 290, in handle\n    await self.app(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 78, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 53, in wrapped_app\n    raise exc\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\_exception_handler.py", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\starlette\\routing.py", line 75, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\fastapi\\routing.py", line 302, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n    )\n    ^\n  File "C:\\Users\\bcmad\\AppData\\Roaming\\Python\\Python313\\site-packages\\fastapi\\routing.py", line 213, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\routes\\mlb_extras.py", line 347, in get_action_shots\n    return await client.fetch_action_shots_ap(event_id)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\services\\mlb_provider_client.py", line 1644, in fetch_action_shots_ap\n    url = f"https://api.sportradar.com/mlb-images-trial3/ap/mlb/actionshots/events/mlb/{event_id}/manifest.json?api_key={self.sportradar_api_key}"\n                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'MLBProviderClient' object has no attribute 'sportradar_api_key'
+__________________________ test_get_odds_comparison ___________________________
+
+self = <httpx._decoders.GZipDecoder object at 0x000002BF3754F8C0>
+data = b'[{"event_id":776844,"event_name":"San Francisco Giants @ Pittsburgh Pirates","start_time":null,"home_team":"Pittsbur...hicago White Sox","venue":"T-Mobile Park","status":"Scheduled","provider_id":"mlb_stats_api","market_type":"regular"}]'
+
+    def decode(self, data: bytes) -> bytes:
+        try:
+>           return self.decompressor.decompress(data)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           zlib.error: Error -3 while decompressing data: incorrect header check
+
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_decoders.py:97: error
+
+The above exception was the direct cause of the following exception:
+
+    def test_get_odds_comparison():
+>       response = client.get("/mlb/odds-comparison/?market_type=regular")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_mlb_extras.py:30: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py:479: in get
+    return super().get(
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py:1053: in get
+    return self.request(
+..\..\AppData\Roaming\Python\Python313\site-packages\starlette\testclient.py:451: in request
+    return super().request(
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py:928: in send
+    raise exc
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_client.py:922: in send
+    response.read()
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_models.py:881: in read
+    self._content = b"".join(self.iter_bytes())
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_models.py:898: in iter_bytes
+    decoded = decoder.decode(raw_bytes)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <httpx._decoders.GZipDecoder object at 0x000002BF3754F8C0>
+data = b'[{"event_id":776844,"event_name":"San Francisco Giants @ Pittsburgh Pirates","start_time":null,"home_team":"Pittsbur...hicago White Sox","venue":"T-Mobile Park","status":"Scheduled","provider_id":"mlb_stats_api","market_type":"regular"}]'
+
+    def decode(self, data: bytes) -> bytes:
+        try:
+            return self.decompressor.decompress(data)
+        except zlib.error as exc:
+>           raise DecodingError(str(exc)) from exc
+E           httpx.DecodingError: Error -3 while decompressing data: incorrect header check
+
+..\..\AppData\Roaming\Python\Python313\site-packages\httpx\_decoders.py:99: DecodingError
+---------------------------- Captured stdout call -----------------------------
+2025-08-06 14:54:00,207 - a1betting.enhanced_data_pipeline - INFO - \U0001f4e1 Registered data source: theodds_api\n2025-08-06 14:54:00,207 - a1betting.enhanced_data_pipeline - INFO - \U0001f4e1 Registered data source: mlb_stats_api\n[DEBUG] Entered fetch_odds_comparison (MLB Stats API primary)\n[DEBUG] Returning MLB Stats API data for regular, count: 15
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:54:00,205 - request - INFO - {"event": "request_start", "timestamp": 1754510040.2053258, "correlation_id": "674ddaa6-531a-4ed3-b4d0-6c9d92465794", "method": "GET", "path": "/mlb/odds-comparison/", "query_params": {"market_type": "regular"}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}\n2025-08-06 14:54:00,207 - a1betting.enhanced_data_pipeline - INFO - \U0001f4e1 Registered data source: theodds_api\n2025-08-06 14:54:00,207 - a1betting.enhanced_data_pipeline - INFO - \U0001f4e1 Registered data source: mlb_stats_api\n[2025-08-06 14:54:02,256] INFO propollama: [MLBProviderClient] Fetching regular data from MLB Stats API (primary source)\n2025-08-06 14:54:02,256 - propollama - INFO - [MLBProviderClient] Fetching regular data from MLB Stats API (primary source)\n2025-08-06 14:54:02,256 - backend.services.mlb_provider_client - INFO - [MLBProviderClient] Fetching team data from MLB Stats API for regular\n2025-08-06 14:54:04,491 - backend.services.mlb_stats_api_client - INFO - Retrieved 15 games for 2025-08-06\n2025-08-06 14:54:04,491 - backend.services.mlb_provider_client - INFO - [MLBProviderClient] Generated 15 team records from MLB Stats API\n[2025-08-06 14:54:04,491] INFO propollama: [MLBProviderClient] Successfully retrieved 15 items from MLB Stats API for regular\n2025-08-06 14:54:04,491 - propollama - INFO - [MLBProviderClient] Successfully retrieved 15 items from MLB Stats API for regular\n2025-08-06 14:54:04,491 - backend.services.mlb_provider_client - INFO - [METRICS] Incremented metric: mlb.odds_comparison.mlb_stats_api_success\n2025-08-06 14:54:04,493 - request - INFO - {"event": "request_complete", "timestamp": 1754510044.4930182, "correlation_id": "674ddaa6-531a-4ed3-b4d0-6c9d92465794", "method": "GET", "path": "/mlb/odds-comparison/", "status_code": 200, "process_time_ms": 4287.69, "response_headers": {"content-length": "3741", "content-type": "application/json", "x-correlation-id": "dd63671d-3c58-4bb8-b0b7-cf0254645375", "x-process-time": "4287.28ms", "x-server-name": "A1Betting Backend API"}}\n2025-08-06 14:54:04,493 - compression - INFO - Applying gzip compression to /mlb/odds-comparison/ (Accept-Encoding: gzip, deflate)\n2025-08-06 14:54:04,493 - backend.middleware.request_correlation - INFO - Request processed: GET /mlb/odds-comparison/
+------------------------------ Captured log call ------------------------------
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754510040.2053258, "correlation_id": "674ddaa6-531a-4ed3-b4d0-6c9d92465794", "method": "GET", "path": "/mlb/odds-comparison/", "query_params": {"market_type": "regular"}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}\nINFO     a1betting.enhanced_data_pipeline:enhanced_logging.py:227 \U0001f4e1 Registered data source: theodds_api\nINFO     a1betting.enhanced_data_pipeline:enhanced_logging.py:227 \U0001f4e1 Registered data source: mlb_stats_api\nINFO     propollama:mlb_provider_client.py:850 [MLBProviderClient] Fetching regular data from MLB Stats API (primary source)\nINFO     backend.services.mlb_provider_client:mlb_provider_client.py:1447 [MLBProviderClient] Fetching team data from MLB Stats API for regular\nINFO     backend.services.mlb_stats_api_client:mlb_stats_api_client.py:177 Retrieved 15 games for 2025-08-06\nINFO     backend.services.mlb_provider_client:mlb_provider_client.py:1472 [MLBProviderClient] Generated 15 team records from MLB Stats API\nINFO     propollama:mlb_provider_client.py:875 [MLBProviderClient] Successfully retrieved 15 items from MLB Stats API for regular\nINFO     backend.services.mlb_provider_client:mlb_provider_client.py:69 [METRICS] Incremented metric: mlb.odds_comparison.mlb_stats_api_success\nINFO     request:comprehensive_middleware.py:287 {"event": "request_complete", "timestamp": 1754510044.4930182, "correlation_id": "674ddaa6-531a-4ed3-b4d0-6c9d92465794", "method": "GET", "path": "/mlb/odds-comparison/", "status_code": 200, "process_time_ms": 4287.69, "response_headers": {"content-length": "3741", "content-type": "application/json", "x-correlation-id": "dd63671d-3c58-4bb8-b0b7-cf0254645375", "x-process-time": "4287.28ms", "x-server-name": "A1Betting Backend API"}}\nINFO     compression:comprehensive_middleware.py:362 Applying gzip compression to /mlb/odds-comparison/ (Accept-Encoding: gzip, deflate)\nINFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /mlb/odds-comparison/
+=========================== short test summary info ===========================
+FAILED backend/tests/test_auth_routes.py::test_login_placeholder - assert 404...
+FAILED backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_asyncio_coroutine_fix_validation
+FAILED backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_concurrent_task_processing_stability
+FAILED backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_task_priority_ordering_validation
+FAILED backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_error_recovery_and_logging
+FAILED backend/tests/test_endpoints.py::test_features_endpoint - AssertionErr...
+FAILED backend/tests/test_endpoints.py::test_predict_endpoint - AssertionErro...
+FAILED backend/tests/test_endpoints.py::test_invalid_input - AssertionError: ...
+FAILED backend/tests/test_endpoints.py::test_empty_stats - AssertionError: Ex...
+FAILED backend/tests/test_health_endpoints.py::test_healthz - assert 404 == 200
+FAILED backend/tests/test_health_endpoints.py::test_api_health_status - Asser...
+FAILED backend/tests/test_health_endpoints.py::test_api_health_comprehensive
+FAILED backend/tests/test_health_endpoints.py::test_api_health_database - ass...
+FAILED backend/tests/test_health_endpoints.py::test_api_health_data_sources
+FAILED backend/tests/test_mlb_extras.py::test_get_action_shots - AttributeErr...
+FAILED backend/tests/test_mlb_extras.py::test_get_odds_comparison - httpx.Dec...
+ERROR backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_asyncio_coroutine_fix_validation
+ERROR backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_concurrent_task_processing_stability
+ERROR backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_task_priority_ordering_validation
+ERROR backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_error_recovery_and_logging
+!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 20 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+16 failed, 64 passed, 60 warnings, 4 errors in 76.59s (0:01:16)

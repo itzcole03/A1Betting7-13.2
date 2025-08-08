@@ -7,7 +7,16 @@ export class UnifiedConfig {
   private config: ConfigStore = {};
   private defaults: ConfigStore = {
     api: {
-      baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001',
+      // Use getEnvVar for robust env access
+      baseUrl: (() => {
+        try {
+          // @ts-ignore
+          const { getEnvVar } = require('../../utils/getEnvVar');
+          return getEnvVar('VITE_API_BASE_URL', 'http://localhost:3001');
+        } catch (e) {
+          return 'http://localhost:3001';
+        }
+      })(),
       timeout: 10000,
       retries: 3,
     },

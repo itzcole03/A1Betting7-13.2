@@ -58,7 +58,7 @@ export class UnifiedErrorService extends BaseService {
     const _errorId = `error_${++this.errorCounter}_${Date.now()}`;
 
     const _errorDetails: ErrorDetails = {
-      id: errorId,
+      id: _errorId,
       message: typeof error === 'string' ? error : error.message,
       code: (error as unknown)?.code || 'UNKNOWN_ERROR',
       category,
@@ -70,22 +70,22 @@ export class UnifiedErrorService extends BaseService {
       retryCount: 0,
     };
 
-    this.errors.set(errorId, errorDetails);
+    this.errors.set(_errorId, _errorDetails);
 
-    this.logger.error('Error reported', errorDetails);
-    this.emit('error_reported', errorDetails);
+    this.logger.error('Error reported', _errorDetails);
+    this.emit('error_reported', _errorDetails);
 
     // Auto-resolve low severity errors after some time
     if (severity === ErrorSeverity.LOW) {
-      setTimeout(() => this.resolveError(errorId), 60000); // 1 minute
+      setTimeout(() => this.resolveError(_errorId), 60000); // 1 minute
     }
 
     // Notify if critical
     if (severity === ErrorSeverity.CRITICAL) {
-      this.emit('critical_error', errorDetails);
+      this.emit('critical_error', _errorDetails);
     }
 
-    return errorId;
+    return _errorId;
   }
 
   async retryOperation<T>(
@@ -93,30 +93,30 @@ export class UnifiedErrorService extends BaseService {
     context: unknown = {},
     category: ErrorCategory = ErrorCategory.NETWORK
   ): Promise<T> {
-    let _lastError: Error | null = null;
+    let lastError: Error | null = null;
 
-    for (let _attempt = 0; attempt <= this.maxRetries; attempt++) {
+    for (let _attempt = 0; _attempt <= this.maxRetries; _attempt++) {
       try {
-        if (attempt > 0) {
-          const _delay = this.retryDelays[Math.min(attempt - 1, this.retryDelays.length - 1)];
-          await this.delay(delay);
-          this.logger.info('Retrying operation', { attempt, delay, context });
+        if (_attempt > 0) {
+          const _delay = this.retryDelays[Math.min(_attempt - 1, this.retryDelays.length - 1)];
+          await this.delay(_delay);
+          this.logger.info('Retrying operation', { attempt: _attempt, delay: _delay, context });
         }
 
         return await operation();
       } catch (error) {
         lastError = error as Error;
 
-        if (attempt === this.maxRetries) {
+        if (_attempt === this.maxRetries) {
           // Final attempt failed
           const _errorId = this.reportError(
             lastError,
-            { ...context, totalAttempts: attempt + 1 },
+            { ...context, totalAttempts: _attempt + 1 },
             category,
             ErrorSeverity.HIGH
           );
 
-          throw new Error(`Operation failed after ${attempt + 1} attempts. Error ID: ${errorId}`);
+          throw new Error(`Operation failed after ${_attempt + 1} attempts. Error ID: ${_errorId}`);
         }
       }
     }
@@ -126,17 +126,17 @@ export class UnifiedErrorService extends BaseService {
 
   resolveError(errorId: string, resolution?: string): boolean {
     const _error = this.errors.get(errorId);
-    if (!error) {
+    if (!_error) {
       this.logger.warn('Attempted to resolve non-existent error', { errorId });
       return false;
     }
 
-    error.resolved = true;
-    error.context.resolution = resolution;
-    error.context.resolvedAt = new Date();
+    _error.resolved = true;
+    (_error.context as any).resolution = resolution;
+    (_error.context as any).resolvedAt = new Date();
 
     this.logger.info('Error resolved', { errorId, resolution });
-    this.emit('error_resolved', error);
+    this.emit('error_resolved', _error);
 
     return true;
   }
@@ -173,23 +173,23 @@ export class UnifiedErrorService extends BaseService {
     const _errors = Array.from(this.errors.values());
 
     const _stats = {
-      total: errors.length,
-      resolved: errors.filter(e => e.resolved).length,
+      total: _errors.length,
+      resolved: _errors.filter(e => e.resolved).length,
       byCategory: {} as Record<ErrorCategory, number>,
       bySeverity: {} as Record<ErrorSeverity, number>,
     };
 
     // Initialize counts
-    Object.values(ErrorCategory).forEach(cat => (stats.byCategory[cat] = 0));
-    Object.values(ErrorSeverity).forEach(sev => (stats.bySeverity[sev] = 0));
+    Object.values(ErrorCategory).forEach(cat => (_stats.byCategory[cat] = 0));
+    Object.values(ErrorSeverity).forEach(sev => (_stats.bySeverity[sev] = 0));
 
     // Count errors
-    errors.forEach(error => {
-      stats.byCategory[error.category]++;
-      stats.bySeverity[error.severity]++;
+    _errors.forEach(error => {
+      _stats.byCategory[error.category]++;
+      _stats.bySeverity[error.severity]++;
     });
 
-    return stats;
+    return _stats;
   }
 
   clearErrors(olderThan?: Date): number {
@@ -199,13 +199,13 @@ export class UnifiedErrorService extends BaseService {
       if (!olderThan || error.timestamp < olderThan) {
         if (error.resolved || error.severity === ErrorSeverity.LOW) {
           this.errors.delete(id);
-          cleared++;
+          _cleared++;
         }
       }
     }
 
-    this.logger.info('Errors cleared', { cleared, olderThan });
-    return cleared;
+    this.logger.info('Errors cleared', { cleared: _cleared, olderThan });
+    return _cleared;
   }
 
   private delay(ms: number): Promise<void> {

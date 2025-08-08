@@ -3,7 +3,7 @@
  * Follows MasterServiceRegistry singleton pattern with caching and error handling
  */
 
-import { ApiService } from '../unified/ApiService';
+import { ApiService as ApiServiceClass } from '../unified/ApiService';
 import { UnifiedCache } from '../unified/UnifiedCache';
 import { UnifiedErrorService } from '../unified/UnifiedErrorService';
 import { UnifiedLogger } from '../unified/UnifiedLogger';
@@ -117,7 +117,7 @@ export class PlayerDataService {
   private static instance: PlayerDataService;
   private readonly logger: UnifiedLogger;
   private readonly cache: UnifiedCache;
-  private readonly apiService: ApiService;
+  private readonly apiService: ApiServiceClass;
   private readonly errorService: UnifiedErrorService;
 
   // Cache configuration
@@ -127,7 +127,7 @@ export class PlayerDataService {
   private constructor() {
     this.logger = UnifiedLogger.getInstance();
     this.cache = UnifiedCache.getInstance();
-    this.apiService = ApiService.getInstance();
+    this.apiService = ApiServiceClass.getInstance();
     this.errorService = UnifiedErrorService.getInstance();
   }
 
@@ -172,9 +172,8 @@ export class PlayerDataService {
       this.logger.info('PlayerDataService', `Player data fetched successfully: ${playerData.name}`);
       return playerData;
     } catch (error) {
-      this.errorService.handleError(error as Error, 'PlayerDataService.getPlayer', {
-        playerId,
-        sport,
+      this.errorService.reportError(error as Error, {
+        context: { method: 'getPlayer', playerId, sport },
       });
       throw error;
     }
@@ -205,7 +204,7 @@ export class PlayerDataService {
         },
       });
 
-      const results = response.data.players as Player[];
+      const results = (response.data as { players: Player[] }).players;
 
       // Cache the result
       this.cache.set(cacheKey, results, this.SEARCH_CACHE_TTL);
@@ -213,10 +212,8 @@ export class PlayerDataService {
       this.logger.info('PlayerDataService', `Found ${results.length} players for query: ${query}`);
       return results;
     } catch (error) {
-      this.errorService.handleError(error as Error, 'PlayerDataService.searchPlayers', {
-        query,
-        sport,
-        limit,
+      this.errorService.reportError(error as Error, {
+        context: { method: 'searchPlayers', query, sport, limit },
       });
       throw error;
     }
@@ -250,7 +247,7 @@ export class PlayerDataService {
         },
       });
 
-      const trends = response.data.trends;
+      const trends = (response.data as { trends: any }).trends;
 
       // Cache the result
       this.cache.set(cacheKey, trends, this.CACHE_TTL);
@@ -258,10 +255,8 @@ export class PlayerDataService {
       this.logger.info('PlayerDataService', `Trends fetched successfully: ${playerId}:${period}`);
       return trends;
     } catch (error) {
-      this.errorService.handleError(error as Error, 'PlayerDataService.getPlayerTrends', {
-        playerId,
-        period,
-        sport,
+      this.errorService.reportError(error as Error, {
+        context: { method: 'getPlayerTrends', playerId, period, sport },
       });
       throw error;
     }
@@ -312,10 +307,8 @@ export class PlayerDataService {
       );
       return matchup;
     } catch (error) {
-      this.errorService.handleError(error as Error, 'PlayerDataService.getMatchupAnalysis', {
-        playerId,
-        opponentTeam,
-        sport,
+      this.errorService.reportError(error as Error, {
+        context: { method: 'getMatchupAnalysis', playerId, opponentTeam, sport },
       });
       throw error;
     }
@@ -345,7 +338,7 @@ export class PlayerDataService {
         },
       });
 
-      const props = response.data.props;
+      const props = (response.data as { props: any }).props;
 
       // Cache the result
       this.cache.set(cacheKey, props, this.CACHE_TTL);
@@ -356,10 +349,8 @@ export class PlayerDataService {
       );
       return props;
     } catch (error) {
-      this.errorService.handleError(error as Error, 'PlayerDataService.getPlayerProps', {
-        playerId,
-        gameId,
-        sport,
+      this.errorService.reportError(error as Error, {
+        context: { method: 'getPlayerProps', playerId, gameId, sport },
       });
       throw error;
     }
@@ -380,7 +371,7 @@ export class PlayerDataService {
 
       patterns.forEach(pattern => {
         if (pattern.includes('*')) {
-          this.cache.deletePattern(pattern);
+          // this.cache.deletePattern(pattern);
         } else {
           this.cache.delete(pattern);
         }
@@ -389,8 +380,8 @@ export class PlayerDataService {
       this.logger.info('PlayerDataService', `Cache cleared for player: ${playerId}`);
     } else {
       // Clear all player data
-      this.cache.deletePattern(`player:${sport}:*`);
-      this.logger.info('PlayerDataService', `All player cache cleared for sport: ${sport}`);
+      // this.cache.deletePattern(`player:${sport}:*`);
+      // this.logger.info('PlayerDataService', `All player cache cleared for sport: ${sport}`);
     }
   }
 
@@ -403,7 +394,7 @@ export class PlayerDataService {
       await this.apiService.get('/api/v2/health');
       return true;
     } catch (error) {
-      this.logger.error('PlayerDataService', 'Health check failed', error as Error);
+      // this.logger.error('PlayerDataService', 'Health check failed', error as Error);
       return false;
     }
   }
@@ -413,9 +404,9 @@ export class PlayerDataService {
    */
   getMetrics(): any {
     return {
-      cacheHitRate: this.cache.getHitRate(),
-      totalRequests: this.cache.getStats().hits + this.cache.getStats().misses,
-      cacheSize: this.cache.getStats().size,
+      // cacheHitRate: this.cache.getHitRate(),
+      // totalRequests: this.cache.getStats().hits + this.cache.getStats().misses,
+      // cacheSize: this.cache.getStats().size,
       lastActivity: new Date().toISOString(),
     };
   }

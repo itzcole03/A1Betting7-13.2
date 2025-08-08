@@ -47,32 +47,102 @@ class UnifiedCacheService:
         return await self._cache_service.initialize()
 
     async def get(self, key: str, default: Any = None) -> Any:
-        """Get value from cache"""
-        return await self._cache_service.get(key, default)
+        """
+        Get value from cache.
+        Uses unified error handler and structured logging.
+        Args:
+            key (str): Cache key
+            default (Any, optional): Default value if key not found
+        Returns:
+            Any: Cached value or default
+        """
+        try:
+            return await self._cache_service.get(key, default)
+        except Exception as e:
+            logger.error(f"[CACHE] Error getting key '{key}': {e}")
+            # Unified error handler pattern
+            if hasattr(self._cache_service, "error_handler"):
+                self._cache_service.error_handler.handle_error(
+                    e, "cache_get", user_context={"key": key}
+                )
+            return default
 
     async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
-        """Set value in cache"""
-        return await self._cache_service.set(key, value, ttl)
+        """
+        Set value in cache.
+        Uses unified error handler and structured logging.
+        """
+        try:
+            return await self._cache_service.set(key, value, ttl)
+        except Exception as e:
+            logger.error(f"[CACHE] Error setting key '{key}': {e}")
+            if hasattr(self._cache_service, "error_handler"):
+                self._cache_service.error_handler.handle_error(
+                    e, "cache_set", user_context={"key": key}
+                )
+            return False
 
     async def delete(self, key: str) -> bool:
-        """Delete key from cache"""
-        return await self._cache_service.delete(key)
+        """
+        Delete key from cache.
+        Uses unified error handler and structured logging.
+        """
+        try:
+            return await self._cache_service.delete(key)
+        except Exception as e:
+            logger.error(f"[CACHE] Error deleting key '{key}': {e}")
+            if hasattr(self._cache_service, "error_handler"):
+                self._cache_service.error_handler.handle_error(
+                    e, "cache_delete", user_context={"key": key}
+                )
+            return False
 
     async def exists(self, key: str) -> bool:
-        """Check if key exists in cache"""
-        return await self._cache_service.exists(key)
+        """
+        Check if key exists in cache.
+        Uses unified error handler and structured logging.
+        """
+        try:
+            return await self._cache_service.exists(key)
+        except Exception as e:
+            logger.error(f"[CACHE] Error checking existence for key '{key}': {e}")
+            if hasattr(self._cache_service, "error_handler"):
+                self._cache_service.error_handler.handle_error(
+                    e, "cache_exists", user_context={"key": key}
+                )
+            return False
 
     async def clear(self, pattern: Optional[str] = None) -> int:
-        """Clear cache entries matching pattern"""
-        if hasattr(self._cache_service, "clear"):
-            return await self._cache_service.clear(pattern)
-        return 0
+        """
+        Clear cache entries matching pattern.
+        Uses unified error handler and structured logging.
+        """
+        try:
+            if hasattr(self._cache_service, "clear"):
+                return await self._cache_service.clear(pattern)
+            return 0
+        except Exception as e:
+            logger.error(f"[CACHE] Error clearing cache with pattern '{pattern}': {e}")
+            if hasattr(self._cache_service, "error_handler"):
+                self._cache_service.error_handler.handle_error(
+                    e, "cache_clear", user_context={"pattern": pattern}
+                )
+            return 0
 
     async def get_metrics(self) -> Dict[str, Any]:
-        """Get cache performance metrics"""
-        if hasattr(self._cache_service, "get_performance_metrics"):
-            return await self._cache_service.get_performance_metrics()
-        return {}
+        """
+        Get cache performance metrics.
+        Uses unified error handler and structured logging.
+        """
+        try:
+            if hasattr(self._cache_service, "get_performance_metrics"):
+                return await self._cache_service.get_performance_metrics()
+            return {}
+        except Exception as e:
+            logger.error(f"[CACHE] Error getting cache metrics: {e}")
+            if hasattr(self._cache_service, "error_handler"):
+                self._cache_service.error_handler.handle_error(e, "cache_metrics")
+            return {}
 
     async def close(self):
         """Close cache connections"""
@@ -82,6 +152,9 @@ class UnifiedCacheService:
 
 # Create global unified cache instance
 unified_cache = UnifiedCacheService()
+
+# Backwards compatibility: provide unified_cache_service alias
+unified_cache_service = unified_cache
 
 
 # Backwards compatibility classes and functions

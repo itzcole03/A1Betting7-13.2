@@ -47,13 +47,13 @@ const _dataService = {
 
 export class UnifiedBettingAnalytics extends EventEmitter {
   private static instance: UnifiedBettingAnalytics;
-  private dataService: typeof dataService;
+  private dataService: typeof _dataService;
   private activeStrategies: Map<string, BettingStrategy>;
   private predictionModels: Map<string, PredictionModel>;
 
   private constructor() {
     super();
-    this.dataService = dataService;
+    this.dataService = _dataService;
     this.activeStrategies = new Map();
     this.predictionModels = new Map();
     this.initializeEventListeners();
@@ -68,22 +68,22 @@ export class UnifiedBettingAnalytics extends EventEmitter {
 
   private initializeEventListeners() {
     // Listen for real-time odds updates;
-    this.dataService.on('ws: prizepicks:odds_update', (data: Record<string, unknown>) => {
-      this.analyzeOddsMovement(data);
+    this.dataService.on('ws: prizepicks:odds_update', (data: unknown) => {
+      this.analyzeOddsMovement(data as Record<string, unknown>);
     });
 
     // Listen for model updates;
-    this.dataService.on('ws: odds_api:line_movement', (data: Record<string, unknown>) => {
-      this.updatePredictions(data);
+    this.dataService.on('ws: odds_api:line_movement', (data: unknown) => {
+      this.updatePredictions(data as Record<string, unknown>);
     });
   }
 
   private calculateKellyCriterion(probability: number, odds: number): number {
     // Kelly formula: f* = (bp - q)/b, b = odds-1, p = probability, q = 1-p
-    const _b = odds - 1;
-    const _p = probability;
-    const _q = 1 - p;
-    const _kelly = b > 0 ? (b * p - q) / b : 0;
+    const b = odds - 1;
+    const p = probability;
+    const q = 1 - p;
+    const kelly = b > 0 ? (b * p - q) / b : 0;
     return Math.max(0, Math.min(kelly, 0.1)); // Cap at 10% of bankroll
   }
 
@@ -94,19 +94,19 @@ export class UnifiedBettingAnalytics extends EventEmitter {
   ): Promise<BettingAnalysis> {
     try {
       // Fetch latest market data;
-      const _marketData = await this.dataService.fetchData(
+      const marketData = await this.dataService.fetchData(
         DataSource.PRIZEPICKS,
         `/markets/${market}`
       );
       // Get prediction from model;
-      const _prediction = await this.generatePrediction(market, marketData);
+      const prediction = await this.generatePrediction(market, marketData);
       // Calculate optimal stake using Kelly Criterion;
-      const _recommendedStake = this.calculateKellyCriterion(prediction.probability, odds);
+      const recommendedStake = this.calculateKellyCriterion(prediction.probability, odds);
       // Assess risk factors;
-      const _riskFactors = this.assessRiskFactors(marketData, prediction);
+      const riskFactors = this.assessRiskFactors(marketData, prediction);
       // Find hedging opportunities;
-      const _hedging = await this.findHedgingOpportunities(market, odds);
-      const _analysis: BettingAnalysis = {
+      const hedging = await this.findHedgingOpportunities(market, odds);
+      const analysis: BettingAnalysis = {
         predictionConfidence: prediction.probability,
         recommendedStake: recommendedStake * stake,
         expectedValue: (prediction.probability * odds - 1) * stake,
@@ -137,29 +137,29 @@ export class UnifiedBettingAnalytics extends EventEmitter {
   }> {
     try {
       // Construct a PlayerProp-like object if needed;
-      const _prop = {
-        player: { id: data.playerId || market },
-        type: data.metric || market,
+      const prop = {
+        player: { id: (data as any).playerId || market },
+        type: (data as any).metric || market,
         ...data,
       };
-      const _predictionData = await PredictionEngine.getInstance().predict(prop);
+      const predictionData = await PredictionEngine.getInstance().predict(prop);
       return {
-        probability: predictionData.value,
-        confidence: predictionData.confidence,
-        uncertainty: predictionData.analysis?.meta_analysis?.prediction_stability,
+        probability: (predictionData as any).value,
+        confidence: (predictionData as any).confidence,
+        uncertainty: (predictionData as any).analysis?.meta_analysis?.prediction_stability,
         shap:
-          typeof predictionData.analysis === 'object' &&
-          predictionData.analysis &&
-          'shap_values' in predictionData.analysis
-            ? (predictionData.analysis as unknown).shap_values
+          typeof (predictionData as any).analysis === 'object' &&
+          (predictionData as any).analysis &&
+          'shap_values' in (predictionData as any).analysis
+            ? ((predictionData as any).analysis as any).shap_values
             : undefined,
         expectedValue:
-          typeof predictionData.analysis?.meta_analysis === 'object' &&
-          predictionData.analysis?.meta_analysis &&
-          'expected_value' in predictionData.analysis.meta_analysis
-            ? (predictionData.analysis.meta_analysis as unknown).expected_value
+          typeof (predictionData as any).analysis?.meta_analysis === 'object' &&
+          (predictionData as any).analysis?.meta_analysis &&
+          'expected_value' in (predictionData as any).analysis.meta_analysis
+            ? ((predictionData as any).analysis.meta_analysis as any).expected_value
             : undefined,
-        modelMeta: predictionData.metadata,
+        modelMeta: (predictionData as any).metadata,
       };
     } catch (error) {
       this.emit('error', error);
@@ -171,13 +171,13 @@ export class UnifiedBettingAnalytics extends EventEmitter {
     marketData: Record<string, unknown>,
     prediction: Record<string, unknown>
   ): string[] {
-    const _factors: string[] = [];
+    const factors: string[] = [];
 
     // Market volatility check;
     if (
       'volatility' in marketData &&
       typeof marketData.volatility === 'number' &&
-      marketData.volatility > 0.5
+      (marketData.volatility as number) > 0.5
     ) {
       factors.push('High market volatility');
     }
@@ -186,7 +186,7 @@ export class UnifiedBettingAnalytics extends EventEmitter {
     if (
       'confidence' in prediction &&
       typeof prediction.confidence === 'number' &&
-      prediction.confidence < 0.7
+      (prediction.confidence as number) < 0.7
     ) {
       factors.push('Low prediction confidence');
     }
@@ -195,7 +195,7 @@ export class UnifiedBettingAnalytics extends EventEmitter {
     if (
       'timeToEvent' in marketData &&
       typeof marketData.timeToEvent === 'number' &&
-      marketData.timeToEvent < 60
+      (marketData.timeToEvent as number) < 60
     ) {
       factors.push('Close to event start');
     }
@@ -214,14 +214,14 @@ export class UnifiedBettingAnalytics extends EventEmitter {
     originalOdds: number
   ): Promise<Array<{ market: string; odds: number; recommendedStake: number }>> {
     try {
-      const _relatedMarkets = await this.dataService.fetchData(
+      const relatedMarkets = await this.dataService.fetchData(
         DataSource.ODDS_API,
         `/related-markets/${market}`
       );
       if (!Array.isArray(relatedMarkets)) return [];
-      return relatedMarkets
-        .filter((m: unknown) => m.odds < originalOdds)
-        .map((m: unknown) => ({
+      return (relatedMarkets as Array<any>)
+        .filter(m => m.odds < originalOdds)
+        .map(m => ({
           market: m.id,
           odds: m.odds,
           recommendedStake: this.calculateHedgeStake(originalOdds, m.odds),
@@ -235,10 +235,10 @@ export class UnifiedBettingAnalytics extends EventEmitter {
   private calculateHedgeStake(originalOdds: number, hedgeOdds: number): number {
     // Kelly formula for hedging;
     // f* = (bp - q)/b, b = hedgeOdds-1, p = 1/originalOdds, q = 1-p;
-    const _b = hedgeOdds - 1;
-    const _p = 1 / originalOdds;
-    const _q = 1 - p;
-    const _kelly = b > 0 ? (b * p - q) / b : 0;
+    const b = hedgeOdds - 1;
+    const p = 1 / originalOdds;
+    const q = 1 - p;
+    const kelly = b > 0 ? (b * p - q) / b : 0;
     return Math.max(0, Math.min(kelly, 0.2)); // Cap at 20% stake for safety;
   }
 

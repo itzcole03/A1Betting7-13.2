@@ -1,3 +1,4 @@
+// ML Model Center - Enterprise ML Lifecycle Management
 import {
   Activity,
   AlertTriangle,
@@ -15,8 +16,14 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
-// Types and Interfaces
-interface MLModel {
+export interface MLModelDeployment {
+  environment: 'development' | 'staging' | 'production';
+  replicas: number;
+  cpu_usage: number;
+  memory_usage: number;
+}
+
+export interface MLModel {
   id: string;
   name: string;
   type: 'transformer' | 'neural_network' | 'ensemble' | 'bayesian';
@@ -30,23 +37,21 @@ interface MLModel {
     f1_score: number;
     auc_roc: number;
   };
-  deployment: {
-    environment: 'development' | 'staging' | 'production';
-    replicas: number;
-    cpu_usage: number;
-    memory_usage: number;
-  };
+  deployment: MLModelDeployment;
 }
 
-const MLModelCenter: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('overview');
-  const [models, setModels] = useState<MLModel[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Mock data for demonstration
-  useEffect(() => {
-    const mockModels: MLModel[] = [
+// Service stub for MLModelRegistryService (replace with real implementation)
+export class MLModelRegistryService {
+  private static instance: MLModelRegistryService;
+  public static getInstance(): MLModelRegistryService {
+    if (!MLModelRegistryService.instance) {
+      MLModelRegistryService.instance = new MLModelRegistryService();
+    }
+    return MLModelRegistryService.instance;
+  }
+  public async fetchModels(): Promise<MLModel[]> {
+    // TODO: Replace with real API call
+    return [
       {
         id: 'model-1',
         name: 'Sports Transformer v2.1',
@@ -68,51 +73,46 @@ const MLModelCenter: React.FC = () => {
           memory_usage: 78,
         },
       },
-      {
-        id: 'model-2',
-        name: 'Bayesian Ensemble Model',
-        type: 'bayesian',
-        status: 'training',
-        accuracy: 0.823,
-        last_updated: '2025-01-05T09:15:00Z',
-        version: '1.8.2',
-        performance_metrics: {
-          precision: 0.819,
-          recall: 0.827,
-          f1_score: 0.823,
-          auc_roc: 0.878,
-        },
-        deployment: {
-          environment: 'staging',
-          replicas: 1,
-          cpu_usage: 45,
-          memory_usage: 52,
-        },
-      },
     ];
+  }
+}
 
-    setModels(mockModels);
+// Utility for status color
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'active':
+      return 'bg-green-100 text-green-700';
+    case 'training':
+      return 'bg-yellow-100 text-yellow-700';
+    case 'inactive':
+      return 'bg-gray-100 text-gray-700';
+    case 'error':
+      return 'bg-red-100 text-red-700';
+    default:
+      return 'bg-gray-100 text-gray-700';
+  }
+};
+
+const MLModelCenter: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<string>('overview');
+  const [models, setModels] = useState<MLModel[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Mock data for demonstration
+  useEffect(() => {
+    setLoading(true);
+    MLModelRegistryService.getInstance()
+      .fetchModels()
+      .then((fetchedModels: MLModel[]) => {
+        setModels(fetchedModels);
+        setLoading(false);
+      })
+      .catch((err: unknown) => {
+        setError('Failed to load models');
+        setLoading(false);
+      });
   }, []);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-      case 'completed':
-        return 'text-green-500 bg-green-100';
-      case 'training':
-      case 'running':
-        return 'text-blue-500 bg-blue-100';
-      case 'queued':
-        return 'text-yellow-500 bg-yellow-100';
-      case 'inactive':
-        return 'text-gray-500 bg-gray-100';
-      case 'error':
-      case 'failed':
-        return 'text-red-500 bg-red-100';
-      default:
-        return 'text-gray-500 bg-gray-100';
-    }
-  };
 
   const getModelIcon = (type: string) => {
     switch (type) {
@@ -157,7 +157,7 @@ const MLModelCenter: React.FC = () => {
             <div>
               <p className='text-sm font-medium text-gray-600'>Active Models</p>
               <p className='text-2xl font-bold text-gray-900'>
-                {models.filter(m => m.status === 'active').length}
+                {models.filter((m: MLModel) => m.status === 'active').length}
               </p>
             </div>
           </div>
@@ -183,7 +183,9 @@ const MLModelCenter: React.FC = () => {
             <div>
               <p className='text-sm font-medium text-gray-600'>Avg Accuracy</p>
               <p className='text-2xl font-bold text-gray-900'>
-                {formatMetric(models.reduce((acc, m) => acc + m.accuracy, 0) / models.length)}
+                {formatMetric(
+                  models.reduce((acc: number, m: MLModel) => acc + m.accuracy, 0) / models.length
+                )}
               </p>
             </div>
           </div>
@@ -220,7 +222,7 @@ const MLModelCenter: React.FC = () => {
               </tr>
             </thead>
             <tbody className='bg-white divide-y divide-gray-200'>
-              {models.map(model => (
+              {models.map((model: MLModel) => (
                 <tr key={model.id} className='hover:bg-gray-50'>
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <div className='flex items-center'>
@@ -274,7 +276,10 @@ const MLModelCenter: React.FC = () => {
       <div className='max-w-7xl mx-auto'>
         {/* Header */}
         <div className='mb-6'>
-          <h1 className='text-3xl font-bold text-gray-900 flex items-center space-x-3'>
+          <h1
+            data-testid='ml-model-center-heading'
+            className='text-3xl font-bold text-gray-900 flex items-center space-x-3'
+          >
             <Brain className='w-8 h-8 text-blue-600' />
             <span>AI/ML Model Center</span>
           </h1>

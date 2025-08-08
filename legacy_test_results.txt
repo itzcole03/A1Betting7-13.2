@@ -1,0 +1,257 @@
+......................FFFFFFFFFF
+================================== FAILURES ===================================
+_______________________ test_comprehensive_health_check _______________________
+
+    def test_comprehensive_health_check():
+        response = client.get("/api/health/status")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "healthy"
+>       assert "performance" in data
+E       AssertionError: assert 'performance' in {'capabilities': ['Enhanced Predictions', 'Portfolio Optimization', 'AI Insights', 'Live Context', 'Multi-Platform Int...healthy', 'prediction_engine': 'healthy', 'propollama': 'healthy', 'unified_api': 'healthy'}, 'status': 'healthy', ...}
+
+backend\tests\test_api_v1.py:36: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:42:42,819 - backend.services.rate_limiting_service - ERROR - Rate limiting error for ip:testclient: Event loop is closed
+2025-08-06 14:42:42,820 - request - INFO - {"event": "request_start", "timestamp": 1754509362.8200195, "correlation_id": "864918b5-6720-4bf4-8527-589351a173cd", "method": "GET", "path": "/api/health/status", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:42:42,820 - request - INFO - {"event": "request_complete", "timestamp": 1754509362.8203275, "correlation_id": "864918b5-6720-4bf4-8527-589351a173cd", "method": "GET", "path": "/api/health/status", "status_code": 200, "process_time_ms": 0.31, "response_headers": {"content-length": "316", "content-type": "application/json", "x-correlation-id": "aef95f57-fcdd-44d1-a7d1-14e2c39d4e69", "x-process-time": "0.16ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:42:42,820 - compression - INFO - Not compressing /api/health/status. Headers: {'content-length': '316', 'content-type': 'application/json', 'x-correlation-id': 'aef95f57-fcdd-44d1-a7d1-14e2c39d4e69', 'x-process-time': '0.16ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.44ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:42:42,820 - backend.middleware.request_correlation - INFO - Request processed: GET /api/health/status
+------------------------------ Captured log call ------------------------------
+ERROR    backend.services.rate_limiting_service:rate_limiting_service.py:157 Rate limiting error for ip:testclient: Event loop is closed
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509362.8200195, "correlation_id": "864918b5-6720-4bf4-8527-589351a173cd", "method": "GET", "path": "/api/health/status", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+INFO     request:comprehensive_middleware.py:287 {"event": "request_complete", "timestamp": 1754509362.8203275, "correlation_id": "864918b5-6720-4bf4-8527-589351a173cd", "method": "GET", "path": "/api/health/status", "status_code": 200, "process_time_ms": 0.31, "response_headers": {"content-length": "316", "content-type": "application/json", "x-correlation-id": "aef95f57-fcdd-44d1-a7d1-14e2c39d4e69", "x-process-time": "0.16ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/health/status. Headers: {'content-length': '316', 'content-type': 'application/json', 'x-correlation-id': 'aef95f57-fcdd-44d1-a7d1-14e2c39d4e69', 'x-process-time': '0.16ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.44ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/health/status
+_______________________ test_get_betting_opportunities ________________________
+
+mock_get_games = <MagicMock name='get_sport_radar_games' id='2030948365856'>
+
+    @patch("backend.main.get_sport_radar_games")
+    def test_get_betting_opportunities(mock_get_games):
+        # Mock the external API call to avoid 403 errors in tests
+        mock_get_games.return_value = []
+        response = client.get("/api/betting-opportunities")
+        assert response.status_code == 200
+>       assert isinstance(response.json(), list)
+E       AssertionError: assert False
+E        +  where False = isinstance({'opportunities': [], 'status': 'ok'}, list)
+E        +    where {'opportunities': [], 'status': 'ok'} = json()
+E        +      where json = <Response [200 OK]>.json
+
+backend\tests\test_api_v1.py:47: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:42:45,174 - request - INFO - {"event": "request_start", "timestamp": 1754509365.174922, "correlation_id": "9bb530fd-a915-4f30-b0a7-a8e29221d3ec", "method": "GET", "path": "/api/betting-opportunities", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:42:45,175 - request - INFO - {"event": "request_complete", "timestamp": 1754509365.1754534, "correlation_id": "9bb530fd-a915-4f30-b0a7-a8e29221d3ec", "method": "GET", "path": "/api/betting-opportunities", "status_code": 200, "process_time_ms": 0.53, "response_headers": {"content-length": "34", "content-type": "application/json", "x-correlation-id": "81feac28-88ef-4420-9837-dfbf1d07babd", "x-process-time": "0.16ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:42:45,175 - compression - INFO - Not compressing /api/betting-opportunities. Headers: {'content-length': '34', 'content-type': 'application/json', 'x-correlation-id': '81feac28-88ef-4420-9837-dfbf1d07babd', 'x-process-time': '0.16ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.74ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:42:45,175 - backend.middleware.request_correlation - INFO - Request processed: GET /api/betting-opportunities
+------------------------------ Captured log call ------------------------------
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509365.174922, "correlation_id": "9bb530fd-a915-4f30-b0a7-a8e29221d3ec", "method": "GET", "path": "/api/betting-opportunities", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+INFO     request:comprehensive_middleware.py:287 {"event": "request_complete", "timestamp": 1754509365.1754534, "correlation_id": "9bb530fd-a915-4f30-b0a7-a8e29221d3ec", "method": "GET", "path": "/api/betting-opportunities", "status_code": 200, "process_time_ms": 0.53, "response_headers": {"content-length": "34", "content-type": "application/json", "x-correlation-id": "81feac28-88ef-4420-9837-dfbf1d07babd", "x-process-time": "0.16ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/betting-opportunities. Headers: {'content-length': '34', 'content-type': 'application/json', 'x-correlation-id': '81feac28-88ef-4420-9837-dfbf1d07babd', 'x-process-time': '0.16ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.74ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/betting-opportunities
+______________________ test_get_arbitrage_opportunities _______________________
+
+    def test_get_arbitrage_opportunities():
+        response = client.get("/api/arbitrage-opportunities")
+        assert response.status_code == 200
+>       assert isinstance(response.json(), list)
+E       AssertionError: assert False
+E        +  where False = isinstance({'arbitrage_opportunities': [], 'status': 'ok'}, list)
+E        +    where {'arbitrage_opportunities': [], 'status': 'ok'} = json()
+E        +      where json = <Response [200 OK]>.json
+
+backend\tests\test_api_v1.py:53: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:42:45,184 - backend.services.rate_limiting_service - ERROR - Rate limiting error for ip:testclient: Event loop is closed
+2025-08-06 14:42:45,184 - request - INFO - {"event": "request_start", "timestamp": 1754509365.1848717, "correlation_id": "5d01b62c-d223-4989-bd9a-569a34c650c6", "method": "GET", "path": "/api/arbitrage-opportunities", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:42:45,185 - request - INFO - {"event": "request_complete", "timestamp": 1754509365.1852086, "correlation_id": "5d01b62c-d223-4989-bd9a-569a34c650c6", "method": "GET", "path": "/api/arbitrage-opportunities", "status_code": 200, "process_time_ms": 0.34, "response_headers": {"content-length": "44", "content-type": "application/json", "x-correlation-id": "6f949832-501b-43d4-8b27-5e13790e0593", "x-process-time": "0.15ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:42:45,185 - compression - INFO - Not compressing /api/arbitrage-opportunities. Headers: {'content-length': '44', 'content-type': 'application/json', 'x-correlation-id': '6f949832-501b-43d4-8b27-5e13790e0593', 'x-process-time': '0.15ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.50ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:42:45,185 - backend.middleware.request_correlation - INFO - Request processed: GET /api/arbitrage-opportunities
+------------------------------ Captured log call ------------------------------
+ERROR    backend.services.rate_limiting_service:rate_limiting_service.py:157 Rate limiting error for ip:testclient: Event loop is closed
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509365.1848717, "correlation_id": "5d01b62c-d223-4989-bd9a-569a34c650c6", "method": "GET", "path": "/api/arbitrage-opportunities", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+INFO     request:comprehensive_middleware.py:287 {"event": "request_complete", "timestamp": 1754509365.1852086, "correlation_id": "5d01b62c-d223-4989-bd9a-569a34c650c6", "method": "GET", "path": "/api/arbitrage-opportunities", "status_code": 200, "process_time_ms": 0.34, "response_headers": {"content-length": "44", "content-type": "application/json", "x-correlation-id": "6f949832-501b-43d4-8b27-5e13790e0593", "x-process-time": "0.15ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/arbitrage-opportunities. Headers: {'content-length': '44', 'content-type': 'application/json', 'x-correlation-id': '6f949832-501b-43d4-8b27-5e13790e0593', 'x-process-time': '0.15ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.50ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/arbitrage-opportunities
+__________________________ test_get_predictions_shim __________________________
+
+    def test_get_predictions_shim():
+        response = client.get("/api/predictions/prizepicks")
+>       assert response.status_code == 200
+E       assert 410 == 200
+E        +  where 410 = <Response [410 Gone]>.status_code
+
+backend\tests\test_api_v1.py:58: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:42:45,191 - backend.middleware.request_correlation - INFO - Request processed: GET /api/predictions/prizepicks
+------------------------------ Captured log call ------------------------------
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/predictions/prizepicks
+__________________________ test_get_prizepicks_props __________________________
+
+    def test_get_prizepicks_props():
+        # This test might still fail if it relies on external services or complex dependencies
+        # that are not mocked. For now, we expect it to run without crashing.
+        response = client.get("/api/prizepicks/props")
+>       assert response.status_code == 200
+E       assert 410 == 200
+E        +  where 410 = <Response [410 Gone]>.status_code
+
+backend\tests\test_api_v1.py:66: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:42:45,197 - backend.middleware.request_correlation - INFO - Request processed: GET /api/prizepicks/props
+------------------------------ Captured log call ------------------------------
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/prizepicks/props
+____________________________ test_sr_games_success ____________________________
+
+mock_get = <AsyncMock name='get' id='2030945685520'>
+
+    @patch("httpx.AsyncClient.get")
+    def test_sr_games_success(mock_get: MagicMock):
+        from unittest.mock import MagicMock
+    
+        # Use dependency override for config
+        mock_config = MagicMock()
+        mock_config.sportradar_api_key = "test_key"
+        app.dependency_overrides[get_config] = lambda: mock_config
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "games": [
+                {
+                    "id": "game1",
+                    "league": "NBA",
+                    "home": {"id": "h1", "name": "Home"},
+                    "away": {"id": "a1", "name": "Away"},
+                    "scheduled": "2025-07-14T12:00:00",
+                    "status": "scheduled",
+                }
+            ]
+        }
+        mock_get.return_value = mock_response
+        response = client.get("/api/v1/sr/games?sport=basketball_nba")
+>       assert response.status_code == 200
+E       assert 410 == 200
+E        +  where 410 = <Response [410 Gone]>.status_code
+
+backend\tests\test_api_v1.py:108: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:42:45,203 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/sr/games
+------------------------------ Captured log call ------------------------------
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/sr/games
+________________________ test_sr_games_missing_api_key ________________________
+
+    def test_sr_games_missing_api_key():
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.sportradar_api_key = None
+        app.dependency_overrides[get_config] = lambda: mock_config
+        """
+        Test /api/v1/sr/games with missing API key (should return 503).
+        """
+        mock_config.sportradar_api_key = None
+        response = client.get("/api/v1/sr/games?sport=basketball_nba")
+>       assert response.status_code == 503
+E       assert 410 == 503
+E        +  where 410 = <Response [410 Gone]>.status_code
+
+backend\tests\test_api_v1.py:125: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:42:45,210 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/sr/games
+------------------------------ Captured log call ------------------------------
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/sr/games
+______________________ test_sr_games_malformed_response _______________________
+
+mock_get = <AsyncMock name='get' id='2030945683840'>
+
+    @patch("httpx.AsyncClient.get")
+    def test_sr_games_malformed_response(mock_get: MagicMock):
+        """
+        Test /api/v1/sr/games with malformed API response (missing 'games' key).
+        """
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.sportradar_api_key = "test_key"
+        app.dependency_overrides[get_config] = lambda: mock_config
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"unexpected": []}
+        mock_get.return_value = mock_response
+        response = client.get("/api/v1/sr/games?sport=basketball_nba")
+>       assert response.status_code == 200
+E       assert 410 == 200
+E        +  where 410 = <Response [410 Gone]>.status_code
+
+backend\tests\test_api_v1.py:144: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:42:45,216 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/sr/games
+------------------------------ Captured log call ------------------------------
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/sr/games
+___________________________ test_sr_games_api_error ___________________________
+
+mock_get = <AsyncMock name='get' id='2030945684848'>
+
+    @patch("httpx.AsyncClient.get")
+    def test_sr_games_api_error(mock_get: MagicMock):
+        """
+        Test /api/v1/sr/games with API error (non-200 status).
+        """
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.sportradar_api_key = "test_key"
+        app.dependency_overrides[get_config] = lambda: mock_config
+        mock_response = MagicMock()
+        mock_response.status_code = 403
+        mock_response.text = "Forbidden"
+        mock_get.return_value = mock_response
+        response = client.get("/api/v1/sr/games?sport=basketball_nba")
+>       assert response.status_code == 502
+E       assert 410 == 502
+E        +  where 410 = <Response [410 Gone]>.status_code
+
+backend\tests\test_api_v1.py:164: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:42:45,222 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/sr/games
+------------------------------ Captured log call ------------------------------
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/sr/games
+_________________________ test_sr_games_timeout_error _________________________
+
+mock_get = <AsyncMock name='get' id='2030945689888'>
+
+    @patch("httpx.AsyncClient.get")
+    def test_sr_games_timeout_error(mock_get: MagicMock):
+        """
+        Test /api/v1/sr/games with httpx timeout/network error.
+        """
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.sportradar_api_key = "test_key"
+        app.dependency_overrides[get_config] = lambda: mock_config
+        mock_get.side_effect = httpx.TimeoutException("Timeout occurred")
+        response = client.get("/api/v1/sr/games?sport=basketball_nba")
+>       assert response.status_code == 500
+E       assert 410 == 500
+E        +  where 410 = <Response [410 Gone]>.status_code
+
+backend\tests\test_api_v1.py:183: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:42:45,229 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/sr/games
+------------------------------ Captured log call ------------------------------
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/sr/games
+=========================== short test summary info ===========================
+FAILED backend/tests/test_api_v1.py::test_comprehensive_health_check - Assert...
+FAILED backend/tests/test_api_v1.py::test_get_betting_opportunities - Asserti...
+FAILED backend/tests/test_api_v1.py::test_get_arbitrage_opportunities - Asser...
+FAILED backend/tests/test_api_v1.py::test_get_predictions_shim - assert 410 =...
+FAILED backend/tests/test_api_v1.py::test_get_prizepicks_props - assert 410 =...
+FAILED backend/tests/test_api_v1.py::test_sr_games_success - assert 410 == 200
+FAILED backend/tests/test_api_v1.py::test_sr_games_missing_api_key - assert 4...
+FAILED backend/tests/test_api_v1.py::test_sr_games_malformed_response - asser...
+FAILED backend/tests/test_api_v1.py::test_sr_games_api_error - assert 410 == 502
+FAILED backend/tests/test_api_v1.py::test_sr_games_timeout_error - assert 410...
+!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 10 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+10 failed, 22 passed, 56 warnings in 19.92s

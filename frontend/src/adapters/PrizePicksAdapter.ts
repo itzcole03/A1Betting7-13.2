@@ -3,7 +3,7 @@ import {
   PrizePicksLeague,
   PrizePicksPlayer,
   PrizePicksProjection,
-} from '@/types/prizePicksUnified';
+} from '../types/prizePicksUnified';
 import {
   PrizePicksAPI,
   PrizePicksAPIResponse,
@@ -110,34 +110,45 @@ export class PrizePicksAdapter {
     }
 
     const projections: PrizePicksProjection[] = apiResponse.data.map((rawProj: any) => {
-      const playerId = rawProj.relationships?.new_player?.data?.id || '';
-      const playerDetail = includedPlayersMap.get(playerId);
+      const playerId: string = rawProj.relationships?.new_player?.data?.id || '';
+      let playerDetail: PrizePicksPlayer;
+      const fallbackPlayer: PrizePicksPlayer = {
+        id: playerId,
+        name: 'Unknown Player',
+        team: 'Unknown Team',
+        position: 'Unknown',
+        image_url: '',
+        league: '',
+        sport: '',
+      };
+      playerDetail = includedPlayersMap.get(playerId) || fallbackPlayer;
 
       return {
-        id: rawProj.id,
+        id: String(rawProj.id),
         player_id: playerId,
-        playerId: playerId, // Legacy alias
         player: playerDetail,
-        player_name: playerDetail?.name || 'Unknown Player',
-        team: playerDetail?.team || 'Unknown Team',
-        position: playerDetail?.position || 'Unknown',
-        league: 'Unknown League',
-        sport: 'Unknown Sport',
-        stat_type: rawProj.attributes.stat_type,
-        statType: rawProj.attributes.stat_type, // Legacy alias
-        line_score: rawProj.attributes.line_score,
-        line: rawProj.attributes.line_score, // Legacy alias
-        over_odds: 1.0, // Default value
-        under_odds: 1.0, // Default value
-        description: rawProj.attributes.description,
-        start_time: rawProj.attributes.start_time,
-        startTime: rawProj.attributes.start_time, // Legacy alias
-        // Required fields from PrizePicksProjection interface
-        status: rawProj.attributes.status || 'active',
-        rank: rawProj.attributes.rank || 0,
-        is_promo: rawProj.attributes.is_promo || false,
-        confidence: rawProj.attributes.confidence || 0.5,
-        market_efficiency: rawProj.attributes.market_efficiency || 0.5,
+        player_name: playerDetail.name,
+        team: playerDetail.team,
+        position: playerDetail.position,
+        league: playerDetail.league || 'Unknown League',
+        sport: playerDetail.sport || 'Unknown Sport',
+        stat_type: String(rawProj.attributes.stat_type),
+        line_score: Number(rawProj.attributes.line_score),
+        over_odds:
+          typeof rawProj.attributes.over_odds === 'number' ? rawProj.attributes.over_odds : 1.0,
+        under_odds:
+          typeof rawProj.attributes.under_odds === 'number' ? rawProj.attributes.under_odds : 1.0,
+        description: String(rawProj.attributes.description || ''),
+        start_time: String(rawProj.attributes.start_time),
+        status: String(rawProj.attributes.status || 'active'),
+        rank: Number(rawProj.attributes.rank || 0),
+        is_promo: Boolean(rawProj.attributes.is_promo),
+        confidence:
+          typeof rawProj.attributes.confidence === 'number' ? rawProj.attributes.confidence : 0.5,
+        market_efficiency:
+          typeof rawProj.attributes.market_efficiency === 'number'
+            ? rawProj.attributes.market_efficiency
+            : 0.5,
       };
     });
 

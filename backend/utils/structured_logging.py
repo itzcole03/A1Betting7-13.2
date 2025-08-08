@@ -259,6 +259,10 @@ def get_logger(name: str) -> StructuredLogger:
 
 # Performance monitoring logger
 class PerformanceLogger:
+    def info(self, message: str, **kwargs):
+        """Log info message (generic)"""
+        self.logger.info(message, **kwargs)
+
     """Specialized logger for performance metrics"""
 
     def __init__(self):

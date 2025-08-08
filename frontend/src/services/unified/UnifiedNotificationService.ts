@@ -32,22 +32,19 @@ export class UnifiedNotificationService extends BaseService {
 
   constructor(registry: UnifiedServiceRegistry) {
     super('notification', registry);
-    // Stub undefined variables
-    const _errorService = {} as unknown;
-    const _stateService = {
-      setState: (state: unknown) => {},
-      getState: () => ({ notifications: [], settings: { sound: false } }),
-    } as unknown;
+    // Retrieve real services from the registry
+    const errorService = registry.getService<UnifiedErrorService>('errors');
+    const stateService = registry.getService<UnifiedStateService>('state');
     if (!errorService || !stateService) {
       throw new Error('Required services not found in registry');
     }
-    this.errorService = errorService as unknown as UnifiedErrorService;
-    this.stateService = stateService as unknown as UnifiedStateService;
+    this.errorService = errorService;
+    this.stateService = stateService;
   }
 
   notifyUser(
     notification: Omit<Notification, 'id' | 'timestamp' | 'read'>,
-    options: NotificationOptions = {} as unknown
+    options: NotificationOptions = {}
   ): void {
     try {
       const _newNotification: Notification = {
@@ -57,25 +54,26 @@ export class UnifiedNotificationService extends BaseService {
         read: false,
       };
       // Add to state;
-      const _currentNotifications: Notification[] = [];
-      const _updatedNotifications = [newNotification, ...currentNotifications].slice(
+      const _currentNotifications =
+        (this.stateService.getState() as { notifications: Notification[] }).notifications || [];
+      const _updatedNotifications = [_newNotification, ..._currentNotifications].slice(
         0,
         this.maxNotifications
       );
-      this.stateService.setState({ notifications: updatedNotifications });
+      this.stateService.setState({ notifications: _updatedNotifications });
       // Play sound if enabled;
-      if (options.sound && this.stateService.getState().settings.sound) {
+      const state = this.stateService.getState() as { settings: { sound: boolean } };
+      if (options.sound && state.settings && state.settings.sound) {
         this.playNotificationSound(notification.type);
       }
       // Auto-dismiss if duration is specified;
       if (options.duration !== 0) {
         setTimeout(() => {
-          this.dismissNotification(newNotification.id);
+          this.dismissNotification(_newNotification.id);
         }, options.duration || this.defaultDuration);
       }
     } catch (error) {
-      // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
-      this.errorService.handleError(error, {
+      this.errorService.reportError(error as Error, {
         code: 'NOTIFICATION_ERROR',
         source: 'UnifiedNotificationService',
         details: { method: 'notifyUser', notification, options },
@@ -85,14 +83,14 @@ export class UnifiedNotificationService extends BaseService {
 
   dismissNotification(notificationId: string): void {
     try {
-      const _currentNotifications: Notification[] = [];
-      const _updatedNotifications = currentNotifications.filter(
-        notification => notification.id !== notificationId
+      const _currentNotifications =
+        (this.stateService.getState() as { notifications: Notification[] }).notifications || [];
+      const _updatedNotifications = _currentNotifications.filter(
+        (notification: Notification) => notification.id !== notificationId
       );
-      this.stateService.setState({ notifications: updatedNotifications });
+      this.stateService.setState({ notifications: _updatedNotifications });
     } catch (error) {
-      // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
-      this.errorService.handleError(error, {
+      this.errorService.reportError(error as Error, {
         code: 'NOTIFICATION_ERROR',
         source: 'UnifiedNotificationService',
         details: { method: 'dismissNotification', notificationId },
@@ -102,14 +100,14 @@ export class UnifiedNotificationService extends BaseService {
 
   markAsRead(notificationId: string): void {
     try {
-      const _currentNotifications: Notification[] = [];
-      const _updatedNotifications = currentNotifications.map(notification =>
+      const _currentNotifications =
+        (this.stateService.getState() as { notifications: Notification[] }).notifications || [];
+      const _updatedNotifications = _currentNotifications.map((notification: Notification) =>
         notification.id === notificationId ? { ...notification, read: true } : notification
       );
-      this.stateService.setState({ notifications: updatedNotifications });
+      this.stateService.setState({ notifications: _updatedNotifications });
     } catch (error) {
-      // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
-      this.errorService.handleError(error, {
+      this.errorService.reportError(error as Error, {
         code: 'NOTIFICATION_ERROR',
         source: 'UnifiedNotificationService',
         details: { method: 'markAsRead', notificationId },
@@ -132,11 +130,11 @@ export class UnifiedNotificationService extends BaseService {
 
   getUnreadCount(): number {
     try {
-      return this.stateService.getState().notifications.filter((notification: unknown) => !notification.read)
-        .length;
+      const notifications =
+        (this.stateService.getState() as { notifications: Notification[] }).notifications || [];
+      return notifications.filter((notification: Notification) => !notification.read).length;
     } catch (error) {
-      // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
-      this.errorService.handleError(error, {
+      this.errorService.reportError(error as Error, {
         code: 'NOTIFICATION_ERROR',
         source: 'UnifiedNotificationService',
         details: { method: 'getUnreadCount' },
@@ -151,31 +149,29 @@ export class UnifiedNotificationService extends BaseService {
 
   private playNotificationSound(type: Notification['type']): void {
     try {
-      const _audio = { src: '', play: async () => {} } as unknown;
+      const _audio = new Audio();
       switch (type) {
         case 'success':
-          audio.src = '/sounds/success.mp3';
+          _audio.src = '/sounds/success.mp3';
           break;
         case 'error':
-          audio.src = '/sounds/error.mp3';
+          _audio.src = '/sounds/error.mp3';
           break;
         case 'warning':
-          audio.src = '/sounds/warning.mp3';
+          _audio.src = '/sounds/warning.mp3';
           break;
         default:
-          audio.src = '/sounds/info.mp3';
+          _audio.src = '/sounds/info.mp3';
       }
-      audio.play().catch((error: unknown) => {
-        // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
-        this.errorService.handleError(error, {
+      _audio.play().catch((error: unknown) => {
+        this.errorService.reportError(error as Error, {
           code: 'NOTIFICATION_ERROR',
           source: 'UnifiedNotificationService',
           details: { method: 'playNotificationSound', type },
         });
       });
     } catch (error) {
-      // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
-      this.errorService.handleError(error, {
+      this.errorService.reportError(error as Error, {
         code: 'NOTIFICATION_ERROR',
         source: 'UnifiedNotificationService',
         details: { method: 'playNotificationSound', type },
@@ -194,6 +190,6 @@ export class UnifiedNotificationService extends BaseService {
     // Stub undefined logger
     const _logger = { info: (...args: unknown[]) => {} };
     // Log notification;
-    logger.info(`Notification [${type}]: ${message}`);
+    _logger.info(`Notification [${type}]: ${message}`);
   }
 }

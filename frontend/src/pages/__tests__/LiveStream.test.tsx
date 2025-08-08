@@ -4,7 +4,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
-// import React from 'react'; // This line is already present
+import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { _AppProvider } from '../../contexts/AppContext';
 import { _ThemeProvider } from '../../contexts/ThemeContext';

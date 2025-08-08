@@ -1,12 +1,67 @@
 import EventEmitter from 'eventemitter3';
 
 // Use local stubs for types if imports are missing
-type BetRecord = unknown;
-type ClvAnalysis = unknown;
-type BettingContext = unknown;
-type BettingDecision = unknown;
-type PerformanceMetrics = unknown;
-type PredictionResult = unknown;
+
+// Explicit interfaces for type safety
+interface BetRecord {
+  outcome: 'won' | 'lost' | 'push';
+  amount: number;
+}
+
+interface ClvAnalysis {
+  clvValue: number;
+  edgeRetention: number;
+  marketEfficiency: number;
+}
+
+interface BettingContext {
+  [key: string]: any;
+}
+
+interface PredictionResult {
+  id: string;
+  timestamp: number;
+  data: { predictedValue: number };
+  confidence: number;
+  analysis: any[];
+  strategy: {
+    strategy: string;
+    parameters: Record<string, any>;
+    expectedValue: number;
+    riskScore: number;
+    recommendations: any[];
+  };
+  metadata: {
+    duration: number;
+    features: any[];
+    dataSources: any[];
+    analysisPlugins: any[];
+    strategy: string;
+  };
+}
+
+interface BettingDecision {
+  recommendation: string;
+  confidence: number;
+  stake: number;
+  expectedValue: number;
+  reasoning: string[];
+}
+
+interface PerformanceMetrics {
+  clvAverage: number;
+  edgeRetention: number;
+  kellyMultiplier: number;
+  marketEfficiencyScore: number;
+  profitByStrategy: Record<string, any>;
+  variance: number;
+  sharpeRatio: number;
+  averageClv: number;
+  sharpnessScore: number;
+  totalBets: number;
+  winRate: number;
+  roi: number;
+}
 
 export class UnifiedBettingCore extends EventEmitter {
   private static instance: UnifiedBettingCore;
@@ -56,15 +111,15 @@ export class UnifiedBettingCore extends EventEmitter {
   public async analyzeBettingOpportunity(context: BettingContext): Promise<BettingDecision> {
     try {
       // Check cache first;
-      const _cacheKey = JSON.stringify(context);
-      let _prediction = this.predictionCache.get(cacheKey);
+      const cacheKey: string = JSON.stringify(context);
+      let prediction: PredictionResult | undefined = this.predictionCache.get(cacheKey);
 
       if (!prediction || Date.now() - prediction.timestamp > 300000) {
         prediction = await this.generatePrediction(context);
         this.predictionCache.set(cacheKey, prediction);
       }
 
-      const _decision = this.generateDecision(prediction, context);
+      const decision: BettingDecision = this.generateDecision(prediction, context);
       this.emit('newDecision', decision);
       return decision;
     } catch (error) {
@@ -99,7 +154,7 @@ export class UnifiedBettingCore extends EventEmitter {
   }
 
   private generateDecision(prediction: PredictionResult, context: BettingContext): BettingDecision {
-    const _decision: BettingDecision = {
+    const decision: BettingDecision = {
       recommendation: 'pass',
       confidence: prediction.confidence,
       stake: this.calculateStake(prediction),
@@ -111,7 +166,7 @@ export class UnifiedBettingCore extends EventEmitter {
   }
 
   private calculateStake(prediction: PredictionResult): number {
-    const _kellyStake = this.calculateKellyStake(prediction);
+    const kellyStake: number = this.calculateKellyStake(prediction);
     return Math.min(
       kellyStake * this.strategyConfig.bankrollPercentage,
       this.strategyConfig.maxRiskPerBet
@@ -120,13 +175,19 @@ export class UnifiedBettingCore extends EventEmitter {
 
   private calculateKellyStake(prediction: PredictionResult): number {
     // Implement Kelly Criterion calculation;
-    return 0;
+    // Assume predictedValue is probability, and expectedValue is payout odds
+    const p = prediction.data.predictedValue || 0;
+    const b = prediction.strategy.expectedValue || 0;
+    const q = 1 - p;
+    // Kelly formula: f* = (bp - q)/b
+    const kelly = b > 0 ? (b * p - q) / b : 0;
+    return Math.max(0, Math.min(kelly, this.strategyConfig.maxRiskPerBet));
   }
 
   public calculatePerformanceMetrics(bettingHistory: BetRecord[]): PerformanceMetrics {
     if (!bettingHistory.length) return this.performanceMetrics;
 
-    const _metrics = {
+    const metrics: PerformanceMetrics = {
       ...this.initializeMetrics(),
       totalBets: bettingHistory.length,
       winRate: this.calculateWinRate(bettingHistory),
@@ -149,16 +210,16 @@ export class UnifiedBettingCore extends EventEmitter {
   }
 
   private calculateWinRate(bets: BetRecord[]): number {
-    const _wins = bets.filter((b: unknown) => b.outcome === 'won').length;
+    const wins: number = bets.filter((b: BetRecord) => b.outcome === 'won').length;
     return (wins / bets.length) * 100;
   }
 
   private calculateROI(bets: BetRecord[]): number {
-    const _totalProfit = bets.reduce(
-      (sum: number, b: unknown) => sum + (b.outcome === 'won' ? b.amount : -b.amount),
+    const totalProfit: number = bets.reduce(
+      (sum: number, b: BetRecord) => sum + (b.outcome === 'won' ? b.amount : -b.amount),
       0
     );
-    const _totalStake = bets.reduce((sum: number, b: unknown) => sum + b.amount, 0);
+    const totalStake: number = bets.reduce((sum: number, b: BetRecord) => sum + b.amount, 0);
     return totalStake ? (totalProfit / totalStake) * 100 : 0;
   }
 

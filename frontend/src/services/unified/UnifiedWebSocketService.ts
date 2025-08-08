@@ -348,9 +348,12 @@ export class UnifiedWebSocketService extends BaseService {
   private getWebSocketUrl(): string {
     // Always use backend port, never frontend's own port
     // Build WebSocket URL from environment variables for best practice
-    const _host = import.meta.env.VITE_API_HOST || 'localhost';
-    const _port = import.meta.env.VITE_API_PORT || '8000';
-    return import.meta.env.VITE_WS_URL || `ws://${host}:${port}/ws`;
+    // Use getEnvVar for robust env access
+    // @ts-ignore
+    const { getEnvVar } = require('../../utils/getEnvVar');
+    const _host = getEnvVar('VITE_API_HOST', 'localhost');
+    const _port = getEnvVar('VITE_API_PORT', '8000');
+    return getEnvVar('VITE_WS_URL', `ws://${_host}:${_port}/ws`);
   }
 
   // Utility methods for common message types

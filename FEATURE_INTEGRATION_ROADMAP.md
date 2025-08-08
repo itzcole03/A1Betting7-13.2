@@ -71,13 +71,27 @@ The platform has been successfully transformed into a professional desktop appli
 
 #### **✅ MLB Real Data Integration (2025-07-28)**
 
-- [✅] MLB ETL pipeline implemented (`mlb_provider_client.py`, `etl_mlb.py`)
-- [✅] MLB feature engineering pipeline (`mlb_feature_engineering.py`)
-- [✅] MLB-specific model training and evaluation via unified model service
-- [✅] MLB predictions exposed via API and frontend
-- [✅] Lessons learned: Modular, sport-by-sport validation is robust and scalable
+## Unified Service Migration & Backend Refactor (2025-08-07)
 
-#### **� PENDING - Real Data Integration (Other Sports)**
+### Backend Unified Service Migration (2025-08-07)
+
+- All legacy backend data and cache references in ML pipeline refactored to use `unified_data_fetcher` and `unified_cache_service`.
+- Deprecated imports and direct Redis usage eliminated for maintainability and performance.
+- Constructor, factory, and monitoring logic migrated to unified APIs for consistency.
+- No missing backend functionality or architectural blockers detected post-migration.
+- Legacy code blocks retained only where required for backwards compatibility, with rationale documented in module docstrings.
+
+#### Rationale
+
+- Ensures maintainability, testability, and future extensibility.
+- Aligns with A1Betting7-13.2 architectural standards and modernization roadmap.
+- Unified error handling and logging for robust diagnostics and traceability.
+
+#### Next Steps
+
+- Expand Pytest coverage for new/refactored pipeline stages.
+- Update documentation and test rationale in `TEST_COVERAGE.md`.
+- Remove/document any remaining legacy code blocks.
 
 - [❌] Replace mock data with actual sportsbook API calls (other sports)
 - [❌] Integrate real sports data APIs (ESPN, The Odds API, SportsRadar) (other sports)

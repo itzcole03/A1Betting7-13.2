@@ -1,6 +1,6 @@
 // Unified Jest Configuration - consolidates all test setups
 module.exports = {
-  setupFiles: ['<rootDir>/jest.polyfill.textencoder.js'],
+  setupFiles: ['<rootDir>/jest.polyfill.textencoder.js', '<rootDir>/jest.env.mock.js'],
   testEnvironmentOptions: {
     customExportConditions: [''],
     url: 'http://localhost',
@@ -13,7 +13,7 @@ module.exports = {
   testEnvironment: 'jest-fixed-jsdom',
 
   // Unified setup files
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.dom.setup.js'],
 
   // File extensions
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'],
@@ -22,6 +22,11 @@ module.exports = {
   transform: {
     '^.+\\.[tj]sx?$': 'babel-jest',
   },
+
+  // Transform ESM modules in node_modules (React 19, @testing-library/react, etc)
+  transformIgnorePatterns: [
+    '/node_modules/(?!(react|react-dom|@testing-library|@tanstack|lucide-react|framer-motion|recharts|zustand)/)',
+  ],
 
   // Test file patterns
   testMatch: [

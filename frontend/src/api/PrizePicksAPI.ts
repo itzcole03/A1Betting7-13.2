@@ -1,4 +1,4 @@
-import { EventBus } from '@/core/EventBus';
+import { EventBus } from '../core/EventBus';
 import {
   PrizePicksAPIResponse,
   PrizePicksIncludedResource,
@@ -6,9 +6,9 @@ import {
   RawPrizePicksIncludedPlayer,
   RawPrizePicksIncludedStatType,
   RawPrizePicksProjection,
-} from '@/types/prizePicksUnified';
+} from '../types/prizePicksUnified';
 
-const _API_BASE_URL = 'https://api.prizepicks.com';
+const API_BASE_URL = 'https://api.prizepicks.com';
 
 export interface PrizePicksAPIConfig {
   apiKey?: string;
@@ -42,13 +42,13 @@ export class PrizePicksAPI {
     additionalHeaders?: Record<string, string>,
     params?: Record<string, string>
   ): Promise<T> {
-    const _url = new URL(endpoint, this.baseUrl);
+    const url = new URL(endpoint, this.baseUrl);
 
     if (params) {
       Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
     }
 
-    const _headers: HeadersInit = {
+    const headers: HeadersInit = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
       ...additionalHeaders,
@@ -58,7 +58,7 @@ export class PrizePicksAPI {
       headers['X-Api-Key'] = this.apiKey;
     }
 
-    const _configInit: RequestInit = {
+    const configInit: RequestInit = {
       method,
       headers,
     };
@@ -67,10 +67,10 @@ export class PrizePicksAPI {
       configInit.body = JSON.stringify(body);
     }
 
-    const _response = await fetch(url.toString(), configInit);
+    const response = await fetch(url.toString(), configInit);
 
     if (!response.ok) {
-      const _errorBody = await response.text();
+      const errorBody = await response.text();
       throw new Error(
         `PrizePicks API request failed to ${endpoint}: ${response.status} ${response.statusText} - ${errorBody}`
       );
@@ -81,7 +81,7 @@ export class PrizePicksAPI {
       return null as T;
     }
 
-    const _responseData = await response.json();
+    const responseData = await response.json();
     return responseData as T;
   }
 
@@ -89,8 +89,8 @@ export class PrizePicksAPI {
     leagueId?: string,
     queryParams: Record<string, string> = {}
   ): Promise<PrizePicksAPIResponse<RawPrizePicksProjection>> {
-    const _endpoint = '/projections';
-    const _params: Record<string, string> = { single_stat: 'true', ...queryParams };
+    const endpoint = '/projections';
+    const params: Record<string, string> = { single_stat: 'true', ...queryParams };
 
     if (leagueId) {
       params['league_id'] = leagueId;
@@ -111,26 +111,22 @@ export class PrizePicksAPI {
   public async fetchProjectionById(
     projectionId: string
   ): Promise<PrizePicksAPIResponse<RawPrizePicksProjection>> {
-    const _endpoint = `/projections/${projectionId}`;
-
+    const endpoint = `/projections/${projectionId}`;
     return this.request<PrizePicksAPIResponse<RawPrizePicksProjection>>(endpoint);
   }
 
   public async fetchLeagues(): Promise<PrizePicksAPIResponse<RawPrizePicksIncludedLeague>> {
-    const _endpoint = '/leagues';
-
+    const endpoint = '/leagues';
     return this.request<PrizePicksAPIResponse<RawPrizePicksIncludedLeague>>(endpoint);
   }
 
   public async fetchStatTypes(): Promise<PrizePicksAPIResponse<RawPrizePicksIncludedStatType>> {
-    const _endpoint = '/stat_types';
-
+    const endpoint = '/stat_types';
     return this.request<PrizePicksAPIResponse<RawPrizePicksIncludedStatType>>(endpoint);
   }
 
   public async fetchPlayerById(playerId: string): Promise<{ data: RawPrizePicksIncludedPlayer }> {
-    const _endpoint = `/players/${playerId}`;
-
+    const endpoint = `/players/${playerId}`;
     return this.request<{ data: RawPrizePicksIncludedPlayer }>(endpoint);
   }
 

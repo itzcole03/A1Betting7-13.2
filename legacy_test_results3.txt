@@ -1,0 +1,685 @@
+...........................FF.FFFFFFFFFFFEFEFEFE
+=================================== ERRORS ====================================
+_ ERROR at teardown of TestBackgroundTaskManagerStability.test_asyncio_coroutine_fix_validation _
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002A305F23610>
+
+    @pytest.fixture
+    async def task_manager(self):
+        """Create a fresh task manager instance for testing"""
+        manager = BackgroundTaskManager()
+        yield manager
+        # Cleanup
+>       await manager.shutdown()
+              ^^^^^^^^^^^^^^^^
+E       AttributeError: 'BackgroundTaskManager' object has no attribute 'shutdown'
+
+backend\tests\test_background_task_stability.py:32: AttributeError
+_ ERROR at teardown of TestBackgroundTaskManagerStability.test_concurrent_task_processing_stability _
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002A305FBC910>
+
+    @pytest.fixture
+    async def task_manager(self):
+        """Create a fresh task manager instance for testing"""
+        manager = BackgroundTaskManager()
+        yield manager
+        # Cleanup
+>       await manager.shutdown()
+              ^^^^^^^^^^^^^^^^
+E       AttributeError: 'BackgroundTaskManager' object has no attribute 'shutdown'
+
+backend\tests\test_background_task_stability.py:32: AttributeError
+_ ERROR at teardown of TestBackgroundTaskManagerStability.test_task_priority_ordering_validation _
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002A305E210F0>
+
+    @pytest.fixture
+    async def task_manager(self):
+        """Create a fresh task manager instance for testing"""
+        manager = BackgroundTaskManager()
+        yield manager
+        # Cleanup
+>       await manager.shutdown()
+              ^^^^^^^^^^^^^^^^
+E       AttributeError: 'BackgroundTaskManager' object has no attribute 'shutdown'
+
+backend\tests\test_background_task_stability.py:32: AttributeError
+_ ERROR at teardown of TestBackgroundTaskManagerStability.test_error_recovery_and_logging _
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002A305E229E0>
+
+    @pytest.fixture
+    async def task_manager(self):
+        """Create a fresh task manager instance for testing"""
+        manager = BackgroundTaskManager()
+        yield manager
+        # Cleanup
+>       await manager.shutdown()
+              ^^^^^^^^^^^^^^^^
+E       AttributeError: 'BackgroundTaskManager' object has no attribute 'shutdown'
+
+backend\tests\test_background_task_stability.py:32: AttributeError
+================================== FAILURES ===================================
+____________________________ test_sr_games_success ____________________________
+
+mock_get = <AsyncMock name='get' id='2899224909472'>
+
+    @patch("httpx.AsyncClient.get")
+    def test_sr_games_success(mock_get: MagicMock):
+        from unittest.mock import MagicMock
+    
+        # Use dependency override for config
+        mock_config = MagicMock()
+        mock_config.sportradar_api_key = "test_key"
+        app.dependency_overrides[get_config] = lambda: mock_config
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "games": [
+                {
+                    "id": "game1",
+                    "league": "NBA",
+                    "home": {"id": "h1", "name": "Home"},
+                    "away": {"id": "a1", "name": "Away"},
+                    "scheduled": "2025-07-14T12:00:00",
+                    "status": "scheduled",
+                }
+            ]
+        }
+        mock_get.return_value = mock_response
+        response = client.get("/api/v1/sr/games?sport=basketball_nba")
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+>       assert data[0]["id"] == "game1"
+               ^^^^^^^
+E       IndexError: list index out of range
+
+backend\tests\test_api_v1.py:111: IndexError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:47:58,859 - request - INFO - {"event": "request_start", "timestamp": 1754509678.85972, "correlation_id": "3a009ea9-3089-414e-9f85-e29490e1a132", "method": "GET", "path": "/api/v1/sr/games", "query_params": {"sport": "basketball_nba"}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:47:58,860 - request - INFO - {"event": "request_complete", "timestamp": 1754509678.8602004, "correlation_id": "3a009ea9-3089-414e-9f85-e29490e1a132", "method": "GET", "path": "/api/v1/sr/games", "status_code": 200, "process_time_ms": 0.48, "response_headers": {"content-length": "2", "content-type": "application/json", "x-correlation-id": "1dcf0c91-93b5-44a7-b2f2-88a9c523cf9e", "x-process-time": "0.17ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:47:58,860 - compression - INFO - Not compressing /api/v1/sr/games. Headers: {'content-length': '2', 'content-type': 'application/json', 'x-correlation-id': '1dcf0c91-93b5-44a7-b2f2-88a9c523cf9e', 'x-process-time': '0.17ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.68ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:47:58,860 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/sr/games
+------------------------------ Captured log call ------------------------------
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509678.85972, "correlation_id": "3a009ea9-3089-414e-9f85-e29490e1a132", "method": "GET", "path": "/api/v1/sr/games", "query_params": {"sport": "basketball_nba"}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+INFO     request:comprehensive_middleware.py:287 {"event": "request_complete", "timestamp": 1754509678.8602004, "correlation_id": "3a009ea9-3089-414e-9f85-e29490e1a132", "method": "GET", "path": "/api/v1/sr/games", "status_code": 200, "process_time_ms": 0.48, "response_headers": {"content-length": "2", "content-type": "application/json", "x-correlation-id": "1dcf0c91-93b5-44a7-b2f2-88a9c523cf9e", "x-process-time": "0.17ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/v1/sr/games. Headers: {'content-length': '2', 'content-type': 'application/json', 'x-correlation-id': '1dcf0c91-93b5-44a7-b2f2-88a9c523cf9e', 'x-process-time': '0.17ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.68ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/sr/games
+________________________ test_sr_games_missing_api_key ________________________
+
+    def test_sr_games_missing_api_key():
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.sportradar_api_key = None
+        app.dependency_overrides[get_config] = lambda: mock_config
+        """
+        Test /api/v1/sr/games with missing API key (should return 503).
+        """
+        mock_config.sportradar_api_key = None
+        response = client.get("/api/v1/sr/games?sport=basketball_nba")
+>       assert response.status_code == 503
+E       assert 200 == 503
+E        +  where 200 = <Response [200 OK]>.status_code
+
+backend\tests\test_api_v1.py:125: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:47:59,154 - backend.services.rate_limiting_service - ERROR - Rate limiting error for ip:testclient: Event loop is closed
+2025-08-06 14:47:59,155 - request - INFO - {"event": "request_start", "timestamp": 1754509679.1551836, "correlation_id": "c96b315e-7f43-4492-b93f-2dfb22a279cb", "method": "GET", "path": "/api/v1/sr/games", "query_params": {"sport": "basketball_nba"}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:47:59,155 - request - INFO - {"event": "request_complete", "timestamp": 1754509679.155502, "correlation_id": "c96b315e-7f43-4492-b93f-2dfb22a279cb", "method": "GET", "path": "/api/v1/sr/games", "status_code": 200, "process_time_ms": 0.32, "response_headers": {"content-length": "2", "content-type": "application/json", "x-correlation-id": "50d8dafb-ba72-4f29-8a0b-e06d008b42ca", "x-process-time": "0.13ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:47:59,155 - compression - INFO - Not compressing /api/v1/sr/games. Headers: {'content-length': '2', 'content-type': 'application/json', 'x-correlation-id': '50d8dafb-ba72-4f29-8a0b-e06d008b42ca', 'x-process-time': '0.13ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.48ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:47:59,155 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/sr/games
+------------------------------ Captured log call ------------------------------
+ERROR    backend.services.rate_limiting_service:rate_limiting_service.py:157 Rate limiting error for ip:testclient: Event loop is closed
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509679.1551836, "correlation_id": "c96b315e-7f43-4492-b93f-2dfb22a279cb", "method": "GET", "path": "/api/v1/sr/games", "query_params": {"sport": "basketball_nba"}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+INFO     request:comprehensive_middleware.py:287 {"event": "request_complete", "timestamp": 1754509679.155502, "correlation_id": "c96b315e-7f43-4492-b93f-2dfb22a279cb", "method": "GET", "path": "/api/v1/sr/games", "status_code": 200, "process_time_ms": 0.32, "response_headers": {"content-length": "2", "content-type": "application/json", "x-correlation-id": "50d8dafb-ba72-4f29-8a0b-e06d008b42ca", "x-process-time": "0.13ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/v1/sr/games. Headers: {'content-length': '2', 'content-type': 'application/json', 'x-correlation-id': '50d8dafb-ba72-4f29-8a0b-e06d008b42ca', 'x-process-time': '0.13ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.48ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/sr/games
+___________________________ test_sr_games_api_error ___________________________
+
+mock_get = <AsyncMock name='get' id='2899225269248'>
+
+    @patch("httpx.AsyncClient.get")
+    def test_sr_games_api_error(mock_get: MagicMock):
+        """
+        Test /api/v1/sr/games with API error (non-200 status).
+        """
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.sportradar_api_key = "test_key"
+        app.dependency_overrides[get_config] = lambda: mock_config
+        mock_response = MagicMock()
+        mock_response.status_code = 403
+        mock_response.text = "Forbidden"
+        mock_get.return_value = mock_response
+        response = client.get("/api/v1/sr/games?sport=basketball_nba")
+>       assert response.status_code == 502
+E       assert 200 == 502
+E        +  where 200 = <Response [200 OK]>.status_code
+
+backend\tests\test_api_v1.py:164: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:48:01,222 - backend.services.rate_limiting_service - ERROR - Rate limiting error for ip:testclient: Event loop is closed
+2025-08-06 14:48:01,222 - request - INFO - {"event": "request_start", "timestamp": 1754509681.2229035, "correlation_id": "2e65b657-22ef-4390-8b0f-e18ab3d00508", "method": "GET", "path": "/api/v1/sr/games", "query_params": {"sport": "basketball_nba"}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:48:01,223 - request - INFO - {"event": "request_complete", "timestamp": 1754509681.2231927, "correlation_id": "2e65b657-22ef-4390-8b0f-e18ab3d00508", "method": "GET", "path": "/api/v1/sr/games", "status_code": 200, "process_time_ms": 0.29, "response_headers": {"content-length": "2", "content-type": "application/json", "x-correlation-id": "8395c4c1-2bc0-47af-b5b4-874b4eacab72", "x-process-time": "0.14ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:48:01,223 - compression - INFO - Not compressing /api/v1/sr/games. Headers: {'content-length': '2', 'content-type': 'application/json', 'x-correlation-id': '8395c4c1-2bc0-47af-b5b4-874b4eacab72', 'x-process-time': '0.14ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.44ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:48:01,223 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/sr/games
+------------------------------ Captured log call ------------------------------
+ERROR    backend.services.rate_limiting_service:rate_limiting_service.py:157 Rate limiting error for ip:testclient: Event loop is closed
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509681.2229035, "correlation_id": "2e65b657-22ef-4390-8b0f-e18ab3d00508", "method": "GET", "path": "/api/v1/sr/games", "query_params": {"sport": "basketball_nba"}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+INFO     request:comprehensive_middleware.py:287 {"event": "request_complete", "timestamp": 1754509681.2231927, "correlation_id": "2e65b657-22ef-4390-8b0f-e18ab3d00508", "method": "GET", "path": "/api/v1/sr/games", "status_code": 200, "process_time_ms": 0.29, "response_headers": {"content-length": "2", "content-type": "application/json", "x-correlation-id": "8395c4c1-2bc0-47af-b5b4-874b4eacab72", "x-process-time": "0.14ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/v1/sr/games. Headers: {'content-length': '2', 'content-type': 'application/json', 'x-correlation-id': '8395c4c1-2bc0-47af-b5b4-874b4eacab72', 'x-process-time': '0.14ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.44ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/sr/games
+_________________________ test_sr_games_timeout_error _________________________
+
+mock_get = <AsyncMock name='get' id='2899225268240'>
+
+    @patch("httpx.AsyncClient.get")
+    def test_sr_games_timeout_error(mock_get: MagicMock):
+        """
+        Test /api/v1/sr/games with httpx timeout/network error.
+        """
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.sportradar_api_key = "test_key"
+        app.dependency_overrides[get_config] = lambda: mock_config
+        mock_get.side_effect = httpx.TimeoutException("Timeout occurred")
+        response = client.get("/api/v1/sr/games?sport=basketball_nba")
+>       assert response.status_code == 500
+E       assert 200 == 500
+E        +  where 200 = <Response [200 OK]>.status_code
+
+backend\tests\test_api_v1.py:183: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:48:03,280 - request - INFO - {"event": "request_start", "timestamp": 1754509683.2800498, "correlation_id": "b8b274ba-1a8d-4a4c-9625-127224d0def5", "method": "GET", "path": "/api/v1/sr/games", "query_params": {"sport": "basketball_nba"}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:48:03,280 - request - INFO - {"event": "request_complete", "timestamp": 1754509683.280589, "correlation_id": "b8b274ba-1a8d-4a4c-9625-127224d0def5", "method": "GET", "path": "/api/v1/sr/games", "status_code": 200, "process_time_ms": 0.54, "response_headers": {"content-length": "2", "content-type": "application/json", "x-correlation-id": "ee198876-b4e0-46c8-b9c4-6fdd96f16afd", "x-process-time": "0.17ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:48:03,280 - compression - INFO - Not compressing /api/v1/sr/games. Headers: {'content-length': '2', 'content-type': 'application/json', 'x-correlation-id': 'ee198876-b4e0-46c8-b9c4-6fdd96f16afd', 'x-process-time': '0.17ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.74ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:48:03,281 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/sr/games
+------------------------------ Captured log call ------------------------------
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509683.2800498, "correlation_id": "b8b274ba-1a8d-4a4c-9625-127224d0def5", "method": "GET", "path": "/api/v1/sr/games", "query_params": {"sport": "basketball_nba"}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+INFO     request:comprehensive_middleware.py:287 {"event": "request_complete", "timestamp": 1754509683.280589, "correlation_id": "b8b274ba-1a8d-4a4c-9625-127224d0def5", "method": "GET", "path": "/api/v1/sr/games", "status_code": 200, "process_time_ms": 0.54, "response_headers": {"content-length": "2", "content-type": "application/json", "x-correlation-id": "ee198876-b4e0-46c8-b9c4-6fdd96f16afd", "x-process-time": "0.17ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/v1/sr/games. Headers: {'content-length': '2', 'content-type': 'application/json', 'x-correlation-id': 'ee198876-b4e0-46c8-b9c4-6fdd96f16afd', 'x-process-time': '0.17ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.74ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/sr/games
+____________________ test_sr_games_unexpected_nested_keys _____________________
+
+mock_get = <AsyncMock name='get' id='2899225269584'>
+
+    @patch("httpx.AsyncClient.get")
+    def test_sr_games_unexpected_nested_keys(mock_get: MagicMock):
+        """
+        Test /api/v1/sr/games with unexpected/missing nested keys in API response.
+        """
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.sportradar_api_key = "test_key"
+        app.dependency_overrides[get_config] = lambda: mock_config
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        # Missing 'home', 'away', and 'scheduled' keys
+        mock_response.json.return_value = {
+            "games": [{"id": "game2", "league": "NBA", "status": "scheduled"}]
+        }
+        mock_get.return_value = mock_response
+        response = client.get("/api/v1/sr/games?sport=basketball_nba")
+        assert response.status_code == 200
+        data = response.json()
+>       assert data[0]["id"] == "game2"
+               ^^^^^^^
+E       IndexError: list index out of range
+
+backend\tests\test_api_v1.py:207: IndexError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:48:03,310 - backend.services.rate_limiting_service - ERROR - Rate limiting error for ip:testclient: Event loop is closed
+2025-08-06 14:48:03,310 - request - INFO - {"event": "request_start", "timestamp": 1754509683.3104866, "correlation_id": "91ac632a-47f4-4977-9f1c-6a1ce05b0cf9", "method": "GET", "path": "/api/v1/sr/games", "query_params": {"sport": "basketball_nba"}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:48:03,310 - request - INFO - {"event": "request_complete", "timestamp": 1754509683.310833, "correlation_id": "91ac632a-47f4-4977-9f1c-6a1ce05b0cf9", "method": "GET", "path": "/api/v1/sr/games", "status_code": 200, "process_time_ms": 0.35, "response_headers": {"content-length": "2", "content-type": "application/json", "x-correlation-id": "0fa8ba74-3c8a-48d3-852c-6df61d2bd91e", "x-process-time": "0.15ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:48:03,311 - compression - INFO - Not compressing /api/v1/sr/games. Headers: {'content-length': '2', 'content-type': 'application/json', 'x-correlation-id': '0fa8ba74-3c8a-48d3-852c-6df61d2bd91e', 'x-process-time': '0.15ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.51ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:48:03,311 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/sr/games
+------------------------------ Captured log call ------------------------------
+ERROR    backend.services.rate_limiting_service:rate_limiting_service.py:157 Rate limiting error for ip:testclient: Event loop is closed
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509683.3104866, "correlation_id": "91ac632a-47f4-4977-9f1c-6a1ce05b0cf9", "method": "GET", "path": "/api/v1/sr/games", "query_params": {"sport": "basketball_nba"}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+INFO     request:comprehensive_middleware.py:287 {"event": "request_complete", "timestamp": 1754509683.310833, "correlation_id": "91ac632a-47f4-4977-9f1c-6a1ce05b0cf9", "method": "GET", "path": "/api/v1/sr/games", "status_code": 200, "process_time_ms": 0.35, "response_headers": {"content-length": "2", "content-type": "application/json", "x-correlation-id": "0fa8ba74-3c8a-48d3-852c-6df61d2bd91e", "x-process-time": "0.15ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/v1/sr/games. Headers: {'content-length': '2', 'content-type': 'application/json', 'x-correlation-id': '0fa8ba74-3c8a-48d3-852c-6df61d2bd91e', 'x-process-time': '0.15ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.51ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/sr/games
+______________________________ test_odds_success ______________________________
+
+mock_get = <AsyncMock name='get' id='2899225273616'>
+
+    @patch("httpx.AsyncClient.get")
+    def test_odds_success(mock_get: MagicMock):
+        """
+        Test /api/v1/odds/{event_id} with valid API key and well-formed response.
+        """
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.odds_api_key = "test_key"
+        app.dependency_overrides[get_config] = lambda: mock_config
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [
+            {
+                "id": "event1",
+                "bookmakers": [
+                    {
+                        "title": "Bookie",
+                        "markets": [
+                            {"outcomes": [{"name": "TeamA", "price": 1.5, "point": 10}]}
+                        ],
+                    }
+                ],
+            }
+        ]
+        mock_get.return_value = mock_response
+        response = client.get("/api/v1/odds/event1")
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+backend\tests\test_api_v1.py:243: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:48:05,379 - request - INFO - {"event": "request_start", "timestamp": 1754509685.3792965, "correlation_id": "3cefd599-2fd9-45c9-a432-3d80f6ee5a11", "method": "GET", "path": "/api/v1/odds/event1", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:48:05,379 - request - WARNING - {"event": "request_complete", "timestamp": 1754509685.3798537, "correlation_id": "3cefd599-2fd9-45c9-a432-3d80f6ee5a11", "method": "GET", "path": "/api/v1/odds/event1", "status_code": 404, "process_time_ms": 0.56, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "da333441-f01b-44a7-acea-f54831edcc0f", "x-process-time": "0.26ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:48:05,380 - compression - INFO - Not compressing /api/v1/odds/event1. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': 'da333441-f01b-44a7-acea-f54831edcc0f', 'x-process-time': '0.26ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.73ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:48:05,380 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/odds/event1
+------------------------------ Captured log call ------------------------------
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509685.3792965, "correlation_id": "3cefd599-2fd9-45c9-a432-3d80f6ee5a11", "method": "GET", "path": "/api/v1/odds/event1", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+WARNING  request:comprehensive_middleware.py:285 {"event": "request_complete", "timestamp": 1754509685.3798537, "correlation_id": "3cefd599-2fd9-45c9-a432-3d80f6ee5a11", "method": "GET", "path": "/api/v1/odds/event1", "status_code": 404, "process_time_ms": 0.56, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "da333441-f01b-44a7-acea-f54831edcc0f", "x-process-time": "0.26ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/v1/odds/event1. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': 'da333441-f01b-44a7-acea-f54831edcc0f', 'x-process-time': '0.26ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.73ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/odds/event1
+__________________________ test_odds_missing_api_key __________________________
+
+    def test_odds_missing_api_key():
+        """
+        Test /api/v1/odds/{event_id} with missing API key (should return 503).
+        """
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.odds_api_key = None
+        app.dependency_overrides[get_config] = lambda: mock_config
+        response = client.get("/api/v1/odds/event1")
+>       assert response.status_code == 503
+E       assert 404 == 503
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+backend\tests\test_api_v1.py:259: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:48:05,388 - backend.services.rate_limiting_service - ERROR - Rate limiting error for ip:testclient: Event loop is closed
+2025-08-06 14:48:05,388 - request - INFO - {"event": "request_start", "timestamp": 1754509685.3882947, "correlation_id": "867855f3-194e-433b-a484-05a3c138efac", "method": "GET", "path": "/api/v1/odds/event1", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:48:05,388 - request - WARNING - {"event": "request_complete", "timestamp": 1754509685.388691, "correlation_id": "867855f3-194e-433b-a484-05a3c138efac", "method": "GET", "path": "/api/v1/odds/event1", "status_code": 404, "process_time_ms": 0.4, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "98661c16-4491-4150-a4b8-6cee29cb1f79", "x-process-time": "0.24ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:48:05,388 - compression - INFO - Not compressing /api/v1/odds/event1. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': '98661c16-4491-4150-a4b8-6cee29cb1f79', 'x-process-time': '0.24ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.53ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:48:05,389 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/odds/event1
+------------------------------ Captured log call ------------------------------
+ERROR    backend.services.rate_limiting_service:rate_limiting_service.py:157 Rate limiting error for ip:testclient: Event loop is closed
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509685.3882947, "correlation_id": "867855f3-194e-433b-a484-05a3c138efac", "method": "GET", "path": "/api/v1/odds/event1", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+WARNING  request:comprehensive_middleware.py:285 {"event": "request_complete", "timestamp": 1754509685.388691, "correlation_id": "867855f3-194e-433b-a484-05a3c138efac", "method": "GET", "path": "/api/v1/odds/event1", "status_code": 404, "process_time_ms": 0.4, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "98661c16-4491-4150-a4b8-6cee29cb1f79", "x-process-time": "0.24ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/v1/odds/event1. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': '98661c16-4491-4150-a4b8-6cee29cb1f79', 'x-process-time': '0.24ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.53ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/odds/event1
+________________________ test_odds_malformed_response _________________________
+
+mock_get = <AsyncMock name='get' id='2899225275968'>
+
+    @patch("httpx.AsyncClient.get")
+    def test_odds_malformed_response(mock_get: MagicMock):
+        """
+        Test /api/v1/odds/{event_id} with malformed API response (missing bookmakers).
+        """
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.odds_api_key = "test_key"
+        app.dependency_overrides[get_config] = lambda: mock_config
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [{"id": "event1"}]
+        mock_get.return_value = mock_response
+        response = client.get("/api/v1/odds/event1")
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+backend\tests\test_api_v1.py:278: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:48:07,440 - request - INFO - {"event": "request_start", "timestamp": 1754509687.4400911, "correlation_id": "77e7c355-419e-4e61-9adf-35a3fa434a3c", "method": "GET", "path": "/api/v1/odds/event1", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:48:07,440 - request - WARNING - {"event": "request_complete", "timestamp": 1754509687.4407334, "correlation_id": "77e7c355-419e-4e61-9adf-35a3fa434a3c", "method": "GET", "path": "/api/v1/odds/event1", "status_code": 404, "process_time_ms": 0.64, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "bd0cf7dd-c578-4b44-9ad0-bb9769698b0c", "x-process-time": "0.31ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:48:07,441 - compression - INFO - Not compressing /api/v1/odds/event1. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': 'bd0cf7dd-c578-4b44-9ad0-bb9769698b0c', 'x-process-time': '0.31ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.85ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:48:07,441 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/odds/event1
+------------------------------ Captured log call ------------------------------
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509687.4400911, "correlation_id": "77e7c355-419e-4e61-9adf-35a3fa434a3c", "method": "GET", "path": "/api/v1/odds/event1", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+WARNING  request:comprehensive_middleware.py:285 {"event": "request_complete", "timestamp": 1754509687.4407334, "correlation_id": "77e7c355-419e-4e61-9adf-35a3fa434a3c", "method": "GET", "path": "/api/v1/odds/event1", "status_code": 404, "process_time_ms": 0.64, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "bd0cf7dd-c578-4b44-9ad0-bb9769698b0c", "x-process-time": "0.31ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/v1/odds/event1. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': 'bd0cf7dd-c578-4b44-9ad0-bb9769698b0c', 'x-process-time': '0.31ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.85ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/odds/event1
+_____________________________ test_odds_api_error _____________________________
+
+mock_get = <AsyncMock name='get' id='2899225278656'>
+
+    @patch("httpx.AsyncClient.get")
+    def test_odds_api_error(mock_get: MagicMock):
+        """
+        Test /api/v1/odds/{event_id} with API error (non-200 status).
+        """
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.odds_api_key = "test_key"
+        app.dependency_overrides[get_config] = lambda: mock_config
+        mock_response = MagicMock()
+        mock_response.status_code = 403
+        mock_response.text = "Forbidden"
+        mock_get.return_value = mock_response
+        response = client.get("/api/v1/odds/event1")
+>       assert response.status_code == 502
+E       assert 404 == 502
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+backend\tests\test_api_v1.py:298: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:48:07,449 - backend.services.rate_limiting_service - ERROR - Rate limiting error for ip:testclient: Event loop is closed
+2025-08-06 14:48:07,450 - request - INFO - {"event": "request_start", "timestamp": 1754509687.4502995, "correlation_id": "5e5a2940-1508-446c-9bc9-1e2d11665bd0", "method": "GET", "path": "/api/v1/odds/event1", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:48:07,450 - request - WARNING - {"event": "request_complete", "timestamp": 1754509687.4507515, "correlation_id": "5e5a2940-1508-446c-9bc9-1e2d11665bd0", "method": "GET", "path": "/api/v1/odds/event1", "status_code": 404, "process_time_ms": 0.45, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "8d2ed81b-6d96-4c46-afd5-138e92dad27e", "x-process-time": "0.27ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:48:07,450 - compression - INFO - Not compressing /api/v1/odds/event1. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': '8d2ed81b-6d96-4c46-afd5-138e92dad27e', 'x-process-time': '0.27ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.62ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:48:07,451 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/odds/event1
+------------------------------ Captured log call ------------------------------
+ERROR    backend.services.rate_limiting_service:rate_limiting_service.py:157 Rate limiting error for ip:testclient: Event loop is closed
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509687.4502995, "correlation_id": "5e5a2940-1508-446c-9bc9-1e2d11665bd0", "method": "GET", "path": "/api/v1/odds/event1", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+WARNING  request:comprehensive_middleware.py:285 {"event": "request_complete", "timestamp": 1754509687.4507515, "correlation_id": "5e5a2940-1508-446c-9bc9-1e2d11665bd0", "method": "GET", "path": "/api/v1/odds/event1", "status_code": 404, "process_time_ms": 0.45, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "8d2ed81b-6d96-4c46-afd5-138e92dad27e", "x-process-time": "0.27ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/v1/odds/event1. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': '8d2ed81b-6d96-4c46-afd5-138e92dad27e', 'x-process-time': '0.27ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.62ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/odds/event1
+___________________________ test_odds_timeout_error ___________________________
+
+mock_get = <AsyncMock name='get' id='2899224917872'>
+
+    @patch("httpx.AsyncClient.get")
+    def test_odds_timeout_error(mock_get: MagicMock):
+        """
+        Test /api/v1/odds/{event_id} with httpx timeout/network error.
+        """
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.odds_api_key = "test_key"
+        app.dependency_overrides[get_config] = lambda: mock_config
+        mock_get.side_effect = httpx.TimeoutException("Timeout occurred")
+        response = client.get("/api/v1/odds/event1")
+>       assert response.status_code == 500
+E       assert 404 == 500
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+backend\tests\test_api_v1.py:317: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:48:09,508 - request - INFO - {"event": "request_start", "timestamp": 1754509689.5087247, "correlation_id": "a85e0d92-c499-423d-9754-007ca2a2324e", "method": "GET", "path": "/api/v1/odds/event1", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:48:09,509 - request - WARNING - {"event": "request_complete", "timestamp": 1754509689.509311, "correlation_id": "a85e0d92-c499-423d-9754-007ca2a2324e", "method": "GET", "path": "/api/v1/odds/event1", "status_code": 404, "process_time_ms": 0.59, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "a6699f19-c35b-46cb-b567-1a4a7880fee0", "x-process-time": "0.29ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:48:09,509 - compression - INFO - Not compressing /api/v1/odds/event1. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': 'a6699f19-c35b-46cb-b567-1a4a7880fee0', 'x-process-time': '0.29ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.78ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:48:09,509 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/odds/event1
+------------------------------ Captured log call ------------------------------
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509689.5087247, "correlation_id": "a85e0d92-c499-423d-9754-007ca2a2324e", "method": "GET", "path": "/api/v1/odds/event1", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+WARNING  request:comprehensive_middleware.py:285 {"event": "request_complete", "timestamp": 1754509689.509311, "correlation_id": "a85e0d92-c499-423d-9754-007ca2a2324e", "method": "GET", "path": "/api/v1/odds/event1", "status_code": 404, "process_time_ms": 0.59, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "a6699f19-c35b-46cb-b567-1a4a7880fee0", "x-process-time": "0.29ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/v1/odds/event1. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': 'a6699f19-c35b-46cb-b567-1a4a7880fee0', 'x-process-time': '0.29ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.78ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/odds/event1
+______________________ test_odds_unexpected_nested_keys _______________________
+
+mock_get = <AsyncMock name='get' id='2899224917200'>
+
+    @patch("httpx.AsyncClient.get")
+    def test_odds_unexpected_nested_keys(mock_get: MagicMock):
+        """
+        Test /api/v1/odds/{event_id} with unexpected/missing nested keys in API response.
+        """
+        from unittest.mock import MagicMock
+    
+        mock_config = MagicMock()
+        mock_config.odds_api_key = "test_key"
+        app.dependency_overrides[get_config] = lambda: mock_config
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        # Missing 'bookmakers' key
+        mock_response.json.return_value = [{"id": "event2"}]
+        mock_get.return_value = mock_response
+        response = client.get("/api/v1/odds/event2")
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+backend\tests\test_api_v1.py:337: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2025-08-06 14:48:09,518 - backend.services.rate_limiting_service - ERROR - Rate limiting error for ip:testclient: Event loop is closed
+2025-08-06 14:48:09,518 - request - INFO - {"event": "request_start", "timestamp": 1754509689.5184906, "correlation_id": "07d80d8e-c21b-4a08-a868-5294f6cc99fe", "method": "GET", "path": "/api/v1/odds/event2", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+2025-08-06 14:48:09,518 - request - WARNING - {"event": "request_complete", "timestamp": 1754509689.5188937, "correlation_id": "07d80d8e-c21b-4a08-a868-5294f6cc99fe", "method": "GET", "path": "/api/v1/odds/event2", "status_code": 404, "process_time_ms": 0.4, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "93ca4686-868b-4a83-a46c-237e2681fc74", "x-process-time": "0.25ms", "x-server-name": "A1Betting Backend API"}}
+2025-08-06 14:48:09,519 - compression - INFO - Not compressing /api/v1/odds/event2. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': '93ca4686-868b-4a83-a46c-237e2681fc74', 'x-process-time': '0.25ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.56ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+2025-08-06 14:48:09,519 - backend.middleware.request_correlation - INFO - Request processed: GET /api/v1/odds/event2
+------------------------------ Captured log call ------------------------------
+ERROR    backend.services.rate_limiting_service:rate_limiting_service.py:157 Rate limiting error for ip:testclient: Event loop is closed
+INFO     request:comprehensive_middleware.py:259 {"event": "request_start", "timestamp": 1754509689.5184906, "correlation_id": "07d80d8e-c21b-4a08-a868-5294f6cc99fe", "method": "GET", "path": "/api/v1/odds/event2", "query_params": {}, "headers": {"host": "testserver", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "testclient"}, "client_ip": "testclient", "user_agent": "testclient"}
+WARNING  request:comprehensive_middleware.py:285 {"event": "request_complete", "timestamp": 1754509689.5188937, "correlation_id": "07d80d8e-c21b-4a08-a868-5294f6cc99fe", "method": "GET", "path": "/api/v1/odds/event2", "status_code": 404, "process_time_ms": 0.4, "response_headers": {"content-length": "22", "content-type": "application/json", "x-correlation-id": "93ca4686-868b-4a83-a46c-237e2681fc74", "x-process-time": "0.25ms", "x-server-name": "A1Betting Backend API"}}
+INFO     compression:comprehensive_middleware.py:368 Not compressing /api/v1/odds/event2. Headers: {'content-length': '22', 'content-type': 'application/json', 'x-correlation-id': '93ca4686-868b-4a83-a46c-237e2681fc74', 'x-process-time': '0.25ms', 'x-server-name': 'A1Betting Backend API', 'x-response-time': '0.56ms', 'x-performance': 'fast', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff', 'x-xss-protection': '1; mode=block', 'referrer-policy': 'strict-origin-when-cross-origin', 'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';", 'strict-transport-security': 'max-age=31536000; includeSubDomains; preload', 'permissions-policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()', 'server': 'A1Betting Backend API/2.0.0'}
+INFO     backend.middleware.request_correlation:request_correlation.py:22 Request processed: GET /api/v1/odds/event2
+___________________________ test_login_placeholder ____________________________
+
+    def test_login_placeholder():
+        response = client.post("/api/v1/auth/login")
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+backend\tests\test_auth_routes.py:14: AssertionError
+__ TestBackgroundTaskManagerStability.test_asyncio_coroutine_fix_validation ___
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002A305F23610>
+task_manager = <services.background_task_manager.BackgroundTaskManager object at 0x000002A30738EAD0>
+
+    @pytest.mark.asyncio
+    async def test_asyncio_coroutine_fix_validation(self, task_manager):
+        """Test that the TaskQueue.get() fix prevents coroutine errors"""
+        # This test validates the critical fix: wrapping queue.get() with asyncio.create_task()
+    
+        # Add multiple tasks to different priority queues
+        test_tasks = [
+            ("high_task_1", TaskPriority.HIGH),
+            ("normal_task_1", TaskPriority.NORMAL),
+            ("low_task_1", TaskPriority.LOW),
+            ("high_task_2", TaskPriority.HIGH),
+            ("normal_task_2", TaskPriority.NORMAL),
+        ]
+    
+        for task_data, priority in test_tasks:
+>           await task_manager.add_task(task_data, priority)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_background_task_stability.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <services.background_task_manager.BackgroundTaskManager object at 0x000002A30738EAD0>
+func = 'high_task_1', name = None, config = None, delay = None
+args = (<TaskPriority.HIGH: 3>,), kwargs = {}
+task_id = '818feed9-c061-4e3c-b777-c31574e9d23c'
+
+    def add_task(
+        self,
+        func: Callable,
+        *args,
+        name: Optional[str] = None,
+        config: Optional[TaskConfig] = None,
+        delay: Optional[float] = None,
+        **kwargs,
+    ) -> str:
+        """Add a background task"""
+    
+        task_id = str(uuid.uuid4())
+>       task_name = name or func.__name__
+                            ^^^^^^^^^^^^^
+E       AttributeError: 'str' object has no attribute '__name__'. Did you mean: '__ne__'?
+
+backend\services\background_task_manager.py:339: AttributeError
+_ TestBackgroundTaskManagerStability.test_concurrent_task_processing_stability _
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002A305FBC910>
+task_manager = <services.background_task_manager.BackgroundTaskManager object at 0x000002A3072AE990>
+
+    @pytest.mark.asyncio
+    async def test_concurrent_task_processing_stability(self, task_manager):
+        """Test stability under concurrent task processing loads"""
+    
+        # Simulate high-load concurrent processing
+        concurrent_workers = 5
+        tasks_per_worker = 10
+    
+        async def worker_simulation(worker_id: int):
+            """Simulate a worker processing tasks"""
+            processed = 0
+            for i in range(tasks_per_worker):
+                task_data = f"worker_{worker_id}_task_{i}"
+                await task_manager.add_task(task_data, TaskPriority.NORMAL)
+    
+                # Process the task
+                try:
+                    task = await asyncio.wait_for(
+                        task_manager.get_next_task(), timeout=2.0
+                    )
+                    processed += 1
+                    production_logger.log_background_task_status(
+                        str(task), "SUCCESS", {"worker_id": worker_id, "task_number": i}
+                    )
+                except Exception as e:
+                    production_logger.log_background_task_status(
+                        task_data, "FAILED", {"worker_id": worker_id, "error": str(e)}
+                    )
+    
+            return processed
+    
+        # Run concurrent workers
+        start_time = time.time()
+        workers = [
+            asyncio.create_task(worker_simulation(i)) for i in range(concurrent_workers)
+        ]
+        results = await asyncio.gather(*workers, return_exceptions=True)
+        execution_time = time.time() - start_time
+    
+        # Validate results
+        successful_workers = [r for r in results if isinstance(r, int)]
+        failed_workers = [r for r in results if isinstance(r, Exception)]
+    
+>       assert len(failed_workers) == 0, f"Some workers failed: {failed_workers}"
+E       AssertionError: Some workers failed: [AttributeError("'str' object has no attribute '__name__'"), AttributeError("'str' object has no attribute '__name__'"), AttributeError("'str' object has no attribute '__name__'"), AttributeError("'str' object has no attribute '__name__'"), AttributeError("'str' object has no attribute '__name__'")]
+E       assert 5 == 0
+E        +  where 5 = len([AttributeError("'str' object has no attribute '__name__'"), AttributeError("'str' object has no attribute '__name__'"...AttributeError("'str' object has no attribute '__name__'"), AttributeError("'str' object has no attribute '__name__'")])
+
+backend\tests\test_background_task_stability.py:136: AssertionError
+__ TestBackgroundTaskManagerStability.test_task_priority_ordering_validation __
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002A305E210F0>
+task_manager = <services.background_task_manager.BackgroundTaskManager object at 0x000002A3072AD6D0>
+
+    @pytest.mark.asyncio
+    async def test_task_priority_ordering_validation(self, task_manager):
+        """Validate that task priority ordering works correctly with the asyncio fix"""
+    
+        # Add tasks in mixed priority order
+        test_cases = [
+            ("low_priority_task", TaskPriority.LOW),
+            ("high_priority_task_1", TaskPriority.HIGH),
+            ("normal_priority_task", TaskPriority.NORMAL),
+            ("high_priority_task_2", TaskPriority.HIGH),
+        ]
+    
+        for task_data, priority in test_cases:
+>           await task_manager.add_task(task_data, priority)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_background_task_stability.py:178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <services.background_task_manager.BackgroundTaskManager object at 0x000002A3072AD6D0>
+func = 'low_priority_task', name = None, config = None, delay = None
+args = (<TaskPriority.LOW: 1>,), kwargs = {}
+task_id = 'ef5d3be3-80f1-44ff-92c9-2c23c054c60b'
+
+    def add_task(
+        self,
+        func: Callable,
+        *args,
+        name: Optional[str] = None,
+        config: Optional[TaskConfig] = None,
+        delay: Optional[float] = None,
+        **kwargs,
+    ) -> str:
+        """Add a background task"""
+    
+        task_id = str(uuid.uuid4())
+>       task_name = name or func.__name__
+                            ^^^^^^^^^^^^^
+E       AttributeError: 'str' object has no attribute '__name__'. Did you mean: '__ne__'?
+
+backend\services\background_task_manager.py:339: AttributeError
+_____ TestBackgroundTaskManagerStability.test_error_recovery_and_logging ______
+
+self = <backend.tests.test_background_task_stability.TestBackgroundTaskManagerStability object at 0x000002A305E229E0>
+task_manager = <services.background_task_manager.BackgroundTaskManager object at 0x000002A3072AD450>
+
+    @pytest.mark.asyncio
+    async def test_error_recovery_and_logging(self, task_manager):
+        """Test error recovery mechanisms and comprehensive logging"""
+    
+        # Simulate various error conditions
+        error_scenarios = [
+            ("timeout_task", "PROCESSING_TIMEOUT"),
+            ("invalid_data_task", "INVALID_DATA"),
+            ("resource_unavailable_task", "RESOURCE_UNAVAILABLE"),
+        ]
+    
+        for task_data, error_type in error_scenarios:
+>           await task_manager.add_task(task_data, TaskPriority.HIGH)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_background_task_stability.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <services.background_task_manager.BackgroundTaskManager object at 0x000002A3072AD450>
+func = 'timeout_task', name = None, config = None, delay = None
+args = (<TaskPriority.HIGH: 3>,), kwargs = {}
+task_id = '758df7ef-c704-4759-b577-2d92f3a608e3'
+
+    def add_task(
+        self,
+        func: Callable,
+        *args,
+        name: Optional[str] = None,
+        config: Optional[TaskConfig] = None,
+        delay: Optional[float] = None,
+        **kwargs,
+    ) -> str:
+        """Add a background task"""
+    
+        task_id = str(uuid.uuid4())
+>       task_name = name or func.__name__
+                            ^^^^^^^^^^^^^
+E       AttributeError: 'str' object has no attribute '__name__'. Did you mean: '__ne__'?
+
+backend\services\background_task_manager.py:339: AttributeError
+=========================== short test summary info ===========================
+FAILED backend/tests/test_api_v1.py::test_sr_games_success - IndexError: list...
+FAILED backend/tests/test_api_v1.py::test_sr_games_missing_api_key - assert 2...
+FAILED backend/tests/test_api_v1.py::test_sr_games_api_error - assert 200 == 502
+FAILED backend/tests/test_api_v1.py::test_sr_games_timeout_error - assert 200...
+FAILED backend/tests/test_api_v1.py::test_sr_games_unexpected_nested_keys - I...
+FAILED backend/tests/test_api_v1.py::test_odds_success - assert 404 == 200
+FAILED backend/tests/test_api_v1.py::test_odds_missing_api_key - assert 404 =...
+FAILED backend/tests/test_api_v1.py::test_odds_malformed_response - assert 40...
+FAILED backend/tests/test_api_v1.py::test_odds_api_error - assert 404 == 502
+FAILED backend/tests/test_api_v1.py::test_odds_timeout_error - assert 404 == 500
+FAILED backend/tests/test_api_v1.py::test_odds_unexpected_nested_keys - asser...
+FAILED backend/tests/test_auth_routes.py::test_login_placeholder - assert 404...
+FAILED backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_asyncio_coroutine_fix_validation
+FAILED backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_concurrent_task_processing_stability
+FAILED backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_task_priority_ordering_validation
+FAILED backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_error_recovery_and_logging
+ERROR backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_asyncio_coroutine_fix_validation
+ERROR backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_concurrent_task_processing_stability
+ERROR backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_task_priority_ordering_validation
+ERROR backend/tests/test_background_task_stability.py::TestBackgroundTaskManagerStability::test_error_recovery_and_logging
+!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 20 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+16 failed, 28 passed, 56 warnings, 4 errors in 34.37s

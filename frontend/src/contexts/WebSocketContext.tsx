@@ -55,6 +55,7 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
   const [status, setStatus] = useState<WebSocketStatus>('connecting');
   const [connected, setConnected] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
+  const verboseLogging = process.env.NODE_ENV === 'development';
   const _wsRef = useRef<WebSocket | null>(null);
   const _handlers = useRef<Record<string, ((data: unknown) => void)[]>>({});
   const reconnectAttempts = useRef(0);
@@ -77,12 +78,12 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
     setStatus(reconnectAttempts.current > 0 ? 'reconnecting' : 'connecting');
     setLastError(null);
     const _wsUrl = getWebSocketUrl();
-    console.log(`[WebSocket] Connecting to: ${_wsUrl}`);
+    if (verboseLogging) console.debug(`[WebSocket] Connecting to: ${_wsUrl}`);
     const _ws = new WebSocket(_wsUrl);
     _wsRef.current = _ws;
 
     _ws.onopen = () => {
-      console.log(`[WebSocket] Connected successfully to: ${_wsUrl}`);
+      if (verboseLogging) console.debug(`[WebSocket] Connected successfully to: ${_wsUrl}`);
       setConnected(true);
       setStatus('connected');
       setLastError(null);
@@ -94,7 +95,8 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
     };
 
     _ws.onclose = event => {
-      console.log(`[WebSocket] Connection closed:`, event.code, event.reason, event.wasClean);
+      if (verboseLogging)
+        console.debug(`[WebSocket] Connection closed:`, event.code, event.reason, event.wasClean);
       setConnected(false);
       setStatus('disconnected');
       if (!isUnmounted.current && event.code !== 1000) {
@@ -124,18 +126,31 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
       setConnected(false);
       setStatus('disconnected');
       setLastError('WebSocket connection error');
-      console.warn(`[WebSocket] Connection error (non-critical, app will continue):`, error);
+      if (verboseLogging)
+        console.warn(`[WebSocket] Connection error (non-critical, app will continue):`, error);
     };
 
     _ws.onmessage = event => {
       try {
-        const _data = JSON.parse(event.data);
-        if (_data.event && _handlers.current[_data.event]) {
-          _handlers.current[_data.event].forEach(fn => fn(_data.payload));
+        // Only parse if message looks like JSON
+        if (event.data && typeof event.data === 'string' && event.data.trim().startsWith('{')) {
+          const _data = JSON.parse(event.data);
+          // Support both 'event' and 'type' fields for compatibility
+          const eventType = _data.event || _data.type;
+          if (eventType && _handlers.current[eventType]) {
+            _handlers.current[eventType].forEach(fn => fn(_data.payload));
+          } else {
+            // Valid JSON but no handler for event/type
+            if (verboseLogging) console.warn('WebSocket received unhandled JSON message:', _data);
+          }
+        } else {
+          // Non-JSON message, log as warning and skip
+          if (verboseLogging) console.warn('WebSocket received non-JSON message:', event.data);
         }
       } catch (e) {
         setLastError('WebSocket message error');
-        console.error('WebSocket message error', e);
+        if (verboseLogging)
+          console.warn('WebSocket message parse error (non-critical):', e, event.data);
       }
     };
   }, []);

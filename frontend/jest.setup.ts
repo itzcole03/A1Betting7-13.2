@@ -1,48 +1,44 @@
-// Polyfill TextEncoder/TextDecoder for Node.js (needed by MSW and fetch polyfills)
-import React from 'react';
-import { TextDecoder, TextEncoder } from 'util';
+import '@testing-library/jest-dom';
+import 'jest-localstorage-mock';
+import 'whatwg-fetch';
 
-if (typeof global.TextEncoder === 'undefined') {
-  global.TextEncoder = TextEncoder as any;
+// Mock import.meta.env for Vite compatibility in Jest
+if (!globalThis.import) {
+  globalThis.import = {};
 }
-if (typeof global.TextDecoder === 'undefined') {
-  global.TextDecoder = TextDecoder as any;
+if (!globalThis.import.meta) {
+  globalThis.import.meta = {};
 }
-// Mock window.matchMedia as early as possible for framer-motion compatibility
+globalThis.import.meta.env = {
+  VITE_BACKEND_URL: 'http://localhost:8000',
+  VITE_API_BASE_URL: 'http://localhost:8000',
+  VITE_API_HOST: 'localhost',
+  VITE_API_PORT: '8000',
+  VITE_WS_URL: 'ws://localhost:8000/ws',
+  VITE_EXTERNAL_API_URL: 'https://api.sportsdata.io/v3/news',
+  VITE_API_URL: 'http://localhost:8000',
+  DEV: true,
+  MODE: 'test',
+};
+
+// Mock window.matchMedia for framer-motion compatibility
 if (typeof window !== 'undefined') {
-  // Create a proper implementation of matchMedia for framer-motion
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: jest.fn().mockImplementation((query: string) => {
-      const listeners = new Set<EventListener>();
+    value: jest.fn().mockImplementation(query => {
       return {
         matches: false,
         media: query,
         onchange: null,
-        addListener: function (listener: EventListener) {
-          listeners.add(listener);
-        },
-        removeListener: function (listener: EventListener) {
-          listeners.delete(listener);
-        },
-        addEventListener: function (_type: string, listener: EventListener) {
-          listeners.add(listener);
-        },
-        removeEventListener: function (_type: string, listener: EventListener) {
-          listeners.delete(listener);
-        },
-        dispatchEvent: function () {
-          return false;
-        },
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false,
       };
     }),
   });
 }
-
-// Polyfill fetch, Response, and Request for Node.js (MSW compatibility)
-import '@testing-library/jest-dom';
-import 'jest-localstorage-mock';
-import 'whatwg-fetch';
 
 // Text Encoder/Decoder polyfill for Node.js
 if (typeof global.TextEncoder === 'undefined') {
