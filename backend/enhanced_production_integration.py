@@ -1034,6 +1034,15 @@ class EnhancedProductionApp:
         except ImportError as e:
             self.logger.warning(f"Could not import enhanced sportsbook router: {str(e)}")
 
+        # Advanced Search and Filtering routes
+        try:
+            from .routes.advanced_search_routes import router as advanced_search_router
+
+            self.app.include_router(advanced_search_router, tags=["Advanced Search"])
+            enhanced_routes.append("advanced_search")
+        except ImportError as e:
+            self.logger.warning(f"Could not import advanced search router: {str(e)}")
+
         # Priority 2 Real-time routes (NEW)
         try:
             from .routes import priority2_realtime_routes
