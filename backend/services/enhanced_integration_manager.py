@@ -71,23 +71,31 @@ class EnhancedIntegrationManager:
 
     async def _initialize_core_components(self):
         """Initialize core data architecture components"""
-        
+
         # 1. Initialize enhanced data pipeline
         await enhanced_data_pipeline.initialize()
         logger.info("✅ Enhanced data pipeline initialized")
-        
+
         # 2. Initialize intelligent cache service
         await intelligent_cache_service.initialize()
         logger.info("✅ Intelligent cache service initialized")
-        
-        # 3. Initialize Sportradar service
+
+        # 3. Initialize event-driven cache system
+        await event_driven_cache.initialize()
+        logger.info("✅ Event-driven cache system initialized")
+
+        # 4. Initialize sport volatility models
+        # No explicit initialization needed for models
+        logger.info("✅ Sport volatility models ready")
+
+        # 5. Initialize Sportradar service
         sportradar_available = await sportradar_service.initialize()
         if sportradar_available:
             logger.info("✅ Sportradar service initialized")
         else:
             logger.warning("⚠️ Sportradar service running in demo mode")
-        
-        # 4. Initialize data quality monitor
+
+        # 6. Initialize data quality monitor
         await data_quality_monitor.initialize()
         logger.info("✅ Data quality monitor initialized")
 
@@ -166,7 +174,7 @@ class EnhancedIntegrationManager:
             # Detect anomalies
             anomalies = await data_quality_monitor.detect_anomalies(data_source, data)
             if anomalies:
-                logger.warning(f"���� {len(anomalies)} anomalies detected in {data_source.value} data")
+                logger.warning(f"🔍 {len(anomalies)} anomalies detected in {data_source.value} data")
             
         except Exception as e:
             logger.error(f"❌ Error monitoring incoming data from {data_source.value}: {e}")
