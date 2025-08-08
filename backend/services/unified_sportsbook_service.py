@@ -122,10 +122,11 @@ class UnifiedSportsbookService:
     Service to manage multiple sportsbook APIs and provide unified data access.
     """
     
-    def __init__(self, 
+    def __init__(self,
                  enabled_providers: Optional[List[SportsbookProvider]] = None,
                  max_concurrent_requests: int = 5,
-                 timeout_seconds: int = 30):
+                 timeout_seconds: int = 30,
+                 enable_notifications: bool = True):
         
         self.enabled_providers = enabled_providers or [
             SportsbookProvider.DRAFTKINGS,
