@@ -10,12 +10,12 @@ const UnifiedBettingInterface = React.lazy(() => import('../betting/UnifiedBetti
 const ArbitrageOpportunities = React.lazy(
   () => import('../features/betting/ArbitrageOpportunities')
 );
-const PlayerDashboard = React.lazy(() => import('../player/PlayerDashboardContainer'));
+const PlayerDashboard = React.lazy(() => import('../player/PlayerDashboardWrapper'));
 const PlayerDashboardTest = React.lazy(() => import('../../pages/PlayerDashboardTest'));
 
 const UserFriendlyApp: React.FC = () => {
   console.count('[UserFriendlyApp] RENDER');
-  console.error('[UserFriendlyApp] *** COMPONENT MOUNTING *** - PATH:', window.location.pathname);
+  console.log('[UserFriendlyApp] Rendering on path:', window.location.pathname);
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true); // Default to open on desktop
   const [useOptimizedMode, setUseOptimizedMode] = useState(false); // Toggle for optimization
@@ -163,8 +163,8 @@ const UserFriendlyApp: React.FC = () => {
               <Route
                 path='/'
                 element={(() => {
-                  console.error(
-                    '[UserFriendlyApp] *** ROUTING TO HOME - useOptimizedMode:',
+                  console.log(
+                    '[UserFriendlyApp] Rendering home route - useOptimizedMode:',
                     useOptimizedMode
                   );
                   return useOptimizedMode ? (
@@ -174,8 +174,20 @@ const UserFriendlyApp: React.FC = () => {
                   );
                 })()}
               />
-              <Route path='/player/:playerId?' element={<PlayerDashboard />} />
-              <Route path='/test-dashboard' element={<PlayerDashboardTest />} />
+              <Route
+                path='/player/:playerId?'
+                element={(() => {
+                  console.log('[UserFriendlyApp] Rendering Player Dashboard route');
+                  return <PlayerDashboard />;
+                })()}
+              />
+              <Route
+                path='/test-dashboard'
+                element={(() => {
+                  console.log('[UserFriendlyApp] Rendering Test Dashboard route');
+                  return <PlayerDashboardTest />;
+                })()}
+              />
               <Route path='/ml-models' element={<MLModelCenter />} />
               <Route path='/betting' element={<UnifiedBettingInterface />} />
               <Route path='/arbitrage' element={<ArbitrageOpportunities />} />

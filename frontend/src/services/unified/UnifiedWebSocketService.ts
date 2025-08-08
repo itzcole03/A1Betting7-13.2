@@ -348,9 +348,13 @@ export class UnifiedWebSocketService extends BaseService {
   private getWebSocketUrl(): string {
     // Always use backend port, never frontend's own port
     // Build WebSocket URL from environment variables for best practice
-    // Use getEnvVar for robust env access
-    // @ts-ignore
-    const { getEnvVar } = require('../../utils/getEnvVar');
+    // Use Vite environment variables directly
+    const getEnvVar = (key: string, fallback: string) => {
+      if (typeof import.meta !== 'undefined' && import.meta.env) {
+        return import.meta.env[key] || fallback;
+      }
+      return fallback;
+    };
     const _host = getEnvVar('VITE_API_HOST', 'localhost');
     const _port = getEnvVar('VITE_API_PORT', '8000');
     return getEnvVar('VITE_WS_URL', `ws://${_host}:${_port}/ws`);

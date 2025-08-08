@@ -10,11 +10,13 @@ export class UnifiedConfig {
       // Use getEnvVar for robust env access
       baseUrl: (() => {
         try {
-          // @ts-ignore
-          const { getEnvVar } = require('../../utils/getEnvVar');
-          return getEnvVar('VITE_API_BASE_URL', 'http://localhost:3001');
+          // Use Vite environment variables directly
+          if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) {
+            return import.meta.env.VITE_API_BASE_URL;
+          }
+          return 'http://localhost:8000'; // Updated default port
         } catch (e) {
-          return 'http://localhost:3001';
+          return 'http://localhost:8000';
         }
       })(),
       timeout: 10000,

@@ -30,15 +30,18 @@ export class GlobalErrorBoundary extends React.Component<
     this.setState({ correlationId });
     // Record error in global error store
     if (typeof window !== 'undefined') {
-      // Use Zustand store directly (for class component)
-      const { addError } = require('../stores/errorStore');
-      addError({
-        id: correlationId,
-        message: error.message,
-        category: 'unknown',
-        details: info,
-        correlationId,
-        statusCode: undefined,
+      // Use dynamic import for Zustand store (for class component)
+      import('../stores/errorStore').then(({ addError }) => {
+        addError({
+          id: correlationId,
+          message: error.message,
+          category: 'unknown',
+          details: info,
+          correlationId,
+          statusCode: undefined,
+        });
+      }).catch((importError) => {
+        console.warn('Failed to import error store:', importError);
       });
     }
     // Auto-report error to backend

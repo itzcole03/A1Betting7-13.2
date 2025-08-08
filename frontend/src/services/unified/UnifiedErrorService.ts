@@ -57,20 +57,59 @@ export class UnifiedErrorService extends BaseService {
   ): string {
     const _errorId = `error_${++this.errorCounter}_${Date.now()}`;
 
+    // Properly serialize error and context objects
+    let errorMessage = '';
+    let errorCode = 'UNKNOWN_ERROR';
+    let errorStack = '';
+
+    if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+      errorCode = error.name || 'Error';
+      errorStack = error.stack || '';
+    } else if (error && typeof error === 'object') {
+      errorMessage = JSON.stringify(error);
+      errorCode = (error as any).code || (error as any).name || 'ObjectError';
+    } else {
+      errorMessage = String(error);
+    }
+
+    // Serialize context safely
+    let serializedContext: any = {};
+    try {
+      serializedContext = typeof context === 'object' && context !== null
+        ? JSON.parse(JSON.stringify(context))
+        : context;
+    } catch (serializationError) {
+      serializedContext = { error: 'Failed to serialize context', original: String(context) };
+    }
+
     const _errorDetails: ErrorDetails = {
       id: _errorId,
-      message: typeof error === 'string' ? error : error.message,
-      code: (error as unknown)?.code || 'UNKNOWN_ERROR',
+      message: errorMessage,
+      code: errorCode,
       category,
       severity,
-      context,
+      context: serializedContext,
       timestamp: new Date(),
-      stack: typeof error !== 'string' ? error.stack : undefined,
+      stack: errorStack,
       resolved: false,
       retryCount: 0,
     };
 
     this.errors.set(_errorId, _errorDetails);
+
+    // Log with properly serialized data
+    console.error('[UnifiedErrorService] Error reported:', {
+      id: _errorId,
+      message: errorMessage,
+      code: errorCode,
+      category,
+      severity,
+      context: serializedContext,
+      timestamp: _errorDetails.timestamp.toISOString()
+    });
 
     this.logger.error('Error reported', _errorDetails);
     this.emit('error_reported', _errorDetails);

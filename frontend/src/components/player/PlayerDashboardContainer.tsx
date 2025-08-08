@@ -132,7 +132,7 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
   onPlayerChange,
   onClose,
 }) => {
-  const [playerId, setPlayerId] = useState<string>(initialPlayerId || 'aaron-judge');
+  const [playerId, setPlayerId] = useState<string>(initialPlayerId || '');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Player[]>([]);
   const [showSearch, setShowSearch] = useState(false);
@@ -161,9 +161,7 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
         return;
       }
       // Get PlayerDataService from registry
-      const registry =
-        require('../../services/MasterServiceRegistry').default ||
-        require('../../services/MasterServiceRegistry');
+      const { default: registry } = await import('../../services/MasterServiceRegistry');
       const playerDataService = registry.getService ? registry.getService('playerData') : undefined;
       if (playerDataService && typeof playerDataService.searchPlayers === 'function') {
         try {
@@ -186,6 +184,57 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
       setSearchResults([]);
     }
   }, [searchQuery, sport]);
+
+  // Show search interface when no playerId is provided
+  if (!playerId || playerId.trim() === '') {
+    return (
+      <div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'>
+        <div className='max-w-4xl mx-auto px-4 py-8'>
+          <div className='text-center mb-8'>
+            <h1 className='text-3xl font-bold text-white mb-4'>Player Research</h1>
+            <p className='text-slate-300'>Search for a player to view their dashboard and analytics</p>
+          </div>
+
+          {/* Search Interface */}
+          <div className='bg-slate-800/50 backdrop-blur rounded-lg p-6 mb-8'>
+            <div className='relative'>
+              <input
+                type='text'
+                placeholder='Search for players...'
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className='w-full bg-slate-700 text-white border border-slate-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500'
+              />
+
+              {/* Search Results */}
+              {searchResults.length > 0 && (
+                <div className='absolute top-full left-0 right-0 bg-slate-700 border border-slate-600 rounded-lg mt-1 max-h-60 overflow-y-auto z-10'>
+                  {searchResults.map((result) => (
+                    <button
+                      key={result.id}
+                      onClick={() => handlePlayerSelect(result.id)}
+                      className='w-full text-left px-4 py-2 hover:bg-slate-600 transition-colors text-white'
+                    >
+                      <div className='font-medium'>{result.name}</div>
+                      <div className='text-sm text-slate-300'>{result.team} • {result.position}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Popular Players or Recent Searches could go here */}
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+            <div className='bg-slate-800/30 rounded-lg p-4 text-center'>
+              <div className='text-slate-400 text-sm mb-2'>Quick Access</div>
+              <div className='text-white'>Search above to get started</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Always render dashboard sections, passing loading prop for skeletons
 

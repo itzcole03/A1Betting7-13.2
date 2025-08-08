@@ -110,9 +110,13 @@ class EnhancedServiceClient {
 
   constructor() {
     // Use the same base URL as existing services
-    // Use getEnvVar for robust env access
-    // @ts-ignore
-    const { getEnvVar } = require('../utils/getEnvVar');
+    // Use Vite environment variables directly
+    const getEnvVar = (key: string, fallback: string) => {
+      if (typeof import.meta !== 'undefined' && import.meta.env) {
+        return import.meta.env[key] || fallback;
+      }
+      return fallback;
+    };
     this.baseURL = getEnvVar('VITE_API_BASE_URL', 'http://localhost:8000');
 
     // Load stored tokens

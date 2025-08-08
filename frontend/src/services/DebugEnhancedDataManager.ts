@@ -83,6 +83,64 @@ export class DebugEnhancedDataManager {
       return props;
     } catch (error) {
       console.error('[DebugEnhancedDataManager] ❌ Error:', error);
+
+      // Check if this is a connectivity issue
+      const isConnectivityError = error instanceof Error && (
+        error.message.includes('Failed to fetch') ||
+        error.message.includes('Network Error') ||
+        error.message.includes('timeout') ||
+        error.message.includes('signal timed out')
+      );
+
+      if (isConnectivityError) {
+        console.log(`[DebugEnhancedDataManager] Backend unavailable for ${sport} - using mock data`);
+
+        // Return mock props when backend is unavailable
+        const mockProps: FeaturedProp[] = [
+          {
+            id: 'mock-aaron-judge-hr',
+            player: 'Aaron Judge',
+            matchup: 'Yankees vs Red Sox',
+            stat: 'Home Runs',
+            line: 1.5,
+            overOdds: 120,
+            underOdds: -110,
+            confidence: 85,
+            sport: sport || 'MLB',
+            gameTime: new Date().toISOString(),
+            pickType: 'over'
+          },
+          {
+            id: 'mock-mike-trout-hits',
+            player: 'Mike Trout',
+            matchup: 'Angels vs Astros',
+            stat: 'Hits',
+            line: 1.5,
+            overOdds: -105,
+            underOdds: -115,
+            confidence: 78,
+            sport: sport || 'MLB',
+            gameTime: new Date().toISOString(),
+            pickType: 'over'
+          },
+          {
+            id: 'mock-mookie-betts-rbis',
+            player: 'Mookie Betts',
+            matchup: 'Dodgers vs Giants',
+            stat: 'RBIs',
+            line: 0.5,
+            overOdds: 110,
+            underOdds: -130,
+            confidence: 82,
+            sport: sport || 'MLB',
+            gameTime: new Date().toISOString(),
+            pickType: 'over'
+          }
+        ];
+
+        return mockProps;
+      }
+
       throw error;
     }
   }

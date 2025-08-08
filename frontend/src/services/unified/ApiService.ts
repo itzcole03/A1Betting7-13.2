@@ -61,16 +61,22 @@ export class ApiService {
     // @ts-ignore
     const getEnvVar = (() => {
       try {
-        // Use dynamic import for Jest compatibility
-        return require('../../utils/getEnvVar').getEnvVar;
+        // Use environment variable or fallback
+        return (key: string, fallback?: string) => {
+          // Try to access Vite environment variables first
+          if (typeof import.meta !== 'undefined' && import.meta.env) {
+            return import.meta.env[key] || fallback;
+          }
+          return fallback;
+        };
       } catch (e) {
         return (_key: string, fallback?: string) => fallback;
       }
     })();
     this.config = {
-      baseURL: getEnvVar('VITE_API_BASE_URL', 'http://localhost:8001'),
-      timeout: 30000,
-      retryAttempts: 3,
+      baseURL: getEnvVar('VITE_API_BASE_URL', 'http://localhost:8000'),
+      timeout: 3000,  // 3 second timeout for faster fallback to mock data
+      retryAttempts: 0, // No retries for faster fallback
       retryDelay: 1000,
     };
   }
@@ -224,9 +230,15 @@ export class ApiService {
 
   async healthCheck(): Promise<boolean> {
     try {
-      const _response = await this.get('/health', { timeout: 5000, retries: 1 });
+      // Use shorter timeout and no retries for health checks to fail fast
+      const _response = await this.get('/health', {
+        timeout: 2000, // 2 second timeout
+        retries: 0,     // No retries for health checks
+        cache: false    // Don't cache health check results
+      });
       return _response.status === 200;
-    } catch {
+    } catch (error) {
+      // Silently fail health checks - they're non-critical
       return false;
     }
   }

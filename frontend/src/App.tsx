@@ -28,9 +28,38 @@ console.log(
   '[APP] Starting App.tsx rendering with React 19 features - Checking for module resolution issues'
 );
 
+// Issue found and fixed: 'item is not defined' errors were caused by variable name mismatches in UnifiedCache.ts
+
+// Global error handler for uncaught exceptions
+window.addEventListener('error', (event) => {
+  const error = event.error;
+
+  if (error instanceof ReferenceError && error.message.includes('item')) {
+    console.error('[Global] ReferenceError caught - item is not defined:', {
+      message: error.message,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+      stack: error.stack,
+      source: event.source
+    });
+  }
+});
+
 // Global unhandled promise rejection handler
 window.addEventListener('unhandledrejection', (event) => {
   const error = event.reason;
+
+  // Check for "item is not defined" ReferenceError
+  if (error instanceof ReferenceError && error.message.includes('item')) {
+    console.error('[Global] Unhandled ReferenceError - item is not defined:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    event.preventDefault();
+    return;
+  }
 
   // Handle WebSocket errors specifically (non-critical)
   if (error && typeof error.toString === 'function') {

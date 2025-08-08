@@ -6,7 +6,7 @@ interface CacheItem<T> {
 export class UnifiedCache {
   private static instance: UnifiedCache;
   private cache: Map<string, CacheItem<unknown>> = new Map();
-  private defaultTTL: number = 300000; // 5 minutes
+  private defaultTTL: number = 300000; // 5 minutes - Fixed variable name issues
 
   private constructor() {}
 
@@ -19,26 +19,26 @@ export class UnifiedCache {
 
   set<T>(key: string, value: T, ttl?: number): void {
     const _expiry = Date.now() + (ttl || this.defaultTTL);
-    this.cache.set(key, { value, expiry });
+    this.cache.set(key, { value, expiry: _expiry });
   }
 
   get<T>(key: string): T | null {
     const _item = this.cache.get(key);
-    if (!item) return null;
+    if (!_item) return null;
 
-    if (this.isExpired(item)) {
+    if (this.isExpired(_item)) {
       this.cache.delete(key);
       return null;
     }
 
-    return item.value;
+    return _item.value;
   }
 
   has(key: string): boolean {
     const _item = this.cache.get(key);
-    if (!item) return false;
+    if (!_item) return false;
 
-    if (this.isExpired(item)) {
+    if (this.isExpired(_item)) {
       this.cache.delete(key);
       return false;
     }

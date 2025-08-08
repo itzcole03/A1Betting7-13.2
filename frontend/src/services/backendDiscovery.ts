@@ -14,9 +14,13 @@ export async function discoverBackend(): Promise<string | null> {
   console.log('[REAL] discoverBackend called');
 
   // In development mode, try the proxy first
-  // Use getEnvVar for robust env access
-  // @ts-ignore
-  const { getEnvVar } = require('../utils/getEnvVar');
+  // Use Vite environment variables directly
+  const getEnvVar = (key: string, fallback: string) => {
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      return import.meta.env[key] || fallback;
+    }
+    return fallback;
+  };
   if (getEnvVar('DEV', '') === 'true') {
     try {
       const res = await fetch('/health', { method: 'GET' });

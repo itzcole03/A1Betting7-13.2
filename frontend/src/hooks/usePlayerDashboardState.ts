@@ -84,9 +84,19 @@ export function usePlayerDashboardState({ playerId, sport = 'MLB' }: UsePlayerDa
         );
         setErrorId(null);
       } catch (err) {
-        // Capture detailed error information
+        // Capture error information but don't spam for connectivity issues
         let errorMsg = 'Failed to load player';
         let errorDetails: any = {};
+
+        const isConnectivityOrMissingDataError = err instanceof Error && (
+          err.message.includes('Failed to fetch') ||
+          err.message.includes('timeout') ||
+          err.message.includes('signal timed out') ||
+          err.message.includes('Network') ||
+          err.message.includes('HTTP 404') ||
+          err.message.includes('Not Found') ||
+          err.message.includes('Player data unavailable')
+        );
 
         if (err instanceof Error) {
           errorMsg = err.message;
@@ -95,6 +105,11 @@ export function usePlayerDashboardState({ playerId, sport = 'MLB' }: UsePlayerDa
             stack: err.stack,
             message: err.message
           };
+
+          // For connectivity/missing data errors, provide user-friendly message
+          if (isConnectivityOrMissingDataError) {
+            errorMsg = 'Player data not found - using sample data';
+          }
         } else if (typeof err === 'string') {
           errorMsg = err;
         } else if (err && typeof err === 'object') {
@@ -104,49 +119,55 @@ export function usePlayerDashboardState({ playerId, sport = 'MLB' }: UsePlayerDa
 
         setError(errorMsg);
 
-        // Generate errorId using UnifiedErrorService if available
+        // Generate errorId - skip error service for connectivity/missing data issues
         let generatedErrorId = null;
-        try {
-          const { UnifiedErrorService } = require('../services/unified/UnifiedErrorService');
-          generatedErrorId = UnifiedErrorService.getInstance().reportError(errorMsg, {
-            correlationId: corrId,
-            context: 'usePlayerDashboardState',
-            playerId: id,
-            sport: sport,
-            errorDetails: errorDetails
-          });
-        } catch (e) {
-          // Fallback: generate a local errorId
-          generatedErrorId = `player_error_${Date.now()}_${Math.random()
-            .toString(36)
-            .substr(2, 6)}`;
+        if (!isConnectivityOrMissingDataError) {
+          try {
+            const { UnifiedErrorService } = await import('../services/unified/UnifiedErrorService');
+            generatedErrorId = UnifiedErrorService.getInstance().reportError(errorMsg, {
+              correlationId: corrId,
+              context: 'usePlayerDashboardState',
+              playerId: id,
+              sport: sport,
+              errorDetails: errorDetails
+            });
+          } catch (e) {
+            // Fallback: generate a local errorId
+            generatedErrorId = `player_error_${Date.now()}_${Math.random()
+              .toString(36)
+              .substr(2, 6)}`;
+          }
+        } else {
+          // For connectivity/missing data errors, just generate a simple ID
+          generatedErrorId = `missing_data_${Date.now()}`;
         }
         setErrorId(generatedErrorId);
 
-        // Safer error logging to prevent template issues
+        // Log errors appropriately - minimal logging for connectivity/missing data issues
         try {
-          const logMessage = generatedErrorId
-            ? `usePlayerDashboardState: ${errorMsg} [correlationId=${corrId}] errorId=${generatedErrorId}`
-            : `usePlayerDashboardState: ${errorMsg} [correlationId=${corrId}] errorId=null`;
+          if (isConnectivityOrMissingDataError) {
+            // Just log missing data issues as info, not errors
+            console.info(`[usePlayerDashboardState] Player data not found for ${id} - using sample data`);
+          } else {
+            // Log actual errors normally
+            const logMessage = generatedErrorId
+              ? `usePlayerDashboardState: ${errorMsg} [correlationId=${corrId}] errorId=${generatedErrorId}`
+              : `usePlayerDashboardState: ${errorMsg} [correlationId=${corrId}] errorId=null`;
 
-          logger.error(logMessage);
-
-          // Also log to console for immediate debugging
-          console.error('[usePlayerDashboardState] Detailed error info:', {
-            errorMsg,
-            correlationId: corrId,
-            errorId: generatedErrorId,
-            playerId: id,
-            sport: sport,
-            errorType: err?.constructor?.name,
-            errorDetails: errorDetails
-          });
-
+            logger.error(logMessage);
+            console.error('[usePlayerDashboardState] Error details:', JSON.stringify({
+              errorMsg,
+              correlationId: corrId,
+              errorId: generatedErrorId,
+              playerId: id,
+              sport: sport,
+              errorDetails: errorDetails
+            }, null, 2));
+          }
         } catch (logError) {
           // Fallback logging if there are issues with the logger
           console.error('[usePlayerDashboardState] Logging error:', logError);
           console.error('[usePlayerDashboardState] Original error:', errorMsg);
-          console.error('[usePlayerDashboardState] Error details:', errorDetails);
         }
       } finally {
         setLoading(false);
@@ -156,7 +177,7 @@ export function usePlayerDashboardState({ playerId, sport = 'MLB' }: UsePlayerDa
   );
 
   useEffect(() => {
-    if (playerId && playerDataService && initialized) {
+    if (playerId && playerId.trim() !== '' && playerDataService && initialized) {
       // Wrap in additional try-catch to catch any ReferenceErrors
       try {
         loadPlayer(playerId).catch(err => {

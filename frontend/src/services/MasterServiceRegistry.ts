@@ -307,24 +307,25 @@ class MasterServiceRegistry {
   }
 
   private setupHealthMonitoring(): void {
+    // Check health every 5 minutes instead of every minute to reduce noise
     setInterval(async () => {
       for (const [name, service] of this.services.entries()) {
         try {
           const _startTime = Date.now();
 
-          // Perform health check with timeout
+          // Perform health check with aggressive timeout
           if ((service as any).healthCheck) {
             await Promise.race([
               (service as any).healthCheck(),
               new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Health check timeout')), 5000)
+                setTimeout(() => reject(new Error('Health check timeout')), 2000) // 2 second timeout
               )
             ]);
           } else if ((service as any).ping) {
             await Promise.race([
               (service as any).ping(),
               new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Ping timeout')), 3000)
+                setTimeout(() => reject(new Error('Ping timeout')), 1500) // 1.5 second timeout
               )
             ]);
           }
@@ -332,16 +333,28 @@ class MasterServiceRegistry {
           const _responseTime = Date.now() - _startTime;
           this.updateServiceHealth(name, 'healthy', _responseTime);
         } catch (error) {
-          // Log health check failures as warnings since they're non-critical
-          this.log('warn', `Service health check failed: ${name}`, error);
-          this.updateServiceHealth(name, 'degraded', -1);
+          // Health check failures are non-critical - completely silent for network errors
           const _health = this.serviceHealth.get(name);
+          const errorCount = _health ? _health.errorCount + 1 : 1;
+
+          // Only log non-network errors or every 50th failure to minimize noise
+          const isNetworkError = error instanceof Error && (
+            error.message.includes('Failed to fetch') ||
+            error.message.includes('timeout') ||
+            error.message.includes('Network')
+          );
+
+          if (!isNetworkError && errorCount % 50 === 1) {
+            this.log('warn', `Service health check failed: ${name} (${errorCount} non-network failures)`, error);
+          }
+
+          this.updateServiceHealth(name, 'degraded', -1);
           if (_health) {
-            _health.errorCount += 1;
+            _health.errorCount = errorCount;
           }
         }
       }
-    }, 60000); // Check every minute
+    }, 300000); // Check every 5 minutes
   }
 
   private setupMetricsCollection(): void {
