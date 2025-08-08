@@ -213,7 +213,7 @@ class CheatsheetsService {
    */
   clearCache(): void {
     this.cache.clear();
-    logger.info('[CheatsheetsService] Cache cleared');
+    logger.info('Cache cleared', undefined, 'CheatsheetsService');
   }
 
   private async fetchWithRetry(url: string, retries = this.MAX_RETRIES): Promise<Response> {
