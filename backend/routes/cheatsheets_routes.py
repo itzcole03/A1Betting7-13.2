@@ -146,8 +146,20 @@ async def get_opportunities(
         )
         
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
         logger.error(f"Failed to get opportunities: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve opportunities")
+        logger.error(f"Full traceback: {error_details}")
+
+        # Return a more specific error message
+        if "search" in str(e).lower():
+            detail = "Search parameter error"
+        elif "filter" in str(e).lower():
+            detail = "Filter parameter error"
+        else:
+            detail = f"Service error: {str(e)}"
+
+        raise HTTPException(status_code=500, detail=detail)
 
 @router.post("/opportunities", response_model=OpportunitiesListResponse)
 async def get_opportunities_post(
