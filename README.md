@@ -101,9 +101,13 @@ npm run dev
 | Feature | PropFinder | A1Betting | Advantage |
 |---------|------------|-----------|-----------|
 | **Cost** | $29+/month | Free Forever | **Save $348+ annually** |
+| **Player Dashboard** | Basic interface | PropFinder-style + Enhanced | **Matching UI + Superior features** |
+| **Trend Analysis** | L5, L10, L15 | L5, L10, L15, L20, L25 + Custom | **More flexibility + customization** |
+| **Confidence Scoring** | Manual analysis | AI-powered EV calculations | **Automated + Transparent reasoning** |
+| **Bet Tracking** | Limited | Comprehensive portfolio management | **Complete lifecycle tracking** |
 | **AI Analysis** | None | Local LLM + SHAP | **Privacy + Explainability** |
 | **Response Time** | 2-5 seconds | <1 second | **4x faster performance** |
-| **Arbitrage Detection** | None | Real-time multi-book | **Profit opportunities** |
+| **Data Sources** | Limited | Sportradar + Multi-API | **Official + Comprehensive data** |
 | **Risk Management** | Basic | Kelly Criterion + Portfolio | **Advanced optimization** |
 | **Mobile Experience** | Limited | PWA optimized | **Touch-first design** |
 | **Customization** | None | Full source access | **Unlimited modifications** |
@@ -193,19 +197,19 @@ ROI: Immediate + Long-term value
 
 ### System Architecture
 ```
-┌─────────────────────┐    ┌───────────��──────────��    ┌─────────────────────┐
+┌─────────────────────┐    ┌───────────��──────────┐    ┌─────────────────────┐
 │   React 19 Frontend │    │   FastAPI Backend    │    │   External APIs     │
 │                     │    │                      │    │                     │
 │ • PropFinder UI     │◄──►│ • AI Processing      │◄──►│ • DraftKings        │
 │ • AI Chat Interface │    │ • Ollama LLM         │    │ • FanDuel           │
-│ • Real-time Updates │    │ • Arbitrage Engine   │    │ • BetMGM            │
+│ • Real-time Updates ��    │ • Arbitrage Engine   │    │ • BetMGM            │
 │ • Risk Tools        │    │ • Kelly Calculator   │    │ • SportsRadar       │
 │ • Demo Mode         │    │ • Caching Layer      │    │ • Injury Reports    │
 └─────────────────────┘    └──────────────────────┘    └─────────────────────┘
          │                           │                           │
          └───────────────────────────┼───────────────────────────┘
                                      │
-                               ┌─────▼───���─┐
+                               ┌─────▼─────┐
                                │  Ollama   │
                                │ AI Server │
                                └───────────┘
@@ -239,7 +243,7 @@ A1Betting/
 │   ���   │   │   └── 📁 predictions/   # AI-powered analysis
 │   │   │   ├── 📁 ai/                # Ollama LLM integration
 │   │   │   ├── 📁 player/            # Player research dashboard
-│   ���   │   └── 📁 user-friendly/     # Main application shell
+│   │   │   └── 📁 user-friendly/     # Main application shell
 │   │   ├── 📁 services/              # API & Business Logic
 │   │   │   ├── 📁 unified/           # Centralized API management
 │   │   │   ├── 📁 analytics/         # ML service integration
@@ -429,7 +433,7 @@ Customization: Unlimited
 ### ⚡ **Performance Superiority**
 ```
 Load Time:     PropFinder 3.2s  →  A1Betting 0.8s
-Search Speed:  PropFinder 1.8s  ���  A1Betting 0.3s
+Search Speed:  PropFinder 1.8s  →  A1Betting 0.3s
 Data Refresh:  PropFinder 5.1s  →  A1Betting 1.2s
 Mobile:        PropFinder Fair  →  A1Betting Excellent
 AI Analysis:   PropFinder None  →  A1Betting Advanced
