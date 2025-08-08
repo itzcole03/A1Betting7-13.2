@@ -118,7 +118,7 @@ export const CheatsheetsDashboard: React.FC = () => {
       });
 
       console.log('[CheatsheetsDashboard] Fetching real data from API...');
-      const response = await fetch(`/v1/cheatsheets/opportunities?${params}`, {
+      const response = await fetch(`/api/v1/cheatsheets/opportunities?${params}`, {
         signal: AbortSignal.timeout(10000) // Increased timeout for real data processing
       });
 
