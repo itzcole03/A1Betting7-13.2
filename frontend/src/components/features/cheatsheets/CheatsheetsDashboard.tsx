@@ -411,6 +411,13 @@ export const CheatsheetsDashboard: React.FC = () => {
           </div>
         )}
 
+        {/* Backend Connection Test (only show when there are errors) */}
+        {(error || apiHealth === false) && (
+          <div className="mb-6">
+            <BackendConnectionTest />
+          </div>
+        )}
+
         {/* Error State */}
         {error && (
           <div className="bg-red-900/50 border border-red-700 rounded-lg p-4 mb-6">
