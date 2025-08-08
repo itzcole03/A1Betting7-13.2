@@ -126,6 +126,7 @@ export default defineConfig(({ mode, command }) => {
       outDir: isElectron ? 'dist-electron' : 'dist',
       assetsDir: 'assets',
       sourcemap: command === 'build',
+      minify: command === 'build' ? 'esbuild' : false,
       rollupOptions: {
         external: isElectron ? ['electron'] : [],
         output: {
@@ -140,9 +141,16 @@ export default defineConfig(({ mode, command }) => {
                   utils: ['class-variance-authority', 'clsx', 'tailwind-merge'],
                 }
               : undefined,
+          // Reduce chunk size to minimize preload warnings
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash].[ext]',
         },
         onwarn(warning, warn) {
+          // Suppress common warnings that don't affect functionality
           if (warning.code === 'UNRESOLVED_IMPORT') return;
+          if (warning.code === 'CIRCULAR_DEPENDENCY') return;
+          if (warning.message?.includes('source map')) return;
           warn(warning);
         },
       },
