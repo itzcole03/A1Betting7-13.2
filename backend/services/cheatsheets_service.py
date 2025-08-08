@@ -101,10 +101,15 @@ class CheatsheetsService:
     """Service for generating ranked prop opportunities"""
     
     def __init__(self):
-        self.odds_service = get_odds_service()
+        try:
+            self.odds_service = get_odds_service()
+        except Exception as e:
+            logger.error(f"Failed to initialize odds service: {e}")
+            self.odds_service = None
+
         self.cache_ttl = 300  # 5 minutes cache
         self.opportunities_cache: Dict[str, Dict] = {}
-        
+
         # ML model weights for opportunity scoring
         self.scoring_weights = {
             'edge_percentage': 0.35,
