@@ -14,9 +14,11 @@ import {
   Search,
   RefreshCw,
   BookOpen,
-  Target
+  Target,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
-import { mockCheatsheetData } from '../odds/MockOddsData';
+import { cheatsheetsService, type PropOpportunity, type CheatsheetFilters as ServiceFilters } from '../../../services/cheatsheetsService';
 
 interface PropOpportunity {
   id: string;
