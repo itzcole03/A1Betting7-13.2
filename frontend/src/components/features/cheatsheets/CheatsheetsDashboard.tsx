@@ -240,7 +240,7 @@ export const CheatsheetsDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Status Bar */}
+          {/* Enhanced Status Bar */}
           <div className="mt-4 flex items-center justify-between bg-slate-800/50 backdrop-blur rounded-lg p-4">
             <div className="flex items-center gap-6">
               <div className="text-sm">
@@ -250,15 +250,42 @@ export const CheatsheetsDashboard: React.FC = () => {
               <div className="text-sm">
                 <span className="text-slate-400">Avg Edge:</span>
                 <span className="text-white font-semibold ml-2">
-                  {filteredOpportunities.length > 0 
+                  {filteredOpportunities.length > 0
                     ? (filteredOpportunities.reduce((sum, opp) => sum + opp.edge_percentage, 0) / filteredOpportunities.length).toFixed(1)
                     : '0.0'
                   }%
                 </span>
               </div>
+              <div className="text-sm">
+                <span className="text-slate-400">Source:</span>
+                <span className={`font-semibold ml-2 ${
+                  dataSource === 'api' ? 'text-green-400' :
+                  dataSource === 'cache' ? 'text-blue-400' : 'text-yellow-400'
+                }`}>
+                  {dataSource.toUpperCase()}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                {apiHealth === null ? (
+                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                ) : apiHealth ? (
+                  <Wifi className="w-4 h-4 text-green-400" />
+                ) : (
+                  <WifiOff className="w-4 h-4 text-red-400" />
+                )}
+                <span className="text-slate-400">
+                  API {apiHealth === null ? 'Unknown' : apiHealth ? 'Online' : 'Offline'}
+                </span>
+              </div>
+              {processingTime > 0 && (
+                <div className="text-sm">
+                  <span className="text-slate-400">Response:</span>
+                  <span className="text-white font-semibold ml-2">{processingTime}ms</span>
+                </div>
+              )}
               {lastRefresh && (
                 <div className="text-sm">
-                  <span className="text-slate-400">Last Updated:</span>
+                  <span className="text-slate-400">Updated:</span>
                   <span className="text-white font-semibold ml-2">
                     {lastRefresh.toLocaleTimeString()}
                   </span>
