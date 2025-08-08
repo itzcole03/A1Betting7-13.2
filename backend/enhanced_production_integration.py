@@ -925,7 +925,7 @@ class EnhancedProductionApp:
 
             # NEW: Odds aggregation and arbitrage detection routes
             try:
-                self.app.include_router(odds_router, tags=["Odds & Arbitrage"])
+                self.app.include_router(odds_router, prefix="/api", tags=["Odds & Arbitrage"])
                 enhanced_routes.append("odds_arbitrage")
                 self.logger.info("✅ Odds aggregation and arbitrage routes included")
             except Exception as e:
