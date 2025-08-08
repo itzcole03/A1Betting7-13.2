@@ -61,7 +61,12 @@ export default defineConfig(({ mode, command }) => {
       },
     },
 
-    define: processEnv,
+    define: {
+      ...processEnv,
+      // Polyfill process for browser compatibility
+      'process.env.NODE_ENV': JSON.stringify(mode),
+      global: 'globalThis',
+    },
 
     server: {
       port: parseInt(env.VITE_PORT || '5173', 10),

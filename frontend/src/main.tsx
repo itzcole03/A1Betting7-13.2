@@ -20,7 +20,7 @@ import './styles/quantum-styles.css';
 logger.info(
   '🚀 A1Betting Platform Loading - Production Mode',
   {
-    environment: process.env.NODE_ENV, // Jest-compatible
+    environment: import.meta.env.MODE, // Vite environment
     timestamp: new Date().toISOString(),
     userAgent: navigator.userAgent,
   },

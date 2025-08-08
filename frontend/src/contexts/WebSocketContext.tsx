@@ -55,7 +55,7 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
   const [status, setStatus] = useState<WebSocketStatus>('connecting');
   const [connected, setConnected] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
-  const verboseLogging = process.env.NODE_ENV === 'development';
+  const verboseLogging = import.meta.env.DEV;
   const _wsRef = useRef<WebSocket | null>(null);
   const _handlers = useRef<Record<string, ((data: unknown) => void)[]>>({});
   const reconnectAttempts = useRef(0);
@@ -66,10 +66,10 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
 
   // Helper to get the WebSocket URL
   const getWebSocketUrl = () => {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       return 'ws://localhost:8000/ws';
     } else {
-      return process.env.VITE_WS_URL || process.env.WS_URL || 'ws://localhost:8000/ws';
+      return import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
     }
   };
 
@@ -170,7 +170,7 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
     isUnmounted.current = false;
 
     // Only connect if WebSocket server is explicitly enabled
-    const wsEnabled = process.env.VITE_WEBSOCKET_ENABLED === 'true';
+    const wsEnabled = import.meta.env.VITE_WEBSOCKET_ENABLED === 'true';
     if (wsEnabled) {
       connectWebSocket();
     } else {
@@ -183,7 +183,7 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
 
     // Immediate reconnect on network changes
     const handleOnline = () => {
-      const wsEnabled = process.env.VITE_WEBSOCKET_ENABLED === 'true';
+      const wsEnabled = import.meta.env.VITE_WEBSOCKET_ENABLED === 'true';
       if (!connected && wsEnabled) {
         setStatus('reconnecting');
         setLastError(null);

@@ -14,32 +14,12 @@ import {
   Search,
   RefreshCw,
   BookOpen,
-  Target
+  Target,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
-import { mockCheatsheetData } from '../odds/MockOddsData';
-
-interface PropOpportunity {
-  id: string;
-  player_name: string;
-  stat_type: string;
-  line: number;
-  recommended_side: 'over' | 'under';
-  edge_percentage: number;
-  confidence: number;
-  best_odds: number;
-  best_book: string;
-  fair_price: number;
-  implied_probability: number;
-  recent_performance: string;
-  sample_size: number;
-  last_updated: string;
-  sport: string;
-  team: string;
-  opponent: string;
-  venue: 'home' | 'away';
-  weather?: string;
-  injury_concerns?: string;
-}
+import { cheatsheetsService, type PropOpportunity, type CheatsheetFilters as ServiceFilters } from '../../../services/cheatsheetsService';
+import BackendConnectionTest from '../../debug/BackendConnectionTest';
 
 interface CheatsheetFilters {
   minEdge: number;
@@ -99,91 +79,99 @@ export const CheatsheetsDashboard: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [apiHealth, setApiHealth] = useState<boolean | null>(null);
+  const [dataSource, setDataSource] = useState<string>('api');
+  const [processingTime, setProcessingTime] = useState<number>(0);
 
-  // Fetch opportunities from backend
+  // Fetch opportunities using optimized service
   const fetchOpportunities = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const params = new URLSearchParams({
-        min_edge: filters.minEdge.toString(),
-        min_confidence: filters.minConfidence.toString(),
-        min_sample_size: filters.minSampleSize.toString(),
-        sports: filters.sports.join(','),
-        stat_types: filters.statTypes.join(','),
-        books: filters.books.join(','),
-        sides: filters.sides.join(','),
-        search: filters.searchQuery
-      });
+      const serviceFilters: Partial<ServiceFilters> = {
+        min_edge: filters.minEdge,
+        min_confidence: filters.minConfidence,
+        min_sample_size: filters.minSampleSize,
+        sports: filters.sports,
+        stat_types: filters.statTypes,
+        books: filters.books,
+        sides: filters.sides,
+        search_query: filters.searchQuery,
+        max_results: 50
+      };
 
-      console.log('[CheatsheetsDashboard] Fetching real data from API...');
-      const response = await fetch(`/v1/cheatsheets/opportunities?${params}`, {
-        signal: AbortSignal.timeout(10000) // Increased timeout for real data processing
-      });
+      console.log('[CheatsheetsDashboard] Fetching opportunities via service...');
+      const response = await cheatsheetsService.getOpportunities(serviceFilters);
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.opportunities && Array.isArray(data.opportunities)) {
-          setOpportunities(data.opportunities);
-          setLastRefresh(new Date());
-          console.log(`[CheatsheetsDashboard] Successfully loaded ${data.opportunities.length} real opportunities`);
-        } else {
-          throw new Error('Invalid response format from API');
-        }
+      setOpportunities(response.opportunities);
+      setLastRefresh(new Date(response.last_updated));
+      setProcessingTime(response.processing_time_ms);
+      setDataSource(response.cache_hit ? 'cache' : response.data_sources?.[0] || 'api');
+      setApiHealth(true);
+
+      if (response.market_status === 'limited') {
+        setError('Using fallback data - API connectivity limited');
       } else {
-        throw new Error(`API returned ${response.status}: ${response.statusText}`);
+        setError(null);
       }
-    } catch (err) {
-      console.warn('[CheatsheetsDashboard] Failed to load real data, using fallback:', err);
-      setError(`Failed to load data: ${err.message}`);
 
-      // Only use mock data as absolute fallback
-      const fallbackData = generateMockOpportunities();
-      setOpportunities(fallbackData);
-      setLastRefresh(new Date());
+      console.log(`[CheatsheetsDashboard] Loaded ${response.opportunities.length} opportunities`, {
+        processingTime: response.processing_time_ms,
+        cacheHit: response.cache_hit,
+        marketStatus: response.market_status
+      });
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error('[CheatsheetsDashboard] Service failed:', errorMessage);
+
+      const isCloudEnvironment = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+      if (isCloudEnvironment) {
+        setError('Using demo data - Backend not connected to cloud environment');
+      } else {
+        setError(`Service error: ${errorMessage}`);
+      }
+
+      setApiHealth(false);
+      setDataSource('fallback');
+
+      // Service handles fallback internally, so we should still get data
+      setOpportunities([]);
     } finally {
       setLoading(false);
     }
   }, [filters]);
 
-  // Generate fallback data only when API fails
-  const generateMockOpportunities = (): PropOpportunity[] => {
-    const mockPlayers = ['Aaron Judge', 'Mookie Betts', 'Ronald Acuna Jr.', 'Juan Soto'];
-    const statTypes = ['hits', 'total_bases', 'home_runs', 'rbis', 'runs_scored'];
-    const books = ['DraftKings', 'FanDuel', 'BetMGM', 'Caesars'];
+  // Check API health periodically
+  const checkApiHealth = useCallback(async () => {
+    const healthy = await cheatsheetsService.healthCheck();
+    setApiHealth(healthy);
 
-    console.log('[CheatsheetsDashboard] Generating fallback mock data (API unavailable)');
+    // If unhealthy, get diagnostic information for better error messages
+    if (!healthy) {
+      try {
+        const diagnostics = await cheatsheetsService.getDiagnosticInfo();
+        const suggestions = diagnostics.suggestions.join('. ');
 
-    return mockPlayers.flatMap((player, i) =>
-      statTypes.slice(0, 2).map((stat, j) => ({
-        id: `fallback-${i}-${j}`,
-        player_name: player,
-        stat_type: stat,
-        line: 1.5 + (i * 0.5) + (j * 0.2),
-        recommended_side: Math.random() > 0.5 ? 'over' : 'under',
-        edge_percentage: 1.5 + Math.random() * 6,
-        confidence: 65 + Math.random() * 30,
-        best_odds: -110 + Math.random() * 40,
-        best_book: books[Math.floor(Math.random() * books.length)],
-        fair_price: 0.45 + Math.random() * 0.1,
-        implied_probability: 0.5 + (Math.random() - 0.5) * 0.2,
-        recent_performance: `${Math.floor(Math.random() * 5)} of last 10 games over`,
-        sample_size: 10 + Math.floor(Math.random() * 20),
-        last_updated: new Date().toISOString(),
-        sport: 'MLB',
-        team: ['NYY', 'LAD', 'ATL', 'SD'][i],
-        opponent: ['BOS', 'SF', 'NYM', 'LAA'][i],
-        venue: Math.random() > 0.5 ? 'home' : 'away',
-        // Add missing fields from real API response
-        weather: Math.random() > 0.7 ? 'Clear, 75°F' : null,
-        injury_concerns: Math.random() > 0.9 ? 'Minor day-to-day' : null,
-        market_efficiency: Math.random(),
-        volatility_score: Math.random(),
-        trend_direction: ['bullish', 'bearish', 'neutral'][Math.floor(Math.random() * 3)]
-      }))
-    );
-  };
+        // Check if we're in a cloud environment
+        const isCloudEnvironment = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+        if (isCloudEnvironment) {
+          setError('Using demo data - Backend connection not available in cloud environment. For live data, run locally.');
+        } else {
+          setError(`Backend connectivity issue: ${suggestions}`);
+        }
+      } catch (diagError) {
+        const errorMessage = diagError instanceof Error ? diagError.message : String(diagError);
+        console.warn('[CheatsheetsDashboard] Diagnostic error:', errorMessage);
+        setError('Backend not responding - using demo data');
+      }
+    }
+
+    return healthy;
+  }, []);
 
   // Filter opportunities based on current filters
   const filteredOpportunities = useMemo(() => {
@@ -201,47 +189,32 @@ export const CheatsheetsDashboard: React.FC = () => {
     }).sort((a, b) => b.edge_percentage - a.edge_percentage);
   }, [opportunities, filters]);
 
-  // Export to CSV
-  const exportToCSV = useCallback(() => {
-    const headers = [
-      'Player',
-      'Stat Type',
-      'Line',
-      'Side',
-      'Edge %',
-      'Confidence',
-      'Best Odds',
-      'Book',
-      'Fair Price',
-      'Sample Size',
-      'Recent Performance'
-    ];
+  // Export to CSV using service
+  const exportToCSV = useCallback(async () => {
+    try {
+      const serviceFilters: Partial<ServiceFilters> = {
+        min_edge: filters.minEdge,
+        min_confidence: filters.minConfidence,
+        min_sample_size: filters.minSampleSize,
+        sports: filters.sports,
+        stat_types: filters.statTypes,
+        books: filters.books,
+        sides: filters.sides,
+        search_query: filters.searchQuery
+      };
 
-    const csvContent = [
-      headers.join(','),
-      ...filteredOpportunities.map(opp => [
-        opp.player_name,
-        opp.stat_type,
-        opp.line,
-        opp.recommended_side,
-        opp.edge_percentage.toFixed(2),
-        opp.confidence.toFixed(1),
-        opp.best_odds,
-        opp.best_book,
-        opp.fair_price.toFixed(3),
-        opp.sample_size,
-        `"${opp.recent_performance}"`
-      ].join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `cheatsheet-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [filteredOpportunities]);
+      const blob = await cheatsheetsService.exportCSV(serviceFilters);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `a1betting-cheatsheet-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('[CheatsheetsDashboard] CSV export failed:', error);
+      setError('Failed to export CSV. Please try again.');
+    }
+  }, [filters]);
 
   // Apply filter preset
   const applyPreset = useCallback((presetId: string) => {
@@ -252,16 +225,23 @@ export const CheatsheetsDashboard: React.FC = () => {
     }
   }, []);
 
-  // Load initial data
+  // Initial data load and health check
   useEffect(() => {
+    checkApiHealth();
     fetchOpportunities();
   }, []);
 
-  // Refresh every 2 minutes
+  // Auto-refresh data every 90 seconds for real-time updates
   useEffect(() => {
-    const interval = setInterval(fetchOpportunities, 120000);
+    const interval = setInterval(fetchOpportunities, 90000);
     return () => clearInterval(interval);
   }, [fetchOpportunities]);
+
+  // Health check every 30 seconds
+  useEffect(() => {
+    const healthInterval = setInterval(checkApiHealth, 30000);
+    return () => clearInterval(healthInterval);
+  }, [checkApiHealth]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -276,11 +256,22 @@ export const CheatsheetsDashboard: React.FC = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={exportToCSV}
-                disabled={filteredOpportunities.length === 0}
+                disabled={filteredOpportunities.length === 0 || loading}
                 className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Export CSV
+              </button>
+              <button
+                onClick={() => {
+                  cheatsheetsService.clearCache();
+                  fetchOpportunities();
+                }}
+                className="flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                title="Clear cache and refresh"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Force Refresh
               </button>
               <button
                 onClick={() => setShowFilters(!showFilters)}
@@ -292,7 +283,7 @@ export const CheatsheetsDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Status Bar */}
+          {/* Enhanced Status Bar */}
           <div className="mt-4 flex items-center justify-between bg-slate-800/50 backdrop-blur rounded-lg p-4">
             <div className="flex items-center gap-6">
               <div className="text-sm">
@@ -302,15 +293,42 @@ export const CheatsheetsDashboard: React.FC = () => {
               <div className="text-sm">
                 <span className="text-slate-400">Avg Edge:</span>
                 <span className="text-white font-semibold ml-2">
-                  {filteredOpportunities.length > 0 
+                  {filteredOpportunities.length > 0
                     ? (filteredOpportunities.reduce((sum, opp) => sum + opp.edge_percentage, 0) / filteredOpportunities.length).toFixed(1)
                     : '0.0'
                   }%
                 </span>
               </div>
+              <div className="text-sm">
+                <span className="text-slate-400">Source:</span>
+                <span className={`font-semibold ml-2 ${
+                  dataSource === 'api' ? 'text-green-400' :
+                  dataSource === 'cache' ? 'text-blue-400' : 'text-yellow-400'
+                }`}>
+                  {dataSource.toUpperCase()}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                {apiHealth === null ? (
+                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                ) : apiHealth ? (
+                  <Wifi className="w-4 h-4 text-green-400" />
+                ) : (
+                  <WifiOff className="w-4 h-4 text-red-400" />
+                )}
+                <span className="text-slate-400">
+                  API {apiHealth === null ? 'Unknown' : apiHealth ? 'Online' : 'Offline'}
+                </span>
+              </div>
+              {processingTime > 0 && (
+                <div className="text-sm">
+                  <span className="text-slate-400">Response:</span>
+                  <span className="text-white font-semibold ml-2">{processingTime}ms</span>
+                </div>
+              )}
               {lastRefresh && (
                 <div className="text-sm">
-                  <span className="text-slate-400">Last Updated:</span>
+                  <span className="text-slate-400">Updated:</span>
                   <span className="text-white font-semibold ml-2">
                     {lastRefresh.toLocaleTimeString()}
                   </span>
@@ -421,6 +439,13 @@ export const CheatsheetsDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Backend Connection Test (only show when there are errors) */}
+        {(error || apiHealth === false) && (
+          <div className="mb-6">
+            <BackendConnectionTest />
           </div>
         )}
 
