@@ -193,16 +193,23 @@ export const CheatsheetsDashboard: React.FC = () => {
     }
   }, []);
 
-  // Load initial data
+  // Initial data load and health check
   useEffect(() => {
+    checkApiHealth();
     fetchOpportunities();
   }, []);
 
-  // Refresh every 2 minutes
+  // Auto-refresh data every 90 seconds for real-time updates
   useEffect(() => {
-    const interval = setInterval(fetchOpportunities, 120000);
+    const interval = setInterval(fetchOpportunities, 90000);
     return () => clearInterval(interval);
   }, [fetchOpportunities]);
+
+  // Health check every 30 seconds
+  useEffect(() => {
+    const healthInterval = setInterval(checkApiHealth, 30000);
+    return () => clearInterval(healthInterval);
+  }, [checkApiHealth]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
