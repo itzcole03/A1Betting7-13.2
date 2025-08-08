@@ -49,14 +49,8 @@ const UserFriendlyApp: React.FC = () => {
       {/* Enhanced Navigation */}
       <EnhancedNavigation
         isOpen={navigationOpen}
-        onToggle={() => {
-          console.log('[Navigation] Toggle clicked, current state:', navigationOpen);
-          setNavigationOpen(!navigationOpen);
-        }}
-        onClose={() => {
-          console.log('[Navigation] Close triggered');
-          setNavigationOpen(false);
-        }}
+        onToggle={() => setNavigationOpen(!navigationOpen)}
+        onClose={() => setNavigationOpen(false)}
       />
 
       {/* Main content with proper spacing */}
