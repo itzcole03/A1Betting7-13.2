@@ -226,13 +226,23 @@ export const BackendConnectionTest: React.FC = () => {
       {/* Troubleshooting tips */}
       <div className="mt-6 p-4 bg-slate-700/30 rounded-lg">
         <h4 className="text-sm font-medium text-white mb-2">Troubleshooting Tips:</h4>
-        <ul className="text-xs text-slate-400 space-y-1">
-          <li>• Ensure the backend is running on the correct port (usually 8000)</li>
-          <li>• Check if the backend is binding to 0.0.0.0 (not just 127.0.0.1)</li>
-          <li>• Verify CORS is properly configured in the backend</li>
-          <li>�� Check firewall settings allow connections to the backend port</li>
-          <li>• Confirm the backend API routes are properly registered</li>
-        </ul>
+        {isCloudEnvironment ? (
+          <ul className="text-xs text-slate-400 space-y-1">
+            <li>• This is a cloud environment - backend must be connected via proxy</li>
+            <li>• Ensure your local backend is running and accessible</li>
+            <li>• Check if the proxy/tunnel to your local backend is configured</li>
+            <li>• Verify CORS is properly configured in the backend for cloud domains</li>
+            <li>• The backend should respond to proxy endpoints like /api/health</li>
+          </ul>
+        ) : (
+          <ul className="text-xs text-slate-400 space-y-1">
+            <li>• Ensure the backend is running on the correct port (usually 8000)</li>
+            <li>• Check if the backend is binding to 0.0.0.0 (not just 127.0.0.1)</li>
+            <li>• Verify CORS is properly configured in the backend</li>
+            <li>• Check firewall settings allow connections to the backend port</li>
+            <li>• Confirm the backend API routes are properly registered</li>
+          </ul>
+        )}
       </div>
     </div>
   );
