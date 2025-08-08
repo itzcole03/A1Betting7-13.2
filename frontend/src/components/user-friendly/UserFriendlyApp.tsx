@@ -120,6 +120,11 @@ const UserFriendlyApp: React.FC = () => {
               <Route path='/performance' element={<BetTrackingDashboard />} />
               <Route path='/comparison' element={<SuccessMetricsPage />} />
 
+              {/* Roadmap Phase 4 Routes */}
+              <Route path='/advanced-player' element={<AdvancedPlayerDashboard />} />
+              <Route path='/player-lookup' element={<RealTimePlayerLookup />} />
+              <Route path='/matchup-analysis' element={<MatchupAnalysisTools />} />
+
               {/* Legacy Routes */}
               <Route
                 path='/legacy-propollama'
