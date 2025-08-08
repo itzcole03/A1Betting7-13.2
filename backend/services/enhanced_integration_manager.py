@@ -375,24 +375,25 @@ class EnhancedIntegrationManager:
             # Return cached data as fallback
             return await self._get_fallback_data(sports_to_fetch)
 
-    async def get_enhanced_player_data(self, sport: SportType, player_id: str) -> Dict[str, Any]:
+    async def get_enhanced_player_data(self, sport: SportType, player_id: str, user_id: str = None) -> Dict[str, Any]:
         """
-        Get enhanced player data with quality validation
-        Implements intelligent caching with sport-specific volatility
+        Get enhanced player data with quality validation and event-driven caching
+        Implements intelligent caching with sport-specific volatility and user tracking
         """
         import time
         start_time = time.time()
-        
+
         try:
             self.integration_metrics["total_requests"] += 1
-            
-            # Check cache first with intelligent caching
-            cache_key = f"enhanced_player_{sport.value}_{player_id}"
-            cached_data = await intelligent_cache_service.get(
-                cache_key, 
-                user_context=f"player_data_{sport.value}"
+
+            # Use sport-aware cache with user tracking
+            cached_data = await intelligent_cache_service.get_sport_data(
+                sport=sport.value,
+                data_category="player_stats",
+                key=f"enhanced_player_{sport.value}_{player_id}",
+                user_id=user_id
             )
-            
+
             if cached_data:
                 self.integration_metrics["cache_hits"] += 1
                 logger.debug(f"✅ Cache hit for player {player_id}")
@@ -401,32 +402,33 @@ class EnhancedIntegrationManager:
                     "metadata": {
                         "source": "cache",
                         "timestamp": datetime.now(timezone.utc).isoformat(),
-                        "cache_status": "hit"
+                        "cache_status": "hit",
+                        "cache_type": "sport_aware"
                     }
                 }
-            
+
             # Fetch from Sportradar
             player_data = await sportradar_service.get_player_stats(sport, player_id)
-            
+
             if player_data:
                 # Validate data quality
                 violations = await data_quality_monitor.validate_data(
-                    DataSourceType.SPORTRADAR, 
+                    DataSourceType.SPORTRADAR,
                     {"player": player_data}
                 )
-                
-                # Cache with sport-specific TTL
-                cache_ttl = self._get_sport_specific_cache_ttl(sport, "player_stats")
-                await intelligent_cache_service.set(
-                    cache_key,
-                    player_data,
-                    ttl_seconds=cache_ttl,
-                    user_context=f"player_data_{sport.value}"
+
+                # Cache with sport-specific volatility model
+                await intelligent_cache_service.set_sport_data(
+                    sport=sport.value,
+                    data_category="player_stats",
+                    key=f"enhanced_player_{sport.value}_{player_id}",
+                    value=player_data,
+                    user_id=user_id
                 )
-                
+
                 response_time = time.time() - start_time
                 self._update_response_time_metric(response_time)
-                
+
                 return {
                     "data": player_data,
                     "metadata": {
@@ -434,12 +436,13 @@ class EnhancedIntegrationManager:
                         "timestamp": datetime.now(timezone.utc).isoformat(),
                         "response_time_ms": response_time * 1000,
                         "cache_status": "miss",
-                        "quality_violations": len(violations) if violations else 0
+                        "quality_violations": len(violations) if violations else 0,
+                        "cache_type": "sport_aware"
                     }
                 }
-            
+
             return {"error": "Player data not available"}
-            
+
         except Exception as e:
             logger.error(f"❌ Error fetching enhanced player data: {e}")
             return {"error": str(e)}
