@@ -78,6 +78,9 @@ export const CheatsheetsDashboard: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [apiHealth, setApiHealth] = useState<boolean | null>(null);
+  const [dataSource, setDataSource] = useState<string>('api');
+  const [processingTime, setProcessingTime] = useState<number>(0);
 
   // Fetch opportunities from backend
   const fetchOpportunities = useCallback(async () => {
