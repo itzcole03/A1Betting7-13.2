@@ -391,6 +391,21 @@ npm install
 npm run dev
 ```
 
+**Navigation Menu Not Working**
+```bash
+# Fixed in latest version - z-index conflicts resolved
+# Navigation button now has proper z-[60] layering
+# Clear browser cache if still experiencing issues
+```
+
+**Console Spam/Errors**
+```bash
+# Intelligent error filtering now active
+# Non-critical errors automatically suppressed
+# Check suppressed error stats with:
+# console.log(getSuppressedErrorStats())
+```
+
 **TypeScript Errors**
 ```bash
 npm run type-check       # Check all issues
@@ -402,6 +417,7 @@ npm run lint:fix         # Auto-fix issues
 # Check React DevTools Profiler
 # Monitor Network tab for API calls
 # Use built-in performance monitoring
+# Verbose logging has been reduced
 ```
 
 **AI Features Not Working**
@@ -411,6 +427,13 @@ curl http://localhost:11434/api/tags
 
 # Fallback: Demo mode includes AI responses
 # Full AI demonstration available offline
+```
+
+**WebSocket Connection Issues**
+```bash
+# WebSocket errors are now automatically suppressed
+# App continues to work in demo mode
+# Mixed content errors handled gracefully
 ```
 
 ---
