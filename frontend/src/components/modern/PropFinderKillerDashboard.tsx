@@ -35,6 +35,7 @@ import {
   Shield,
   Calculator,
 } from 'lucide-react';
+import CommunityEngagement from '../community/CommunityEngagement';
 
 // Enhanced interfaces based on competitor analysis
 interface PropOpportunity {
