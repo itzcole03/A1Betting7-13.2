@@ -165,13 +165,17 @@ class CheatsheetsService:
             return self._generate_mock_opportunities(filters)
     
     async def _analyze_sport_opportunities(
-        self, 
-        sport: str, 
+        self,
+        sport: str,
         filters: CheatsheetFilters
     ) -> List[PropOpportunity]:
         """Analyze opportunities for a specific sport"""
-        
+
         # Get best lines from odds aggregation
+        if self.odds_service is None:
+            logger.warning("Odds service not available, returning empty opportunities")
+            return []
+
         best_lines = await self.odds_service.find_best_lines(sport)
         
         opportunities = []
