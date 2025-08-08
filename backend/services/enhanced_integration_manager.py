@@ -188,26 +188,147 @@ class EnhancedIntegrationManager:
     async def _handle_quality_violation(self, violation: QualityViolation):
         """Handle data quality violations"""
         self.integration_metrics["data_quality_violations"] += 1
-        
+
         # Log the violation
         logger.error(
             f"🚨 Data Quality Violation: {violation.rule_name} "
             f"({violation.severity.value}) - {violation.description}"
         )
-        
+
         # Take corrective action based on severity
         if violation.severity.value in ["error", "critical"]:
-            # Invalidate related cache entries
-            cache_pattern = f"*{violation.data_source.value}*"
-            await intelligent_cache_service.invalidate_pattern(cache_pattern)
-            logger.info(f"🗑️ Invalidated cache for pattern: {cache_pattern}")
-        
+            # Emit cache invalidation event
+            await event_driven_cache.emit_event(
+                event_type=EventType.DATA_SOURCE_UPDATE,
+                source=violation.data_source.value,
+                sport=None,  # Will be extracted from violation if available
+                data_category=violation.field_path,
+                payload={"violation": violation.rule_name, "severity": violation.severity.value},
+                invalidation_scope=InvalidationScope.PATTERN
+            )
+            logger.info(f"📡 Emitted cache invalidation event for quality violation")
+
         # Notify registered handlers
         for handler in self.quality_alert_handlers:
             try:
                 await handler(violation)
             except Exception as e:
                 logger.error(f"❌ Quality alert handler error: {e}")
+
+    def _setup_cache_event_listeners(self):
+        """Set up event listeners for cache invalidation events"""
+
+        async def game_state_listener(event):
+            """Handle game state change events"""
+            try:
+                # Update sport volatility models with new game state
+                if event.game_id and event.payload.get("new_state"):
+                    game_state = GameState(event.payload["new_state"])
+                    await sport_volatility_models.update_game_state(event.game_id, game_state)
+                    logger.info(f"🎮 Updated game state for {event.game_id}: {game_state.value}")
+
+            except Exception as e:
+                logger.error(f"❌ Error handling game state event: {e}")
+
+        async def score_update_listener(event):
+            """Handle score update events"""
+            try:
+                # Log score update for metrics
+                self.integration_metrics["total_requests"] += 1
+                logger.debug(f"⚽ Score update received for game {event.game_id}")
+
+            except Exception as e:
+                logger.error(f"❌ Error handling score update event: {e}")
+
+        # Register event listeners
+        event_driven_cache.register_event_listener(EventType.GAME_STATE_CHANGE, game_state_listener)
+        event_driven_cache.register_event_listener(EventType.SCORE_UPDATE, score_update_listener)
+
+    async def _emit_cache_events_from_data(self, data_source: DataSourceType, data: Dict[str, Any]):
+        """Emit cache invalidation events based on incoming data"""
+        try:
+            # Detect what type of data this is and emit appropriate events
+
+            if "games" in data:
+                # Process game data for score and state changes
+                games = data.get("games", [])
+
+                for game in games:
+                    game_id = game.get("id")
+                    if not game_id:
+                        continue
+
+                    # Check for score updates
+                    home_score = game.get("home_score")
+                    away_score = game.get("away_score")
+
+                    if home_score is not None or away_score is not None:
+                        await event_driven_cache.emit_event(
+                            event_type=EventType.SCORE_UPDATE,
+                            source=data_source.value,
+                            sport=self._extract_sport_from_data(data),
+                            game_id=game_id,
+                            payload={"home_score": home_score, "away_score": away_score},
+                            invalidation_scope=InvalidationScope.RELATED
+                        )
+
+                    # Check for game state changes
+                    game_status = game.get("status")
+                    if game_status:
+                        await event_driven_cache.emit_event(
+                            event_type=EventType.GAME_STATE_CHANGE,
+                            source=data_source.value,
+                            sport=self._extract_sport_from_data(data),
+                            game_id=game_id,
+                            payload={"new_state": game_status},
+                            invalidation_scope=InvalidationScope.PATTERN
+                        )
+
+            # Check for odds data
+            if "odds" in data or "bookmakers" in data:
+                await event_driven_cache.emit_event(
+                    event_type=EventType.ODDS_CHANGE,
+                    source=data_source.value,
+                    sport=self._extract_sport_from_data(data),
+                    data_category="odds",
+                    payload={"timestamp": datetime.now(timezone.utc).isoformat()},
+                    invalidation_scope=InvalidationScope.PATTERN
+                )
+
+            # Check for injury reports
+            if "injuries" in data or "injury_reports" in data:
+                await event_driven_cache.emit_event(
+                    event_type=EventType.INJURY_REPORT,
+                    source=data_source.value,
+                    sport=self._extract_sport_from_data(data),
+                    data_category="injuries",
+                    invalidation_scope=InvalidationScope.RELATED
+                )
+
+        except Exception as e:
+            logger.error(f"❌ Error emitting cache events from data: {e}")
+
+    def _extract_sport_from_data(self, data: Dict[str, Any]) -> Optional[str]:
+        """Extract sport type from data structure"""
+        try:
+            # Look for sport indicators in the data
+            sport_indicators = {
+                "mlb": ["baseball", "mlb"],
+                "nba": ["basketball", "nba"],
+                "nfl": ["football", "nfl", "american_football"],
+                "nhl": ["hockey", "nhl", "ice_hockey"]
+            }
+
+            data_str = str(data).lower()
+
+            for sport, indicators in sport_indicators.items():
+                if any(indicator in data_str for indicator in indicators):
+                    return sport
+
+            return None
+
+        except Exception:
+            return None
 
     # Public API methods following the analysis recommendations
 
