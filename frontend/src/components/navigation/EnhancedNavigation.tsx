@@ -1,527 +1,480 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home,
-  BarChart3,
+  Brain,
   Target,
-  DollarSign,
   TrendingUp,
-  Activity,
+  BarChart3,
+  Calculator,
+  Search,
+  Bookmark,
   Settings,
   User,
-  Users,
-  Shield,
-  Bell,
-  Search,
+  Activity,
+  Zap,
   Menu,
   X,
-  ChevronDown,
   ChevronRight,
-  Zap,
-  Database,
-  Globe,
-  Crown,
-  Star,
-  Award,
-  Gamepad2,
-  LineChart,
-  PieChart,
-  Brain,
+  Flame,
+  Trophy,
+  Shield,
+  Clock,
+  DollarSign,
+  BookOpen,
   Eye,
-  Lock,
-  CreditCard,
-  Smartphone,
-  Laptop,
+  Star,
+  Bell,
   HelpCircle,
-  LogOut,
-  Plus,
 } from 'lucide-react';
 
 interface NavigationItem {
   id: string;
-  label: string;
-  icon: React.ComponentType<unknown>;
-  path: string;
-  badge?: string;
-  submenu?: NavigationItem[];
-  adminOnly?: boolean;
-  proOnly?: boolean;
-}
-
-interface UserRole {
-  isAdmin: boolean;
-  isPro: boolean;
-  isElite: boolean;
+  name: string;
+  href: string;
+  icon: React.ComponentType<any>;
+  badge?: string | number;
+  description?: string;
+  category: 'main' | 'research' | 'tools' | 'analytics';
+  isNew?: boolean;
+  isPremium?: boolean;
+  isHot?: boolean;
 }
 
 interface EnhancedNavigationProps {
-  currentPath?: string;
-  onNavigate?: (path: string) => void;
-  userRole?: UserRole;
-  isCollapsed?: boolean;
-  onToggleCollapse?: () => void;
+  isOpen: boolean;
+  onToggle: () => void;
+  onClose: () => void;
 }
 
-const _EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
-  currentPath = '/',
-  onNavigate,
-  userRole = { isAdmin: false, isPro: false, isElite: false },
-  isCollapsed = false,
-  onToggleCollapse,
+const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
+  isOpen,
+  onToggle,
+  onClose,
 }) => {
-  const [expandedMenus, setExpandedMenus] = useState<string[]>(['dashboard']);
+  const location = useLocation();
+  const [activeCategory, setActiveCategory] = useState<string>('main');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
   const [notifications, setNotifications] = useState(3);
 
-  const _navigationItems: NavigationItem[] = [
+  const navigationItems: NavigationItem[] = [
+    // Main Features
+    {
+      id: 'prop-killer',
+      name: 'PropFinder Killer',
+      href: '/prop-killer',
+      icon: Brain,
+      badge: 'HOT',
+      description: 'AI-powered prop research that beats PropFinder',
+      category: 'main',
+      isHot: true,
+    },
     {
       id: 'dashboard',
-      label: 'Dashboard',
+      name: 'Dashboard',
+      href: '/',
       icon: Home,
-      path: '/dashboard',
-      submenu: [
-        { id: 'overview', label: 'Overview', icon: BarChart3, path: '/dashboard/overview' },
-        { id: 'analytics', label: 'Analytics', icon: LineChart, path: '/dashboard/analytics' },
-        { id: 'portfolio', label: 'Portfolio', icon: PieChart, path: '/dashboard/portfolio' },
-        {
-          id: 'performance',
-          label: 'Performance',
-          icon: TrendingUp,
-          path: '/dashboard/performance',
-        },
-      ],
+      description: 'Your personalized betting command center',
+      category: 'main',
     },
     {
-      id: 'betting',
-      label: 'Betting',
+      id: 'money-maker',
+      name: 'Money Maker',
+      href: '/money-maker',
+      icon: DollarSign,
+      badge: 'NEW',
+      description: 'Quantum AI betting engine',
+      category: 'main',
+      isNew: true,
+    },
+
+    // Research Tools
+    {
+      id: 'player-research',
+      name: 'Player Research',
+      href: '/player',
+      icon: Search,
+      description: 'Deep player analytics and projections',
+      category: 'research',
+    },
+    {
+      id: 'prop-scanner',
+      name: 'Prop Scanner',
+      href: '/prop-scanner',
+      icon: Eye,
+      badge: 'BETA',
+      description: 'Real-time prop opportunity scanning',
+      category: 'research',
+      isNew: true,
+    },
+    {
+      id: 'matchup-analyzer',
+      name: 'Matchup Analyzer',
+      href: '/matchup-analyzer',
       icon: Target,
-      path: '/betting',
-      submenu: [
-        { id: 'opportunities', label: 'Opportunities', icon: Eye, path: '/betting/opportunities' },
-        { id: 'arbitrage', label: 'Arbitrage Scanner', icon: Zap, path: '/betting/arbitrage' },
-        { id: 'live', label: 'Live Betting', icon: Activity, path: '/betting/live' },
-        { id: 'history', label: 'Bet History', icon: Award, path: '/betting/history' },
-      ],
+      description: 'Advanced matchup breakdowns',
+      category: 'research',
     },
     {
-      id: 'predictions',
-      label: 'Predictions',
-      icon: Brain,
-      path: '/predictions',
-      badge: 'AI',
-      submenu: [
-        { id: 'ml-models', label: 'ML Models', icon: Brain, path: '/predictions/models' },
-        { id: 'props', label: 'Player Props', icon: Gamepad2, path: '/predictions/props' },
-        {
-          id: 'quantum',
-          label: 'Quantum AI',
-          icon: Zap,
-          path: '/predictions/quantum',
-          proOnly: true,
-        },
-        {
-          id: 'shap',
-          label: 'SHAP Analysis',
-          icon: BarChart3,
-          path: '/predictions/shap',
-          proOnly: true,
-        },
-      ],
-    },
-    {
-      id: 'tools',
-      label: 'Tools',
-      icon: Database,
-      path: '/tools',
-      submenu: [
-        { id: 'bankroll', label: 'Bankroll Manager', icon: DollarSign, path: '/tools/bankroll' },
-        { id: 'risk', label: 'Risk Manager', icon: Shield, path: '/tools/risk' },
-        { id: 'lineup', label: 'Lineup Builder', icon: Users, path: '/tools/lineup' },
-        {
-          id: 'moneymaker',
-          label: 'Ultimate Money Maker',
-          icon: Crown,
-          path: '/tools/moneymaker',
-          proOnly: true,
-        },
-      ],
-    },
-    {
-      id: 'data',
-      label: 'Data',
-      icon: Globe,
-      path: '/data',
-      submenu: [
-        { id: 'odds', label: 'Live Odds', icon: Activity, path: '/data/odds' },
-        { id: 'injuries', label: 'Injury Reports', icon: Star, path: '/data/injuries' },
-        { id: 'weather', label: 'Weather Station', icon: Globe, path: '/data/weather' },
-        {
-          id: 'social',
-          label: 'Social Intelligence',
-          icon: Users,
-          path: '/data/social',
-          proOnly: true,
-        },
-      ],
-    },
-    {
-      id: 'account',
-      label: 'Account',
-      icon: User,
-      path: '/account',
-      submenu: [
-        { id: 'profile', label: 'Profile', icon: User, path: '/account/profile' },
-        { id: 'settings', label: 'Settings', icon: Settings, path: '/account/settings' },
-        { id: 'billing', label: 'Billing', icon: CreditCard, path: '/account/billing' },
-        {
-          id: 'notifications',
-          label: 'Notifications',
-          icon: Bell,
-          path: '/account/notifications',
-          badge: notifications > 0 ? notifications.toString() : undefined,
-        },
-      ],
-    },
-    {
-      id: 'admin',
-      label: 'Admin',
+      id: 'injury-tracker',
+      name: 'Injury Tracker',
+      href: '/injury-tracker',
       icon: Shield,
-      path: '/admin',
-      adminOnly: true,
-      submenu: [
-        { id: 'panel', label: 'Admin Panel', icon: Settings, path: '/admin/panel' },
-        { id: 'users', label: 'User Management', icon: Users, path: '/admin/users' },
-        { id: 'system', label: 'System Health', icon: Activity, path: '/admin/system' },
-        { id: 'advanced', label: 'Advanced Settings', icon: Database, path: '/admin/advanced' },
-      ],
+      badge: 2,
+      description: 'Live injury reports and impact analysis',
+      category: 'research',
+    },
+
+    // Tools
+    {
+      id: 'arbitrage',
+      name: 'Arbitrage Hunter',
+      href: '/arbitrage',
+      icon: Target,
+      badge: 'HOT',
+      description: 'Multi-sportsbook arbitrage opportunities',
+      category: 'tools',
+      isHot: true,
+    },
+    {
+      id: 'kelly-calculator',
+      name: 'Kelly Calculator',
+      href: '/kelly-calculator',
+      icon: Calculator,
+      description: 'Optimal bet sizing with Kelly Criterion',
+      category: 'tools',
+    },
+    {
+      id: 'odds-comparison',
+      name: 'Odds Comparison',
+      href: '/odds-comparison',
+      icon: TrendingUp,
+      description: 'Real-time odds across all sportsbooks',
+      category: 'tools',
+    },
+    {
+      id: 'line-tracker',
+      name: 'Line Tracker',
+      href: '/line-tracker',
+      icon: Activity,
+      description: 'Track line movements and betting patterns',
+      category: 'tools',
+    },
+    {
+      id: 'cheatsheets',
+      name: 'Prop Cheatsheets',
+      href: '/cheatsheets',
+      icon: BookOpen,
+      description: 'Quick reference guides and strategies',
+      category: 'tools',
+    },
+
+    // Analytics
+    {
+      id: 'bet-tracking',
+      name: 'Bet Tracking',
+      href: '/tracking',
+      icon: BarChart3,
+      description: 'Track your betting performance',
+      category: 'analytics',
+    },
+    {
+      id: 'ml-models',
+      name: 'ML Models',
+      href: '/ml-models',
+      icon: Brain,
+      badge: 'PRO',
+      description: 'Advanced machine learning models',
+      category: 'analytics',
+      isPremium: true,
+    },
+    {
+      id: 'performance',
+      name: 'Performance',
+      href: '/performance',
+      icon: Trophy,
+      description: 'Detailed performance analytics',
+      category: 'analytics',
     },
   ];
 
-  const _filteredItems = navigationItems.filter(item => {
-    if (item.adminOnly && !userRole.isAdmin) return false;
-    if (item.proOnly && !userRole.isPro && !userRole.isElite) return false;
-    return true;
+  const categories = [
+    { id: 'main', name: 'Main', icon: Home },
+    { id: 'research', name: 'Research', icon: Search },
+    { id: 'tools', name: 'Tools', icon: Calculator },
+    { id: 'analytics', name: 'Analytics', icon: BarChart3 },
+  ];
+
+  const filteredItems = navigationItems.filter(item => {
+    const matchesCategory = item.category === activeCategory;
+    const matchesSearch = searchQuery === '' || 
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesCategory && matchesSearch;
   });
 
-  const _toggleMenu = (menuId: string) => {
-    setExpandedMenus(prev =>
-      prev.includes(menuId) ? prev.filter(id => id !== menuId) : [...prev, menuId]
-    );
+  const isCurrentPath = (href: string) => {
+    if (href === '/' && location.pathname === '/') return true;
+    if (href !== '/' && location.pathname.startsWith(href)) return true;
+    return false;
   };
 
-  const _handleNavigate = (path: string) => {
-    if (onNavigate) {
-      onNavigate(path);
+  const getBadgeColor = (badge: string | number | undefined, item: NavigationItem) => {
+    if (typeof badge === 'number') return 'bg-red-500 text-white';
+    if (item.isHot) return 'bg-gradient-to-r from-red-500 to-orange-500 text-white';
+    if (item.isNew) return 'bg-gradient-to-r from-green-500 to-emerald-500 text-white';
+    if (item.isPremium) return 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white';
+    
+    switch (badge) {
+      case 'HOT': return 'bg-gradient-to-r from-red-500 to-orange-500 text-white';
+      case 'NEW': return 'bg-gradient-to-r from-green-500 to-emerald-500 text-white';
+      case 'BETA': return 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white';
+      case 'PRO': return 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white';
+      default: return 'bg-slate-600 text-white';
     }
   };
 
-  const _isCurrentPath = (path: string) => {
-    return currentPath === path || currentPath.startsWith(path + '/');
-  };
-
-  const _searchableItems = filteredItems.flatMap(item => [
-    item,
-    ...(item.submenu?.filter(subItem => {
-      if (subItem.adminOnly && !userRole.isAdmin) return false;
-      if (subItem.proOnly && !userRole.isPro && !userRole.isElite) return false;
-      return true;
-    }) || []),
-  ]);
-
-  const _filteredSearchResults = searchableItems.filter(item =>
-    item.label.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const _NavigationItem: React.FC<{
-    item: NavigationItem;
-    level?: number;
-    isExpanded?: boolean;
-  }> = ({ item, level = 0, isExpanded = false }) => {
-    const _hasSubmenu = item.submenu && item.submenu.length > 0;
-    const _isActive = isCurrentPath(item.path);
-    const _canExpand = hasSubmenu && !isCollapsed;
-
-    return (
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-      <div className={`${level > 0 ? 'ml-4' : ''}`}>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-        <button
-          onClick={() => {
-            if (hasSubmenu && !isCollapsed) {
-              toggleMenu(item.id);
-            } else {
-              handleNavigate(item.path);
-            }
-          }}
-          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all group ${
-            isActive
-              ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white border border-cyan-500/30'
-              : 'text-gray-400 hover:text-white hover:bg-slate-700/50'
-          }`}
-        >
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-          <div className='flex items-center space-x-3'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-            <item.icon
-              className={`w-5 h-5 ${
-                isActive ? 'text-cyan-400' : 'text-gray-400 group-hover:text-white'
-              }`}
-            />
-            {!isCollapsed && (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                <span className='font-medium'>{item.label}</span>
-                {item.badge && (
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                  <span className='px-2 py-1 text-xs bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-full'>
-                    {item.badge}
-                  </span>
-                )}
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                {item.proOnly && <Crown className='w-3 h-3 text-yellow-400' />}
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                {item.adminOnly && <Shield className='w-3 h-3 text-red-400' />}
-              </>
-            )}
-          </div>
-          {canExpand && (
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-            <ChevronRight
-              className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
-            />
-          )}
-        </button>
-
-        {/* Submenu */}
-        {hasSubmenu && !isCollapsed && (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-          <AnimatePresence>
-            {isExpanded && (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className='overflow-hidden'
-              >
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                <div className='pl-4 pt-2 space-y-1'>
-                  // @ts-expect-error TS(2532): Object is possibly 'undefined'.
-                  {item.submenu.map(subItem => {
-                    if (subItem.adminOnly && !userRole.isAdmin) return null;
-                    if (subItem.proOnly && !userRole.isPro && !userRole.isElite) return null;
-
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                    return <NavigationItem key={subItem.id} item={subItem} level={level + 1} />;
-                  })}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        )}
-      </div>
-    );
-  };
+  // Close on route change
+  useEffect(() => {
+    onClose();
+  }, [location.pathname, onClose]);
 
   return (
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-    <div
-      className={`bg-slate-900/50 backdrop-blur-lg border-r border-slate-700/50 transition-all duration-300 ${
-        isCollapsed ? 'w-16' : 'w-64'
-      }`}
-    >
-      {/* Header */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-      <div className='p-4 border-b border-slate-700/50'>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-        <div className='flex items-center justify-between'>
-          {!isCollapsed && (
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-            <div>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <h2 className='text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent'>
-                A1 Betting
-              </h2>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <p className='text-xs text-gray-400'>Platform Navigation</p>
-            </div>
+    <>
+      {/* Mobile/Desktop Toggle Button */}
+      <button
+        onClick={onToggle}
+        className="fixed top-4 left-4 z-50 bg-slate-800/90 backdrop-blur-sm p-3 rounded-xl text-white hover:bg-slate-700 transition-all duration-200 shadow-lg border border-slate-600 hover:shadow-xl"
+        title={isOpen ? 'Close Navigation' : 'Open Navigation'}
+      >
+        <AnimatePresence mode="wait">
+          {isOpen ? (
+            <motion.div
+              key="close"
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: 90, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <X className="w-5 h-5" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="menu"
+              initial={{ rotate: 90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: -90, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <Menu className="w-5 h-5" />
+            </motion.div>
           )}
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-          <button
-            onClick={onToggleCollapse}
-            className='p-2 text-gray-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors'
+        </AnimatePresence>
+      </button>
+
+      {/* Backdrop */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Navigation Sidebar */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ x: -400, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -400, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed left-0 top-0 h-full w-80 bg-slate-900/95 backdrop-blur-lg border-r border-slate-700 shadow-2xl z-45 flex flex-col"
           >
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-            {isCollapsed ? <ChevronRight className='w-4 h-4' /> : <Menu className='w-4 h-4' />}
-          </button>
-        </div>
+            {/* Header */}
+            <div className="p-6 border-b border-slate-700">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center">
+                    <Zap className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-bold text-white">A1 Betting</h1>
+                    <p className="text-xs text-gray-400">PropFinder Killer</p>
+                  </div>
+                </div>
+                
+                {/* Notifications */}
+                <div className="relative">
+                  <button className="p-2 text-gray-400 hover:text-white transition-colors">
+                    <Bell className="w-5 h-5" />
+                    {notifications > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                        {notifications}
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </div>
 
-        {/* Search */}
-        {!isCollapsed && (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-          <div className='mt-4'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-            <div className='relative'>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4' />
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <input
-                type='text'
-                placeholder='Search navigation...'
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                onFocus={() => setShowSearch(true)}
-                onBlur={() => setTimeout(() => setShowSearch(false), 200)}
-                className='w-full pl-10 pr-4 py-2 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 text-sm'
-              />
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search features..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all text-sm"
+                />
+              </div>
             </div>
 
-            {/* Search Results */}
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-            <AnimatePresence>
-              {showSearch && searchQuery && (
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            {/* Category Tabs */}
+            <div className="px-6 py-4 border-b border-slate-700">
+              <div className="grid grid-cols-2 gap-2">
+                {categories.map((category) => {
+                  const Icon = category.icon;
+                  const isActive = activeCategory === category.id;
+                  
+                  return (
+                    <button
+                      key={category.id}
+                      onClick={() => setActiveCategory(category.id)}
+                      className={`flex items-center justify-center space-x-2 px-3 py-2 rounded-lg font-medium transition-all text-sm ${
+                        isActive
+                          ? 'bg-cyan-500 text-white shadow-lg'
+                          : 'text-gray-400 hover:text-white hover:bg-slate-800'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span>{category.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Navigation Items */}
+            <div className="flex-1 overflow-y-auto px-4 py-4">
+              <AnimatePresence mode="wait">
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
+                  key={activeCategory}
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className='absolute top-full left-4 right-4 mt-2 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto'
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-2"
                 >
-                  {filteredSearchResults.length > 0 ? (
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                    <div className='p-2'>
-                      {filteredSearchResults.slice(0, 8).map(item => (
-                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                        <button
-                          key={item.id}
-                          onClick={() => {
-                            handleNavigate(item.path);
-                            setSearchQuery('');
-                            setShowSearch(false);
-                          }}
-                          className='w-full flex items-center space-x-3 px-3 py-2 text-left text-gray-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors'
+                  {filteredItems.map((item, index) => {
+                    const Icon = item.icon;
+                    const isCurrent = isCurrentPath(item.href);
+                    
+                    return (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                      >
+                        <Link
+                          to={item.href}
+                          onClick={onClose}
+                          className={`group flex items-center justify-between p-3 rounded-xl transition-all duration-200 ${
+                            isCurrent
+                              ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg'
+                              : 'text-gray-300 hover:text-white hover:bg-slate-800/50'
+                          }`}
                         >
-                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                          <item.icon className='w-4 h-4' />
-                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                          <span className='text-sm'>{item.label}</span>
-                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                          {item.proOnly && <Crown className='w-3 h-3 text-yellow-400' />}
-                          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                          {item.adminOnly && <Shield className='w-3 h-3 text-red-400' />}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                    <div className='p-4 text-center text-gray-400 text-sm'>No results found</div>
-                  )}
+                          <div className="flex items-center space-x-3">
+                            <div className={`p-2 rounded-lg transition-all ${
+                              isCurrent 
+                                ? 'bg-white/20' 
+                                : 'bg-slate-800 group-hover:bg-slate-700'
+                            }`}>
+                              <Icon className="w-4 h-4" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium text-sm">{item.name}</div>
+                              {item.description && (
+                                <div className={`text-xs ${
+                                  isCurrent ? 'text-white/70' : 'text-gray-400'
+                                }`}>
+                                  {item.description}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            {item.badge && (
+                              <span className={`px-2 py-1 text-xs font-bold rounded-full ${getBadgeColor(item.badge, item)}`}>
+                                {item.badge}
+                              </span>
+                            )}
+                            {!isCurrent && (
+                              <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
+                            )}
+                          </div>
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
                 </motion.div>
+              </AnimatePresence>
+
+              {/* Empty State */}
+              {filteredItems.length === 0 && (
+                <div className="text-center py-8">
+                  <Search className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-400 text-sm">No features found</p>
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="mt-2 text-cyan-400 text-sm hover:text-cyan-300 transition-colors"
+                  >
+                    Clear search
+                  </button>
+                </div>
               )}
-            </AnimatePresence>
-          </div>
-        )}
-      </div>
-
-      {/* Navigation Items */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-      <div className='p-4 space-y-2 overflow-y-auto flex-1'>
-        {filteredItems.map(item => (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-          <NavigationItem key={item.id} item={item} isExpanded={expandedMenus.includes(item.id)} />
-        ))}
-      </div>
-
-      {/* Footer */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-      <div className='p-4 border-t border-slate-700/50'>
-        {!isCollapsed && (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-          <div className='space-y-2'>
-            {/* User Role Badge */}
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-            <div className='flex items-center justify-center'>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  userRole.isElite
-                    ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                    : userRole.isPro
-                      ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
-                      : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
-                }`}
-              >
-                {userRole.isElite ? 'ELITE' : userRole.isPro ? 'PRO' : 'FREE'}
-                {userRole.isAdmin && ' • ADMIN'}
-              </span>
             </div>
 
-            {/* Quick Actions */}
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-            <div className='flex space-x-2'>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <button
-                onClick={() => handleNavigate('/help')}
-                className='flex-1 flex items-center justify-center space-x-1 px-2 py-2 text-gray-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors'
-              >
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                <HelpCircle className='w-4 h-4' />
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                <span className='text-xs'>Help</span>
-              </button>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <button
-                onClick={() => handleNavigate('/logout')}
-                className='flex-1 flex items-center justify-center space-x-1 px-2 py-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors'
-              >
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                <LogOut className='w-4 h-4' />
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                <span className='text-xs'>Logout</span>
-              </button>
+            {/* Footer */}
+            <div className="p-4 border-t border-slate-700">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-white">Pro User</div>
+                    <div className="text-xs text-gray-400">Premium Access</div>
+                  </div>
+                </div>
+                <button className="p-2 text-gray-400 hover:text-white transition-colors">
+                  <Settings className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <button className="flex items-center space-x-1 text-gray-400 hover:text-white transition-colors">
+                  <HelpCircle className="w-3 h-3" />
+                  <span>Help</span>
+                </button>
+                <div className="flex items-center space-x-1 text-gray-400">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span>Online</span>
+                </div>
+              </div>
             </div>
-          </div>
+          </motion.div>
         )}
-
-        {isCollapsed && (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-          <div className='space-y-2'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-            <button
-              onClick={() => handleNavigate('/help')}
-              className='w-full p-2 text-gray-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors'
-            >
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <HelpCircle className='w-5 h-5 mx-auto' />
-            </button>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-            <button
-              onClick={() => handleNavigate('/logout')}
-              className='w-full p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors'
-            >
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <LogOut className='w-5 h-5 mx-auto' />
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Mobile Menu Toggle (for responsive design) */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-      <div className='md:hidden fixed bottom-4 right-4'>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-        <button
-          onClick={onToggleCollapse}
-          className='bg-gradient-to-r from-cyan-500 to-purple-500 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all'
-        >
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-          {isCollapsed ? <Menu className='w-6 h-6' /> : <X className='w-6 h-6' />}
-        </button>
-      </div>
-    </div>
+      </AnimatePresence>
+    </>
   );
 };
 
