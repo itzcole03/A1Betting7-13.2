@@ -197,7 +197,7 @@ ROI: Immediate + Long-term value
 
 ---
 
-## 🏗️ Architecture Overview
+## ����️ Architecture Overview
 
 ### System Architecture
 ```
@@ -211,7 +211,7 @@ ROI: Immediate + Long-term value
 │ • Demo Mode         │    │ • Caching Layer      │    │ • Injury Reports    │
 └─────────────────────┘    └─────────────���────────┘    └─────────────────────┘
          │                           │                           │
-         └───────────────────────────┼───────────────────────────┘
+         └───────────────────��───────┼───────────────────────────┘
                                      │
                                ┌─────▼─────┐
                                │  Ollama   │
@@ -260,6 +260,10 @@ A1Betting/
 ├── 📁 backend/                       # FastAPI Backend
 │   ├── 📁 routes/                    # API endpoints
 │   ├── 📁 services/                  # Business logic
+│   │   ├── 📁 sportradar_service.py  # Official sports data integration
+│   │   ├── 📁 data_quality_monitor.py # Real-time data validation
+│   │   ├── 📁 sport_volatility_models.py # Intelligent caching strategies
+│   │   └── 📁 event_driven_cache.py  # Real-time cache invalidation
 │   └── 📁 models/                    # Database models
 └── 📄 README.md                      # This guide
 ```
