@@ -64,12 +64,25 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
   const offlineListener = useRef<(() => void) | null>(null);
   const isUnmounted = useRef(false);
 
-  // Helper to get the WebSocket URL
+  // Helper to get the WebSocket URL with secure connection support
   const getWebSocketUrl = () => {
+    // In development, only use WebSocket if explicitly enabled
     if (import.meta.env.DEV) {
+      const wsEnabled = import.meta.env.VITE_WEBSOCKET_ENABLED === 'true';
+      if (!wsEnabled) {
+        return null; // Signal that WebSocket should not be used
+      }
       return 'ws://localhost:8000/ws';
     } else {
-      return import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
+      // In production, use secure WebSocket
+      const baseUrl = import.meta.env.VITE_WS_URL;
+      if (baseUrl) {
+        // Ensure we use wss:// for secure connections in production
+        return baseUrl.replace(/^ws:/, 'wss:');
+      }
+      // Fallback to current protocol
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      return `${protocol}//${window.location.host}/ws`;
     }
   };
 
