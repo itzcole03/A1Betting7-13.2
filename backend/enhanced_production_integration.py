@@ -418,10 +418,17 @@ class EnhancedProductionApp:
             except Exception as e:
                 self.logger.warning(
 <<<<<<< HEAD
+<<<<<<< HEAD
+                    f"⚠��� Async connection pool initialization failed: {e}"
+=======
+                    f"���️ Async connection pool initialization failed: {e}"
+>>>>>>> d6b62e2110f4a2a27ab2680924a50c03b6a79080
+=======
                     f"���️ Async connection pool initialization failed: {e}"
 =======
                     f"⚠��� Async connection pool initialization failed: {e}"
 >>>>>>> 31ef5995fbaf6f491c846cb67b932a4376640eec
+>>>>>>> a8a5bfd2678a0c0e7218282c3bf30db4774fadf4
                 )
 
             # Initialize advanced caching system
