@@ -34,18 +34,41 @@ class Logger {
     const prefix = context ? `[${context}]` : '';
     const fullMessage = `${timestamp} ${prefix} ${message}`;
 
+    // Properly serialize data for logging
+    const logData = data !== undefined ? (
+      typeof data === 'object' && data !== null
+        ? JSON.stringify(data, null, 2)
+        : data
+    ) : '';
+
     switch (level) {
       case 'info':
-        console.info(fullMessage, data || '');
+        if (logData) {
+          console.info(fullMessage, logData);
+        } else {
+          console.info(fullMessage);
+        }
         break;
       case 'warn':
-        console.warn(fullMessage, data || '');
+        if (logData) {
+          console.warn(fullMessage, logData);
+        } else {
+          console.warn(fullMessage);
+        }
         break;
       case 'error':
-        console.error(fullMessage, data || '');
+        if (logData) {
+          console.error(fullMessage, logData);
+        } else {
+          console.error(fullMessage);
+        }
         break;
       case 'debug':
-        console.debug(fullMessage, data || '');
+        if (logData) {
+          console.debug(fullMessage, logData);
+        } else {
+          console.debug(fullMessage);
+        }
         break;
     }
   }

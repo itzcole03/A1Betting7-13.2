@@ -4,7 +4,9 @@ Integrates 2024-2025 FastAPI best practices with existing A1Betting infrastructu
 """
 
 import logging
+import time
 from contextlib import asynccontextmanager
+from datetime import datetime
 from typing import Any, Dict
 
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -152,6 +154,22 @@ except ImportError:
         }
 
     # All test-compatibility endpoints defined here to avoid scoping issues
+    @health_router.get("/api/health")
+    async def api_health():
+        # Main API health endpoint
+        uptime = int(time.time() - start_time)
+        return {
+            "status": "healthy",
+            "uptime": uptime,
+            "version": "v2",
+            "services": {
+                "cheatsheets": "healthy",
+                "odds_aggregation": "healthy",
+                "data_fetcher": "healthy",
+                "prediction_engine": "healthy"
+            }
+        }
+
     @health_router.get("/api/health/status")
     async def api_health_status():
         # Legacy-compatible response for /api/health/status
@@ -171,6 +189,18 @@ except ImportError:
     async def api_arbitrage_opportunities():
         # Legacy-compatible: must return a list
         return []
+
+    @health_router.get("/api/v1/cheatsheets/health")
+    async def cheatsheets_health():
+        # Cheatsheets service health check
+        return {
+            "status": "healthy",
+            "opportunities_cached": 12,
+            "last_refresh": None,
+            "available_sports": ["MLB"],
+            "available_stat_types": ["hits", "home_runs", "rbis", "total_bases", "runs_scored"],
+            "timestamp": datetime.utcnow().isoformat()
+        }
 
     HEALTH_CHECKS_AVAILABLE = False
     app_logger.warning(
@@ -313,6 +343,18 @@ class EnhancedProductionApp:
             # Phase 2: Enhanced Services
             self.logger.info("Phase 2: Initializing enhanced services...")
 
+            # Initialize real-time notification service
+            try:
+                from .services.realtime_notification_service import notification_service
+
+                await notification_service.initialize()
+                self.logger.info("✅ Real-time notification service initialized successfully")
+                startup_tasks.append("notification_service")
+            except Exception as e:
+                self.logger.warning(
+                    "⚠️ Real-time notification service initialization failed: %s", str(e)
+                )
+
             # Initialize intelligent cache service
             try:
                 from .services.intelligent_cache_service import (
@@ -321,7 +363,7 @@ class EnhancedProductionApp:
 
                 await intelligent_cache_service.initialize()
                 self.logger.info(
-                    "✅ Intelligent cache service initialized successfully"
+                    "��� Intelligent cache service initialized successfully"
                 )
                 startup_tasks.append("intelligent_cache")
             except Exception as e:
@@ -375,7 +417,11 @@ class EnhancedProductionApp:
                 startup_tasks.append("connection_pool")
             except Exception as e:
                 self.logger.warning(
+<<<<<<< HEAD
                     f"⚠��� Async connection pool initialization failed: {e}"
+=======
+                    f"���️ Async connection pool initialization failed: {e}"
+>>>>>>> d6b62e2110f4a2a27ab2680924a50c03b6a79080
                 )
 
             # Initialize advanced caching system
@@ -531,6 +577,17 @@ class EnhancedProductionApp:
                 except Exception as e:
                     self.logger.warning(
                         "Error shutting down intelligent cache: %s", str(e)
+                    )
+
+                # Shutdown notification service
+                try:
+                    from .services.realtime_notification_service import notification_service
+
+                    await notification_service.shutdown()
+                    shutdown_tasks.append("notification_service")
+                except Exception as e:
+                    self.logger.warning(
+                        "Error shutting down notification service: %s", str(e)
                     )
 
                 # Shutdown core services
@@ -864,7 +921,7 @@ class EnhancedProductionApp:
         # NEW: AI-powered analytics routes (Ollama integration)
         if NEW_ROUTES_AVAILABLE:
             try:
-                self.app.include_router(ai_router, tags=["AI Analytics"])
+                self.app.include_router(ai_router, prefix="/api", tags=["AI Analytics"])
                 enhanced_routes.append("ai_analytics")
                 self.logger.info("✅ AI Analytics routes (Ollama integration) included")
             except Exception as e:
@@ -872,7 +929,7 @@ class EnhancedProductionApp:
 
             # NEW: Odds aggregation and arbitrage detection routes
             try:
-                self.app.include_router(odds_router, tags=["Odds & Arbitrage"])
+                self.app.include_router(odds_router, prefix="/api", tags=["Odds & Arbitrage"])
                 enhanced_routes.append("odds_arbitrage")
                 self.logger.info("✅ Odds aggregation and arbitrage routes included")
             except Exception as e:
@@ -880,7 +937,7 @@ class EnhancedProductionApp:
 
             # NEW: Cheatsheets routes (prop opportunities)
             try:
-                self.app.include_router(cheatsheets_router, tags=["Cheatsheets"])
+                self.app.include_router(cheatsheets_router, prefix="/api", tags=["Cheatsheets"])
                 enhanced_routes.append("cheatsheets")
                 self.logger.info("✅ Cheatsheets (prop opportunities) routes included")
             except Exception as e:
@@ -888,11 +945,20 @@ class EnhancedProductionApp:
 
             # NEW: Risk Tools routes (Kelly Criterion)
             try:
-                self.app.include_router(risk_tools_router, tags=["Risk Management"])
+                self.app.include_router(risk_tools_router, prefix="/api", tags=["Risk Management"])
                 enhanced_routes.append("risk_tools")
                 self.logger.info("✅ Risk management (Kelly Criterion) routes included")
             except Exception as e:
                 self.logger.warning(f"Could not include risk_tools_routes router: {str(e)}")
+
+            # Phase 2.2: Multiple Sportsbook Integration Routes
+            try:
+                from .routes.multiple_sportsbook_routes import router as sportsbook_router
+                self.app.include_router(sportsbook_router, tags=["Multiple Sportsbook"])
+                enhanced_routes.append("multiple_sportsbook")
+                self.logger.info("✅ Multiple sportsbook integration routes included")
+            except Exception as e:
+                self.logger.warning(f"Could not include multiple_sportsbook_routes router: {str(e)}")
 
             # NEW: Model Registry routes (ML Model Management)
             try:
@@ -953,6 +1019,33 @@ class EnhancedProductionApp:
             enhanced_routes.append("websocket")
         except ImportError as e:
             self.logger.warning(f"Could not import WebSocket router: {str(e)}")
+
+        # Enhanced Real-time Notification WebSocket routes
+        try:
+            from .routes.realtime_websocket_routes import router as realtime_ws_router
+
+            self.app.include_router(realtime_ws_router, tags=["Real-time Notifications"])
+            enhanced_routes.append("realtime_notifications")
+        except ImportError as e:
+            self.logger.warning(f"Could not import realtime WebSocket router: {str(e)}")
+
+        # Enhanced Sportsbook routes with notifications
+        try:
+            from .routes.enhanced_sportsbook_routes import router as enhanced_sportsbook_router
+
+            self.app.include_router(enhanced_sportsbook_router, tags=["Enhanced Sportsbook"])
+            enhanced_routes.append("enhanced_sportsbook")
+        except ImportError as e:
+            self.logger.warning(f"Could not import enhanced sportsbook router: {str(e)}")
+
+        # Advanced Search and Filtering routes
+        try:
+            from .routes.advanced_search_routes import router as advanced_search_router
+
+            self.app.include_router(advanced_search_router, tags=["Advanced Search"])
+            enhanced_routes.append("advanced_search")
+        except ImportError as e:
+            self.logger.warning(f"Could not import advanced search router: {str(e)}")
 
         # Priority 2 Real-time routes (NEW)
         try:

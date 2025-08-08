@@ -69,18 +69,20 @@ class CheatsheetsService {
     // Check cache first for fast response
     const cached = this.getCachedData(cacheKey);
     if (cached) {
-      logger.info('[CheatsheetsService] Cache hit', { 
-        cacheKey, 
-        age: Date.now() - cached.timestamp 
-      });
+      logger.info('Cache hit', {
+        cacheKey,
+        age: Date.now() - cached.timestamp
+      }, 'CheatsheetsService');
       return cached.data;
     }
 
-    logger.info('[CheatsheetsService] Fetching fresh data', { filters });
+    logger.info('Fetching fresh data', { filters }, 'CheatsheetsService');
 
     try {
       const queryParams = this.buildQueryParams(filters);
       const url = `/api/v1/cheatsheets/opportunities?${queryParams}`;
+
+      logger.debug('Making request to: ' + url, undefined, 'CheatsheetsService');
       
       const response = await this.fetchWithRetry(url);
       
@@ -96,23 +98,27 @@ class CheatsheetsService {
       // Cache the response
       this.setCachedData(cacheKey, data);
       
-      logger.info('[CheatsheetsService] Data fetched successfully', {
+      logger.info('Data fetched successfully', {
         opportunityCount: data.opportunities?.length || 0,
         processingTime: data.processing_time_ms,
         cacheHit: data.cache_hit
-      });
+      }, 'CheatsheetsService');
 
       return data;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error('[CheatsheetsService] Failed to fetch opportunities', {
-        error: errorMessage,
+      logger.error(`Failed to fetch opportunities: ${errorMessage}`, {
         filters,
-        duration: Date.now() - startTime
-      });
+        duration: Date.now() - startTime,
+        stack: error instanceof Error ? error.stack : undefined
+      }, 'CheatsheetsService');
       
-      // Return fallback data instead of throwing
-      return this.generateFallbackData(filters);
+      // Return fallback data with error context
+      logger.warn('Using fallback data due to API error', undefined, 'CheatsheetsService');
+      const fallbackData = this.generateFallbackData(filters);
+      fallbackData.api_error = true;
+      fallbackData.error_message = errorMessage;
+      return fallbackData;
     }
   }
 
@@ -124,7 +130,8 @@ class CheatsheetsService {
       const response = await this.fetchWithRetry('/api/v1/cheatsheets/summary');
       return await response.json();
     } catch (error) {
-      logger.warn('[CheatsheetsService] Failed to fetch summary', { error: error.message });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.warn(`Failed to fetch summary: ${errorMessage}`, undefined, 'CheatsheetsService');
       return {
         total_opportunities: 0,
         avg_edge: 0,
@@ -140,15 +147,46 @@ class CheatsheetsService {
    * Export opportunities to CSV
    */
   async exportCSV(filters: Partial<CheatsheetFilters>): Promise<Blob> {
-    const queryParams = this.buildQueryParams(filters);
-    const url = `/api/v1/cheatsheets/opportunities/csv?${queryParams}`;
-    
-    const response = await this.fetchWithRetry(url);
-    if (!response.ok) {
-      throw new Error('Failed to export CSV');
+    try {
+      const queryParams = this.buildQueryParams(filters);
+      const url = `/api/v1/cheatsheets/export/csv?${queryParams}`;
+
+      const response = await this.fetchWithRetry(url);
+      if (!response.ok) {
+        throw new Error(`Failed to export CSV: ${response.status} ${response.statusText}`);
+      }
+
+      return response.blob();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Failed to export CSV: ${errorMessage}`, undefined, 'CheatsheetsService');
+
+      // Create fallback CSV from current data
+      const fallbackOpportunities = this.generateFallbackData(filters).opportunities;
+      const csvContent = this.generateCSVFromData(fallbackOpportunities);
+      return new Blob([csvContent], { type: 'text/csv' });
     }
-    
-    return response.blob();
+  }
+
+  private generateCSVFromData(opportunities: any[]): string {
+    if (opportunities.length === 0) {
+      return 'No data available\n';
+    }
+
+    const headers = Object.keys(opportunities[0]);
+    const csvRows = [headers.join(',')];
+
+    opportunities.forEach(opp => {
+      const row = headers.map(header => {
+        const value = opp[header];
+        return typeof value === 'string' && value.includes(',')
+          ? `"${value.replace(/"/g, '""')}"`
+          : value;
+      });
+      csvRows.push(row.join(','));
+    });
+
+    return csvRows.join('\n');
   }
 
   /**
@@ -175,7 +213,7 @@ class CheatsheetsService {
    */
   clearCache(): void {
     this.cache.clear();
-    logger.info('[CheatsheetsService] Cache cleared');
+    logger.info('Cache cleared', undefined, 'CheatsheetsService');
   }
 
   private async fetchWithRetry(url: string, retries = this.MAX_RETRIES): Promise<Response> {
@@ -195,10 +233,11 @@ class CheatsheetsService {
         }
         
         const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
-        logger.warn(`[CheatsheetsService] Retry ${attempt + 1}/${retries} after ${delay}ms`, {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logger.warn(`Retry ${attempt + 1}/${retries} after ${delay}ms`, {
           url,
-          error: error.message
-        });
+          error: errorMessage
+        }, 'CheatsheetsService');
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
@@ -254,7 +293,7 @@ class CheatsheetsService {
     const books = ['DraftKings', 'FanDuel', 'BetMGM', 'Caesars', 'BetRivers'];
     const teams = ['NYY', 'LAD', 'ATL', 'SD', 'BOS', 'SF', 'NYM', 'LAA'];
 
-    logger.info('[CheatsheetsService] Generating fallback data - API unavailable');
+    logger.info('Generating fallback data - API unavailable', undefined, 'CheatsheetsService');
 
     const opportunities: PropOpportunity[] = [];
     

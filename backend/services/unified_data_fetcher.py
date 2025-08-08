@@ -22,7 +22,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
 import httpx
-from utils.error_handler import DataFetchError, ErrorHandler
+from backend.services.unified_error_handler import unified_error_handler
 
 from backend.models.api_models import (
     BettingOpportunity,
@@ -31,6 +31,10 @@ from backend.models.api_models import (
 )
 
 logger = logging.getLogger(__name__)
+
+class DataFetchError(Exception):
+    """Custom exception for data fetching errors"""
+    pass
 
 
 class SportSeason(Enum):
@@ -279,7 +283,7 @@ class UnifiedDataFetcher:
 
     def __init__(self, config: Optional[FetcherConfig] = None):
         self.config = config or FetcherConfig()
-        self.error_handler = ErrorHandler()
+        self.error_handler = unified_error_handler
         self._client = None
         self._ensemble_system = None
         self._cache = {}
