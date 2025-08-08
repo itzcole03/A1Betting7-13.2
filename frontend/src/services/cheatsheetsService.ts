@@ -98,11 +98,11 @@ class CheatsheetsService {
       // Cache the response
       this.setCachedData(cacheKey, data);
       
-      logger.info('[CheatsheetsService] Data fetched successfully', {
+      logger.info('Data fetched successfully', {
         opportunityCount: data.opportunities?.length || 0,
         processingTime: data.processing_time_ms,
         cacheHit: data.cache_hit
-      });
+      }, 'CheatsheetsService');
 
       return data;
     } catch (error) {
