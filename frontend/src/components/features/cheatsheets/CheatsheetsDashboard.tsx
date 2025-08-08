@@ -139,6 +139,18 @@ export const CheatsheetsDashboard: React.FC = () => {
   const checkApiHealth = useCallback(async () => {
     const healthy = await cheatsheetsService.healthCheck();
     setApiHealth(healthy);
+
+    // If unhealthy, get diagnostic information for better error messages
+    if (!healthy) {
+      try {
+        const diagnostics = await cheatsheetsService.getDiagnosticInfo();
+        const suggestions = diagnostics.suggestions.join('. ');
+        setError(`Backend connectivity issue: ${suggestions}`);
+      } catch (diagError) {
+        setError('Backend not responding - check if backend is running on port 8000');
+      }
+    }
+
     return healthy;
   }, []);
 
