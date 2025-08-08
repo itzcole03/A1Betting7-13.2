@@ -31,6 +31,7 @@ const otelEnabled =
 if (otelEnabled) {
   (async () => {
     try {
+      // Use string-based imports to avoid Vite processing them during dependency scan
       const [
         { OTLPTraceExporter },
         { registerInstrumentations },
@@ -39,15 +40,15 @@ if (otelEnabled) {
         { WebTracerProvider },
       ] = await Promise.all([
         // @ts-ignore
-        import('@opentelemetry/exporter-trace-otlp-http'),
+        import(/* @vite-ignore */ '@opentelemetry/exporter-trace-otlp-http'),
         // @ts-ignore
-        import('@opentelemetry/instrumentation'),
+        import(/* @vite-ignore */ '@opentelemetry/instrumentation'),
         // @ts-ignore
-        import('@opentelemetry/instrumentation-fetch'),
+        import(/* @vite-ignore */ '@opentelemetry/instrumentation-fetch'),
         // @ts-ignore
-        import('@opentelemetry/sdk-trace-base'),
+        import(/* @vite-ignore */ '@opentelemetry/sdk-trace-base'),
         // @ts-ignore
-        import('@opentelemetry/sdk-trace-web'),
+        import(/* @vite-ignore */ '@opentelemetry/sdk-trace-web'),
       ]);
 
       // Prefer process.env for Jest, import.meta.env for Vite
