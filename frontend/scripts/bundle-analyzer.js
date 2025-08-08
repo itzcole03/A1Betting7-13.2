@@ -92,7 +92,7 @@ async function analyzeJavaScriptChunks() {
     let totalSize = 0;
     
     for (const file of jsFiles) {
-      const filePath = path.join(ASSETS_DIR, file);
+      const filePath = path.join(searchDir, file);
       const size = await getFileSize(filePath);
       const gzipSize = estimateGzipSize(size);
       
