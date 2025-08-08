@@ -249,6 +249,10 @@ const UserFriendlyApp: React.FC = () => {
                 element={<CheatsheetsDashboard />}
               />
               <Route
+                path='/tracking'
+                element={<BetTrackingDashboard />}
+              />
+              <Route
                 path='/kelly-calculator'
                 element={<KellyCalculator />}
               />
