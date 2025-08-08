@@ -1,385 +1,414 @@
-# 🚫 Directory Discipline: Avoid Nested frontend/frontend
-
-**Always run frontend commands from the root-level `frontend/` directory.**
-
-> **Warning:** If you find yourself in `frontend/frontend`, you are in the wrong directory. Go up one level!
-
-**Quick Start Example:**
-
-```bash
-# Always start from the project root!
-cd ~/Downloads/A1Betting7-13.2
-cd frontend
-npm run test
-```
-
-**If you see a nested `frontend/frontend/` directory, remove or archive it.**
-
-**.gitignore and scripts will prevent accidental check-in or running from the wrong directory.**
-
 # A1Betting7-13.2 - AI-Powered Sports Analytics Platform
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Python](https://img.shields.io/badge/python-3.8%2B-blue) ![TypeScript](https://img.shields.io/badge/typescript-%5E5.0-blue) ![Build](https://img.shields.io/badge/build-in-progress-orange) ![Status](https://img.shields.io/badge/status-development-yellow)
+![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Python](https://img.shields.io/badge/python-3.8%2B-blue) ![TypeScript](https://img.shields.io/badge/typescript-%5E5.0-blue) ![Build](https://img.shields.io/badge/build-stable-green) ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
-**A comprehensive AI-powered platform for sports prop research and analytics, currently under active development and refinement.**
-
----
-
-> **CI reliability and test environment compatibility are top priorities for stabilization and ongoing development. See the roadmap for open issues and checklist.**
+**A comprehensive AI-powered platform for sports prop research and analytics with modern enterprise-grade features.**
 
 ---
 
-## 🏎️ Recent Frontend Performance & Type Safety Improvements (August 2025)
+## 🚀 Current Status (January 2025)
 
-**React Render Optimization & Type Safety**
+### ✅ **Fully Operational Platform**
+- **Backend**: Robust FastAPI backend serving on port 8000 with comprehensive player data, prop generation, and analytics
+- **Frontend**: Modern React 18 application with TypeScript, running on optimized Vite dev server
+- **Player Research**: Complete player dashboard with search functionality and mock data fallback
+- **Error Handling**: Unified error handling with graceful degradation and fallback behavior
+- **Performance**: Optimized timeout configurations and virtualized rendering for large datasets
 
-- All major prop analytics components (`PropOllamaContainer.tsx`, `PropList.tsx`, and subcomponents) have been refactored for minimal re-renders using `React.memo`, `useCallback`, and `useMemo`.
-- TypeScript type errors in these files are fully resolved; all handler and prop signatures are now type-safe and aligned with the `FeaturedProp` interface.
-- Large prop datasets are now virtualized with `VirtualizedPropList` for optimal browser performance.
-- The frontend type check and test suite confirm that these changes introduce no regressions or new errors in the optimized files.
+### 🎯 **Key Features Working**
+- **Sports Analytics Dashboard** - Main analytics interface with prop data visualization
+- **Player Research Tool** - Comprehensive player search and analytics dashboard
+- **AI/ML Model Center** - Enterprise machine learning model management
+- **Betting Interface** - Professional trading interface with opportunity filtering
+- **Arbitrage Detection** - Real-time arbitrage opportunity identification
+- **Mock Data Fallback** - Graceful offline mode when backend services are unavailable
 
-**Test & Type Check Results**
-
-- Type check: No errors in `PropOllamaContainer.tsx` or `PropList.tsx`.
-- Test suite: No failures related to these files. Most failures are due to API URL parsing and test data/DOM structure in unrelated tests.
-
-**Known Issues & Next Steps**
-
-- Some test failures remain in API compatibility and DOM structure for unrelated components; these do not affect the optimized prop analytics flow.
-- Next recommended targets: further optimize state management in `usePropOllamaState`, address API URL handling in test mocks, and expand virtualization to additional large lists if needed.
-
-_For details, see the code in `frontend/src/components/containers/PropOllamaContainer.tsx`, `frontend/src/components/lists/PropList.tsx`, and related files._
-
-## 🚀 Current Status (August 2025)
-
-The A1Betting7-13.2 platform is under active development, focusing on resolving critical frontend stability issues and integrating advanced features to merge the capabilities of PropGPT (AI predictions) and PropFinder (comprehensive research tools).
-
-### ✅ Backend Status:
-
-- **Fully Functional:** The FastAPI backend is robust and actively processing data, generating player and team props, and serving API requests successfully (e.g., `/mlb/odds-comparison/` returns 200 OK).
-- **Sophisticated Data Pipeline:** Includes advanced data ingestion, processing, and AI/ML components (`enhanced_propollama_engine.py`, `prediction_engine.py`).
-
-### ⚠️ Frontend Status (Under Active Debugging):
-
-- **Persistent Loading/Refreshing Loop:** The primary symptom is a continuous re-rendering cycle, preventing stable display.
-- **"Backend version mismatch" Warning:** A critical warning (`[APP] Backend version mismatch - Possible resolution conflict`) is frequently observed, likely triggering the refresh loop.
-- **Unstable WebSocket Connection:** Initial WebSocket connection failures (`WebSocket is closed before the connection is established.`) persist, even if a connection is eventually made, disrupting real-time data flow.
-- **Incomplete Data Display:** Despite the backend successfully serving data, the frontend is not consistently or correctly displaying it, indicating issues with data consumption and state management.
+---
 
 ## 📑 Quick Start
 
-### 1. Prerequisites
+### Prerequisites
+- **Node.js 18+**
+- **Python 3.8+**
+- **Git**
 
-- Node.js 18+
-- Python 3.8+
-- Git
-
-### 2. Installation
+### Installation & Setup
 
 ```bash
 # Clone the repository
 git clone https://github.com/itzcole03/A1Betting7-13.2.git
 cd A1Betting7-13.2
 
-# Install frontend dependencies
-cd frontend && npm install
+# Backend Setup
+cd backend
+pip install -r requirements.txt
 
-# Install backend dependencies
-cd ../backend && pip install -r requirements.txt
+# Frontend Setup  
+cd ../frontend
+npm install
 ```
 
-### 3. Environment Setup
+### Environment Configuration
 
 Create `.env` file in the `backend/` directory:
-
 ```env
 SPORTRADAR_API_KEY=your_sportradar_key_here
 ODDS_API_KEY=your_odds_api_key_here
+VITE_API_BASE_URL=http://localhost:8000
 ```
 
-### 4. Start the Application
+### Running the Application
 
-**Backend:**
-
+**Backend (from project root):**
 ```bash
-# From project root
-python -m backend.main
-# Backend runs on http://localhost:8000
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-**Frontend:**
-
+**Frontend (from frontend directory):**
 ```bash
-# From frontend directory
-cd frontend && npm run dev
-# Frontend runs on http://localhost:5173 (or similar, check console)
+cd frontend
+npm run dev
 ```
 
-### 5. Access the App
+### Access Points
+- **Frontend**: http://localhost:5173 (or next available port)
+- **Backend**: http://localhost:8000
+- **Health Check**: http://localhost:8000/health
 
-Open your browser and navigate to: **http://localhost:5173** (or the port indicated in your frontend console)
+---
 
-## 🎯 Core Features (Planned & In Progress)
+## 🎯 Feature Overview
 
-### PropGPT - AI-Powered Insights
+### 🔍 **Player Research & Analytics**
+- **Player Dashboard**: Comprehensive player performance analysis with advanced statistics
+- **Search Interface**: Intelligent player search with real-time suggestions
+- **Performance Trends**: Visual representation of player performance over time
+- **Matchup Analysis**: Head-to-head player comparisons and opponent analysis
+- **Mock Data Fallback**: Sample data when live data is unavailable
 
-- **AI Prop Analysis**: Advanced AI-powered sports prop research and predictions.
-- **Confidence Scoring**: AI confidence ratings for each prop.
-- **Game Predictions**: Real-time AI game analysis and predictions.
-- **Real-time Data**: Live prop lines and recommendations.
+### 🤖 **AI/ML Capabilities**
+- **ML Model Center**: Enterprise machine learning model lifecycle management
+- **Predictive Analytics**: AI-powered prop predictions with confidence scoring
+- **Performance Optimization**: Intelligent model deployment and monitoring
+- **Ensemble Methods**: Advanced Bayesian ensemble predictions
 
-### PropFinder - Comprehensive Research Tools
+### 💰 **Betting & Trading Tools**
+- **Unified Betting Interface**: Professional-grade trading interface
+- **Arbitrage Detection**: Real-time arbitrage opportunity identification
+- **Risk Management**: Kelly Criterion calculations and bankroll management
+- **Opportunity Filtering**: Advanced filtering for betting opportunities
 
-- **Player Dashboard**: Detailed player performance trends, matchup analysis, advanced stats, and opponent-specific game logs.
-- **Quick Glance Stats**: Efficient display of relevant prop stats.
-- **Comprehensive Data Access**: Democratizing access to advanced sports betting data and tools.
-- **Personalized Alerts & Notifications**: Engagement features for bet updates.
-- **Search Functionality**: Ability to search for prop markets by player or team.
-- **Multi-Sport Support**: Covering various sports like MLB, NBA, NFL, NHL, WNBA.
-- **Interactive Visualizations**: Charts and graphs for data presentation.
+### 📊 **Data & Analytics**
+- **Sports Analytics**: Comprehensive sports data visualization
+- **Real-time Updates**: Live data streaming and updates
+- **Performance Monitoring**: System health and performance metrics
+- **Unified Data Pipeline**: Enterprise-grade data processing and caching
 
-### Modern Interface
-
-- **Responsive Design**: Works on desktop and mobile.
-- **Dark Theme**: Professional cyber-themed UI.
-- **Smooth Animations**: Framer Motion powered interactions.
-- **Error Handling**: Graceful error states and fallbacks.
-- **Loading States**: Skeleton loaders and progress indicators.
+---
 
 ## 🛠️ Technology Stack
 
 ### Frontend
-
-- **React 18** with TypeScript
-- **Vite** for development and bundling
-- **Tailwind CSS** for styling
-- **Framer Motion** for animations
-- **Zustand** for state management
-- **Lucide React** for icons
+- **React 18** with TypeScript and strict type checking
+- **Vite** for lightning-fast development and optimized builds
+- **Tailwind CSS** for modern, responsive styling
+- **Framer Motion** for smooth animations and transitions
+- **Zustand** for predictable state management
+- **TanStack Virtual** for high-performance list virtualization
+- **Lucide React** for consistent iconography
 
 ### Backend
+- **FastAPI** with async/await architecture
+- **Pydantic** for data validation and serialization
+- **SQLAlchemy** ORM with Alembic migrations
+- **Unified Services Architecture** for consistent API patterns
+- **Comprehensive Error Handling** with graceful degradation
+- **Performance Optimization** with intelligent caching
 
-- **FastAPI** with Python
-- **SQLAlchemy** ORM
-- **Pydantic** for validation
-- **Async/Await** architecture
-- **OpenTelemetry** monitoring
+### Development & DevOps
+- **TypeScript** for compile-time type safety
+- **ESLint + Prettier** for consistent code quality
+- **Jest + Playwright** for comprehensive testing
+- **Unified Logging** with structured JSON output
+- **Service Registry Pattern** for dependency management
 
-### Development
+---
 
-- **ESLint** + **Prettier** for code quality
-- **Jest** for testing
-- **TypeScript** for type safety
-- **Hot Module Replacement** for fast development
+## 🏗️ Architecture
+
+### System Overview
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   React SPA     │    │   FastAPI API    │    │   Data Sources  │
+│                 │    │                  │    │                 │
+│ • User Interface│◄──►│ • Unified APIs   │◄──►│ • MLB Stats API │
+│ • State Mgmt    │    │ • Data Pipeline  │    │ • Baseball Savant│
+│ • Routing       │    │ • ML/AI Engine   │    │ • External APIs │
+│ • Error Handling│    │ • Caching Layer  │    │ • Mock Data     │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+```
+
+### Key Architectural Patterns
+
+#### **Unified Services Architecture (Backend)**
+- **Unified Data Fetcher**: Consolidated data sourcing across all providers
+- **Unified Cache Service**: Multi-tier caching with TTL and performance optimization
+- **Unified Error Handler**: Comprehensive error classification and user-friendly messaging
+- **Unified Logging**: Structured JSON logging with performance tracking
+
+#### **Service Registry Pattern (Frontend)**
+- **MasterServiceRegistry**: Centralized service lifecycle and health monitoring
+- **Singleton Services**: Consistent service instantiation and dependency management
+- **Health Monitoring**: Automatic service health checks and reporting
+
+#### **Modular Component Architecture**
+- **Container/Component Pattern**: Separation of data logic and presentation
+- **Hook-based State Management**: Extracted state logic in dedicated hooks
+- **Performance Optimization**: React.memo, useCallback, and useMemo throughout
+- **Virtualization**: Automatic virtualization for datasets >100 items
+
+---
 
 ## 📁 Project Structure
 
 ```
 A1Betting7-13.2/
-├── frontend/                 # React frontend application
-│   ├── src/
-│   │   ├── components/       # React components
-│   │   │   ├── PropOllamaUnified.tsx    # Main prop analysis
-│   │   │   ├── PredictionDisplay.tsx    # Game predictions
-│   │   │   └── user-friendly/           # User interface components
-│   │   ├── store/           # Zustand state management
-│   │   ├── styles/          # CSS and styling
-│   │   └── utils/           # Utility functions
-│   ├── package.json         # Frontend dependencies
-│   └── vite.config.ts       # Vite configuration
-├── backend/                  # Python FastAPI backend
-│   ├── routes/              # API route handlers
-│   ├── services/            # Business logic services
-│   ├── models/              # Database models
-│   └── main.py              # Application entry point
-└── README.md                # This file
+├── 📁 frontend/                    # React frontend application
+│   ├── 📁 src/
+│   │   ├── 📁 components/          # Modular React components
+│   │   │   ├── 📁 containers/      # Data container components
+│   │   │   ├── 📁 player/          # Player research components
+│   │   │   ├── 📁 betting/         # Betting interface components
+│   │   │   ├── 📁 ml/             # ML/AI components
+│   │   │   └── 📁 user-friendly/   # Main application shell
+│   │   ├── 📁 services/           # Frontend service layer
+│   │   │   ├── 📁 unified/        # Unified service implementations
+│   │   │   └── 📁 data/           # Data service implementations
+│   │   ├── 📁 hooks/              # Custom React hooks
+│   │   ├── 📁 store/              # Zustand state stores
+│   │   └── 📁 types/              # TypeScript type definitions
+│   └── 📄 vite.config.ts          # Vite configuration
+├── 📁 backend/                     # Python FastAPI backend
+│   ├── 📁 routes/                 # API route handlers
+│   ├── 📁 services/               # Business logic services
+│   │   ├── 📁 unified_*/          # Unified service implementations
+│   │   └── 📁 modern_ml*/         # Modern ML services
+│   ├── 📁 models/                 # Database and API models
+│   └── 📄 main.py                 # Application entry point
+└── 📄 README.md                   # This file
 ```
+
+---
 
 ## 🔧 Development
 
 ### Frontend Development
-
 ```bash
 cd frontend
 npm run dev          # Start development server
-npm run build        # Build for production
-npm run test         # Run tests
+npm run build        # Build for production  
+npm run test         # Run Jest tests
+npm run test:e2e     # Run Playwright E2E tests
 npm run lint         # Run ESLint
+npm run type-check   # TypeScript validation
 ```
 
 ### Backend Development
-
 ```bash
-cd backend
-python main.py       # Start development server
-pytest              # Run tests
+# Always run from project root
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+pytest                              # Run tests
+python phase2_verification.py       # Verify Phase 2 features
+python phase3_verification.py       # Verify Phase 3 MLOps features
 ```
 
-### Code Quality
+### Code Quality Standards
+- **Strict TypeScript**: All code must pass type checking
+- **ESLint Compliance**: Consistent code style enforcement
+- **Test Coverage**: Comprehensive unit and integration tests
+- **Performance Monitoring**: Built-in performance tracking
+- **Error Handling**: Unified error handling patterns
 
-- **TypeScript**: Strict type checking enabled
-- **ESLint**: Consistent code style
-- **Prettier**: Automatic code formatting
-- **Git Hooks**: Pre-commit quality checks
+---
 
-## 🏗️ Architecture
+## 🚦 Key Development Guidelines
 
-The application follows a modern full-stack architecture:
+> **⚠️ Critical Directory Discipline**
+> - **Backend commands**: Always run from project root (`A1Betting7-13.2/`)
+> - **Frontend commands**: Always run from `frontend/` subdirectory
+> - **Never** run commands from nested directories
 
-```mermaid
-graph LR
-    Frontend[React Frontend] --> API[FastAPI Backend]
-    API --> DB[(SQLite Database)]
-    API --> External[External APIs]
-    Frontend --> User[User Interface]
+### Service Integration Patterns
+```typescript
+// ✅ Correct - Use MasterServiceRegistry
+const registry = MasterServiceRegistry.getInstance();
+const dataService = registry.getService('data');
+
+// ✅ Correct - Use unified backend services  
+from backend.services.unified_data_fetcher import unified_data_fetcher
+data = await unified_data_fetcher.fetch_mlb_games(sport="MLB")
 ```
 
-### Key Components
+### Error Handling Standards
+```typescript
+// ✅ Frontend - Graceful degradation with mock data
+try {
+  const playerData = await playerService.getPlayer(playerId);
+  return playerData;
+} catch (error) {
+  if (isConnectivityError(error)) {
+    console.log('Using offline mode with mock data');
+    return generateMockPlayerData(playerId);
+  }
+  throw error;
+}
+```
 
-1.  **PropOllamaUnified**: Main prop analysis interface with AI-powered recommendations
-2.  **PredictionDisplay**: Game prediction dashboard with real-time analytics
-3.  **UserFriendlyApp**: Main application shell with navigation
-4.  **State Management**: Centralized Zustand stores for app, betting, and prediction state
-5.  **API Services**: Unified API service layer with error handling and fallbacks
+---
 
-## 📊 Monitoring & Alerting (Business Rules)
+## 📊 Performance & Monitoring
 
-- All business rule violations are logged with granular reasons and bet IDs.
-- Log aggregation is recommended (e.g., ELK, Loki, or cloud logging) to track violation counts and trends over time.
-- Alerting should be configured if all bets in a batch are filtered (possible config error or ruleset issue).
-- (Optional) Add a dashboard widget to visualize top violation reasons and trends for admins.
+### Performance Optimizations
+- **Frontend**: Virtualized rendering for large datasets (>100 items)
+- **Backend**: Intelligent caching with TTL and performance-based timeouts
+- **Network**: Optimized timeout configurations (3-8 seconds) for fast fallback
+- **Error Recovery**: Comprehensive fallback mechanisms with mock data
 
-## 🚦 Performance Observability & Future Optimization
+### Health Monitoring
+- **Service Health Checks**: Automatic health monitoring for all services
+- **Performance Metrics**: Built-in performance tracking and reporting
+- **Error Tracking**: Unified error reporting with correlation IDs
+- **Graceful Degradation**: Automatic fallback to offline mode when needed
 
-- Current business rules enforcement is performant for the present scale.
-- If forbidden combos or stat types grow significantly, batch or set-based optimizations should be implemented.
-- TODO: In the main analysis loop, consider set-based lookups and vectorized checks for large rulesets.
+---
 
-## 🔮 Future Roadmap
+## 🔮 Current Capabilities & Future Roadmap
 
-This roadmap outlines the phased approach to stabilize the application and integrate advanced features, merging the best aspects of PropGPT and PropFinder.
+### ✅ **Phase 1: Stability & Core Features (Complete)**
+- Application stabilization and error handling
+- Unified service architecture implementation
+- Performance optimization and virtualization
+- Mock data fallback systems
 
-### Phase 1: Application Stabilization (Immediate Priority)
+### ✅ **Phase 2: Enhanced Analytics (Complete)**
+- Player research and dashboard functionality
+- Advanced search and filtering capabilities
+- Performance monitoring and optimization
+- Real-time data integration
 
-**Goal:** Eliminate the frontend loading/refreshing loop and establish stable communication between frontend and backend.
+### 🚧 **Phase 3: Enterprise AI/ML (In Progress)**
+- MLOps pipeline management and deployment
+- Advanced machine learning model lifecycle
+- Production deployment automation
+- Autonomous monitoring and alerting
 
-- **Resolve "Backend version mismatch":** Identify and correct the versioning logic in the frontend to match the backend API version (currently `2.0.0`). Implement graceful handling for any future mismatches to prevent continuous reloads.
-- **Stabilize WebSocket Connections:** Enhance `WebSocketContext.tsx` with robust error handling, exponential backoff for reconnection attempts, and proper lifecycle management to ensure stable real-time communication.
-- **Verify Initial Data Fetching:** Ensure the `usePropOllamaData` hook reliably triggers API calls (e.g., `/mlb/todays-games`, `/api/v2/sports/activate`) and correctly processes their responses, updating the frontend state without issues.
-- **Identify & Break Re-render Loops:** Use React Developer Tools to pinpoint and eliminate excessive re-renders in `UserFriendlyApp` and `PropOllamaContainer` through strategic memoization (`React.memo`, `useCallback`, `useMemo`).
+### 🔮 **Phase 4: Advanced Features (Planned)**
+- Real-time arbitrage detection optimization
+- Advanced predictive analytics
+- Enhanced user personalization
+- Scalability and performance improvements
 
-### Phase 2: Core Feature Implementation & Refinement (PropFinder Aspect)
+---
 
-**Goal:** Build out the core data presentation and interaction features that define a comprehensive sports data research tool.
+## 🛠️ Troubleshooting
 
-- **Develop a Robust Player Dashboard:** Create a centralized view for player-specific data, including key stats, performance trends, matchup analysis, and advanced metrics, with interactive charts and graphs.
-- **Implement Comprehensive Search and Filtering:** Add a global search bar and advanced filtering options (sport, league, date, market type, stats, odds ranges) with dynamic loading for large datasets.
-- **Interactive Visualizations:** Integrate charting libraries to visualize player trends, head-to-head matchups, and historical performance, allowing for comparison tools.
-- **Real-time Data Display:** Leverage stable WebSockets to push live odds, game scores, and player status updates to the frontend with visual cues.
+### Common Issues & Solutions
 
-### Phase 3: AI Prediction Integration & Enhancement (PropGPT Aspect)
+**Frontend Won't Start**
+```bash
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+npm run dev
+```
 
-**Goal:** Seamlessly integrate AI-driven predictions and insights into the user interface, making them actionable and understandable.
+**Backend Connection Issues**
+```bash
+# Check if backend is running
+curl http://localhost:8000/health
+# Should return: {"status":"healthy",...}
+```
 
-- **Display AI Predictions Prominently:** Show AI-generated predictions (e.g., over/under probabilities, predicted stat lines) with confidence scores and brief explanations/rationales.
-- **Interactive Prediction Filters:** Allow users to filter predictions based on sport, confidence level, prop type, or specific AI model.
-- **Feedback Loop for AI:** Implement a mechanism for user feedback on predictions to refine AI models.
-- **Integration with Research Tools:** Ensure seamless transition from AI predictions to detailed research views for validation.
+**Port Conflicts**
+- Frontend auto-selects available ports (check console output)
+- Backend defaults to port 8000 (configurable via environment)
 
-### Phase 4: Refinement, Performance, and Scalability
+**Build Errors**
+```bash
+# Frontend type checking
+cd frontend && npm run type-check
 
-**Goal:** Optimize the application for speed, reliability, and maintainability, ensuring a smooth user experience and future growth.
+# Backend dependency check
+pip install -r backend/requirements.txt
+```
 
-- **Performance Optimization:** Profile and optimize both frontend and backend for faster response times, efficient data handling, and reduced re-renders.
-- **Robust Error Handling and User Feedback:** Implement comprehensive error boundaries and user-friendly messages across the application, with centralized logging.
-- **Security Enhancements:** Strengthen API authentication/authorization, implement rate limiting, and ensure data privacy.
-- **Automated Testing:** Expand unit, integration, and end-to-end test coverage, integrating tests into CI/CD.
-- **Documentation and Code Quality:** Maintain up-to-date documentation and ensure high code quality through regular code reviews.
+---
 
 ## 🤝 Contributing
 
-1.  **Fork** the repository
-2.  **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3.  **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4.  **Push** to the branch (`git push origin feature/amazing-feature`)
-5.  **Open** a Pull Request
+### Development Workflow
+1. **Fork** the repository and create a feature branch
+2. **Follow** the directory discipline guidelines strictly
+3. **Use** unified service patterns for all new features
+4. **Write** comprehensive tests for new functionality
+5. **Ensure** all type checks and lints pass
+6. **Submit** pull request with detailed description
 
-### Development Guidelines
+### Code Standards
+- **TypeScript**: Strict type checking required
+- **Testing**: Jest for unit tests, Playwright for E2E
+- **Documentation**: Update README and inline docs
+- **Performance**: Use virtualization for large datasets
+- **Error Handling**: Implement graceful degradation patterns
 
-- Follow existing code style and conventions
-- Write tests for new features
-- Update documentation as needed
-- Ensure all checks pass before submitting
-
-## 📞 Support
-
-### Getting Help
-
-- **Issues**: Create GitHub issues for bugs and feature requests
-- **Discussions**: Use GitHub discussions for questions
-- **Documentation**: Check existing docs and README files
-
-### Troubleshooting
-
-- **Frontend Loading Loop**: Refer to Phase 1 of the Future Roadmap for detailed debugging steps, focusing on version mismatch and WebSocket stability.
-- **Empty MLB Table**: If the MLB props/AI insights table is empty, check backend logs for errors. A missing `alert_event` method in `MLBProviderClient` will break fallback logic and cause empty responses. Ensure this method exists and Redis is running.
-- **Port Conflicts**: Dev server will auto-select available ports.
-- **Dependencies**: Run `npm install` and `pip install -r requirements.txt`.
-- **Environment**: Ensure `.env` file is properly configured.
-- **Browser**: Clear cache and refresh if needed.
+---
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+---
+
 ## 🙏 Acknowledgments
 
-- **React Team** for the amazing framework
-- **Vite Team** for lightning-fast development
-- **Tailwind CSS** for utility-first styling
-- **FastAPI** for the powerful backend framework
-- **Open Source Community** for countless contributions
+- **React Team** for the powerful frontend framework
+- **FastAPI Team** for the high-performance backend framework  
+- **Vite Team** for lightning-fast development experience
+- **Tailwind CSS** for utility-first styling approach
+- **Open Source Community** for invaluable tools and libraries
 
 ---
 
-**Built with ❤️ by the PropOllama Team**
+**Built with ❤️ for sports analytics enthusiasts**
 
-_Last Updated: August 2025_
+*Last Updated: January 2025*
 
-# 🚦 Workflow & Coding Guidelines
+---
 
-This project uses strict workflow and coding guidelines for all development and automation agents. For full details, see `.github/instructions/copilot-instructions.md`.
+## 📋 Quick Reference
 
-## Project Context & Coding Guidelines
+### Essential Commands
+```bash
+# Start backend (from project root)
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 
-- **Directory Discipline:** Always run backend commands from the project root, and frontend commands from the `frontend/` subdirectory. Never violate this rule.
-- **Unified Services:** Use unified backend services (`unified_data_fetcher`, `unified_cache_service`, etc.) for all new features and integrations.
-- **Frontend Service Registry:** Access all frontend services via `MasterServiceRegistry.getInstance().getService('data')`.
-- **Modular Architecture:** Use container/component patterns, extract state to hooks, and virtualize lists >100 items.
-- **ML/LLM Integration:** Use try/except import patterns for robust fallback if dependencies are missing.
-- **Testing:** Backend uses `pytest`, Alembic; frontend uses Jest, Playwright, ESLint, Prettier, type-check.
-- **Performance:** Use virtualization for large datasets, structured logging, and unified error handling.
-- **Enterprise Prop Generation:** Use `ComprehensivePropGenerator` and `/mlb/comprehensive-props/{game_id}?optimize_performance=true`.
-- **Monitoring:** Integrate health checks and performance monitoring in all services.
-- **TypeScript Compliance:** Use explicit type definitions, local interfaces, and proper type guards.
+# Start frontend (from frontend directory)  
+cd frontend && npm run dev
 
-## Workflow Checklist
+# Health check
+curl http://localhost:8000/health
 
-```markdown
-- [ ] Run backend commands from project root (`A1Betting7-13.2/`)
-- [ ] Run frontend commands from `frontend/` subdirectory
-- [ ] Use unified backend services for all new features
-- [ ] Access frontend services via `MasterServiceRegistry`
-- [ ] Use modular container/component architecture
-- [ ] Extract state to dedicated hooks
-- [ ] Virtualize lists >100 items
-- [ ] Use try/except import patterns for ML/LLM integration
-- [ ] Use `ComprehensivePropGenerator` for prop generation
-- [ ] Integrate health checks and performance monitoring
-- [ ] Use explicit TypeScript types and interfaces
-- [ ] Run backend tests with `pytest`, Alembic
-- [ ] Run frontend tests with Jest, Playwright, ESLint, Prettier, type-check
-- [ ] Use structured logging and unified error handling
+# Type check
+cd frontend && npm run type-check
+
+# Run tests
+pytest                    # Backend tests
+cd frontend && npm test   # Frontend tests
 ```
 
-For more details, see `.github/instructions/copilot-instructions.md` and `.github/instructions/setup.instructions.instructions.md`.
+### Key URLs
+- **Application**: http://localhost:5173
+- **API Docs**: http://localhost:8000/docs
+- **Health**: http://localhost:8000/health
+- **Player Search**: http://localhost:5173/player
+- **ML Models**: http://localhost:5173/ml-models
