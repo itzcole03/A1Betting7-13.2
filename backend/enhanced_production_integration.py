@@ -4,7 +4,9 @@ Integrates 2024-2025 FastAPI best practices with existing A1Betting infrastructu
 """
 
 import logging
+import time
 from contextlib import asynccontextmanager
+from datetime import datetime
 from typing import Any, Dict
 
 from fastapi import Depends, FastAPI, HTTPException, Request
