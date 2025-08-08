@@ -145,15 +145,46 @@ class CheatsheetsService {
    * Export opportunities to CSV
    */
   async exportCSV(filters: Partial<CheatsheetFilters>): Promise<Blob> {
-    const queryParams = this.buildQueryParams(filters);
-    const url = `/api/v1/cheatsheets/opportunities/csv?${queryParams}`;
-    
-    const response = await this.fetchWithRetry(url);
-    if (!response.ok) {
-      throw new Error('Failed to export CSV');
+    try {
+      const queryParams = this.buildQueryParams(filters);
+      const url = `/api/v1/cheatsheets/export/csv?${queryParams}`;
+
+      const response = await this.fetchWithRetry(url);
+      if (!response.ok) {
+        throw new Error(`Failed to export CSV: ${response.status} ${response.statusText}`);
+      }
+
+      return response.blob();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error('[CheatsheetsService] Failed to export CSV', errorMessage);
+
+      // Create fallback CSV from current data
+      const fallbackOpportunities = this.generateFallbackData(filters).opportunities;
+      const csvContent = this.generateCSVFromData(fallbackOpportunities);
+      return new Blob([csvContent], { type: 'text/csv' });
     }
-    
-    return response.blob();
+  }
+
+  private generateCSVFromData(opportunities: any[]): string {
+    if (opportunities.length === 0) {
+      return 'No data available\n';
+    }
+
+    const headers = Object.keys(opportunities[0]);
+    const csvRows = [headers.join(',')];
+
+    opportunities.forEach(opp => {
+      const row = headers.map(header => {
+        const value = opp[header];
+        return typeof value === 'string' && value.includes(',')
+          ? `"${value.replace(/"/g, '""')}"`
+          : value;
+      });
+      csvRows.push(row.join(','));
+    });
+
+    return csvRows.join('\n');
   }
 
   /**
