@@ -20,29 +20,6 @@ import {
 } from 'lucide-react';
 import { cheatsheetsService, type PropOpportunity, type CheatsheetFilters as ServiceFilters } from '../../../services/cheatsheetsService';
 
-interface PropOpportunity {
-  id: string;
-  player_name: string;
-  stat_type: string;
-  line: number;
-  recommended_side: 'over' | 'under';
-  edge_percentage: number;
-  confidence: number;
-  best_odds: number;
-  best_book: string;
-  fair_price: number;
-  implied_probability: number;
-  recent_performance: string;
-  sample_size: number;
-  last_updated: string;
-  sport: string;
-  team: string;
-  opponent: string;
-  venue: 'home' | 'away';
-  weather?: string;
-  injury_concerns?: string;
-}
-
 interface CheatsheetFilters {
   minEdge: number;
   minConfidence: number;
