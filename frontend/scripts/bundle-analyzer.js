@@ -17,10 +17,14 @@
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
+import { fileURLToPath } from 'url';
+
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
 
 // Configuration
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const DIST_DIR = path.join(__dirname, '..', 'dist');
 const ASSETS_DIR = path.join(DIST_DIR, 'assets');
 const REPORTS_DIR = path.join(__dirname, '..', 'reports');
