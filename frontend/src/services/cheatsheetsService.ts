@@ -76,7 +76,7 @@ class CheatsheetsService {
       return cached.data;
     }
 
-    logger.info('[CheatsheetsService] Fetching fresh data', { filters });
+    logger.info('Fetching fresh data', { filters }, 'CheatsheetsService');
 
     try {
       const queryParams = this.buildQueryParams(filters);
