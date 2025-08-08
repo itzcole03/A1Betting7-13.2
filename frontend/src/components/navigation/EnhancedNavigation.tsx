@@ -207,6 +207,36 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       category: 'main',
       isNew: true,
     },
+    {
+      id: 'advanced-player-dashboard',
+      name: 'Advanced Player Dashboard',
+      href: '/advanced-player',
+      icon: User,
+      badge: 'HOT',
+      description: 'Enhanced dashboard with customizable trend ranges',
+      category: 'research',
+      isHot: true,
+    },
+    {
+      id: 'real-time-lookup',
+      name: 'Player Lookup',
+      href: '/player-lookup',
+      icon: Search,
+      badge: 'NEW',
+      description: 'Sub-second player search with comprehensive data',
+      category: 'research',
+      isNew: true,
+    },
+    {
+      id: 'matchup-analysis',
+      name: 'Matchup Analysis',
+      href: '/matchup-analysis',
+      icon: Target,
+      badge: 'PRO',
+      description: 'Head-to-head player vs player comparisons',
+      category: 'analytics',
+      isPremium: true,
+    },
   ];
 
   const categories = [
