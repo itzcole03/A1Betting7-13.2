@@ -134,43 +134,12 @@ export const CheatsheetsDashboard: React.FC = () => {
     }
   }, [filters]);
 
-  // Generate fallback data only when API fails
-  const generateMockOpportunities = (): PropOpportunity[] => {
-    const mockPlayers = ['Aaron Judge', 'Mookie Betts', 'Ronald Acuna Jr.', 'Juan Soto'];
-    const statTypes = ['hits', 'total_bases', 'home_runs', 'rbis', 'runs_scored'];
-    const books = ['DraftKings', 'FanDuel', 'BetMGM', 'Caesars'];
-
-    console.log('[CheatsheetsDashboard] Generating fallback mock data (API unavailable)');
-
-    return mockPlayers.flatMap((player, i) =>
-      statTypes.slice(0, 2).map((stat, j) => ({
-        id: `fallback-${i}-${j}`,
-        player_name: player,
-        stat_type: stat,
-        line: 1.5 + (i * 0.5) + (j * 0.2),
-        recommended_side: Math.random() > 0.5 ? 'over' : 'under',
-        edge_percentage: 1.5 + Math.random() * 6,
-        confidence: 65 + Math.random() * 30,
-        best_odds: -110 + Math.random() * 40,
-        best_book: books[Math.floor(Math.random() * books.length)],
-        fair_price: 0.45 + Math.random() * 0.1,
-        implied_probability: 0.5 + (Math.random() - 0.5) * 0.2,
-        recent_performance: `${Math.floor(Math.random() * 5)} of last 10 games over`,
-        sample_size: 10 + Math.floor(Math.random() * 20),
-        last_updated: new Date().toISOString(),
-        sport: 'MLB',
-        team: ['NYY', 'LAD', 'ATL', 'SD'][i],
-        opponent: ['BOS', 'SF', 'NYM', 'LAA'][i],
-        venue: Math.random() > 0.5 ? 'home' : 'away',
-        // Add missing fields from real API response
-        weather: Math.random() > 0.7 ? 'Clear, 75°F' : null,
-        injury_concerns: Math.random() > 0.9 ? 'Minor day-to-day' : null,
-        market_efficiency: Math.random(),
-        volatility_score: Math.random(),
-        trend_direction: ['bullish', 'bearish', 'neutral'][Math.floor(Math.random() * 3)]
-      }))
-    );
-  };
+  // Check API health periodically
+  const checkApiHealth = useCallback(async () => {
+    const healthy = await cheatsheetsService.healthCheck();
+    setApiHealth(healthy);
+    return healthy;
+  }, []);
 
   // Filter opportunities based on current filters
   const filteredOpportunities = useMemo(() => {
