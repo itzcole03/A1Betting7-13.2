@@ -1,0 +1,24 @@
+Sportradar API Documentation
+
+Sportradar offers various APIs for sports data, including live scores, player statistics, team statistics, and betting odds. Their documentation is available on their developer portal.
+
+Key features:
+- Real-time data updates
+- Comprehensive coverage of major sports leagues
+- Integration guides and code samples
+
+API Endpoints:
+- `/v1/sports/{sport}/games`: Get a list of upcoming games.
+- `/v1/sports/{sport}/odds`: Get odds for a given sport, region, and market.
+- `/v1/events/{eventId}/odds`: Get odds for a specific event.
+
+Authentication:
+- API key required for most endpoints.
+
+Usage:
+- The API provides access to real-time sports data.
+- Data can be filtered by sport, region, and market.
+- Supports various odds formats (decimal, American).
+
+
+
