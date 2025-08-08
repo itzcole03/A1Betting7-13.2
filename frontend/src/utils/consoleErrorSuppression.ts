@@ -160,7 +160,7 @@ function enhancedConsoleError(...args: any[]) {
 function enhancedConsoleWarn(...args: any[]) {
   const message = args.join(' ');
   const knownError = isKnownNonCriticalError(message);
-  
+
   if (knownError) {
     // Track suppressed warning for debugging
     suppressedErrors.push({
@@ -170,9 +170,43 @@ function enhancedConsoleWarn(...args: any[]) {
     });
     return;
   }
-  
+
   // Allow genuine warnings through
   originalConsole.warn(...args);
+}
+
+/**
+ * Enhanced console.log that filters excessive debug messages in development
+ */
+function enhancedConsoleLog(...args: any[]) {
+  const message = args.join(' ');
+
+  // Filter out excessive debug messages in development
+  if (import.meta.env.DEV) {
+    const excessivePatterns = [
+      /\[Session Model\] Done step received/,
+      /AnimatedPlaceholder rendered/,
+      /\[LaunchDarkly\]/,
+      /Showing notification/,
+      /\[Performance\]/,
+      /\[WebVitals\]/,
+      /\[ServiceWorker\]/,
+      /\[SportsService\]/,
+      /\[APP\]/,
+      /\[WebSocket\]/,
+      /\[ConnectionResilience\]/,
+      /\[DataManager\]/,
+    ];
+
+    for (const pattern of excessivePatterns) {
+      if (pattern.test(message)) {
+        return; // Suppress without tracking
+      }
+    }
+  }
+
+  // Allow genuine logs through
+  originalConsole.log(...args);
 }
 
 /**
