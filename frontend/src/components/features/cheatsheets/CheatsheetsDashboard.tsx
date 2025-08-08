@@ -82,48 +82,53 @@ export const CheatsheetsDashboard: React.FC = () => {
   const [dataSource, setDataSource] = useState<string>('api');
   const [processingTime, setProcessingTime] = useState<number>(0);
 
-  // Fetch opportunities from backend
+  // Fetch opportunities using optimized service
   const fetchOpportunities = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const params = new URLSearchParams({
-        min_edge: filters.minEdge.toString(),
-        min_confidence: filters.minConfidence.toString(),
-        min_sample_size: filters.minSampleSize.toString(),
-        sports: filters.sports.join(','),
-        stat_types: filters.statTypes.join(','),
-        books: filters.books.join(','),
-        sides: filters.sides.join(','),
-        search: filters.searchQuery
-      });
+      const serviceFilters: Partial<ServiceFilters> = {
+        min_edge: filters.minEdge,
+        min_confidence: filters.minConfidence,
+        min_sample_size: filters.minSampleSize,
+        sports: filters.sports,
+        stat_types: filters.statTypes,
+        books: filters.books,
+        sides: filters.sides,
+        search_query: filters.searchQuery,
+        max_results: 50
+      };
 
-      console.log('[CheatsheetsDashboard] Fetching real data from API...');
-      const response = await fetch(`/api/v1/cheatsheets/opportunities?${params}`, {
-        signal: AbortSignal.timeout(10000) // Increased timeout for real data processing
-      });
+      console.log('[CheatsheetsDashboard] Fetching opportunities via service...');
+      const response = await cheatsheetsService.getOpportunities(serviceFilters);
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.opportunities && Array.isArray(data.opportunities)) {
-          setOpportunities(data.opportunities);
-          setLastRefresh(new Date());
-          console.log(`[CheatsheetsDashboard] Successfully loaded ${data.opportunities.length} real opportunities`);
-        } else {
-          throw new Error('Invalid response format from API');
-        }
+      setOpportunities(response.opportunities);
+      setLastRefresh(new Date(response.last_updated));
+      setProcessingTime(response.processing_time_ms);
+      setDataSource(response.cache_hit ? 'cache' : response.data_sources?.[0] || 'api');
+      setApiHealth(true);
+
+      if (response.market_status === 'limited') {
+        setError('Using fallback data - API connectivity limited');
       } else {
-        throw new Error(`API returned ${response.status}: ${response.statusText}`);
+        setError(null);
       }
-    } catch (err) {
-      console.warn('[CheatsheetsDashboard] Failed to load real data, using fallback:', err);
-      setError(`Failed to load data: ${err.message}`);
 
-      // Only use mock data as absolute fallback
-      const fallbackData = generateMockOpportunities();
-      setOpportunities(fallbackData);
-      setLastRefresh(new Date());
+      console.log(`[CheatsheetsDashboard] Loaded ${response.opportunities.length} opportunities`, {
+        processingTime: response.processing_time_ms,
+        cacheHit: response.cache_hit,
+        marketStatus: response.market_status
+      });
+
+    } catch (err) {
+      console.error('[CheatsheetsDashboard] Service failed:', err);
+      setError(`Service error: ${err.message}`);
+      setApiHealth(false);
+      setDataSource('fallback');
+
+      // Service handles fallback internally, so we should still get data
+      setOpportunities([]);
     } finally {
       setLoading(false);
     }
