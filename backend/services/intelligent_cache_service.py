@@ -662,7 +662,43 @@ class IntelligentCacheService:
     async def _calculate_smart_ttl(
         self, key: str, base_ttl: int, user_context: str = None
     ) -> int:
-        """Calculate intelligent TTL based on access patterns"""
+        """Calculate intelligent TTL based on access patterns and sport volatility models"""
+        # Try to use sport-specific volatility models first
+        try:
+            from backend.services.sport_volatility_models import sport_volatility_models, SportType, DataCategory
+
+            # Parse sport and data category from cache key
+            sport_type, data_category, user_id = self._parse_cache_key_for_volatility(key, user_context)
+
+            if sport_type and data_category:
+                # Get access count for this user and data type
+                access_count = 1
+                if key in self.access_patterns:
+                    access_count = self.access_patterns[key].access_frequency
+
+                # Extract game_id if present in key
+                game_id = self._extract_game_id_from_key(key)
+
+                # Use sport-specific volatility model
+                dynamic_ttl = await sport_volatility_models.get_dynamic_ttl(
+                    sport=sport_type,
+                    data_category=data_category,
+                    game_id=game_id,
+                    user_id=user_id,
+                    access_count=access_count
+                )
+
+                # Track user access for future optimization
+                if user_id:
+                    await sport_volatility_models.track_user_access(user_id, sport_type, data_category)
+
+                logger.debug(f"🎯 Using sport volatility model TTL: {dynamic_ttl}s for {key}")
+                return dynamic_ttl
+
+        except Exception as e:
+            logger.debug(f"⚠️ Sport volatility model fallback for {key}: {e}")
+
+        # Fallback to original logic if sport model not available
         if key not in self.access_patterns:
             return base_ttl
 
@@ -682,6 +718,78 @@ class IntelligentCacheService:
 
         # Ensure reasonable bounds
         return max(300, min(smart_ttl, 86400))  # 5 minutes to 24 hours
+
+    def _parse_cache_key_for_volatility(self, key: str, user_context: str = None) -> Tuple[Optional[any], Optional[any], Optional[str]]:
+        """Parse cache key to extract sport type and data category for volatility models"""
+        try:
+            from backend.services.sport_volatility_models import SportType, DataCategory
+
+            key_lower = key.lower()
+
+            # Detect sport type
+            sport_type = None
+            for sport in SportType:
+                if sport.value in key_lower:
+                    sport_type = sport
+                    break
+
+            # Detect data category
+            data_category = None
+            category_keywords = {
+                DataCategory.LIVE_SCORES: ['live', 'score', 'game_live'],
+                DataCategory.LIVE_ODDS: ['live_odds', 'odds_live'],
+                DataCategory.PRE_GAME_ODDS: ['odds', 'betting', 'line'],
+                DataCategory.PLAYER_STATS: ['player', 'stats', 'profile'],
+                DataCategory.TEAM_STATS: ['team', 'roster'],
+                DataCategory.INJURY_REPORTS: ['injury', 'injured'],
+                DataCategory.GAME_SCHEDULES: ['schedule', 'calendar', 'upcoming'],
+                DataCategory.PLAYER_PROPS: ['props', 'proposition'],
+                DataCategory.NEWS_UPDATES: ['news', 'update', 'headlines']
+            }
+
+            for category, keywords in category_keywords.items():
+                if any(keyword in key_lower for keyword in keywords):
+                    data_category = category
+                    break
+
+            # Extract user ID from context or key
+            user_id = None
+            if user_context and 'user' in user_context:
+                user_id = user_context
+            elif 'user_' in key_lower:
+                # Try to extract user ID from key pattern like "user_123_data"
+                import re
+                match = re.search(r'user_(\w+)', key_lower)
+                if match:
+                    user_id = match.group(1)
+
+            return sport_type, data_category, user_id
+
+        except Exception as e:
+            logger.debug(f"⚠️ Error parsing cache key for volatility: {e}")
+            return None, None, None
+
+    def _extract_game_id_from_key(self, key: str) -> Optional[str]:
+        """Extract game ID from cache key if present"""
+        try:
+            import re
+            # Look for patterns like "game_12345" or "12345_game" or similar
+            patterns = [
+                r'game_([a-zA-Z0-9\-_]+)',
+                r'([a-zA-Z0-9\-_]+)_game',
+                r'event_([a-zA-Z0-9\-_]+)',
+                r'match_([a-zA-Z0-9\-_]+)'
+            ]
+
+            for pattern in patterns:
+                match = re.search(pattern, key.lower())
+                if match:
+                    return match.group(1)
+
+            return None
+
+        except Exception:
+            return None
 
     async def close(self):
         """Cleanup resources and stop background tasks"""
