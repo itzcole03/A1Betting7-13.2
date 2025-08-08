@@ -56,6 +56,46 @@ const KNOWN_NON_CRITICAL_ERRORS: ErrorPattern[] = [
     description: 'Web worker loading failures (non-critical)',
     suppress: true,
   },
+  {
+    pattern: /FullStory namespace conflict/,
+    description: 'FullStory namespace conflicts (non-critical)',
+    suppress: true,
+  },
+  {
+    pattern: /Could not create web worker\(s\).*Falling back to loading web worker code in main thread/,
+    description: 'Monaco editor web worker fallback (non-critical)',
+    suppress: true,
+  },
+  {
+    pattern: /Uncaught \[object Object\]/,
+    description: 'Generic object errors from external scripts (non-critical)',
+    suppress: true,
+  },
+  {
+    pattern: /Uncaught \(in promise\) Error: Unexpected usage/,
+    description: 'Monaco editor unexpected usage errors (non-critical)',
+    suppress: true,
+  },
+  {
+    pattern: /Cannot create property 'failure' on string/,
+    description: 'Builder.io iframe communication errors (non-critical)',
+    suppress: true,
+  },
+  {
+    pattern: /Access to font at.*has been blocked by CORS policy/,
+    description: 'CORS font loading errors (non-critical)',
+    suppress: true,
+  },
+  {
+    pattern: /Could not get cookie|Could not set cookie/,
+    description: 'Cookie access errors in iframe context (non-critical)',
+    suppress: true,
+  },
+  {
+    pattern: /Node cannot be found in the current page/,
+    description: 'DOM node reference errors (non-critical)',
+    suppress: true,
+  },
 ];
 
 // Track original console methods
