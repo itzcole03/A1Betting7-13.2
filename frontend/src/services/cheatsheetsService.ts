@@ -234,10 +234,10 @@ class CheatsheetsService {
         
         const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
         const errorMessage = error instanceof Error ? error.message : String(error);
-        logger.warn(`[CheatsheetsService] Retry ${attempt + 1}/${retries} after ${delay}ms`, {
+        logger.warn(`Retry ${attempt + 1}/${retries} after ${delay}ms`, {
           url,
           error: errorMessage
-        });
+        }, 'CheatsheetsService');
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
