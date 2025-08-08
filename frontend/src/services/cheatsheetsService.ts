@@ -111,8 +111,12 @@ class CheatsheetsService {
         stack: error instanceof Error ? error.stack : undefined
       });
       
-      // Return fallback data instead of throwing
-      return this.generateFallbackData(filters);
+      // Return fallback data with error context
+      logger.warn('[CheatsheetsService] Using fallback data due to API error');
+      const fallbackData = this.generateFallbackData(filters);
+      fallbackData.api_error = true;
+      fallbackData.error_message = errorMessage;
+      return fallbackData;
     }
   }
 
