@@ -483,11 +483,11 @@ async function analyzeBundles() {
 }
 
 // Run the analysis
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   analyzeBundles().catch(error => {
     console.error('❌ Bundle analysis failed:', error);
     process.exit(1);
   });
 }
 
-module.exports = { analyzeBundles };
+export { analyzeBundles };
