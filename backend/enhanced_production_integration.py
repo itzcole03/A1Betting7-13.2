@@ -417,7 +417,7 @@ class EnhancedProductionApp:
                 startup_tasks.append("connection_pool")
             except Exception as e:
                 self.logger.warning(
-                    f"⚠️ Async connection pool initialization failed: {e}"
+                    f"���️ Async connection pool initialization failed: {e}"
                 )
 
             # Initialize advanced caching system
@@ -933,7 +933,7 @@ class EnhancedProductionApp:
 
             # NEW: Cheatsheets routes (prop opportunities)
             try:
-                self.app.include_router(cheatsheets_router, tags=["Cheatsheets"])
+                self.app.include_router(cheatsheets_router, prefix="/api", tags=["Cheatsheets"])
                 enhanced_routes.append("cheatsheets")
                 self.logger.info("✅ Cheatsheets (prop opportunities) routes included")
             except Exception as e:
