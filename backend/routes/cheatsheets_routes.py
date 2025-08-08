@@ -109,7 +109,7 @@ async def get_opportunities(
             books=[b.strip() for b in books.split(',') if b.strip()],
             sides=[s.strip() for s in sides.split(',') if s.strip()],
             sports=[s.strip() for s in sports.split(',') if s.strip()],
-            search_query=search.strip(),
+            search_query=search_query.strip(),
             max_results=max_results
         )
         
@@ -229,7 +229,7 @@ async def export_opportunities_csv(
             books=[b.strip() for b in books.split(',') if b.strip()],
             sides=[s.strip() for s in sides.split(',') if s.strip()],
             sports=[s.strip() for s in sports.split(',') if s.strip()],
-            search_query=search.strip(),
+            search_query=search_query.strip(),
             max_results=max_results
         )
         
