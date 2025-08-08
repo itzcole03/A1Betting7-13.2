@@ -942,6 +942,11 @@ const PropFinderKillerDashboard: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Community Engagement Section */}
+      <div className="mt-8">
+        <CommunityEngagement />
+      </div>
     </div>
   );
 };
