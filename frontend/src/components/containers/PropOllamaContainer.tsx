@@ -22,18 +22,18 @@ import { GameStatsPanel } from '../stats/GameStatsPanel';
  */
 const PropOllamaContainer: React.FC = () => {
   console.count('[PropOllamaContainer] RENDER');
-  console.error('[PropOllamaContainer] *** COMPONENT RENDERING - CHECK THIS! ***');
+  console.log('[PropOllamaContainer] Component rendering');
 
   // Make a test API call to verify the component is actually running
   React.useEffect(() => {
-    console.error('[PropOllamaContainer] *** USEEFFECT RUNNING - MAKING TEST CALL ***');
+    console.log('[PropOllamaContainer] useEffect running - making test call');
     httpFetch('/api/v2/health')
       .then(response => response.json())
       .then(data => {
-        console.error('[PropOllamaContainer] *** TEST CALL SUCCESS ***', data);
+        console.log('[PropOllamaContainer] Test call success:', JSON.stringify(data, null, 2));
       })
       .catch(error => {
-        console.error('[PropOllamaContainer] *** TEST CALL FAILED ***', error);
+        console.error('[PropOllamaContainer] Test call failed:', error);
       });
   }, []);
 

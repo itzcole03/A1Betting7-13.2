@@ -41,13 +41,24 @@ export async function httpFetch(url: string, options: HttpRequestOptions = {}): 
     return response;
   } catch (error) {
     const duration = performance.now() - start;
-    // eslint-disable-next-line no-console
-    console.error(
-      `[${label}] [${requestId}] Error:`,
-      finalUrl,
-      error,
-      `Duration: ${duration.toFixed(1)}ms`
-    );
+
+    // Suppress "Failed to fetch" errors to avoid console noise when backend unavailable
+    if (error instanceof Error && error.message.includes('Failed to fetch')) {
+      // Only log as warning instead of error to reduce console noise
+      console.warn(
+        `[${label}] [${requestId}] Backend unavailable:`,
+        finalUrl,
+        `Duration: ${duration.toFixed(1)}ms`
+      );
+    } else {
+      // eslint-disable-next-line no-console
+      console.error(
+        `[${label}] [${requestId}] Error:`,
+        finalUrl,
+        error,
+        `Duration: ${duration.toFixed(1)}ms`
+      );
+    }
     throw error;
   }
 }

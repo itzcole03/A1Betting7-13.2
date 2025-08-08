@@ -1,4 +1,4 @@
-import { BarChart3, Brain, Home, Menu, Target, TrendingUp, User, X, Zap } from 'lucide-react';
+import { BarChart3, Brain, Home, Menu, Target, TrendingUp, User, X, Zap, BookOpen, Calculator, Activity } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import PropOllamaContainer from '../containers/PropOllamaContainer';
@@ -13,6 +13,12 @@ const ArbitrageOpportunities = React.lazy(
 const PlayerDashboard = React.lazy(() => import('../player/PlayerDashboardWrapper'));
 const PlayerDashboardTest = React.lazy(() => import('../../pages/PlayerDashboardTest'));
 
+// NEW: PropFinder-competing features
+const OddsComparison = React.lazy(() => import('../features/odds/OddsComparison'));
+const CheatsheetsDashboard = React.lazy(() => import('../features/cheatsheets/CheatsheetsDashboard'));
+const KellyCalculator = React.lazy(() => import('../features/risk/KellyCalculator'));
+const PropFinderCompetitorDashboard = React.lazy(() => import('../welcome/PropFinderCompetitorDashboard'));
+
 const UserFriendlyApp: React.FC = () => {
   console.count('[UserFriendlyApp] RENDER');
   console.log('[UserFriendlyApp] Rendering on path:', window.location.pathname);
@@ -21,36 +27,62 @@ const UserFriendlyApp: React.FC = () => {
   const [useOptimizedMode, setUseOptimizedMode] = useState(false); // Toggle for optimization
 
   const navigation = [
-    { name: 'Sports Analytics', href: '/', icon: Home, current: location.pathname === '/' },
+    { name: 'PropFinder Competitor', href: '/', icon: Home, current: location.pathname === '/', badge: 'HOME' },
     {
       name: 'Player Research',
       href: '/player',
       icon: User,
       current: location.pathname.startsWith('/player'),
+      badge: null
     },
     {
-      name: 'Dashboard Test',
-      href: '/test-dashboard',
-      icon: Zap,
-      current: location.pathname === '/test-dashboard',
+      name: 'Odds Comparison',
+      href: '/odds-comparison',
+      icon: TrendingUp,
+      current: location.pathname === '/odds-comparison',
+      badge: 'NEW'
+    },
+    {
+      name: 'Arbitrage Hunter',
+      href: '/arbitrage',
+      icon: Target,
+      current: location.pathname === '/arbitrage',
+      badge: 'HOT'
+    },
+    {
+      name: 'Prop Cheatsheets',
+      href: '/cheatsheets',
+      icon: BookOpen,
+      current: location.pathname === '/cheatsheets',
+      badge: 'NEW'
+    },
+    {
+      name: 'Kelly Calculator',
+      href: '/kelly-calculator',
+      icon: Calculator,
+      current: location.pathname === '/kelly-calculator',
+      badge: 'NEW'
     },
     {
       name: 'AI/ML Models',
       href: '/ml-models',
       icon: Brain,
       current: location.pathname === '/ml-models',
+      badge: null
     },
     {
       name: 'Betting Interface',
       href: '/betting',
       icon: BarChart3,
       current: location.pathname === '/betting',
+      badge: null
     },
     {
-      name: 'Arbitrage',
-      href: '/arbitrage',
-      icon: Target,
-      current: location.pathname === '/arbitrage',
+      name: 'Legacy PropOllama',
+      href: '/legacy-propollama',
+      icon: Activity,
+      current: location.pathname === '/legacy-propollama',
+      badge: 'LEGACY'
     },
   ];
 
@@ -75,11 +107,12 @@ const UserFriendlyApp: React.FC = () => {
       >
         <div className='flex flex-col h-full'>
           {/* Logo/Header */}
-          <div className='flex items-center justify-center h-16 bg-slate-900/50 border-b border-slate-600'>
+          <div className='flex flex-col items-center justify-center h-20 bg-slate-900/50 border-b border-slate-600'>
             <div className='flex items-center space-x-2'>
               <Zap className='h-8 w-8 text-yellow-400' />
               <span className='text-xl font-bold'>A1 Betting</span>
             </div>
+            <div className='text-xs text-gray-400 mt-1'>PropFinder Competitor</div>
           </div>
 
           {/* Navigation */}
@@ -91,14 +124,25 @@ const UserFriendlyApp: React.FC = () => {
                   key={item.name}
                   to={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center px-4 py-3 rounded-lg font-medium transition-colors ${
+                  className={`flex items-center justify-between px-4 py-3 rounded-lg font-medium transition-colors ${
                     item.current
                       ? 'bg-yellow-500 text-black'
                       : 'text-gray-300 hover:bg-slate-700 hover:text-white'
                   }`}
                 >
-                  <Icon className='mr-3 h-5 w-5' />
-                  {item.name}
+                  <div className='flex items-center'>
+                    <Icon className='mr-3 h-5 w-5' />
+                    {item.name}
+                  </div>
+                  {item.badge && (
+                    <span className={`px-2 py-1 text-xs font-bold rounded ${
+                      item.badge === 'NEW' ? 'bg-green-600 text-white' :
+                      item.badge === 'HOT' ? 'bg-red-600 text-white' :
+                      'bg-blue-600 text-white'
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -132,10 +176,10 @@ const UserFriendlyApp: React.FC = () => {
 
             <div className='bg-green-900 rounded-lg p-3 text-center'>
               <div className='flex items-center justify-center space-x-2'>
-                <TrendingUp className='h-4 w-4 text-green-400' />
-                <span className='text-sm font-medium text-green-400'>Phase 3 Active</span>
+                <Target className='h-4 w-4 text-green-400' />
+                <span className='text-sm font-medium text-green-400'>PropFinder Competitor</span>
               </div>
-              <div className='text-xs text-green-300 mt-1'>Enterprise AI/ML Platform</div>
+              <div className='text-xs text-green-300 mt-1'>AI • Odds • Arbitrage • Kelly</div>
             </div>
           </div>
         </div>
@@ -162,9 +206,13 @@ const UserFriendlyApp: React.FC = () => {
             <Routes>
               <Route
                 path='/'
+                element={<PropFinderCompetitorDashboard />}
+              />
+              <Route
+                path='/legacy-propollama'
                 element={(() => {
                   console.log(
-                    '[UserFriendlyApp] Rendering home route - useOptimizedMode:',
+                    '[UserFriendlyApp] Rendering legacy PropOllama route - useOptimizedMode:',
                     useOptimizedMode
                   );
                   return useOptimizedMode ? (
@@ -181,6 +229,25 @@ const UserFriendlyApp: React.FC = () => {
                   return <PlayerDashboard />;
                 })()}
               />
+
+              {/* NEW PropFinder-competing features */}
+              <Route
+                path='/odds-comparison'
+                element={<OddsComparison />}
+              />
+              <Route
+                path='/cheatsheets'
+                element={<CheatsheetsDashboard />}
+              />
+              <Route
+                path='/kelly-calculator'
+                element={<KellyCalculator />}
+              />
+
+              {/* Existing routes */}
+              <Route path='/ml-models' element={<MLModelCenter />} />
+              <Route path='/betting' element={<UnifiedBettingInterface />} />
+              <Route path='/arbitrage' element={<ArbitrageOpportunities />} />
               <Route
                 path='/test-dashboard'
                 element={(() => {
@@ -188,9 +255,6 @@ const UserFriendlyApp: React.FC = () => {
                   return <PlayerDashboardTest />;
                 })()}
               />
-              <Route path='/ml-models' element={<MLModelCenter />} />
-              <Route path='/betting' element={<UnifiedBettingInterface />} />
-              <Route path='/arbitrage' element={<ArbitrageOpportunities />} />
             </Routes>
           </React.Suspense>
         </div>

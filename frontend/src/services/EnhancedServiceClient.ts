@@ -421,8 +421,8 @@ class EnhancedServiceClient {
         };
 
         this.wsConnection.onerror = error => {
-          console.error('WebSocket connection error:', error);
-          reject(error);
+          console.warn('[EnhancedServiceClient] WebSocket connection issue (application continues in local mode)');
+          reject(new Error('WebSocket connection failed'));
         };
 
         this.wsConnection.onclose = () => {

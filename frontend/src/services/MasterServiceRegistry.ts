@@ -307,25 +307,25 @@ class MasterServiceRegistry {
   }
 
   private setupHealthMonitoring(): void {
-    // Check health every 5 minutes instead of every minute to reduce noise
+    // Check health every 10 minutes and be very tolerant of failures
     setInterval(async () => {
       for (const [name, service] of this.services.entries()) {
         try {
           const _startTime = Date.now();
 
-          // Perform health check with aggressive timeout
+          // Perform health check with very short timeout and error tolerance
           if ((service as any).healthCheck) {
             await Promise.race([
               (service as any).healthCheck(),
               new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Health check timeout')), 2000) // 2 second timeout
+                setTimeout(() => reject(new Error('Health check timeout')), 1000) // 1 second timeout
               )
             ]);
           } else if ((service as any).ping) {
             await Promise.race([
               (service as any).ping(),
               new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Ping timeout')), 1500) // 1.5 second timeout
+                setTimeout(() => reject(new Error('Ping timeout')), 800) // 0.8 second timeout
               )
             ]);
           }
@@ -333,7 +333,7 @@ class MasterServiceRegistry {
           const _responseTime = Date.now() - _startTime;
           this.updateServiceHealth(name, 'healthy', _responseTime);
         } catch (error) {
-          // Health check failures are non-critical - completely silent for network errors
+          // Health check failures are completely silent - no console logging for network errors
           const _health = this.serviceHealth.get(name);
           const errorCount = _health ? _health.errorCount + 1 : 1;
 
@@ -354,7 +354,7 @@ class MasterServiceRegistry {
           }
         }
       }
-    }, 300000); // Check every 5 minutes
+    }, 600000); // Check every 10 minutes
   }
 
   private setupMetricsCollection(): void {

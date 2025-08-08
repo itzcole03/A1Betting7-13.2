@@ -34,11 +34,25 @@ export class ErrorHandler {
         if (
           event.reason &&
           (event.reason.message?.includes('WebSocket closed without opened') ||
-            event.reason.toString?.().includes('WebSocket closed without opened'))
+            event.reason.toString?.().includes('WebSocket closed without opened') ||
+            event.reason.message?.includes('WebSocket connection') ||
+            event.reason.toString?.().includes('[object Event]'))
         ) {
-          // Log WebSocket errors but don't treat them as critical
-          console.warn('WebSocket connection issue (handled):', event.reason);
+          // Log WebSocket errors as warnings but don't treat them as critical
+          console.warn('[WebSocket] Connection issue (non-critical - demo mode active)');
           event.preventDefault(); // Prevent the error from being logged as unhandled
+          return;
+        }
+
+        // Handle backend unavailability errors gracefully
+        if (
+          event.reason &&
+          (event.reason.message?.includes('Failed to fetch') ||
+            event.reason.message?.includes('No compatible sports activation API found') ||
+            event.reason.message?.includes('fetch'))
+        ) {
+          console.warn('[Backend] Service unavailable (demo mode active)');
+          event.preventDefault();
           return;
         }
 

@@ -149,11 +149,11 @@ const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({ className = '' })
             loadDashboardData(); // Refresh opportunities
           }
         } catch (error) {
-          console.error('WebSocket message parsing error:', error);
+          console.warn('[EnhancedDashboard] WebSocket message parsing error (non-critical):', error);
         }
       };
     } catch (error) {
-      console.error('WebSocket connection failed:', error);
+      console.warn('[EnhancedDashboard] WebSocket connection failed (application continues normally):', error);
     }
   };
 

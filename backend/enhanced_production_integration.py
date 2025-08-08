@@ -22,6 +22,17 @@ from .middleware.comprehensive_middleware import (
     SecurityHeadersMiddleware,
 )
 
+# Import new route modules
+try:
+    from .routes.ai_routes import router as ai_router
+    from .routes.odds_routes import router as odds_router
+    from .routes.cheatsheets_routes import router as cheatsheets_router
+    from .routes.risk_tools_routes import router as risk_tools_router
+    NEW_ROUTES_AVAILABLE = True
+except ImportError:
+    NEW_ROUTES_AVAILABLE = False
+    app_logger.warning("New route modules not available - using basic routing")
+
 try:
     from .utils.structured_logging import (
         app_logger,
@@ -849,6 +860,59 @@ class EnhancedProductionApp:
             enhanced_routes.append("phase3_mlops")
         except ImportError as e:
             self.logger.warning(f"Could not import phase3_routes router: {str(e)}")
+
+        # NEW: AI-powered analytics routes (Ollama integration)
+        if NEW_ROUTES_AVAILABLE:
+            try:
+                self.app.include_router(ai_router, tags=["AI Analytics"])
+                enhanced_routes.append("ai_analytics")
+                self.logger.info("✅ AI Analytics routes (Ollama integration) included")
+            except Exception as e:
+                self.logger.warning(f"Could not include ai_routes router: {str(e)}")
+
+            # NEW: Odds aggregation and arbitrage detection routes
+            try:
+                self.app.include_router(odds_router, tags=["Odds & Arbitrage"])
+                enhanced_routes.append("odds_arbitrage")
+                self.logger.info("✅ Odds aggregation and arbitrage routes included")
+            except Exception as e:
+                self.logger.warning(f"Could not include odds_routes router: {str(e)}")
+
+            # NEW: Cheatsheets routes (prop opportunities)
+            try:
+                self.app.include_router(cheatsheets_router, tags=["Cheatsheets"])
+                enhanced_routes.append("cheatsheets")
+                self.logger.info("✅ Cheatsheets (prop opportunities) routes included")
+            except Exception as e:
+                self.logger.warning(f"Could not include cheatsheets_routes router: {str(e)}")
+
+            # NEW: Risk Tools routes (Kelly Criterion)
+            try:
+                self.app.include_router(risk_tools_router, tags=["Risk Management"])
+                enhanced_routes.append("risk_tools")
+                self.logger.info("✅ Risk management (Kelly Criterion) routes included")
+            except Exception as e:
+                self.logger.warning(f"Could not include risk_tools_routes router: {str(e)}")
+        else:
+            self.logger.warning("⚠️ New route modules not available - falling back to legacy imports")
+
+            # Fallback: Legacy AI routes import
+            try:
+                from .routes import ai_routes
+
+                self.app.include_router(ai_routes.router, tags=["AI Analytics"])
+                enhanced_routes.append("ai_analytics")
+            except ImportError as e:
+                self.logger.warning(f"Could not import ai_routes router: {str(e)}")
+
+            # Fallback: Legacy odds routes import
+            try:
+                from .routes import odds_routes
+
+                self.app.include_router(odds_routes.router, tags=["Odds & Arbitrage"])
+                enhanced_routes.append("odds_arbitrage")
+            except ImportError as e:
+                self.logger.warning(f"Could not import odds_routes router: {str(e)}")
 
         # Data validation routes
         try:

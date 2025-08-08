@@ -363,11 +363,11 @@ class EnhancedApiService {
           const _data = JSON.parse(event.data);
           onMessage(data);
         } catch (err) {
-          console.error('WebSocket message parse error', err);
+          console.warn('[EnhancedApiService] WebSocket message parse error (non-critical)', err);
         }
       };
       ws.onerror = err => {
-        console.error('WebSocket error', err);
+        console.warn('[EnhancedApiService] WebSocket connection issue (application continues normally)');
       };
       return ws;
     } catch (error) {

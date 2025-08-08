@@ -93,12 +93,21 @@ export class ApiService {
    */
   private async getBaseURL(): Promise<string> {
     try {
-      const _url = await discoverBackend();
-      if (!_url) throw new Error('No backend discovered');
+      // Add timeout to backend discovery
+      const discoveryPromise = discoverBackend();
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Backend discovery timeout')), 2000)
+      );
+
+      const _url = await Promise.race([discoveryPromise, timeoutPromise]);
+      if (!_url) {
+        throw new Error('No backend discovered');
+      }
       return _url;
     } catch (error) {
-      console.warn('Failed to discover backend, using configured baseURL:', error);
-      return this.config.baseURL; // or a fallback URL
+      console.warn('[ApiService] Backend discovery failed, using fallback:', error);
+      // Return null to indicate backend is unavailable - services should use mock data
+      throw new Error('Backend unavailable - use mock data');
     }
   }
 
@@ -116,17 +125,23 @@ export class ApiService {
     data?: unknown,
     config: RequestConfig = {}
   ): Promise<ApiResponse<T>> {
-    const _baseURL = await this.getBaseURL();
-    const _fullUrl = `${_baseURL}${url}`;
-    const _cacheKey = `${method}:${_fullUrl}:${JSON.stringify(data || {})}`;
+    try {
+      const _baseURL = await this.getBaseURL();
+      const _fullUrl = `${_baseURL}${url}`;
+      const _cacheKey = `${method}:${_fullUrl}:${JSON.stringify(data || {})}`;
 
-    // Check cache for GET requests
-    if (method === 'GET' && config.cache !== false) {
-      const _cached = this.cache.get(_cacheKey);
-      if (_cached && _cached.expires > Date.now()) {
-        // @ts-ignore: TS2322 - Type 'unknown' is not assignable to type 'T'.
-        return _cached.data;
+      // Check cache for GET requests
+      if (method === 'GET' && config.cache !== false) {
+        const _cached = this.cache.get(_cacheKey);
+        if (_cached && _cached.expires > Date.now()) {
+          // @ts-ignore: TS2322 - Type 'unknown' is not assignable to type 'T'.
+          return _cached.data;
+        }
       }
+    } catch (error) {
+      // Backend unavailable - throw error to let services handle gracefully
+      console.warn('[ApiService] Backend unavailable:', error);
+      throw new Error('Backend unavailable');
     }
 
     // Apply request interceptors

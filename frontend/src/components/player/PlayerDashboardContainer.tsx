@@ -5,9 +5,11 @@
 
 import React, { useCallback, useState } from 'react';
 import { usePlayerDashboardState } from '../../hooks/usePlayerDashboardState';
+import { Brain, TrendingUp, History, User } from 'lucide-react';
 import PlayerOverview from './PlayerOverview';
 import PlayerPropHistory from './PlayerPropHistory';
 import PlayerStatTrends from './PlayerStatTrends';
+import AIExplanationPanel from '../ai/AIExplanationPanel';
 
 export interface Player {
   id: string;
@@ -136,6 +138,7 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Player[]>([]);
   const [showSearch, setShowSearch] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'trends' | 'history' | 'ai'>('overview');
 
   // Use unified dashboard state hook
   const { player, loading, error, reload } = usePlayerDashboardState({ playerId, sport });
@@ -264,11 +267,95 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
         {/* (Header code omitted for brevity) */}
       </div>
 
-      {/* Main Content: always render dashboard sections, use loading prop for skeletons */}
+      {/* Main Content with tabbed interface */}
       <div className='max-w-5xl mx-auto px-4 py-8' aria-busy={loading} aria-live='polite'>
+        {/* Player Overview - always shown */}
         <PlayerOverview player={player || undefined} loading={loading} />
-        <PlayerStatTrends player={player || undefined} loading={loading} />
-        <PlayerPropHistory player={player || undefined} loading={loading} />
+
+        {/* Tab Navigation */}
+        <div className='bg-slate-800/50 backdrop-blur rounded-lg border border-slate-700 mb-6'>
+          <div className='border-b border-slate-700'>
+            <nav className='flex space-x-8 px-6'>
+              {[
+                { id: 'overview', label: 'Stats & Performance', icon: User },
+                { id: 'trends', label: 'Trends & Analysis', icon: TrendingUp },
+                { id: 'history', label: 'Prop History', icon: History },
+                { id: 'ai', label: 'AI Insights', icon: Brain },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`flex items-center gap-2 py-4 border-b-2 font-medium text-sm transition-colors ${
+                      activeTab === tab.id
+                        ? 'border-blue-500 text-blue-400'
+                        : 'border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-600'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Tab Content */}
+          <div className='p-6'>
+            {activeTab === 'overview' && (
+              <div className='space-y-6'>
+                <div className='text-slate-300'>
+                  <h3 className='text-lg font-semibold mb-4 text-white'>Season Statistics & Recent Performance</h3>
+                  {player ? (
+                    <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+                      <div className='bg-slate-700/50 rounded-lg p-4'>
+                        <div className='text-slate-400 text-sm'>Games Played</div>
+                        <div className='text-xl font-bold text-white'>{player.season_stats?.games_played || 0}</div>
+                      </div>
+                      <div className='bg-slate-700/50 rounded-lg p-4'>
+                        <div className='text-slate-400 text-sm'>Batting Avg</div>
+                        <div className='text-xl font-bold text-white'>{player.season_stats?.batting_average?.toFixed(3) || '.000'}</div>
+                      </div>
+                      <div className='bg-slate-700/50 rounded-lg p-4'>
+                        <div className='text-slate-400 text-sm'>Home Runs</div>
+                        <div className='text-xl font-bold text-white'>{player.season_stats?.home_runs || 0}</div>
+                      </div>
+                      <div className='bg-slate-700/50 rounded-lg p-4'>
+                        <div className='text-slate-400 text-sm'>RBIs</div>
+                        <div className='text-xl font-bold text-white'>{player.season_stats?.rbis || 0}</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className='text-slate-400'>No player data available</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'trends' && (
+              <PlayerStatTrends player={player || undefined} loading={loading} />
+            )}
+
+            {activeTab === 'history' && (
+              <PlayerPropHistory player={player || undefined} loading={loading} />
+            )}
+
+            {activeTab === 'ai' && (
+              <AIExplanationPanel
+                context={player ? `Player: ${player.name} (${player.position}, ${player.team})
+Season Stats: ${JSON.stringify(player.season_stats, null, 2)}
+Sport: ${player.sport}
+Active: ${player.active}
+${player.injury_status ? `Injury Status: ${player.injury_status}` : ''}` : 'No player data available'}
+                question="Please analyze this player's performance, trends, and potential prop opportunities. Include insights about recent form, matchup considerations, and any notable patterns."
+                playerIds={player ? [player.id] : undefined}
+                sport={sport}
+                className="min-h-[500px]"
+              />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

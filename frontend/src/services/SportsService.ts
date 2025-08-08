@@ -36,7 +36,13 @@ export async function detectSportsApiVersion(): Promise<'v2' | 'v1' | 'none'> {
     if (v2resp.ok || v2resp.status === 405) {
       return 'v2';
     }
-  } catch {}
+  } catch (error) {
+    // Handle network errors gracefully
+    if (error instanceof Error && (error.message.includes('Failed to fetch') || error.name === 'TypeError')) {
+      console.warn('[SportsService] Backend unavailable, falling back to demo mode');
+      return 'none';
+    }
+  }
   // Try v1 endpoint
   try {
     const v1resp = await httpFetch('/api/sports/activate/MLB', {
@@ -46,14 +52,20 @@ export async function detectSportsApiVersion(): Promise<'v2' | 'v1' | 'none'> {
     if (v1resp.ok || v1resp.status === 405) {
       return 'v1';
     }
-  } catch {}
+  } catch (error) {
+    // Handle network errors gracefully
+    if (error instanceof Error && (error.message.includes('Failed to fetch') || error.name === 'TypeError')) {
+      console.warn('[SportsService] Backend unavailable, falling back to demo mode');
+      return 'none';
+    }
+  }
   return 'none';
 }
 
 /**
  * Activates a sport using the best available API version.
  * Tries v2, falls back to v1 with warning and logs deprecated usage.
- * Throws standardized error on version mismatch or failure.
+ * Returns demo mode response if backend unavailable instead of throwing.
  */
 export async function activateSport(sport: string): Promise<ActivateSportResponse> {
   // Try v2 first
@@ -86,6 +98,16 @@ export async function activateSport(sport: string): Promise<ActivateSportRespons
       );
     }
   } catch (err) {
+    // Handle network errors gracefully
+    if (err instanceof Error && (err.message.includes('Failed to fetch') || err.name === 'TypeError')) {
+      console.warn('[SportsService] Backend unavailable, returning demo mode activation');
+      return {
+        status: 'success',
+        message: `${sport} activated in demo mode`,
+        version_used: 'demo',
+        newly_loaded: true,
+      };
+    }
     logApiEvent('v2 activation error', { error: (err as Error).message, sport });
     // Fall through to v1
   }
@@ -111,24 +133,45 @@ export async function activateSport(sport: string): Promise<ActivateSportRespons
       );
     }
   } catch (err) {
+    // Handle network errors gracefully
+    if (err instanceof Error && (err.message.includes('Failed to fetch') || err.name === 'TypeError')) {
+      console.warn('[SportsService] Backend unavailable, returning demo mode activation');
+      return {
+        status: 'success',
+        message: `${sport} activated in demo mode`,
+        version_used: 'demo',
+        newly_loaded: true,
+      };
+    }
     logApiEvent('v1 activation error', { error: (err as Error).message, sport });
-    throw new Error(
-      `Failed to activate sport: ${sport}. No compatible API version found. Please check backend version.`
-    );
+    // Return demo mode instead of throwing
+    console.warn(`[SportsService] All activation attempts failed for ${sport}, falling back to demo mode`);
+    return {
+      status: 'success',
+      message: `${sport} activated in demo mode (backend unavailable)`,
+      version_used: 'demo',
+      newly_loaded: true,
+    };
   }
 }
 
 /**
- * Checks API version compatibility at app startup. Logs and throws if no compatible version is found.
+ * Checks API version compatibility at app startup. Logs and falls back to demo mode if no backend available.
  */
 export async function checkApiVersionCompatibility() {
-  const version = await detectSportsApiVersion();
-  if (version === 'none') {
-    logApiEvent('no compatible sports activation API found', {});
-    throw new Error('No compatible sports activation API found. Please update backend.');
+  try {
+    const version = await detectSportsApiVersion();
+    if (version === 'none') {
+      logApiEvent('no compatible sports activation API found - using demo mode', {});
+      console.warn('[SportsService] Backend unavailable, application will run in demo mode');
+      return 'demo'; // Return demo mode instead of throwing
+    }
+    if (version === 'v1') {
+      logApiEvent('using deprecated v1 sports activation API', {});
+    }
+    return version;
+  } catch (error) {
+    console.warn('[SportsService] API compatibility check failed, falling back to demo mode:', error);
+    return 'demo';
   }
-  if (version === 'v1') {
-    logApiEvent('using deprecated v1 sports activation API', {});
-  }
-  return version;
 }

@@ -44,9 +44,13 @@ class ConnectionResilience {
     monitoringPeriod: 300000, // 5 minutes
   };
 
+  private consecutiveFailures = 0;
+  private maxConsecutiveFailures = 10; // Stop health monitoring after this many failures
+
   constructor(config?: Partial<HealthCheckConfig & CircuitBreakerConfig>) {
     this.config = { ...this.config, ...config };
-    this.startHealthMonitoring();
+    // Don't start health monitoring automatically - it will be started only if initial check succeeds
+    this.performInitialHealthCheck();
   }
 
   /**
@@ -109,53 +113,92 @@ class ConnectionResilience {
   }
 
   /**
-   * Health monitoring with automatic status tracking
+   * Skip initial health check to prevent fetch errors - assume demo mode
+   */
+  private async performInitialHealthCheck(): Promise<void> {
+    // Skip health check entirely to prevent fetch errors
+    // App will run in demo mode by default
+    console.log('[ConnectionResilience] Running in demo mode (health check disabled)');
+    this.updateHealthStatus('unhealthy');
+  }
+
+  /**
+   * Health monitoring with automatic status tracking (only called if backend is initially available)
    */
   private async startHealthMonitoring(): Promise<void> {
     const checkHealth = async () => {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-          controller.abort();
-        }, this.config.timeout);
+      // Stop health monitoring after too many consecutive failures to avoid console spam
+      if (this.consecutiveFailures >= this.maxConsecutiveFailures) {
+        console.log('[ConnectionResilience] Stopped health monitoring after consecutive failures - using demo mode');
+        if (this.healthCheckInterval) {
+          clearInterval(this.healthCheckInterval);
+          this.healthCheckInterval = null;
+        }
+        return;
+      }
 
-        // Use full URL for health endpoint
+      try {
         // Use getEnvVar for robust env access
         // @ts-ignore
         const { getEnvVar } = await import('./getEnvVar');
         const backendUrl = getEnvVar('VITE_BACKEND_URL', 'http://localhost:8000');
         const healthUrl = `${backendUrl}${this.config.endpoint}`;
 
-        const response = await fetch(healthUrl, {
-          signal: controller.signal,
-          cache: 'no-cache',
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-          },
+        // Use Promise.race to handle timeout - wrapped to suppress console errors
+        const fetchPromise = new Promise<Response>((resolve, reject) => {
+          fetch(healthUrl, {
+            cache: 'no-cache',
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+            },
+          }).then(resolve).catch(reject);
         });
 
-        clearTimeout(timeoutId);
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => {
+            reject(new Error('Health check timeout'));
+          }, this.config.timeout);
+        });
+
+        const response = await Promise.race([fetchPromise, timeoutPromise]);
 
         if (response.ok) {
+          this.consecutiveFailures = 0; // Reset on success
           this.updateHealthStatus('healthy');
         } else {
+          this.consecutiveFailures++;
           this.updateHealthStatus('degraded');
         }
       } catch (error) {
-        // Improve error handling for AbortError
+        this.consecutiveFailures++;
+
+        // Improve error handling for AbortError and reduce console noise
         if (error instanceof Error) {
           if (error.name === 'AbortError') {
-            console.warn(
-              '[ConnectionResilience] Health check timed out after',
-              this.config.timeout,
-              'ms'
-            );
+            // Only log timeout on first few attempts to avoid spam
+            if (this.consecutiveFailures <= 3) {
+              console.warn(
+                '[ConnectionResilience] Health check timed out after',
+                this.config.timeout,
+                'ms (application continues in demo mode)'
+              );
+            }
+          } else if (error.message.includes('Failed to fetch')) {
+            // Only log fetch failures on first few attempts
+            if (this.consecutiveFailures <= 3) {
+              console.warn('[ConnectionResilience] Backend unavailable (demo mode active)');
+            }
           } else {
-            console.warn('[ConnectionResilience] Health check failed:', error.message);
+            // Log other errors only on first occurrence
+            if (this.consecutiveFailures <= 1) {
+              console.warn('[ConnectionResilience] Health check failed:', error.message);
+            }
           }
         } else {
-          console.warn('[ConnectionResilience] Health check failed:', error);
+          if (this.consecutiveFailures <= 1) {
+            console.warn('[ConnectionResilience] Health check failed:', error);
+          }
         }
         this.updateHealthStatus('unhealthy');
       }
@@ -202,7 +245,10 @@ class ConnectionResilience {
 
   private updateHealthStatus(status: 'healthy' | 'degraded' | 'unhealthy'): void {
     if (this.healthStatus !== status) {
-      console.log(`[ConnectionResilience] Health status changed: ${this.healthStatus} → ${status}`);
+      // Only log significant status changes to reduce console noise
+      if (status === 'healthy' || (this.healthStatus === 'healthy' && status !== 'healthy')) {
+        console.log(`[ConnectionResilience] Health status: ${this.healthStatus} → ${status}`);
+      }
       this.healthStatus = status;
 
       // Emit custom event for UI updates

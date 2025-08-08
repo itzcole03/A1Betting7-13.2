@@ -1139,29 +1139,34 @@ class EnhancedDataManager {
           const message = JSON.parse(event.data);
           this.handleWebSocketMessage(message);
         } catch (error) {
-          console.error('[DataManager] WebSocket message parsing error:', error);
+          console.warn('[DataManager] WebSocket message parsing error (non-critical):', error);
         }
       };
 
-      this.websocket.onclose = () => {
-        console.log('[DataManager] WebSocket disconnected');
+      this.websocket.onclose = (event) => {
+        console.log('[DataManager] WebSocket disconnected - continuing in local mode');
         this.websocket = null;
 
-        // Attempt reconnection with exponential backoff
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        // Only attempt reconnection if it wasn't a normal closure
+        if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
           const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+          console.log(`[DataManager] Attempting WebSocket reconnection in ${delay}ms`);
           setTimeout(() => {
             this.reconnectAttempts++;
             this.initializeWebSocket();
           }, delay);
+        } else {
+          console.log('[DataManager] WebSocket reconnection stopped - application will continue in local mode');
         }
       };
 
       this.websocket.onerror = error => {
-        console.error('[DataManager] WebSocket error:', error);
+        // Handle WebSocket errors gracefully without flooding console
+        console.warn('[DataManager] WebSocket connection issue (application continues in local mode)');
+        // Don't log the full error object as it's often just [object Event]
       };
     } catch (error) {
-      console.error('[DataManager] WebSocket initialization failed:', error);
+      console.warn('[DataManager] WebSocket initialization failed - application will continue in local mode:', error);
     }
   }
 
