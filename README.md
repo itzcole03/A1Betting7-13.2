@@ -127,12 +127,13 @@ ROI: Immediate + Long-term value
 
 ## 🔍 Core Features
 
-### 🎯 **1. AI-Enhanced Prop Research**
-- **Smart Filtering**: ML-powered prop recommendations
-- **Confidence Scoring**: Statistical edge calculations with uncertainty
-- **Real-Time Updates**: Live data with 30-second refresh cycles
-- **Export Tools**: CSV export with custom filtering
-- **Historical Analysis**: Season and career performance tracking
+### 🎯 **1. PropFinder-Style Player Research**
+- **Enhanced Player Dashboard**: PropFinder-matching interface with advanced analytics
+- **Customizable Trend Ranges**: L5, L10, L15, L20, L25 games with custom range support
+- **AI Confidence Scoring**: Multi-factor analysis with Expected Value calculations and transparent reasoning
+- **Comprehensive Search**: Real-time player lookup with season stats, Statcast data, and matchup analysis
+- **Bet Tracking Portfolio**: Complete lifecycle management with ROI tracking and performance analytics
+- **Smart Filtering**: ML-powered prop recommendations with risk factor warnings
 
 ### 💰 **2. Multi-Sportsbook Arbitrage**
 - **8+ Sportsbooks**: DraftKings, FanDuel, BetMGM, Caesars, BetRivers+
@@ -197,12 +198,12 @@ ROI: Immediate + Long-term value
 
 ### System Architecture
 ```
-┌─────────────────────┐    ┌───────────��──────────┐    ┌─────────────────────┐
+┌─────────────────────┐    ┌───────────���──────────┐    ┌─────────────────────┐
 │   React 19 Frontend │    │   FastAPI Backend    │    │   External APIs     │
 │                     │    │                      │    │                     │
 │ • PropFinder UI     │◄──►│ • AI Processing      │◄──►│ • DraftKings        │
 │ • AI Chat Interface │    │ • Ollama LLM         │    │ • FanDuel           │
-│ • Real-time Updates ��    │ • Arbitrage Engine   │    │ • BetMGM            │
+│ • Real-time Updates │    │ • Arbitrage Engine   │    │ • BetMGM            │
 │ • Risk Tools        │    │ • Kelly Calculator   │    │ • SportsRadar       │
 │ • Demo Mode         │    │ • Caching Layer      │    │ • Injury Reports    │
 └─────────────────────┘    └──────────────────────┘    └─────────────────────┘
@@ -240,7 +241,7 @@ A1Betting/
 │   │   │   │   ├── 📁 analytics/     # ML insights & performance
 │   │   │   │   ├── 📁 odds/          # Multi-sportsbook comparison
 │   │   │   │   ├── 📁 risk/          # Kelly calculator & tools
-│   ���   │   │   └── 📁 predictions/   # AI-powered analysis
+│   �����   │   │   └── 📁 predictions/   # AI-powered analysis
 │   │   │   ├── 📁 ai/                # Ollama LLM integration
 │   │   │   ├── 📁 player/            # Player research dashboard
 │   │   │   └── 📁 user-friendly/     # Main application shell
