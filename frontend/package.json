@@ -94,6 +94,7 @@
     "jest-localstorage-mock": "^2.4.26",
     "msw": "^2.10.4",
     "vite": "^7.0.6",
+    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4",
     "web-streams-polyfill": "^4.1.0",
     "whatwg-fetch": "^3.6.20"
