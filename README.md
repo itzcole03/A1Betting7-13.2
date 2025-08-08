@@ -246,7 +246,9 @@ A1Betting/
 │   │   │   │   ├── 📁 risk/          # Kelly calculator & tools
 │   ���   │   │   └── 📁 predictions/   # AI-powered analysis
 │   │   │   ├── 📁 ai/                # Ollama LLM integration
-│   │   │   ├── 📁 player/            # Player research dashboard
+│   │   │   ├── 📁 player/            # Enhanced PropFinder-style dashboard
+│   │   │   ├── 📁 analysis/          # Confidence scoring & EV calculations
+│   │   │   ├── 📁 tracking/          # Comprehensive bet tracking portfolio
 │   │   │   └── 📁 user-friendly/     # Main application shell
 │   │   ├── 📁 services/              # API & Business Logic
 │   │   │   ├── 📁 unified/           # Centralized API management
