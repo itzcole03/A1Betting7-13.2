@@ -157,47 +157,32 @@ export const CheatsheetsDashboard: React.FC = () => {
     }).sort((a, b) => b.edge_percentage - a.edge_percentage);
   }, [opportunities, filters]);
 
-  // Export to CSV
-  const exportToCSV = useCallback(() => {
-    const headers = [
-      'Player',
-      'Stat Type',
-      'Line',
-      'Side',
-      'Edge %',
-      'Confidence',
-      'Best Odds',
-      'Book',
-      'Fair Price',
-      'Sample Size',
-      'Recent Performance'
-    ];
+  // Export to CSV using service
+  const exportToCSV = useCallback(async () => {
+    try {
+      const serviceFilters: Partial<ServiceFilters> = {
+        min_edge: filters.minEdge,
+        min_confidence: filters.minConfidence,
+        min_sample_size: filters.minSampleSize,
+        sports: filters.sports,
+        stat_types: filters.statTypes,
+        books: filters.books,
+        sides: filters.sides,
+        search_query: filters.searchQuery
+      };
 
-    const csvContent = [
-      headers.join(','),
-      ...filteredOpportunities.map(opp => [
-        opp.player_name,
-        opp.stat_type,
-        opp.line,
-        opp.recommended_side,
-        opp.edge_percentage.toFixed(2),
-        opp.confidence.toFixed(1),
-        opp.best_odds,
-        opp.best_book,
-        opp.fair_price.toFixed(3),
-        opp.sample_size,
-        `"${opp.recent_performance}"`
-      ].join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `cheatsheet-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [filteredOpportunities]);
+      const blob = await cheatsheetsService.exportCSV(serviceFilters);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `a1betting-cheatsheet-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('[CheatsheetsDashboard] CSV export failed:', error);
+      setError('Failed to export CSV. Please try again.');
+    }
+  }, [filters]);
 
   // Apply filter preset
   const applyPreset = useCallback((presetId: string) => {
