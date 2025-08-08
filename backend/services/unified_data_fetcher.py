@@ -22,7 +22,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
 import httpx
-from utils.error_handler import DataFetchError, ErrorHandler
+from backend.services.unified_error_handler import unified_error_handler
 
 from backend.models.api_models import (
     BettingOpportunity,
