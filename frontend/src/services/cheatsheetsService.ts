@@ -155,14 +155,18 @@ class CheatsheetsService {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      const response = await fetch('/api/v1/cheatsheets/health', {
-        method: 'GET',
-        signal: AbortSignal.timeout(3000)
-      });
-      return response.ok;
+      const healthInfo = await backendHealthChecker.checkCheatsheetsAPI();
+      return healthInfo.isHealthy;
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Get comprehensive backend diagnostic information
+   */
+  async getDiagnosticInfo() {
+    return await backendHealthChecker.getDiagnosticInfo();
   }
 
   /**
