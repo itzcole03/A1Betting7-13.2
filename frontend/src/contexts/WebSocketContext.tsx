@@ -168,11 +168,23 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
   // Setup and cleanup effect
   useEffect(() => {
     isUnmounted.current = false;
-    connectWebSocket();
+
+    // Only connect if WebSocket server is explicitly enabled
+    const wsEnabled = process.env.VITE_WEBSOCKET_ENABLED === 'true';
+    if (wsEnabled) {
+      connectWebSocket();
+    } else {
+      // Set to disconnected state without attempting connection
+      setStatus('disconnected');
+      setConnected(false);
+      setLastError('WebSocket disabled in configuration');
+      if (verboseLogging) console.log('[WebSocket] Connection disabled via configuration');
+    }
 
     // Immediate reconnect on network changes
     const handleOnline = () => {
-      if (!connected) {
+      const wsEnabled = process.env.VITE_WEBSOCKET_ENABLED === 'true';
+      if (!connected && wsEnabled) {
         setStatus('reconnecting');
         setLastError(null);
         reconnectAttempts.current = 0;

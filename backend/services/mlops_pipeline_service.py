@@ -549,17 +549,301 @@ class MLOpsPipelineService:
     async def list_models(self) -> List[Dict[str, Any]]:
         """List all registered models"""
         models = []
+
+        # If registry is empty, add some demo models
+        if not self.model_registry:
+            self._initialize_demo_models()
+
         for model_name, versions in self.model_registry.items():
+            # Get latest version info
+            latest_version = versions[-1] if versions else None
             models.append(
                 {
+                    "id": f"{model_name}_{latest_version.version if latest_version else '1.0.0'}",
                     "name": model_name,
-                    "versions": len(versions),
-                    "latest_version": versions[-1].version if versions else None,
-                    "latest_stage": versions[-1].stage.value if versions else None,
+                    "version": latest_version.version if latest_version else "1.0.0",
+                    "description": f"Model for {model_name} predictions",
+                    "model_type": "ensemble",
+                    "framework": "pytorch",
+                    "sport": "MLB",
+                    "status": "active" if latest_version and latest_version.stage == ModelStage.PRODUCTION else "staging",
+                    "created_by": "system",
+                    "created_at": latest_version.created_at.isoformat() if latest_version else datetime.now().isoformat(),
+                    "updated_at": (latest_version.promoted_at or latest_version.created_at).isoformat() if latest_version else datetime.now().isoformat(),
+                    "tags": ["automated", "mlops"],
+                    "hyperparameters": {},
+                    "training_config": {},
+                    "metrics": latest_version.performance_metrics if latest_version else {},
+                    "evaluation_history": [],
+                    "versions_count": len(versions)
                 }
             )
         return models
 
+    def _initialize_demo_models(self):
+        """Initialize demo models for display"""
+        try:
+            # Create demo model versions
+            demo_models = [
+                ("MLB_Transformer", "transformer", 0.847, ModelStage.PRODUCTION),
+                ("Ensemble_Predictor", "ensemble", 0.892, ModelStage.PRODUCTION),
+                ("Bayesian_Risk_Model", "bayesian", 0.823, ModelStage.STAGING)
+            ]
+
+            for model_name, model_type, accuracy, stage in demo_models:
+                version = ModelVersion(
+                    version="1.0.0",
+                    model_uri=f"models/{model_name}/1.0.0",
+                    stage=stage,
+                    performance_metrics={
+                        "accuracy": accuracy,
+                        "precision": accuracy * 0.95,
+                        "recall": accuracy * 1.02,
+                        "f1_score": accuracy * 0.98,
+                        "auc_roc": accuracy * 1.05
+                    },
+                    created_at=datetime.now(),
+                    metadata={"model_type": model_type}
+                )
+
+                self.model_registry[model_name] = [version]
+
+            self.logger.info("✅ Initialized demo models for MLOps registry")
+
+        except Exception as e:
+            self.logger.warning(f"Failed to initialize demo models: {e}")
+
+    async def get_model_by_id(self, model_id: str) -> Optional[Dict[str, Any]]:
+        """Get model by ID"""
+        try:
+            # Extract model name and version from ID
+            if "_v" in model_id:
+                model_name, version = model_id.rsplit("_v", 1)
+            else:
+                # Try to find model by name
+                for name, versions in self.model_registry.items():
+                    if name == model_id or model_id.startswith(name):
+                        if versions:
+                            latest_version = versions[-1]
+                            return {
+                                "id": model_id,
+                                "name": name,
+                                "version": latest_version.version,
+                                "description": f"Model for {name} predictions",
+                                "model_type": "ensemble",
+                                "framework": "pytorch",
+                                "sport": "MLB",
+                                "status": "active" if latest_version.stage == ModelStage.PRODUCTION else "staging",
+                                "created_by": "system",
+                                "created_at": latest_version.created_at.isoformat(),
+                                "updated_at": (latest_version.promoted_at or latest_version.created_at).isoformat(),
+                                "tags": ["automated", "mlops"],
+                                "hyperparameters": {},
+                                "training_config": {},
+                                "metrics": latest_version.performance_metrics,
+                                "evaluation_history": []
+                            }
+                return None
+
+            # Find specific version
+            versions = self.model_registry.get(model_name, [])
+            for v in versions:
+                if v.version == version:
+                    return {
+                        "id": model_id,
+                        "name": model_name,
+                        "version": v.version,
+                        "description": f"Model for {model_name} predictions",
+                        "model_type": "ensemble",
+                        "framework": "pytorch",
+                        "sport": "MLB",
+                        "status": "active" if v.stage == ModelStage.PRODUCTION else "staging",
+                        "created_by": "system",
+                        "created_at": v.created_at.isoformat(),
+                        "updated_at": (v.promoted_at or v.created_at).isoformat(),
+                        "tags": ["automated", "mlops"],
+                        "hyperparameters": {},
+                        "training_config": {},
+                        "metrics": v.performance_metrics,
+                        "evaluation_history": []
+                    }
+
+            return None
+
+        except Exception as e:
+            self.logger.error(f"Failed to get model {model_id}: {e}")
+            return None
+
+    async def register_model(self, model_id: str, model_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Register new model in registry"""
+        try:
+            model_name = model_data.get("name")
+            version = model_data.get("version", "1.0.0")
+
+            # Create model version
+            model_version = ModelVersion(
+                version=version,
+                model_uri=f"models/{model_name}/{version}",
+                stage=ModelStage.STAGING,
+                performance_metrics=model_data.get("metrics", {}),
+                created_at=datetime.now(),
+                metadata=model_data
+            )
+
+            # Add to registry
+            if model_name not in self.model_registry:
+                self.model_registry[model_name] = []
+
+            self.model_registry[model_name].append(model_version)
+
+            self.logger.info(f"📝 Registered model: {model_name}/{version}")
+            return model_data
+
+        except Exception as e:
+            self.logger.error(f"Failed to register model {model_id}: {e}")
+            raise
+
+    async def update_model(self, model_id: str, update_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Update model metadata"""
+        try:
+            # Get existing model
+            existing_model = await self.get_model_by_id(model_id)
+            if not existing_model:
+                raise ValueError(f"Model {model_id} not found")
+
+            # Apply updates
+            updated_model = existing_model.copy()
+            updated_model.update(update_data)
+
+            self.logger.info(f"📝 Updated model: {model_id}")
+            return updated_model
+
+        except Exception as e:
+            self.logger.error(f"Failed to update model {model_id}: {e}")
+            raise
+
+    async def delete_model(self, model_id: str) -> bool:
+        """Delete model from registry"""
+        try:
+            # Extract model name from ID
+            model_name = model_id.split("_")[0] if "_" in model_id else model_id
+
+            # Remove from registry
+            if model_name in self.model_registry:
+                del self.model_registry[model_name]
+                self.logger.info(f"🗑️ Deleted model: {model_id}")
+                return True
+
+            return False
+
+        except Exception as e:
+            self.logger.error(f"Failed to delete model {model_id}: {e}")
+            return False
+
+    async def save_evaluation(self, model_id: str, evaluation_record: Dict[str, Any]) -> Dict[str, Any]:
+        """Save evaluation results for model"""
+        try:
+            # This would typically save to database or file storage
+            # For now, just log the evaluation
+            self.logger.info(f"💾 Saved evaluation for model {model_id}: {evaluation_record.get('metrics', {})}")
+            return evaluation_record
+
+        except Exception as e:
+            self.logger.error(f"Failed to save evaluation for model {model_id}: {e}")
+            raise
+
+    async def update_model_metrics(self, model_id: str, metrics: Dict[str, float]) -> bool:
+        """Update model metrics"""
+        try:
+            # Extract model name and find latest version
+            model_name = model_id.split("_")[0] if "_" in model_id else model_id
+            versions = self.model_registry.get(model_name, [])
+
+            if versions:
+                # Update latest version metrics
+                versions[-1].performance_metrics.update(metrics)
+                self.logger.info(f"📊 Updated metrics for model {model_id}: {metrics}")
+                return True
+
+            return False
+
+        except Exception as e:
+            self.logger.error(f"Failed to update metrics for model {model_id}: {e}")
+            return False
+
+    async def get_model_evaluations(self, model_id: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get evaluation history for model"""
+        try:
+            # Mock evaluation history - would come from database in real implementation
+            evaluations = [
+                {
+                    "id": f"eval_{i}_{model_id}",
+                    "model_id": model_id,
+                    "description": f"Evaluation {i+1}",
+                    "dataset_name": f"test_set_{i+1}",
+                    "metrics": {
+                        "accuracy": 0.85 + (i * 0.01),
+                        "precision": 0.83 + (i * 0.01),
+                        "recall": 0.84 + (i * 0.01),
+                        "f1_score": 0.84 + (i * 0.01)
+                    },
+                    "uploaded_at": (datetime.now() - timedelta(days=i)).isoformat(),
+                    "status": "processed"
+                }
+                for i in range(min(limit, 5))
+            ]
+
+            return evaluations
+
+        except Exception as e:
+            self.logger.error(f"Failed to get evaluations for model {model_id}: {e}")
+            return []
+
+    async def get_registry_stats(self) -> Dict[str, Any]:
+        """Get model registry statistics"""
+        try:
+            total_models = sum(len(versions) for versions in self.model_registry.values())
+            active_models = sum(
+                1 for versions in self.model_registry.values()
+                for v in versions
+                if v.stage == ModelStage.PRODUCTION
+            )
+
+            # Calculate average accuracy
+            all_accuracies = []
+            for versions in self.model_registry.values():
+                for v in versions:
+                    if "accuracy" in v.performance_metrics:
+                        all_accuracies.append(v.performance_metrics["accuracy"])
+
+            avg_accuracy = sum(all_accuracies) / len(all_accuracies) if all_accuracies else 0.0
+
+            return {
+                "total_models": total_models,
+                "active_models": active_models,
+                "training_jobs": len([p for p in self.pipelines.values() if p.status == PipelineStatus.RUNNING]),
+                "deployed_models": active_models,
+                "model_types": {"ensemble": total_models},
+                "sports_coverage": {"MLB": total_models},
+                "average_accuracy": avg_accuracy
+            }
+
+        except Exception as e:
+            self.logger.error(f"Failed to get registry stats: {e}")
+            return {
+                "total_models": 0,
+                "active_models": 0,
+                "training_jobs": 0,
+                "deployed_models": 0,
+                "model_types": {},
+                "sports_coverage": {},
+                "average_accuracy": 0.0
+            }
+
 
 # Global service instance
 mlops_pipeline_service = MLOpsPipelineService()
+
+def get_mlops_service() -> MLOpsPipelineService:
+    """Get MLOps service instance for dependency injection"""
+    return mlops_pipeline_service

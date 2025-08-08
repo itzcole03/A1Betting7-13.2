@@ -22,6 +22,21 @@ from .middleware.comprehensive_middleware import (
     SecurityHeadersMiddleware,
 )
 
+# Initialize logging first to avoid undefined variable errors
+try:
+    from .utils.structured_logging import (
+        app_logger,
+        performance_logger,
+        security_logger,
+    )
+except ImportError:
+    import logging
+
+    app_logger = logging.getLogger("app")
+    performance_logger = logging.getLogger("performance")
+    security_logger = logging.getLogger("security")
+    app_logger.warning("Structured logging not available, using basic logging")
+
 # Import new route modules
 try:
     from .routes.ai_routes import router as ai_router
@@ -32,21 +47,6 @@ try:
 except ImportError:
     NEW_ROUTES_AVAILABLE = False
     app_logger.warning("New route modules not available - using basic routing")
-
-try:
-    from .utils.structured_logging import (
-        app_logger,
-        performance_logger,
-        security_logger,
-    )
-except ImportError:
-
-    import logging
-
-    app_logger = logging.getLogger("app")
-    performance_logger = logging.getLogger("performance")
-    security_logger = logging.getLogger("security")
-    app_logger.warning("Structured logging not available, using basic logging")
 
 # Try to import exception handlers, fallback to basic handling
 try:
@@ -893,6 +893,24 @@ class EnhancedProductionApp:
                 self.logger.info("✅ Risk management (Kelly Criterion) routes included")
             except Exception as e:
                 self.logger.warning(f"Could not include risk_tools_routes router: {str(e)}")
+
+            # NEW: Model Registry routes (ML Model Management)
+            try:
+                from .routes.model_registry_routes import router as model_registry_router
+                self.app.include_router(model_registry_router, tags=["Model Registry"])
+                enhanced_routes.append("model_registry")
+                self.logger.info("✅ Model Registry (ML Management) routes included")
+            except Exception as e:
+                self.logger.warning(f"Could not include model_registry_routes router: {str(e)}")
+
+            # NEW: AI Recommendations routes (Smart Betting Insights)
+            try:
+                from .routes.ai_recommendations_routes import router as ai_recommendations_router
+                self.app.include_router(ai_recommendations_router, tags=["AI Recommendations"])
+                enhanced_routes.append("ai_recommendations")
+                self.logger.info("✅ AI Recommendations (Smart Betting Insights) routes included")
+            except Exception as e:
+                self.logger.warning(f"Could not include ai_recommendations_routes router: {str(e)}")
         else:
             self.logger.warning("⚠️ New route modules not available - falling back to legacy imports")
 

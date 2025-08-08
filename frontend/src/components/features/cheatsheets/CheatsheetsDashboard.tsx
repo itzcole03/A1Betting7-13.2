@@ -105,13 +105,6 @@ export const CheatsheetsDashboard: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    // Use mock data immediately for demo
-    console.log('[CheatsheetsDashboard] Using mock data (backend unavailable)');
-    setOpportunities(mockCheatsheetData.opportunities);
-    setLastRefresh(new Date());
-    setLoading(false);
-
-    // Try to fetch real data in background
     try {
       const params = new URLSearchParams({
         min_edge: filters.minEdge.toString(),
@@ -124,30 +117,47 @@ export const CheatsheetsDashboard: React.FC = () => {
         search: filters.searchQuery
       });
 
+      console.log('[CheatsheetsDashboard] Fetching real data from API...');
       const response = await fetch(`/v1/cheatsheets/opportunities?${params}`, {
-        signal: AbortSignal.timeout(2000)
+        signal: AbortSignal.timeout(10000) // Increased timeout for real data processing
       });
 
       if (response.ok) {
         const data = await response.json();
-        setOpportunities(data.opportunities || mockCheatsheetData.opportunities);
-        setLastRefresh(new Date());
-        console.log('[CheatsheetsDashboard] Successfully loaded real data');
+        if (data.opportunities && Array.isArray(data.opportunities)) {
+          setOpportunities(data.opportunities);
+          setLastRefresh(new Date());
+          console.log(`[CheatsheetsDashboard] Successfully loaded ${data.opportunities.length} real opportunities`);
+        } else {
+          throw new Error('Invalid response format from API');
+        }
+      } else {
+        throw new Error(`API returned ${response.status}: ${response.statusText}`);
       }
     } catch (err) {
-      console.log('[CheatsheetsDashboard] Backend unavailable, continuing with mock data');
+      console.warn('[CheatsheetsDashboard] Failed to load real data, using fallback:', err);
+      setError(`Failed to load data: ${err.message}`);
+
+      // Only use mock data as absolute fallback
+      const fallbackData = generateMockOpportunities();
+      setOpportunities(fallbackData);
+      setLastRefresh(new Date());
+    } finally {
+      setLoading(false);
     }
   }, [filters]);
 
-  // Generate mock data for demo
+  // Generate fallback data only when API fails
   const generateMockOpportunities = (): PropOpportunity[] => {
     const mockPlayers = ['Aaron Judge', 'Mookie Betts', 'Ronald Acuna Jr.', 'Juan Soto'];
     const statTypes = ['hits', 'total_bases', 'home_runs', 'rbis', 'runs_scored'];
     const books = ['DraftKings', 'FanDuel', 'BetMGM', 'Caesars'];
-    
-    return mockPlayers.flatMap((player, i) => 
+
+    console.log('[CheatsheetsDashboard] Generating fallback mock data (API unavailable)');
+
+    return mockPlayers.flatMap((player, i) =>
       statTypes.slice(0, 2).map((stat, j) => ({
-        id: `${i}-${j}`,
+        id: `fallback-${i}-${j}`,
         player_name: player,
         stat_type: stat,
         line: 1.5 + (i * 0.5) + (j * 0.2),
@@ -164,7 +174,13 @@ export const CheatsheetsDashboard: React.FC = () => {
         sport: 'MLB',
         team: ['NYY', 'LAD', 'ATL', 'SD'][i],
         opponent: ['BOS', 'SF', 'NYM', 'LAA'][i],
-        venue: Math.random() > 0.5 ? 'home' : 'away'
+        venue: Math.random() > 0.5 ? 'home' : 'away',
+        // Add missing fields from real API response
+        weather: Math.random() > 0.7 ? 'Clear, 75°F' : null,
+        injury_concerns: Math.random() > 0.9 ? 'Minor day-to-day' : null,
+        market_efficiency: Math.random(),
+        volatility_score: Math.random(),
+        trend_direction: ['bullish', 'bearish', 'neutral'][Math.floor(Math.random() * 3)]
       }))
     );
   };
