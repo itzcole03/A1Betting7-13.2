@@ -26,6 +26,12 @@ import statistics
 from .sportsbook_apis.draftkings_api import DraftKingsAPI, DraftKingsOdds
 from .sportsbook_apis.betmgm_api import BetMGMAPI, BetMGMOdds
 from .sportsbook_apis.caesars_api import CaesarsAPI, CaesarsOdds
+from .realtime_notification_service import (
+    notification_service,
+    send_odds_change_notification,
+    send_arbitrage_notification,
+    send_high_value_bet_notification
+)
 
 logger = logging.getLogger(__name__)
 
