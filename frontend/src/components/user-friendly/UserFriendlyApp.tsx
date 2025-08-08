@@ -113,6 +113,7 @@ const UserFriendlyApp: React.FC = () => {
               <Route path='/tracking' element={<BetTrackingDashboard />} />
               <Route path='/ml-models' element={<MLModelCenter />} />
               <Route path='/performance' element={<BetTrackingDashboard />} />
+              <Route path='/comparison' element={<SuccessMetrics />} />
 
               {/* Legacy Routes */}
               <Route
