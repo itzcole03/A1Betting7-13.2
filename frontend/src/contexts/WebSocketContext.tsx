@@ -170,7 +170,7 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
     isUnmounted.current = false;
 
     // Only connect if WebSocket server is explicitly enabled
-    const wsEnabled = process.env.VITE_WEBSOCKET_ENABLED === 'true';
+    const wsEnabled = import.meta.env.VITE_WEBSOCKET_ENABLED === 'true';
     if (wsEnabled) {
       connectWebSocket();
     } else {
