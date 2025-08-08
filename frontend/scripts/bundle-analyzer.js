@@ -70,7 +70,22 @@ function estimateGzipSize(size) {
  */
 async function analyzeJavaScriptChunks() {
   try {
-    const files = await readdir(ASSETS_DIR);
+    let files = [];
+    let searchDir = ASSETS_DIR;
+
+    // Check if JS files are in a separate js/ directory
+    if (fs.existsSync(JS_DIR)) {
+      searchDir = JS_DIR;
+      files = await readdir(JS_DIR);
+    } else if (fs.existsSync(ASSETS_DIR)) {
+      searchDir = ASSETS_DIR;
+      files = await readdir(ASSETS_DIR);
+    } else {
+      // Fallback: search in dist root
+      searchDir = DIST_DIR;
+      files = await readdir(DIST_DIR);
+    }
+
     const jsFiles = files.filter(file => file.endsWith('.js'));
     
     const chunks = [];
