@@ -96,6 +96,16 @@ const KNOWN_NON_CRITICAL_ERRORS: ErrorPattern[] = [
     description: 'DOM node reference errors (non-critical)',
     suppress: true,
   },
+  {
+    pattern: /\[UserFriendlyApp\] RENDER: \d+/,
+    description: 'UserFriendlyApp render count debug messages (development only)',
+    suppress: true,
+  },
+  {
+    pattern: /\[UserFriendlyApp\] Rendering on path: \//,
+    description: 'UserFriendlyApp path debug messages (development only)',
+    suppress: true,
+  },
 ];
 
 // Track original console methods
