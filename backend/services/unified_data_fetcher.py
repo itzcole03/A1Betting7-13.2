@@ -279,7 +279,7 @@ class UnifiedDataFetcher:
 
     def __init__(self, config: Optional[FetcherConfig] = None):
         self.config = config or FetcherConfig()
-        self.error_handler = ErrorHandler()
+        self.error_handler = unified_error_handler
         self._client = None
         self._ensemble_system = None
         self._cache = {}
