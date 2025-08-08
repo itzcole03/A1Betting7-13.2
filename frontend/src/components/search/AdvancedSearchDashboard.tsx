@@ -315,7 +315,7 @@ const AdvancedSearchDashboard: React.FC<SearchDashboardProps> = ({
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Filters</h3>
                 <div className="space-y-2">
                   <button className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded">
-                    Top Scorers (>25 PPG)
+                    Top Scorers (&gt;25 PPG)
                   </button>
                   <button className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded">
                     NBA All-Stars
