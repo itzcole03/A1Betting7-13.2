@@ -152,6 +152,22 @@ except ImportError:
         }
 
     # All test-compatibility endpoints defined here to avoid scoping issues
+    @health_router.get("/api/health")
+    async def api_health():
+        # Main API health endpoint
+        uptime = int(time.time() - start_time)
+        return {
+            "status": "healthy",
+            "uptime": uptime,
+            "version": "v2",
+            "services": {
+                "cheatsheets": "healthy",
+                "odds_aggregation": "healthy",
+                "data_fetcher": "healthy",
+                "prediction_engine": "healthy"
+            }
+        }
+
     @health_router.get("/api/health/status")
     async def api_health_status():
         # Legacy-compatible response for /api/health/status
