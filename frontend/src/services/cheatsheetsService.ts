@@ -159,7 +159,7 @@ class CheatsheetsService {
       return response.blob();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error('[CheatsheetsService] Failed to export CSV', errorMessage);
+      logger.error(`Failed to export CSV: ${errorMessage}`, undefined, 'CheatsheetsService');
 
       // Create fallback CSV from current data
       const fallbackOpportunities = this.generateFallbackData(filters).opportunities;
