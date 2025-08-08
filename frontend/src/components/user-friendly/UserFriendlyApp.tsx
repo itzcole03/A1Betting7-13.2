@@ -25,6 +25,11 @@ const KellyCalculator = React.lazy(() => import('../features/risk/KellyCalculato
 const PropFinderCompetitorDashboard = React.lazy(() => import('../welcome/PropFinderCompetitorDashboard'));
 const SuccessMetricsPage = React.lazy(() => import('../features/testimonials/SuccessMetricsPage'));
 
+// NEW: Roadmap Phase 4 components
+const AdvancedPlayerDashboard = React.lazy(() => import('../enhanced/AdvancedPlayerDashboard'));
+const RealTimePlayerLookup = React.lazy(() => import('../search/RealTimePlayerLookup'));
+const MatchupAnalysisTools = React.lazy(() => import('../analysis/MatchupAnalysisTools'));
+
 const UserFriendlyApp: React.FC = () => {
   const location = useLocation();
   const [navigationOpen, setNavigationOpen] = useState(false);
