@@ -23,6 +23,7 @@ const OddsComparison = React.lazy(() => import('../features/odds/OddsComparison'
 const CheatsheetsDashboard = React.lazy(() => import('../features/cheatsheets/CheatsheetsDashboard'));
 const KellyCalculator = React.lazy(() => import('../features/risk/KellyCalculator'));
 const PropFinderCompetitorDashboard = React.lazy(() => import('../welcome/PropFinderCompetitorDashboard'));
+const SuccessMetrics = React.lazy(() => import('../features/testimonials/SuccessMetrics'));
 
 const UserFriendlyApp: React.FC = () => {
   const location = useLocation();
