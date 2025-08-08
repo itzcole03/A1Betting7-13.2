@@ -197,7 +197,7 @@ ROI: Immediate + Long-term value
 
 ---
 
-## ����️ Architecture Overview
+## 🏗️ Architecture Overview
 
 ### System Architecture
 ```
@@ -211,7 +211,7 @@ ROI: Immediate + Long-term value
 │ • Demo Mode         │    │ • Caching Layer      │    │ • Injury Reports    │
 └─────────────────────┘    └─────────────���────────┘    └─────────────────────┘
          │                           │                           │
-         └───────────────────��───────┼───────────────────────────┘
+         └───────────────────────────┼───────────────────────────┘
                                      │
                                ┌─────▼─────┐
                                │  Ollama   │
@@ -275,15 +275,18 @@ A1Betting/
 ### 📊 **Comprehensive Mock Data**
 - **500+ Live Props** across MLB, NBA, NFL, NHL
 - **Real Team/Player Names** with accurate statistics
+- **PropFinder-Style Interface** with full player dashboard functionality
+- **AI Confidence Scores** with realistic Expected Value calculations
+- **Bet Tracking Portfolio** with complete historical data
 - **Dynamic Odds Updates** simulating live sportsbooks
 - **AI Response Library** for instant demonstrations
-- **Performance Metrics** showing realistic betting scenarios
 
 ### 🔧 **Demo Capabilities**
-- **Zero Dependencies** - Full feature access without backend
+- **Zero Dependencies** - Full PropFinder experience without backend
+- **Complete Feature Set** - All tracking, analysis, and AI features work offline
 - **Offline Development** - Work without internet connectivity
 - **Performance Testing** - Handle thousands of props seamlessly
-- **Feature Demonstrations** - Perfect for showcasing capabilities
+- **Feature Demonstrations** - Perfect for showcasing PropFinder competition
 - **Development Environment** - Ideal for building new features
 
 ---
