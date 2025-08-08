@@ -12,6 +12,8 @@ from backend.services.enhanced_data_pipeline import enhanced_data_pipeline
 from backend.services.intelligent_cache_service import intelligent_cache_service
 from backend.services.sportradar_service import sportradar_service, SportType, DataType
 from backend.services.data_quality_monitor import data_quality_monitor, DataSourceType, QualityViolation
+from backend.services.event_driven_cache import event_driven_cache, EventType, InvalidationScope
+from backend.services.sport_volatility_models import sport_volatility_models, GameState
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("enhanced_integration_manager")
@@ -164,7 +166,7 @@ class EnhancedIntegrationManager:
             # Detect anomalies
             anomalies = await data_quality_monitor.detect_anomalies(data_source, data)
             if anomalies:
-                logger.warning(f"🔍 {len(anomalies)} anomalies detected in {data_source.value} data")
+                logger.warning(f"���� {len(anomalies)} anomalies detected in {data_source.value} data")
             
         except Exception as e:
             logger.error(f"❌ Error monitoring incoming data from {data_source.value}: {e}")
