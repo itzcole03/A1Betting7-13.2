@@ -114,7 +114,7 @@ class CheatsheetsService {
       }, 'CheatsheetsService');
       
       // Return fallback data with error context
-      logger.warn('[CheatsheetsService] Using fallback data due to API error');
+      logger.warn('Using fallback data due to API error', undefined, 'CheatsheetsService');
       const fallbackData = this.generateFallbackData(filters);
       fallbackData.api_error = true;
       fallbackData.error_message = errorMessage;
