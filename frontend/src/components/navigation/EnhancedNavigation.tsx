@@ -139,6 +139,16 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       isHot: true,
     },
     {
+      id: 'advanced-arbitrage',
+      name: 'Advanced Arbitrage',
+      href: '/advanced-arbitrage',
+      icon: Zap,
+      badge: 'Phase 4.2',
+      description: 'Sophisticated arbitrage detection across 15+ sportsbooks',
+      category: 'tools',
+      isNew: true,
+    },
+    {
       id: 'kelly-calculator',
       name: 'Kelly Calculator',
       href: '/kelly-calculator',
