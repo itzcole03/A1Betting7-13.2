@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Progress } from '../ui/progress';
-import { Alert, AlertDescription } from '../ui/alert';
+import { _Card as Card, _CardContent as CardContent, _CardHeader as CardHeader, _CardTitle as CardTitle } from '../ui/card';
+import { _Badge as Badge } from '../ui/badge';
+import { _Button as Button } from '../ui/button';
+import { _Tabs as Tabs, _TabsContent as TabsContent, _TabsList as TabsList, _TabsTrigger as TabsTrigger } from '../ui/tabs';
+import { _Progress as Progress } from '../ui/progress';
+import { _Alert as Alert, _AlertDescription as AlertDescription } from '../ui/alert';
 import {
   Database,
   Activity,
