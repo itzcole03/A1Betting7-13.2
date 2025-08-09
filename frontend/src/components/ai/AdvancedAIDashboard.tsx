@@ -653,13 +653,14 @@ export const AdvancedAIDashboard: React.FC = () => {
 
         {/* Main Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 bg-slate-800/50">
+          <TabsList className="grid w-full grid-cols-7 bg-slate-800/50">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="multi-sport">Multi-Sport</TabsTrigger>
             <TabsTrigger value="features">Features</TabsTrigger>
             <TabsTrigger value="ensemble">Ensemble</TabsTrigger>
             <TabsTrigger value="registry">Registry</TabsTrigger>
             <TabsTrigger value="inference">Inference</TabsTrigger>
+            <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
