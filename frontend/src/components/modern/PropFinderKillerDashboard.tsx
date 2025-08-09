@@ -108,6 +108,10 @@ const PropFinderKillerDashboard: React.FC = () => {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'compact'>('grid');
   const [showOnlyPremium, setShowOnlyPremium] = useState(false);
+
+  // React 19 concurrent features for better performance
+  const [isPending, startTransitionLocal] = useTransition();
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   
   const [filters, setFilters] = useState<FilterState>({
     sport: [],
