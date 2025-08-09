@@ -45,6 +45,9 @@ const AdvancedArbitrageDashboard = React.lazy(() => import('../arbitrage/Advance
 // NEW: Phase 4.3 Advanced Kelly Dashboard
 const AdvancedKellyDashboard = React.lazy(() => import('../kelly/AdvancedKellyDashboard'));
 
+// NEW: Phase 2 Unified Player Dashboard
+const UnifiedPlayerDashboard = React.lazy(() => import('../player/UnifiedPlayerDashboard'));
+
 const UserFriendlyApp: React.FC = memo(() => {
   const location = useLocation();
   const [navigationOpen, setNavigationOpen] = useState(false);
