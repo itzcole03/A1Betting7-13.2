@@ -1,47 +1,8 @@
-import React, { useState, useEffect, useMemo, useTransition, useDeferredValue, startTransition, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Search,
-  Filter,
-  TrendingUp,
-  TrendingDown,
-  Zap,
-  Brain,
-  Target,
-  Clock,
-  DollarSign,
-  BarChart3,
-  Activity,
-  Star,
-  ChevronDown,
-  ChevronUp,
-  Settings,
-  RefreshCw,
-  AlertCircle,
-  CheckCircle,
-  PlayCircle,
-  PauseCircle,
-  Maximize2,
-  Eye,
-  EyeOff,
-  Plus,
-  Minus,
-  Info,
-  Bookmark,
-  Share2,
-  Download,
-  Trophy,
-  Flame,
-  Shield,
-  Calculator,
-  Wifi,
-  WifiOff,
-  Database,
-  Cpu,
-  Radio,
-  Gauge,
-} from 'lucide-react';
-import CommunityEngagement from '../community/CommunityEngagement';
+import React, { Suspense, lazy } from 'react';
+import { RefreshCw } from 'lucide-react';
+
+// Lazy load the optimized dashboard for better performance
+const OptimizedPropFinderKillerDashboard = lazy(() => import('./OptimizedPropFinderKillerDashboard'));
 
 // Enhanced interfaces with advanced predictive features
 interface PropOpportunity {
