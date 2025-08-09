@@ -209,6 +209,47 @@ class CheatsheetsService {
   }
 
   /**
+   * Run diagnostics when server errors occur
+   */
+  private async runDiagnostics(): Promise<void> {
+    try {
+      logger.info('Running cheatsheets service diagnostics...', undefined, 'CheatsheetsService');
+
+      // Test basic health endpoint
+      const healthResult = await this.healthCheck();
+      logger.info('Health check result', { healthy: healthResult }, 'CheatsheetsService');
+
+      // Test a simple request to identify the issue
+      try {
+        const testResponse = await fetch('/api/v1/cheatsheets/health', {
+          method: 'GET',
+          signal: AbortSignal.timeout(5000)
+        });
+
+        if (!testResponse.ok) {
+          const errorText = await testResponse.text();
+          logger.error('Health endpoint error', {
+            status: testResponse.status,
+            statusText: testResponse.statusText,
+            body: errorText
+          }, 'CheatsheetsService');
+        } else {
+          logger.info('Health endpoint responding normally', undefined, 'CheatsheetsService');
+        }
+      } catch (healthError) {
+        logger.error('Health endpoint not reachable', { error: healthError }, 'CheatsheetsService');
+      }
+
+      // Get diagnostic info
+      const diagnostics = await this.getDiagnosticInfo();
+      logger.info('Backend diagnostics', diagnostics, 'CheatsheetsService');
+
+    } catch (error) {
+      logger.error('Diagnostics failed', { error }, 'CheatsheetsService');
+    }
+  }
+
+  /**
    * Clear service cache
    */
   clearCache(): void {
