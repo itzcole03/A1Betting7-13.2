@@ -241,7 +241,7 @@ const UltimateMoneyMaker: React.FC = () => {
           <div className='text-center'>
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='text-3xl font-bold text-green-400'>
-              ${totalExpectedProfit.toLocaleString()}
+              ${_totalExpectedProfit.toLocaleString()}
             </div>
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='text-gray-400'>Expected Profit</div>
@@ -287,7 +287,7 @@ const UltimateMoneyMaker: React.FC = () => {
               <p className='text-gray-400 text-sm'>Expected Daily Profit</p>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <p className='text-2xl font-bold text-green-400'>
-                +${totalExpectedProfit.toLocaleString()}
+                +${_totalExpectedProfit.toLocaleString()}
               </p>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <p className='text-xs text-green-300 mt-1'>Today's quantum picks</p>
