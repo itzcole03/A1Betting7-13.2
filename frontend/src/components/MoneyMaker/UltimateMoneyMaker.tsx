@@ -138,7 +138,7 @@ const UltimateMoneyMaker: React.FC = () => {
         reason: 'Slot coverage weakness, injury report clean',
       },
     ];
-    setOpportunities(mockOpportunities);
+    setOpportunities(_mockOpportunities);
   }, []);
 
   const _runQuantumAnalysis = async () => {
