@@ -260,4 +260,4 @@ export const _TabsContent: React.FC<TabsContentProps> = ({ value, children, clas
 };
 
 // Export all components
-export default Tabs;
+export default _Tabs;
