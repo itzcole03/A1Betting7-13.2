@@ -600,7 +600,53 @@ const BettingCard: React.FC = ({ prop }) => (
     gap-4 md:gap-6
     text-sm md:text-base
   `}>
-    {/* Card content with responsive layout */}
+    <div className="flex items-center justify-between mb-4">
+      <div>
+        <h3 className="text-lg font-semibold text-white">{prop.player.name}</h3>
+        <p className="text-gray-400">{prop.player.team} vs {prop.matchup.opponent}</p>
+      </div>
+      <div className="text-right">
+        <div className="text-2xl font-bold text-purple-400">{prop.line}</div>
+        <div className="text-sm text-gray-400">{prop.market}</div>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <span className="text-gray-400">Confidence:</span>
+          <span className="font-semibold text-green-400">{prop.confidence}%</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-400">Expected Value:</span>
+          <span className={`font-semibold ${prop.expectedValue >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            {prop.expectedValue >= 0 ? '+' : ''}{prop.expectedValue}%
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <span className="text-gray-400">Kelly Size:</span>
+          <span className="font-semibold text-purple-400">{(prop.kellySize * 100).toFixed(1)}%</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-400">Book:</span>
+          <span className="font-semibold">{prop.book}</span>
+        </div>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-2 gap-2">
+      <div className="bg-green-600/20 border border-green-500/30 rounded-lg p-2 text-center">
+        <div className="text-xs text-green-400">OVER</div>
+        <div className="font-semibold">{prop.odds.over > 0 ? '+' : ''}{prop.odds.over}</div>
+      </div>
+      <div className="bg-red-600/20 border border-red-500/30 rounded-lg p-2 text-center">
+        <div className="text-xs text-red-400">UNDER</div>
+        <div className="font-semibold">{prop.odds.under > 0 ? '+' : ''}{prop.odds.under}</div>
+      </div>
+    </div>
   </div>
 );
 ```
