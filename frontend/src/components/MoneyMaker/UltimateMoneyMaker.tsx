@@ -212,7 +212,7 @@ const UltimateMoneyMaker: React.FC = () => {
           </div>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <button
-            onClick={runQuantumAnalysis}
+            onClick={_runQuantumAnalysis}
             disabled={isAnalyzing}
             className={`flex items-center space-x-2 px-6 py-3 bg-gradient-to-r ${getStrategyColor(config.strategy)} hover:scale-105 rounded-lg text-white font-bold transition-all disabled:opacity-50 shadow-lg`}
           >
