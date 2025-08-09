@@ -153,6 +153,16 @@ function App() {
         console.log('[APP] Continuing in demo mode due to API compatibility issues');
         // Don't throw - let the app continue in demo mode
       });
+
+    // Initialize core functionality validation (non-blocking)
+    setTimeout(() => {
+      coreFunctionalityValidator.startValidation(60000); // Check every minute
+      console.log('[APP] Core functionality validation initialized');
+    }, 5000); // Delay to allow app to fully load
+
+    return () => {
+      coreFunctionalityValidator.stopValidation();
+    };
   }, []);
 
   useEffect(() => {
