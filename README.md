@@ -151,11 +151,13 @@ ROI: Immediate + Long-term value
 
 ## 🔍 Core Features
 
-### 🎯 **1. Quantum AI PropFinder-Killer Dashboard**
-- **Enhanced Player Dashboard**: PropFinder-matching interface with quantum AI analytics
-- **Ultimate Money Maker**: Quantum AI-powered betting engine with neural network analysis
-- **Superposition State Analysis**: Revolutionary prediction modeling using quantum computing principles
-- **Entanglement Detection**: Advanced correlation analysis between player performances
+### 🎯 **1. Advanced AI PropFinder-Killer Dashboard** 🔍 TRANSPARENCY UPDATE
+- **Enhanced Player Dashboard**: PropFinder-matching interface with quantum-inspired analytics
+- **Ultimate Money Maker**: AI-powered betting engine with neural network analysis
+- **Multi-State Probability Analysis**: Advanced prediction modeling using quantum-inspired classical algorithms
+- **Advanced Correlation Detection**: Sophisticated statistical correlation analysis between player performances
+
+> **Technical Note**: Uses classical algorithms inspired by quantum computing, not actual quantum hardware.
 - **AI Confidence Scoring**: Multi-factor analysis with Expected Value calculations and transparent reasoning
 - **Virtual Scrolling Performance**: Handle 10,000+ props with React 19 concurrent features
 - **Real-time Monitoring**: Live system health and performance tracking
@@ -226,7 +228,7 @@ ROI: Immediate + Long-term value
 
 ### System Architecture
 ```
-┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────��───────┐
+┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────���───────┐
 │   React 19 Frontend │    │   FastAPI Backend    │    │   External APIs     │
 │                     │    │                      │    │                     │
 │ • Quantum AI UI     │◄──►│ 🧠 Quantum AI Engine │◄──►│ • DraftKings        │
@@ -239,7 +241,7 @@ ROI: Immediate + Long-term value
          └──────────────────────��────┼───────────────────────────┘
                                      │
                                ┌─────▼─────┐
-                               │  Ollama   │
+                               ��  Ollama   │
                                │ AI Server │
                                └───────────┘
 ```
@@ -270,7 +272,7 @@ A1Betting/
 │   │   │   │   └── 📄 QuantumAIAnalyticsPanel.tsx
 │   │   │   ├── 📁 analysis/          # Advanced Analytics Suite
 │   │   │   │   └── 📄 AdvancedMatchupAnalysisTools.tsx
-│   │   │   ├─��� 📁 MoneyMaker/        # Ultimate Money Maker
+│   │   │   ├������ 📁 MoneyMaker/        # Ultimate Money Maker
 │   │   │   │   └── 📄 EnhancedUltimateMoneyMaker.tsx
 │   │   │   ├── 📁 monitoring/        # System Monitoring
 │   │   ��   │   └── 📄 ComprehensiveMonitoringDashboard.tsx
