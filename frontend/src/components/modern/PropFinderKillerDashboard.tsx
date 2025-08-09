@@ -954,6 +954,9 @@ const PropFinderKillerDashboard: React.FC = () => {
       <div className="mt-8">
         <CommunityEngagement />
       </div>
+
+      {/* Direct AI Dashboard Test Link */}
+      <DirectAIDashboardLink />
       </div>
   );
 };
