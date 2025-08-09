@@ -171,17 +171,19 @@ ROI: Immediate + Long-term value
 
 ### 🧮 **3. Advanced Risk Management**
 - **Kelly Criterion Calculator**: Mathematically optimal bet sizing
-- **Quantum Portfolio Optimization**: Risk-adjusted return analysis with superposition modeling
+- **Advanced Portfolio Optimization**: Risk-adjusted return analysis with quantum-inspired mathematical modeling
 - **Bankroll Tracking**: Comprehensive performance monitoring
 - **Drawdown Protection**: Automated risk mitigation
 - **Monte Carlo Simulation**: Advanced probability modeling
 
-### 🤖 **4. Quantum AI Intelligence Center**
+### 🤖 **4. Advanced AI Intelligence Center** 🔍 TRANSPARENCY UPDATE
 - **Ollama LLM Integration**: Privacy-focused local AI processing
-- **Quantum Computing Simulation**: Superposition states and interference patterns
+- **Quantum-Inspired Optimization**: Mathematical optimization using quantum annealing simulation
 - **Neural Network Ensemble**: XGBoost, LSTM, Random Forest consensus
 - **Real-time Model Tracking**: Live performance metrics with confidence intervals
 - **SHAP Explainability**: Transparent AI reasoning
+
+> **Accuracy Notice**: Features quantum-inspired classical algorithms, not quantum computing hardware.
 
 ### 📊 **5. Comprehensive Analytics Suite**
 - **Statistical Analysis Tools**: 6 analysis types including Bayesian modeling
@@ -236,7 +238,7 @@ ROI: Immediate + Long-term value
 │ • Real-time Monitor │    │ • Performance Optim  │    │ • BetMGM            │
 │ • Risk Tools        │    │ • Monitoring System  │    │ • SportsRadar       │
 │ • Demo Mode         │    │ • Caching Layer      │    │ • Injury Reports    │
-└──────────��──────────┘    └─────────────────────┘    └───��─────────────────┘
+└──────────��──────────┘    └─────────────────────┘    └───����─────────────────┘
          │                           │                           │
          └──────────────────────��────┼───────────────────────────┘
                                      │
@@ -266,7 +268,7 @@ A1Betting/
 ├── 📁 frontend/                      # React 19 Application
 │   ├── 📁 src/
 │   │   ├── 📁 components/
-│   │   │   ├��─ 📁 modern/            # Quantum AI Enhanced Components
+│   │   │   ├����─ 📁 modern/            # Quantum AI Enhanced Components
 │   │   │   │   ├── 📄 EnhancedPropFinderKillerDashboard.tsx
 │   │   │   │   ├── 📄 OptimizedPropFinderKillerDashboard.tsx
 │   │   │   │   └── 📄 QuantumAIAnalyticsPanel.tsx
