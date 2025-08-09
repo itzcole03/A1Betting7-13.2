@@ -72,6 +72,9 @@ const FILTER_PRESETS: FilterPreset[] = [
 ];
 
 export const CheatsheetsDashboard: React.FC = () => {
+  // Debug log to verify component loads
+  console.log('[CheatsheetsDashboard] Component initializing...');
+
   const [opportunities, setOpportunities] = useState<PropOpportunity[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
