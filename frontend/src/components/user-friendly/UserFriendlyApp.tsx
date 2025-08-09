@@ -39,6 +39,9 @@ const AdvancedAIDashboard = React.lazy(() => import('../ai/AdvancedAIDashboard')
 // NEW: Phase 4 Live Betting Dashboard
 const LiveBettingDashboard = React.lazy(() => import('../live-betting/LiveBettingDashboard'));
 
+// NEW: Phase 4.2 Advanced Arbitrage Dashboard
+const AdvancedArbitrageDashboard = React.lazy(() => import('../arbitrage/AdvancedArbitrageDashboard'));
+
 const UserFriendlyApp: React.FC = () => {
   const location = useLocation();
   const [navigationOpen, setNavigationOpen] = useState(false);
