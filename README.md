@@ -237,7 +237,7 @@ ROI: Immediate + Long-term value
 │ • Virtual Scrolling │    │ • Neural Ensembles   │    │ • FanDuel           │
 │ • Real-time Monitor │    │ • Performance Optim  │    │ • BetMGM            │
 │ • Risk Tools        │    │ • Monitoring System  │    │ • SportsRadar       │
-│ • Demo Mode         │    │ • Caching Layer      │    │ • Injury Reports    │
+��� • Demo Mode         │    │ • Caching Layer      │    │ • Injury Reports    │
 └──────────��──────────┘    └────────────────��────┘    └───����─────────────────┘
          │                           │                           │
          └──────────────────────��────┼───────────────────────────┘
@@ -282,7 +282,7 @@ A1Betting/
 │   │   ├── 📁 services/              # API & Business Logic
 │   │   │   ├── 📁 performance/       # Performance Optimization
 │   │   │   │   └── 📄 PerformanceOptimizationService.ts
-│   │   │   ├── 📁 unified/           # Centralized API management
+���   │   │   ├── 📁 unified/           # Centralized API management
 │   │   │   └── 📁 analytics/         # ML service integration
 │   │   ├── 📁 hooks/                 # React hooks library
 │   │   └── 📁 types/                 # TypeScript definitions
@@ -537,7 +537,7 @@ Documentation:   PropFinder Limited → A1Betting 200+ pages
 ```bash
 git clone https://github.com/itzcole03/A1Betting7-13.2.git
 cd A1Betting7-13.2/frontend && npm install && npm run dev
-# Open http://localhost:5173 - Quantum AI PropFinder killer ready!
+# Open http://localhost:5173 - Advanced AI PropFinder killer ready!
 ```
 
 ### Health Check
