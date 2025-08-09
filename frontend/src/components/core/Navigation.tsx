@@ -51,7 +51,7 @@ interface NavigationProps {
   onNavigate?: (viewId: string) => void;
 }
 
-const _navigationSections: NavigationSection[] = [
+const navigationSections: NavigationSection[] = [
   {
     id: 'core',
     title: 'Core',
@@ -287,7 +287,7 @@ const _navigationSections: NavigationSection[] = [
   },
 ];
 
-export const _Navigation: React.FC<NavigationProps> = ({
+export const Navigation: React.FC<NavigationProps> = ({
   isMobileMenuOpen,
   onCloseMobileMenu,
   activeView = 'dashboard',
@@ -295,8 +295,8 @@ export const _Navigation: React.FC<NavigationProps> = ({
 }) => {
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
 
-  const _toggleSection = (sectionId: string) => {
-    const _newCollapsed = new Set(collapsedSections);
+  const toggleSection = (sectionId: string) => {
+    const newCollapsed = new Set(collapsedSections);
     if (newCollapsed.has(sectionId)) {
       newCollapsed.delete(sectionId);
     } else {
