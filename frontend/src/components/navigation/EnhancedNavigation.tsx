@@ -209,6 +209,17 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       isNew: true,
     },
     {
+      id: 'ai-dashboard',
+      name: 'Advanced AI Dashboard',
+      href: '/ai-dashboard',
+      icon: Brain,
+      badge: 'Phase 3',
+      description: 'Multi-sport AI enhancement platform with real-time inference',
+      category: 'analytics',
+      isNew: true,
+      isHot: true,
+    },
+    {
       id: 'propfinder-comparison',
       name: 'vs PropFinder',
       href: '/comparison',
