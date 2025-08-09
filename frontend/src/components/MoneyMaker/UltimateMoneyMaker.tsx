@@ -194,31 +194,23 @@ const UltimateMoneyMaker: React.FC = () => {
     opportunities.reduce((sum, opp) => sum + opp.confidence, 0) / opportunities.length;
 
   return (
-    
     <Layout
       title='Ultimate Money Maker'
       subtitle='Quantum AI-Powered Betting Engine with Neural Network Analysis'
       headerActions={
-        
         <div className='flex items-center space-x-4'>
-          
           <div className='text-right'>
-            
             <div className='text-sm text-gray-400'>Total Bankroll</div>
-            
             <div className='text-lg font-bold text-green-400'>
               ${totalBankroll.toLocaleString()}
             </div>
           </div>
-          
           <button
             onClick={_runQuantumAnalysis}
             disabled={isAnalyzing}
             className={`flex items-center space-x-2 px-6 py-3 bg-gradient-to-r ${_getStrategyColor(config.strategy)} hover:scale-105 rounded-lg text-white font-bold transition-all disabled:opacity-50 shadow-lg`}
           >
-            
             <Brain className={`w-5 h-5 ${isAnalyzing ? 'animate-spin' : ''}`} />
-            
             <span>{isAnalyzing ? 'Quantum Analysis...' : 'Activate Quantum AI'}</span>
           </button>
         </div>
