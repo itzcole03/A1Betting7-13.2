@@ -558,7 +558,7 @@ const EnhancedPropFinderKillerDashboard: React.FC = () => {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-gray-400">
-                      {quantumAnalysisActive ? 'Quantum Confidence' : 'Confidence'}
+                      {advancedAnalysisActive ? 'AI Confidence' : 'Confidence'}
                     </span>
                     <span className="text-sm font-semibold">{prop.prop.confidence.toFixed(1)}%</span>
                   </div>
