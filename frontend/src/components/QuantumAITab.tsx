@@ -2,8 +2,11 @@ import React from 'react';
 import './A1BettingPreview.css';
 
 /**
- * QuantumAITab - Displays quantum-enhanced AI analytics, predictions, and multiverse analysis.
- * Used as the Quantum AI tab in A1BettingPreview.
+ * AdvancedAITab - Displays quantum-inspired classical AI analytics and predictions.
+ * Uses advanced classical algorithms inspired by quantum computing principles.
+ *
+ * TRANSPARENCY NOTE: This system uses quantum-inspired classical algorithms,
+ * not actual quantum computing hardware.
  */
 const _QuantumAITab: React.FC = () => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -12,14 +15,14 @@ const _QuantumAITab: React.FC = () => (
     <div className='glass-card quantum-card'>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <h3 style={{ padding: '20px', color: 'var(--quantum-blue)' }} className='holographic-text'>
-        ⚛️ Quantum AI Revolution
+        🧠 Advanced AI Analytics
       </h3>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='grid grid-3' style={{ padding: '20px' }}>
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='glass-card quantum-card'>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-          <h4 style={{ padding: '15px', color: 'var(--quantum-blue)' }}>Revolutionary Accuracy</h4>
+          <h4 style={{ padding: '15px', color: 'var(--quantum-blue)' }}>Advanced Analytics</h4>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div style={{ padding: '0 15px 15px' }}>
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -29,7 +32,7 @@ const _QuantumAITab: React.FC = () => (
                 97.8%
               </div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <div style={{ color: 'rgba(255,255,255,0.8)' }}>Quantum-Enhanced Accuracy</div>
+              <div style={{ color: 'rgba(255,255,255,0.8)' }}>AI-Enhanced Accuracy</div>
             </div>
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='ml-confidence-meter'>
@@ -45,9 +48,9 @@ const _QuantumAITab: React.FC = () => (
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div>
                   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                  <div style={{ fontWeight: 'bold' }}>Quantum Neural Network</div>
+                  <div style={{ fontWeight: 'bold' }}>Advanced Neural Network</div>
                   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                  <div style={{ fontSize: '0.8rem' }}>47 parallel universes analyzed</div>
+                  <div style={{ fontSize: '0.8rem' }}>47 simulation scenarios analyzed</div>
                 </div>
               </div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -72,13 +75,13 @@ const _QuantumAITab: React.FC = () => (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='glass-card quantum-card'>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-          <h4 style={{ padding: '15px', color: 'var(--quantum-blue)' }}>Quantum Predictions</h4>
+          <h4 style={{ padding: '15px', color: 'var(--quantum-blue)' }}>Advanced AI Predictions</h4>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div style={{ padding: '0 15px 15px' }}>
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='opportunity-card'>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <div style={{ fontWeight: 'bold', marginBottom: 10 }}>Probability Superposition</div>
+              <div style={{ fontWeight: 'bold', marginBottom: 10 }}>Probability Distribution Analysis</div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div style={{ margin: '5px 0' }}>
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -88,13 +91,13 @@ const _QuantumAITab: React.FC = () => (
               </div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div style={{ margin: '10px 0', fontSize: '0.9rem', color: 'var(--cyber-accent)' }}>
-                Quantum coherence maintained: 94.8%
+                Model consensus maintained: 94.8%
               </div>
             </div>
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='opportunity-card'>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <div style={{ fontWeight: 'bold', marginBottom: 10 }}>Entangled Variables</div>
+              <div style={{ fontWeight: 'bold', marginBottom: 10 }}>Correlated Variables</div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div style={{ margin: '5px 0' }}>
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -109,12 +112,12 @@ const _QuantumAITab: React.FC = () => (
             <div className='bankroll-manager'>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div style={{ fontWeight: 'bold', marginBottom: 10 }}>
-                Quantum Bankroll Optimization
+                Advanced Bankroll Optimization
               </div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div>Recommended Stake: $347</div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <div>Kelly Quantum: 34.7%</div>
+              <div>Kelly Criterion: 34.7%</div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div>Expected Value: $127.43</div>
             </div>
@@ -123,31 +126,31 @@ const _QuantumAITab: React.FC = () => (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='glass-card quantum-card'>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-          <h4 style={{ padding: '15px', color: 'var(--quantum-blue)' }}>Multiverse Analysis</h4>
+          <h4 style={{ padding: '15px', color: 'var(--quantum-blue)' }}>Multi-Scenario Analysis</h4>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div style={{ padding: '0 15px 15px' }}>
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div style={{ marginBottom: 15 }}>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div style={{ fontWeight: 'bold', marginBottom: 10 }}>
-                47 Parallel Universes Simulated
+                47 Scenario Simulations Completed
               </div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div style={{ background: 'rgba(67,97,238,0.1)', padding: 10, borderRadius: 8 }}>
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                <div>Universe A-1: Lakers win 78.4%</div>
+                <div>Scenario A-1: Lakers win 78.4%</div>
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                <div>Universe A-2: Warriors win 21.6%</div>
+                <div>Scenario A-2: Warriors win 21.6%</div>
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                <div>Universe B-1: Over hits 94.7%</div>
+                <div>Scenario B-1: Over hits 94.7%</div>
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                <div>Universe B-2: Under hits 5.3%</div>
+                <div>Scenario B-2: Under hits 5.3%</div>
               </div>
             </div>
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div style={{ marginBottom: 15 }}>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <div style={{ fontWeight: 'bold', marginBottom: 10 }}>Consensus Across Realities</div>
+              <div style={{ fontWeight: 'bold', marginBottom: 10 }}>Consensus Across Scenarios</div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className='ensemble-model-grid'
