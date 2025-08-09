@@ -1061,6 +1061,263 @@ export const AdvancedAIDashboard: React.FC = () => {
               </Card>
             </div>
           </TabsContent>
+
+          {/* Monitoring Tab */}
+          <TabsContent value="monitoring" className="space-y-6">
+            {/* Monitoring System Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-600/20 rounded-lg">
+                      <Activity className="w-5 h-5 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400">System Status</p>
+                      <p className="text-lg font-bold text-white">
+                        {monitoringOverview?.system_status || 'Active'}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-600/20 rounded-lg">
+                      <Shield className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400">Avg Health Score</p>
+                      <p className="text-lg font-bold text-white">
+                        {monitoringOverview?.avg_health_score?.toFixed(1) || '0.0'}%
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-600/20 rounded-lg">
+                      <Database className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400">Total Predictions</p>
+                      <p className="text-lg font-bold text-white">
+                        {monitoringOverview?.total_predictions?.toLocaleString() || '0'}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-orange-600/20 rounded-lg">
+                      <Clock className="w-5 h-5 text-orange-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400">Uptime</p>
+                      <p className="text-lg font-bold text-white">
+                        {monitoringOverview?.monitoring_uptime_hours || 24}h
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Model Health Overview */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Gauge className="w-5 h-5 text-green-400" />
+                  Model Health Status Distribution
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {monitoringOverview?.model_statuses && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-3 bg-green-600/20 rounded-lg">
+                      <p className="text-2xl font-bold text-green-400">
+                        {monitoringOverview.model_statuses.healthy || 0}
+                      </p>
+                      <p className="text-xs text-slate-400">Healthy</p>
+                    </div>
+                    <div className="text-center p-3 bg-yellow-600/20 rounded-lg">
+                      <p className="text-2xl font-bold text-yellow-400">
+                        {monitoringOverview.model_statuses.warning || 0}
+                      </p>
+                      <p className="text-xs text-slate-400">Warning</p>
+                    </div>
+                    <div className="text-center p-3 bg-red-600/20 rounded-lg">
+                      <p className="text-2xl font-bold text-red-400">
+                        {monitoringOverview.model_statuses.critical || 0}
+                      </p>
+                      <p className="text-xs text-slate-400">Critical</p>
+                    </div>
+                    <div className="text-center p-3 bg-gray-600/20 rounded-lg">
+                      <p className="text-2xl font-bold text-gray-400">
+                        {monitoringOverview.model_statuses.failed || 0}
+                      </p>
+                      <p className="text-xs text-slate-400">Failed</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Monitored Models List */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-blue-400" />
+                  Monitored Models ({monitoredModels.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {monitoredModels.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Database className="w-12 h-12 mx-auto mb-3 text-slate-600" />
+                      <p className="text-slate-400">No models currently being monitored</p>
+                    </div>
+                  ) : (
+                    monitoredModels.map((model) => {
+                      const healthStatus = modelHealthStatuses.find(h => h.model_id === model.model_id);
+                      return (
+                        <div key={model.model_id} className="p-4 bg-slate-700/50 rounded-lg">
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <h3 className="text-lg font-semibold text-white">{model.model_id}</h3>
+                              <p className="text-sm text-slate-400">
+                                {model.total_metrics} metrics recorded
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Badge className={`${getStatusColor(model.status)} text-xs`}>
+                                {model.status}
+                              </Badge>
+                              {getStatusIcon(model.status)}
+                            </div>
+                          </div>
+
+                          {healthStatus && (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                              <div className="text-center">
+                                <p className="text-xl font-bold text-blue-400">
+                                  {healthStatus.health_score?.toFixed(1) || '0.0'}%
+                                </p>
+                                <p className="text-xs text-slate-400">Health Score</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-xl font-bold text-green-400">
+                                  {(healthStatus.metrics_summary?.avg_accuracy * 100)?.toFixed(1) || '0.0'}%
+                                </p>
+                                <p className="text-xs text-slate-400">Accuracy</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-xl font-bold text-purple-400">
+                                  {healthStatus.metrics_summary?.avg_latency_ms?.toFixed(1) || '0.0'}ms
+                                </p>
+                                <p className="text-xs text-slate-400">Latency</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-xl font-bold text-orange-400">
+                                  {healthStatus.performance_trend || 'stable'}
+                                </p>
+                                <p className="text-xs text-slate-400">Trend</p>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="mt-3 pt-3 border-t border-slate-600">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-slate-400">Last Update:</span>
+                              <span className="text-white">
+                                {model.last_update ? new Date(model.last_update).toLocaleString() : 'Never'}
+                              </span>
+                            </div>
+                            {healthStatus && (
+                              <div className="flex justify-between text-sm">
+                                <span className="text-slate-400">Uptime:</span>
+                                <span className="text-white">{healthStatus.uptime_hours?.toFixed(1) || '0.0'} hours</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Real-time Monitoring Metrics */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-green-400" />
+                    Performance Trends
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400">Overall System Health:</span>
+                      <div className="flex items-center gap-2">
+                        <Progress value={monitoringOverview?.avg_health_score || 0} className="w-20" />
+                        <span className="text-green-400 font-medium">
+                          {monitoringOverview?.avg_health_score?.toFixed(0) || '0'}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400">Active Models:</span>
+                      <span className="text-white font-medium">
+                        {monitoringOverview?.active_models || 0} / {monitoringOverview?.total_models || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400">Monitoring Status:</span>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${
+                          monitoringOverview?.system_status === 'active' ? 'bg-green-400' : 'bg-red-400'
+                        }`}></div>
+                        <span className="text-white capitalize">
+                          {monitoringOverview?.system_status || 'unknown'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-yellow-400" />
+                    Recent Alerts
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {/* Placeholder for alerts - would fetch from API */}
+                    <div className="text-center py-8">
+                      <Shield className="w-12 h-12 mx-auto mb-3 text-slate-600" />
+                      <p className="text-slate-400">No recent alerts</p>
+                      <p className="text-xs text-slate-500 mt-1">All models operating normally</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
         </Tabs>
 
         {/* Status Footer */}
