@@ -157,6 +157,16 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       category: 'tools',
     },
     {
+      id: 'advanced-kelly',
+      name: 'Advanced Kelly',
+      href: '/advanced-kelly',
+      icon: BarChart3,
+      badge: 'Phase 4.3',
+      description: 'Sophisticated Kelly Criterion with risk management & portfolio optimization',
+      category: 'tools',
+      isNew: true,
+    },
+    {
       id: 'odds-comparison',
       name: 'Odds Comparison',
       href: '/odds-comparison',
