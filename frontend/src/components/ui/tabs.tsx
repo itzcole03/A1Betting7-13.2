@@ -179,13 +179,13 @@ export const _TabsTrigger: React.FC<TabsTriggerProps> = ({
       `}
       variants={_triggerVariants}
       initial='inactive'
-      animate={isSelected ? 'active' : 'inactive'}
+      animate={_isSelected ? 'active' : 'inactive'}
       whileHover={!disabled ? 'hover' : undefined}
     >
       {children}
 
       {/* Active indicator for cyber variant */}
-      {variant === 'cyber' && isSelected && (
+      {variant === 'cyber' && _isSelected && (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <motion.div
           className='absolute bottom-0 left-1/2 w-8 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500'
@@ -196,7 +196,7 @@ export const _TabsTrigger: React.FC<TabsTriggerProps> = ({
       )}
 
       {/* Glow effect for pills variant */}
-      {variant === 'pills' && isSelected && (
+      {variant === 'pills' && _isSelected && (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='absolute inset-0 rounded-md bg-gradient-to-r from-cyan-500/20 to-blue-600/20 animate-pulse' />
       )}
