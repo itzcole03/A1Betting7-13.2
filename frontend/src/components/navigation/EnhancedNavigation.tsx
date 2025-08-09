@@ -356,7 +356,7 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -400, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed left-0 top-0 h-full w-80 bg-slate-900/95 backdrop-blur-lg border-r border-slate-700 shadow-2xl z-[58] flex flex-col"
+            className="fixed left-0 top-0 h-full w-80 bg-slate-900/95 backdrop-blur-lg border-r border-slate-700 shadow-2xl z-[9998] flex flex-col"
           >
             {/* Header */}
             <div className="p-6 border-b border-slate-700">
