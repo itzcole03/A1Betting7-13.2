@@ -1,6 +1,5 @@
-import { get, post } from './client.js';
-// @ts-expect-error TS(2691): An import path cannot end with a '.ts' extension. ... Remove this comment to see the full error message
-export type { Player } from '@/types/core.ts';
+import { get, post } from './client';
+export type { Player } from '@/types/core';
 
 export interface LineupSubmission {
   players: string[];
@@ -14,8 +13,8 @@ export async function getPlayers(): Promise<unknown[]> {
   try {
     // Calls /api/players endpoint
     const _response = await get('/players');
-    if (Array.isArray(response?.data)) {
-      return response.data;
+    if (Array.isArray(_response?.data)) {
+      return _response.data;
     }
     return [];
   } catch (error) {
@@ -27,9 +26,9 @@ export async function getPlayers(): Promise<unknown[]> {
 export async function submitLineup(_lineup: LineupSubmission): Promise<{ success: boolean; lineupId?: string }> {
   try {
     // Calls /api/lineups endpoint
-    const _response = await post('/lineups', lineup);
-    if (response && response.data && typeof response.data === 'object' && 'lineupId' in response.data) {
-      return { success: true, lineupId: (response.data as { lineupId: string }).lineupId };
+    const _response = await post('/lineups', _lineup);
+    if (_response && _response.data && typeof _response.data === 'object' && 'lineupId' in _response.data) {
+      return { success: true, lineupId: (_response.data as { lineupId: string }).lineupId };
     }
     return { success: false };
   } catch (error) {
