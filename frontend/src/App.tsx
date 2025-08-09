@@ -23,6 +23,9 @@ import { getBackendUrl } from './utils/getBackendUrl';
 import { createLazyComponent } from './utils/lazyLoading';
 import { getLocation } from './utils/location';
 import { usePerformanceTracking } from './utils/performance';
+import { ReliabilityIntegrationWrapper } from './components/reliability/ReliabilityIntegrationWrapper';
+import { coreFunctionalityValidator } from './services/coreFunctionalityValidator';
+import { liveDemoEnhancementService } from './services/liveDemoEnhancementService';
 
 console.log(
   '[APP] Starting App.tsx rendering with React 19 features - Checking for module resolution issues'
@@ -151,6 +154,23 @@ function App() {
         console.log('[APP] Continuing in demo mode due to API compatibility issues');
         // Don't throw - let the app continue in demo mode
       });
+
+    // Initialize core functionality validation (non-blocking)
+    setTimeout(() => {
+      coreFunctionalityValidator.startValidation(60000); // Check every minute
+      console.log('[APP] Core functionality validation initialized');
+    }, 5000); // Delay to allow app to fully load
+
+    // Initialize live demo enhancement service (non-blocking)
+    setTimeout(() => {
+      liveDemoEnhancementService.startMonitoring();
+      console.log('[APP] Live demo enhancement service initialized');
+    }, 7000); // Delay slightly more to allow core validation to start first
+
+    return () => {
+      coreFunctionalityValidator.stopValidation();
+      liveDemoEnhancementService.stopMonitoring();
+    };
   }, []);
 
   useEffect(() => {
@@ -298,11 +318,25 @@ const _AppContent: React.FC = () => {
 
   // Show user-friendly UI for all authenticated users
   console.log('[APP] Rendering UserFriendlyApp (clean UI)');
+
+  // Handle critical reliability issues without disrupting user experience
+  const handleCriticalIssue = (issue: string) => {
+    console.warn('[APP] Critical reliability issue detected:', issue);
+    // Could trigger silent recovery or background notification
+    // Avoid disruptive user notifications unless absolutely necessary
+  };
+
   return (
     <ErrorBoundary>
-      <ServiceWorkerUpdateNotification />
-      <UpdateModal />
-      <LazyUserFriendlyApp />
+      <ReliabilityIntegrationWrapper
+        enableMonitoring={true}
+        monitoringLevel="standard"
+        onCriticalIssue={handleCriticalIssue}
+      >
+        <ServiceWorkerUpdateNotification />
+        <UpdateModal />
+        <LazyUserFriendlyApp />
+      </ReliabilityIntegrationWrapper>
     </ErrorBoundary>
   );
 };
