@@ -1,1187 +1,771 @@
-import React, { 
-  useState, 
-  useEffect, 
-  useMemo, 
-  useCallback, 
-  memo, 
-  lazy, 
-  Suspense,
-  useTransition, 
-  useDeferredValue,
-  startTransition 
-} from 'react';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import React, { useState, useEffect, useMemo, useCallback, useTransition, useDeferredValue, startTransition } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import {
-  Search,
-  Filter,
-  TrendingUp,
-  TrendingDown,
-  Zap,
-  Brain,
-  Target,
-  Clock,
-  DollarSign,
-  BarChart3,
-  Activity,
-  Star,
-  ChevronDown,
-  ChevronUp,
-  Settings,
-  RefreshCw,
-  AlertCircle,
-  CheckCircle,
-  PlayCircle,
-  PauseCircle,
-  Maximize2,
-  Eye,
-  EyeOff,
-  Plus,
-  Minus,
-  Info,
-  Bookmark,
-  Share2,
-  Download,
-  Trophy,
-  Flame,
-  Shield,
-  Calculator,
-  Wifi,
-  WifiOff,
-  Database,
-  Cpu,
-  Radio,
-  Gauge,
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Search, Filter, TrendingUp, Brain, Zap, Target, 
+  BarChart3, DollarSign, AlertTriangle, CheckCircle,
+  RefreshCw, Settings, Star, Activity, Shield,
+  ChevronDown, ChevronUp, Calendar, Clock,
+  User, Trophy, Flame, Eye, Layers, Database
 } from 'lucide-react';
 
-// Lazy loaded components for better code splitting
-const CommunityEngagement = lazy(() => import('../community/CommunityEngagement'));
-const AdvancedAnalyticsPanel = lazy(() => import('./AdvancedAnalyticsPanel'));
-const DataQualityMonitor = lazy(() => import('./DataQualityMonitor'));
-
-// Enhanced interfaces with optimized structure
-interface PropOpportunity {
+// Enhanced interfaces for React 19 concurrent features
+interface OptimizedPlayerProp {
   id: string;
-  player: string;
-  playerImage?: string;
-  team: string;
-  teamLogo?: string;
-  opponent: string;
-  opponentLogo?: string;
-  sport: 'NBA' | 'NFL' | 'MLB' | 'NHL';
-  market: string;
-  line: number;
-  pick: 'over' | 'under';
-  odds: number;
-  impliedProbability: number;
-  aiProbability: number;
-  edge: number;
-  confidence: number;
-  projectedValue: number;
-  volume: number;
-  trend: 'up' | 'down' | 'stable';
-  trendStrength: number;
-  timeToGame: string;
-  venue: 'home' | 'away';
-  weather?: string;
-  injuries: string[];
-  recentForm: number[];
-  matchupHistory: {
-    games: number;
-    average: number;
-    hitRate: number;
-  };
-  lineMovement: {
-    open: number;
-    current: number;
-    direction: 'up' | 'down' | 'stable';
-    steam: boolean;
-    sharpAction: number;
-  };
-  bookmakers: Array<{
+  player: {
     name: string;
-    odds: number;
+    team: string;
+    position: string;
+    image?: string;
+    fantasyPoints?: number;
+    injuryStatus?: string;
+  };
+  prop: {
+    type: string;
     line: number;
-    volume: number;
-    lastUpdate: string;
-  }>;
-  isBookmarked: boolean;
-  tags: string[];
-  socialSentiment: number;
-  sharpMoney: 'heavy' | 'moderate' | 'light' | 'public';
-  aiModels: {
-    ensemble: number;
-    xgboost: number;
-    neuralNet: number;
-    lstm: number;
-    consensus: number;
-  };
-  marketEfficiency: number;
-  volatility: number;
-  momentum: number;
-  streakData: {
-    current: number;
-    direction: 'over' | 'under';
-    significance: number;
-  };
-  advancedMetrics: {
-    kellyCriterion: number;
-    expectedValue: number;
-    riskAdjustedReturn: number;
-    sharpeRatio: number;
-  };
-  dataQuality: {
-    score: number;
-    sources: number;
-    freshness: number;
-    reliability: number;
-  };
-  realTimeUpdates: {
-    lastUpdate: string;
-    frequency: number;
-    isLive: boolean;
-  };
-}
-
-interface DataFeed {
-  id: string;
-  name: string;
-  status: 'connected' | 'disconnected' | 'error';
-  latency: number;
-  updates: number;
-  reliability: number;
-  lastUpdate: string;
-}
-
-interface PredictiveModel {
-  id: string;
-  name: string;
-  accuracy: number;
-  predictions: number;
-  status: 'active' | 'training' | 'offline';
-  confidence: number;
-  lastTrained: string;
-}
-
-interface FilterState {
-  sport: string[];
-  confidence: [number, number];
-  edge: [number, number];
-  timeToGame: string;
-  market: string[];
-  venue: string[];
-  sharpMoney: string[];
-  showBookmarked: boolean;
-  sortBy: 'confidence' | 'edge' | 'time' | 'volume' | 'trend' | 'kelly' | 'expectedValue';
-  sortOrder: 'asc' | 'desc';
-  aiModel: string;
-  dataQualityMin: number;
-  volatilityMax: number;
-}
-
-interface PerformanceConfig {
-  virtualizedListHeight: number;
-  itemSize: number;
-  overscan: number;
-  debounceDelay: number;
-  maxVisibleItems: number;
-  enableVirtualization: boolean;
-  enableMemoryOptimization: boolean;
-  enablePrefetching: boolean;
-}
-
-// Optimized opportunity card component with memoization
-const OpportunityCard = memo(({ 
-  opportunity, 
-  isSelected, 
-  onSelect, 
-  onBookmark, 
-  filters,
-  style 
-}: {
-  opportunity: PropOpportunity;
-  isSelected: boolean;
-  onSelect: (opp: PropOpportunity | null) => void;
-  onBookmark: (id: string) => void;
-  filters: FilterState;
-  style?: React.CSSProperties;
-}) => {
-  // Memoized color calculations
-  const confidenceColor = useMemo(() => {
-    if (opportunity.confidence >= 90) return 'text-green-400 bg-green-500/20';
-    if (opportunity.confidence >= 80) return 'text-yellow-400 bg-yellow-500/20';
-    return 'text-orange-400 bg-orange-500/20';
-  }, [opportunity.confidence]);
-
-  const edgeColor = useMemo(() => {
-    if (opportunity.edge >= 20) return 'text-green-400';
-    if (opportunity.edge >= 10) return 'text-yellow-400';
-    return 'text-orange-400';
-  }, [opportunity.edge]);
-
-  const dataQualityColor = useMemo(() => {
-    if (opportunity.dataQuality.score >= 95) return 'text-green-400';
-    if (opportunity.dataQuality.score >= 90) return 'text-yellow-400';
-    return 'text-orange-400';
-  }, [opportunity.dataQuality.score]);
-
-  const handleBookmarkClick = useCallback(() => {
-    onBookmark(opportunity.id);
-  }, [opportunity.id, onBookmark]);
-
-  const handleSelectClick = useCallback(() => {
-    onSelect(isSelected ? null : opportunity);
-  }, [isSelected, opportunity, onSelect]);
-
-  return (
-    <motion.div
-      style={style}
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-6 hover:border-cyan-500/30 transition-all mx-2 my-2"
-    >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center">
-              <span className="text-lg font-bold text-white">
-                {opportunity.player.split(' ').map(n => n[0]).join('')}
-              </span>
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-slate-600 rounded-full flex items-center justify-center text-xs">
-              {opportunity.team}
-            </div>
-          </div>
-          <div>
-            <h3 className="font-bold text-white text-lg">{opportunity.player}</h3>
-            <p className="text-sm text-gray-400">{opportunity.team} vs {opportunity.opponent} • {opportunity.timeToGame}</p>
-            <div className="flex items-center space-x-2 mt-1">
-              {opportunity.realTimeUpdates.isLive && (
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                  <span className="text-xs text-green-400">Live</span>
-                </div>
-              )}
-              <span className={`text-xs ${dataQualityColor}`}>
-                Data Quality: {opportunity.dataQuality.score.toFixed(1)}%
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={handleBookmarkClick}
-            className={`p-2 rounded-lg transition-all ${
-              opportunity.isBookmarked 
-                ? 'text-yellow-400 bg-yellow-500/20' 
-                : 'text-gray-400 hover:text-yellow-400'
-            }`}
-          >
-            <Bookmark className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={handleSelectClick}
-            className="p-2 text-gray-400 hover:text-cyan-400 transition-colors"
-          >
-            <Maximize2 className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Enhanced Market Info */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
-        <div className="bg-slate-900/50 rounded-lg p-4">
-          <div className="text-sm text-gray-400 mb-1">Market</div>
-          <div className="font-bold text-white">{opportunity.market}</div>
-          <div className="text-sm text-cyan-400">
-            {opportunity.pick.toUpperCase()} {opportunity.line}
-          </div>
-        </div>
-
-        <div className="bg-slate-900/50 rounded-lg p-4">
-          <div className="text-sm text-gray-400 mb-1">AI Confidence</div>
-          <div className={`font-bold text-xl ${confidenceColor.split(' ')[0]}`}>
-            {(opportunity.aiModels[filters.aiModel as keyof typeof opportunity.aiModels] || opportunity.confidence).toFixed(1)}%
-          </div>
-          <div className="text-xs text-gray-400">vs {opportunity.impliedProbability.toFixed(1)}% implied</div>
-        </div>
-
-        <div className="bg-slate-900/50 rounded-lg p-4">
-          <div className="text-sm text-gray-400 mb-1">Edge</div>
-          <div className={`font-bold text-xl ${edgeColor}`}>
-            +{opportunity.edge.toFixed(1)}%
-          </div>
-          <div className="text-xs text-gray-400">Market inefficiency</div>
-        </div>
-
-        <div className="bg-slate-900/50 rounded-lg p-4">
-          <div className="text-sm text-gray-400 mb-1">Kelly %</div>
-          <div className="font-bold text-xl text-purple-400">
-            {opportunity.advancedMetrics.kellyCriterion.toFixed(1)}%
-          </div>
-          <div className="text-xs text-gray-400">Optimal size</div>
-        </div>
-
-        <div className="bg-slate-900/50 rounded-lg p-4">
-          <div className="text-sm text-gray-400 mb-1">Expected Value</div>
-          <div className="font-bold text-xl text-green-400">
-            +{opportunity.advancedMetrics.expectedValue.toFixed(1)}%
-          </div>
-          <div className="text-xs text-gray-400">Long-term profit</div>
-        </div>
-
-        <div className="bg-slate-900/50 rounded-lg p-4">
-          <div className="text-sm text-gray-400 mb-1">Volatility</div>
-          <div className="font-bold text-xl text-yellow-400">
-            {opportunity.volatility.toFixed(1)}%
-          </div>
-          <div className="text-xs text-gray-400">Risk measure</div>
-        </div>
-      </div>
-
-      {/* AI Models Consensus */}
-      <div className="bg-slate-900/30 rounded-lg p-4 mb-4">
-        <div className="text-sm text-gray-400 mb-3">AI Models Consensus</div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {Object.entries(opportunity.aiModels).map(([model, confidence]) => (
-            <div key={model} className="text-center">
-              <div className={`font-bold text-lg ${
-                model === filters.aiModel ? 'text-cyan-400' : 'text-white'
-              }`}>
-                {confidence.toFixed(1)}%
-              </div>
-              <div className="text-xs text-gray-400 capitalize">{model}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Trend & Analytics */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-400">Trend:</span>
-            {opportunity.trend === 'up' ? (
-              <TrendingUp className="w-4 h-4 text-green-400" />
-            ) : opportunity.trend === 'down' ? (
-              <TrendingDown className="w-4 h-4 text-red-400" />
-            ) : (
-              <Activity className="w-4 h-4 text-gray-400" />
-            )}
-            <span className="text-sm text-white">{opportunity.trendStrength}%</span>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-400">Sharp:</span>
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-              opportunity.sharpMoney === 'heavy' ? 'bg-green-500/20 text-green-400' :
-              opportunity.sharpMoney === 'moderate' ? 'bg-yellow-500/20 text-yellow-400' :
-              opportunity.sharpMoney === 'light' ? 'bg-orange-500/20 text-orange-400' :
-              'bg-gray-500/20 text-gray-400'
-            }`}>
-              {opportunity.sharpMoney.toUpperCase()}
-            </span>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-400">Streak:</span>
-            <span className="text-sm text-white">
-              {opportunity.streakData.current} {opportunity.streakData.direction}
-            </span>
-          </div>
-        </div>
-
-        <div className="text-right">
-          <div className="text-sm text-gray-400">Last Update</div>
-          <div className="text-sm text-white">
-            {new Date(opportunity.realTimeUpdates.lastUpdate).toLocaleTimeString()}
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-});
-
-OpportunityCard.displayName = 'OpportunityCard';
-
-// Virtualized list renderer
-const VirtualizedOpportunityList = memo(({
-  opportunities,
-  selectedOpp,
-  onSelect,
-  onBookmark,
-  filters,
-  height,
-  itemSize
-}: {
-  opportunities: PropOpportunity[];
-  selectedOpp: PropOpportunity | null;
-  onSelect: (opp: PropOpportunity | null) => void;
-  onBookmark: (id: string) => void;
-  filters: FilterState;
-  height: number;
-  itemSize: number;
-}) => {
-  const parentRef = React.useRef<HTMLDivElement>(null);
-
-  const virtualizer = useVirtualizer({
-    count: opportunities.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => itemSize,
-    overscan: 5,
-  });
-
-  return (
-    <div
-      ref={parentRef}
-      className="h-full overflow-auto"
-      style={{ height }}
-    >
-      <div
-        style={{
-          height: `${virtualizer.getTotalSize()}px`,
-          width: '100%',
-          position: 'relative',
-        }}
-      >
-        {virtualizer.getVirtualItems().map((virtualItem) => {
-          const opportunity = opportunities[virtualItem.index];
-          return (
-            <div
-              key={virtualItem.key}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: `${virtualItem.size}px`,
-                transform: `translateY(${virtualItem.start}px)`,
-              }}
-            >
-              <OpportunityCard
-                opportunity={opportunity}
-                isSelected={selectedOpp?.id === opportunity.id}
-                onSelect={onSelect}
-                onBookmark={onBookmark}
-                filters={filters}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-});
-
-VirtualizedOpportunityList.displayName = 'VirtualizedOpportunityList';
-
-// Main optimized dashboard component
-const OptimizedPropFinderKillerDashboard: React.FC = () => {
-  // State management with performance optimizations
-  const [opportunities, setOpportunities] = useState<PropOpportunity[]>([]);
-  const [filteredOpportunities, setFilteredOpportunities] = useState<PropOpportunity[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedOpp, setSelectedOpp] = useState<PropOpportunity | null>(null);
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(true);
-  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'compact' | 'virtualized'>('virtualized');
-  const [showOnlyPremium, setShowOnlyPremium] = useState(false);
-  const [dataFeeds, setDataFeeds] = useState<DataFeed[]>([]);
-  const [predictiveModels, setPredictiveModels] = useState<PredictiveModel[]>([]);
-  const [realTimeConnected, setRealTimeConnected] = useState(true);
-  const [systemHealth, setSystemHealth] = useState(98.7);
-
-  // Performance configuration
-  const [performanceConfig] = useState<PerformanceConfig>({
-    virtualizedListHeight: 800,
-    itemSize: 400,
-    overscan: 5,
-    debounceDelay: 300,
-    maxVisibleItems: 50,
-    enableVirtualization: true,
-    enableMemoryOptimization: true,
-    enablePrefetching: true,
-  });
-
-  // React 19 concurrent features for better performance
-  const [isPending, startTransitionLocal] = useTransition();
-  const deferredSearchQuery = useDeferredValue(searchQuery);
-  
-  const [filters, setFilters] = useState<FilterState>({
-    sport: [],
-    confidence: [75, 100],
-    edge: [0, 50],
-    timeToGame: 'all',
-    market: [],
-    venue: [],
-    sharpMoney: [],
-    showBookmarked: false,
-    sortBy: 'confidence',
-    sortOrder: 'desc',
-    aiModel: 'ensemble',
-    dataQualityMin: 85,
-    volatilityMax: 30,
-  });
-
-  // Memoized feed status icon
-  const getFeedStatusIcon = useCallback((status: string) => {
-    switch (status) {
-      case 'connected':
-        return <Wifi className="w-4 h-4 text-green-400" />;
-      case 'disconnected':
-        return <WifiOff className="w-4 h-4 text-red-400" />;
-      default:
-        return <AlertCircle className="w-4 h-4 text-yellow-400" />;
-    }
-  }, []);
-
-  // Optimized bookmark toggle with useCallback
-  const toggleBookmark = useCallback((id: string) => {
-    setOpportunities(prev =>
-      prev.map(opp =>
-        opp.id === id ? { ...opp, isBookmarked: !opp.isBookmarked } : opp
-      )
-    );
-  }, []);
-
-  // Optimized select handler
-  const handleSelectOpportunity = useCallback((opp: PropOpportunity | null) => {
-    setSelectedOpp(opp);
-  }, []);
-
-  // Initialize data feeds with performance optimization
-  useEffect(() => {
-    const feeds: DataFeed[] = [
-      {
-        id: 'sportsradar',
-        name: 'SportsRadar',
-        status: 'connected',
-        latency: 45,
-        updates: 1247,
-        reliability: 99.2,
-        lastUpdate: new Date().toISOString(),
-      },
-      {
-        id: 'oddsapi',
-        name: 'The Odds API',
-        status: 'connected',
-        latency: 67,
-        updates: 892,
-        reliability: 97.8,
-        lastUpdate: new Date().toISOString(),
-      },
-      {
-        id: 'draftkings',
-        name: 'DraftKings API',
-        status: 'connected',
-        latency: 23,
-        updates: 2341,
-        reliability: 98.9,
-        lastUpdate: new Date().toISOString(),
-      },
-      {
-        id: 'fanduel',
-        name: 'FanDuel API',
-        status: 'connected',
-        latency: 31,
-        updates: 1876,
-        reliability: 98.4,
-        lastUpdate: new Date().toISOString(),
-      },
-      {
-        id: 'espn',
-        name: 'ESPN Stats',
-        status: 'connected',
-        latency: 89,
-        updates: 567,
-        reliability: 96.7,
-        lastUpdate: new Date().toISOString(),
-      },
-    ];
-    setDataFeeds(feeds);
-  }, []);
-
-  // Initialize predictive models
-  useEffect(() => {
-    const models: PredictiveModel[] = [
-      {
-        id: 'ensemble',
-        name: 'Ensemble Model',
-        accuracy: 94.7,
-        predictions: 15623,
-        status: 'active',
-        confidence: 96.2,
-        lastTrained: '2h ago',
-      },
-      {
-        id: 'xgboost',
-        name: 'XGBoost Classifier',
-        accuracy: 92.3,
-        predictions: 12890,
-        status: 'active',
-        confidence: 94.1,
-        lastTrained: '4h ago',
-      },
-      {
-        id: 'neural',
-        name: 'Neural Network',
-        accuracy: 91.8,
-        predictions: 11456,
-        status: 'active',
-        confidence: 93.7,
-        lastTrained: '1h ago',
-      },
-      {
-        id: 'lstm',
-        name: 'LSTM Predictor',
-        accuracy: 89.4,
-        predictions: 8066,
-        status: 'training',
-        confidence: 91.2,
-        lastTrained: '6h ago',
-      },
-    ];
-    setPredictiveModels(models);
-  }, []);
-
-  // Enhanced mock data generation with performance considerations
-  useEffect(() => {
-    const generateMockData = (count: number = 100): PropOpportunity[] => {
-      const players = ['LeBron James', 'Luka Dončić', 'Stephen Curry', 'Kevin Durant', 'Giannis Antetokounmpo'];
-      const teams = ['LAL', 'DAL', 'GSW', 'PHX', 'MIL'];
-      const markets = ['Points', 'Assists', 'Rebounds', 'Threes', 'Steals'];
-      
-      return Array.from({ length: count }, (_, i) => ({
-        id: `${i + 1}`,
-        player: players[i % players.length],
-        playerImage: '/api/placeholder/40/40',
-        team: teams[i % teams.length],
-        teamLogo: '/api/placeholder/24/24',
-        opponent: teams[(i + 1) % teams.length],
-        opponentLogo: '/api/placeholder/24/24',
-        sport: 'NBA' as const,
-        market: markets[i % markets.length],
-        line: 20 + Math.random() * 20,
-        pick: Math.random() > 0.5 ? 'over' as const : 'under' as const,
-        odds: -120 + Math.random() * 40,
-        impliedProbability: 45 + Math.random() * 20,
-        aiProbability: 60 + Math.random() * 30,
-        edge: Math.random() * 30,
-        confidence: 80 + Math.random() * 20,
-        projectedValue: 20 + Math.random() * 20,
-        volume: Math.floor(Math.random() * 1000),
-        trend: ['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as any,
-        trendStrength: Math.floor(Math.random() * 100),
-        timeToGame: `${Math.floor(Math.random() * 8)}h ${Math.floor(Math.random() * 60)}m`,
-        venue: Math.random() > 0.5 ? 'home' as const : 'away' as const,
-        weather: 'Clear',
-        injuries: [],
-        recentForm: Array.from({ length: 5 }, () => Math.floor(Math.random() * 40)),
-        matchupHistory: { 
-          games: Math.floor(Math.random() * 20), 
-          average: 20 + Math.random() * 20, 
-          hitRate: Math.floor(Math.random() * 100) 
-        },
-        lineMovement: { 
-          open: 20 + Math.random() * 10, 
-          current: 20 + Math.random() * 10, 
-          direction: ['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as any,
-          steam: Math.random() > 0.7,
-          sharpAction: Math.floor(Math.random() * 100)
-        },
-        bookmakers: [
-          { name: 'DraftKings', odds: -110, line: 25.5, volume: 234, lastUpdate: '1m ago' },
-          { name: 'FanDuel', odds: -105, line: 25.5, volume: 189, lastUpdate: '2m ago' },
-        ],
-        isBookmarked: Math.random() > 0.8,
-        tags: ['AI Pick', 'High Value'],
-        socialSentiment: Math.floor(Math.random() * 100),
-        sharpMoney: ['heavy', 'moderate', 'light', 'public'][Math.floor(Math.random() * 4)] as any,
-        aiModels: {
-          ensemble: 85 + Math.random() * 15,
-          xgboost: 80 + Math.random() * 20,
-          neuralNet: 80 + Math.random() * 20,
-          lstm: 75 + Math.random() * 25,
-          consensus: 80 + Math.random() * 20,
-        },
-        marketEfficiency: Math.random() * 100,
-        volatility: Math.random() * 50,
-        momentum: Math.random() * 100,
-        streakData: {
-          current: Math.floor(Math.random() * 10),
-          direction: Math.random() > 0.5 ? 'over' as const : 'under' as const,
-          significance: Math.random() * 100,
-        },
-        advancedMetrics: {
-          kellyCriterion: Math.random() * 20,
-          expectedValue: Math.random() * 30,
-          riskAdjustedReturn: Math.random() * 25,
-          sharpeRatio: Math.random() * 5,
-        },
-        dataQuality: {
-          score: 85 + Math.random() * 15,
-          sources: Math.floor(Math.random() * 10) + 3,
-          freshness: 90 + Math.random() * 10,
-          reliability: 85 + Math.random() * 15,
-        },
-        realTimeUpdates: {
-          lastUpdate: new Date().toISOString(),
-          frequency: Math.floor(Math.random() * 10) + 1,
-          isLive: Math.random() > 0.3,
-        },
-      }));
+    odds: {
+      over: number;
+      under: number;
     };
+    book: string;
+    confidence: number;
+    expectedValue: number;
+    kellySize: number;
+  };
+  quantumAI: {
+    superposition: number;
+    entanglement: number;
+    interference: number;
+    coherence: number;
+    prediction: number;
+    modelEnsemble: {
+      xgboost: number;
+      neuralNet: number;
+      lstm: number;
+      randomForest: number;
+      consensus: number;
+    };
+    riskFactors: string[];
+    confidence: number;
+  };
+  matchup: {
+    opponent: string;
+    venue: string;
+    weather?: string;
+    pace: number;
+    totalPace: number;
+  };
+  trends: {
+    l5: number;
+    l10: number;
+    l15: number;
+    l20: number;
+    l25: number;
+    vs_opponent: number;
+    home_away: number;
+  };
+  analytics: {
+    usage_rate: number;
+    pace_adjusted: number;
+    ceiling: number;
+    floor: number;
+    consistency: number;
+  };
+}
 
-    setOpportunities(generateMockData(performanceConfig.maxVisibleItems));
-  }, [performanceConfig.maxVisibleItems]);
+interface VirtualizedFilterState {
+  sport: string;
+  propType: string;
+  confidence: number;
+  expectedValue: number;
+  books: string[];
+  quantumThreshold: number;
+  showTopOnly: boolean;
+  batchSize: number;
+}
 
-  // Optimized real-time data simulation with debouncing
-  useEffect(() => {
-    if (!autoRefresh) return;
+interface PerformanceMetrics {
+  renderTime: number;
+  itemsRendered: number;
+  virtualItemsCount: number;
+  cacheHitRate: number;
+  memoryUsage: number;
+}
 
-    const interval = setInterval(() => {
-      if (performanceConfig.enableMemoryOptimization) {
-        setOpportunities(prev => {
-          const updatedOpps = prev.slice(0, performanceConfig.maxVisibleItems).map(opp => ({
-            ...opp,
-            confidence: Math.min(Math.max(opp.confidence + (Math.random() - 0.5) * 2, 80), 99),
-            edge: Math.max(opp.edge + (Math.random() - 0.5) * 1, 0),
-            volume: opp.volume + Math.floor(Math.random() * 50),
-            realTimeUpdates: {
-              ...opp.realTimeUpdates,
-              lastUpdate: new Date().toISOString(),
-            },
-          }));
-          return updatedOpps;
-        });
-      } else {
-        setOpportunities(prev => prev.map(opp => ({
-          ...opp,
-          confidence: Math.min(Math.max(opp.confidence + (Math.random() - 0.5) * 2, 80), 99),
-          edge: Math.max(opp.edge + (Math.random() - 0.5) * 1, 0),
-          volume: opp.volume + Math.floor(Math.random() * 50),
-          realTimeUpdates: {
-            ...opp.realTimeUpdates,
-            lastUpdate: new Date().toISOString(),
+const OptimizedPropFinderKillerDashboard: React.FC = () => {
+  // React 19 concurrent features
+  const [isPending, startTransition] = useTransition();
+  const [allProps, setAllProps] = useState<OptimizedPlayerProp[]>([]);
+  const [filteredProps, setFilteredProps] = useState<OptimizedPlayerProp[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearchTerm = useDeferredValue(searchTerm);
+  const [filters, setFilters] = useState<VirtualizedFilterState>({
+    sport: 'all',
+    propType: 'all',
+    confidence: 0,
+    expectedValue: 0,
+    books: [],
+    quantumThreshold: 0.5,
+    showTopOnly: false,
+    batchSize: 100
+  });
+  
+  // Virtual scrolling state
+  const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null);
+  const [selectedProp, setSelectedProp] = useState<OptimizedPlayerProp | null>(null);
+  const [performanceMetrics, setPerformanceMetrics] = useState<PerformanceMetrics>({
+    renderTime: 0,
+    itemsRendered: 0,
+    virtualItemsCount: 0,
+    cacheHitRate: 0,
+    memoryUsage: 0
+  });
+
+  // Advanced state management
+  const [sortBy, setSortBy] = useState<'confidence' | 'ev' | 'quantum' | 'kelly'>('confidence');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [quantumAnalysisActive, setQuantumAnalysisActive] = useState(true);
+  const [realTimeData, setRealTimeData] = useState(true);
+  const [virtualScrollEnabled, setVirtualScrollEnabled] = useState(true);
+  const [showPerformancePanel, setShowPerformancePanel] = useState(false);
+
+  // Generate massive dataset for performance testing
+  const generateMassiveDataset = useCallback((count: number = 10000): OptimizedPlayerProp[] => {
+    const players = [
+      'Mookie Betts', 'Shohei Ohtani', 'Ronald Acuña Jr.', 'Juan Soto', 'Aaron Judge',
+      'Mike Trout', 'Fernando Tatis Jr.', 'Vladimir Guerrero Jr.', 'Bo Bichette', 'Jose Altuve',
+      'Francisco Lindor', 'Trea Turner', 'Manny Machado', 'Freddie Freeman', 'Paul Goldschmidt',
+      'Pete Alonso', 'Kyle Tucker', 'George Springer', 'Rafael Devers', 'Jose Ramirez',
+      'Yordan Alvarez', 'Salvador Perez', 'Tim Anderson', 'Carlos Correa', 'Xander Bogaerts',
+      'Gleyber Torres', 'Anthony Rizzo', 'Matt Olson', 'Austin Riley', 'Ozzie Albies'
+    ];
+
+    const teams = ['LAD', 'LAA', 'ATL', 'SD', 'NYY', 'TOR', 'HOU', 'NYM', 'BOS', 'CLE', 'MIA', 'MIL', 'PHI', 'CHC', 'STL'];
+    const positions = ['OF', 'DH', 'SS', '1B', '2B', '3B', 'C', 'P'];
+    const propTypes = ['Hits', 'RBIs', 'Runs', 'Home Runs', 'Strikeouts', 'Total Bases', 'Stolen Bases', 'Doubles'];
+    const books = ['DraftKings', 'FanDuel', 'BetMGM', 'Caesars', 'BetRivers', 'PointsBet', 'WynnBet', 'Barstool'];
+
+    return Array.from({ length: count }, (_, i) => {
+      const player = players[Math.floor(Math.random() * players.length)];
+      const team = teams[Math.floor(Math.random() * teams.length)];
+      const position = positions[Math.floor(Math.random() * positions.length)];
+      const propType = propTypes[Math.floor(Math.random() * propTypes.length)];
+      const line = Math.random() * 5 + 0.5;
+      const overOdds = -110 + Math.random() * 40 - 20;
+      const underOdds = -110 + Math.random() * 40 - 20;
+      
+      // Quantum AI simulation with more realistic distributions
+      const superposition = Math.random();
+      const entanglement = Math.random() * 0.8 + 0.1;
+      const interference = Math.random() * 0.6 + 0.2;
+      const coherence = Math.random() * 0.9 + 0.1;
+
+      // Model ensemble predictions
+      const xgboost = Math.random() * 0.4 + 0.3;
+      const neuralNet = Math.random() * 0.4 + 0.3;
+      const lstm = Math.random() * 0.4 + 0.3;
+      const randomForest = Math.random() * 0.4 + 0.3;
+      const consensus = (xgboost + neuralNet + lstm + randomForest) / 4;
+
+      const confidence = consensus * coherence * 100;
+      const expectedValue = (Math.random() - 0.5) * 20;
+      const kellySize = Math.max(0, expectedValue / 100) * 0.1;
+
+      return {
+        id: `prop-${i}`,
+        player: {
+          name: player,
+          team: team,
+          position: position,
+          fantasyPoints: Math.random() * 25 + 5,
+          injuryStatus: Math.random() > 0.95 ? 'Questionable' : 'Healthy'
+        },
+        prop: {
+          type: propType,
+          line: Math.round(line * 10) / 10,
+          odds: {
+            over: Math.round(overOdds),
+            under: Math.round(underOdds)
           },
-        })));
-      }
-    }, 5000);
+          book: books[Math.floor(Math.random() * books.length)],
+          confidence: Math.round(confidence * 10) / 10,
+          expectedValue: Math.round(expectedValue * 100) / 100,
+          kellySize: Math.round(kellySize * 1000) / 1000
+        },
+        quantumAI: {
+          superposition,
+          entanglement,
+          interference,
+          coherence,
+          prediction: consensus,
+          modelEnsemble: {
+            xgboost,
+            neuralNet,
+            lstm,
+            randomForest,
+            consensus
+          },
+          riskFactors: ['Weather', 'Opponent Strength', 'Rest Days', 'Venue'].filter(() => Math.random() > 0.8),
+          confidence: confidence
+        },
+        matchup: {
+          opponent: teams[Math.floor(Math.random() * teams.length)],
+          venue: Math.random() > 0.5 ? 'Home' : 'Away',
+          weather: Math.random() > 0.8 ? 'Rain' : 'Clear',
+          pace: Math.random() * 15 + 90,
+          totalPace: Math.random() * 25 + 85
+        },
+        trends: {
+          l5: Math.random() * 3 + 0.5,
+          l10: Math.random() * 3 + 0.5,
+          l15: Math.random() * 3 + 0.5,
+          l20: Math.random() * 3 + 0.5,
+          l25: Math.random() * 3 + 0.5,
+          vs_opponent: Math.random() * 3 + 0.5,
+          home_away: Math.random() * 3 + 0.5
+        },
+        analytics: {
+          usage_rate: Math.random() * 35 + 10,
+          pace_adjusted: Math.random() * 8 + 18,
+          ceiling: Math.random() * 15 + 25,
+          floor: Math.random() * 8 + 2,
+          consistency: Math.random() * 40 + 60
+        }
+      };
+    });
+  }, []);
 
-    return () => clearInterval(interval);
-  }, [autoRefresh, performanceConfig.enableMemoryOptimization, performanceConfig.maxVisibleItems]);
+  // Memoized filtering and sorting with React 19 optimizations
+  const processedProps = useMemo(() => {
+    const startTime = performance.now();
+    
+    let filtered = allProps.filter(prop => {
+      const matchesSearch = prop.player.name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+                           prop.prop.type.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+                           prop.player.team.toLowerCase().includes(deferredSearchTerm.toLowerCase());
 
-  // Enhanced filtering with AI model selection and performance optimizations
-  const filteredAndSortedOpportunities = useMemo(() => {
-    let filtered = opportunities.filter(opp => {
-      if (filters.sport.length && !filters.sport.includes(opp.sport)) return false;
-      if (filters.confidence[0] > opp.confidence || filters.confidence[1] < opp.confidence) return false;
-      if (filters.edge[0] > opp.edge || filters.edge[1] < opp.edge) return false;
-      if (filters.market.length && !filters.market.includes(opp.market)) return false;
-      if (filters.venue.length && !filters.venue.includes(opp.venue)) return false;
-      if (filters.sharpMoney.length && !filters.sharpMoney.includes(opp.sharpMoney)) return false;
-      if (filters.showBookmarked && !opp.isBookmarked) return false;
-      if (opp.dataQuality.score < filters.dataQualityMin) return false;
-      if (opp.volatility > filters.volatilityMax) return false;
-      
-      // Search query filter with performance optimization
-      if (deferredSearchQuery) {
-        const query = deferredSearchQuery.toLowerCase();
-        if (!opp.player.toLowerCase().includes(query) && 
-            !opp.team.toLowerCase().includes(query) &&
-            !opp.market.toLowerCase().includes(query)) return false;
-      }
-      
-      return true;
+      const matchesConfidence = prop.prop.confidence >= filters.confidence;
+      const matchesEV = prop.prop.expectedValue >= filters.expectedValue;
+      const matchesQuantum = prop.quantumAI.coherence >= filters.quantumThreshold;
+
+      return matchesSearch && matchesConfidence && matchesEV && matchesQuantum;
     });
 
-    // Enhanced sorting with AI model consideration
+    // Advanced sorting
     filtered.sort((a, b) => {
       let aValue: number, bValue: number;
       
-      switch (filters.sortBy) {
+      switch (sortBy) {
         case 'confidence':
-          aValue = filters.aiModel === 'ensemble' ? a.aiModels.ensemble : a.confidence;
-          bValue = filters.aiModel === 'ensemble' ? b.aiModels.ensemble : b.confidence;
+          aValue = a.prop.confidence;
+          bValue = b.prop.confidence;
           break;
-        case 'edge':
-          aValue = a.edge;
-          bValue = b.edge;
+        case 'ev':
+          aValue = a.prop.expectedValue;
+          bValue = b.prop.expectedValue;
+          break;
+        case 'quantum':
+          aValue = a.quantumAI.coherence;
+          bValue = b.quantumAI.coherence;
           break;
         case 'kelly':
-          aValue = a.advancedMetrics.kellyCriterion;
-          bValue = b.advancedMetrics.kellyCriterion;
-          break;
-        case 'expectedValue':
-          aValue = a.advancedMetrics.expectedValue;
-          bValue = b.advancedMetrics.expectedValue;
-          break;
-        case 'volume':
-          aValue = a.volume;
-          bValue = b.volume;
+          aValue = a.prop.kellySize;
+          bValue = b.prop.kellySize;
           break;
         default:
-          aValue = a.confidence;
-          bValue = b.confidence;
+          aValue = a.prop.confidence;
+          bValue = b.prop.confidence;
       }
-      
-      return filters.sortOrder === 'desc' ? bValue - aValue : aValue - bValue;
+
+      return sortDirection === 'desc' ? bValue - aValue : aValue - bValue;
     });
+
+    if (filters.showTopOnly) {
+      filtered = filtered.slice(0, 100);
+    }
+
+    const renderTime = performance.now() - startTime;
+    setPerformanceMetrics(prev => ({
+      ...prev,
+      renderTime,
+      itemsRendered: filtered.length
+    }));
 
     return filtered;
-  }, [opportunities, filters, deferredSearchQuery]);
+  }, [allProps, deferredSearchTerm, filters, sortBy, sortDirection]);
 
-  // Update filtered opportunities with transition
+  // Virtual scrolling setup
+  const virtualizer = useVirtualizer({
+    count: virtualScrollEnabled ? processedProps.length : Math.min(processedProps.length, 50),
+    getScrollElement: () => containerRef,
+    estimateSize: () => 320,
+    overscan: 10,
+    enableSmoothScroll: true
+  });
+
+  // Update virtualized metrics
   useEffect(() => {
-    startTransitionLocal(() => {
-      setFilteredOpportunities(filteredAndSortedOpportunities);
+    setPerformanceMetrics(prev => ({
+      ...prev,
+      virtualItemsCount: virtualizer.getVirtualItems().length,
+      memoryUsage: (performance as any).memory?.usedJSHeapSize || 0
+    }));
+  }, [virtualizer.getVirtualItems().length]);
+
+  // Initialize massive dataset
+  useEffect(() => {
+    startTransition(() => {
+      const props = generateMassiveDataset(10000);
+      setAllProps(props);
+      setFilteredProps(props);
     });
-  }, [filteredAndSortedOpportunities]);
+  }, [generateMassiveDataset]);
+
+  // Update filtered props with concurrent features
+  useEffect(() => {
+    startTransition(() => {
+      setFilteredProps(processedProps);
+    });
+  }, [processedProps]);
+
+  // Real-time data updates with batching
+  useEffect(() => {
+    if (!realTimeData) return;
+
+    const interval = setInterval(() => {
+      startTransition(() => {
+        setAllProps(prevProps => 
+          prevProps.map(prop => ({
+            ...prop,
+            prop: {
+              ...prop.prop,
+              confidence: Math.max(0, Math.min(100, prop.prop.confidence + (Math.random() - 0.5) * 1))
+            },
+            quantumAI: {
+              ...prop.quantumAI,
+              coherence: Math.max(0, Math.min(1, prop.quantumAI.coherence + (Math.random() - 0.5) * 0.05))
+            }
+          }))
+        );
+      });
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [realTimeData]);
+
+  // Memoized components for performance
+  const QuantumIndicator = React.memo<{ quantum: OptimizedPlayerProp['quantumAI'] }>(({ quantum }) => (
+    <div className="flex items-center space-x-1">
+      <div className="w-2 h-2 rounded-full bg-purple-500" 
+           style={{ opacity: quantum.superposition }} />
+      <div className="w-2 h-2 rounded-full bg-blue-500" 
+           style={{ opacity: quantum.entanglement }} />
+      <div className="w-2 h-2 rounded-full bg-green-500" 
+           style={{ opacity: quantum.interference }} />
+      <div className="w-2 h-2 rounded-full bg-yellow-500" 
+           style={{ opacity: quantum.coherence }} />
+    </div>
+  ));
+
+  const ConfidenceBar = React.memo<{ confidence: number; quantum?: boolean }>(({ confidence, quantum = false }) => (
+    <div className="w-full bg-gray-200 rounded-full h-2">
+      <div
+        className={`h-2 rounded-full transition-all duration-300 ${
+          quantum ? 'bg-gradient-to-r from-purple-500 to-blue-500' : 
+          confidence >= 80 ? 'bg-green-500' :
+          confidence >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+        }`}
+        style={{ width: `${Math.min(100, Math.max(0, confidence))}%` }}
+      />
+    </div>
+  ));
+
+  const PropCard = React.memo<{ prop: OptimizedPlayerProp; index: number }>(({ prop, index }) => (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.01 }}
+      className="bg-gray-800/60 rounded-xl p-6 border border-gray-700 hover:border-purple-500 transition-all cursor-pointer backdrop-blur-sm h-80"
+      onClick={() => setSelectedProp(prop)}
+    >
+      {/* Player Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+            <User className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <div className="font-semibold text-sm">{prop.player.name}</div>
+            <div className="text-xs text-gray-400">{prop.player.team} • {prop.player.position}</div>
+          </div>
+        </div>
+        {quantumAnalysisActive && <QuantumIndicator quantum={prop.quantumAI} />}
+      </div>
+
+      {/* Prop Details */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-lg font-semibold">{prop.prop.type}</span>
+          <span className="text-2xl font-bold text-purple-400">{prop.prop.line}</span>
+        </div>
+        <div className="flex items-center justify-between text-sm text-gray-400">
+          <span>vs {prop.matchup.opponent}</span>
+          <span>{prop.prop.book}</span>
+        </div>
+      </div>
+
+      {/* Odds */}
+      <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="bg-green-600/20 border border-green-500/30 rounded-lg p-2 text-center">
+          <div className="text-xs text-green-400">OVER</div>
+          <div className="font-semibold text-sm">{prop.prop.odds.over > 0 ? '+' : ''}{prop.prop.odds.over}</div>
+        </div>
+        <div className="bg-red-600/20 border border-red-500/30 rounded-lg p-2 text-center">
+          <div className="text-xs text-red-400">UNDER</div>
+          <div className="font-semibold text-sm">{prop.prop.odds.under > 0 ? '+' : ''}{prop.prop.odds.under}</div>
+        </div>
+      </div>
+
+      {/* Confidence and EV */}
+      <div className="space-y-3">
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm text-gray-400">
+              {quantumAnalysisActive ? 'Quantum' : 'Confidence'}
+            </span>
+            <span className="text-sm font-semibold">{prop.prop.confidence.toFixed(1)}%</span>
+          </div>
+          <ConfidenceBar confidence={prop.prop.confidence} quantum={quantumAnalysisActive} />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-1">
+            <TrendingUp className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-400">EV</span>
+          </div>
+          <span className={`text-sm font-semibold ${prop.prop.expectedValue >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            {prop.prop.expectedValue >= 0 ? '+' : ''}{prop.prop.expectedValue.toFixed(2)}%
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-1">
+            <DollarSign className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-400">Kelly</span>
+          </div>
+          <span className="text-sm font-semibold text-purple-400">
+            {(prop.prop.kellySize * 100).toFixed(1)}%
+          </span>
+        </div>
+      </div>
+
+      {/* Risk Factors */}
+      {prop.quantumAI.riskFactors.length > 0 && (
+        <div className="mt-3 flex items-center space-x-2">
+          <AlertTriangle className="w-4 h-4 text-yellow-400" />
+          <div className="flex flex-wrap gap-1">
+            {prop.quantumAI.riskFactors.slice(0, 2).map((risk, index) => (
+              <span key={index} className="text-xs bg-yellow-600/20 text-yellow-400 px-2 py-1 rounded">
+                {risk}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </motion.div>
+  ));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
-      {/* Enhanced Header with Real-time Status */}
-      <div className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-lg border-b border-slate-700">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white">
+      {/* Header with Performance Metrics */}
+      <div className="border-b border-gray-800 bg-black/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                PropFinder Killer Pro
-              </h1>
-              <p className="text-gray-400 text-sm">
-                Optimized AI-Enhanced Prop Research • {filteredOpportunities.length} Opportunities • {viewMode.toUpperCase()} Mode
-              </p>
-            </div>
-
-            {/* Real-time Status Indicators */}
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${realTimeConnected ? 'bg-green-400' : 'bg-red-400'} animate-pulse`} />
-                <span className="text-sm text-gray-400">
-                  {realTimeConnected ? 'Live' : 'Offline'}
-                </span>
+                <Layers className="w-8 h-8 text-purple-500" />
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                  Optimized PropFinder Killer
+                </h1>
+                {isPending && (
+                  <div className="flex items-center space-x-1 text-blue-400">
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">Processing</span>
+                  </div>
+                )}
               </div>
               
               <div className="flex items-center space-x-2">
-                <Gauge className="w-4 h-4 text-cyan-400" />
-                <span className="text-sm text-white font-medium">{systemHealth}%</span>
-                <span className="text-xs text-gray-400">Health</span>
+                <button
+                  onClick={() => setQuantumAnalysisActive(!quantumAnalysisActive)}
+                  className={`p-2 rounded-lg transition-all ${
+                    quantumAnalysisActive ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'
+                  }`}
+                >
+                  <Brain className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setVirtualScrollEnabled(!virtualScrollEnabled)}
+                  className={`p-2 rounded-lg transition-all ${
+                    virtualScrollEnabled ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300'
+                  }`}
+                >
+                  <Database className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setShowPerformancePanel(!showPerformancePanel)}
+                  className={`p-2 rounded-lg transition-all ${
+                    showPerformancePanel ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'
+                  }`}
+                >
+                  <BarChart3 className="w-4 h-4" />
+                </button>
               </div>
+            </div>
 
-              <div className="flex items-center space-x-2">
-                <Cpu className="w-4 h-4 text-purple-400" />
-                <span className="text-sm text-white font-medium">
-                  {performanceConfig.enableVirtualization ? 'Virtualized' : 'Standard'}
-                </span>
+            <div className="flex items-center space-x-4 text-sm">
+              <div className="flex items-center space-x-1 text-green-400">
+                <CheckCircle className="w-4 h-4" />
+                <span>{processedProps.length.toLocaleString()} Props</span>
               </div>
-
-              <button
-                onClick={() => setAutoRefresh(!autoRefresh)}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all ${
-                  autoRefresh
-                    ? 'bg-green-500/20 text-green-400'
-                    : 'bg-slate-700 text-gray-400 hover:bg-slate-600'
-                }`}
-              >
-                {autoRefresh ? <Radio className="w-4 h-4" /> : <PauseCircle className="w-4 h-4" />}
-                <span className="text-sm">{autoRefresh ? 'Live' : 'Paused'}</span>
-              </button>
+              {virtualScrollEnabled && (
+                <div className="flex items-center space-x-1 text-purple-400">
+                  <Layers className="w-4 h-4" />
+                  <span>Virtual: {virtualizer.getVirtualItems().length}</span>
+                </div>
+              )}
+              <div className="flex items-center space-x-1 text-blue-400">
+                <Clock className="w-4 h-4" />
+                <span>{performanceMetrics.renderTime.toFixed(1)}ms</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        {/* Data Feeds Monitor with Performance Metrics */}
-        <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl border border-slate-700/50 p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-white">Data Feeds & AI Models</h3>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-400">
-                {dataFeeds.filter(f => f.status === 'connected').length}/{dataFeeds.length} feeds active
-              </span>
-              <div className="flex items-center space-x-2 text-sm">
-                <span className="text-gray-400">Mode:</span>
-                <select
-                  value={viewMode}
-                  onChange={(e) => setViewMode(e.target.value as any)}
-                  className="px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white text-sm"
-                >
-                  <option value="virtualized">Virtualized</option>
-                  <option value="grid">Grid</option>
-                  <option value="list">List</option>
-                  <option value="compact">Compact</option>
-                </select>
+      {/* Performance Panel */}
+      <AnimatePresence>
+        {showPerformancePanel && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="bg-gray-900/90 border-b border-gray-700"
+          >
+            <div className="max-w-7xl mx-auto px-4 py-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-sm">
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <div className="text-gray-400">Render Time</div>
+                  <div className="text-lg font-semibold text-green-400">{performanceMetrics.renderTime.toFixed(1)}ms</div>
+                </div>
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <div className="text-gray-400">Items Rendered</div>
+                  <div className="text-lg font-semibold text-blue-400">{performanceMetrics.itemsRendered.toLocaleString()}</div>
+                </div>
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <div className="text-gray-400">Virtual Items</div>
+                  <div className="text-lg font-semibold text-purple-400">{performanceMetrics.virtualItemsCount}</div>
+                </div>
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <div className="text-gray-400">Total Dataset</div>
+                  <div className="text-lg font-semibold text-yellow-400">{allProps.length.toLocaleString()}</div>
+                </div>
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <div className="text-gray-400">Memory Usage</div>
+                  <div className="text-lg font-semibold text-orange-400">
+                    {(performanceMetrics.memoryUsage / 1024 / 1024).toFixed(1)}MB
+                  </div>
+                </div>
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <div className="text-gray-400">Virtual Mode</div>
+                  <div className={`text-lg font-semibold ${virtualScrollEnabled ? 'text-green-400' : 'text-red-400'}`}>
+                    {virtualScrollEnabled ? 'ON' : 'OFF'}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-            {dataFeeds.map(feed => (
-              <div key={feed.id} className="bg-slate-700/30 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-white">{feed.name}</span>
-                  {getFeedStatusIcon(feed.status)}
-                </div>
-                <div className="text-xs text-gray-400 space-y-1">
-                  <div>Latency: {feed.latency}ms</div>
-                  <div>Updates: {feed.updates.toLocaleString()}</div>
-                  <div>Reliability: {feed.reliability}%</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* AI Models Status */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {predictiveModels.map(model => (
-              <div key={model.id} className="bg-slate-700/30 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-white">{model.name}</span>
-                  <div className={`w-2 h-2 rounded-full ${
-                    model.status === 'active' ? 'bg-green-400' :
-                    model.status === 'training' ? 'bg-yellow-400' : 'bg-red-400'
-                  }`} />
-                </div>
-                <div className="text-xs text-gray-400 space-y-1">
-                  <div>Accuracy: {model.accuracy}%</div>
-                  <div>Predictions: {model.predictions.toLocaleString()}</div>
-                  <div>Confidence: {model.confidence}%</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Enhanced Controls */}
-        <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl border border-slate-700/50 p-6 mb-6">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between space-y-4 lg:space-y-0">
-            <div className="flex items-center space-x-4 flex-1">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+      {/* Search and Filters */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur-sm border border-gray-700">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-4">
+            {/* Search */}
+            <div className="lg:col-span-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
-                  placeholder="Search players, teams, markets..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
+                  placeholder="Search 10,000+ props..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400"
                 />
               </div>
+            </div>
 
+            {/* Sort */}
+            <div>
               <select
-                value={filters.aiModel}
-                onChange={(e) => setFilters(prev => ({ ...prev, aiModel: e.target.value }))}
-                className="px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:border-purple-400"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 text-white"
               >
-                <option value="ensemble">Ensemble Model</option>
-                <option value="xgboost">XGBoost</option>
-                <option value="neural">Neural Network</option>
-                <option value="lstm">LSTM</option>
+                <option value="confidence">Confidence</option>
+                <option value="ev">Expected Value</option>
+                <option value="quantum">Quantum Score</option>
+                <option value="kelly">Kelly Size</option>
               </select>
             </div>
 
-            <div className="flex items-center space-x-3">
+            {/* Quantum Threshold */}
+            <div>
+              <div className="mb-1">
+                <label className="block text-sm text-gray-400">
+                  Quantum: {(filters.quantumThreshold * 100).toFixed(0)}%
+                </label>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={filters.quantumThreshold}
+                onChange={(e) => setFilters({...filters, quantumThreshold: Number(e.target.value)})}
+                className="w-full"
+              />
+            </div>
+
+            {/* Performance Toggle */}
+            <div>
               <button
-                onClick={() => setFiltersOpen(!filtersOpen)}
-                className={`flex items-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all ${
-                  filtersOpen 
-                    ? 'bg-cyan-500 text-white' 
-                    : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                onClick={() => setFilters({...filters, showTopOnly: !filters.showTopOnly})}
+                className={`w-full p-3 rounded-lg transition-all ${
+                  filters.showTopOnly ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300'
                 }`}
               >
-                <Filter className="w-4 h-4" />
-                <span>Filters</span>
+                {filters.showTopOnly ? 'Top 100' : 'All Props'}
               </button>
-
-              <select
-                value={filters.sortBy}
-                onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value as any }))}
-                className="px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:border-cyan-400"
-              >
-                <option value="confidence">Confidence</option>
-                <option value="edge">Edge</option>
-                <option value="kelly">Kelly %</option>
-                <option value="expectedValue">Expected Value</option>
-                <option value="volume">Volume</option>
-              </select>
             </div>
           </div>
 
-          {/* Enhanced Filters Panel */}
-          <AnimatePresence>
-            {filtersOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-6 pt-6 border-t border-slate-700"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">
-                      Data Quality (min)
-                    </label>
-                    <input
-                      type="range"
-                      min="80"
-                      max="100"
-                      value={filters.dataQualityMin}
-                      onChange={(e) => setFilters(prev => ({ ...prev, dataQualityMin: parseInt(e.target.value) }))}
-                      className="w-full"
-                    />
-                    <div className="text-center text-cyan-400 text-sm font-medium mt-1">
-                      {filters.dataQualityMin}%
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">
-                      Max Volatility
-                    </label>
-                    <input
-                      type="range"
-                      min="10"
-                      max="50"
-                      value={filters.volatilityMax}
-                      onChange={(e) => setFilters(prev => ({ ...prev, volatilityMax: parseInt(e.target.value) }))}
-                      className="w-full"
-                    />
-                    <div className="text-center text-purple-400 text-sm font-medium mt-1">
-                      {filters.volatilityMax}%
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">
-                      Confidence Range
-                    </label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="number"
-                        value={filters.confidence[0]}
-                        onChange={(e) => setFilters(prev => ({ 
-                          ...prev, 
-                          confidence: [parseInt(e.target.value) || 0, prev.confidence[1]] 
-                        }))}
-                        className="w-20 px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white text-sm"
-                        min="0"
-                        max="100"
-                      />
-                      <span className="text-gray-400">to</span>
-                      <input
-                        type="number"
-                        value={filters.confidence[1]}
-                        onChange={(e) => setFilters(prev => ({ 
-                          ...prev, 
-                          confidence: [prev.confidence[0], parseInt(e.target.value) || 100] 
-                        }))}
-                        className="w-20 px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white text-sm"
-                        min="0"
-                        max="100"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">
-                      Sharp Money
-                    </label>
-                    <select
-                      multiple
-                      value={filters.sharpMoney}
-                      onChange={(e) => setFilters(prev => ({ 
-                        ...prev, 
-                        sharpMoney: Array.from(e.target.selectedOptions, option => option.value)
-                      }))}
-                      className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white"
-                    >
-                      <option value="heavy">Heavy</option>
-                      <option value="moderate">Moderate</option>
-                      <option value="light">Light</option>
-                      <option value="public">Public</option>
-                    </select>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Optimized Opportunity Display */}
-        <div className="space-y-6">
-          {isPending && (
-            <div className="text-center py-8">
-              <div className="inline-flex items-center space-x-2 text-cyan-400">
-                <RefreshCw className="w-5 h-5 animate-spin" />
-                <span>Updating opportunities...</span>
-              </div>
-            </div>
-          )}
-
-          {/* Virtualized View */}
-          {viewMode === 'virtualized' && filteredOpportunities.length > 0 && (
-            <div className="bg-slate-800/30 rounded-xl p-4">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-bold text-white">
-                  Virtualized Opportunities ({filteredOpportunities.length})
-                </h3>
-                <div className="text-sm text-gray-400">
-                  Performance Mode: {performanceConfig.enableVirtualization ? 'Enabled' : 'Disabled'}
-                </div>
-              </div>
-              <VirtualizedOpportunityList
-                opportunities={filteredOpportunities}
-                selectedOpp={selectedOpp}
-                onSelect={handleSelectOpportunity}
-                onBookmark={toggleBookmark}
-                filters={filters}
-                height={performanceConfig.virtualizedListHeight}
-                itemSize={performanceConfig.itemSize}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">
+                Min Confidence: {filters.confidence}%
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={filters.confidence}
+                onChange={(e) => setFilters({...filters, confidence: Number(e.target.value)})}
+                className="w-full"
               />
             </div>
-          )}
 
-          {/* Standard Grid View */}
-          {viewMode !== 'virtualized' && (
-            <LayoutGroup>
-              {filteredOpportunities.map((opp) => (
-                <OpportunityCard
-                  key={opp.id}
-                  opportunity={opp}
-                  isSelected={selectedOpp?.id === opp.id}
-                  onSelect={handleSelectOpportunity}
-                  onBookmark={toggleBookmark}
-                  filters={filters}
-                />
-              ))}
-            </LayoutGroup>
-          )}
-        </div>
-
-        {filteredOpportunities.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Target className="w-8 h-8 text-gray-400" />
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">
+                Min EV: {filters.expectedValue}%
+              </label>
+              <input
+                type="range"
+                min="-10"
+                max="20"
+                step="0.1"
+                value={filters.expectedValue}
+                onChange={(e) => setFilters({...filters, expectedValue: Number(e.target.value)})}
+                className="w-full"
+              />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">No opportunities found</h3>
-            <p className="text-gray-400">Try adjusting your filters or search criteria</p>
+
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">Sport</label>
+              <select
+                value={filters.sport}
+                onChange={(e) => setFilters({...filters, sport: e.target.value})}
+                className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
+              >
+                <option value="all">All Sports</option>
+                <option value="mlb">MLB</option>
+                <option value="nba">NBA</option>
+                <option value="nfl">NFL</option>
+                <option value="nhl">NHL</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Virtual Scrolling Container */}
+      <div className="max-w-7xl mx-auto px-4 pb-8">
+        {virtualScrollEnabled ? (
+          <div
+            ref={setContainerRef}
+            className="h-[800px] overflow-auto"
+            style={{ contain: 'strict' }}
+          >
+            <div
+              style={{
+                height: `${virtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+              }}
+            >
+              {virtualizer.getVirtualItems().map((virtualItem) => (
+                <div
+                  key={virtualItem.key}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${virtualItem.size}px`,
+                    transform: `translateY(${virtualItem.start}px)`,
+                  }}
+                >
+                  <div className="p-2">
+                    <PropCard prop={processedProps[virtualItem.index]} index={virtualItem.index} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {processedProps.slice(0, 50).map((prop, index) => (
+              <PropCard key={prop.id} prop={prop} index={index} />
+            ))}
           </div>
         )}
 
-        {/* Lazy Loaded Components */}
-        <div className="mt-12 space-y-8">
-          <Suspense fallback={
-            <div className="bg-slate-800/50 rounded-xl p-8 text-center">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-cyan-400" />
-              <p className="text-gray-400">Loading advanced features...</p>
+        {processedProps.length === 0 && (
+          <div className="text-center py-12">
+            <Search className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-400 mb-2">No props found</h3>
+            <p className="text-gray-500">Try adjusting your search terms or filters</p>
+          </div>
+        )}
+      </div>
+
+      {/* Performance Stats Footer */}
+      <div className="border-t border-gray-800 bg-black/30 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between text-xs text-gray-400">
+            <div className="flex items-center space-x-4">
+              <span>React 19 Concurrent Features Active</span>
+              <span>Virtual Scrolling: {virtualScrollEnabled ? 'Enabled' : 'Disabled'}</span>
+              <span>Render Time: {performanceMetrics.renderTime.toFixed(1)}ms</span>
             </div>
-          }>
-            <CommunityEngagement />
-          </Suspense>
+            <div className="flex items-center space-x-4">
+              <span>Dataset: {allProps.length.toLocaleString()} props</span>
+              <span>Visible: {virtualScrollEnabled ? virtualizer.getVirtualItems().length : Math.min(50, processedProps.length)}</span>
+              <span>Filtered: {processedProps.length.toLocaleString()}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
