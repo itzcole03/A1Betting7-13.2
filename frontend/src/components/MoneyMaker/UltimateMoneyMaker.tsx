@@ -540,7 +540,7 @@ const UltimateMoneyMaker: React.FC = () => {
                   </div>
                   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div
-                    className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getRiskColor(opportunity.risk)}`}
+                    className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${_getRiskColor(opportunity.risk)}`}
                   >
                     {opportunity.risk.toUpperCase()} RISK
                   </div>
