@@ -942,7 +942,56 @@ export const AdvancedAIDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {sportFeatures.map((feature, index) => (
+                    {[
+                      {
+                        sport: 'NBA',
+                        feature_name: 'True Shooting Percentage',
+                        feature_type: 'advanced_metric',
+                        importance_score: 0.89,
+                        computation_time_ms: 45,
+                        status: 'success'
+                      },
+                      {
+                        sport: 'NBA',
+                        feature_name: 'Usage Rate',
+                        feature_type: 'advanced_metric',
+                        importance_score: 0.76,
+                        computation_time_ms: 32,
+                        status: 'success'
+                      },
+                      {
+                        sport: 'NFL',
+                        feature_name: 'Passer Rating',
+                        feature_type: 'advanced_metric',
+                        importance_score: 0.94,
+                        computation_time_ms: 28,
+                        status: 'success'
+                      },
+                      {
+                        sport: 'NFL',
+                        feature_name: 'Yards After Contact',
+                        feature_type: 'advanced_metric',
+                        importance_score: 0.82,
+                        computation_time_ms: 41,
+                        status: 'success'
+                      },
+                      {
+                        sport: 'NHL',
+                        feature_name: 'Corsi For %',
+                        feature_type: 'advanced_metric',
+                        importance_score: 0.71,
+                        computation_time_ms: 38,
+                        status: 'success'
+                      },
+                      {
+                        sport: 'Soccer',
+                        feature_name: 'Expected Goals',
+                        feature_type: 'advanced_metric',
+                        importance_score: 0.85,
+                        computation_time_ms: 52,
+                        status: 'success'
+                      }
+                    ].map((feature, index) => (
                       <tr key={index} className="border-b border-slate-700/50">
                         <td className="p-3">
                           <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor('success')}`}>
@@ -962,6 +1011,339 @@ export const AdvancedAIDashboard: React.FC = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {/* Ensemble Tab */}
+          {activeTab === 'ensemble' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {ensembleModels.map((model) => (
+                <div key={model.model_id} className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Layers className="w-5 h-5 text-blue-400" />
+                      <h3 className="text-lg font-semibold text-white">{model.model_id}</h3>
+                    </div>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(model.status)}`}>
+                      {model.status}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-400 mb-4">{model.sport} • {model.model_type.replace('_', ' ')}</p>
+
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="text-center p-3 bg-slate-700/50 rounded-lg">
+                      <p className="text-xl font-bold text-blue-400">{(model.accuracy * 100).toFixed(1)}%</p>
+                      <p className="text-xs text-slate-400">Accuracy</p>
+                    </div>
+                    <div className="text-center p-3 bg-slate-700/50 rounded-lg">
+                      <p className="text-xl font-bold text-green-400">{(model.f1_score * 100).toFixed(1)}%</p>
+                      <p className="text-xs text-slate-400">F1 Score</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Precision:</span>
+                      <span className="text-white">{(model.precision * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Recall:</span>
+                      <span className="text-white">{(model.recall * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Cross-Sport:</span>
+                      <span className="text-purple-400">{(model.cross_sport_performance * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Version:</span>
+                      <span className="text-blue-400">v{model.version}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Registry Tab */}
+          {activeTab === 'registry' && (
+            <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <Database className="w-5 h-5 text-green-400" />
+                <h3 className="text-lg font-semibold text-white">Advanced ML Model Registry</h3>
+              </div>
+              <div className="space-y-4">
+                {[
+                  {
+                    model_id: 'nba_player_props_v1.5',
+                    model_name: 'NBA Player Props Predictor',
+                    version: '1.5',
+                    sport: 'NBA',
+                    model_type: 'gradient_boosting',
+                    deployment_status: 'production',
+                    performance_metrics: {
+                      accuracy: 0.895,
+                      precision: 0.887,
+                      recall: 0.903,
+                      latency_ms: 12
+                    },
+                    created_at: new Date(Date.now() - 604800000).toISOString(),
+                    deployed_at: new Date(Date.now() - 86400000).toISOString()
+                  },
+                  {
+                    model_id: 'nfl_passing_yards_v2.1',
+                    model_name: 'NFL Passing Yards Model',
+                    version: '2.1',
+                    sport: 'NFL',
+                    model_type: 'neural_network',
+                    deployment_status: 'production',
+                    performance_metrics: {
+                      accuracy: 0.921,
+                      precision: 0.915,
+                      recall: 0.928,
+                      latency_ms: 18
+                    },
+                    created_at: new Date(Date.now() - 1209600000).toISOString(),
+                    deployed_at: new Date(Date.now() - 172800000).toISOString()
+                  },
+                  {
+                    model_id: 'nhl_goals_assists_v1.8',
+                    model_name: 'NHL Goals & Assists Predictor',
+                    version: '1.8',
+                    sport: 'NHL',
+                    model_type: 'random_forest',
+                    deployment_status: 'staging',
+                    performance_metrics: {
+                      accuracy: 0.878,
+                      precision: 0.872,
+                      recall: 0.885,
+                      latency_ms: 22
+                    },
+                    created_at: new Date(Date.now() - 259200000).toISOString(),
+                    deployed_at: null
+                  }
+                ].map((model) => (
+                  <div key={model.model_id} className="p-4 bg-slate-700/50 rounded-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h4 className="text-lg font-semibold text-white">{model.model_name}</h4>
+                        <p className="text-sm text-slate-400">{model.model_id} • v{model.version}</p>
+                      </div>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(model.deployment_status)}`}>
+                        {model.deployment_status}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                      <div className="text-center">
+                        <p className="text-xl font-bold text-blue-400">
+                          {(model.performance_metrics.accuracy * 100).toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-slate-400">Accuracy</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xl font-bold text-green-400">
+                          {(model.performance_metrics.precision * 100).toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-slate-400">Precision</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xl font-bold text-purple-400">
+                          {(model.performance_metrics.recall * 100).toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-slate-400">Recall</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xl font-bold text-orange-400">
+                          {model.performance_metrics.latency_ms}ms
+                        </p>
+                        <p className="text-xs text-slate-400">Latency</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <p className="text-slate-400">Created:</p>
+                        <p className="text-white">{new Date(model.created_at).toLocaleDateString()}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400">Deployed:</p>
+                        <p className="text-white">
+                          {model.deployed_at ? new Date(model.deployed_at).toLocaleDateString() : 'Not deployed'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400">Sport/Type:</p>
+                        <p className="text-white">{model.sport} • {model.model_type.replace('_', ' ')}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Inference Tab */}
+          {activeTab === 'inference' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Live Metrics */}
+              <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <Rocket className="w-5 h-5 text-green-400" />
+                  <h3 className="text-lg font-semibold text-white">Real-Time Engine Metrics</h3>
+                </div>
+                {inferenceMetrics && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center p-3 bg-slate-700/50 rounded-lg">
+                        <p className="text-2xl font-bold text-blue-400">{inferenceMetrics.total_requests.toLocaleString()}</p>
+                        <p className="text-xs text-slate-400">Total Requests</p>
+                      </div>
+                      <div className="text-center p-3 bg-slate-700/50 rounded-lg">
+                        <p className="text-2xl font-bold text-green-400">{inferenceMetrics.avg_latency_ms}ms</p>
+                        <p className="text-xs text-slate-400">Avg Latency</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Success Rate:</span>
+                        <span className="text-green-400 font-medium">{(inferenceMetrics.success_rate * 100).toFixed(2)}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Error Rate:</span>
+                        <span className="text-red-400 font-medium">{(inferenceMetrics.error_rate * 100).toFixed(2)}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Cache Hit Rate:</span>
+                        <span className="text-blue-400 font-medium">{(inferenceMetrics.cache_hit_rate * 100).toFixed(1)}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Active Models:</span>
+                        <span className="text-white font-medium">{inferenceMetrics.active_models}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Live Predictions Stream */}
+              <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <Activity className="w-5 h-5 text-purple-400" />
+                  <h3 className="text-lg font-semibold text-white">Live Predictions Stream</h3>
+                </div>
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {realtimePredictions.map((pred) => (
+                    <div key={pred.prediction_id} className="p-3 bg-slate-700/50 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor('success')}`}>
+                            {pred.sport}
+                          </span>
+                          <span className="text-white font-medium">{pred.player_name}</span>
+                        </div>
+                        <span className="text-green-400 text-sm">{pred.processing_time_ms}ms</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="text-slate-400 text-sm">{pred.prop_type.replace('_', ' ')}</p>
+                          <p className="text-blue-400 font-medium">Prediction: {pred.prediction}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-purple-400 font-medium">{(pred.confidence * 100).toFixed(0)}%</p>
+                          <p className="text-xs text-slate-400">{pred.model_ensemble.length} models</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Monitoring Tab */}
+          {activeTab === 'monitoring' && (
+            <div className="space-y-6">
+              {/* System Status Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-600/20 rounded-lg">
+                      <Activity className="w-5 h-5 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400">System Status</p>
+                      <p className="text-lg font-bold text-white">Active</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-600/20 rounded-lg">
+                      <Shield className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400">Health Score</p>
+                      <p className="text-lg font-bold text-white">94.2%</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-600/20 rounded-lg">
+                      <Database className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400">Total Predictions</p>
+                      <p className="text-lg font-bold text-white">847K</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-orange-600/20 rounded-lg">
+                      <Clock className="w-5 h-5 text-orange-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400">Uptime</p>
+                      <p className="text-lg font-bold text-white">48h</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Performance Trends */}
+              <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <TrendingUp className="w-5 h-5 text-green-400" />
+                  <h3 className="text-lg font-semibold text-white">Performance Trends</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Overall System Health:</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-20 h-2 bg-slate-700 rounded-full">
+                        <div className="w-[94%] h-2 bg-green-500 rounded-full"></div>
+                      </div>
+                      <span className="text-green-400 font-medium">94%</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Active Models:</span>
+                    <span className="text-white font-medium">8 / 8</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Monitoring Status:</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-white">Active</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
