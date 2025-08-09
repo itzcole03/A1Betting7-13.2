@@ -369,6 +369,7 @@ export const AdvancedAIDashboard: React.FC = () => {
       const response = await fetch('/api/ai/monitoring/dashboard/overview');
       if (response.ok) {
         const data = await response.json();
+        setMonitoringOverview(data);
         // Update inference metrics with monitoring data
         setInferenceMetrics(prevMetrics => ({
           ...prevMetrics,
@@ -378,6 +379,35 @@ export const AdvancedAIDashboard: React.FC = () => {
       }
     } catch (err) {
       console.error('Failed to fetch monitoring overview:', err);
+    }
+  }, []);
+
+  // Fetch monitored models list
+  const fetchMonitoredModels = useCallback(async () => {
+    try {
+      const response = await fetch('/api/ai/monitoring/models');
+      if (response.ok) {
+        const data = await response.json();
+        setMonitoredModels(data.models || []);
+
+        // Fetch health status for each model
+        const healthPromises = data.models.map(async (model: any) => {
+          try {
+            const healthResponse = await fetch(`/api/ai/monitoring/models/${model.model_id}/health`);
+            if (healthResponse.ok) {
+              return await healthResponse.json();
+            }
+          } catch (err) {
+            console.error(`Failed to fetch health for ${model.model_id}:`, err);
+          }
+          return null;
+        });
+
+        const healthStatuses = await Promise.all(healthPromises);
+        setModelHealthStatuses(healthStatuses.filter(Boolean));
+      }
+    } catch (err) {
+      console.error('Failed to fetch monitored models:', err);
     }
   }, []);
 
