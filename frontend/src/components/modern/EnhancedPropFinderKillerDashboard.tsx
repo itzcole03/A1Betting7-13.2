@@ -114,7 +114,7 @@ const EnhancedPropFinderKillerDashboard: React.FC = () => {
   const [sortBy, setSortBy] = useState<'confidence' | 'ev' | 'quantum' | 'kelly'>('confidence');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [selectedProp, setSelectedProp] = useState<EnhancedPlayerProp | null>(null);
-  const [quantumAnalysisActive, setQuantumAnalysisActive] = useState(true);
+  const [advancedAnalysisActive, setAdvancedAnalysisActive] = useState(true);
   const [realTimeData, setRealTimeData] = useState(true);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
@@ -340,19 +340,19 @@ const EnhancedPropFinderKillerDashboard: React.FC = () => {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
                   PropFinder Killer
                 </h1>
-                {quantumAnalysisActive && (
+                {advancedAnalysisActive && (
                   <div className="flex items-center space-x-1 text-purple-400">
                     <Zap className="w-4 h-4" />
-                    <span className="text-sm">Quantum AI</span>
+                    <span className="text-sm">Advanced AI</span>
                   </div>
                 )}
               </div>
               
               <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => setQuantumAnalysisActive(!quantumAnalysisActive)}
+                  onClick={() => setAdvancedAnalysisActive(!advancedAnalysisActive)}
                   className={`p-2 rounded-lg transition-all ${
-                    quantumAnalysisActive ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'
+                    advancedAnalysisActive ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'
                   }`}
                 >
                   <Brain className="w-4 h-4" />
