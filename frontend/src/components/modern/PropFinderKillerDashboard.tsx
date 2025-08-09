@@ -36,7 +36,6 @@ import {
   Calculator,
 } from 'lucide-react';
 import CommunityEngagement from '../community/CommunityEngagement';
-import DirectAIDashboardLink from '../debug/DirectAIDashboardLink';
 
 // Enhanced interfaces based on competitor analysis
 interface PropOpportunity {
