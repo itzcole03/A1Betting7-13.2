@@ -418,7 +418,7 @@ export const AdvancedAIDashboard: React.FC = () => {
   const fetchAllData = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       await Promise.all([
         fetchMultiSportData(),
@@ -426,7 +426,8 @@ export const AdvancedAIDashboard: React.FC = () => {
         fetchEnsembleModels(),
         fetchModelRegistry(),
         fetchInferenceMetrics(),
-        fetchRealtimePredictions()
+        fetchRealtimePredictions(),
+        fetchMonitoringOverview()
       ]);
       setLastUpdated(new Date());
     } catch (err) {
@@ -435,7 +436,7 @@ export const AdvancedAIDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [fetchMultiSportData, fetchSportFeatures, fetchEnsembleModels, fetchModelRegistry, fetchInferenceMetrics, fetchRealtimePredictions]);
+  }, [fetchMultiSportData, fetchSportFeatures, fetchEnsembleModels, fetchModelRegistry, fetchInferenceMetrics, fetchRealtimePredictions, fetchMonitoringOverview]);
 
   // Auto-refresh effect
   useEffect(() => {
