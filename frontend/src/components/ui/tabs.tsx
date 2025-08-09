@@ -165,9 +165,9 @@ export const _TabsTrigger: React.FC<TabsTriggerProps> = ({
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.button
       role='tab'
-      aria-selected={isSelected}
+      aria-selected={_isSelected}
       aria-controls={`tabpanel-${value}`}
-      tabIndex={isSelected ? 0 : -1}
+      tabIndex={_isSelected ? 0 : -1}
       disabled={disabled}
       onClick={() => !disabled && onValueChange(value)}
       className={`
