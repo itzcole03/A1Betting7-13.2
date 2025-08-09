@@ -196,7 +196,7 @@ const UltimateMoneyMaker: React.FC = () => {
   return (
     <Layout
       title='Ultimate Money Maker'
-      subtitle='Quantum AI-Powered Betting Engine with Neural Network Analysis'
+      subtitle='Advanced AI-Powered Betting Engine with Neural Network Analysis'
       headerActions={
         <div className='flex items-center space-x-4'>
           <div className='text-right'>
@@ -211,7 +211,7 @@ const UltimateMoneyMaker: React.FC = () => {
             className={`flex items-center space-x-2 px-6 py-3 bg-gradient-to-r ${_getStrategyColor(config.strategy)} hover:scale-105 rounded-lg text-white font-bold transition-all disabled:opacity-50 shadow-lg`}
           >
             <Brain className={`w-5 h-5 ${isAnalyzing ? 'animate-spin' : ''}`} />
-            <span>{isAnalyzing ? 'Quantum Analysis...' : 'Activate Quantum AI'}</span>
+            <span>{isAnalyzing ? 'AI Analysis...' : 'Activate Advanced AI'}</span>
           </button>
         </div>
       }
@@ -223,7 +223,7 @@ const UltimateMoneyMaker: React.FC = () => {
         className='text-center mb-8 p-8 bg-gradient-to-r from-purple-900/20 to-cyan-900/20 rounded-xl border border-purple-500/30'
       >
         <h2 className='text-4xl font-black bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-4'>
-          QUANTUM NEURAL PROFIT ENGINE
+          ADVANCED AI PROFIT ENGINE
         </h2>
         <div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
           <div className='text-center'>
