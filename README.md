@@ -215,7 +215,7 @@ ROI: Immediate + Long-term value
 ┌─────────────────────┐    ┌───────────��──────────┐    ┌─────────────────────┐
 │   React 19 Frontend │    │   FastAPI Backend    │    │   External APIs     │
 │                     │    │                      │    │                     │
-│ • PropFinder UI     │◄──►│ • AI Processing      │◄──►│ • DraftKings        │
+│ • PropFinder UI     │◄──►│ ��� AI Processing      │◄──►│ • DraftKings        │
 │ • AI Chat Interface │    │ • Ollama LLM         │    │ • FanDuel           │
 │ • Real-time Updates ���    │ • Arbitrage Engine   │    │ • BetMGM            │
 │ • Risk Tools        │    │ • Kelly Calculator   │    │ • SportsRadar       │
@@ -421,6 +421,14 @@ npm run lint:fix         # Auto-fix issues
 # Fixed in latest version - TypeScript JSX errors resolved
 # Component now renders cleanly without compilation errors
 # Refresh browser if cached errors persist
+```
+
+**Lucide React Import Errors**
+```bash
+# Fixed in latest version - Invalid 'Vs' icon import resolved
+# Replaced with ArrowLeftRight icon in MatchupAnalysisTools
+# Clear Vite cache if similar icon import errors persist:
+rm -rf node_modules/.vite && npm run dev
 ```
 
 **Performance Issues**
