@@ -358,6 +358,24 @@ export const AdvancedAIDashboard: React.FC = () => {
     }
   }, []);
 
+  // Fetch monitoring dashboard overview
+  const fetchMonitoringOverview = useCallback(async () => {
+    try {
+      const response = await fetch('/api/ai/monitoring/dashboard/overview');
+      if (response.ok) {
+        const data = await response.json();
+        // Update inference metrics with monitoring data
+        setInferenceMetrics(prevMetrics => ({
+          ...prevMetrics,
+          total_requests: data.total_predictions || prevMetrics?.total_requests || 0,
+          active_models: data.active_models || prevMetrics?.active_models || 0
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to fetch monitoring overview:', err);
+    }
+  }, []);
+
   // Fetch real-time predictions
   const fetchRealtimePredictions = useCallback(async () => {
     try {
