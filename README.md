@@ -30,6 +30,7 @@
 - **React 19 Concurrent Features**: Automatic batching and suspense boundaries
 
 ### 🛠️ **Latest Fixes & Improvements (January 2025)**
+- **Matchup Analysis Tools Fixed**: Resolved invalid 'Vs' icon import causing SyntaxError, replaced with ArrowLeftRight
 - **Ultimate Money Maker Fixed**: Resolved TypeScript JSX compilation errors that were breaking the display
 - **Enhanced Navigation**: Fixed z-index conflicts, improved mobile hamburger menu functionality
 - **Intelligent Console Filtering**: Advanced error suppression system for cleaner development experience
@@ -246,7 +247,7 @@ Instant UI ◄─ Sub-second ◄─ Live Updates ◄─ Streaming AI
 
 ```
 A1Betting/
-├── 📁 frontend/                      # React 19 Application
+├��─ 📁 frontend/                      # React 19 Application
 │   ├── 📁 src/
 │   │   ├── 📁 components/
 │   │   │   ├── 📁 features/          # Core PropFinder Features
@@ -266,7 +267,7 @@ A1Betting/
 │   │   │   └── 📁 ml/                # Machine learning models
 │   │   ├── 📁 hooks/                 # React hooks library
 │   │   ├── 📁 stores/                # Zustand state management
-│   │   └── 📁 types/                 # TypeScript definitions
+│   │   └── ���� types/                 # TypeScript definitions
 ├── 📁 backend/                       # FastAPI Backend
 │   ├── 📁 routes/                    # API endpoints
 ���   ├── 📁 services/                  # Business logic
