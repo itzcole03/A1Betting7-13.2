@@ -24,7 +24,7 @@ import {
   RefreshCw,
   Filter,
   ArrowRight,
-  Vs,
+  ArrowLeftRight,
   Plus,
   AlertTriangle,
   CheckCircle,
