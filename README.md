@@ -448,6 +448,30 @@ curl http://localhost:11434/api/tags
 # Full AI demonstration available offline
 ```
 
+**API 500 Errors or Backend Issues**
+```bash
+# Check API health with diagnostic tools
+# Dashboard includes built-in error diagnostics
+# Fallback data automatically provided during server errors
+
+# For cheatsheets API specifically:
+# 1. Backend may be experiencing server-side issues
+# 2. Check backend logs for database connection problems
+# 3. Verify API route handlers are configured correctly
+# 4. Demo mode provides full functionality without backend
+```
+
+**Dynamic Import Failures**
+```bash
+# Fixed in latest version - Component loading stabilized
+# Error boundaries provide graceful fallbacks
+# Clear browser cache if issues persist:
+Ctrl+Shift+R (Chrome/Firefox) or Cmd+Shift+R (Safari)
+
+# Temporary workaround: Use fallback components
+# All features available in demo mode
+```
+
 **Monitoring Dashboard Loading Issues**
 ```bash
 # Comprehensive monitoring now includes fallback modes
