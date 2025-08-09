@@ -1,1023 +1,798 @@
 # Ultimate Money Maker - Comprehensive Developer Documentation
 
-## 📋 Table of Contents
-
+## Table of Contents
 1. [Overview](#overview)
 2. [Architecture](#architecture)
-3. [Component Structure](#component-structure)
-4. [API Reference](#api-reference)
-5. [Configuration](#configuration)
-6. [Quantum AI Engine](#quantum-ai-engine)
-7. [ML Model Ensemble](#ml-model-ensemble)
-8. [Risk Management](#risk-management)
-9. [Usage Examples](#usage-examples)
-10. [Performance Optimization](#performance-optimization)
-11. [Testing](#testing)
-12. [Troubleshooting](#troubleshooting)
-13. [Contributing](#contributing)
-
----
+3. [Quantum AI Engine](#quantum-ai-engine)
+4. [Performance Optimization](#performance-optimization)
+5. [Monitoring & Analytics](#monitoring--analytics)
+6. [API Reference](#api-reference)
+7. [Component Library](#component-library)
+8. [Development Guidelines](#development-guidelines)
+9. [Testing Framework](#testing-framework)
+10. [Deployment & Scaling](#deployment--scaling)
+11. [Troubleshooting](#troubleshooting)
+12. [Contributing](#contributing)
 
 ## Overview
 
-The **Ultimate Money Maker** is A1Betting's flagship quantum AI-powered betting engine that revolutionizes sports betting through advanced machine learning, quantum computing principles, and sophisticated risk management.
+The Ultimate Money Maker is A1Betting's flagship PropFinder-killer platform that leverages quantum AI simulation, advanced machine learning, and real-time data processing to deliver superior sports betting analytics and predictions.
 
 ### Key Features
+- **Quantum AI Engine**: Revolutionary prediction modeling using superposition states and entanglement detection
+- **PropFinder-Style Dashboard**: Enhanced interface with virtual scrolling for 10,000+ props
+- **Advanced Analytics**: 6 statistical analysis types including Bayesian modeling and neural networks
+- **Real-time Monitoring**: Comprehensive system health and ML model performance tracking
+- **Performance Optimization**: Enterprise-grade caching, memory management, and Web Vitals optimization
 
-- 🧠 **Quantum AI Analysis Engine** - Quantum-inspired algorithms for parallel market analysis
-- 🤖 **Neural Network Ensemble** - Multiple ML models with ensemble weighting
-- 📊 **Kelly Criterion Implementation** - Mathematically optimal bet sizing
-- ⚡ **Real-time Processing** - Live odds monitoring and steam detection
-- 🛡️ **Advanced Risk Management** - Portfolio optimization and drawdown protection
-- 📈 **Performance Analytics** - Comprehensive tracking and reporting
-
-### Technical Stack
-
-```typescript
-Frontend: React 19 + TypeScript + Framer Motion
-State Management: React Hooks + Context API
-Styling: Tailwind CSS + Custom CSS
-Icons: Lucide React
-Animations: Framer Motion
-Performance: React Concurrent Features
-```
-
----
+### Technology Stack
+- **Frontend**: React 19, TypeScript 5.7.3, Vite 7.0.6, TailwindCSS
+- **State Management**: Zustand, React Query, Context API
+- **Performance**: @tanstack/react-virtual, React 19 Concurrent Features
+- **Analytics**: Custom ML pipeline, SHAP explainability
+- **Monitoring**: Real-time performance tracking, Web Vitals integration
 
 ## Architecture
 
-### System Overview
-
-```mermaid
-graph TD
-    A[Ultimate Money Maker] --> B[Quantum AI Engine]
-    A --> C[ML Model Ensemble]
-    A --> D[Risk Management]
-    A --> E[Opportunity Scanner]
-    
-    B --> B1[Superposition Analysis]
-    B --> B2[Entanglement Detection]
-    B --> B3[Quantum Interference]
-    
-    C --> C1[XGBoost Model]
-    C --> C2[Neural Network]
-    C --> C3[LSTM Predictor]
-    C --> C4[Random Forest]
-    
-    D --> D1[Kelly Criterion]
-    D --> D2[Portfolio Optimization]
-    D --> D3[Risk Metrics]
-    
-    E --> E1[Live Odds Monitor]
-    E --> E2[Steam Detection]
-    E --> E3[Sharp Money Tracker]
+### System Design
+```
+┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
+│   React 19 Frontend │    │   Performance Layer │    │   Data Processing   │
+│                     │    │                     │    │                     │
+│ • Quantum AI UI     │◄──►│ • LRU Caching       │◄──►│ • ML Pipelines      │
+│ • Virtual Scrolling │    │ • Memory Mgmt       │    │ • Prediction Models │
+│ • Concurrent Render │    │ • Web Vitals        │    │ • Statistical Engine│
+│ • Component Memoiz. │    │ • Bundle Optimize   │    │ • Data Validation   │
+└─────────────────────┘    └─────────────────────┘    └─────────────────────┘
+         │                           │                           │
+         └───────────────────────────┼───────────────────────────┘
+                                     │
+                               ┌─────▼─────┐
+                               │ Monitoring │
+                               │ Dashboard  │
+                               └───────────┘
 ```
 
-### Data Flow
+### Core Components
 
+#### 1. Enhanced PropFinder Killer Dashboard
+**Location**: `src/components/modern/EnhancedPropFinderKillerDashboard.tsx`
+
+**Purpose**: Main dashboard interface providing PropFinder-style analytics with quantum AI enhancements.
+
+**Key Features**:
+- Quantum AI state visualization with superposition, entanglement, interference, and coherence indicators
+- Neural network ensemble displaying XGBoost, Neural Net, LSTM, and Random Forest consensus
+- Real-time filtering with ML-powered prop recommendations
+- Advanced confidence scoring with Expected Value calculations
+- Kelly Criterion integration for optimal bet sizing
+
+**Usage**:
 ```typescript
-Input Data → Quantum Preprocessing → ML Ensemble → Risk Assessment → Output Opportunities
-    ↓              ↓                    ↓              ↓               ↓
-Real-time     Superposition      Model Predictions  Kelly Sizing   Ranked Bets
-Odds Feed     States Analysis    + Confidence       + Risk Metrics + ROI Calc
+import EnhancedPropFinderKillerDashboard from '@/components/modern/EnhancedPropFinderKillerDashboard';
+
+// Basic implementation
+<EnhancedPropFinderKillerDashboard />
 ```
 
----
+**Props**: None (fully self-contained with internal state management)
 
-## Component Structure
+#### 2. Optimized PropFinder Dashboard
+**Location**: `src/components/modern/OptimizedPropFinderKillerDashboard.tsx`
 
-### Directory Layout
+**Purpose**: Performance-optimized version with virtual scrolling for massive datasets.
 
-```
-src/components/MoneyMaker/
-├── EnhancedUltimateMoneyMaker.tsx    # Main enhanced component
-├── UltimateMoneyMaker.tsx            # Base component
-├── index.tsx                         # Component exports
-├── MoneyMaker.css                    # Custom styling
-├── README.md                         # Component-specific docs
-├── types/
-│   ├── BettingOpportunity.ts         # Core betting types
-│   ├── QuantumTypes.ts               # Quantum AI types
-│   ├── ModelTypes.ts                 # ML model types
-│   └── RiskTypes.ts                  # Risk management types
-├── hooks/
-│   ├── useQuantumEngine.ts           # Quantum processing hook
-│   ├── useModelEnsemble.ts           # ML ensemble hook
-│   ├── useRiskManagement.ts          # Risk calculations hook
-│   └── useOpportunityScanner.ts      # Opportunity detection hook
-├── services/
-│   ├── QuantumService.ts             # Quantum algorithms
-│   ├── ModelEnsembleService.ts       # ML model coordination
-│   ├── RiskCalculationService.ts     # Risk metrics
-│   └── OpportunityService.ts         # Betting opportunity logic
-└── utils/
-    ├── quantumMath.ts                # Quantum mathematics
-    ├── kellyCalculator.ts            # Kelly Criterion implementation
-    ├── portfolioOptimizer.ts         # Portfolio optimization
-    └── performanceMetrics.ts         # Performance calculations
-```
+**Key Features**:
+- Virtual scrolling supporting 10,000+ props with @tanstack/react-virtual
+- React 19 concurrent features (useTransition, useDeferredValue, startTransition)
+- Advanced memoization with React.memo, useMemo, useCallback
+- Real-time performance metrics and monitoring
+- Batch processing and intelligent data loading
 
-### Component Hierarchy
+**Performance Specifications**:
+- Renders 10,000+ props with <50ms frame times
+- Memory usage optimization with automatic cleanup
+- Bundle size reduction through code splitting
+- LCP <800ms, FID <100ms, CLS <0.1
 
+#### 3. Advanced Matchup Analysis Tools
+**Location**: `src/components/analysis/AdvancedMatchupAnalysisTools.tsx`
+
+**Purpose**: Comprehensive statistical modeling and analysis suite.
+
+**Analysis Types**:
+1. **Linear Regression**: Multi-variate analysis with feature selection
+2. **Bayesian Analysis**: Inference with prior distributions and uncertainty quantification
+3. **Neural Network**: Deep learning with ensemble predictions
+4. **Correlation Matrix**: Advanced correlation with statistical significance testing
+5. **K-Means Clustering**: Pattern identification in matchup data
+6. **Ensemble Modeling**: Combined predictions from multiple ML models
+
+**Usage**:
 ```typescript
-UltimateMoneyMaker
-├── QuantumStatusDashboard
-├── ModelEnsembleDashboard
-├── OpportunityGrid
-│   └── OpportunityCard[]
-├── RiskManagementPanel
-├── ConfigurationPanel
-├── PerformanceAnalytics
-└── ControlCenter
+import AdvancedMatchupAnalysisTools from '@/components/analysis/AdvancedMatchupAnalysisTools';
+
+// Analysis configuration
+const analysisConfig = {
+  activeAnalysis: ['regression', 'bayesian', 'neural'],
+  confidenceThreshold: 0.75,
+  timeframe: 'l10'
+};
+
+<AdvancedMatchupAnalysisTools config={analysisConfig} />
 ```
 
----
+#### 4. Comprehensive Monitoring Dashboard
+**Location**: `src/components/monitoring/ComprehensiveMonitoringDashboard.tsx`
 
-## API Reference
+**Purpose**: Real-time system health and performance monitoring.
 
-### Main Component Props
+**Monitoring Capabilities**:
+- **Data Pipeline Metrics**: Throughput, latency, error rates, data quality
+- **ML Model Performance**: Accuracy, precision, recall, F1 score, drift detection
+- **System Health**: CPU, memory, disk, network utilization
+- **Alert Management**: Critical, warning, and info alerts with resolution tracking
+- **Performance Trends**: Historical data and predictive analytics
 
+**Metrics Tracked**:
 ```typescript
-interface UltimateMoneyMakerProps {
-  /** Initial configuration for the money maker */
-  initialConfig?: MoneyMakerConfig;
-  
-  /** Callback when opportunities are updated */
-  onOpportunitiesUpdate?: (opportunities: BettingOpportunity[]) => void;
-  
-  /** Callback when configuration changes */
-  onConfigChange?: (config: MoneyMakerConfig) => void;
-  
-  /** Whether to enable quantum processing */
-  enableQuantumEngine?: boolean;
-  
-  /** Real-time data refresh interval in milliseconds */
-  refreshInterval?: number;
-  
-  /** Maximum number of opportunities to display */
-  maxOpportunities?: number;
-  
-  /** Custom CSS classes */
-  className?: string;
-  
-  /** Whether component is in demo mode */
-  demoMode?: boolean;
-}
-```
-
-### Core Data Types
-
-#### BettingOpportunity
-
-```typescript
-interface BettingOpportunity {
-  // Basic opportunity data
-  id: string;
-  game: string;
-  market: string;
-  pick: string;
-  odds: number;
-  
-  // Confidence and prediction metrics
-  confidence: number;                 // Overall confidence (0-100)
-  expectedROI: number;               // Expected return on investment
-  kellyStake: number;               // Optimal bet size via Kelly Criterion
-  expectedProfit: number;           // Expected profit amount
-  risk: 'low' | 'medium' | 'high';  // Risk classification
-  
-  // AI and neural analysis
-  neural: string;                   // Neural network insights
-  reason: string;                   // Human-readable reasoning
-  
-  // Quantum AI enhancements
-  quantumConfidence: number;        // Quantum-enhanced confidence
-  superpositionStates: SuperpositionState[];
-  entanglementFactor: number;       // Market correlation factor
-  quantumAdvantage: number;         // Quantum processing advantage
-  probabilityAmplitude: number;     // Quantum probability amplitude
-  quantumInterference: number;      // Interference pattern strength
-  
-  // Model ensemble data
-  modelEnsemble: ModelEnsembleData;
-  
-  // Risk and market metrics
-  marketEfficiency: number;         // Market efficiency score
-  riskMetrics: RiskMetrics;
-  realTimeFactors: RealTimeFactors;
-}
-```
-
-#### QuantumEngine Status
-
-```typescript
-interface QuantumEngineStatus {
-  isActive: boolean;
-  coherenceLevel: number;           // Quantum coherence (0-100)
-  entanglementStrength: number;     // System entanglement strength
-  interferencePattern: number;      // Quantum interference level
-  superpositionCount: number;       // Active superposition states
-  quantumAdvantage: number;         // Computational advantage
-  processingState: 'idle' | 'analyzing' | 'optimizing' | 'complete';
-  lastUpdate: string;
-  performance: {
-    accuracy: number;
-    speed: number;
-    efficiency: number;
+interface PerformanceMetrics {
+  renderTime: number;
+  componentCount: number;
+  memoryUsage: number;
+  bundleSize: number;
+  cacheHitRate: number;
+  networkRequests: number;
+  webVitals: {
+    lcp: number; // Largest Contentful Paint
+    fid: number; // First Input Delay
+    cls: number; // Cumulative Layout Shift
+    fcp: number; // First Contentful Paint
+    ttfb: number; // Time to First Byte
   };
 }
 ```
 
-#### ModelEnsembleData
-
-```typescript
-interface ModelEnsembleData {
-  xgboost: ModelPrediction;
-  neuralNet: ModelPrediction;
-  lstm: ModelPrediction;
-  randomForest: ModelPrediction;
-  quantumModel: ModelPrediction;
-  ensemble: ModelPrediction;
-  
-  // Ensemble metrics
-  consensus: number;                // Model agreement level (0-100)
-  disagreement: number;            // Model disagreement level (0-100)
-  reliability: number;             // Overall ensemble reliability
-  
-  // Performance tracking
-  historicalAccuracy: number;
-  recentPerformance: number[];
-  lastRetrain: string;
-}
-
-interface ModelPrediction {
-  prediction: number;              // Numerical prediction
-  confidence: number;              // Model confidence (0-100)
-  accuracy: number;               // Historical accuracy (0-100)
-  weight: number;                 // Model weight in ensemble (0-1)
-  lastUpdate: string;             // Last update timestamp
-  features: string[];             // Key features used
-  uncertainty: number;            // Prediction uncertainty
-}
-```
-
-### Configuration Interface
-
-```typescript
-interface MoneyMakerConfig {
-  // Investment parameters
-  investment: number;              // Total investment amount
-  maxBetSize: number;             // Maximum single bet size
-  minBetSize: number;             // Minimum single bet size
-  
-  // Strategy settings
-  strategy: 'quantum' | 'neural' | 'aggressive' | 'conservative';
-  confidence: number;             // Minimum confidence threshold
-  riskLevel: 'low' | 'medium' | 'high';
-  
-  // Portfolio management
-  portfolio: number;              // Portfolio allocation percentage
-  diversification: boolean;       // Enable portfolio diversification
-  maxExposure: number;           // Maximum market exposure
-  
-  // Market filters
-  sports: string[];              // Enabled sports
-  leagues: string[];             // Target leagues
-  timeFrame: string;             // Analysis time frame
-  
-  // Odds filters
-  maxOdds: number;               // Maximum acceptable odds
-  minOdds: number;               // Minimum acceptable odds
-  
-  // Advanced filters
-  playerTypes: string[];         // Player type preferences
-  weatherFilter: boolean;        // Enable weather filtering
-  injuryFilter: boolean;         // Enable injury filtering
-  sharpMoneyOnly: boolean;       // Only sharp money bets
-  
-  // Risk management
-  stopLoss: number;              // Stop loss percentage
-  takeProfit: number;            // Take profit percentage
-  maxDrawdown: number;           // Maximum acceptable drawdown
-  
-  // Quantum settings
-  quantumEnabled: boolean;       // Enable quantum processing
-  coherenceThreshold: number;    // Minimum coherence level
-  entanglementDepth: number;     // Entanglement analysis depth
-}
-```
-
----
-
 ## Quantum AI Engine
 
 ### Overview
+The Quantum AI Engine simulates quantum computing principles to enhance prediction accuracy through superposition state analysis, entanglement detection, and interference pattern recognition.
 
-The Quantum AI Engine leverages quantum-inspired algorithms to process multiple probability distributions simultaneously, enabling superior pattern recognition and market analysis.
-
-### Key Concepts
+### Core Concepts
 
 #### Superposition States
+Represents the probability distribution of possible outcomes, allowing the model to consider multiple prediction scenarios simultaneously.
 
 ```typescript
-interface SuperpositionState {
-  outcome: string;               // Possible outcome
-  probability: number;           // Classical probability
-  amplitude: number;             // Quantum amplitude
-  phase: number;                // Quantum phase
-  coherence: number;            // State coherence
+interface QuantumState {
+  superposition: number; // 0-1, represents prediction uncertainty
+  entanglement: number;  // 0-1, correlation strength between variables
+  interference: number;  // 0-1, pattern recognition confidence
+  coherence: number;     // 0-1, overall model stability
 }
 ```
 
-Superposition allows the system to analyze all possible outcomes simultaneously:
+#### Neural Network Ensemble
+Combines multiple ML models for consensus predictions:
 
 ```typescript
-// Example: Analyzing player performance superposition
-const playerStates = [
-  { outcome: 'over', probability: 0.6, amplitude: 0.77, phase: 0, coherence: 0.95 },
-  { outcome: 'under', probability: 0.4, amplitude: 0.63, phase: Math.PI, coherence: 0.92 }
-];
-```
-
-#### Entanglement Detection
-
-Entanglement identifies correlated market movements across different betting opportunities:
-
-```typescript
-interface EntanglementPair {
-  opportunity1: string;
-  opportunity2: string;
-  correlation: number;           // Correlation strength (-1 to 1)
-  coherenceTime: number;         // How long correlation persists
-  confidence: number;            // Confidence in entanglement
-}
-```
-
-#### Quantum Interference
-
-Interference patterns reveal hidden market inefficiencies:
-
-```typescript
-interface InterferencePattern {
-  constructive: number;          // Constructive interference strength
-  destructive: number;           // Destructive interference strength
-  netEffect: number;            // Net interference effect
-  opportunities: string[];       // Affected opportunities
+interface ModelEnsemble {
+  xgboost: number;      // Gradient boosting prediction
+  neuralNet: number;    // Deep learning prediction
+  lstm: number;         // Time series prediction
+  randomForest: number; // Ensemble tree prediction
+  consensus: number;    // Weighted average consensus
 }
 ```
 
 ### Implementation Example
 
 ```typescript
-import { useQuantumEngine } from '../hooks/useQuantumEngine';
-
-const QuantumDashboard: React.FC = () => {
-  const {
-    quantumStatus,
-    superpositionStates,
-    entanglements,
-    interference,
-    runQuantumAnalysis
-  } = useQuantumEngine();
-
-  return (
-    <div className="quantum-dashboard">
-      <QuantumStatusDisplay status={quantumStatus} />
-      <SuperpositionVisualization states={superpositionStates} />
-      <EntanglementMatrix pairs={entanglements} />
-      <InterferencePattern pattern={interference} />
-    </div>
-  );
+// Quantum AI analysis integration
+const quantumAnalysis = {
+  state: {
+    superposition: 0.73,
+    entanglement: 0.68,
+    interference: 0.82,
+    coherence: 0.91
+  },
+  modelEnsemble: {
+    xgboost: 0.76,
+    neuralNet: 0.81,
+    lstm: 0.72,
+    randomForest: 0.78,
+    consensus: 0.77
+  },
+  confidence: 0.84,
+  riskFactors: ['Weather', 'Injury Status', 'Rest Days']
 };
+
+// Calculate final prediction with quantum enhancement
+const finalPrediction = quantumAnalysis.modelEnsemble.consensus * 
+                       quantumAnalysis.state.coherence;
 ```
-
----
-
-## ML Model Ensemble
-
-### Supported Models
-
-#### 1. XGBoost Classifier
-- **Purpose**: Gradient boosting for complex pattern recognition
-- **Strengths**: Handles missing data, feature importance ranking
-- **Use Case**: Player performance prediction, market trend analysis
-
-#### 2. Neural Network (Deep Learning)
-- **Architecture**: Multi-layer perceptron with dropout regularization
-- **Strengths**: Non-linear pattern recognition, adaptability
-- **Use Case**: Complex market behavior modeling
-
-#### 3. LSTM (Long Short-Term Memory)
-- **Purpose**: Time series prediction and sequential pattern analysis
-- **Strengths**: Memory of long-term dependencies
-- **Use Case**: Trend continuation, momentum analysis
-
-#### 4. Random Forest
-- **Purpose**: Ensemble of decision trees with bootstrap aggregation
-- **Strengths**: Robust to overfitting, interpretable
-- **Use Case**: Feature selection, baseline predictions
-
-#### 5. Quantum Model
-- **Purpose**: Quantum-inspired machine learning algorithms
-- **Strengths**: Parallel processing, superposition analysis
-- **Use Case**: Complex probability distributions, market inefficiencies
-
-### Ensemble Weighting
-
-Models are weighted based on historical performance and current market conditions:
-
-```typescript
-interface ModelWeights {
-  xgboost: number;      // Weight based on recent accuracy
-  neuralNet: number;    // Weight based on adaptability
-  lstm: number;         // Weight based on trend accuracy
-  randomForest: number; // Weight based on stability
-  quantumModel: number; // Weight based on quantum advantage
-}
-
-// Dynamic weight calculation
-const calculateEnsembleWeights = (
-  historicalPerformance: ModelPerformance[],
-  currentMarketConditions: MarketConditions
-): ModelWeights => {
-  // Implementation details...
-};
-```
-
-### Model Performance Tracking
-
-```typescript
-interface ModelPerformance {
-  modelId: string;
-  accuracy: number;              // Overall accuracy
-  precision: number;             // Precision score
-  recall: number;               // Recall score
-  f1Score: number;              // F1 score
-  sharpeRatio: number;          // Risk-adjusted returns
-  maxDrawdown: number;          // Maximum drawdown
-  winRate: number;              // Win percentage
-  avgReturn: number;            // Average return per bet
-  recentTrend: 'improving' | 'stable' | 'declining';
-}
-```
-
----
-
-## Risk Management
-
-### Kelly Criterion Implementation
-
-The Kelly Criterion calculates optimal bet sizing to maximize long-term growth:
-
-```typescript
-/**
- * Calculate optimal bet size using Kelly Criterion
- * @param winProbability - Probability of winning (0-1)
- * @param odds - Decimal odds
- * @param bankroll - Current bankroll
- * @param maxRisk - Maximum risk percentage (0-1)
- */
-const calculateKellyStake = (
-  winProbability: number,
-  odds: number,
-  bankroll: number,
-  maxRisk: number = 0.25
-): number => {
-  const kellyFraction = (winProbability * odds - 1) / (odds - 1);
-  const cappedKelly = Math.min(kellyFraction, maxRisk);
-  return Math.max(0, cappedKelly * bankroll);
-};
-```
-
-### Risk Metrics
-
-```typescript
-interface RiskMetrics {
-  // Volatility measures
-  sharpeRatio: number;           // Risk-adjusted return
-  volatility: number;            // Return volatility
-  skewness: number;             // Return distribution skewness
-  kurtosis: number;             // Return distribution kurtosis
-  
-  // Drawdown measures
-  maxDrawdown: number;          // Maximum historical drawdown
-  currentDrawdown: number;      // Current drawdown
-  drawdownDuration: number;     // Days in drawdown
-  
-  // Risk measures
-  valueAtRisk: number;          // 95% VaR
-  conditionalValueAtRisk: number; // Expected shortfall
-  betaToMarket: number;         // Market correlation
-  
-  // Portfolio measures
-  diversificationRatio: number;  // Portfolio diversification
-  concentration: number;         // Position concentration
-  leverage: number;             // Effective leverage
-}
-```
-
-### Risk Monitoring
-
-```typescript
-interface RiskAlert {
-  id: string;
-  type: 'drawdown' | 'concentration' | 'volatility' | 'correlation';
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  message: string;
-  recommendations: string[];
-  threshold: number;
-  currentValue: number;
-  timestamp: string;
-}
-```
-
----
-
-## Usage Examples
-
-### Basic Setup
-
-```typescript
-import { UltimateMoneyMaker } from '@/components/MoneyMaker';
-import type { MoneyMakerConfig } from '@/components/MoneyMaker/types';
-
-const MyBettingApp: React.FC = () => {
-  const [config, setConfig] = useState<MoneyMakerConfig>({
-    investment: 1000,
-    strategy: 'quantum',
-    confidence: 85,
-    riskLevel: 'medium',
-    sports: ['NBA', 'NFL'],
-    quantumEnabled: true
-  });
-
-  const handleOpportunitiesUpdate = useCallback((opportunities) => {
-    console.log(`Found ${opportunities.length} opportunities`);
-    // Process opportunities...
-  }, []);
-
-  return (
-    <UltimateMoneyMaker
-      initialConfig={config}
-      onOpportunitiesUpdate={handleOpportunitiesUpdate}
-      onConfigChange={setConfig}
-      enableQuantumEngine={true}
-      refreshInterval={30000}
-      maxOpportunities={20}
-    />
-  );
-};
-```
-
-### Advanced Configuration
-
-```typescript
-const advancedConfig: MoneyMakerConfig = {
-  // Investment parameters
-  investment: 10000,
-  maxBetSize: 500,
-  minBetSize: 10,
-  
-  // Strategy
-  strategy: 'quantum',
-  confidence: 90,
-  riskLevel: 'medium',
-  
-  // Portfolio
-  portfolio: 0.05, // 5% of bankroll
-  diversification: true,
-  maxExposure: 0.20, // 20% max exposure
-  
-  // Filters
-  sports: ['NBA', 'NFL', 'MLB'],
-  leagues: ['NBA', 'NFL', 'MLB'],
-  timeFrame: '24h',
-  maxOdds: 300,
-  minOdds: -200,
-  
-  // Advanced features
-  sharpMoneyOnly: true,
-  weatherFilter: true,
-  injuryFilter: true,
-  
-  // Risk management
-  stopLoss: 0.10, // 10% stop loss
-  takeProfit: 0.25, // 25% take profit
-  maxDrawdown: 0.15, // 15% max drawdown
-  
-  // Quantum settings
-  quantumEnabled: true,
-  coherenceThreshold: 0.85,
-  entanglementDepth: 3
-};
-```
-
-### Custom Hooks Integration
-
-```typescript
-import { 
-  useQuantumEngine, 
-  useModelEnsemble, 
-  useRiskManagement 
-} from '@/components/MoneyMaker/hooks';
-
-const CustomMoneyMakerDashboard: React.FC = () => {
-  // Quantum processing
-  const quantum = useQuantumEngine({
-    enabled: true,
-    coherenceThreshold: 0.9
-  });
-
-  // ML ensemble
-  const models = useModelEnsemble({
-    models: ['xgboost', 'neural', 'lstm', 'quantum'],
-    rebalanceInterval: 3600000 // 1 hour
-  });
-
-  // Risk management
-  const risk = useRiskManagement({
-    maxDrawdown: 0.15,
-    maxConcentration: 0.25,
-    alerts: true
-  });
-
-  return (
-    <div className="custom-dashboard">
-      <QuantumStatus {...quantum} />
-      <ModelEnsemble {...models} />
-      <RiskDashboard {...risk} />
-    </div>
-  );
-};
-```
-
----
 
 ## Performance Optimization
 
-### React 19 Concurrent Features
+### Performance Optimization Service
+**Location**: `src/services/performance/PerformanceOptimizationService.ts`
+
+**Purpose**: Comprehensive performance monitoring, caching, and optimization service.
+
+### Key Features
+
+#### 1. LRU Caching System
+Implements intelligent caching with Least Recently Used eviction:
 
 ```typescript
-import { useTransition, useDeferredValue, startTransition } from 'react';
+import { useCache } from '@/services/performance/PerformanceOptimizationService';
 
-const OptimizedMoneyMaker: React.FC = () => {
-  const [isPending, startTransition] = useTransition();
-  const deferredOpportunities = useDeferredValue(opportunities);
+const { get, set, clear } = useCache('players');
 
-  // Non-urgent updates
-  const updateFilters = useCallback((newFilters) => {
-    startTransition(() => {
-      setFilters(newFilters);
-    });
-  }, []);
+// Cache player data
+set('player-123', playerData, 300000); // 5-minute TTL
 
-  // Memoized expensive calculations
-  const sortedOpportunities = useMemo(() => {
-    return deferredOpportunities
-      .sort((a, b) => b.expectedROI - a.expectedROI)
-      .slice(0, maxOpportunities);
-  }, [deferredOpportunities, maxOpportunities]);
+// Retrieve cached data
+const cachedPlayer = get('player-123');
+```
+
+#### 2. Memory Management
+Automatic memory cleanup and garbage collection:
+
+```typescript
+interface MemoryManagement {
+  garbageCollection: {
+    enabled: boolean;
+    interval: number;      // 60000ms (1 minute)
+    threshold: number;     // 80% memory usage
+  };
+  componentCleanup: {
+    enabled: boolean;
+    unusedTimeout: number; // 300000ms (5 minutes)
+  };
+}
+```
+
+#### 3. Virtual Scrolling
+Optimized rendering for large datasets:
+
+```typescript
+import { useVirtualization } from '@/services/performance/PerformanceOptimizationService';
+
+const { shouldUseVirtualScrolling, config } = useVirtualization();
+
+// Automatically enable virtual scrolling for datasets > 50 items
+if (shouldUseVirtualScrolling(props.length)) {
+  return <VirtualizedPropList items={props} config={config} />;
+}
+```
+
+#### 4. React 19 Concurrent Features
+Leverage React 19 for optimal performance:
+
+```typescript
+import { usePerformanceOptimization } from '@/services/performance/PerformanceOptimizationService';
+
+const { startTransition, deferValue, optimizeRender } = usePerformanceOptimization();
+
+// Defer non-urgent updates
+const deferredSearchTerm = deferValue(searchTerm);
+
+// Optimize expensive calculations
+const expensiveCalculation = optimizeRender(() => {
+  return processLargeDataset(data);
+}, [data]);
+
+// Mark non-urgent state updates
+startTransition(() => {
+  setFilteredData(newData);
+});
+```
+
+### Performance Targets
+- **Largest Contentful Paint (LCP)**: <800ms
+- **First Input Delay (FID)**: <100ms
+- **Cumulative Layout Shift (CLS)**: <0.1
+- **Memory Usage**: <70% of available heap
+- **Cache Hit Rate**: >80%
+- **Render Time**: <16ms per frame
+
+## Monitoring & Analytics
+
+### Real-time Monitoring
+The monitoring system tracks comprehensive metrics across data pipelines, ML models, and system performance.
+
+#### Pipeline Monitoring
+```typescript
+interface DataPipelineMetrics {
+  status: 'running' | 'stopped' | 'error' | 'pending';
+  performance: {
+    throughput: number;    // Records per minute
+    latency: number;       // Processing time in ms
+    errorRate: number;     // Percentage of failed operations
+    successRate: number;   // Percentage of successful operations
+    dataQuality: number;   // Data quality score 0-100
+  };
+  resources: {
+    cpu: number;          // CPU utilization percentage
+    memory: number;       // Memory usage percentage
+    disk: number;         // Disk usage percentage
+    network: number;      // Network usage percentage
+  };
+}
+```
+
+#### ML Model Monitoring
+```typescript
+interface MLModelMetrics {
+  performance: {
+    accuracy: number;     // Model accuracy 0-1
+    precision: number;    // Precision score 0-1
+    recall: number;       // Recall score 0-1
+    f1Score: number;     // F1 score 0-1
+    auc: number;         // Area under curve 0-1
+  };
+  drift: {
+    featureDrift: number; // Feature drift score 0-1
+    targetDrift: number;  // Target drift score 0-1
+    dataQuality: number;  // Data quality 0-1
+  };
+  predictions: {
+    total: number;        // Total predictions made
+    daily: number;        // Daily prediction count
+    avgConfidence: number; // Average confidence 0-1
+  };
+}
+```
+
+### Alert System
+Comprehensive alerting with automatic resolution tracking:
+
+```typescript
+interface Alert {
+  type: 'critical' | 'warning' | 'info';
+  title: string;
+  message: string;
+  source: string;
+  timestamp: Date;
+  resolved: boolean;
+  resolutionTime?: number;
+}
+```
+
+## API Reference
+
+### Core Hooks
+
+#### usePerformanceOptimization
+```typescript
+const {
+  metrics,           // Current performance metrics
+  service,          // Performance service instance
+  analyze,          // Analyze current performance
+  getCache,         // Access cache by type
+  measureRender,    // Measure component render time
+  optimizeRender,   // Memoize expensive calculations
+  deferValue,       // Defer non-urgent values
+  startTransition   // Mark non-urgent updates
+} = usePerformanceOptimization();
+```
+
+#### useCache
+```typescript
+const {
+  get,     // Retrieve cached value
+  set,     // Store value in cache
+  clear,   // Clear cache
+  cache    // Direct cache access
+} = useCache('cacheType');
+```
+
+#### useVirtualization
+```typescript
+const {
+  shouldUseVirtualScrolling, // Check if virtualization needed
+  config                     // Virtualization configuration
+} = useVirtualization();
+```
+
+### Performance Service Methods
+
+#### Caching
+```typescript
+// Set cache value with TTL
+service.setCacheValue('players', 'key', data, 300000);
+
+// Get cached value
+const data = service.getCacheValue('players', 'key');
+
+// Clear specific cache
+service.clearCache('players');
+```
+
+#### Optimization
+```typescript
+// Batch network requests
+const results = await service.batchRequests([
+  () => fetchPlayerData(id1),
+  () => fetchPlayerData(id2),
+  () => fetchPlayerData(id3)
+]);
+
+// Preload resources
+await service.preloadResource('/api/critical-data', 'script');
+
+// Optimize image loading
+const optimizedSrc = service.optimizeImageLoading(src, { webp: true });
+```
+
+#### Analysis
+```typescript
+// Get comprehensive performance analysis
+const analysis = service.analyzePerformance();
+// Returns: { overall: number, recommendations: [], criticalIssues: [], metrics: {} }
+
+// Get current metrics
+const metrics = service.getMetrics();
+
+// Get optimization strategies
+const strategies = service.getStrategies();
+```
+
+## Component Library
+
+### Quantum AI Components
+
+#### QuantumIndicator
+Displays quantum state visualization:
+```typescript
+const QuantumIndicator: React.FC<{ quantum: QuantumState }> = ({ quantum }) => (
+  <div className="flex items-center space-x-1">
+    <div className="w-2 h-2 rounded-full bg-purple-500" 
+         style={{ opacity: quantum.superposition }} />
+    <div className="w-2 h-2 rounded-full bg-blue-500" 
+         style={{ opacity: quantum.entanglement }} />
+    <div className="w-2 h-2 rounded-full bg-green-500" 
+         style={{ opacity: quantum.interference }} />
+    <div className="w-2 h-2 rounded-full bg-yellow-500" 
+         style={{ opacity: quantum.coherence }} />
+  </div>
+);
+```
+
+#### ConfidenceBar
+Displays confidence levels with quantum enhancement:
+```typescript
+const ConfidenceBar: React.FC<{ 
+  confidence: number; 
+  quantum?: boolean 
+}> = ({ confidence, quantum = false }) => (
+  <div className="w-full bg-gray-200 rounded-full h-2">
+    <div
+      className={`h-2 rounded-full transition-all duration-300 ${
+        quantum ? 'bg-gradient-to-r from-purple-500 to-blue-500' : 
+        confidence >= 80 ? 'bg-green-500' :
+        confidence >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+      }`}
+      style={{ width: `${Math.min(100, Math.max(0, confidence))}%` }}
+    />
+  </div>
+);
+```
+
+### Performance Components
+
+#### VirtualizedPropList
+High-performance prop list with virtual scrolling:
+```typescript
+import { useVirtualizer } from '@tanstack/react-virtual';
+
+const VirtualizedPropList: React.FC<{ 
+  items: Prop[]; 
+  config: VirtualizationConfig 
+}> = ({ items, config }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => containerRef.current,
+    estimateSize: () => config.itemHeight,
+    overscan: config.overscan
+  });
 
   return (
-    <div>
-      {isPending && <LoadingIndicator />}
-      <OpportunitiesList opportunities={sortedOpportunities} />
+    <div ref={containerRef} className="h-[600px] overflow-auto">
+      <div style={{ height: virtualizer.getTotalSize() }}>
+        {virtualizer.getVirtualItems().map((virtualItem) => (
+          <div
+            key={virtualItem.key}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: virtualItem.size,
+              transform: `translateY(${virtualItem.start}px)`
+            }}
+          >
+            <PropCard prop={items[virtualItem.index]} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 ```
 
-### Memory Optimization
+## Development Guidelines
 
+### Component Architecture Standards
+
+#### 1. Component Structure
 ```typescript
-// Efficient opportunity caching
-const useOpportunityCache = (maxSize: number = 1000) => {
-  const cache = useRef(new Map<string, BettingOpportunity>());
+// Standard component structure
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { motion } from 'framer-motion';
 
-  const addOpportunity = useCallback((opportunity: BettingOpportunity) => {
-    if (cache.current.size >= maxSize) {
-      // LRU eviction
-      const firstKey = cache.current.keys().next().value;
-      cache.current.delete(firstKey);
-    }
-    cache.current.set(opportunity.id, opportunity);
-  }, [maxSize]);
+interface ComponentProps {
+  // Props interface
+}
 
-  return { cache: cache.current, addOpportunity };
-};
-```
-
-### Virtualization for Large Lists
-
-```typescript
-import { FixedSizeList as List } from 'react-window';
-
-const VirtualizedOpportunityList: React.FC<{
-  opportunities: BettingOpportunity[];
-}> = ({ opportunities }) => {
-  const renderItem = useCallback(({ index, style }) => (
-    <div style={style}>
-      <OpportunityCard opportunity={opportunities[index]} />
-    </div>
-  ), [opportunities]);
-
+const Component: React.FC<ComponentProps> = ({ prop1, prop2 }) => {
+  // 1. State declarations
+  const [state, setState] = useState();
+  
+  // 2. Memoized values
+  const memoizedValue = useMemo(() => {
+    return expensiveCalculation(prop1);
+  }, [prop1]);
+  
+  // 3. Callbacks
+  const handleAction = useCallback(() => {
+    // Handle action
+  }, [dependencies]);
+  
+  // 4. Effects
+  useEffect(() => {
+    // Side effects
+  }, [dependencies]);
+  
+  // 5. Render
   return (
-    <List
-      height={600}
-      itemCount={opportunities.length}
-      itemSize={120}
-      overscanCount={5}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="component-class"
     >
-      {renderItem}
-    </List>
+      {/* Component content */}
+    </motion.div>
   );
 };
+
+export default Component;
 ```
 
----
+#### 2. Performance Optimization
+- Use React.memo for expensive components
+- Implement useMemo for expensive calculations
+- Use useCallback for event handlers
+- Leverage React 19 concurrent features
 
-## Testing
+#### 3. TypeScript Standards
+- Strict type checking enabled
+- Comprehensive interface definitions
+- Proper generic usage
+- No `any` types without justification
 
-### Unit Testing
+#### 4. Styling Guidelines
+- TailwindCSS utility classes
+- Consistent color scheme (purple/blue gradients)
+- Responsive design patterns
+- Dark theme optimized
 
+### Testing Framework
+
+#### Unit Testing
 ```typescript
-// OpportunityCard.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
-import { OpportunityCard } from './OpportunityCard';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Component from './Component';
 
-const mockOpportunity: BettingOpportunity = {
-  id: '1',
-  game: 'Lakers vs Warriors',
-  confidence: 85,
-  expectedROI: 15.5,
-  // ... other required fields
-};
-
-describe('OpportunityCard', () => {
-  it('displays opportunity data correctly', () => {
-    render(<OpportunityCard opportunity={mockOpportunity} />);
-    
-    expect(screen.getByText('Lakers vs Warriors')).toBeInTheDocument();
-    expect(screen.getByText('85%')).toBeInTheDocument();
-    expect(screen.getByText('15.5%')).toBeInTheDocument();
+describe('Component', () => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } }
   });
 
-  it('handles click events', () => {
-    const onSelect = jest.fn();
-    render(
-      <OpportunityCard 
-        opportunity={mockOpportunity} 
-        onSelect={onSelect} 
-      />
+  const renderWithProviders = (ui: React.ReactElement) => {
+    return render(
+      <QueryClientProvider client={queryClient}>
+        {ui}
+      </QueryClientProvider>
     );
-    
+  };
+
+  it('should render correctly', () => {
+    renderWithProviders(<Component />);
+    expect(screen.getByTestId('component')).toBeInTheDocument();
+  });
+
+  it('should handle user interactions', () => {
+    renderWithProviders(<Component />);
     fireEvent.click(screen.getByRole('button'));
-    expect(onSelect).toHaveBeenCalledWith(mockOpportunity);
+    expect(screen.getByText('Expected Result')).toBeInTheDocument();
   });
 });
 ```
 
-### Integration Testing
-
+#### Performance Testing
 ```typescript
-// MoneyMaker.integration.test.tsx
-import { render, screen, waitFor } from '@testing-library/react';
-import { UltimateMoneyMaker } from './UltimateMoneyMaker';
+import { measureRender } from '@/services/performance/PerformanceOptimizationService';
 
-describe('UltimateMoneyMaker Integration', () => {
-  it('loads and displays opportunities', async () => {
-    render(<UltimateMoneyMaker />);
-    
-    await waitFor(() => {
-      expect(screen.getByText(/opportunities found/i)).toBeInTheDocument();
+describe('Performance Tests', () => {
+  it('should render within performance budget', () => {
+    const renderTime = measureRender('Component', () => {
+      render(<Component largeDataset={mockData} />);
     });
     
-    expect(screen.getByTestId('quantum-status')).toBeInTheDocument();
-    expect(screen.getByTestId('model-ensemble')).toBeInTheDocument();
-    expect(screen.getByTestId('risk-metrics')).toBeInTheDocument();
+    expect(renderTime).toBeLessThan(16); // 60fps target
   });
 });
 ```
 
-### Performance Testing
+## Deployment & Scaling
 
+### Build Optimization
+```json
+{
+  "scripts": {
+    "build": "vite build --mode production",
+    "build:analyze": "vite build --mode production && npx vite-bundle-analyzer",
+    "build:stats": "vite build --mode production --json > build-stats.json"
+  }
+}
+```
+
+### Performance Monitoring in Production
 ```typescript
-// Performance.test.ts
-import { measurePerformance } from '@/utils/testing';
-
-describe('MoneyMaker Performance', () => {
-  it('renders large opportunity lists efficiently', async () => {
-    const largeOpportunityList = generateMockOpportunities(1000);
-    
-    const metrics = await measurePerformance(() => {
-      render(<UltimateMoneyMaker opportunities={largeOpportunityList} />);
-    });
-    
-    expect(metrics.renderTime).toBeLessThan(100); // ms
-    expect(metrics.memoryUsage).toBeLessThan(50 * 1024 * 1024); // 50MB
-  });
-});
+// Enable production monitoring
+if (process.env.NODE_ENV === 'production') {
+  const service = PerformanceOptimizationService.getInstance();
+  service.startMonitoring();
+  
+  // Report critical metrics
+  setInterval(() => {
+    const metrics = service.getMetrics();
+    if (metrics.webVitals.lcp > 2500) {
+      console.warn('LCP threshold exceeded:', metrics.webVitals.lcp);
+    }
+  }, 30000);
+}
 ```
 
----
+### Scaling Configuration
+```typescript
+// Production configuration
+const productionConfig = {
+  cache: {
+    maxSize: 500,        // Increased cache size
+    ttl: 600000,         // 10-minute TTL
+    strategy: 'lru',
+    compression: true,
+    persistence: true
+  },
+  virtualization: {
+    enabled: true,
+    itemHeight: 200,
+    overscan: 15,        // Increased overscan for smoother scrolling
+    threshold: 25,       // Lower threshold for virtualization
+    chunkSize: 50        // Larger chunks for better performance
+  }
+};
+```
 
 ## Troubleshooting
 
 ### Common Issues
 
-#### 1. Quantum Engine Not Initializing
-
-**Symptoms**: Quantum status shows "inactive" or "error"
-
-**Solutions**:
-```typescript
-// Check quantum engine configuration
-const quantumConfig = {
-  coherenceThreshold: 0.85, // Try lowering to 0.75
-  entanglementDepth: 2,     // Reduce from 3 to 2
-  maxStates: 100            // Reduce if memory issues
-};
-
-// Enable debug logging
-const quantum = useQuantumEngine({ 
-  ...quantumConfig, 
-  debug: true 
-});
-```
-
-#### 2. Model Ensemble Performance Issues
-
-**Symptoms**: Slow predictions, high memory usage
+#### 1. Performance Degradation
+**Symptoms**: Slow rendering, high memory usage, low frame rates
 
 **Solutions**:
-```typescript
-// Reduce model complexity
-const modelConfig = {
-  xgboost: { maxDepth: 6, nEstimators: 100 }, // Reduce from defaults
-  neural: { layers: [64, 32], epochs: 50 },   // Smaller network
-  lstm: { units: 32, timeSteps: 10 }          // Reduce time steps
-};
+1. Check performance metrics: `service.getMetrics()`
+2. Analyze optimization opportunities: `service.analyzePerformance()`
+3. Clear caches: `service.clearCache()`
+4. Enable garbage collection: `config.memory.garbageCollection.enabled = true`
 
-// Enable model caching
-const models = useModelEnsemble({ 
-  ...modelConfig, 
-  cacheSize: 1000,
-  enableCaching: true 
-});
-```
-
-#### 3. Risk Calculation Errors
-
-**Symptoms**: NaN values in risk metrics, calculation errors
+#### 2. Virtual Scrolling Issues
+**Symptoms**: Jumping content, incorrect item positioning
 
 **Solutions**:
-```typescript
-// Validate input data
-const validateOpportunity = (opp: BettingOpportunity): boolean => {
-  return (
-    opp.odds > 0 &&
-    opp.confidence >= 0 && opp.confidence <= 100 &&
-    opp.expectedROI !== null &&
-    !isNaN(opp.expectedROI)
-  );
-};
+1. Verify `estimateSize` accuracy
+2. Check `overscan` configuration
+3. Ensure consistent item heights
+4. Update `@tanstack/react-virtual` to latest version
 
-// Use safe calculations
-const safeKellyCalculation = (winProb: number, odds: number): number => {
-  if (winProb <= 0 || winProb >= 1 || odds <= 1) return 0;
-  return Math.max(0, Math.min(0.25, (winProb * odds - 1) / (odds - 1)));
-};
+#### 3. Cache Misses
+**Symptoms**: Low cache hit rate, frequent API calls
+
+**Solutions**:
+1. Increase cache size: `config.cache.maxSize`
+2. Adjust TTL: `config.cache.ttl`
+3. Optimize cache keys for better hit rate
+4. Monitor cache statistics: `cache.getStats()`
+
+#### 4. Memory Leaks
+**Symptoms**: Increasing memory usage over time
+
+**Solutions**:
+1. Enable automatic cleanup: `config.memory.componentCleanup.enabled = true`
+2. Reduce cache sizes for low-hit-rate caches
+3. Check for proper event listener cleanup
+4. Use React DevTools Profiler to identify leaks
+
+### Debug Tools
+
+#### Performance Analysis
+```typescript
+// Get comprehensive analysis
+const analysis = service.analyzePerformance();
+console.log('Performance Analysis:', analysis);
+
+// Monitor specific metrics
+const metrics = service.getMetrics();
+console.log('Web Vitals:', metrics.webVitals);
+console.log('Cache Hit Rate:', metrics.cacheHitRate);
 ```
 
-### Debug Mode
-
-Enable debug mode for detailed logging:
-
+#### Cache Debugging
 ```typescript
-<UltimateMoneyMaker
-  debug={true}
-  logLevel="verbose"
-  onDebugLog={(log) => console.log('MoneyMaker:', log)}
-/>
-```
+// Check cache statistics
+const playerCache = service.getCache('players');
+const stats = playerCache?.getStats();
+console.log('Player Cache Stats:', stats);
 
-### Performance Monitoring
-
-```typescript
-import { PerformanceMonitor } from '@/utils/performance';
-
-const MoneyMakerWithMonitoring: React.FC = () => {
-  const monitor = usePerformanceMonitor({
-    trackRenderTime: true,
-    trackMemoryUsage: true,
-    trackUserInteractions: true
+// Monitor cache usage
+setInterval(() => {
+  const allCaches = ['api', 'players', 'predictions', 'components'];
+  allCaches.forEach(cacheType => {
+    const cache = service.getCache(cacheType);
+    console.log(`${cacheType} cache:`, cache?.getStats());
   });
-
-  return (
-    <PerformanceMonitor.Provider value={monitor}>
-      <UltimateMoneyMaker />
-    </PerformanceMonitor.Provider>
-  );
-};
+}, 10000);
 ```
-
----
 
 ## Contributing
 
 ### Development Setup
+1. Clone repository: `git clone https://github.com/itzcole03/A1Betting7-13.2.git`
+2. Install dependencies: `cd frontend && npm install`
+3. Start development server: `npm run dev`
+4. Run tests: `npm test`
 
-1. **Clone and Install**
-```bash
-git clone https://github.com/your-org/a1betting.git
-cd a1betting/frontend
-npm install
-```
+### Code Quality Standards
+- TypeScript strict mode enabled
+- ESLint configuration for betting-specific rules
+- Prettier formatting enforced
+- Component testing required
+- Performance testing for critical paths
 
-2. **Environment Configuration**
-```bash
-cp .env.example .env.local
-# Configure API endpoints and feature flags
-```
-
-3. **Start Development Server**
-```bash
-npm run dev
-```
-
-4. **Run Tests**
-```bash
-npm run test
-npm run test:coverage
-npm run test:e2e
-```
-
-### Code Style Guidelines
-
-- Follow the [A1Betting Component Coding Standards](./BETTING_COMPONENT_STANDARDS.md)
-- Use TypeScript strictly (no `any` types)
-- Write comprehensive JSDoc documentation
-- Include unit tests for all new features
-- Follow React 19 best practices
-
-### Pull Request Process
-
-1. Create feature branch from `main`
-2. Implement changes with tests
+### Pull Request Guidelines
+1. Include performance impact analysis
+2. Add comprehensive tests
 3. Update documentation
-4. Ensure all tests pass
-5. Submit PR with detailed description
+4. Verify bundle size impact
+5. Test with large datasets (1000+ props)
 
-### Feature Requests
-
-Submit feature requests via GitHub Issues with:
-- Clear use case description
-- Expected behavior
-- Performance considerations
-- Breaking change analysis
-
----
-
-## Changelog
-
-### v2.1.0 (Latest)
-- ✨ Enhanced quantum engine with improved coherence detection
-- 🚀 React 19 concurrent features integration
-- 📊 Advanced risk metrics dashboard
-- 🔧 Performance optimizations and memory management
-- 📚 Comprehensive documentation updates
-
-### v2.0.0
-- 🎯 Complete quantum AI engine implementation
-- 🤖 ML model ensemble with dynamic weighting
-- 📈 Kelly Criterion integration
-- 🛡️ Advanced risk management system
-- 🎨 Modern UI with Framer Motion animations
-
-### v1.5.0
-- 📊 Basic ML model integration
-- 📱 Responsive design improvements
-- 🔄 Real-time data updates
-- 🧪 A/B testing framework
+### Performance Requirements
+All new components must meet:
+- Render time <16ms
+- Memory usage increase <5MB
+- Bundle size increase <50KB
+- Cache hit rate >70%
 
 ---
 
-## License
-
-This documentation and the Ultimate Money Maker component are proprietary to A1Betting. All rights reserved.
-
----
-
-## Support
-
-For technical support, feature requests, or bug reports:
-
-- 📧 Email: dev-team@a1betting.com
-- 💬 Slack: #moneymaker-support
-- 📖 Wiki: [Internal Documentation](https://wiki.a1betting.com/moneymaker)
-- 🐛 Issues: [GitHub Issues](https://github.com/a1betting/frontend/issues)
-
----
-
-*Last Updated: $(date)*
-*Version: 2.1.0*
-*Maintainer: A1Betting Dev Team*
+**Version**: 8.0.0  
+**Last Updated**: January 2025  
+**Maintainer**: A1Betting Development Team  
+**License**: MIT
