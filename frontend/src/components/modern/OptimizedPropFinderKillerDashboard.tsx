@@ -409,14 +409,14 @@ const OpportunityCard = memo(({
 OpportunityCard.displayName = 'OpportunityCard';
 
 // Virtualized list renderer
-const VirtualizedOpportunityList = memo(({ 
-  opportunities, 
-  selectedOpp, 
-  onSelect, 
-  onBookmark, 
+const VirtualizedOpportunityList = memo(({
+  opportunities,
+  selectedOpp,
+  onSelect,
+  onBookmark,
   filters,
   height,
-  itemSize 
+  itemSize
 }: {
   opportunities: PropOpportunity[];
   selectedOpp: PropOpportunity | null;
@@ -426,31 +426,54 @@ const VirtualizedOpportunityList = memo(({
   height: number;
   itemSize: number;
 }) => {
-  const renderItem = useCallback(({ index, style }: { index: number; style: React.CSSProperties }) => {
-    const opportunity = opportunities[index];
-    return (
-      <OpportunityCard
-        key={opportunity.id}
-        opportunity={opportunity}
-        isSelected={selectedOpp?.id === opportunity.id}
-        onSelect={onSelect}
-        onBookmark={onBookmark}
-        filters={filters}
-        style={style}
-      />
-    );
-  }, [opportunities, selectedOpp, onSelect, onBookmark, filters]);
+  const parentRef = React.useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: opportunities.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => itemSize,
+    overscan: 5,
+  });
 
   return (
-    <List
-      height={height}
-      itemCount={opportunities.length}
-      itemSize={itemSize}
-      overscanCount={5}
-      width="100%"
+    <div
+      ref={parentRef}
+      className="h-full overflow-auto"
+      style={{ height }}
     >
-      {renderItem}
-    </List>
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: '100%',
+          position: 'relative',
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualItem) => {
+          const opportunity = opportunities[virtualItem.index];
+          return (
+            <div
+              key={virtualItem.key}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: `${virtualItem.size}px`,
+                transform: `translateY(${virtualItem.start}px)`,
+              }}
+            >
+              <OpportunityCard
+                opportunity={opportunity}
+                isSelected={selectedOpp?.id === opportunity.id}
+                onSelect={onSelect}
+                onBookmark={onBookmark}
+                filters={filters}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 });
 
