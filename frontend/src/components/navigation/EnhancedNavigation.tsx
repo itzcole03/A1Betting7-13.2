@@ -27,6 +27,7 @@ import {
   Star,
   Bell,
   HelpCircle,
+  Database,
 } from 'lucide-react';
 
 interface NavigationItem {
