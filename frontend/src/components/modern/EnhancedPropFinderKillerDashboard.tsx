@@ -111,7 +111,7 @@ const EnhancedPropFinderKillerDashboard: React.FC = () => {
     },
     quantumThreshold: 0.5
   });
-  const [sortBy, setSortBy] = useState<'confidence' | 'ev' | 'quantum' | 'kelly'>('confidence');
+  const [sortBy, setSortBy] = useState<'confidence' | 'ev' | 'advanced' | 'kelly'>('confidence');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [selectedProp, setSelectedProp] = useState<EnhancedPlayerProp | null>(null);
   const [advancedAnalysisActive, setAdvancedAnalysisActive] = useState(true);
