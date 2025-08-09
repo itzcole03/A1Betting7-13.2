@@ -7,21 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔍 Transparency Updates
+- **Quantum AI Terminology Correction**: Updated misleading "Quantum Computing Simulation" to accurate "Quantum-Inspired Classical Algorithms"
+- **Live Demo Monitoring**: Added comprehensive performance monitoring and health tracking for live demo
+- **Changelog Integration**: Implemented automated changelog management with transparency flagging
+
 ## [8.0.0] - 2025-01-20
 
 ### 🚀 Major Features Added
 
-#### Quantum AI Engine Implementation
-- **Revolutionary Quantum AI System**: Implemented quantum computing simulation with superposition states, entanglement detection, and interference pattern recognition
+#### Advanced Mathematical Optimization Engine 🔍 TRANSPARENCY UPDATE
+- **Quantum-Inspired Classical Algorithms**: Implemented sophisticated optimization using quantum annealing simulation, variational methods, and ensemble learning (previously incorrectly labeled as "Quantum Computing")
 - **Neural Network Ensemble**: Integrated XGBoost, LSTM, Random Forest, and Neural Network models for consensus predictions
 - **Real-time Model Tracking**: Live performance metrics with confidence intervals and drift detection
-- **Quantum State Visualization**: Interactive quantum indicators showing superposition, entanglement, interference, and coherence
+- **Mathematical Visualization**: Interactive displays showing probability analysis, correlation detection, and optimization states (actual mathematical models, not quantum hardware)
 
 #### Enhanced PropFinder-Killer Dashboard
 - **PropFinder-Style Interface**: Complete visual parity with PropFinder while adding advanced features
 - **Virtual Scrolling Optimization**: Handle 10,000+ props with @tanstack/react-virtual integration
 - **React 19 Concurrent Features**: Implemented useTransition, useDeferredValue, and startTransition for optimal performance
-- **Advanced Filtering System**: ML-powered prop recommendations with quantum AI insights
+- **Advanced Filtering System**: ML-powered prop recommendations with quantum-inspired optimization insights
 - **Kelly Criterion Integration**: Optimal bet sizing calculations with risk-adjusted metrics
 
 #### Comprehensive Statistical Analysis Suite
