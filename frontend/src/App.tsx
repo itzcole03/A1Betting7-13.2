@@ -300,11 +300,25 @@ const _AppContent: React.FC = () => {
 
   // Show user-friendly UI for all authenticated users
   console.log('[APP] Rendering UserFriendlyApp (clean UI)');
+
+  // Handle critical reliability issues without disrupting user experience
+  const handleCriticalIssue = (issue: string) => {
+    console.warn('[APP] Critical reliability issue detected:', issue);
+    // Could trigger silent recovery or background notification
+    // Avoid disruptive user notifications unless absolutely necessary
+  };
+
   return (
     <ErrorBoundary>
-      <ServiceWorkerUpdateNotification />
-      <UpdateModal />
-      <LazyUserFriendlyApp />
+      <ReliabilityIntegrationWrapper
+        enableMonitoring={true}
+        monitoringLevel="standard"
+        onCriticalIssue={handleCriticalIssue}
+      >
+        <ServiceWorkerUpdateNotification />
+        <UpdateModal />
+        <LazyUserFriendlyApp />
+      </ReliabilityIntegrationWrapper>
     </ErrorBoundary>
   );
 };
