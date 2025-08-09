@@ -139,8 +139,14 @@ export const CheatsheetsDashboard: React.FC = () => {
 
       const isCloudEnvironment = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
 
-      if (isCloudEnvironment) {
+      // Enhanced error handling for different types of errors
+      if (errorMessage.includes('500')) {
+        setError('Server error (500) - Backend is experiencing issues. Using demo data.');
+        console.warn('[CheatsheetsDashboard] Server error detected - this indicates backend API problems');
+      } else if (isCloudEnvironment) {
         setError('Using demo data - Backend not connected to cloud environment');
+      } else if (errorMessage.includes('timeout') || errorMessage.includes('fetch')) {
+        setError('Network timeout - Check backend connection. Using demo data.');
       } else {
         setError(`Service error: ${errorMessage}`);
       }
@@ -148,7 +154,8 @@ export const CheatsheetsDashboard: React.FC = () => {
       setApiHealth(false);
       setDataSource('fallback');
 
-      // Service handles fallback internally, so we should still get data
+      // Service handles fallback internally with enhanced data,
+      // but if service completely fails, provide empty array
       setOpportunities([]);
     } finally {
       setLoading(false);
