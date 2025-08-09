@@ -942,6 +942,24 @@ class EnhancedProductionApp:
             except Exception as e:
                 self.logger.warning(f"Could not include odds_routes router: {str(e)}")
 
+            # PHASE 4.1: Live Betting Engine routes
+            try:
+                from .routes.live_betting_routes import router as live_betting_router
+                self.app.include_router(live_betting_router, tags=["Live Betting Engine"])
+                enhanced_routes.append("live_betting")
+                self.logger.info("✅ Phase 4.1: Live Betting Engine routes included")
+            except Exception as e:
+                self.logger.warning(f"Could not include live_betting_routes router: {str(e)}")
+
+            # PHASE 4.2: Advanced Arbitrage Detection routes
+            try:
+                from .routes.advanced_arbitrage_routes import router as advanced_arbitrage_router
+                self.app.include_router(advanced_arbitrage_router, tags=["Advanced Arbitrage"])
+                enhanced_routes.append("advanced_arbitrage")
+                self.logger.info("✅ Phase 4.2: Advanced Arbitrage Detection routes included")
+            except Exception as e:
+                self.logger.warning(f"Could not include advanced_arbitrage_routes router: {str(e)}")
+
             # NEW: Cheatsheets routes (prop opportunities)
             try:
                 self.app.include_router(cheatsheets_router, prefix="/api", tags=["Cheatsheets"])
