@@ -514,5 +514,8 @@ class ReliabilityMonitoringOrchestrator {
   }
 }
 
+// Export singleton instance for easy importing
+export const reliabilityMonitoringOrchestrator = ReliabilityMonitoringOrchestrator.getInstance();
+
 export default ReliabilityMonitoringOrchestrator;
 export type { ReliabilityReport, MonitoringConfiguration };
