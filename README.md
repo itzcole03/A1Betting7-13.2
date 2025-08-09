@@ -138,6 +138,7 @@ ROI: Immediate + Long-term value
 
 ### 🎯 **1. PropFinder-Style Player Research**
 - **Enhanced Player Dashboard**: PropFinder-matching interface with advanced analytics
+- **Ultimate Money Maker**: Quantum AI-powered betting engine with neural network analysis
 - **Customizable Trend Ranges**: L5, L10, L15, L20, L25 games with custom range support
 - **AI Confidence Scoring**: Multi-factor analysis with Expected Value calculations and transparent reasoning
 - **Comprehensive Search**: Real-time player lookup with season stats, Statcast data, and matchup analysis
@@ -210,7 +211,7 @@ ROI: Immediate + Long-term value
 
 ### System Architecture
 ```
-┌─────────────────────┐    ┌���──────────��──────────┐    ┌─────────────────────┐
+┌─────────────────────┐    ┌───────────��──────────┐    ┌─────────────────────┐
 │   React 19 Frontend │    │   FastAPI Backend    │    │   External APIs     │
 │                     │    │                      │    │                     │
 │ • PropFinder UI     │◄──►│ • AI Processing      │◄──►│ • DraftKings        │
