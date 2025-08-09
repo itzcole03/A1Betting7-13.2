@@ -165,7 +165,7 @@ ROI: Immediate + Long-term value
 ### 💰 **2. Multi-Sportsbook Arbitrage**
 - **8+ Sportsbooks**: DraftKings, FanDuel, BetMGM, Caesars, BetRivers+
 - **Real-Time Detection**: Automatic profit opportunity identification
-- **Quantum-Enhanced Calculations**: Advanced arbitrage and EV calculations
+- **Advanced Mathematical Calculations**: Sophisticated arbitrage and EV calculations using quantum-inspired optimization
 - **Alert System**: Push notifications for high-value opportunities
 - **Best Line Finder**: ML-powered optimal line selection
 
@@ -228,7 +228,7 @@ ROI: Immediate + Long-term value
 
 ### System Architecture
 ```
-┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────���───────┐
+┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────��───────┐
 │   React 19 Frontend │    │   FastAPI Backend    │    │   External APIs     │
 │                     │    │                      │    │                     │
 │ • Quantum AI UI     │◄──►│ 🧠 Quantum AI Engine │◄──►│ • DraftKings        │
@@ -236,12 +236,12 @@ ROI: Immediate + Long-term value
 │ • Real-time Monitor │    │ • Performance Optim  │    │ • BetMGM            │
 │ • Risk Tools        │    │ • Monitoring System  │    │ • SportsRadar       │
 │ • Demo Mode         │    │ • Caching Layer      │    │ • Injury Reports    │
-└──────────��──────────┘    └─────────────────────┘    └─────────────────────┘
+└──────────��──────────┘    └─────────────────────┘    └───��─────────────────┘
          │                           │                           │
          └──────────────────────��────┼───────────────────────────┘
                                      │
                                ┌─────▼─────┐
-                               ��  Ollama   │
+                               │  Ollama   │
                                │ AI Server │
                                └───────────┘
 ```
@@ -266,13 +266,13 @@ A1Betting/
 ├── 📁 frontend/                      # React 19 Application
 │   ├── 📁 src/
 │   │   ├── 📁 components/
-│   │   │   ├── 📁 modern/            # Quantum AI Enhanced Components
+│   │   │   ├��─ 📁 modern/            # Quantum AI Enhanced Components
 │   │   │   │   ├── 📄 EnhancedPropFinderKillerDashboard.tsx
 │   │   │   │   ├── 📄 OptimizedPropFinderKillerDashboard.tsx
 │   │   │   │   └── 📄 QuantumAIAnalyticsPanel.tsx
 │   │   │   ├── 📁 analysis/          # Advanced Analytics Suite
 │   │   │   │   └── 📄 AdvancedMatchupAnalysisTools.tsx
-│   │   │   ├������ 📁 MoneyMaker/        # Ultimate Money Maker
+│   │   │   ├─��� 📁 MoneyMaker/        # Ultimate Money Maker
 │   │   │   │   └── 📄 EnhancedUltimateMoneyMaker.tsx
 │   │   │   ├── 📁 monitoring/        # System Monitoring
 │   │   ��   │   └── 📄 ComprehensiveMonitoringDashboard.tsx
