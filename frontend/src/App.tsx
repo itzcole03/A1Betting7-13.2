@@ -23,6 +23,8 @@ import { getBackendUrl } from './utils/getBackendUrl';
 import { createLazyComponent } from './utils/lazyLoading';
 import { getLocation } from './utils/location';
 import { usePerformanceTracking } from './utils/performance';
+import { ReliabilityIntegrationWrapper } from './components/reliability/ReliabilityIntegrationWrapper';
+import { coreFunctionalityValidator } from './services/coreFunctionalityValidator';
 
 console.log(
   '[APP] Starting App.tsx rendering with React 19 features - Checking for module resolution issues'
