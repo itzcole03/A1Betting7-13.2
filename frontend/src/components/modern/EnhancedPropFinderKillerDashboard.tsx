@@ -725,9 +725,9 @@ const EnhancedPropFinderKillerDashboard: React.FC = () => {
                 </div>
 
                 <div className="space-y-4">
-                  {quantumAnalysisActive && (
+                  {advancedAnalysisActive && (
                     <div className="bg-gray-800 rounded-lg p-4">
-                      <h3 className="font-semibold mb-3">Quantum AI Analysis</h3>
+                      <h3 className="font-semibold mb-3">Advanced AI Analysis</h3>
                       <div className="space-y-3">
                         <div>
                           <div className="flex justify-between mb-1">
