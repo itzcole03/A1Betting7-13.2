@@ -42,13 +42,13 @@ const CheatsheetsDiagnostic: React.FC<CheatsheetsDiagnosticProps> = ({
     setLoading(true);
     try {
       console.log('[Diagnostics] Starting comprehensive API diagnostics...');
-
+      
       // Run comprehensive API health report
       const healthReport = await APITester.generateHealthReport();
-
+      
       // Test basic service health
       const serviceHealthy = await cheatsheetsService.healthCheck();
-
+      
       // Get detailed diagnostic info
       let diagnosticData = null;
       try {
@@ -61,7 +61,7 @@ const CheatsheetsDiagnostic: React.FC<CheatsheetsDiagnosticProps> = ({
       let errorDetails = '';
       if (healthReport.overall.issues.length > 0) {
         errorDetails = healthReport.overall.issues.join('\n');
-
+        
         // Add specific endpoint details
         if (!healthReport.endpoints.opportunities.success) {
           errorDetails += `\n\nOpportunities Endpoint Details:\n`;
@@ -122,49 +122,58 @@ const CheatsheetsDiagnostic: React.FC<CheatsheetsDiagnosticProps> = ({
     );
   };
 
-  const getStatusBadge = (healthy: boolean) => {
+  const getStatusBadge = (healthy: boolean, text: string = healthy ? 'HEALTHY' : 'ERROR') => {
     return (
-      <Badge className={healthy ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}>
-        {healthy ? 'HEALTHY' : 'ERROR'}
-      </Badge>
+      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+        healthy ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+      }`}>
+        {text}
+      </span>
     );
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto m-4">
-        <CardHeader>
+      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto m-4 bg-slate-800 border border-slate-700 rounded-xl">
+        {/* Header */}
+        <div className="p-6 border-b border-slate-700">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2">
               <Bug className="w-6 h-6 text-red-500" />
-              <span>Cheatsheets API Diagnostics</span>
-            </CardTitle>
-            <Button variant="outline" onClick={onClose}>
+              <h2 className="text-xl font-bold text-white">Cheatsheets API Diagnostics</h2>
+            </div>
+            <button 
+              onClick={onClose}
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded border border-slate-600"
+            >
               Close
-            </Button>
+            </button>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
+        </div>
+
+        <div className="p-6 space-y-6">
           {/* Error Summary */}
           {errorMessage && (
-            <Alert className="border-red-500 bg-red-50">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-700">
-                <strong>Current Error:</strong> {errorMessage}
-              </AlertDescription>
-            </Alert>
+            <div className="border border-red-500 bg-red-50 rounded-lg p-4">
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+                <span className="text-red-700">
+                  <strong>Current Error:</strong> {errorMessage}
+                </span>
+              </div>
+            </div>
           )}
 
           {/* Control Panel */}
           <div className="flex items-center space-x-4">
-            <Button 
+            <button 
               onClick={handleRetry} 
               disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded"
             >
-              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              {loading ? 'Running...' : 'Run Diagnostics'}
-            </Button>
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              <span>{loading ? 'Running...' : 'Run Diagnostics'}</span>
+            </button>
             {retryCount > 0 && (
               <span className="text-sm text-gray-500">
                 Attempts: {retryCount}
@@ -176,142 +185,124 @@ const CheatsheetsDiagnostic: React.FC<CheatsheetsDiagnosticProps> = ({
           {diagnostics && (
             <div className="space-y-4">
               {/* API Status */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center space-x-2">
-                    <Server className="w-5 h-5" />
-                    <span>API Status</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Health Check</span>
-                      <div className="flex items-center space-x-2">
-                        {getStatusIcon(diagnostics.apiHealthy)}
-                        {getStatusBadge(diagnostics.apiHealthy)}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Response Time</span>
-                      <span className="text-sm">
-                        {diagnostics.responseTime ? `${diagnostics.responseTime}ms` : 'N/A'}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Last Checked</span>
-                      <span className="text-sm">
-                        {diagnostics.lastChecked.toLocaleTimeString()}
-                      </span>
+              <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Server className="w-5 h-5 text-white" />
+                  <h3 className="text-lg font-semibold text-white">API Status</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-300">Health Check</span>
+                    <div className="flex items-center space-x-2">
+                      {getStatusIcon(diagnostics.apiHealthy)}
+                      {getStatusBadge(diagnostics.apiHealthy)}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-300">Response Time</span>
+                    <span className="text-sm text-gray-300">
+                      {diagnostics.responseTime ? `${diagnostics.responseTime}ms` : 'N/A'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-300">Last Checked</span>
+                    <span className="text-sm text-gray-300">
+                      {diagnostics.lastChecked.toLocaleTimeString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
               {/* Error Details */}
               {diagnostics.errorDetails && (
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center space-x-2 text-red-600">
-                      <AlertTriangle className="w-5 h-5" />
-                      <span>Error Details</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                      <pre className="text-sm text-red-700 whitespace-pre-wrap">
-                        {diagnostics.errorDetails}
-                      </pre>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-4 text-red-400">
+                    <AlertTriangle className="w-5 h-5" />
+                    <h3 className="text-lg font-semibold">Error Details</h3>
+                  </div>
+                  <div className="bg-red-950 border border-red-800 rounded-lg p-4">
+                    <pre className="text-sm text-red-300 whitespace-pre-wrap">
+                      {diagnostics.errorDetails}
+                    </pre>
+                  </div>
+                </div>
               )}
 
               {/* Backend Connection */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center space-x-2">
-                    <Wifi className="w-5 h-5" />
-                    <span>Backend Connection</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Connection Status</span>
-                    <div className="flex items-center space-x-2">
-                      {getStatusIcon(diagnostics.backendConnected)}
-                      {getStatusBadge(diagnostics.backendConnected)}
-                    </div>
+              <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Wifi className="w-5 h-5 text-white" />
+                  <h3 className="text-lg font-semibold text-white">Backend Connection</h3>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-300">Connection Status</span>
+                  <div className="flex items-center space-x-2">
+                    {getStatusIcon(diagnostics.backendConnected)}
+                    {getStatusBadge(diagnostics.backendConnected)}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* Diagnostic Data */}
               {diagnostics.diagnosticData && (
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center space-x-2">
-                      <Database className="w-5 h-5" />
-                      <span>Backend Information</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="bg-gray-50 border rounded-lg p-4">
-                      <pre className="text-sm text-gray-700 whitespace-pre-wrap">
-                        {JSON.stringify(diagnostics.diagnosticData, null, 2)}
-                      </pre>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Database className="w-5 h-5 text-white" />
+                    <h3 className="text-lg font-semibold text-white">Backend Information</h3>
+                  </div>
+                  <div className="bg-gray-800 border border-gray-600 rounded-lg p-4">
+                    <pre className="text-sm text-gray-300 whitespace-pre-wrap overflow-auto max-h-60">
+                      {JSON.stringify(diagnostics.diagnosticData, null, 2)}
+                    </pre>
+                  </div>
+                </div>
               )}
 
               {/* Troubleshooting Steps */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center space-x-2">
-                    <Activity className="w-5 h-5" />
-                    <span>Troubleshooting Steps</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {diagnostics.errorDetails?.includes('500') && (
-                      <Alert className="border-orange-500 bg-orange-50">
-                        <AlertTriangle className="h-4 w-4 text-orange-600" />
-                        <AlertDescription className="text-orange-700">
+              <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Activity className="w-5 h-5 text-white" />
+                  <h3 className="text-lg font-semibold text-white">Troubleshooting Steps</h3>
+                </div>
+                <div className="space-y-3">
+                  {diagnostics.errorDetails?.includes('500') && (
+                    <div className="border border-orange-500 bg-orange-950 rounded-lg p-4">
+                      <div className="flex items-center space-x-2">
+                        <AlertTriangle className="h-4 w-4 text-orange-400" />
+                        <span className="text-orange-300">
                           <strong>Server Error (500):</strong> This indicates a backend API issue. 
                           Check backend logs for database connections, API route handlers, or server configuration problems.
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                    
-                    <div className="space-y-2">
-                      <h4 className="font-semibold text-sm">Common Solutions:</h4>
-                      <ul className="text-sm space-y-1 text-gray-600">
-                        <li>• Check if the backend server is running</li>
-                        <li>• Verify database connections are working</li>
-                        <li>• Check backend API route configurations</li>
-                        <li>• Review backend server logs for errors</li>
-                        <li>• Ensure all required environment variables are set</li>
-                        <li>• Test API endpoints directly using tools like Postman</li>
-                      </ul>
+                        </span>
+                      </div>
                     </div>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-sm text-white">Common Solutions:</h4>
+                    <ul className="text-sm space-y-1 text-gray-300">
+                      <li>• Check if the backend server is running</li>
+                      <li>• Verify database connections are working</li>
+                      <li>• Check backend API route configurations</li>
+                      <li>• Review backend server logs for errors</li>
+                      <li>• Ensure all required environment variables are set</li>
+                      <li>• Test API endpoints directly using tools like Postman</li>
+                    </ul>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           )}
 
           {loading && (
             <div className="flex items-center justify-center py-8">
               <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
-              <span className="ml-2 text-gray-600">Running diagnostics...</span>
+              <span className="ml-2 text-gray-400">Running diagnostics...</span>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
