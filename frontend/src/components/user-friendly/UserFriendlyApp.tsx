@@ -30,6 +30,9 @@ const AdvancedPlayerDashboard = React.lazy(() => import('../enhanced/AdvancedPla
 const RealTimePlayerLookup = React.lazy(() => import('../search/RealTimePlayerLookup'));
 const MatchupAnalysisTools = React.lazy(() => import('../analysis/MatchupAnalysisTools'));
 
+// NEW: Phase 2 Data Ecosystem Dashboard
+const DataEcosystemDashboard = React.lazy(() => import('../data-ecosystem/DataEcosystemDashboard'));
+
 const UserFriendlyApp: React.FC = () => {
   const location = useLocation();
   const [navigationOpen, setNavigationOpen] = useState(false);
