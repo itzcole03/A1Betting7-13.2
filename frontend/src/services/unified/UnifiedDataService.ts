@@ -50,11 +50,11 @@ export class UnifiedDataService extends BaseService {
 
   async fetchTeamData(teamId: string, sport: string): Promise<unknown> {
     try {
-      const _cacheKey = `team_data_${teamId}_${sport}`;
-      const _cached = this.cache.get(cacheKey);
+      const cacheKey = `team_data_${teamId}_${sport}`;
+      const cached = this.cache.get(cacheKey);
       if (cached) return cached;
 
-      const _response = await this.get(`/api/teams/${teamId}?sport=${sport}`);
+      const response = await this.get(`/api/teams/${teamId}?sport=${sport}`);
       this.cache.set(cacheKey, response, 600000); // 10 min cache
       return response;
     } catch (error) {
@@ -66,7 +66,7 @@ export class UnifiedDataService extends BaseService {
   async fetchLiveData(sport: string): Promise<unknown> {
     try {
       // No caching for live data
-      const _response = await this.get(`/api/live/${sport}`);
+      const response = await this.get(`/api/live/${sport}`);
       return response;
     } catch (error) {
       this.logger.error('Failed to fetch live data', error);
@@ -76,11 +76,11 @@ export class UnifiedDataService extends BaseService {
 
   async searchData(query: string, filters: unknown = {}): Promise<unknown> {
     try {
-      const _cacheKey = `search_${query}_${JSON.stringify(filters)}`;
-      const _cached = this.cache.get(cacheKey);
+      const cacheKey = `search_${query}_${JSON.stringify(filters)}`;
+      const cached = this.cache.get(cacheKey);
       if (cached) return cached;
 
-      const _response = await this.post('/api/search', { query, filters });
+      const response = await this.post('/api/search', { query, filters });
       this.cache.set(cacheKey, response, 180000); // 3 min cache
       return response;
     } catch (error) {
@@ -91,7 +91,7 @@ export class UnifiedDataService extends BaseService {
 
   clearCache(pattern?: string): void {
     if (pattern) {
-      const _keys = this.cache.getKeys().filter(key => key.includes(pattern));
+      const keys = this.cache.getKeys().filter(key => key.includes(pattern));
       keys.forEach(key => this.cache.delete(key));
     } else {
       this.cache.clear();
