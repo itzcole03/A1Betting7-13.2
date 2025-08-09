@@ -16,6 +16,7 @@ import {
   Bug,
 } from 'lucide-react';
 import cheatsheetsService from '../../../services/cheatsheetsService';
+import APITester from '../../../utils/apiTester';
 
 interface DiagnosticInfo {
   apiHealthy: boolean;
