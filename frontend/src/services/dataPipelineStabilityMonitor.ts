@@ -1,6 +1,4 @@
 import { UnifiedDataService } from './unified/UnifiedDataService';
-import { PropOllamaService } from './unified/PropOllamaService';
-import { SportsService } from './unified/SportsService';
 
 interface ServiceHealthMetrics {
   serviceName: string;
