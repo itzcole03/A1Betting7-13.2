@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useEffect } from 'react';
+import { useCallback, useRef, useEffect, useState } from 'react';
 
 // Performance monitoring interfaces
 interface PerformanceMetric {
@@ -16,17 +16,6 @@ interface ComponentPerformance {
   averageRenderTime: number;
   lastRenderTime: number;
   memoryUsage?: number;
-}
-
-interface BundleAnalysis {
-  totalSize: number;
-  chunks: Array<{
-    name: string;
-    size: number;
-    percentage: number;
-  }>;
-  unusedCode: number;
-  duplicateModules: string[];
 }
 
 // Performance optimizer class
@@ -96,51 +85,6 @@ export class PerformanceOptimizer {
       } catch (error) {
         console.warn('Layout shift monitoring not supported:', error);
       }
-
-      // Monitor First Input Delay
-      try {
-        const fidObserver = new PerformanceObserver((list) => {
-          list.getEntries().forEach((entry) => {
-            this.recordMetric('fid', {
-              name: 'First Input Delay',
-              value: entry.duration,
-              timestamp: Date.now(),
-              threshold: 100,
-              type: 'duration'
-            });
-          });
-        });
-        fidObserver.observe({ entryTypes: ['first-input'] });
-        this.observers.set('first-input', fidObserver);
-      } catch (error) {
-        console.warn('First input delay monitoring not supported:', error);
-      }
-    }
-
-    // Monitor Web Vitals
-    this.monitorWebVitals();
-  }
-
-  private monitorWebVitals(): void {
-    // Largest Contentful Paint
-    if ('PerformanceObserver' in window) {
-      try {
-        const lcpObserver = new PerformanceObserver((list) => {
-          const entries = list.getEntries();
-          const lastEntry = entries[entries.length - 1];
-          this.recordMetric('lcp', {
-            name: 'Largest Contentful Paint',
-            value: lastEntry.startTime,
-            timestamp: Date.now(),
-            threshold: 2500,
-            type: 'duration'
-          });
-        });
-        lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
-        this.observers.set('lcp', lcpObserver);
-      } catch (error) {
-        console.warn('LCP monitoring not supported:', error);
-      }
     }
   }
 
@@ -169,9 +113,6 @@ export class PerformanceOptimizer {
       threshold: metric.threshold,
       timestamp: new Date(metric.timestamp)
     });
-
-    // In production, you might want to send this to an analytics service
-    // analytics.track('performance_alert', metric);
   }
 
   getMetrics(category?: string): Map<string, PerformanceMetric[]> | PerformanceMetric[] {
@@ -179,16 +120,6 @@ export class PerformanceOptimizer {
       return this.metrics.get(category) || [];
     }
     return this.metrics;
-  }
-
-  getAverageMetric(category: string, metricName: string): number {
-    const categoryMetrics = this.metrics.get(category) || [];
-    const filteredMetrics = categoryMetrics.filter(m => m.name === metricName);
-    
-    if (filteredMetrics.length === 0) return 0;
-    
-    const sum = filteredMetrics.reduce((acc, metric) => acc + metric.value, 0);
-    return sum / filteredMetrics.length;
   }
 
   // Component performance tracking
@@ -239,34 +170,6 @@ export class PerformanceOptimizer {
     return null;
   }
 
-  // Bundle analysis
-  analyzeBundleSize(): BundleAnalysis | null {
-    if ('getEntriesByType' in performance) {
-      const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
-      const jsResources = resources.filter(r => r.name.includes('.js'));
-      
-      const chunks = jsResources.map(resource => ({
-        name: resource.name.split('/').pop() || 'unknown',
-        size: resource.transferSize || 0,
-        percentage: 0
-      }));
-
-      const totalSize = chunks.reduce((sum, chunk) => sum + chunk.size, 0);
-      
-      chunks.forEach(chunk => {
-        chunk.percentage = totalSize > 0 ? (chunk.size / totalSize) * 100 : 0;
-      });
-
-      return {
-        totalSize,
-        chunks: chunks.sort((a, b) => b.size - a.size),
-        unusedCode: 0, // Would need additional tooling to calculate
-        duplicateModules: []
-      };
-    }
-    return null;
-  }
-
   // Cleanup
   cleanup(): void {
     this.observers.forEach(observer => observer.disconnect());
@@ -300,108 +203,6 @@ export const usePerformanceMonitoring = (componentName: string) => {
   }, [optimizer]);
 
   return { trackCustomMetric };
-};
-
-// HOC for performance monitoring
-export const withPerformanceMonitoring = <P extends object>(
-  WrappedComponent: React.ComponentType<P>,
-  componentName?: string
-): React.ComponentType<P> => {
-  const displayName = componentName || WrappedComponent.displayName || WrappedComponent.name || 'Component';
-  
-  const PerformanceMonitoredComponent: React.FC<P> = (props) => {
-    const renderStartTime = useRef<number>(0);
-    const optimizer = PerformanceOptimizer.getInstance();
-
-    useEffect(() => {
-      renderStartTime.current = performance.now();
-      
-      return () => {
-        const renderTime = performance.now() - renderStartTime.current;
-        optimizer.trackComponentRender(displayName, renderTime);
-      };
-    });
-
-    return <WrappedComponent {...props} />;
-  };
-
-  PerformanceMonitoredComponent.displayName = `withPerformanceMonitoring(${displayName})`;
-  
-  return PerformanceMonitoredComponent;
-};
-
-// Utility functions for optimization
-export const optimizeImages = {
-  // Lazy loading with Intersection Observer
-  useLazyLoading: (threshold = 0.1) => {
-    const [isIntersecting, setIsIntersecting] = React.useState(false);
-    const ref = useRef<HTMLElement>(null);
-
-    useEffect(() => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setIsIntersecting(true);
-            observer.disconnect();
-          }
-        },
-        { threshold }
-      );
-
-      if (ref.current) {
-        observer.observe(ref.current);
-      }
-
-      return () => observer.disconnect();
-    }, [threshold]);
-
-    return [ref, isIntersecting] as const;
-  },
-
-  // Progressive image loading
-  useProgressiveImage: (lowQualitySrc: string, highQualitySrc: string) => {
-    const [src, setSrc] = React.useState(lowQualitySrc);
-    const [isLoaded, setIsLoaded] = React.useState(false);
-
-    useEffect(() => {
-      const img = new Image();
-      img.onload = () => {
-        setSrc(highQualitySrc);
-        setIsLoaded(true);
-      };
-      img.src = highQualitySrc;
-    }, [highQualitySrc]);
-
-    return { src, isLoaded };
-  }
-};
-
-// Virtual scrolling for large lists
-export const useVirtualScrolling = (
-  items: any[],
-  itemHeight: number,
-  containerHeight: number
-) => {
-  const [scrollTop, setScrollTop] = useState(0);
-  
-  const visibleStart = Math.floor(scrollTop / itemHeight);
-  const visibleEnd = Math.min(
-    visibleStart + Math.ceil(containerHeight / itemHeight) + 1,
-    items.length
-  );
-  
-  const visibleItems = items.slice(visibleStart, visibleEnd);
-  const totalHeight = items.length * itemHeight;
-  const offsetY = visibleStart * itemHeight;
-
-  return {
-    visibleItems,
-    totalHeight,
-    offsetY,
-    onScroll: (e: React.UIEvent<HTMLDivElement>) => {
-      setScrollTop(e.currentTarget.scrollTop);
-    }
-  };
 };
 
 // Debounce hook for performance
@@ -442,20 +243,31 @@ export const useThrottle = <T>(value: T, limit: number): T => {
   return throttledValue;
 };
 
-// Memoization utilities
-export const createMemoizedSelector = <T, R>(
-  selector: (state: T) => R,
-  equalityFn?: (a: R, b: R) => boolean
+// Virtual scrolling for large lists
+export const useVirtualScrolling = (
+  items: any[],
+  itemHeight: number,
+  containerHeight: number
 ) => {
-  let lastArgs: T | undefined;
-  let lastResult: R;
+  const [scrollTop, setScrollTop] = useState(0);
   
-  return (state: T): R => {
-    if (lastArgs === undefined || !equalityFn?.(selector(state), lastResult)) {
-      lastArgs = state;
-      lastResult = selector(state);
+  const visibleStart = Math.floor(scrollTop / itemHeight);
+  const visibleEnd = Math.min(
+    visibleStart + Math.ceil(containerHeight / itemHeight) + 1,
+    items.length
+  );
+  
+  const visibleItems = items.slice(visibleStart, visibleEnd);
+  const totalHeight = items.length * itemHeight;
+  const offsetY = visibleStart * itemHeight;
+
+  return {
+    visibleItems,
+    totalHeight,
+    offsetY,
+    onScroll: (e: React.UIEvent<HTMLDivElement>) => {
+      setScrollTop(e.currentTarget.scrollTop);
     }
-    return lastResult;
   };
 };
 
