@@ -256,7 +256,7 @@ const UltimateMoneyMaker: React.FC = () => {
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='text-center'>
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-            <div className='text-3xl font-bold text-cyan-400'>{averageConfidence.toFixed(1)}%</div>
+            <div className='text-3xl font-bold text-cyan-400'>{_averageConfidence.toFixed(1)}%</div>
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='text-gray-400'>AI Confidence</div>
           </div>
@@ -334,7 +334,7 @@ const UltimateMoneyMaker: React.FC = () => {
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <p className='text-gray-400 text-sm'>Quantum Confidence</p>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <p className='text-2xl font-bold text-cyan-400'>{averageConfidence.toFixed(1)}%</p>
+              <p className='text-2xl font-bold text-cyan-400'>{_averageConfidence.toFixed(1)}%</p>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <p className='text-xs text-cyan-300 mt-1'>47 neural networks</p>
             </div>
@@ -649,7 +649,7 @@ const UltimateMoneyMaker: React.FC = () => {
               <h4 className='text-sm font-medium text-gray-400 mb-2'>Win Probability</h4>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='text-2xl font-bold text-cyan-400'>
-                {averageConfidence.toFixed(1)}%
+                {_averageConfidence.toFixed(1)}%
               </div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='text-xs text-gray-500 mt-1'>From AI models</div>
@@ -660,7 +660,7 @@ const UltimateMoneyMaker: React.FC = () => {
               <h4 className='text-sm font-medium text-gray-400 mb-2'>Kelly %</h4>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='text-2xl font-bold text-green-400'>
-                {((averageConfidence / 100) * 2 - 1).toFixed(1)}%
+                {((_averageConfidence / 100) * 2 - 1).toFixed(1)}%
               </div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='text-xs text-gray-500 mt-1'>Optimal bet size</div>
@@ -673,7 +673,7 @@ const UltimateMoneyMaker: React.FC = () => {
               <div className='text-2xl font-bold text-purple-400'>
                 $
                 {Math.round(
-                  (totalBankroll * ((averageConfidence / 100) * 2 - 1)) / 100
+                  (totalBankroll * ((_averageConfidence / 100) * 2 - 1)) / 100
                 ).toLocaleString()}
               </div>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
