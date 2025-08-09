@@ -1,5 +1,3 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-
 // Error types
 export enum ErrorType {
   NETWORK = 'NETWORK',
@@ -39,7 +37,6 @@ interface ErrorRecoveryStrategy {
   type: 'retry' | 'fallback' | 'redirect' | 'refresh' | 'ignore';
   action?: () => void;
   maxRetries?: number;
-  fallbackComponent?: React.ComponentType;
   redirectUrl?: string;
 }
 
@@ -305,114 +302,15 @@ export class GlobalErrorHandler {
   }
 }
 
-// React Error Boundary Component
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
-  errorInfo: ErrorInfo | null;
-}
-
-interface ErrorBoundaryProps {
-  children: ReactNode;
-  fallbackComponent?: React.ComponentType<{ error: Error; retry: () => void }>;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
-}
-
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  private errorHandler = GlobalErrorHandler.getInstance();
-
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = {
-      hasError: false,
-      error: null,
-      errorInfo: null
-    };
-  }
-
-  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    return {
-      hasError: true,
-      error
-    };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    this.setState({
-      error,
-      errorInfo
-    });
-
-    // Report to global error handler
-    this.errorHandler.handleError({
-      type: ErrorType.RUNTIME,
-      severity: ErrorSeverity.HIGH,
-      message: error.message,
-      stack: error.stack,
-      componentStack: errorInfo.componentStack,
-      context: {
-        errorInfo
-      }
-    });
-
-    // Call custom error handler if provided
-    this.props.onError?.(error, errorInfo);
-  }
-
-  private handleRetry = (): void => {
-    this.setState({
-      hasError: false,
-      error: null,
-      errorInfo: null
-    });
-  };
-
-  render(): ReactNode {
-    if (this.state.hasError) {
-      if (this.props.fallbackComponent) {
-        const FallbackComponent = this.props.fallbackComponent;
-        return <FallbackComponent error={this.state.error!} retry={this.handleRetry} />;
-      }
-
-      return (
-        <div className="error-boundary-fallback p-8 text-center bg-red-50 border border-red-200 rounded-lg">
-          <h2 className="text-xl font-semibold text-red-800 mb-4">Something went wrong</h2>
-          <p className="text-red-600 mb-4">
-            We're sorry, but something unexpected happened. Please try again.
-          </p>
-          <button
-            onClick={this.handleRetry}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-          >
-            Try Again
-          </button>
-          {process.env.NODE_ENV === 'development' && this.state.error && (
-            <details className="mt-4 text-left text-sm">
-              <summary className="cursor-pointer text-red-700 font-medium">
-                Error Details (Development)
-              </summary>
-              <pre className="mt-2 p-4 bg-red-100 border rounded text-red-800 overflow-auto">
-                {this.state.error.stack}
-              </pre>
-            </details>
-          )}
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
 // Hook for error handling
 export const useErrorHandler = () => {
   const errorHandler = GlobalErrorHandler.getInstance();
 
-  const handleError = React.useCallback((error: Partial<AppError> & { message: string }) => {
+  const handleError = (error: Partial<AppError> & { message: string }) => {
     errorHandler.handleError(error);
-  }, [errorHandler]);
+  };
 
-  const handleAsyncError = React.useCallback((asyncFn: () => Promise<any>) => {
+  const handleAsyncError = (asyncFn: () => Promise<any>) => {
     return asyncFn().catch((error) => {
       handleError({
         type: ErrorType.API,
@@ -422,7 +320,7 @@ export const useErrorHandler = () => {
       });
       throw error; // Re-throw to allow caller to handle
     });
-  }, [handleError]);
+  };
 
   return {
     handleError,
@@ -431,24 +329,6 @@ export const useErrorHandler = () => {
     clearErrors: () => errorHandler.clearErrors(),
     getErrorStats: () => errorHandler.getErrorStats()
   };
-};
-
-// Utility functions
-export const withErrorBoundary = <P extends object>(
-  WrappedComponent: React.ComponentType<P>,
-  fallbackComponent?: React.ComponentType<{ error: Error; retry: () => void }>
-): React.ComponentType<P> => {
-  const WithErrorBoundaryComponent: React.FC<P> = (props) => (
-    <ErrorBoundary fallbackComponent={fallbackComponent}>
-      <WrappedComponent {...props} />
-    </ErrorBoundary>
-  );
-
-  WithErrorBoundaryComponent.displayName = `withErrorBoundary(${
-    WrappedComponent.displayName || WrappedComponent.name || 'Component'
-  })`;
-
-  return WithErrorBoundaryComponent;
 };
 
 export default GlobalErrorHandler;
