@@ -61,7 +61,17 @@
 - **Git** for version control
 - **Ollama** (optional, for AI features)
 
-### 30-Second Demo
+### 🌐 Live Demo
+**[View Live Demo](https://h1z3m1-5173.csb.app/)** - Experience the PropFinder killer in action!
+
+Features currently active in demo:
+- ✅ **3 Total Opportunities** with 91.0% average confidence
+- ✅ **24.8% Best Edge** detected automatically
+- ✅ **AI-Powered Prop Research** with real-time confidence scoring
+- ✅ **Auto-Refresh** and bookmarking functionality
+- ✅ **PropFinder-Style Interface** with enhanced AI features
+
+### 30-Second Local Setup
 ```bash
 # Clone and run immediately
 git clone https://github.com/itzcole03/A1Betting7-13.2.git
@@ -460,7 +470,7 @@ curl http://localhost:11434/api/tags
 6. Submit PR with detailed description
 
 ### Priority Areas
-- 🎯 **Quantum AI Enhancements** - Advanced quantum computing simulations
+- ��� **Quantum AI Enhancements** - Advanced quantum computing simulations
 - 🤖 **Neural Network Models** - Improve ensemble predictions
 - 📊 **Advanced Analytics** - New statistical modeling features
 - 📱 **Mobile Experience** - PWA enhancements with virtual scrolling
