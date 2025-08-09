@@ -199,6 +199,16 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       category: 'analytics',
     },
     {
+      id: 'data-ecosystem',
+      name: 'Data Ecosystem',
+      href: '/data-ecosystem',
+      icon: Database,
+      badge: 'NEW',
+      description: 'Monitor data infrastructure and quality',
+      category: 'analytics',
+      isNew: true,
+    },
+    {
       id: 'propfinder-comparison',
       name: 'vs PropFinder',
       href: '/comparison',
