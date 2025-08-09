@@ -528,7 +528,7 @@ const MatchupAnalysisTools: React.FC = () => {
                 {/* VS indicator */}
                 <div className="flex items-center justify-center">
                   <div className="bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full p-4">
-                    <Vs className="w-8 h-8 text-white" />
+                    <ArrowLeftRight className="w-8 h-8 text-white" />
                   </div>
                 </div>
 
