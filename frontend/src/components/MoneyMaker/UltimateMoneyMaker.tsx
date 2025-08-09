@@ -57,7 +57,7 @@ interface MoneyMakerConfig {
   followSharps?: boolean;
 }
 
-const _UltimateMoneyMaker: React.FC = () => {
+const UltimateMoneyMaker: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [opportunities, setOpportunities] = useState<BettingOpportunity[]>([]);
   const [totalBankroll, setTotalBankroll] = useState(10000);
