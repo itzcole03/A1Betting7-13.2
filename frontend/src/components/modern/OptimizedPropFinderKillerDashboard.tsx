@@ -11,7 +11,7 @@ import React, {
   startTransition 
 } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { FixedSizeList as List } from 'react-window';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import {
   Search,
   Filter,
