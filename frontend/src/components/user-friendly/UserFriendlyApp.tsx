@@ -137,6 +137,10 @@ const UserFriendlyApp: React.FC = memo(() => {
                 element={<UnifiedPlayerDashboard />}
               />
               <Route
+                path='/unified-search'
+                element={<UnifiedSearchInterface />}
+              />
+              <Route
                 path='/prop-scanner'
                 element={isMobile ? <MobilePropResearch /> : <PropFinderKillerDashboard />}
               />
