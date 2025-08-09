@@ -64,9 +64,9 @@ interface AppState {
   clearNotifications: () => void;
 }
 
-export const useAppStore = create<AppState>()(
+const useAppStore = create<AppState>()(
   persist(
-    subscribeWithSelector((set, get) => ({
+    subscribeWithSelector((_set, _get) => ({
       // Initial state
       user: null,
       isAuthenticated: false,
@@ -76,16 +76,16 @@ export const useAppStore = create<AppState>()(
       notifications: [],
 
       // User actions
-      setUser: (user) => set({ user, isAuthenticated: !!user }),
-      logout: () => set({ user: null, isAuthenticated: false }),
+      setUser: (user) => _set({ user, isAuthenticated: !!user }),
+      logout: () => _set({ user: null, isAuthenticated: false }),
 
       // UI actions
-      setTheme: (theme) => set({ theme }),
-      setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
-      setLoading: (loading) => set({ loading }),
+      setTheme: (theme) => _set({ theme }),
+      setSidebarOpen: (sidebarOpen) => _set({ sidebarOpen }),
+      setLoading: (loading) => _set({ loading }),
 
       // Notification actions
-      addNotification: (notification) => set((state) => ({
+      addNotification: (notification) => _set((state) => ({
         notifications: [
           ...state.notifications,
           {
@@ -95,10 +95,10 @@ export const useAppStore = create<AppState>()(
           },
         ],
       })),
-      removeNotification: (id) => set((state) => ({
+      removeNotification: (id) => _set((state) => ({
         notifications: state.notifications.filter(n => n.id !== id),
       })),
-      clearNotifications: () => set({ notifications: [] }),
+      clearNotifications: () => _set({ notifications: [] }),
     })),
     {
       name: 'app-store',
@@ -129,7 +129,7 @@ interface BettingState {
   calculateStats: () => void;
 }
 
-export const useBettingStore = create<BettingState>()(
+const useBettingStore = create<BettingState>()(
   persist(
     (set, get) => ({
       bets: [],
@@ -214,7 +214,7 @@ interface PredictionState {
   clearPredictions: () => void;
 }
 
-export const usePredictionStore = create<PredictionState>()(
+const usePredictionStore = create<PredictionState>()(
   persist(
     (set) => ({
       predictions: [],
@@ -270,9 +270,6 @@ export {
 
 // Export types
 export type {
-  User,
-  Bet,
-  Prediction,
   AppState,
   BettingState,
   PredictionState,

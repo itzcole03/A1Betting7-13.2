@@ -348,10 +348,15 @@ export class UnifiedWebSocketService extends BaseService {
   private getWebSocketUrl(): string {
     // Always use backend port, never frontend's own port
     // Build WebSocket URL from environment variables for best practice
-    // Use Vite environment variables directly
+    // Use environment variables with cross-environment support
     const getEnvVar = (key: string, fallback: string) => {
-      if (typeof import.meta !== 'undefined' && import.meta.env) {
-        return import.meta.env[key] || fallback;
+      // In test environment, use process.env
+      if (typeof process !== 'undefined' && process.env) {
+        return process.env[key] || fallback;
+      }
+      // In browser environment, try window.__VITE_ENV__ if available
+      if (typeof window !== 'undefined' && (window as any).__VITE_ENV__) {
+        return (window as any).__VITE_ENV__[key] || fallback;
       }
       return fallback;
     };

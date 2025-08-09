@@ -1,31 +1,52 @@
 // Unified Jest Configuration - consolidates all test setups
 module.exports = {
-  setupFiles: ['<rootDir>/jest.polyfill.textencoder.js', '<rootDir>/jest.env.mock.js'],
+  // Test environment setup
+  testEnvironment: 'jest-fixed-jsdom',
   testEnvironmentOptions: {
     customExportConditions: [''],
     url: 'http://localhost',
   },
-  moduleNameMapper: {
-    '^msw/node$': '<rootDir>/../node_modules/msw/lib/node/index.js',
-    '^src/(.*)$': '<rootDir>/src/$1',
-  },
-  rootDir: '.',
-  testEnvironment: 'jest-fixed-jsdom',
 
-  // Unified setup files
+  // Setup files - run before each test
+  setupFiles: [
+    '<rootDir>/jest.polyfill.textencoder.js',
+    '<rootDir>/jest.env.mock.js'
+  ],
   setupFilesAfterEnv: ['<rootDir>/jest.dom.setup.js'],
 
-  // File extensions
+  // Module handling
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'],
+  moduleNameMapper: {
+    // Handle MSW imports
+    '^msw/node$': '<rootDir>/../node_modules/msw/lib/node/index.js',
+    // Path aliases
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^src/(.*)$': '<rootDir>/src/$1',
+    // Handle CSS and static assets
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$': 'jest-transform-stub',
+  },
 
   // Transform configuration
   transform: {
-    '^.+\\.[tj]sx?$': 'babel-jest',
+    '^.+\\.[tj]sx?$': ['babel-jest', {
+      presets: [
+        '@babel/preset-env',
+        '@babel/preset-react',
+        '@babel/preset-typescript'
+      ],
+      plugins: [
+        // Transform import.meta for Jest compatibility
+        ['babel-plugin-transform-import-meta', {
+          module: 'ES6'
+        }]
+      ]
+    }],
   },
 
-  // Transform ESM modules in node_modules (React 19, @testing-library/react, etc)
+  // Transform ESM modules in node_modules
   transformIgnorePatterns: [
-    '/node_modules/(?!(react|react-dom|@testing-library|@tanstack|lucide-react|framer-motion|recharts|zustand)/)',
+    '/node_modules/(?!(react|react-dom|@testing-library|@tanstack|lucide-react|framer-motion|recharts|zustand|msw)/)',
   ],
 
   // Test file patterns
@@ -33,6 +54,8 @@ module.exports = {
     '<rootDir>/src/**/__tests__/**/*.(test|spec).(ts|tsx|js|jsx)',
     '<rootDir>/src/**/?(*.)(test|spec).(ts|tsx|js|jsx)',
   ],
+
+  // Ignore patterns
   testPathIgnorePatterns: [
     '/electron-dist/',
     '/node_modules/',
@@ -46,4 +69,43 @@ module.exports = {
     '/src/old/',
     '/src/backup/',
   ],
+
+  // Coverage configuration
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/*.stories.{js,jsx,ts,tsx}',
+    '!src/**/__tests__/**',
+    '!src/**/test-utils/**',
+    '!src/vite-env.d.ts',
+  ],
+
+  // Coverage thresholds
+  coverageThreshold: {
+    global: {
+      branches: 60,
+      functions: 60,
+      lines: 60,
+      statements: 60,
+    },
+  },
+
+  // Global test settings
+  clearMocks: true,
+  restoreMocks: true,
+  resetMocks: false,
+
+  // Verbose output for CI
+  verbose: process.env.CI === 'true',
+
+  // Reporter configuration for CI
+  reporters: process.env.CI
+    ? [
+        'default',
+        ['jest-junit', {
+          outputDirectory: 'reports/junit',
+          outputName: 'js-test-results.xml',
+        }]
+      ]
+    : ['default'],
 };

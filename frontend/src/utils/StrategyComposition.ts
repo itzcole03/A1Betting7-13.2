@@ -38,9 +38,9 @@ export interface StrategyResult<T> {
   };
 }
 
-export class StrategyRegistry {
+export class StrategyRegistry<T = any, U = any> {
   private static instance: StrategyRegistry;
-  private readonly strategies: Map<string, StrategyComponent<unknown, unknown>>;
+  private readonly strategies: Map<string, StrategyComponent<T, U>>;
   private readonly eventBus: EventBus;
   private readonly performanceMonitor: PerformanceMonitor;
 
@@ -57,18 +57,15 @@ export class StrategyRegistry {
     return StrategyRegistry.instance;
   }
 
-  registerStrategy<T, U>(strategy: StrategyComponent<T, U>): void {
+  registerStrategy(strategy: StrategyComponent<T, U>): void {
     if (this.strategies.has(strategy.id)) {
       throw new Error(`Strategy with ID ${strategy.id} is already registered`);
     }
-
-    // Validate dependencies;
-    for (const _depId of strategy.dependencies) {
+    for (const depId of strategy.dependencies) {
       if (!this.strategies.has(depId)) {
         throw new Error(`Dependency ${depId} not found for strategy ${strategy.id}`);
       }
     }
-
     this.strategies.set(strategy.id, strategy);
     this.eventBus.emit('strategy:registered', {
       strategyId: strategy.id,
@@ -78,43 +75,31 @@ export class StrategyRegistry {
     });
   }
 
-  async evaluate<T, U>(
+  async evaluate(
     strategyId: string,
     input: T,
     context: StrategyContext
   ): Promise<StrategyResult<U>> {
-    const _strategy = this.strategies.get(strategyId);
+    const strategy = this.strategies.get(strategyId);
     if (!strategy) {
       throw new Error(`Strategy ${strategyId} not found`);
     }
-    const _traceId = this.performanceMonitor.startTrace(`strategy-${strategy.id}`);
-
+    const traceId = this.performanceMonitor.startTrace(`strategy-${strategy.id}`);
     try {
       if (!strategy.canHandle(input)) {
         throw new Error(`Strategy ${strategy.id} cannot handle the provided input`);
       }
-
       if (strategy.validate && !(await strategy.validate(input))) {
         throw new Error(`Input validation failed for strategy ${strategy.id}`);
       }
-
-      const _startTime = Date.now();
-      const _result = await strategy.evaluate(input, context);
-      const _duration = Date.now() - startTime;
-
-      // Type guard: ensure result is of type U before assignment
-      let _typedResult: U;
-      if (this.isType<U>(result)) {
-        typedResult = result as U;
-      } else {
-        throw new Error(`Result type does not match expected type for strategy ${strategy.id}`);
-      }
-
-      const _strategyResult: StrategyResult<U> = {
+      const startTime = Date.now();
+      const result = await strategy.evaluate(input, context);
+      const duration = Date.now() - startTime;
+      const strategyResult: StrategyResult<U> = {
         id: `${strategy.id}-${startTime}`,
         timestamp: startTime,
         duration,
-        data: typedResult,
+        data: result,
         confidence: this.calculateConfidence(result),
         metadata: {
           strategy: strategy.id,
@@ -123,7 +108,6 @@ export class StrategyRegistry {
         },
         metrics: this.calculateMetrics(result),
       };
-
       this.eventBus.emit('strategy:evaluated', {
         strategyId: strategy.id,
         resultId: strategyResult.id,
@@ -131,7 +115,6 @@ export class StrategyRegistry {
         metrics: strategyResult.metrics,
         timestamp: Date.now(),
       });
-
       this.performanceMonitor.endTrace(traceId);
       return strategyResult;
     } catch (error) {
@@ -140,69 +123,68 @@ export class StrategyRegistry {
     }
   }
 
-  async evaluateWithPipeline<T, U>(
+  async evaluateWithPipeline(
     strategies: string[],
     input: T,
     context: StrategyContext
   ): Promise<StrategyResult<U>> {
-    const _sortedStrategies = this.sortStrategiesByDependencies(strategies);
-    let _currentInput: unknown = input;
-    let _lastResult: StrategyResult<unknown> | null = null;
-    for (const _strategyId of sortedStrategies) {
-      lastResult = await this.evaluate(strategyId, currentInput as T, {
+    const sortedStrategies = this.sortStrategiesByDependencies(strategies);
+    let currentInput: T = input;
+    let lastResult: StrategyResult<U> | null = null;
+    for (const strategyId of sortedStrategies) {
+      lastResult = await this.evaluate(strategyId, currentInput, {
         ...context,
         parameters: {
           ...context.parameters,
           previousResults: lastResult ? [lastResult] : [],
         },
       });
-      currentInput = lastResult.data;
+      // Cast lastResult.data to T for next strategy input
+      currentInput = lastResult.data as unknown as T;
     }
-    // Type guard: ensure lastResult is StrategyResult<U>
     if (lastResult && typeof lastResult === 'object' && 'data' in lastResult) {
-      // Cast data to U for type safety
-      return { ...lastResult, data: lastResult.data as U } as StrategyResult<U>;
+      return lastResult;
     }
     throw new Error('Pipeline did not produce a valid result');
   }
 
   private sortStrategiesByDependencies(strategyIds: string[]): string[] {
-    const _graph = new Map<string, Set<string>>();
-    const _visited = new Set<string>();
-    const _sorted: string[] = [];
-    for (const _id of strategyIds) {
-      const _strategy = this.strategies.get(id);
+    const graph = new Map<string, Set<string>>();
+    const visited = new Set<string>();
+    const sorted: string[] = [];
+    for (const id of strategyIds) {
+      const strategy = this.strategies.get(id);
       if (!strategy) continue;
       graph.set(id, new Set(strategy.dependencies.filter(dep => strategyIds.includes(dep))));
     }
-    const _visit = (id: string) => {
+    const visit = (id: string) => {
       if (visited.has(id)) return;
       visited.add(id);
-      const _deps = graph.get(id) || new Set();
-      for (const _dep of deps) {
+      const deps = graph.get(id) || new Set();
+      for (const dep of deps) {
         visit(dep);
       }
       sorted.push(id);
     };
-    for (const _id of strategyIds) {
+    for (const id of strategyIds) {
       visit(id);
     }
     return sorted;
   }
 
-  private calculateConfidence(result: unknown): number {
+  private calculateConfidence(result: U): number {
     if (typeof result === 'object' && result !== null) {
-      if ('confidence' in result && typeof (result as unknown).confidence === 'number')
-        return (result as unknown).confidence;
-      if ('probability' in result && typeof (result as unknown).probability === 'number')
-        return (result as unknown).probability;
-      if ('score' in result && typeof (result as unknown).score === 'number')
-        return (result as unknown).score;
+      if ('confidence' in result && typeof (result as any).confidence === 'number')
+        return (result as any).confidence;
+      if ('probability' in result && typeof (result as any).probability === 'number')
+        return (result as any).probability;
+      if ('score' in result && typeof (result as any).score === 'number')
+        return (result as any).score;
     }
     return 1;
   }
 
-  private calculateMetrics(result: unknown): StrategyResult<unknown>['metrics'] {
+  private calculateMetrics(result: U): StrategyResult<U>['metrics'] {
     return {
       accuracy: this.calculateAccuracy(result),
       reliability: this.calculateReliability(result),
@@ -210,38 +192,38 @@ export class StrategyRegistry {
     };
   }
 
-  private calculateAccuracy(result: unknown): number {
+  private calculateAccuracy(result: U): number {
     if (typeof result === 'object' && result !== null) {
-      if ('accuracy' in result && typeof (result as unknown).accuracy === 'number')
-        return (result as unknown).accuracy;
-      if ('confidence' in result && typeof (result as unknown).confidence === 'number')
-        return (result as unknown).confidence;
+      if ('accuracy' in result && typeof (result as any).accuracy === 'number')
+        return (result as any).accuracy;
+      if ('confidence' in result && typeof (result as any).confidence === 'number')
+        return (result as any).confidence;
     }
     return 1;
   }
 
-  private calculateReliability(result: unknown): number {
+  private calculateReliability(result: U): number {
     if (typeof result === 'object' && result !== null) {
-      if ('reliability' in result && typeof (result as unknown).reliability === 'number')
-        return (result as unknown).reliability;
-      if ('stability' in result && typeof (result as unknown).stability === 'number')
-        return (result as unknown).stability;
+      if ('reliability' in result && typeof (result as any).reliability === 'number')
+        return (result as any).reliability;
+      if ('stability' in result && typeof (result as any).stability === 'number')
+        return (result as any).stability;
     }
     return 1;
   }
 
-  private calculatePerformance(result: unknown): number {
+  private calculatePerformance(result: U): number {
     if (typeof result === 'object' && result !== null) {
-      if ('performance' in result && typeof (result as unknown).performance === 'number')
-        return (result as unknown).performance;
-      if ('efficiency' in result && typeof (result as unknown).efficiency === 'number')
-        return (result as unknown).efficiency;
+      if ('performance' in result && typeof (result as any).performance === 'number')
+        return (result as any).performance;
+      if ('efficiency' in result && typeof (result as any).efficiency === 'number')
+        return (result as any).efficiency;
     }
     return 1;
   }
 
-  getStrategy<T, U>(strategyId: string): StrategyComponent<T, U> | undefined {
-    return this.strategies.get(strategyId) as StrategyComponent<T, U>;
+  getStrategy(strategyId: string): StrategyComponent<T, U> | undefined {
+    return this.strategies.get(strategyId);
   }
 
   listStrategies(): Array<{ id: string; name: string; version: string }> {
@@ -250,12 +232,6 @@ export class StrategyRegistry {
       name: s.name,
       version: s.version,
     }));
-  }
-
-  // Add a generic type guard helper
-  private isType<T>(value: unknown): value is T {
-    // This is a runtime stub; in production, provide a more robust check if possible
-    return true;
   }
 }
 
@@ -298,7 +274,7 @@ export class ComposableStrategy<T, U> implements StrategyComponent<T, U> {
       [...this.dependencies, ...next.dependencies],
       async (input: T, context: StrategyContext) => {
         const _intermediate = await this.evaluate(input, context);
-        return next.evaluate(intermediate, context);
+        return next.evaluate(_intermediate, context);
       },
       undefined,
       undefined

@@ -1,2 +1,2 @@
 // Re-export from unified types for backward compatibility
-export { PrizePicksEntry } from './types/prizePicksUnified';
+export type { PrizePicksEntry } from './types/prizePicksUnified';

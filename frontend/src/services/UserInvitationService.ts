@@ -47,7 +47,7 @@ class UserInvitationService {
     adminEmail: string
   ): Promise<InvitationResponse> {
     try {
-      const _response = await fetch(`${this.baseUrl}/admin/invitations`, {
+      const response = await fetch(`${this.baseUrl}/admin/invitations`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ class UserInvitationService {
       });
 
       if (!response.ok) {
-        const _errorData = await response.json().catch(() => ({ message: 'Network error' }));
+        const errorData = await response.json().catch(() => ({ message: 'Network error' }));
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
@@ -86,7 +86,7 @@ class UserInvitationService {
    */
   async getAllInvitations(authToken: string): Promise<UserInvitation[]> {
     try {
-      const _response = await fetch(`${this.baseUrl}/admin/invitations`, {
+      const response = await fetch(`${this.baseUrl}/admin/invitations`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ class UserInvitationService {
    */
   async cancelInvitation(invitationId: string, authToken: string): Promise<InvitationResponse> {
     try {
-      const _response = await fetch(`${this.baseUrl}/admin/invitations/${invitationId}/cancel`, {
+      const response = await fetch(`${this.baseUrl}/admin/invitations/${invitationId}/cancel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -149,7 +149,7 @@ class UserInvitationService {
    */
   async resendInvitation(invitationId: string, authToken: string): Promise<InvitationResponse> {
     try {
-      const _response = await fetch(`${this.baseUrl}/admin/invitations/${invitationId}/resend`, {
+      const response = await fetch(`${this.baseUrl}/admin/invitations/${invitationId}/resend`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -186,7 +186,7 @@ class UserInvitationService {
     password: string
   ): Promise<InvitationResponse> {
     try {
-      const _response = await fetch(`${this.baseUrl}/invitations/${invitationId}/accept`, {
+      const response = await fetch(`${this.baseUrl}/invitations/${invitationId}/accept`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -199,7 +199,7 @@ class UserInvitationService {
       });
 
       if (!response.ok) {
-        const _errorData = await response.json().catch(() => ({ message: 'Network error' }));
+        const errorData = await response.json().catch(() => ({ message: 'Network error' }));
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
@@ -215,7 +215,7 @@ class UserInvitationService {
    */
   async getInvitationDetails(invitationId: string): Promise<UserInvitation | null> {
     try {
-      const _response = await fetch(`${this.baseUrl}/invitations/${invitationId}`, {
+      const response = await fetch(`${this.baseUrl}/invitations/${invitationId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -242,7 +242,7 @@ class UserInvitationService {
    */
   async checkExistingInvitation(email: string, authToken: string): Promise<UserInvitation | null> {
     try {
-      const _response = await fetch(
+      const response = await fetch(
         `${this.baseUrl}/admin/invitations/check/${encodeURIComponent(email)}`,
         {
           method: 'GET',
@@ -292,9 +292,9 @@ class UserInvitationService {
    * Generate temporary password for invitation
    */
   generateTempPassword(): string {
-    const _chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
-    let _password = '';
-    for (let _i = 0; i < 12; i++) {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    let password = '';
+    for (let i = 0; i < 12; i++) {
       password += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return password;
@@ -310,8 +310,8 @@ class UserInvitationService {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const _invitationId = `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const _invitationUrl = this.generateInvitationUrl(invitationId);
+    const invitationId = `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const invitationUrl = this.generateInvitationUrl(invitationId);
 
     // Simulate sending invitation email
     console.log('📧 [DEMO] User Invitation Email:', {
@@ -341,9 +341,9 @@ class UserInvitationService {
   }
 
   private getMockInvitations(): UserInvitation[] {
-    const _now = new Date();
-    const _sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const _threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
 
     return [
       {

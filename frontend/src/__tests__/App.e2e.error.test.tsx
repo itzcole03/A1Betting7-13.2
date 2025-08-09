@@ -55,7 +55,9 @@ jest.mock('src/components/user-friendly/PropOllama', () => {
           } else if (typeof opts.body === 'string') {
             try {
               message = JSON.parse(opts.body).message;
-            } catch {}
+            } catch {
+              // intentionally ignore JSON parse errors
+            }
           }
         } else if (opts && typeof opts === 'string') {
           message = opts;

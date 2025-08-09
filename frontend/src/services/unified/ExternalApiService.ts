@@ -76,7 +76,14 @@ export class ExternalApiService extends EventEmitter {
 }
 
 export const _externalApiService = new ExternalApiService({
-  // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-  baseURL: import.meta.env.VITE_EXTERNAL_API_URL || 'https://api.sportsdata.io/v3/news',
+  baseURL: (() => {
+    if (typeof process !== 'undefined' && process.env?.VITE_EXTERNAL_API_URL) {
+      return process.env.VITE_EXTERNAL_API_URL;
+    }
+    if (typeof window !== 'undefined' && (window as any).__VITE_ENV__?.VITE_EXTERNAL_API_URL) {
+      return (window as any).__VITE_ENV__.VITE_EXTERNAL_API_URL;
+    }
+    return 'https://api.sportsdata.io/v3/news';
+  })(),
   timeout: 10000,
 });

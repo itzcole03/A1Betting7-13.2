@@ -5,7 +5,7 @@
  */
 
 // Re-export from unified types for backward compatibility
-export {
+export type {
   PrizePicksProps,
   PoePropCardContent,
   PoeDataBlock,

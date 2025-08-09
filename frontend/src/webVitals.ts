@@ -4,7 +4,7 @@ import { onCLS, onINP, onLCP, onTTFB } from 'web-vitals';
 
 function reportWebVitals(metric: any) {
   // Log to console
-  console.log(`[Web Vitals] ${metric.name}:`, metric.value, metric);
+  // console.log(`[Web Vitals] ${metric.name}:`, metric.value, metric);
   // Optionally send to monitoring endpoint (Sentry, Datadog, etc.)
   // fetch('/api/metrics', { method: 'POST', body: JSON.stringify(metric) });
 }

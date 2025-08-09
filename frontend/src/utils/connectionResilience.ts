@@ -118,7 +118,7 @@ class ConnectionResilience {
   private async performInitialHealthCheck(): Promise<void> {
     // Skip health check entirely to prevent fetch errors
     // App will run in demo mode by default
-    console.log('[ConnectionResilience] Running in demo mode (health check disabled)');
+    // console.log('[ConnectionResilience] Running in demo mode (health check disabled)');
     this.updateHealthStatus('unhealthy');
   }
 
@@ -129,7 +129,7 @@ class ConnectionResilience {
     const checkHealth = async () => {
       // Stop health monitoring after too many consecutive failures to avoid console spam
       if (this.consecutiveFailures >= this.maxConsecutiveFailures) {
-        console.log('[ConnectionResilience] Stopped health monitoring after consecutive failures - using demo mode');
+        // console.log('[ConnectionResilience] Stopped health monitoring after consecutive failures - using demo mode');
         if (this.healthCheckInterval) {
           clearInterval(this.healthCheckInterval);
           this.healthCheckInterval = null;
@@ -139,7 +139,6 @@ class ConnectionResilience {
 
       try {
         // Use getEnvVar for robust env access
-        // @ts-ignore
         const { getEnvVar } = await import('./getEnvVar');
         const backendUrl = getEnvVar('VITE_BACKEND_URL', 'http://localhost:8000');
         const healthUrl = `${backendUrl}${this.config.endpoint}`;
@@ -152,7 +151,9 @@ class ConnectionResilience {
             headers: {
               Accept: 'application/json',
             },
-          }).then(resolve).catch(reject);
+          })
+            .then(resolve)
+            .catch(reject);
         });
 
         const timeoutPromise = new Promise<never>((_, reject) => {
@@ -218,7 +219,7 @@ class ConnectionResilience {
     this.failureCount = 0;
     if (this.circuitBreakerState === 'half-open') {
       this.circuitBreakerState = 'closed';
-      console.log('[ConnectionResilience] Circuit breaker closed - service recovered');
+      // console.log('[ConnectionResilience] Circuit breaker closed - service recovered');
     }
   }
 
@@ -237,7 +238,7 @@ class ConnectionResilience {
       setTimeout(() => {
         if (this.circuitBreakerState === 'open') {
           this.circuitBreakerState = 'half-open';
-          console.log('[ConnectionResilience] Circuit breaker half-open - testing recovery');
+          // console.log('[ConnectionResilience] Circuit breaker half-open - testing recovery');
         }
       }, this.config.recoveryTimeout);
     }
@@ -246,8 +247,9 @@ class ConnectionResilience {
   private updateHealthStatus(status: 'healthy' | 'degraded' | 'unhealthy'): void {
     if (this.healthStatus !== status) {
       // Only log significant status changes to reduce console noise
-      if (status === 'healthy' || (this.healthStatus === 'healthy' && status !== 'healthy')) {
-        console.log(`[ConnectionResilience] Health status: ${this.healthStatus} → ${status}`);
+      const isHealthy = (s: typeof status): s is 'healthy' => s === 'healthy';
+      if (isHealthy(status) || (isHealthy(this.healthStatus) && !isHealthy(status))) {
+        // console.log(`[ConnectionResilience] Health status: ${this.healthStatus} → ${status}`);
       }
       this.healthStatus = status;
 

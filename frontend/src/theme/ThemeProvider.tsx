@@ -17,14 +17,14 @@ interface ThemeContextType {
   isLoading: boolean;
 }
 
-const _ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const _useTheme = () => {
-  const _context = useContext(_ThemeContext);
-  if (_context === undefined) {
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
-  return _context;
+  return context;
 };
 
 interface ThemeProviderProps {
@@ -33,7 +33,7 @@ interface ThemeProviderProps {
   enableSystemTheme?: boolean;
 }
 
-export const _ThemeProvider: React.FC<ThemeProviderProps> = ({
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   children,
   defaultTheme,
   enableSystemTheme = true,
@@ -147,7 +147,7 @@ export const _ThemeProvider: React.FC<ThemeProviderProps> = ({
   }
 
   return (
-    <_ThemeContext.Provider value={contextValue}>
+    <ThemeContext.Provider value={contextValue}>
       <div
         className={`min-h-screen transition-all duration-500 ease-in-out theme-${currentThemeId}`}
         data-theme={currentThemeId}
@@ -159,12 +159,12 @@ export const _ThemeProvider: React.FC<ThemeProviderProps> = ({
       >
         {children}
       </div>
-    </_ThemeContext.Provider>
+    </ThemeContext.Provider>
   );
 };
 
 // Hook for listening to theme changes
-export const _useThemeListener = (callback: (theme: Theme) => void) => {
+export const useThemeListener = (callback: (theme: Theme) => void) => {
   useEffect(() => {
     const _handleThemeChange = (event: CustomEvent) => {
       callback(event.detail.theme);
@@ -176,11 +176,11 @@ export const _useThemeListener = (callback: (theme: Theme) => void) => {
 };
 
 // Higher-order component for theme-aware components
-export const _withTheme = <P extends object>(
+export const withTheme = <P extends object>(
   Component: React.ComponentType<P & { theme: Theme }>
 ) => {
   return (props: P) => {
-    const { currentTheme } = _useTheme();
+    const { currentTheme } = useTheme();
 
     if (!currentTheme) {
       return null;
@@ -190,4 +190,4 @@ export const _withTheme = <P extends object>(
   };
 };
 
-export default _ThemeProvider;
+export default ThemeProvider;

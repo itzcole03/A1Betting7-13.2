@@ -74,7 +74,9 @@ export class SocialSentimentAdapter implements DataSource<SocialSentimentData[]>
 
   private async gatherSocialSentiment(): Promise<SocialSentimentData[]> {
     // --- Twitter scraping (public search, no API key) ---
-    async function fetchTwitterMentions(_player: string): Promise<{ score: number; volume: number }> {
+    async function fetchTwitterMentions(
+      _player: string
+    ): Promise<{ score: number; volume: number }> {
       // Production: Should integrate with actual Twitter/X API;
       // For now, return null data to indicate unavailable;
       // console statement removed
@@ -83,7 +85,9 @@ export class SocialSentimentAdapter implements DataSource<SocialSentimentData[]>
     }
 
     // --- Reddit scraping (public API) ---
-    async function fetchRedditMentions(_player: string): Promise<{ score: number; volume: number }> {
+    async function fetchRedditMentions(
+      _player: string
+    ): Promise<{ score: number; volume: number }> {
       try {
         const _score = 0;
         const _volume = 0;
@@ -103,8 +107,8 @@ export class SocialSentimentAdapter implements DataSource<SocialSentimentData[]>
     async function fetchNewsMentions(_player: string): Promise<{ score: number; volume: number }> {
       try {
         const _headlines: ESPNHeadline[] = await newsService.fetchHeadlines('espn', 10);
-        let _score = 0;
-        let _volume = 0;
+        const _score = 0;
+        const _volume = 0;
         for (const _h of headlines) {
           const _text = (h.title + ' ' + h.summary).toLowerCase();
           if (!text.includes(player.toLowerCase())) continue;

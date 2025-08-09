@@ -4,31 +4,75 @@ const react = require('eslint-plugin-react');
 const reactHooks = require('eslint-plugin-react-hooks');
 
 module.exports = [
-  js.config({
-    files: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx'],
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    plugins: {
+      react,
+      'react-hooks': reactHooks,
+    },
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+    },
+    settings: {
+      react: {
+        version: 'detect',
+      },
     },
     rules: {
-      'no-unused-vars': 'warn',
+      // TypeScript specific rules
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+        },
+      ],
+      '@typescript-eslint/no-explicit-any': 'warn',
+
+      // React specific rules
+      'react/prop-types': 'off', // TypeScript handles this
+      'react/react-in-jsx-scope': 'off', // Not needed in React 17+
+      'react/jsx-uses-react': 'off', // Not needed in React 17+
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+
+      // General code quality
+      'no-console': 'warn',
+      'no-debugger': 'error',
+      'no-unused-vars': 'off', // Use TypeScript version instead
+      'prefer-const': 'error',
+      'no-var': 'error',
+
+      // Import rules
+      'no-duplicate-imports': 'error',
     },
-  }),
-  tseslint.config({
-    files: ['**/*.ts', '**/*.tsx'],
+  },
+  {
+    files: ['**/*.test.{js,jsx,ts,tsx}', '**/__tests__/**/*'],
     rules: {
-      '@typescript-eslint/no-unused-vars': 'warn',
+      'no-console': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
-  }),
-  react.config({
-    files: ['**/*.jsx', '**/*.tsx'],
-    settings: { react: { version: 'detect' } },
-    rules: {
-      'react/prop-types': 'off',
+    languageOptions: {
+      globals: {
+        jest: true,
+        describe: true,
+        test: true,
+        expect: true,
+        beforeEach: true,
+        afterEach: true,
+        console: true,
+        global: true,
+      },
     },
-  }),
-  reactHooks.config({
-    files: ['**/*.jsx', '**/*.tsx'],
-  }),
+  },
 ];
-// deleted

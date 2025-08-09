@@ -21,12 +21,20 @@ class LocalStorageMock implements Storage {
     return keys[index] || null;
   }
 }
-// @ts-ignore
+/**
+ * @jest-environment node
+ * @jest-globals
+ * @global
+ * Globals: global, window, localStorage
+ */
+
+// @ts-expect-error: Assigning LocalStorageMock to global for Jest environment
 if (typeof global !== 'undefined') {
-  // @ts-ignore
+  // @ts-expect-error: Assigning LocalStorageMock to global for Jest environment
   global.localStorage = new LocalStorageMock();
 }
+// @ts-expect-error: Assigning LocalStorageMock to window for browser environment
 if (typeof window !== 'undefined') {
-  // @ts-ignore
+  // @ts-expect-error: Assigning LocalStorageMock to window for browser environment
   window.localStorage = new LocalStorageMock();
 }

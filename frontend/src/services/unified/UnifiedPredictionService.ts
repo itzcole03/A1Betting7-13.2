@@ -40,29 +40,29 @@ export class UnifiedPredictionService extends BaseService {
 
   async makePrediction(request: PredictionRequest): Promise<PredictionResult> {
     try {
-      const _cacheKey = `prediction_${JSON.stringify(request)}`;
-      const _cached = this.cache.get<PredictionResult>(cacheKey);
+      const cacheKey = `prediction_${JSON.stringify(request)}`;
+      const cached = this.cache.get<PredictionResult>(cacheKey);
       if (cached) return cached;
 
       // Fetch relevant data
-      const _sportsData = await this.dataService.fetchSportsData(request.sport);
-      let _contextData = {};
+      const sportsData = await this.dataService.fetchSportsData(request.sport);
+      let contextData = {};
 
       if (request.playerId) {
         contextData = await this.dataService.fetchPlayerStats(request.playerId, request.sport);
       }
 
       // Make prediction request
-      const _predictionData = {
+      const predictionData = {
         ...request,
         sportsData,
         contextData,
         timestamp: new Date(),
       };
 
-      const _response = await this.post('/api/predictions/make', predictionData);
+      const response = await this.post('/api/predictions/make', predictionData);
 
-      const _result: PredictionResult = {
+      const result: PredictionResult = {
         prediction: response.prediction,
         confidence: response.confidence,
         modelUsed: response.model || 'default',
@@ -88,7 +88,7 @@ export class UnifiedPredictionService extends BaseService {
 
   async batchPredict(requests: PredictionRequest[]): Promise<PredictionResult[]> {
     try {
-      const _response = await this.post('/api/predictions/batch', { requests });
+      const response = await this.post('/api/predictions/batch', { requests });
       return response.predictions;
     } catch (error) {
       this.logger.error('Failed to make batch predictions', error);
@@ -98,7 +98,7 @@ export class UnifiedPredictionService extends BaseService {
 
   async getPredictionHistory(filters: unknown = {}): Promise<PredictionResult[]> {
     try {
-      const _response = await this.get(`/api/predictions/history?${new URLSearchParams(filters)}`);
+      const response = await this.get(`/api/predictions/history?${new URLSearchParams(filters as Record<string, string>)}`);
       return response.predictions;
     } catch (error) {
       this.logger.error('Failed to fetch prediction history', error);
@@ -108,10 +108,10 @@ export class UnifiedPredictionService extends BaseService {
 
   async getModelPerformance(modelName?: string): Promise<unknown> {
     try {
-      const _url = modelName
+      const url = modelName
         ? `/api/predictions/performance/${modelName}`
         : '/api/predictions/performance';
-      const _response = await this.get(url);
+      const response = await this.get(url);
       return response;
     } catch (error) {
       this.logger.error('Failed to fetch model performance', error);
@@ -132,7 +132,7 @@ export class UnifiedPredictionService extends BaseService {
 
   async getAvailableModels(): Promise<string[]> {
     try {
-      const _response = await this.get('/api/predictions/models');
+      const response = await this.get('/api/predictions/models');
       return response.models;
     } catch (error) {
       this.logger.error('Failed to fetch available models', error);
@@ -141,9 +141,9 @@ export class UnifiedPredictionService extends BaseService {
   }
 
   clearPredictionCache(sport?: string): void {
-    const _pattern = sport ? `prediction_{"sport":"${sport}"` : 'prediction_';
-    const _keys = this.cache.getKeys().filter(key => key.includes(pattern));
-    keys.forEach(key => this.cache.delete(key));
+    const pattern = sport ? `prediction_{"sport":"${sport}"` : 'prediction_';
+    const keys = this.cache.getKeys().filter((key: string) => key.includes(pattern));
+    keys.forEach((key: string) => this.cache.delete(key));
     this.logger.info('Prediction cache cleared', { sport });
   }
 

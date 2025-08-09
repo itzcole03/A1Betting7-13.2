@@ -1,11 +1,47 @@
+// Type definitions
+type Prediction = {
+  confidence: number;
+  predictedValue: number;
+  factors: unknown[];
+  timestamp: number;
+};
+
+type Decision = {
+  confidence: number;
+  recommendedStake: number;
+  prediction: number;
+  factors: unknown[];
+  timestamp: number;
+};
+
+type PerformanceMetrics = {
+  clvAverage: number;
+  edgeRetention: number;
+  kellyMultiplier: number;
+  marketEfficiencyScore: number;
+  profitByStrategy: Record<string, unknown>;
+  variance: number;
+  sharpeRatio: number;
+  averageClv: number;
+  sharpnessScore: number;
+  totalBets: number;
+  winRate: number;
+  roi: number;
+};
+
+type Bet = {
+  won: boolean;
+  profit: number;
+  stake: number;
+};
 // import { BettingContext, BettingDecision, PerformanceMetrics, PredictionResult } from '@/types';
 // import { BetRecord, ClvAnalysis, Opportunity } from '@/types/core';
 import EventEmitter from 'eventemitter3';
 
 export class UnifiedBettingCore extends EventEmitter {
   private static instance: UnifiedBettingCore;
-  private predictionCache: Map<string, unknown>;
-  private performanceMetrics: unknown;
+  private predictionCache: Map<string, Prediction>;
+  private performanceMetrics: PerformanceMetrics;
   private readonly strategyConfig: {
     minConfidence: number;
     maxRiskPerBet: number;
@@ -30,13 +66,13 @@ export class UnifiedBettingCore extends EventEmitter {
     return UnifiedBettingCore.instance;
   }
 
-  private initializeMetrics(): unknown {
+  private initializeMetrics(): PerformanceMetrics {
     return {
       clvAverage: 0,
       edgeRetention: 0,
       kellyMultiplier: 0,
       marketEfficiencyScore: 0,
-      profitByStrategy: {} as Record<string, unknown>,
+      profitByStrategy: {},
       variance: 0,
       sharpeRatio: 0,
       averageClv: 0,
@@ -44,19 +80,22 @@ export class UnifiedBettingCore extends EventEmitter {
       totalBets: 0,
       winRate: 0,
       roi: 0,
-    };
+    } as PerformanceMetrics;
   }
 
   public async analyzeBettingOpportunity(context: unknown): Promise<unknown> {
     try {
       // Check cache first;
-      const _cacheKey = '';
-      let _prediction = this.predictionCache.get(cacheKey);
+      const cacheKey = JSON.stringify(context);
+      let prediction = this.predictionCache.get(cacheKey);
       if (!prediction || Date.now() - prediction.timestamp > 300000) {
         prediction = await this.generatePrediction(context);
-        this.predictionCache.set(cacheKey, prediction);
+        if (prediction) {
+          this.predictionCache.set(cacheKey, prediction);
+        }
       }
-      const _decision = this.generateDecision(prediction, context);
+      if (!prediction) throw new Error('Prediction could not be generated');
+      const decision = this.generateDecision(prediction, context);
       this.emit('newDecision', decision);
       return decision;
     } catch (error) {
@@ -65,30 +104,31 @@ export class UnifiedBettingCore extends EventEmitter {
     }
   }
 
-  private async generatePrediction(context: unknown): Promise<unknown> {
+  private async generatePrediction(context: unknown): Promise<Prediction> {
     // Implement sophisticated prediction logic here;
-    return {
+    const prediction: Prediction = {
       confidence: 0,
       predictedValue: 0,
-      factors: [] as unknown[],
+      factors: [],
       timestamp: Date.now(),
     };
+    return prediction;
   }
 
   private generateDecision(prediction: unknown, context: unknown): unknown {
-    const _decision: unknown = {
-      confidence: prediction.confidence,
-      recommendedStake: this.calculateStake(prediction),
-      prediction: prediction.predictedValue,
-      factors: prediction.factors,
+    const p = prediction as Prediction;
+    const decision: Decision = {
+      confidence: p.confidence,
+      recommendedStake: this.calculateStake(p),
+      prediction: p.predictedValue,
+      factors: p.factors,
       timestamp: Date.now(),
-      // context
     };
     return decision;
   }
 
   private calculateStake(prediction: unknown): number {
-    const _kellyStake = 1;
+    const kellyStake = this.calculateKellyStake(prediction as Prediction);
     return Math.min(
       kellyStake * this.strategyConfig.bankrollPercentage,
       this.strategyConfig.maxRiskPerBet
@@ -101,12 +141,14 @@ export class UnifiedBettingCore extends EventEmitter {
   }
 
   public calculatePerformanceMetrics(bettingHistory: unknown[]): unknown {
-    if (!bettingHistory.length) return this.performanceMetrics;
-    const _metrics = {
-      ...this.initializeMetrics(),
-      totalBets: bettingHistory.length,
-      winRate: this.calculateWinRate(bettingHistory),
-      roi: this.calculateROI(bettingHistory),
+    const history: Bet[] = bettingHistory as Bet[];
+    if (!history.length) return this.performanceMetrics;
+    const baseMetrics: PerformanceMetrics = this.initializeMetrics();
+    const metrics: PerformanceMetrics = {
+      ...baseMetrics,
+      totalBets: history.length,
+      winRate: this.calculateWinRate(history),
+      roi: this.calculateROI(history),
     };
     this.performanceMetrics = metrics;
     this.emit('metricsUpdated', metrics);
@@ -123,14 +165,57 @@ export class UnifiedBettingCore extends EventEmitter {
   }
 
   private calculateWinRate(bets: unknown[]): number {
-    const _wins = 0;
-    return (wins / bets.length) * 100;
+    let wins = 0;
+    for (const bet of bets as Array<Bet>) {
+      if (bet.won) wins++;
+    }
+    return bets.length ? (wins / bets.length) * 100 : 0;
   }
 
   private calculateROI(bets: unknown[]): number {
-    const _totalProfit = 0;
-    const _totalStake = 1;
+    let totalProfit = 0;
+    let totalStake = 0;
+    for (const bet of bets as Array<Bet>) {
+      totalProfit += bet.profit;
+      totalStake += bet.stake;
+    }
     return totalStake ? (totalProfit / totalStake) * 100 : 0;
+    // Type definitions
+    type Prediction = {
+      confidence: number;
+      predictedValue: number;
+      factors: unknown[];
+      timestamp: number;
+    };
+
+    type Decision = {
+      confidence: number;
+      recommendedStake: number;
+      prediction: number;
+      factors: unknown[];
+      timestamp: number;
+    };
+
+    type PerformanceMetrics = {
+      clvAverage: number;
+      edgeRetention: number;
+      kellyMultiplier: number;
+      marketEfficiencyScore: number;
+      profitByStrategy: Record<string, unknown>;
+      variance: number;
+      sharpeRatio: number;
+      averageClv: number;
+      sharpnessScore: number;
+      totalBets: number;
+      winRate: number;
+      roi: number;
+    };
+
+    type Bet = {
+      won: boolean;
+      profit: number;
+      stake: number;
+    };
   }
 
   public clearCache(): void {

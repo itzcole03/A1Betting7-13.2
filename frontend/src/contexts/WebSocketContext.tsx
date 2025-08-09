@@ -56,7 +56,7 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
   const [status, setStatus] = useState<WebSocketStatus>('disconnected');
   const [connected, setConnected] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
-  const verboseLogging = import.meta.env.DEV;
+  const verboseLogging = process.env.NODE_ENV === 'development';
   const _wsRef = useRef<WebSocket | null>(null);
   const _handlers = useRef<Record<string, ((data: unknown) => void)[]>>({});
   const reconnectAttempts = useRef(0);
@@ -68,17 +68,33 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
   // Helper to get the WebSocket URL with security considerations
   const getWebSocketUrl = () => {
     // Check if WebSocket is explicitly disabled
-    const wsEnabled = import.meta.env.VITE_WEBSOCKET_ENABLED === 'true';
+    const wsEnabled = (() => {
+      if (typeof process !== 'undefined' && process.env?.VITE_WEBSOCKET_ENABLED) {
+        return process.env.VITE_WEBSOCKET_ENABLED === 'true';
+      }
+      if (typeof window !== 'undefined' && (window as any).__VITE_ENV__?.VITE_WEBSOCKET_ENABLED) {
+        return (window as any).__VITE_ENV__.VITE_WEBSOCKET_ENABLED === 'true';
+      }
+      return false;
+    })();
     if (!wsEnabled) {
       return null; // Signal that WebSocket should not be used
     }
 
-    if (import.meta.env.DEV) {
+    if (process.env.NODE_ENV === 'development') {
       // In development, only connect if backend is available and WebSocket is enabled
       return 'ws://localhost:8000/ws';
     } else {
       // In production, use secure WebSocket
-      const baseUrl = import.meta.env.VITE_WS_URL;
+      const baseUrl = (() => {
+        if (typeof process !== 'undefined' && process.env?.VITE_WS_URL) {
+          return process.env.VITE_WS_URL;
+        }
+        if (typeof window !== 'undefined' && (window as any).__VITE_ENV__?.VITE_WS_URL) {
+          return (window as any).__VITE_ENV__.VITE_WS_URL;
+        }
+        return undefined;
+      })();
       if (baseUrl) {
         // Ensure we use wss:// for secure connections in production
         return baseUrl.replace(/^ws:/, 'wss:');
@@ -209,7 +225,15 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
     isUnmounted.current = false;
 
     // Only connect if WebSocket server is explicitly enabled
-    const wsEnabled = import.meta.env.VITE_WEBSOCKET_ENABLED === 'true';
+    const wsEnabled = (() => {
+      if (typeof process !== 'undefined' && process.env?.VITE_WEBSOCKET_ENABLED) {
+        return process.env.VITE_WEBSOCKET_ENABLED === 'true';
+      }
+      if (typeof window !== 'undefined' && (window as any).__VITE_ENV__?.VITE_WEBSOCKET_ENABLED) {
+        return (window as any).__VITE_ENV__.VITE_WEBSOCKET_ENABLED === 'true';
+      }
+      return false;
+    })();
     if (wsEnabled) {
       connectWebSocket();
     } else {
@@ -222,7 +246,15 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
 
     // Immediate reconnect on network changes
     const handleOnline = () => {
-      const wsEnabled = import.meta.env.VITE_WEBSOCKET_ENABLED === 'true';
+      const wsEnabled = (() => {
+        if (typeof process !== 'undefined' && process.env?.VITE_WEBSOCKET_ENABLED) {
+          return process.env.VITE_WEBSOCKET_ENABLED === 'true';
+        }
+        if (typeof window !== 'undefined' && (window as any).__VITE_ENV__?.VITE_WEBSOCKET_ENABLED) {
+          return (window as any).__VITE_ENV__.VITE_WEBSOCKET_ENABLED === 'true';
+        }
+        return false;
+      })();
       if (!connected && wsEnabled) {
         setStatus('reconnecting');
         setLastError(null);

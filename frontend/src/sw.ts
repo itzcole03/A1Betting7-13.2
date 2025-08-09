@@ -1,5 +1,4 @@
-/// <reference lib="webworker" />
-/// <reference path="./types/serviceWorker.d.ts" />
+// If needed, import types from './types/serviceWorker.d.ts'
 
 /**
  * Service Worker - 2025 Best Practices
@@ -30,7 +29,7 @@ const sw = self as unknown as ServiceWorkerGlobalScope;
 
 // Install event - precache assets
 sw.addEventListener('install', (event: ExtendableEvent) => {
-  console.log('[ServiceWorker] Installing with 2025 best practices');
+  // console.log('[ServiceWorker] Installing with 2025 best practices');
 
   event.waitUntil(
     caches.open(STATIC_CACHE).then(cache => {
@@ -43,7 +42,7 @@ sw.addEventListener('install', (event: ExtendableEvent) => {
 
 // Activate event - clean up old caches
 sw.addEventListener('activate', (event: ExtendableEvent) => {
-  console.log('[ServiceWorker] Activating');
+  // console.log('[ServiceWorker] Activating');
 
   event.waitUntil(
     caches
@@ -57,7 +56,7 @@ sw.addEventListener('activate', (event: ExtendableEvent) => {
               cacheName !== API_CACHE &&
               cacheName !== IMAGE_CACHE
             ) {
-              console.log('[ServiceWorker] Deleting old cache:', cacheName);
+              // console.log('[ServiceWorker] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
@@ -130,7 +129,7 @@ async function networkFirstStrategy(request: Request, cacheName: string): Promis
     // Fallback to cache
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
-      console.log('[ServiceWorker] Serving from cache:', request.url);
+      // console.log('[ServiceWorker] Serving from cache:', request.url);
       return cachedResponse;
     }
 
@@ -230,9 +229,9 @@ sw.addEventListener('sync', (event: SyncEvent) => {
 async function syncOfflineAnalytics(): Promise<void> {
   try {
     // This would sync any offline analytics data
-    console.log('[ServiceWorker] Syncing offline analytics data');
+    // console.log('[ServiceWorker] Syncing offline analytics data');
   } catch (error) {
-    console.log('[ServiceWorker] Analytics sync failed:', error);
+    // console.log('[ServiceWorker] Analytics sync failed:', error);
   }
 }
 
@@ -273,4 +272,4 @@ sw.addEventListener('message', (event: ExtendableMessageEvent) => {
   }
 });
 
-console.log('[ServiceWorker] A1Betting Service Worker loaded with 2025 best practices');
+// console.log('[ServiceWorker] A1Betting Service Worker loaded with 2025 best practices');

@@ -1,4 +1,12 @@
-import React, { useMemo, useCallback, useTransition, useDeferredValue, startTransition, useEffect, useState } from 'react';
+import React, {
+  startTransition,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
 
 /**
  * React 19 Performance Optimizations
@@ -7,23 +15,21 @@ import React, { useMemo, useCallback, useTransition, useDeferredValue, startTran
 
 // Enhanced memoization hook with React 19 optimizations
 export function useEnhancedMemo<T>(
-  factory: () => T, 
-  deps: React.DependencyList, 
+  factory: () => T,
+  deps: React.DependencyList,
   options?: {
     priority?: 'high' | 'low';
     experimental_deferredValue?: boolean;
   }
 ): T {
   const { priority = 'high', experimental_deferredValue = false } = options || {};
-  
+
   const result = useMemo(factory, deps);
-  
-  // Use deferred value for low-priority computations
-  if (experimental_deferredValue && priority === 'low') {
-    return useDeferredValue(result);
-  }
-  
-  return result;
+  // Always call useDeferredValue unconditionally
+  const deferredResult = useDeferredValue(result);
+
+  // Return deferredResult for low priority, otherwise result
+  return priority === 'low' ? deferredResult : result;
 }
 
 // Optimized callback hook with automatic batching
@@ -36,7 +42,7 @@ export function useOptimizedCallback<T extends (...args: any[]) => any>(
   }
 ): T {
   const { priority = 'high', batchUpdates = true } = options || {};
-  
+
   return useCallback((...args: Parameters<T>) => {
     if (batchUpdates && priority === 'low') {
       startTransition(() => {
@@ -60,19 +66,24 @@ export function useOptimizedDataFetch<T>(
 ) {
   const [isPending, startTransitionLocal] = useTransition();
   const { priority = 'high' } = options || {};
-  
+
   const deferredDeps = useDeferredValue(deps);
-  
-  const fetchData = useCallback(() => {
-    if (priority === 'low') {
-      startTransitionLocal(() => {
+
+  const fetchData = useCallback(
+    () => {
+      if (priority === 'low') {
+        startTransitionLocal(() => {
+          fetchFn(); // Do not return the promise inside startTransition
+        });
+        // Return the promise outside the transition
         return fetchFn();
-      });
-    } else {
-      return fetchFn();
-    }
-  }, priority === 'low' ? deferredDeps : deps);
-  
+      } else {
+        return fetchFn();
+      }
+    },
+    priority === 'low' ? deferredDeps : deps
+  );
+
   return {
     fetchData,
     isPending,
@@ -84,38 +95,38 @@ export function useOptimizedDataFetch<T>(
 export class React19PerformanceMonitor {
   private static instance: React19PerformanceMonitor;
   private metrics: Map<string, number[]> = new Map();
-  
+
   static getInstance(): React19PerformanceMonitor {
     if (!React19PerformanceMonitor.instance) {
       React19PerformanceMonitor.instance = new React19PerformanceMonitor();
     }
     return React19PerformanceMonitor.instance;
   }
-  
+
   measureRender(componentName: string, renderTime: number) {
     if (!this.metrics.has(componentName)) {
       this.metrics.set(componentName, []);
     }
     this.metrics.get(componentName)!.push(renderTime);
-    
+
     // Keep only last 100 measurements
     const measurements = this.metrics.get(componentName)!;
     if (measurements.length > 100) {
       measurements.shift();
     }
   }
-  
+
   getAverageRenderTime(componentName: string): number {
     const measurements = this.metrics.get(componentName);
     if (!measurements || measurements.length === 0) return 0;
-    
+
     const sum = measurements.reduce((a, b) => a + b, 0);
     return sum / measurements.length;
   }
-  
+
   getPerformanceReport(): Record<string, { average: number; count: number; latest: number }> {
     const report: Record<string, { average: number; count: number; latest: number }> = {};
-    
+
     for (const [componentName, measurements] of this.metrics.entries()) {
       if (measurements.length > 0) {
         report[componentName] = {
@@ -125,7 +136,7 @@ export class React19PerformanceMonitor {
         };
       }
     }
-    
+
     return report;
   }
 }
@@ -137,18 +148,18 @@ export function withPerformanceTracking<P extends object>(
 ): React.ComponentType<P> {
   const PerformanceTrackedComponent: React.FC<P> = (props: P) => {
     const monitor = React19PerformanceMonitor.getInstance();
-    
+
     // Measure render time
     const renderStart = performance.now();
-    
+
     useEffect(() => {
       const renderEnd = performance.now();
       monitor.measureRender(componentName, renderEnd - renderStart);
     });
-    
+
     return React.createElement(Component, props);
   };
-  
+
   PerformanceTrackedComponent.displayName = `withPerformanceTracking(${componentName})`;
   return PerformanceTrackedComponent;
 }
@@ -163,24 +174,20 @@ export function useVirtualizedList<T>(
     priority?: 'high' | 'low';
   }
 ) {
-  const {
-    itemHeight = 50,
-    containerHeight = 400,
-    overscan = 5,
-    priority = 'high'
-  } = options || {};
-  
+  const { itemHeight = 50, containerHeight = 400, overscan = 5, priority = 'high' } = options || {};
+
   const [startIndex, setStartIndex] = useState(0);
-  
-  // Use deferred value for low-priority lists
-  const deferredItems = priority === 'low' ? useDeferredValue(items) : items;
-  
+
+  // Always call useDeferredValue unconditionally
+  const deferredItems = useDeferredValue(items);
+
   const visibleItems = useMemo(() => {
+    const sourceItems = priority === 'low' ? deferredItems : items;
     const visibleCount = Math.ceil(containerHeight / itemHeight);
     const start = Math.max(0, startIndex - overscan);
-    const end = Math.min(deferredItems.length - 1, startIndex + visibleCount + overscan);
-    
-    return deferredItems.slice(start, end + 1).map((item, index) => ({
+    const end = Math.min(sourceItems.length - 1, startIndex + visibleCount + overscan);
+
+    return sourceItems.slice(start, end + 1).map((item, index) => ({
       item,
       index: start + index,
       style: {
@@ -190,13 +197,17 @@ export function useVirtualizedList<T>(
         width: '100%',
       },
     }));
-  }, [deferredItems, startIndex, itemHeight, containerHeight, overscan]);
-  
-  const handleScroll = useOptimizedCallback((scrollTop: number) => {
-    const newStartIndex = Math.floor(scrollTop / itemHeight);
-    setStartIndex(newStartIndex);
-  }, [itemHeight], { priority });
-  
+  }, [deferredItems, items, priority, startIndex, itemHeight, containerHeight, overscan]);
+
+  const handleScroll = useOptimizedCallback(
+    (scrollTop: number) => {
+      const newStartIndex = Math.floor(scrollTop / itemHeight);
+      setStartIndex(newStartIndex);
+    },
+    [itemHeight],
+    { priority }
+  );
+
   return {
     visibleItems,
     totalHeight: deferredItems.length * itemHeight,
@@ -221,46 +232,62 @@ export class React19ErrorBoundary extends React.Component<ErrorBoundaryProps, Er
     super(props);
     this.state = { hasError: false, error: null };
   }
-  
+
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
-  
+
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Enhanced error reporting with React 19 features
     console.error('React 19 Error Boundary caught an error:', error, errorInfo);
-    
+
     // Report to performance monitoring
     const monitor = React19PerformanceMonitor.getInstance();
     monitor.measureRender('ErrorBoundary', performance.now());
   }
-  
+
   render() {
     if (this.state.hasError && this.state.error) {
       const Fallback = this.props.fallback;
       if (Fallback) {
         return React.createElement(Fallback, { error: this.state.error });
       }
-      
-      return React.createElement('div', {
-        className: "error-boundary p-6 bg-red-50 border border-red-200 rounded-lg"
-      }, [
-        React.createElement('h2', {
-          key: 'title',
-          className: "text-lg font-semibold text-red-800 mb-2"
-        }, 'Something went wrong'),
-        React.createElement('p', {
-          key: 'message',
-          className: "text-red-600 text-sm"
-        }, this.state.error.message),
-        React.createElement('button', {
-          key: 'retry',
-          onClick: () => this.setState({ hasError: false, error: null }),
-          className: "mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        }, 'Try again')
-      ]);
+
+      return React.createElement(
+        'div',
+        {
+          className: 'error-boundary p-6 bg-red-50 border border-red-200 rounded-lg',
+        },
+        [
+          React.createElement(
+            'h2',
+            {
+              key: 'title',
+              className: 'text-lg font-semibold text-red-800 mb-2',
+            },
+            'Something went wrong'
+          ),
+          React.createElement(
+            'p',
+            {
+              key: 'message',
+              className: 'text-red-600 text-sm',
+            },
+            this.state.error.message
+          ),
+          React.createElement(
+            'button',
+            {
+              key: 'retry',
+              onClick: () => this.setState({ hasError: false, error: null }),
+              className: 'mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700',
+            },
+            'Try again'
+          ),
+        ]
+      );
     }
-    
+
     return this.props.children;
   }
 }
@@ -271,12 +298,13 @@ export const ConcurrentUtils = {
   startLowPriorityUpdate: (callback: () => void) => {
     startTransition(callback);
   },
-  
-  // Defer a value for better performance
-  deferValue: <T>(value: T): T => {
+
+  // Defer a value for better performance (custom hook)
+  useDeferredValueUtil: <T>(value: T): T => {
+    // This is a custom hook, so must be used in a React component or another hook
     return useDeferredValue(value);
   },
-  
+
   // Check if updates are pending
   useTransitionState: () => {
     const [isPending, startTransitionLocal] = useTransition();
@@ -288,22 +316,30 @@ export const ConcurrentUtils = {
 interface PerformanceProfilerProps {
   children: React.ReactNode;
   id: string;
-  onRender?: (id: string, phase: 'mount' | 'update', actualDuration: number) => void;
+  onRender?: (
+    id: string,
+    phase: 'mount' | 'update' | 'nested-update',
+    actualDuration: number
+  ) => void;
 }
 
-export function PerformanceProfiler({ 
-  children, 
-  id, 
-  onRender 
-}: PerformanceProfilerProps) {
-  return React.createElement(React.Profiler, {
-    id,
-    onRender: (profileId: string, phase: 'mount' | 'update', actualDuration: number) => {
-      const monitor = React19PerformanceMonitor.getInstance();
-      monitor.measureRender(profileId, actualDuration);
-      onRender?.(profileId, phase, actualDuration);
-    }
-  }, children);
+export function PerformanceProfiler({ children, id, onRender }: PerformanceProfilerProps) {
+  return React.createElement(
+    React.Profiler,
+    {
+      id,
+      onRender: (
+        profileId: string,
+        phase: 'mount' | 'update' | 'nested-update',
+        actualDuration: number
+      ) => {
+        const monitor = React19PerformanceMonitor.getInstance();
+        monitor.measureRender(profileId, actualDuration);
+        onRender?.(profileId, phase, actualDuration);
+      },
+    },
+    children
+  );
 }
 
 export default {

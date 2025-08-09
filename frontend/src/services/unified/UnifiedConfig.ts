@@ -10,9 +10,12 @@ export class UnifiedConfig {
       // Use getEnvVar for robust env access
       baseUrl: (() => {
         try {
-          // Use Vite environment variables directly
-          if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) {
-            return import.meta.env.VITE_API_BASE_URL;
+          // Use environment variables with fallback
+          if (typeof process !== 'undefined' && process.env?.VITE_API_BASE_URL) {
+            return process.env.VITE_API_BASE_URL;
+          }
+          if (typeof window !== 'undefined' && (window as any).__VITE_ENV__?.VITE_API_BASE_URL) {
+            return (window as any).__VITE_ENV__.VITE_API_BASE_URL;
           }
           return 'http://localhost:8000'; // Updated default port
         } catch (e) {

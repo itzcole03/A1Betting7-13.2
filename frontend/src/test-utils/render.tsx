@@ -1,6 +1,6 @@
-/// <reference path="../theme/index.ts" />
-import { render as testingLibraryRender } from '@testing-library/react';
+// import types or values from theme if needed
 import { MantineProvider, createTheme, mergeThemeOverrides } from '@mantine/core';
+import { render as testingLibraryRender } from '@testing-library/react';
 
 const dummyTheme = createTheme({
   // Define a minimal theme for testing to avoid import issues
@@ -35,7 +35,9 @@ const testTheme = mergeThemeOverrides(
 export function render(ui: React.ReactNode) {
   return testingLibraryRender(<>{ui}</>, {
     wrapper: ({ children }: { children: React.ReactNode }) => (
-      <MantineProvider theme={testTheme} env="test">{children}</MantineProvider>
+      <MantineProvider theme={testTheme} env='test'>
+        {children}
+      </MantineProvider>
     ),
   });
-} 
+}

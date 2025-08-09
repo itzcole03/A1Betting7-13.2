@@ -1,17 +1,18 @@
 // Simplified tracing utility
 // OpenTelemetry functionality temporarily disabled until dependencies are properly installed
 
-let provider: unknown = null;
+const provider: unknown = null;
 
-// Use eval to prevent Jest from parsing import.meta
+// Safe environment variable access for both Vite and Jest
 function safeImportMetaEnv(key: string): string | undefined {
   try {
-    // eslint-disable-next-line no-eval
-    const meta = eval(
-      'typeof import !== "undefined" && typeof import.meta !== "undefined" ? import.meta.env : undefined'
-    );
-    if (meta && key in meta) {
-      return meta[key];
+    // In test environment, use process.env
+    if (typeof process !== 'undefined' && process.env) {
+      return process.env[key];
+    }
+    // In Vite environment, use import.meta.env if available
+    if (typeof window !== 'undefined' && (window as any).__VITE_ENV__) {
+      return (window as any).__VITE_ENV__[key];
     }
   } catch (e) {}
   return undefined;
@@ -24,6 +25,6 @@ const isTest =
 // OpenTelemetry is temporarily disabled
 const otelEnabled = false;
 
-console.log('Tracing initialized (disabled):', { isTest, otelEnabled });
+// console.log('Tracing initialized (disabled):', { isTest, otelEnabled });
 
 export { provider };

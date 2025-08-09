@@ -61,11 +61,14 @@ export class ApiService {
     // @ts-ignore
     const getEnvVar = (() => {
       try {
-        // Use environment variable or fallback
         return (key: string, fallback?: string) => {
-          // Try to access Vite environment variables first
-          if (typeof import.meta !== 'undefined' && import.meta.env) {
-            return import.meta.env[key] || fallback;
+          // In test environment, use process.env
+          if (typeof process !== 'undefined' && process.env) {
+            return process.env[key] || fallback;
+          }
+          // In browser environment, try window.__VITE_ENV__ if available
+          if (typeof window !== 'undefined' && (window as any).__VITE_ENV__) {
+            return (window as any).__VITE_ENV__[key] || fallback;
           }
           return fallback;
         };

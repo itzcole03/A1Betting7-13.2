@@ -174,7 +174,7 @@ export class PredictionEngine {
   }
   async predict(input: any, modelNames: string[] = ['model1', 'model2']): Promise<PredictionData> {
     // Use IPC to request ensemble prediction from main process
-    // @ts-ignore
+    // @ts-expect-error: Electron IPC import only works in Electron context, not browser
     import { ipcRenderer } from 'electron';
     const _response = await ipcRenderer.invoke('predict-ensemble', input, modelNames);
     if (_response.success && _response.result) {
@@ -182,7 +182,7 @@ export class PredictionEngine {
       return {
         id: 'ensemble',
         timestamp: Date.now(),
-        context: (_response.context || input.context) || {},
+        context: _response.context || input.context || {},
         value: _response.result.aggregated[0],
         confidence: 0.9, // Example, can be computed from models
         analysis: {
@@ -190,8 +190,8 @@ export class PredictionEngine {
             data_quality: 1,
             prediction_stability: 1,
             market_efficiency: 1,
-            playerId: (_response.context?.playerId || input.context?.playerId) || '',
-            metric: (_response.context?.metric || input.context?.metric) || '',
+            playerId: _response.context?.playerId || input.context?.playerId || '',
+            metric: _response.context?.metric || input.context?.metric || '',
           },
           confidence_factors: {},
           risk_factors: {},
