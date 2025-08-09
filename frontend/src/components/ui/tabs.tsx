@@ -70,15 +70,15 @@ export const _Tabs: React.FC<TabsProps> = ({
   };
 
   const _contextValue: TabsContextType = {
-    value,
-    onValueChange: handleValueChange,
+    value: _value,
+    onValueChange: _handleValueChange,
     orientation,
     variant,
   };
 
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-    <TabsContext.Provider value={contextValue}>
+    <_TabsContext.Provider value={_contextValue}>
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className={`
@@ -88,13 +88,13 @@ export const _Tabs: React.FC<TabsProps> = ({
       >
         {children}
       </div>
-    </TabsContext.Provider>
+    </_TabsContext.Provider>
   );
 };
 
 // Tabs List Component
 export const _TabsList: React.FC<TabsListProps> = ({ children, className = '' }) => {
-  const { orientation, variant } = useTabsContext();
+  const { orientation, variant } = _useTabsContext();
 
   const _variantClasses = {
     default: `
