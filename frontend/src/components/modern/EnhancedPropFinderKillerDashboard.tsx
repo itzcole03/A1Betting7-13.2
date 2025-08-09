@@ -586,8 +586,8 @@ const EnhancedPropFinderKillerDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Quantum AI Ensemble (if enabled) */}
-              {quantumAnalysisActive && (
+              {/* Advanced AI Ensemble (if enabled) */}
+              {advancedAnalysisActive && (
                 <div className="mt-4 pt-3 border-t border-gray-700">
                   <div className="text-sm text-gray-400 mb-2">AI Model Ensemble</div>
                   <div className="grid grid-cols-2 gap-2 text-xs">
