@@ -161,8 +161,15 @@ function App() {
       console.log('[APP] Core functionality validation initialized');
     }, 5000); // Delay to allow app to fully load
 
+    // Initialize live demo enhancement service (non-blocking)
+    setTimeout(() => {
+      liveDemoEnhancementService.startMonitoring();
+      console.log('[APP] Live demo enhancement service initialized');
+    }, 7000); // Delay slightly more to allow core validation to start first
+
     return () => {
       coreFunctionalityValidator.stopValidation();
+      liveDemoEnhancementService.stopMonitoring();
     };
   }, []);
 
