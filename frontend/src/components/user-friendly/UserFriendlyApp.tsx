@@ -126,6 +126,7 @@ const UserFriendlyApp: React.FC = () => {
               <Route path='/arbitrage' element={<ArbitrageOpportunities />} />
               <Route path='/advanced-arbitrage' element={<AdvancedArbitrageDashboard />} />
               <Route path='/kelly-calculator' element={<KellyCalculator />} />
+              <Route path='/advanced-kelly' element={<AdvancedKellyDashboard />} />
               <Route path='/odds-comparison' element={<OddsComparison />} />
               <Route path='/line-tracker' element={<PropFinderKillerDashboard />} />
               <Route path='/cheatsheets' element={<CheatsheetsDashboard />} />
