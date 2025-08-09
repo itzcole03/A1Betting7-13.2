@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useTransition, useDeferredValue, startTransition } from 'react';
+import React, { useState, useEffect, useMemo, useTransition, useDeferredValue, startTransition, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
