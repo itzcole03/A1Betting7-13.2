@@ -86,8 +86,8 @@ export const _Alert: React.FC<AlertProps> = ({
     },
   };
 
-  const _config = variantConfig[variant];
-  const _IconComponent = icon || config.icon;
+  const _config = _variantConfig[variant];
+  const _IconComponent = icon || _config.icon;
 
   const _alertVariants = {
     hidden: {
@@ -134,14 +134,14 @@ export const _Alert: React.FC<AlertProps> = ({
         <motion.div
           className={`
             relative rounded-lg border backdrop-blur-sm overflow-hidden
-            ${sizeClasses[size]}
-            ${config.container}
+            ${_sizeClasses[size]}
+            ${_config.container}
             // @ts-expect-error TS(2339): Property 'glow' does not exist on type '{ containe... Remove this comment to see the full error message
-            ${config.glow || ''}
+            ${_config.glow || ''}
             ${className}
           `}
           // @ts-expect-error TS(2322): Type '{ hidden: { opacity: number; scale: number; ... Remove this comment to see the full error message
-          variants={alertVariants}
+          variants={_alertVariants}
           initial={animate ? 'hidden' : 'visible'}
           animate='visible'
           exit='exit'
@@ -168,7 +168,7 @@ export const _Alert: React.FC<AlertProps> = ({
               <motion.div
                 className='absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/10 to-transparent'
                 // @ts-expect-error TS(2322): Type '{ animate: { x: string[]; transition: { dura... Remove this comment to see the full error message
-                variants={shimmerVariants}
+                variants={_shimmerVariants}
                 animate='animate'
               />
             </div>
@@ -177,14 +177,14 @@ export const _Alert: React.FC<AlertProps> = ({
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='relative flex items-start space-x-3'>
             {/* Icon */}
-            {IconComponent && (
+            {_IconComponent && (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <div className={`flex-shrink-0 ${config.iconColor}`}>
-                {React.isValidElement(IconComponent) ? (
-                  IconComponent
+              <div className={`flex-shrink-0 ${_config.iconColor}`}>
+                {React.isValidElement(_IconComponent) ? (
+                  _IconComponent
                 ) : (
                   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-                  <IconComponent className='w-5 h-5' />
+                  <_IconComponent className='w-5 h-5' />
                 )}
               </div>
             )}
@@ -193,7 +193,7 @@ export const _Alert: React.FC<AlertProps> = ({
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex-1 min-w-0'>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              {title && <h4 className={`font-semibold mb-1 ${config.titleColor}`}>{title}</h4>}
+              {title && <h4 className={`font-semibold mb-1 ${_config.titleColor}`}>{title}</h4>}
 
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               {description && <p className='text-sm opacity-90 mb-2'>{description}</p>}
@@ -206,10 +206,10 @@ export const _Alert: React.FC<AlertProps> = ({
             {dismissible && (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <button
-                onClick={handleDismiss}
+                onClick={_handleDismiss}
                 className={`
                   flex-shrink-0 p-1 rounded-md transition-colors
-                  ${config.iconColor} hover:bg-white/10
+                  ${_config.iconColor} hover:bg-white/10
                   focus:outline-none focus:ring-2 focus:ring-current focus:ring-offset-2 focus:ring-offset-transparent
                 `}
                 aria-label='Dismiss alert'
@@ -229,7 +229,7 @@ export const _Alert: React.FC<AlertProps> = ({
           {/* Bottom accent line */}
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
-            className={`absolute bottom-0 left-0 right-0 h-0.5 ${config.iconColor.replace('text-', 'bg-')} opacity-50`}
+            className={`absolute bottom-0 left-0 right-0 h-0.5 ${_config.iconColor.replace('text-', 'bg-')} opacity-50`}
           />
         </motion.div>
       )}
@@ -250,4 +250,4 @@ export const _AlertDescription: React.FC<{ children: React.ReactNode; className?
 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
 }) => <div className={`text-sm opacity-90 ${className}`}>{children}</div>;
 
-export default Alert;
+export default _Alert;
