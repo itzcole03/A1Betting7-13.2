@@ -562,7 +562,7 @@ const EnhancedPropFinderKillerDashboard: React.FC = () => {
                     </span>
                     <span className="text-sm font-semibold">{prop.prop.confidence.toFixed(1)}%</span>
                   </div>
-                  <ConfidenceBar confidence={prop.prop.confidence} quantum={quantumAnalysisActive} />
+                  <ConfidenceBar confidence={prop.prop.confidence} quantum={advancedAnalysisActive} />
                 </div>
 
                 <div className="flex items-center justify-between">
