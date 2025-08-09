@@ -217,7 +217,7 @@ ROI: Immediate + Long-term value
 - **Performance Optimization** - LRU caching and memory management
 
 ### AI/ML Infrastructure
-- **Quantum AI Simulation** - Superposition states and entanglement detection
+- **Quantum-Inspired Optimization** - Classical algorithms using quantum annealing and variational methods
 - **Neural Network Ensemble** - XGBoost, LSTM, Random Forest consensus models
 - **Ollama** - Local LLM (Llama 2, Mistral, Code Llama)
 - **scikit-learn** - Traditional ML models and ensemble methods
