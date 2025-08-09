@@ -592,6 +592,13 @@ export const CheatsheetsDashboard: React.FC = () => {
             <li>• Seek help if gambling becomes a problem: 1-800-522-4700</li>
           </ul>
         </div>
+
+        {/* Diagnostic Modal */}
+        <CheatsheetsDiagnostic
+          isOpen={showDiagnosticModal}
+          onClose={() => setShowDiagnosticModal(false)}
+          errorMessage={error || undefined}
+        />
       </div>
     </div>
   );
