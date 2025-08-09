@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import { cheatsheetsService, type PropOpportunity, type CheatsheetFilters as ServiceFilters } from '../../../services/cheatsheetsService';
 import BackendConnectionTest from '../../debug/BackendConnectionTest';
-import CheatsheetsDiagnostic from './CheatsheetsDiagnostic';
 
 interface CheatsheetFilters {
   minEdge: number;
