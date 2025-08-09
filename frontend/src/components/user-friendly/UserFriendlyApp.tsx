@@ -33,6 +33,9 @@ const MatchupAnalysisTools = React.lazy(() => import('../analysis/MatchupAnalysi
 // NEW: Phase 2 Data Ecosystem Dashboard
 const DataEcosystemDashboard = React.lazy(() => import('../data-ecosystem/DataEcosystemDashboard'));
 
+// NEW: Phase 3 Advanced AI Dashboard
+const AdvancedAIDashboard = React.lazy(() => import('../ai/AdvancedAIDashboard'));
+
 const UserFriendlyApp: React.FC = () => {
   const location = useLocation();
   const [navigationOpen, setNavigationOpen] = useState(false);
