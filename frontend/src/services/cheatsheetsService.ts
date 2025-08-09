@@ -82,7 +82,12 @@ class CheatsheetsService {
       const queryParams = this.buildQueryParams(filters);
       const url = `/api/v1/cheatsheets/opportunities?${queryParams}`;
 
-      logger.debug('Making request to: ' + url, undefined, 'CheatsheetsService');
+      logger.debug('Making request to: ' + url, {
+        filters,
+        queryParams,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent
+      }, 'CheatsheetsService');
       
       const response = await this.fetchWithRetry(url);
       
