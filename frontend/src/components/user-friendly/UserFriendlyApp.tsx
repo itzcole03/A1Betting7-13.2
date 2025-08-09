@@ -121,6 +121,7 @@ const UserFriendlyApp: React.FC = () => {
 
               {/* Tools Routes */}
               <Route path='/arbitrage' element={<ArbitrageOpportunities />} />
+              <Route path='/advanced-arbitrage' element={<AdvancedArbitrageDashboard />} />
               <Route path='/kelly-calculator' element={<KellyCalculator />} />
               <Route path='/odds-comparison' element={<OddsComparison />} />
               <Route path='/line-tracker' element={<PropFinderKillerDashboard />} />
