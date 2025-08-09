@@ -108,12 +108,23 @@ export const CheatsheetsDashboard: React.FC = () => {
       setLastRefresh(new Date(response.last_updated));
       setProcessingTime(response.processing_time_ms);
       setDataSource(response.cache_hit ? 'cache' : response.data_sources?.[0] || 'api');
-      setApiHealth(true);
 
-      if (response.market_status === 'limited') {
-        setError('Using fallback data - API connectivity limited');
+      // Check if this is fallback data due to server error
+      const responseData = response as any;
+      if (responseData.api_error) {
+        setApiHealth(false);
+        if (responseData.error_message?.includes('500')) {
+          setError('Server error detected - Using demo data while backend is investigated');
+        } else {
+          setError(`API Issue: ${responseData.fallback_reason || 'Using demo data'}`);
+        }
       } else {
-        setError(null);
+        setApiHealth(true);
+        if (response.market_status === 'limited') {
+          setError('Using fallback data - API connectivity limited');
+        } else {
+          setError(null);
+        }
       }
 
       console.log(`[CheatsheetsDashboard] Loaded ${response.opportunities.length} opportunities`, {
