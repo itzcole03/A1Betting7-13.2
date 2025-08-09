@@ -220,6 +220,17 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       isHot: true,
     },
     {
+      id: 'live-betting',
+      name: 'Live Betting Engine',
+      href: '/live-betting',
+      icon: Zap,
+      badge: 'Phase 4',
+      description: 'Real-time odds tracking and opportunities across 15+ sportsbooks',
+      category: 'main',
+      isNew: true,
+      isHot: true,
+    },
+    {
       id: 'propfinder-comparison',
       name: 'vs PropFinder',
       href: '/comparison',
