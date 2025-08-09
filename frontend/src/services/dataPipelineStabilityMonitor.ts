@@ -79,9 +79,7 @@ class DataPipelineStabilityMonitor {
 
   private async performHealthChecks(): Promise<void> {
     const services = [
-      { name: 'UnifiedDataService', service: UnifiedDataService.getInstance() },
-      { name: 'PropOllamaService', service: PropOllamaService.getInstance() },
-      { name: 'SportsService', service: SportsService.getInstance() }
+      { name: 'UnifiedDataService', service: UnifiedDataService.getInstance() }
     ];
 
     const healthCheckPromises = services.map(({ name, service }) =>
