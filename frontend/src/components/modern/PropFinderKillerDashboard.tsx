@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useTransition, useDeferredValue, startTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useEnhancedMemo, useOptimizedCallback, PerformanceProfiler } from '../../utils/react19Optimizations';
 import {
   Search,
   Filter,
