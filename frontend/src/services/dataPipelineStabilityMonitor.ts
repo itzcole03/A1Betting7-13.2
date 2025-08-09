@@ -1,540 +1,358 @@
-/**
- * Data Pipeline Stability Monitor
- * Monitors the health and performance of the UnifiedDataService and core data pipelines
- * Implements recommendations from A1Betting Analysis Report Addendum 4
- */
-
 import { UnifiedDataService } from './unified/UnifiedDataService';
+import { PropOllamaService } from './unified/PropOllamaService';
+import { SportsService } from './unified/SportsService';
 
-interface DataPipelineMetrics {
+interface ServiceHealthMetrics {
   serviceName: string;
-  isHealthy: boolean;
   responseTime: number;
   errorRate: number;
+  successRate: number;
   cacheHitRate: number;
-  totalRequests: number;
-  failedRequests: number;
   lastHealthCheck: Date;
-  uptime: number;
-}
-
-interface PipelineAlert {
-  severity: 'info' | 'warning' | 'error' | 'critical';
-  message: string;
-  service: string;
-  timestamp: Date;
-  metrics?: Partial<DataPipelineMetrics>;
+  status: 'healthy' | 'degraded' | 'unhealthy';
+  errors: string[];
 }
 
 interface HealthCheckResult {
-  service: string;
-  status: 'healthy' | 'degraded' | 'unhealthy';
+  success: boolean;
   responseTime: number;
-  details: string;
-  timestamp: Date;
+  error?: string;
+}
+
+interface AlertThresholds {
+  maxResponseTime: number;
+  maxErrorRate: number;
+  minSuccessRate: number;
+  minCacheHitRate: number;
 }
 
 class DataPipelineStabilityMonitor {
-  private metrics: Map<string, DataPipelineMetrics> = new Map();
-  private alerts: PipelineAlert[] = [];
+  private static instance: DataPipelineStabilityMonitor;
+  private metrics: Map<string, ServiceHealthMetrics> = new Map();
   private isMonitoring = false;
   private monitoringInterval: NodeJS.Timeout | null = null;
-  private startTime = Date.now();
+  
+  private readonly DEFAULT_THRESHOLDS: AlertThresholds = {
+    maxResponseTime: 5000, // 5 seconds
+    maxErrorRate: 0.1,     // 10%
+    minSuccessRate: 0.9,   // 90%
+    minCacheHitRate: 0.7   // 70%
+  };
 
-  // Thresholds for alerting
-  private readonly RESPONSE_TIME_WARNING = 2000; // ms
-  private readonly RESPONSE_TIME_CRITICAL = 5000; // ms
-  private readonly ERROR_RATE_WARNING = 0.05; // 5%
-  private readonly ERROR_RATE_CRITICAL = 0.15; // 15%
-  private readonly CACHE_HIT_RATE_WARNING = 0.6; // 60%
+  private constructor() {}
 
-  constructor() {
-    this.initializeMetrics();
+  static getInstance(): DataPipelineStabilityMonitor {
+    if (!DataPipelineStabilityMonitor.instance) {
+      DataPipelineStabilityMonitor.instance = new DataPipelineStabilityMonitor();
+    }
+    return DataPipelineStabilityMonitor.instance;
   }
 
-  /**
-   * Initialize metrics for core data services
-   */
-  private initializeMetrics(): void {
-    const services = ['UnifiedDataService', 'PropOllamaService', 'SportsService'];
-    
-    services.forEach(service => {
-      this.metrics.set(service, {
-        serviceName: service,
-        isHealthy: true,
-        responseTime: 0,
-        errorRate: 0,
-        cacheHitRate: 1,
-        totalRequests: 0,
-        failedRequests: 0,
-        lastHealthCheck: new Date(),
-        uptime: 0,
-      });
-    });
-
-    console.log('[DataPipelineMonitor] Initialized monitoring for services:', services);
-  }
-
-  /**
-   * Start continuous monitoring
-   */
-  public startMonitoring(): void {
-    if (this.isMonitoring) return;
+  async startMonitoring(intervalMs: number = 60000): Promise<void> {
+    if (this.isMonitoring) {
+      console.warn('Data pipeline monitoring is already running');
+      return;
+    }
 
     this.isMonitoring = true;
-    console.log('[DataPipelineMonitor] Starting pipeline monitoring');
+    console.log('Starting data pipeline stability monitoring...');
 
-    // Health check every 30 seconds
-    this.monitoringInterval = setInterval(() => {
-      this.performHealthChecks();
-      this.updateMetrics();
-      this.checkThresholds();
-    }, 30000);
+    // Initial health check
+    await this.performHealthChecks();
 
-    this.addAlert({
-      severity: 'info',
-      message: 'Data pipeline monitoring started',
-      service: 'System',
-      timestamp: new Date(),
-    });
+    // Set up periodic monitoring
+    this.monitoringInterval = setInterval(async () => {
+      try {
+        await this.performHealthChecks();
+      } catch (error) {
+        console.error('Error during health check:', error);
+      }
+    }, intervalMs);
   }
 
-  /**
-   * Stop monitoring
-   */
-  public stopMonitoring(): void {
-    if (!this.isMonitoring) return;
-
-    this.isMonitoring = false;
+  stopMonitoring(): void {
     if (this.monitoringInterval) {
       clearInterval(this.monitoringInterval);
       this.monitoringInterval = null;
     }
-
-    console.log('[DataPipelineMonitor] Monitoring stopped');
+    this.isMonitoring = false;
+    console.log('Data pipeline monitoring stopped');
   }
 
-  /**
-   * Perform health checks on all monitored services
-   */
   private async performHealthChecks(): Promise<void> {
-    const healthChecks = [
-      this.checkUnifiedDataService(),
-      this.checkPropOllamaService(),
-      this.checkSportsService(),
+    const services = [
+      { name: 'UnifiedDataService', service: UnifiedDataService.getInstance() },
+      { name: 'PropOllamaService', service: PropOllamaService.getInstance() },
+      { name: 'SportsService', service: SportsService.getInstance() }
     ];
 
+    const healthCheckPromises = services.map(({ name, service }) =>
+      this.checkServiceHealth(name, service)
+    );
+
+    await Promise.allSettled(healthCheckPromises);
+    this.analyzeAndAlert();
+  }
+
+  private async checkServiceHealth(serviceName: string, service: any): Promise<void> {
+    const startTime = Date.now();
+    let result: HealthCheckResult;
+
     try {
-      const results = await Promise.allSettled(healthChecks);
-      results.forEach((result, index) => {
-        const serviceName = ['UnifiedDataService', 'PropOllamaService', 'SportsService'][index];
-        
-        if (result.status === 'fulfilled') {
-          this.updateServiceMetrics(serviceName, result.value);
-        } else {
-          this.handleHealthCheckFailure(serviceName, result.reason);
+      // Perform a lightweight health check based on service type
+      if (serviceName === 'UnifiedDataService') {
+        result = await this.healthCheckUnifiedDataService(service);
+      } else if (serviceName === 'PropOllamaService') {
+        result = await this.healthCheckPropOllamaService(service);
+      } else if (serviceName === 'SportsService') {
+        result = await this.healthCheckSportsService(service);
+      } else {
+        result = { success: false, responseTime: 0, error: 'Unknown service' };
+      }
+    } catch (error) {
+      result = {
+        success: false,
+        responseTime: Date.now() - startTime,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+
+    this.updateMetrics(serviceName, result);
+  }
+
+  private async healthCheckUnifiedDataService(service: any): Promise<HealthCheckResult> {
+    const startTime = Date.now();
+    try {
+      // Test basic functionality that was fixed in the constructor
+      const testCacheKey = 'health-check-test';
+      const testData = { test: true, timestamp: Date.now() };
+      
+      // Test cache operations (this validates the constructor fix)
+      await service.cacheData(testCacheKey, testData, 1000);
+      const cachedData = await service.getCachedData(testCacheKey);
+      
+      if (!cachedData || cachedData.test !== true) {
+        throw new Error('Cache operations failed');
+      }
+
+      return {
+        success: true,
+        responseTime: Date.now() - startTime
+      };
+    } catch (error) {
+      return {
+        success: false,
+        responseTime: Date.now() - startTime,
+        error: error instanceof Error ? error.message : 'Health check failed'
+      };
+    }
+  }
+
+  private async healthCheckPropOllamaService(service: any): Promise<HealthCheckResult> {
+    const startTime = Date.now();
+    try {
+      // Test basic service availability
+      if (typeof service.isHealthy === 'function') {
+        const healthy = await service.isHealthy();
+        if (!healthy) {
+          throw new Error('Service reports unhealthy status');
         }
-      });
+      }
+
+      return {
+        success: true,
+        responseTime: Date.now() - startTime
+      };
     } catch (error) {
-      console.error('[DataPipelineMonitor] Health check error:', error);
+      return {
+        success: false,
+        responseTime: Date.now() - startTime,
+        error: error instanceof Error ? error.message : 'Health check failed'
+      };
     }
   }
 
-  /**
-   * Check UnifiedDataService health
-   */
-  private async checkUnifiedDataService(): Promise<HealthCheckResult> {
+  private async healthCheckSportsService(service: any): Promise<HealthCheckResult> {
     const startTime = Date.now();
-    
     try {
-      const dataService = UnifiedDataService.getInstance();
-      
-      // Test basic functionality
-      await dataService.fetchSportsData('test', '2024-01-01');
-      
-      const responseTime = Date.now() - startTime;
-      
+      // Test basic service availability
+      if (typeof service.getStatus === 'function') {
+        const status = await service.getStatus();
+        if (status !== 'active' && status !== 'ready') {
+          throw new Error(`Service status: ${status}`);
+        }
+      }
+
       return {
-        service: 'UnifiedDataService',
-        status: responseTime < this.RESPONSE_TIME_WARNING ? 'healthy' : 'degraded',
-        responseTime,
-        details: 'Service accessible and responsive',
-        timestamp: new Date(),
+        success: true,
+        responseTime: Date.now() - startTime
       };
     } catch (error) {
-      const responseTime = Date.now() - startTime;
-      
       return {
-        service: 'UnifiedDataService',
-        status: 'unhealthy',
-        responseTime,
-        details: `Service error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        timestamp: new Date(),
+        success: false,
+        responseTime: Date.now() - startTime,
+        error: error instanceof Error ? error.message : 'Health check failed'
       };
     }
   }
 
-  /**
-   * Check PropOllama service health
-   */
-  private async checkPropOllamaService(): Promise<HealthCheckResult> {
-    const startTime = Date.now();
-    
-    try {
-      // Test PropOllama health endpoint
-      const response = await fetch('/api/propollama/health', {
-        method: 'GET',
-        signal: AbortSignal.timeout(5000),
+  private updateMetrics(serviceName: string, result: HealthCheckResult): void {
+    const existing = this.metrics.get(serviceName);
+    const now = new Date();
+
+    if (!existing) {
+      this.metrics.set(serviceName, {
+        serviceName,
+        responseTime: result.responseTime,
+        errorRate: result.success ? 0 : 1,
+        successRate: result.success ? 1 : 0,
+        cacheHitRate: 0.8, // Default assumption
+        lastHealthCheck: now,
+        status: this.determineHealthStatus(result.responseTime, result.success ? 0 : 1, result.success ? 1 : 0),
+        errors: result.error ? [result.error] : []
       });
+      return;
+    }
 
-      const responseTime = Date.now() - startTime;
-      
-      return {
-        service: 'PropOllamaService',
-        status: response.ok ? 'healthy' : 'degraded',
-        responseTime,
-        details: response.ok ? 'Service healthy' : `HTTP ${response.status}`,
-        timestamp: new Date(),
-      };
-    } catch (error) {
-      const responseTime = Date.now() - startTime;
-      
-      return {
-        service: 'PropOllamaService',
-        status: 'unhealthy',
-        responseTime,
-        details: 'Service unavailable - running in demo mode',
-        timestamp: new Date(),
-      };
+    // Calculate rolling averages (simple weighted average)
+    const weight = 0.2; // 20% weight for new data
+    existing.responseTime = existing.responseTime * (1 - weight) + result.responseTime * weight;
+    existing.errorRate = existing.errorRate * (1 - weight) + (result.success ? 0 : 1) * weight;
+    existing.successRate = existing.successRate * (1 - weight) + (result.success ? 1 : 0) * weight;
+    existing.lastHealthCheck = now;
+    existing.status = this.determineHealthStatus(existing.responseTime, existing.errorRate, existing.successRate);
+
+    if (result.error) {
+      existing.errors.push(result.error);
+      // Keep only last 10 errors
+      if (existing.errors.length > 10) {
+        existing.errors = existing.errors.slice(-10);
+      }
     }
   }
 
-  /**
-   * Check Sports service health
-   */
-  private async checkSportsService(): Promise<HealthCheckResult> {
-    const startTime = Date.now();
-    
-    try {
-      // Test sports activation endpoint
-      const response = await fetch('/api/sports/activate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sports: ['test'] }),
-        signal: AbortSignal.timeout(3000),
-      });
+  private determineHealthStatus(responseTime: number, errorRate: number, successRate: number): 'healthy' | 'degraded' | 'unhealthy' {
+    const thresholds = this.DEFAULT_THRESHOLDS;
 
-      const responseTime = Date.now() - startTime;
-      
-      return {
-        service: 'SportsService',
-        status: response.ok ? 'healthy' : 'degraded',
-        responseTime,
-        details: response.ok ? 'Service operational' : 'Demo mode active',
-        timestamp: new Date(),
-      };
-    } catch (error) {
-      const responseTime = Date.now() - startTime;
-      
-      return {
-        service: 'SportsService',
-        status: 'unhealthy',
-        responseTime,
-        details: 'Backend unavailable - demo mode',
-        timestamp: new Date(),
-      };
-    }
-  }
-
-  /**
-   * Update service metrics based on health check results
-   */
-  private updateServiceMetrics(serviceName: string, healthCheck: HealthCheckResult): void {
-    const metrics = this.metrics.get(serviceName);
-    if (!metrics) return;
-
-    metrics.totalRequests++;
-    metrics.responseTime = healthCheck.responseTime;
-    metrics.isHealthy = healthCheck.status === 'healthy';
-    metrics.lastHealthCheck = healthCheck.timestamp;
-    metrics.uptime = (Date.now() - this.startTime) / 1000;
-
-    if (healthCheck.status === 'unhealthy') {
-      metrics.failedRequests++;
+    if (errorRate > thresholds.maxErrorRate || successRate < thresholds.minSuccessRate) {
+      return 'unhealthy';
     }
 
-    metrics.errorRate = metrics.totalRequests > 0 ? metrics.failedRequests / metrics.totalRequests : 0;
+    if (responseTime > thresholds.maxResponseTime) {
+      return 'degraded';
+    }
 
-    this.metrics.set(serviceName, metrics);
+    return 'healthy';
   }
 
-  /**
-   * Handle health check failures
-   */
-  private handleHealthCheckFailure(serviceName: string, error: any): void {
-    const metrics = this.metrics.get(serviceName);
-    if (!metrics) return;
+  private analyzeAndAlert(): void {
+    const unhealthyServices: string[] = [];
+    const degradedServices: string[] = [];
 
-    metrics.totalRequests++;
-    metrics.failedRequests++;
-    metrics.isHealthy = false;
-    metrics.errorRate = metrics.failedRequests / metrics.totalRequests;
-    metrics.lastHealthCheck = new Date();
-
-    this.addAlert({
-      severity: 'error',
-      message: `Health check failed for ${serviceName}: ${error?.message || 'Unknown error'}`,
-      service: serviceName,
-      timestamp: new Date(),
-      metrics: {
-        errorRate: metrics.errorRate,
-        totalRequests: metrics.totalRequests,
-        failedRequests: metrics.failedRequests,
-      },
-    });
-
-    this.metrics.set(serviceName, metrics);
-  }
-
-  /**
-   * Update general metrics
-   */
-  private updateMetrics(): void {
     this.metrics.forEach((metrics, serviceName) => {
-      // Simulate cache hit rate (in real implementation, this would come from actual cache metrics)
-      if (metrics.totalRequests > 0) {
-        metrics.cacheHitRate = Math.max(0.3, Math.min(1.0, 0.8 + (Math.random() - 0.5) * 0.3));
+      if (metrics.status === 'unhealthy') {
+        unhealthyServices.push(serviceName);
+      } else if (metrics.status === 'degraded') {
+        degradedServices.push(serviceName);
       }
     });
+
+    if (unhealthyServices.length > 0) {
+      console.error('🚨 CRITICAL: Unhealthy services detected:', unhealthyServices);
+      this.sendAlert('critical', `Unhealthy services: ${unhealthyServices.join(', ')}`);
+    }
+
+    if (degradedServices.length > 0) {
+      console.warn('⚠️ WARNING: Degraded services detected:', degradedServices);
+      this.sendAlert('warning', `Degraded services: ${degradedServices.join(', ')}`);
+    }
+
+    if (unhealthyServices.length === 0 && degradedServices.length === 0) {
+      console.log('✅ All data pipeline services are healthy');
+    }
   }
 
-  /**
-   * Check if any metrics exceed alert thresholds
-   */
-  private checkThresholds(): void {
-    this.metrics.forEach((metrics, serviceName) => {
-      // Response time thresholds
-      if (metrics.responseTime > this.RESPONSE_TIME_CRITICAL) {
-        this.addAlert({
-          severity: 'critical',
-          message: `Critical response time for ${serviceName}: ${metrics.responseTime}ms`,
-          service: serviceName,
-          timestamp: new Date(),
-          metrics: { responseTime: metrics.responseTime },
-        });
-      } else if (metrics.responseTime > this.RESPONSE_TIME_WARNING) {
-        this.addAlert({
-          severity: 'warning',
-          message: `Slow response time for ${serviceName}: ${metrics.responseTime}ms`,
-          service: serviceName,
-          timestamp: new Date(),
-          metrics: { responseTime: metrics.responseTime },
-        });
-      }
-
-      // Error rate thresholds
-      if (metrics.errorRate > this.ERROR_RATE_CRITICAL) {
-        this.addAlert({
-          severity: 'critical',
-          message: `Critical error rate for ${serviceName}: ${(metrics.errorRate * 100).toFixed(1)}%`,
-          service: serviceName,
-          timestamp: new Date(),
-          metrics: { errorRate: metrics.errorRate },
-        });
-      } else if (metrics.errorRate > this.ERROR_RATE_WARNING) {
-        this.addAlert({
-          severity: 'warning',
-          message: `High error rate for ${serviceName}: ${(metrics.errorRate * 100).toFixed(1)}%`,
-          service: serviceName,
-          timestamp: new Date(),
-          metrics: { errorRate: metrics.errorRate },
-        });
-      }
-
-      // Cache hit rate threshold
-      if (metrics.cacheHitRate < this.CACHE_HIT_RATE_WARNING) {
-        this.addAlert({
-          severity: 'warning',
-          message: `Low cache hit rate for ${serviceName}: ${(metrics.cacheHitRate * 100).toFixed(1)}%`,
-          service: serviceName,
-          timestamp: new Date(),
-          metrics: { cacheHitRate: metrics.cacheHitRate },
-        });
-      }
-    });
-  }
-
-  /**
-   * Add an alert
-   */
-  private addAlert(alert: PipelineAlert): void {
-    this.alerts.unshift(alert);
+  private sendAlert(level: 'critical' | 'warning', message: string): void {
+    // In a real implementation, this would integrate with alerting systems
+    const timestamp = new Date().toISOString();
+    const alertMessage = `[${level.toUpperCase()}] ${timestamp}: ${message}`;
     
-    // Keep only last 50 alerts
-    if (this.alerts.length > 50) {
-      this.alerts = this.alerts.slice(0, 50);
-    }
-
-    // Log critical and error alerts
-    if (alert.severity === 'critical' || alert.severity === 'error') {
-      console.error(`[DataPipelineMonitor] ${alert.severity.toUpperCase()}: ${alert.message}`);
-    } else if (alert.severity === 'warning') {
-      console.warn(`[DataPipelineMonitor] WARNING: ${alert.message}`);
-    }
-  }
-
-  /**
-   * Get current pipeline metrics
-   */
-  public getMetrics(): Map<string, DataPipelineMetrics> {
-    return new Map(this.metrics);
-  }
-
-  /**
-   * Get recent alerts
-   */
-  public getAlerts(severity?: PipelineAlert['severity']): PipelineAlert[] {
-    if (severity) {
-      return this.alerts.filter(alert => alert.severity === severity);
-    }
-    return [...this.alerts];
-  }
-
-  /**
-   * Get overall pipeline health status
-   */
-  public getOverallHealth(): {
-    status: 'healthy' | 'degraded' | 'unhealthy';
-    healthyServices: number;
-    totalServices: number;
-    summary: string;
-  } {
-    const services = Array.from(this.metrics.values());
-    const healthyServices = services.filter(s => s.isHealthy).length;
-    const totalServices = services.length;
-    
-    let status: 'healthy' | 'degraded' | 'unhealthy';
-    let summary: string;
-
-    if (healthyServices === totalServices) {
-      status = 'healthy';
-      summary = 'All data services operational';
-    } else if (healthyServices > totalServices / 2) {
-      status = 'degraded';
-      summary = `${totalServices - healthyServices} services experiencing issues`;
+    if (level === 'critical') {
+      console.error(alertMessage);
     } else {
-      status = 'unhealthy';
-      summary = 'Multiple critical service failures';
+      console.warn(alertMessage);
     }
 
-    return {
-      status,
-      healthyServices,
-      totalServices,
-      summary,
-    };
+    // Store alert for dashboard display
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const alerts = JSON.parse(localStorage.getItem('pipeline-alerts') || '[]');
+      alerts.push({ level, message, timestamp });
+      
+      // Keep only last 50 alerts
+      if (alerts.length > 50) {
+        alerts.splice(0, alerts.length - 50);
+      }
+      
+      localStorage.setItem('pipeline-alerts', JSON.stringify(alerts));
+    }
   }
 
-  /**
-   * Generate pipeline health report
-   */
-  public generateHealthReport(): string {
-    const overallHealth = this.getOverallHealth();
-    const criticalAlerts = this.getAlerts('critical').length;
-    const errorAlerts = this.getAlerts('error').length;
-    const warningAlerts = this.getAlerts('warning').length;
-
-    let report = `
-Data Pipeline Health Report
-==========================
-Overall Status: ${overallHealth.status.toUpperCase()}
-Summary: ${overallHealth.summary}
-Healthy Services: ${overallHealth.healthyServices}/${overallHealth.totalServices}
-
-Service Details:
-`;
-
+  getHealthReport(): Record<string, ServiceHealthMetrics> {
+    const report: Record<string, ServiceHealthMetrics> = {};
     this.metrics.forEach((metrics, serviceName) => {
-      report += `
-${serviceName}:
-  - Status: ${metrics.isHealthy ? 'HEALTHY' : 'UNHEALTHY'}
-  - Response Time: ${metrics.responseTime}ms
-  - Error Rate: ${(metrics.errorRate * 100).toFixed(1)}%
-  - Cache Hit Rate: ${(metrics.cacheHitRate * 100).toFixed(1)}%
-  - Total Requests: ${metrics.totalRequests}
-  - Failed Requests: ${metrics.failedRequests}
-  - Last Check: ${metrics.lastHealthCheck.toLocaleTimeString()}
-`;
+      report[serviceName] = { ...metrics };
     });
-
-    report += `
-Recent Alerts:
-- Critical: ${criticalAlerts}
-- Error: ${errorAlerts} 
-- Warning: ${warningAlerts}
-
-UnifiedDataService Fix Status: ✅ VALIDATED
-- Constructor error resolved
-- Variable naming consistency fixed
-- Data pipeline stability monitoring active
-`;
-
     return report;
   }
 
-  /**
-   * Validate UnifiedDataService fix specifically
-   */
-  public async validateUnifiedDataServiceFix(): Promise<{
-    constructorFixed: boolean;
-    variableNamingFixed: boolean;
-    functionalityWorking: boolean;
-    details: string[];
-  }> {
-    const details: string[] = [];
+  getOverallHealthStatus(): 'healthy' | 'degraded' | 'unhealthy' {
+    const statuses = Array.from(this.metrics.values()).map(m => m.status);
     
-    try {
-      // Test 1: Constructor instantiation
-      const dataService = UnifiedDataService.getInstance();
-      const constructorFixed = dataService !== undefined;
-      details.push(constructorFixed ? '✅ Constructor instantiation working' : '❌ Constructor failed');
+    if (statuses.includes('unhealthy')) {
+      return 'unhealthy';
+    }
+    
+    if (statuses.includes('degraded')) {
+      return 'degraded';
+    }
+    
+    return 'healthy';
+  }
 
-      // Test 2: Method functionality
-      let functionalityWorking = false;
-      try {
-        await dataService.fetchSportsData('test');
-        functionalityWorking = true;
-        details.push('✅ Basic functionality working');
-      } catch (error) {
-        // Expected in demo mode
-        functionalityWorking = true; // Still working, just no backend
-        details.push('✅ Service accessible (backend unavailable - demo mode)');
+  isMonitoringActive(): boolean {
+    return this.isMonitoring;
+  }
+
+  // Method to validate UnifiedDataService constructor fix specifically
+  async validateUnifiedDataServiceFix(): Promise<boolean> {
+    try {
+      const service = UnifiedDataService.getInstance();
+      
+      // Test that the service was properly initialized with the registry
+      if (!service) {
+        console.error('UnifiedDataService instance not available');
+        return false;
       }
 
-      // Test 3: Variable naming consistency (implicit test through functionality)
-      const variableNamingFixed = functionalityWorking;
-      details.push(variableNamingFixed ? '✅ Variable naming consistency verified' : '❌ Variable naming issues persist');
+      // Test cache operations that previously failed due to constructor issues
+      const testKey = 'constructor-fix-validation';
+      const testData = { validated: true, timestamp: Date.now() };
+      
+      await service.cacheData(testKey, testData, 5000);
+      const retrieved = await service.getCachedData(testKey);
+      
+      if (!retrieved || retrieved.validated !== true) {
+        console.error('UnifiedDataService cache operations failed - constructor fix may not be working');
+        return false;
+      }
 
-      return {
-        constructorFixed,
-        variableNamingFixed,
-        functionalityWorking,
-        details,
-      };
+      console.log('✅ UnifiedDataService constructor fix validated successfully');
+      return true;
     } catch (error) {
-      details.push(`❌ Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      return {
-        constructorFixed: false,
-        variableNamingFixed: false,
-        functionalityWorking: false,
-        details,
-      };
+      console.error('❌ UnifiedDataService constructor fix validation failed:', error);
+      return false;
     }
   }
 }
 
-// Export singleton instance
-export const dataPipelineMonitor = new DataPipelineStabilityMonitor();
-
-// Export types
-export type { DataPipelineMetrics, PipelineAlert, HealthCheckResult };
+export default DataPipelineStabilityMonitor;
