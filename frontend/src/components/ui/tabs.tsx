@@ -206,7 +206,7 @@ export const _TabsTrigger: React.FC<TabsTriggerProps> = ({
 
 // Tabs Content Component
 export const _TabsContent: React.FC<TabsContentProps> = ({ value, children, className = '' }) => {
-  const { value: selectedValue } = useTabsContext();
+  const { value: selectedValue } = _useTabsContext();
   const _isSelected = selectedValue === value;
 
   const _contentVariants = {
