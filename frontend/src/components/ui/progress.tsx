@@ -80,15 +80,15 @@ export const _Progress: React.FC<ProgressProps> = ({
 
     switch (variant) {
       case 'cyber':
-        return `bg-gradient-to-r ${colorConfig.gradient} ${colorConfig.glow}`;
+        return `bg-gradient-to-r ${_colorConfig.gradient} ${_colorConfig.glow}`;
       case 'glass':
-        return `bg-gradient-to-r ${colorConfig.gradient} backdrop-blur-sm`;
+        return `bg-gradient-to-r ${_colorConfig.gradient} backdrop-blur-sm`;
       case 'gradient':
-        return `bg-gradient-to-r ${colorConfig.gradient}`;
+        return `bg-gradient-to-r ${_colorConfig.gradient}`;
       case 'pulse':
-        return `${colorConfig.bg} animate-pulse`;
+        return `${_colorConfig.bg} animate-pulse`;
       default:
-        return colorConfig.bg;
+        return _colorConfig.bg;
     }
   };
 
