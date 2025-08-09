@@ -1,14 +1,13 @@
 import { BaseService } from './BaseService';
 import { UnifiedCache } from './UnifiedCache';
+import { UnifiedServiceRegistry } from './UnifiedServiceRegistry';
 
-// @ts-expect-error TS(2415): Class 'UnifiedDataService' incorrectly extends bas... Remove this comment to see the full error message
 export class UnifiedDataService extends BaseService {
   private static instance: UnifiedDataService;
   private cache: UnifiedCache;
 
   protected constructor() {
-    // @ts-expect-error TS(2554): Expected 2 arguments, but got 1.
-    super('UnifiedDataService');
+    super('UnifiedDataService', UnifiedServiceRegistry.getInstance());
     this.cache = UnifiedCache.getInstance();
   }
 
@@ -21,11 +20,11 @@ export class UnifiedDataService extends BaseService {
 
   async fetchSportsData(sport: string, date?: string): Promise<unknown> {
     try {
-      const _cacheKey = `sports_data_${sport}_${date || 'today'}`;
-      const _cached = this.cache.get(cacheKey);
+      const cacheKey = `sports_data_${sport}_${date || 'today'}`;
+      const cached = this.cache.get(cacheKey);
       if (cached) return cached;
 
-      const _response = await this.get(`/api/sports/${sport}${date ? `?date=${date}` : ''}`);
+      const response = await this.get(`/api/sports/${sport}${date ? `?date=${date}` : ''}`);
       this.cache.set(cacheKey, response, 300000); // 5 min cache
       return response;
     } catch (error) {
@@ -36,11 +35,11 @@ export class UnifiedDataService extends BaseService {
 
   async fetchPlayerStats(playerId: string, sport: string): Promise<unknown> {
     try {
-      const _cacheKey = `player_stats_${playerId}_${sport}`;
-      const _cached = this.cache.get(cacheKey);
+      const cacheKey = `player_stats_${playerId}_${sport}`;
+      const cached = this.cache.get(cacheKey);
       if (cached) return cached;
 
-      const _response = await this.get(`/api/players/${playerId}/stats?sport=${sport}`);
+      const response = await this.get(`/api/players/${playerId}/stats?sport=${sport}`);
       this.cache.set(cacheKey, response, 600000); // 10 min cache
       return response;
     } catch (error) {
