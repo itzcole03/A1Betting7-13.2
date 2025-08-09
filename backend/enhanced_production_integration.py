@@ -960,6 +960,15 @@ class EnhancedProductionApp:
             except Exception as e:
                 self.logger.warning(f"Could not include advanced_arbitrage_routes router: {str(e)}")
 
+            # PHASE 4.3: Advanced Kelly Criterion routes
+            try:
+                from .routes.advanced_kelly_routes import router as advanced_kelly_router
+                self.app.include_router(advanced_kelly_router, tags=["Advanced Kelly"])
+                enhanced_routes.append("advanced_kelly")
+                self.logger.info("✅ Phase 4.3: Advanced Kelly Criterion routes included")
+            except Exception as e:
+                self.logger.warning(f"Could not include advanced_kelly_routes router: {str(e)}")
+
             # NEW: Cheatsheets routes (prop opportunities)
             try:
                 self.app.include_router(cheatsheets_router, prefix="/api", tags=["Cheatsheets"])
