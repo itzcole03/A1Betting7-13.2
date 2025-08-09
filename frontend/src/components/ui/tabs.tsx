@@ -137,7 +137,7 @@ export const _TabsTrigger: React.FC<TabsTriggerProps> = ({
   disabled = false,
   className = '',
 }) => {
-  const { value: selectedValue, onValueChange, variant } = useTabsContext();
+  const { value: selectedValue, onValueChange, variant } = _useTabsContext();
   const _isSelected = selectedValue === value;
 
   const _variantClasses = {
