@@ -36,6 +36,9 @@ const DataEcosystemDashboard = React.lazy(() => import('../data-ecosystem/DataEc
 // NEW: Phase 3 Advanced AI Dashboard
 const AdvancedAIDashboard = React.lazy(() => import('../ai/AdvancedAIDashboard'));
 
+// NEW: Phase 4 Live Betting Dashboard
+const LiveBettingDashboard = React.lazy(() => import('../live-betting/LiveBettingDashboard'));
+
 const UserFriendlyApp: React.FC = () => {
   const location = useLocation();
   const [navigationOpen, setNavigationOpen] = useState(false);
