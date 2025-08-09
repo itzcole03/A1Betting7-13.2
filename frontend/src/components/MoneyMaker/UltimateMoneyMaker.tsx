@@ -249,7 +249,7 @@ const UltimateMoneyMaker: React.FC = () => {
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='text-center'>
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-            <div className='text-3xl font-bold text-purple-400'>{averageROI.toFixed(1)}%</div>
+            <div className='text-3xl font-bold text-purple-400'>{_averageROI.toFixed(1)}%</div>
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='text-gray-400'>Average ROI</div>
           </div>
@@ -311,7 +311,7 @@ const UltimateMoneyMaker: React.FC = () => {
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <p className='text-gray-400 text-sm'>Portfolio ROI</p>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <p className='text-2xl font-bold text-purple-400'>+{averageROI.toFixed(1)}%</p>
+              <p className='text-2xl font-bold text-purple-400'>+{_averageROI.toFixed(1)}%</p>
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <p className='text-xs text-purple-300 mt-1'>Neural weighted</p>
             </div>
