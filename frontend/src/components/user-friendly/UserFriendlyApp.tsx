@@ -144,6 +144,10 @@ const UserFriendlyApp: React.FC = memo(() => {
                 element={<UnifiedSearchInterface />}
               />
               <Route
+                path='/charts'
+                element={<InteractiveChartsHub />}
+              />
+              <Route
                 path='/prop-scanner'
                 element={isMobile ? <MobilePropResearch /> : <PropFinderKillerDashboard />}
               />
