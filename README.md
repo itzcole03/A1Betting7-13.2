@@ -122,7 +122,7 @@ npm run dev
 
 ## 🏆 A1Betting vs PropFinder
 
-### 📊 **Feature Comparison Matrix**
+### �� **Feature Comparison Matrix**
 
 | Feature | PropFinder | A1Betting | Advantage |
 |---------|------------|-----------|-----------|
@@ -552,7 +552,7 @@ cd A1Betting7-13.2/frontend && npm install && npm run dev
 
 **���� Stop paying for PropFinder. Get advanced AI analysis with superior performance, comprehensive monitoring, and enterprise-grade features - completely free.**
 
-*Built with ❤️ by the open source community. Empowering bettors worldwide with quantum AI technology and PropFinder-level analytics.*
+*Built with ❤️ by the open source community. Empowering bettors worldwide with advanced AI technology and PropFinder-level analytics.*
 
 ---
 
