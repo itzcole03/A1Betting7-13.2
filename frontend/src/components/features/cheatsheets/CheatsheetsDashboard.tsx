@@ -82,7 +82,6 @@ export const CheatsheetsDashboard: React.FC = () => {
   const [apiHealth, setApiHealth] = useState<boolean | null>(null);
   const [dataSource, setDataSource] = useState<string>('api');
   const [processingTime, setProcessingTime] = useState<number>(0);
-  const [showDiagnosticModal, setShowDiagnosticModal] = useState(false);
 
   // Fetch opportunities using optimized service
   const fetchOpportunities = useCallback(async () => {
