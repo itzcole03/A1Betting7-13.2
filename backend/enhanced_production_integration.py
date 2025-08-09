@@ -42,9 +42,10 @@ except ImportError:
 # Import new route modules
 try:
     from .routes.ai_routes import router as ai_router
-    from .routes.odds_routes import router as odds_router
     from .routes.cheatsheets_routes import router as cheatsheets_router
+    from .routes.odds_routes import router as odds_router
     from .routes.risk_tools_routes import router as risk_tools_router
+
     NEW_ROUTES_AVAILABLE = True
 except ImportError:
     NEW_ROUTES_AVAILABLE = False
@@ -166,8 +167,8 @@ except ImportError:
                 "cheatsheets": "healthy",
                 "odds_aggregation": "healthy",
                 "data_fetcher": "healthy",
-                "prediction_engine": "healthy"
-            }
+                "prediction_engine": "healthy",
+            },
         }
 
     @health_router.get("/api/health/status")
@@ -198,8 +199,14 @@ except ImportError:
             "opportunities_cached": 12,
             "last_refresh": None,
             "available_sports": ["MLB"],
-            "available_stat_types": ["hits", "home_runs", "rbis", "total_bases", "runs_scored"],
-            "timestamp": datetime.utcnow().isoformat()
+            "available_stat_types": [
+                "hits",
+                "home_runs",
+                "rbis",
+                "total_bases",
+                "runs_scored",
+            ],
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     HEALTH_CHECKS_AVAILABLE = False
@@ -348,7 +355,9 @@ class EnhancedProductionApp:
                 from .services.realtime_notification_service import notification_service
 
                 await notification_service.initialize()
-                self.logger.info("✅ Real-time notification service initialized successfully")
+                self.logger.info(
+                    "✅ Real-time notification service initialized successfully"
+                )
                 startup_tasks.append("notification_service")
             except Exception as e:
                 self.logger.warning(
@@ -417,18 +426,7 @@ class EnhancedProductionApp:
                 startup_tasks.append("connection_pool")
             except Exception as e:
                 self.logger.warning(
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    f"⚠��� Async connection pool initialization failed: {e}"
-=======
-                    f"���️ Async connection pool initialization failed: {e}"
->>>>>>> d6b62e2110f4a2a27ab2680924a50c03b6a79080
-=======
-                    f"���️ Async connection pool initialization failed: {e}"
-=======
-                    f"⚠��� Async connection pool initialization failed: {e}"
->>>>>>> 31ef5995fbaf6f491c846cb67b932a4376640eec
->>>>>>> a8a5bfd2678a0c0e7218282c3bf30db4774fadf4
+                    f"⚠️ Async connection pool initialization failed: {e}"
                 )
 
             # Initialize advanced caching system
@@ -588,7 +586,9 @@ class EnhancedProductionApp:
 
                 # Shutdown notification service
                 try:
-                    from .services.realtime_notification_service import notification_service
+                    from .services.realtime_notification_service import (
+                        notification_service,
+                    )
 
                     await notification_service.shutdown()
                     shutdown_tasks.append("notification_service")
@@ -936,7 +936,9 @@ class EnhancedProductionApp:
 
             # NEW: Odds aggregation and arbitrage detection routes
             try:
-                self.app.include_router(odds_router, prefix="/api", tags=["Odds & Arbitrage"])
+                self.app.include_router(
+                    odds_router, prefix="/api", tags=["Odds & Arbitrage"]
+                )
                 enhanced_routes.append("odds_arbitrage")
                 self.logger.info("✅ Odds aggregation and arbitrage routes included")
             except Exception as e:
@@ -944,48 +946,77 @@ class EnhancedProductionApp:
 
             # NEW: Cheatsheets routes (prop opportunities)
             try:
-                self.app.include_router(cheatsheets_router, prefix="/api", tags=["Cheatsheets"])
+                self.app.include_router(
+                    cheatsheets_router, prefix="/api", tags=["Cheatsheets"]
+                )
                 enhanced_routes.append("cheatsheets")
                 self.logger.info("✅ Cheatsheets (prop opportunities) routes included")
             except Exception as e:
-                self.logger.warning(f"Could not include cheatsheets_routes router: {str(e)}")
+                self.logger.warning(
+                    f"Could not include cheatsheets_routes router: {str(e)}"
+                )
 
             # NEW: Risk Tools routes (Kelly Criterion)
             try:
-                self.app.include_router(risk_tools_router, prefix="/api", tags=["Risk Management"])
+                self.app.include_router(
+                    risk_tools_router, prefix="/api", tags=["Risk Management"]
+                )
                 enhanced_routes.append("risk_tools")
                 self.logger.info("✅ Risk management (Kelly Criterion) routes included")
             except Exception as e:
-                self.logger.warning(f"Could not include risk_tools_routes router: {str(e)}")
+                self.logger.warning(
+                    f"Could not include risk_tools_routes router: {str(e)}"
+                )
 
             # Phase 2.2: Multiple Sportsbook Integration Routes
             try:
-                from .routes.multiple_sportsbook_routes import router as sportsbook_router
+                from .routes.multiple_sportsbook_routes import (
+                    router as sportsbook_router,
+                )
+
                 self.app.include_router(sportsbook_router, tags=["Multiple Sportsbook"])
                 enhanced_routes.append("multiple_sportsbook")
                 self.logger.info("✅ Multiple sportsbook integration routes included")
             except Exception as e:
-                self.logger.warning(f"Could not include multiple_sportsbook_routes router: {str(e)}")
+                self.logger.warning(
+                    f"Could not include multiple_sportsbook_routes router: {str(e)}"
+                )
 
             # NEW: Model Registry routes (ML Model Management)
             try:
-                from .routes.model_registry_routes import router as model_registry_router
+                from .routes.model_registry_routes import (
+                    router as model_registry_router,
+                )
+
                 self.app.include_router(model_registry_router, tags=["Model Registry"])
                 enhanced_routes.append("model_registry")
                 self.logger.info("✅ Model Registry (ML Management) routes included")
             except Exception as e:
-                self.logger.warning(f"Could not include model_registry_routes router: {str(e)}")
+                self.logger.warning(
+                    f"Could not include model_registry_routes router: {str(e)}"
+                )
 
             # NEW: AI Recommendations routes (Smart Betting Insights)
             try:
-                from .routes.ai_recommendations_routes import router as ai_recommendations_router
-                self.app.include_router(ai_recommendations_router, tags=["AI Recommendations"])
+                from .routes.ai_recommendations_routes import (
+                    router as ai_recommendations_router,
+                )
+
+                self.app.include_router(
+                    ai_recommendations_router, tags=["AI Recommendations"]
+                )
                 enhanced_routes.append("ai_recommendations")
-                self.logger.info("✅ AI Recommendations (Smart Betting Insights) routes included")
+                self.logger.info(
+                    "✅ AI Recommendations (Smart Betting Insights) routes included"
+                )
             except Exception as e:
-                self.logger.warning(f"Could not include ai_recommendations_routes router: {str(e)}")
+                self.logger.warning(
+                    f"Could not include ai_recommendations_routes router: {str(e)}"
+                )
         else:
-            self.logger.warning("⚠️ New route modules not available - falling back to legacy imports")
+            self.logger.warning(
+                "⚠️ New route modules not available - falling back to legacy imports"
+            )
 
             # Fallback: Legacy AI routes import
             try:
@@ -1031,19 +1062,27 @@ class EnhancedProductionApp:
         try:
             from .routes.realtime_websocket_routes import router as realtime_ws_router
 
-            self.app.include_router(realtime_ws_router, tags=["Real-time Notifications"])
+            self.app.include_router(
+                realtime_ws_router, tags=["Real-time Notifications"]
+            )
             enhanced_routes.append("realtime_notifications")
         except ImportError as e:
             self.logger.warning(f"Could not import realtime WebSocket router: {str(e)}")
 
         # Enhanced Sportsbook routes with notifications
         try:
-            from .routes.enhanced_sportsbook_routes import router as enhanced_sportsbook_router
+            from .routes.enhanced_sportsbook_routes import (
+                router as enhanced_sportsbook_router,
+            )
 
-            self.app.include_router(enhanced_sportsbook_router, tags=["Enhanced Sportsbook"])
+            self.app.include_router(
+                enhanced_sportsbook_router, tags=["Enhanced Sportsbook"]
+            )
             enhanced_routes.append("enhanced_sportsbook")
         except ImportError as e:
-            self.logger.warning(f"Could not import enhanced sportsbook router: {str(e)}")
+            self.logger.warning(
+                f"Could not import enhanced sportsbook router: {str(e)}"
+            )
 
         # Advanced Search and Filtering routes
         try:
