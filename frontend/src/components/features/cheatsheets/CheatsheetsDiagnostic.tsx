@@ -45,12 +45,14 @@ const CheatsheetsDiagnostic: React.FC<CheatsheetsDiagnosticProps> = ({
   const runDiagnostics = async () => {
     setLoading(true);
     try {
-      const startTime = Date.now();
-      
-      // Test API health
-      const healthResult = await cheatsheetsService.healthCheck();
-      const responseTime = Date.now() - startTime;
-      
+      console.log('[Diagnostics] Starting comprehensive API diagnostics...');
+
+      // Run comprehensive API health report
+      const healthReport = await APITester.generateHealthReport();
+
+      // Test basic service health
+      const serviceHealthy = await cheatsheetsService.healthCheck();
+
       // Get detailed diagnostic info
       let diagnosticData = null;
       try {
@@ -59,28 +61,39 @@ const CheatsheetsDiagnostic: React.FC<CheatsheetsDiagnosticProps> = ({
         console.warn('Could not fetch diagnostic data:', diagError);
       }
 
-      // Test a simple API call to check for 500 errors
+      // Compile error details from health report
       let errorDetails = '';
-      try {
-        const testResponse = await fetch('/api/v1/cheatsheets/opportunities?min_edge=1&min_confidence=50&sports=MLB&max_results=1');
-        if (!testResponse.ok) {
-          const errorText = await testResponse.text();
-          errorDetails = `HTTP ${testResponse.status}: ${errorText || testResponse.statusText}`;
+      if (healthReport.overall.issues.length > 0) {
+        errorDetails = healthReport.overall.issues.join('\n');
+
+        // Add specific endpoint details
+        if (!healthReport.endpoints.opportunities.success) {
+          errorDetails += `\n\nOpportunities Endpoint Details:\n`;
+          errorDetails += `Status: ${healthReport.endpoints.opportunities.status || 'N/A'}\n`;
+          errorDetails += `Error: ${healthReport.endpoints.opportunities.error || 'Unknown'}\n`;
+          if (healthReport.endpoints.opportunities.responseBody) {
+            errorDetails += `Response: ${JSON.stringify(healthReport.endpoints.opportunities.responseBody, null, 2)}`;
+          }
         }
-      } catch (testError) {
-        errorDetails = testError instanceof Error ? testError.message : String(testError);
       }
 
       setDiagnostics({
-        apiHealthy: healthResult,
-        responseTime,
+        apiHealthy: healthReport.overall.healthy,
+        responseTime: healthReport.endpoints.health.responseTime || 0,
         errorDetails: errorDetails || undefined,
-        backendConnected: healthResult,
-        diagnosticData,
+        backendConnected: serviceHealthy,
+        diagnosticData: {
+          serviceHealth: serviceHealthy,
+          healthReport,
+          customDiagnostics: diagnosticData
+        },
         lastChecked: new Date(),
       });
 
+      console.log('[Diagnostics] Diagnostics completed', healthReport);
+
     } catch (error) {
+      console.error('[Diagnostics] Diagnostics failed:', error);
       setDiagnostics({
         apiHealthy: false,
         backendConnected: false,
