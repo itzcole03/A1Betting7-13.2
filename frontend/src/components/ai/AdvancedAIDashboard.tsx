@@ -147,6 +147,11 @@ export const AdvancedAIDashboard: React.FC = () => {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
 
+  // Model Performance Monitoring State
+  const [monitoringOverview, setMonitoringOverview] = useState<any>(null);
+  const [monitoredModels, setMonitoredModels] = useState<any[]>([]);
+  const [modelHealthStatuses, setModelHealthStatuses] = useState<any[]>([]);
+
   // Fetch multi-sport integration data
   const fetchMultiSportData = useCallback(async () => {
     try {
