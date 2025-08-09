@@ -377,7 +377,8 @@ const PropFinderKillerDashboard: React.FC = () => {
   }, [], { priority: 'low', batchUpdates: true });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+    <PerformanceProfiler id="PropFinderKillerDashboard">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
       {/* Top Header */}
       <div className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-lg border-b border-slate-700">
         <div className="px-6 py-4">
@@ -954,7 +955,8 @@ const PropFinderKillerDashboard: React.FC = () => {
       <div className="mt-8">
         <CommunityEngagement />
       </div>
-    </div>
+      </div>
+    </PerformanceProfiler>
   );
 };
 
