@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import EnhancedNavigation from '../navigation/EnhancedNavigation';
 import PropOllamaContainer from '../containers/PropOllamaContainer';
@@ -45,21 +45,38 @@ const AdvancedArbitrageDashboard = React.lazy(() => import('../arbitrage/Advance
 // NEW: Phase 4.3 Advanced Kelly Dashboard
 const AdvancedKellyDashboard = React.lazy(() => import('../kelly/AdvancedKellyDashboard'));
 
-const UserFriendlyApp: React.FC = () => {
+const UserFriendlyApp: React.FC = memo(() => {
   const location = useLocation();
   const [navigationOpen, setNavigationOpen] = useState(false);
-  const [useOptimizedMode, setUseOptimizedMode] = useState(false);
+  const [useOptimizedMode, setUseOptimizedMode] = useState(true); // Default to optimized mode
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detect mobile device
+  // Memoized handlers to prevent unnecessary re-renders
+  const handleNavigationToggle = useCallback(() => {
+    setNavigationOpen(prev => !prev);
+  }, []);
+
+  const handleNavigationClose = useCallback(() => {
+    setNavigationOpen(false);
+  }, []);
+
+  // Detect mobile device with debouncing
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setIsMobile(window.innerWidth < 768);
+      }, 100); // Debounce resize events
     };
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
 
@@ -68,8 +85,8 @@ const UserFriendlyApp: React.FC = () => {
       {/* Enhanced Navigation */}
       <EnhancedNavigation
         isOpen={navigationOpen}
-        onToggle={() => setNavigationOpen(!navigationOpen)}
-        onClose={() => setNavigationOpen(false)}
+        onToggle={handleNavigationToggle}
+        onClose={handleNavigationClose}
       />
 
       {/* Main content with proper spacing */}
@@ -161,6 +178,8 @@ const UserFriendlyApp: React.FC = () => {
       </div>
     </div>
   );
-};
+});
+
+UserFriendlyApp.displayName = 'UserFriendlyApp';
 
 export default UserFriendlyApp;
