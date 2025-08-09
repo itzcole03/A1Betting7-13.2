@@ -365,7 +365,7 @@ const PropFinderKillerDashboard: React.FC = () => {
     }
   };
 
-  const toggleBookmark = useOptimizedCallback((id: string) => {
+  const toggleBookmark = useCallback((id: string) => {
     startTransitionLocal(() => {
       setOpportunities(prev =>
         prev.map(opp =>
