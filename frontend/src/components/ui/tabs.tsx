@@ -141,16 +141,16 @@ export const _TabsTrigger: React.FC<TabsTriggerProps> = ({
   const _isSelected = selectedValue === value;
 
   const _variantClasses = {
-    default: isSelected
+    default: _isSelected
       ? 'bg-slate-700 text-white border-slate-600'
       : 'text-gray-400 hover:text-white hover:bg-slate-700/50',
-    cyber: isSelected
+    cyber: _isSelected
       ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.4)]'
       : 'text-gray-400 hover:text-cyan-400 hover:bg-cyan-500/10 border-transparent',
-    glass: isSelected
+    glass: _isSelected
       ? 'bg-white/10 text-white border-white/20'
       : 'text-gray-400 hover:text-white hover:bg-white/5 border-transparent',
-    pills: isSelected
+    pills: _isSelected
       ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
       : 'bg-slate-700/50 text-gray-400 hover:text-white hover:bg-slate-600/50',
   };
