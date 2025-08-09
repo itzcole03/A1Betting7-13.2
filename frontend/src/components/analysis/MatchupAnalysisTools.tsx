@@ -327,7 +327,7 @@ const MatchupAnalysisTools: React.FC = () => {
   };
 
   const analysisTypes = [
-    { id: 'head2head', label: 'Head-to-Head', icon: Vs },
+    { id: 'head2head', label: 'Head-to-Head', icon: ArrowLeftRight },
     { id: 'statistical', label: 'Statistical', icon: BarChart3 },
     { id: 'situational', label: 'Situational', icon: Clock },
     { id: 'predictive', label: 'Predictive', icon: Brain },
