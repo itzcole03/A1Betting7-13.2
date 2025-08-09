@@ -177,7 +177,7 @@ export const _TabsTrigger: React.FC<TabsTriggerProps> = ({
         ${_variantClasses[variant]}
         ${className}
       `}
-      variants={triggerVariants}
+      variants={_triggerVariants}
       initial='inactive'
       animate={isSelected ? 'active' : 'inactive'}
       whileHover={!disabled ? 'hover' : undefined}
