@@ -48,6 +48,9 @@ const AdvancedKellyDashboard = React.lazy(() => import('../kelly/AdvancedKellyDa
 // NEW: Phase 2 Unified Player Dashboard
 const UnifiedPlayerDashboard = React.lazy(() => import('../player/UnifiedPlayerDashboard'));
 
+// NEW: Phase 2 Unified Search Interface
+const UnifiedSearchInterface = React.lazy(() => import('../search/UnifiedSearchInterface'));
+
 const UserFriendlyApp: React.FC = memo(() => {
   const location = useLocation();
   const [navigationOpen, setNavigationOpen] = useState(false);
