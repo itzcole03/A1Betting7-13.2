@@ -402,7 +402,37 @@ const OptimizedBettingComponent: React.FC = () => {
 const PropCard = React.memo<PropCardProps>(({ prop, onSelect }) => {
   return (
     <div className="prop-card" onClick={() => onSelect(prop)}>
-      {/* Prop content */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-lg font-semibold">{prop.player.name}</h3>
+          <p className="text-sm text-gray-400">{prop.player.team} • {prop.market}</p>
+        </div>
+        <div className="text-2xl font-bold text-purple-400">{prop.line}</div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="bg-green-600/20 border border-green-500/30 rounded p-2 text-center">
+          <div className="text-xs text-green-400">OVER</div>
+          <div className="font-semibold">{prop.odds.over}</div>
+        </div>
+        <div className="bg-red-600/20 border border-red-500/30 rounded p-2 text-center">
+          <div className="text-xs text-red-400">UNDER</div>
+          <div className="font-semibold">{prop.odds.under}</div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <span className="text-sm text-gray-400">Confidence:</span>
+          <span className="text-sm font-semibold">{prop.confidence}%</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-sm text-gray-400">Expected Value:</span>
+          <span className={`text-sm font-semibold ${prop.expectedValue >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            {prop.expectedValue >= 0 ? '+' : ''}{prop.expectedValue}%
+          </span>
+        </div>
+      </div>
     </div>
   );
 }, (prevProps, nextProps) => {
