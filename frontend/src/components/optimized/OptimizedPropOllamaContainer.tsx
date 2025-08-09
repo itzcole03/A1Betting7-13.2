@@ -1,250 +1,240 @@
-/**
- * Optimized PropOllama Container
- *
- * This container integrates all our new performance optimizations:
- * - usePropOllamaReducer for optimized state management
- * - OptimizedSportsDataService for intelligent caching
- * - OptimizedPropList for performance rendering
- * - React.memo and useCallback for preventing unnecessary re-renders
- */
-
 import React, { memo, useCallback, useMemo } from 'react';
-import { OptimizedSportsDataService } from '../../services/optimized/OptimizedSportsDataService';
+import { httpFetch } from '../../services/HttpClient';
+import { BetSlipComponent } from '../betting/BetSlipComponent';
 import EnhancedErrorBoundary from '../EnhancedErrorBoundary';
-import { usePropOllamaReducer } from '../hooks/usePropOllamaReducer';
+import { PropFilters } from '../filters/PropFilters';
+import { usePropOllamaState } from '../hooks/usePropOllamaState';
+import { PropList } from '../lists/PropList';
 import LoadingOverlay from '../LoadingOverlay';
-import { OptimizedPropList } from './OptimizedPropList';
+import { PerformancePanel } from '../performance/PerformancePanel';
+import { PropSorting } from '../sorting/PropSorting';
+import { GameStatsPanel } from '../stats/GameStatsPanel';
+import { useOptimizedDataFetching } from '../../hooks/useOptimizedDataFetching';
 
-interface OptimizedPropOllamaContainerProps {
-  className?: string;
-}
+/**
+ * Optimized PropOllama Container with performance improvements:
+ * - Memoized components to prevent unnecessary re-renders
+ * - Debounced data fetching to reduce API calls
+ * - Optimized state management
+ * - Proper React.memo usage for child components
+ */
+const OptimizedPropOllamaContainer: React.FC = memo(() => {
+  // State and actions hooks
+  const [state, actions] = usePropOllamaState();
 
-const OptimizedPropOllamaContainer: React.FC<OptimizedPropOllamaContainerProps> = memo(
-  ({ className = '' }) => {
-    // Use optimized reducer for state management
-    const [state, actions] = usePropOllamaReducer();
-    const dataService = new OptimizedSportsDataService();
+  // Optimized data fetching with debouncing and caching
+  const { data: healthData, loading: healthLoading, error: healthError } = useOptimizedDataFetching(
+    () => httpFetch('/api/v2/health').then(res => res.json()),
+    [], // No dependencies - only fetch once
+    {
+      debounceDelay: 500,
+      cacheTime: 60000, // Cache for 1 minute
+      autoRefresh: false, // Disable auto-refresh for health check
+    }
+  );
 
-    // Memoized handlers to prevent unnecessary re-renders
-    const handleExpandToggle = useCallback(
-      (key: string | null) => {
-        actions.updateDisplayOptions({ expandedRowKey: key });
-      },
-      [actions]
-    );
+  // Log health data for debugging but don't cause re-renders
+  React.useEffect(() => {
+    if (healthData) {
+      console.log('[OptimizedPropOllamaContainer] Health check success:', healthData);
+    }
+    if (healthError) {
+      console.error('[OptimizedPropOllamaContainer] Health check failed:', healthError);
+    }
+  }, [healthData, healthError]);
 
-    const handleAnalysisRequest = useCallback(
-      async (prop: any) => {
-        actions.addLoadingAnalysis(prop.id);
-
-        try {
-          // Use optimized data service for analysis request
-          const analysis = await dataService.fetchEnhancedAnalysis(prop);
-          actions.addToAnalysisCache(prop.id, analysis);
-        } catch (error) {
-          console.error('Failed to fetch analysis:', error);
-        } finally {
-          actions.removeLoadingAnalysis(prop.id);
-        }
-      },
-      [actions, dataService]
-    );
-
-    const handleSortChange = useCallback(
-      (sortConfig: any) => {
-        const [field, direction] = sortConfig.split('-');
-        actions.updateSorting({ sortBy: field, sortOrder: direction });
-      },
-      [actions]
-    );
-
-    const handleFiltersChange = useCallback(
-      (filters: any) => {
-        actions.updateFilters(filters);
-      },
-      [actions]
-    );
-
-    // Memoized filter values for performance
-    const memoizedFilters = useMemo(
-      () => state.filters,
-      [state.filters.selectedSport, state.filters.searchTerm]
-    );
-    const memoizedSortConfig = useMemo(
-      () => ({
-        field: (state.sorting.sortBy === 'confidence'
-          ? 'confidence'
-          : state.sorting.sortBy === 'alphabetical'
-          ? 'player'
-          : 'confidence') as 'confidence' | 'line' | 'player',
-        direction: state.sorting.sortOrder as 'asc' | 'desc',
-      }),
-      [state.sorting.sortBy, state.sorting.sortOrder]
-    );
-
-    // Determine valid loading stage
-    const validLoadingStage = useMemo(() => {
-      if (state.loadingStage?.stage === 'fetching') {
-        return 'fetching' as const;
-      } else if (state.loadingStage?.stage === 'filtering') {
-        return 'processing' as const;
-      } else if (state.loadingStage?.stage === 'rendering') {
-        return 'processing' as const;
+  // Memoized handlers to prevent unnecessary re-renders of child components
+  const memoizedHandlers = useMemo(() => ({
+    handleFiltersChange: (filters: any) => actions.updateFilters(filters),
+    handleSortingChange: (sorting: any) => actions.updateSorting(sorting),
+    handleGameSelect: (game: any) => {
+      if (game) actions.setSelectedGame(game);
+    },
+    handleStatsGameSelect: (gameId: number) => {
+      const game = state.upcomingGames.find((g: any) => g.game_id === gameId);
+      if (game) {
+        actions.setSelectedGame({
+          game_id: gameId,
+          home: game.home,
+          away: game.away,
+        });
       }
-      return 'fetching' as const;
-    }, [state.loadingStage]);
+    },
+  }), [actions, state.upcomingGames]);
 
-    // Performance monitoring
-    const propCount = state.projections.length;
-    const isLargeDataset = propCount > 100;
+  // Memoized connection health data to prevent unnecessary re-renders
+  const connectionHealthData = useMemo(() => ({
+    status: state.connectionHealth.isHealthy ? 'healthy' as const : 'error' as const,
+    latency: state.connectionHealth.latency,
+    lastCheck: new Date(state.connectionHealth.lastChecked),
+  }), [state.connectionHealth.isHealthy, state.connectionHealth.latency, state.connectionHealth.lastChecked]);
 
-    React.useEffect(() => {
-      if (isLargeDataset) {
-        console.log(`[OptimizedPropOllamaContainer] 🚀 Managing large dataset: ${propCount} props`);
-      }
-    }, [isLargeDataset, propCount]);
+  // Memoized performance metrics to prevent unnecessary re-renders
+  const performanceMetrics = useMemo(() => ({}), []);
 
-    return (
-      <EnhancedErrorBoundary>
-        <div className={`optimized-prop-ollama-container ${className}`}>
-          {/* Header Section */}
-          <div className='header-section mb-6'>
-            <div className='flex items-center justify-between'>
-              <h1 className='text-3xl font-bold text-gray-900'>⚡ Optimized Sports Analytics</h1>
+  return (
+    <EnhancedErrorBoundary>
+      <div className='prop-ollama-container text-white'>
+        {/* Header Section */}
+        <HeaderSection 
+          connectionHealth={connectionHealthData}
+          performanceMetrics={performanceMetrics}
+          healthLoading={healthLoading}
+        />
 
-              {/* Performance Indicator */}
-              <div className='performance-indicator'>
-                {isLargeDataset && (
-                  <div className='bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium'>
-                    🚀 High Performance Mode ({propCount} props)
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+        {/* Control Panel */}
+        <ControlPanel 
+          state={state}
+          handlers={memoizedHandlers}
+        />
 
-          {/* Quick Stats */}
-          <div className='stats-bar bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg mb-6'>
-            <div className='grid grid-cols-2 md:grid-cols-4 gap-4 text-center'>
-              <div>
-                <div className='text-2xl font-bold text-blue-600'>{propCount}</div>
-                <div className='text-sm text-gray-600'>Total Props</div>
-              </div>
-              <div>
-                <div className='text-2xl font-bold text-green-600'>
-                  {state.projections.filter(p => (p.confidence || 0) > 80).length}
-                </div>
-                <div className='text-sm text-gray-600'>High Confidence</div>
-              </div>
-              <div>
-                <div className='text-2xl font-bold text-purple-600'>
-                  {Object.keys(state.enhancedAnalysisCache).length}
-                </div>
-                <div className='text-sm text-gray-600'>Analyzed</div>
-              </div>
-              <div>
-                <div className='text-2xl font-bold text-orange-600'>
-                  {isLargeDataset ? 'ON' : 'OFF'}
-                </div>
-                <div className='text-sm text-gray-600'>Optimization</div>
-              </div>
-            </div>
-          </div>
+        {/* Main Content */}
+        <MainContent 
+          state={state}
+          handlers={memoizedHandlers}
+        />
 
-          {/* Controls Section */}
-          <div className='controls-section mb-6'>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-              {/* Filters */}
-              <div className='filter-controls'>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>Search Term</label>
-                <input
-                  type='text'
-                  value={state.filters.searchTerm}
-                  onChange={e =>
-                    handleFiltersChange({
-                      ...state.filters,
-                      searchTerm: e.target.value,
-                    })
-                  }
-                  placeholder='Search props...'
-                  className='w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500'
-                />
-              </div>
+        {/* Bet Slip */}
+        <BetSlipSection 
+          selectedProps={state.selectedProps}
+          entryAmount={state.entryAmount}
+          onEntryAmountChange={actions.setEntryAmount}
+        />
 
-              {/* Sport Filter */}
-              <div className='sport-filter'>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>Sport</label>
-                <select
-                  value={state.filters.selectedSport}
-                  onChange={e =>
-                    handleFiltersChange({
-                      ...state.filters,
-                      selectedSport: e.target.value,
-                    })
-                  }
-                  className='w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500'
-                >
-                  <option value='MLB'>MLB</option>
-                  <option value='NBA'>NBA</option>
-                  <option value='NFL'>NFL</option>
-                  <option value='NHL'>NHL</option>
-                </select>
-              </div>
-
-              {/* Sort Control */}
-              <div className='sort-controls'>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>Sort By</label>
-                <select
-                  value={`${state.sorting.sortBy}-${state.sorting.sortOrder}`}
-                  onChange={e => handleSortChange(e.target.value)}
-                  className='w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500'
-                >
-                  <option value='confidence-desc'>Confidence (High to Low)</option>
-                  <option value='confidence-asc'>Confidence (Low to High)</option>
-                  <option value='line-desc'>Line (High to Low)</option>
-                  <option value='line-asc'>Line (Low to High)</option>
-                  <option value='player-asc'>Player (A to Z)</option>
-                  <option value='player-desc'>Player (Z to A)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Main Props List */}
-          <div className='props-section'>
-            <OptimizedPropList
-              props={state.projections}
-              expandedRowKey={state.displayOptions.expandedRowKey}
-              onExpandToggle={handleExpandToggle}
-              onAnalysisRequest={handleAnalysisRequest}
-              enhancedAnalysisCache={state.enhancedAnalysisCache}
-              loadingAnalysis={Object.fromEntries(
-                Array.from(state.loadingAnalysis).map(id => [id, true])
-              )}
-              sortConfig={memoizedSortConfig}
-              filters={memoizedFilters}
-              viewMode='card'
-              isLoading={state.isLoading}
-              loadingStage={validLoadingStage}
-              className='optimized-props-list'
-            />
-          </div>
-
-          {/* Loading Overlay */}
-          {state.isLoading && (
-            <LoadingOverlay
-              isVisible={state.isLoading}
-              stage={validLoadingStage}
-              sport='MLB'
-              message='Loading optimized sports analytics...'
-            />
-          )}
-        </div>
-      </EnhancedErrorBoundary>
-    );
-  }
-);
+        {/* Loading Overlay */}
+        {state.isLoading && (
+          <LoadingOverlay 
+            stage={state.loadingStage}
+            message={state.loadingMessage}
+            progress={state.propLoadingProgress}
+          />
+        )}
+      </div>
+    </EnhancedErrorBoundary>
+  );
+});
 
 OptimizedPropOllamaContainer.displayName = 'OptimizedPropOllamaContainer';
+
+// Memoized sub-components to prevent unnecessary re-renders
+
+const HeaderSection = memo<{
+  connectionHealth: { status: 'healthy' | 'error'; latency: number; lastCheck: Date };
+  performanceMetrics: {};
+  healthLoading: boolean;
+}>(({ connectionHealth, performanceMetrics, healthLoading }) => (
+  <div className='header-section'>
+    <h1 className='text-3xl font-bold mb-6 text-center text-white'>
+      AI Sports Analytics & Prop Generation
+    </h1>
+
+    {/* Performance Monitor */}
+    <PerformancePanel
+      connectionHealth={connectionHealth}
+      performanceMetrics={performanceMetrics}
+    />
+    
+    {healthLoading && (
+      <div className='text-center text-cyan-400 text-sm'>
+        Checking backend health...
+      </div>
+    )}
+  </div>
+));
+
+HeaderSection.displayName = 'HeaderSection';
+
+const ControlPanel = memo<{
+  state: any;
+  handlers: any;
+}>(({ state, handlers }) => (
+  <div className='control-panel grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8'>
+    {/* Filters */}
+    <div className='bg-slate-800/50 p-6 rounded-lg border border-slate-700'>
+      <PropFilters
+        filters={state.filters}
+        onChange={handlers.handleFiltersChange}
+        sportActivationStatus={state.sportActivationStatus}
+      />
+    </div>
+
+    {/* Sorting */}
+    <div className='bg-slate-800/50 p-6 rounded-lg border border-slate-700'>
+      <PropSorting
+        sorting={state.sorting}
+        onChange={handlers.handleSortingChange}
+      />
+    </div>
+
+    {/* Game Stats */}
+    <div className='bg-slate-800/50 p-6 rounded-lg border border-slate-700'>
+      <GameStatsPanel
+        games={state.upcomingGames}
+        selectedGame={state.selectedGame}
+        onGameSelect={handlers.handleStatsGameSelect}
+      />
+    </div>
+  </div>
+));
+
+ControlPanel.displayName = 'ControlPanel';
+
+const MainContent = memo<{
+  state: any;
+  handlers: any;
+}>(({ state, handlers }) => (
+  <div className='main-content'>
+    {/* Error Display */}
+    {state.error && (
+      <div className='bg-red-900/50 border border-red-500 text-red-200 p-4 rounded-lg mb-6'>
+        <h3 className='font-semibold mb-2'>Error</h3>
+        <p>{state.error}</p>
+      </div>
+    )}
+
+    {/* Render Error Display */}
+    {state.renderError && (
+      <div className='bg-yellow-900/50 border border-yellow-500 text-yellow-200 p-4 rounded-lg mb-6'>
+        <h3 className='font-semibold mb-2'>Render Error</h3>
+        <p>{state.renderError}</p>
+      </div>
+    )}
+
+    {/* Props List */}
+    <div className='bg-slate-800/30 rounded-lg border border-slate-700'>
+      <PropList
+        projections={state.projections}
+        unifiedResponse={state.unifiedResponse}
+        filters={state.filters}
+        sorting={state.sorting}
+        displayOptions={state.displayOptions}
+        onPropSelect={handlers.handleGameSelect}
+        enhancedAnalysisCache={state.enhancedAnalysisCache}
+        loadingAnalysis={state.loadingAnalysis}
+        analyzingPropId={state.analyzingPropId}
+        selectedProps={state.selectedProps}
+        onAddToSlip={handlers.handleGameSelect}
+      />
+    </div>
+  </div>
+));
+
+MainContent.displayName = 'MainContent';
+
+const BetSlipSection = memo<{
+  selectedProps: any[];
+  entryAmount: number;
+  onEntryAmountChange: (amount: number) => void;
+}>(({ selectedProps, entryAmount, onEntryAmountChange }) => (
+  <div className='bet-slip-section mt-8'>
+    <BetSlipComponent
+      selectedProps={selectedProps}
+      entryAmount={entryAmount}
+      onEntryAmountChange={onEntryAmountChange}
+    />
+  </div>
+));
+
+BetSlipSection.displayName = 'BetSlipSection';
 
 export default OptimizedPropOllamaContainer;
