@@ -54,6 +54,9 @@ const UnifiedSearchInterface = React.lazy(() => import('../search/UnifiedSearchI
 // NEW: Phase 2 Interactive Charts Hub
 const InteractiveChartsHub = React.lazy(() => import('../visualizations/InteractiveChartsHub'));
 
+// NEW: Phase 3 Unified AI Predictions Dashboard
+const UnifiedAIPredictionsDashboard = React.lazy(() => import('../ai/UnifiedAIPredictionsDashboard'));
+
 const UserFriendlyApp: React.FC = memo(() => {
   const location = useLocation();
   const [navigationOpen, setNavigationOpen] = useState(false);
