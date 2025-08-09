@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useTransition, useDeferredValue, startTransition } from 'react';
+import React, { useMemo, useCallback, useTransition, useDeferredValue, startTransition, useEffect, useState } from 'react';
 
 /**
  * React 19 Performance Optimizations
@@ -6,10 +6,14 @@ import { useMemo, useCallback, useTransition, useDeferredValue, startTransition 
  */
 
 // Enhanced memoization hook with React 19 optimizations
-export function useEnhancedMemo<T>(factory: () => T, deps: React.DependencyList, options?: {
-  priority?: 'high' | 'low';
-  experimental_deferredValue?: boolean;
-}): T {
+export function useEnhancedMemo<T>(
+  factory: () => T, 
+  deps: React.DependencyList, 
+  options?: {
+    priority?: 'high' | 'low';
+    experimental_deferredValue?: boolean;
+  }
+): T {
   const { priority = 'high', experimental_deferredValue = false } = options || {};
   
   const result = useMemo(factory, deps);
@@ -54,14 +58,14 @@ export function useOptimizedDataFetch<T>(
     priority?: 'high' | 'low';
   }
 ) {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransitionLocal] = useTransition();
   const { priority = 'high' } = options || {};
   
   const deferredDeps = useDeferredValue(deps);
   
   const fetchData = useCallback(() => {
     if (priority === 'low') {
-      startTransition(() => {
+      startTransitionLocal(() => {
         return fetchFn();
       });
     } else {
@@ -131,19 +135,22 @@ export function withPerformanceTracking<P extends object>(
   Component: React.ComponentType<P>,
   componentName: string
 ): React.ComponentType<P> {
-  return function PerformanceTrackedComponent(props: P) {
+  const PerformanceTrackedComponent: React.FC<P> = (props: P) => {
     const monitor = React19PerformanceMonitor.getInstance();
     
     // Measure render time
     const renderStart = performance.now();
     
-    React.useEffect(() => {
+    useEffect(() => {
       const renderEnd = performance.now();
       monitor.measureRender(componentName, renderEnd - renderStart);
     });
     
-    return <Component {...props} />;
+    return React.createElement(Component, props);
   };
+  
+  PerformanceTrackedComponent.displayName = `withPerformanceTracking(${componentName})`;
+  return PerformanceTrackedComponent;
 }
 
 // Optimized list rendering with React 19 features
@@ -163,8 +170,7 @@ export function useVirtualizedList<T>(
     priority = 'high'
   } = options || {};
   
-  const [startIndex, setStartIndex] = React.useState(0);
-  const [endIndex, setEndIndex] = React.useState(0);
+  const [startIndex, setStartIndex] = useState(0);
   
   // Use deferred value for low-priority lists
   const deferredItems = priority === 'low' ? useDeferredValue(items) : items;
@@ -200,16 +206,23 @@ export function useVirtualizedList<T>(
 }
 
 // React 19 error boundary with enhanced error reporting
-export class React19ErrorBoundary extends React.Component<
-  { children: React.ReactNode; fallback?: React.ComponentType<{ error: Error }> },
-  { hasError: boolean; error: Error | null }
-> {
-  constructor(props: any) {
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  fallback?: React.ComponentType<{ error: Error }>;
+}
+
+export class React19ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
   }
   
-  static getDerivedStateFromError(error: Error) {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
   
@@ -226,21 +239,26 @@ export class React19ErrorBoundary extends React.Component<
     if (this.state.hasError && this.state.error) {
       const Fallback = this.props.fallback;
       if (Fallback) {
-        return <Fallback error={this.state.error} />;
+        return React.createElement(Fallback, { error: this.state.error });
       }
       
-      return (
-        <div className="error-boundary p-6 bg-red-50 border border-red-200 rounded-lg">
-          <h2 className="text-lg font-semibold text-red-800 mb-2">Something went wrong</h2>
-          <p className="text-red-600 text-sm">{this.state.error.message}</p>
-          <button
-            onClick={() => this.setState({ hasError: false, error: null })}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Try again
-          </button>
-        </div>
-      );
+      return React.createElement('div', {
+        className: "error-boundary p-6 bg-red-50 border border-red-200 rounded-lg"
+      }, [
+        React.createElement('h2', {
+          key: 'title',
+          className: "text-lg font-semibold text-red-800 mb-2"
+        }, 'Something went wrong'),
+        React.createElement('p', {
+          key: 'message',
+          className: "text-red-600 text-sm"
+        }, this.state.error.message),
+        React.createElement('button', {
+          key: 'retry',
+          onClick: () => this.setState({ hasError: false, error: null }),
+          className: "mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        }, 'Try again')
+      ]);
     }
     
     return this.props.children;
@@ -261,33 +279,31 @@ export const ConcurrentUtils = {
   
   // Check if updates are pending
   useTransitionState: () => {
-    const [isPending, startTransition] = useTransition();
-    return { isPending, startTransition };
+    const [isPending, startTransitionLocal] = useTransition();
+    return { isPending, startTransition: startTransitionLocal };
   },
 };
 
 // Performance profiler component
+interface PerformanceProfilerProps {
+  children: React.ReactNode;
+  id: string;
+  onRender?: (id: string, phase: 'mount' | 'update', actualDuration: number) => void;
+}
+
 export function PerformanceProfiler({ 
   children, 
   id, 
   onRender 
-}: { 
-  children: React.ReactNode; 
-  id: string; 
-  onRender?: (id: string, phase: 'mount' | 'update', actualDuration: number) => void;
-}) {
-  return (
-    <React.Profiler
-      id={id}
-      onRender={(id, phase, actualDuration) => {
-        const monitor = React19PerformanceMonitor.getInstance();
-        monitor.measureRender(id, actualDuration);
-        onRender?.(id, phase, actualDuration);
-      }}
-    >
-      {children}
-    </React.Profiler>
-  );
+}: PerformanceProfilerProps) {
+  return React.createElement(React.Profiler, {
+    id,
+    onRender: (profileId: string, phase: 'mount' | 'update', actualDuration: number) => {
+      const monitor = React19PerformanceMonitor.getInstance();
+      monitor.measureRender(profileId, actualDuration);
+      onRender?.(profileId, phase, actualDuration);
+    }
+  }, children);
 }
 
 export default {
