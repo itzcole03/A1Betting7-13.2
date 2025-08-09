@@ -140,53 +140,6 @@ class DataPipelineStabilityMonitor {
     }
   }
 
-  private async healthCheckPropOllamaService(service: any): Promise<HealthCheckResult> {
-    const startTime = Date.now();
-    try {
-      // Test basic service availability
-      if (typeof service.isHealthy === 'function') {
-        const healthy = await service.isHealthy();
-        if (!healthy) {
-          throw new Error('Service reports unhealthy status');
-        }
-      }
-
-      return {
-        success: true,
-        responseTime: Date.now() - startTime
-      };
-    } catch (error) {
-      return {
-        success: false,
-        responseTime: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Health check failed'
-      };
-    }
-  }
-
-  private async healthCheckSportsService(service: any): Promise<HealthCheckResult> {
-    const startTime = Date.now();
-    try {
-      // Test basic service availability
-      if (typeof service.getStatus === 'function') {
-        const status = await service.getStatus();
-        if (status !== 'active' && status !== 'ready') {
-          throw new Error(`Service status: ${status}`);
-        }
-      }
-
-      return {
-        success: true,
-        responseTime: Date.now() - startTime
-      };
-    } catch (error) {
-      return {
-        success: false,
-        responseTime: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Health check failed'
-      };
-    }
-  }
 
   private updateMetrics(serviceName: string, result: HealthCheckResult): void {
     const existing = this.metrics.get(serviceName);
