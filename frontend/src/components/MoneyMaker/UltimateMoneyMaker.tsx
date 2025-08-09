@@ -222,9 +222,14 @@ const UltimateMoneyMaker: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className='text-center mb-8 p-8 bg-gradient-to-r from-purple-900/20 to-cyan-900/20 rounded-xl border border-purple-500/30'
       >
-        <h2 className='text-4xl font-black bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-4'>
+        <h2 className='text-4xl font-black bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2'>
           ADVANCED AI PROFIT ENGINE
         </h2>
+        <div className="mb-6 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+          <p className="text-blue-300 text-sm text-center">
+            <strong>Transparency:</strong> Uses advanced classical algorithms with quantum-inspired optimization, not quantum computing hardware
+          </p>
+        </div>
         <div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
           <div className='text-center'>
             <div className='text-3xl font-bold text-green-400'>
