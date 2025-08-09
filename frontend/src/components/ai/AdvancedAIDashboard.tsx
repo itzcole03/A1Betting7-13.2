@@ -462,7 +462,8 @@ export const AdvancedAIDashboard: React.FC = () => {
         fetchModelRegistry(),
         fetchInferenceMetrics(),
         fetchRealtimePredictions(),
-        fetchMonitoringOverview()
+        fetchMonitoringOverview(),
+        fetchMonitoredModels()
       ]);
       setLastUpdated(new Date());
     } catch (err) {
