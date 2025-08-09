@@ -526,7 +526,7 @@ const EnhancedPropFinderKillerDashboard: React.FC = () => {
                     <div className="text-sm text-gray-400">{prop.player.team} • {prop.player.position}</div>
                   </div>
                 </div>
-                {quantumAnalysisActive && <QuantumIndicator state={prop.quantumAI.state} />}
+                {advancedAnalysisActive && <QuantumIndicator state={prop.quantumAI.state} />}
               </div>
 
               {/* Prop Details */}
