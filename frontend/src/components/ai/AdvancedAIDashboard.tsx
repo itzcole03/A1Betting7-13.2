@@ -472,7 +472,7 @@ export const AdvancedAIDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [fetchMultiSportData, fetchSportFeatures, fetchEnsembleModels, fetchModelRegistry, fetchInferenceMetrics, fetchRealtimePredictions, fetchMonitoringOverview]);
+  }, [fetchMultiSportData, fetchSportFeatures, fetchEnsembleModels, fetchModelRegistry, fetchInferenceMetrics, fetchRealtimePredictions, fetchMonitoringOverview, fetchMonitoredModels]);
 
   // Auto-refresh effect
   useEffect(() => {
