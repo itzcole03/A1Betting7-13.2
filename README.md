@@ -61,7 +61,17 @@
 - **Git** for version control
 - **Ollama** (optional, for AI features)
 
-### 30-Second Demo
+### 🌐 Live Demo
+**[View Live Demo](https://h1z3m1-5173.csb.app/)** - Experience the PropFinder killer in action!
+
+Features currently active in demo:
+- ✅ **3 Total Opportunities** with 91.0% average confidence
+- ✅ **24.8% Best Edge** detected automatically
+- ✅ **AI-Powered Prop Research** with real-time confidence scoring
+- ✅ **Auto-Refresh** and bookmarking functionality
+- ✅ **PropFinder-Style Interface** with enhanced AI features
+
+### 30-Second Local Setup
 ```bash
 # Clone and run immediately
 git clone https://github.com/itzcole03/A1Betting7-13.2.git
@@ -224,7 +234,7 @@ ROI: Immediate + Long-term value
 │ • Demo Mode         │    │ • Caching Layer      │    │ • Injury Reports    │
 └──────────��──────────┘    └─────────────────────┘    └─────────────────────┘
          │                           │                           │
-         └───────────────────────────┼───────────────────────────┘
+         └──────────────────────��────┼───────────────────────────┘
                                      │
                                ┌─────▼─────┐
                                │  Ollama   │
@@ -540,4 +550,6 @@ cd A1Betting7-13.2/frontend && npm install && npm run dev
 
 ---
 
-*Last Updated: January 2025 - Version 8.0.0 - Quantum AI Integration Complete, Performance Optimization Deployed, Comprehensive Monitoring Active, Documentation Consolidated*
+*Last Updated: January 2025 - Version 8.0.0 - Live Demo Active, Quantum AI Integration Complete, Performance Optimization Deployed, Comprehensive Monitoring Active, Documentation Consolidated*
+
+**🔴 LIVE STATUS**: Demo currently running with 3 active opportunities at 91.0% average confidence
