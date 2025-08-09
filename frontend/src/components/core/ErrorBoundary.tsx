@@ -1,5 +1,5 @@
 import React, { Component, ReactNode } from 'react';
-import { provider } from '../../utils/tracing';
+import { provider } from '@/utils/tracing';
 
 interface Props {
   children: ReactNode;
