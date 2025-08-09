@@ -41,11 +41,11 @@ export interface TabsContentProps {
 const _TabsContext = createContext<TabsContextType | undefined>(undefined);
 
 const _useTabsContext = () => {
-  const _context = useContext(TabsContext);
-  if (!context) {
+  const _context = useContext(_TabsContext);
+  if (!_context) {
     throw new Error('Tabs components must be used within a Tabs provider');
   }
-  return context;
+  return _context;
 };
 
 // Main Tabs Component
