@@ -98,10 +98,6 @@ class DataPipelineStabilityMonitor {
       // Perform a lightweight health check based on service type
       if (serviceName === 'UnifiedDataService') {
         result = await this.healthCheckUnifiedDataService(service);
-      } else if (serviceName === 'PropOllamaService') {
-        result = await this.healthCheckPropOllamaService(service);
-      } else if (serviceName === 'SportsService') {
-        result = await this.healthCheckSportsService(service);
       } else {
         result = { success: false, responseTime: 0, error: 'Unknown service' };
       }
