@@ -76,7 +76,7 @@ export const _Progress: React.FC<ProgressProps> = ({
   };
 
   const _getProgressBarClasses = () => {
-    const _colorConfig = colorClasses[color];
+    const _colorConfig = _colorClasses[color];
 
     switch (variant) {
       case 'cyber':
@@ -95,7 +95,7 @@ export const _Progress: React.FC<ProgressProps> = ({
   const _progressVariants = {
     initial: { width: 0 },
     animate: {
-      width: `${percentage}%`,
+      width: `${_percentage}%`,
       transition: {
         duration: animate ? 1 : 0,
         ease: 'easeOut',
@@ -132,7 +132,7 @@ export const _Progress: React.FC<ProgressProps> = ({
               </span>
             )}
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-            {showPercentage && <span className='text-gray-400'>{percentage.toFixed(1)}%</span>}
+            {showPercentage && <span className='text-gray-400'>{_percentage.toFixed(1)}%</span>}
           </div>
         </div>
       )}
@@ -142,8 +142,8 @@ export const _Progress: React.FC<ProgressProps> = ({
       <div
         className={`
           relative w-full rounded-full overflow-hidden
-          ${sizeClasses[size]}
-          ${variantClasses[variant]}
+          ${_sizeClasses[size]}
+          ${_variantClasses[variant]}
         `}
         role='progressbar'
         aria-valuenow={value}
@@ -168,11 +168,11 @@ export const _Progress: React.FC<ProgressProps> = ({
         <motion.div
           className={`
             h-full rounded-full transition-all duration-300
-            ${getProgressBarClasses()}
+            ${_getProgressBarClasses()}
             ${variant === 'pulse' ? 'animate-pulse' : ''}
           `}
           // @ts-expect-error TS(2322): Type '{ initial: { width: number; }; animate: { wi... Remove this comment to see the full error message
-          variants={progressVariants}
+          variants={_progressVariants}
           initial='initial'
           animate='animate'
         >
@@ -190,12 +190,12 @@ export const _Progress: React.FC<ProgressProps> = ({
         </motion.div>
 
         {/* Percentage Text Overlay for Large Size */}
-        {size === 'lg' && showPercentage && percentage > 15 && (
+        {size === 'lg' && showPercentage && _percentage > 15 && (
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute inset-0 flex items-center justify-center'>
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span className='text-xs font-bold text-white mix-blend-difference'>
-              {percentage.toFixed(0)}%
+              {_percentage.toFixed(0)}%
             </span>
           </div>
         )}
@@ -206,7 +206,7 @@ export const _Progress: React.FC<ProgressProps> = ({
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center justify-between text-xs text-cyan-400'>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-          <span>Progress: {percentage.toFixed(1)}%</span>
+          <span>Progress: {_percentage.toFixed(1)}%</span>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span className='animate-pulse'>● ACTIVE</span>
         </div>
@@ -215,4 +215,4 @@ export const _Progress: React.FC<ProgressProps> = ({
   );
 };
 
-export default Progress;
+export default _Progress;
