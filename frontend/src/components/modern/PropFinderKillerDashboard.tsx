@@ -104,7 +104,7 @@ const PropFinderKillerDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOpp, setSelectedOpp] = useState<PropOpportunity | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'compact'>('grid');
   const [showOnlyPremium, setShowOnlyPremium] = useState(false);
 

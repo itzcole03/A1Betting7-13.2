@@ -80,7 +80,7 @@ const _HealthBanner: React.FC = () => {
       if (data) setLastAnalysis(JSON.parse(data));
     };
     checkAnalysis();
-    const _interval = setInterval(checkAnalysis, 5000);
+    const interval = setInterval(checkAnalysis, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -109,7 +109,7 @@ const _HealthBanner: React.FC = () => {
       }
     };
     fetchScraperHealth();
-    const _interval = setInterval(fetchScraperHealth, 15000);
+    const interval = setInterval(fetchScraperHealth, 15000);
     return () => clearInterval(interval);
   }, []);
 
