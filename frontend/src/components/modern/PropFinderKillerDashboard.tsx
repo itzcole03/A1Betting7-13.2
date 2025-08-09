@@ -366,13 +366,15 @@ const PropFinderKillerDashboard: React.FC = () => {
     }
   };
 
-  const toggleBookmark = (id: string) => {
-    setOpportunities(prev => 
-      prev.map(opp => 
-        opp.id === id ? { ...opp, isBookmarked: !opp.isBookmarked } : opp
-      )
-    );
-  };
+  const toggleBookmark = useOptimizedCallback((id: string) => {
+    startTransitionLocal(() => {
+      setOpportunities(prev =>
+        prev.map(opp =>
+          opp.id === id ? { ...opp, isBookmarked: !opp.isBookmarked } : opp
+        )
+      );
+    });
+  }, [], { priority: 'low', batchUpdates: true });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
