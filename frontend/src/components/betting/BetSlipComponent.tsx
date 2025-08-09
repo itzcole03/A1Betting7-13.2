@@ -1,20 +1,30 @@
 /**
- * BetSlipComponent
+ * BetSlipComponent - Manages selected betting opportunities and bet slip functionality
  *
- * Manages the selected props and bet slip functionality.
+ * @description A standardized bet slip component that handles multiple betting opportunities,
+ * stake management, and bet placement following A1Betting coding standards.
+ *
+ * @example
+ * ```tsx
+ * <BetSlipComponent
+ *   selectedProps={betSlipItems}
+ *   entryAmount={totalStake}
+ *   onRemoveProp={handleRemoveFromSlip}
+ *   onEntryAmountChange={handleStakeChange}
+ *   onClearSlip={handleClearSlip}
+ *   onPlaceBet={handlePlaceBet}
+ * />
+ * ```
  */
 
-import React from 'react';
-import { SelectedProp } from '../shared/PropOllamaTypes';
+import React, { useCallback, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Trash2, DollarSign, TrendingUp, Calculator, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import type { BetSlipComponentProps } from './types';
 
-interface BetSlipComponentProps {
-  selectedProps: SelectedProp[];
-  entryAmount: number;
-  onRemoveProp: (propId: string) => void;
-  onEntryAmountChange: (amount: number) => void;
-  onClearSlip: () => void;
-  onPlaceBet: () => void;
-}
+// Import from shared types - will be migrated to new types
+import { SelectedProp } from '../shared/PropOllamaTypes';
 
 export const BetSlipComponent: React.FC<BetSlipComponentProps> = ({
   selectedProps = [], // Provide default value to prevent undefined errors
