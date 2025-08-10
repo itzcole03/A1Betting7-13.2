@@ -288,7 +288,7 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
 
   // Filter and group notifications
   useEffect(() => {
-    let _filtered = notifications;
+    const _filtered = notifications;
 
     // Apply filters
     if (currentFilter.types?.length) {

@@ -18,10 +18,11 @@ export interface BettingOpportunity {
 }
 
 export interface BetSlipItem {
-  opportunity_id: string;
+  opportunityId: string;
+  opportunity: BettingOpportunity;
   stake: number;
-  potential_win: number;
-  status: 'pending' | 'placed' | 'won' | 'lost';
+  potentialPayout: number;
+  addedAt: string;
 }
 
 export interface BettingFiltersState {
@@ -97,20 +98,38 @@ export function useUnifiedBettingState() {
       },
     ];
     setOpportunities(mockOpportunities);
+    // Patch: Add mock bet slip items with correct shape
+    setBetSlip([
+      {
+        opportunityId: 'opp-1',
+        opportunity: mockOpportunities[0],
+        stake: 100,
+        potentialPayout: 110,
+        addedAt: new Date().toISOString(),
+      },
+      {
+        opportunityId: 'opp-2',
+        opportunity: mockOpportunities[1],
+        stake: 100,
+        potentialPayout: 85,
+        addedAt: new Date().toISOString(),
+      },
+    ]);
   }, []);
 
   const addToBetSlip = (opportunity: BettingOpportunity) => {
     const newItem: BetSlipItem = {
-      opportunity_id: opportunity.id,
+      opportunityId: opportunity.id,
+      opportunity,
       stake: opportunity.recommended_stake,
-      potential_win: opportunity.recommended_stake * (opportunity.odds - 1),
-      status: 'pending',
+      potentialPayout: opportunity.recommended_stake * (opportunity.odds - 1),
+      addedAt: new Date().toISOString(),
     };
     setBetSlip(prev => [...prev, newItem]);
   };
 
   const removeFromBetSlip = (opportunityId: string) => {
-    setBetSlip(prev => prev.filter(item => item.opportunity_id !== opportunityId));
+    setBetSlip(prev => prev.filter(item => item.opportunityId !== opportunityId));
   };
 
   const getOpportunityById = (id: string): BettingOpportunity | undefined => {

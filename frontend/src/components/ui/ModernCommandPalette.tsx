@@ -80,8 +80,8 @@ const _fuzzyMatch = (query: string, text: string): number => {
   }
 
   // Fuzzy matching - check if all query characters appear in order
-  let _queryIndex = 0;
-  let _score = 0;
+  const _queryIndex = 0;
+  const _score = 0;
 
   for (let _i = 0; i < textLower.length && queryIndex < queryLower.length; i++) {
     if (textLower[i] === queryLower[queryIndex]) {
@@ -156,7 +156,7 @@ export const _ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
       return commands.slice(0, maxResults);
     }
 
-    let _filtered = commands;
+    const _filtered = commands;
 
     if (state.query) {
       filtered = commands.filter(command => {

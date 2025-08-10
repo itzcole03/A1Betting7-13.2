@@ -1,3 +1,26 @@
+import time
+
+from prometheus_client import Counter, Histogram
+
+# Prometheus metrics for data pipeline health
+fetch_success = Counter("fetch_success_total", "Successful fetches")
+fetch_failure = Counter("fetch_failure_total", "Failed fetches")
+fetch_latency = Histogram("fetch_latency_seconds", "Fetch latency")
+
+
+async def fetch_with_metrics(fetch_func, *args, **kwargs):
+    start = time.time()
+    try:
+        result = await fetch_func(*args, **kwargs)
+        fetch_success.inc()
+        return result
+    except Exception as e:
+        fetch_failure.inc()
+        raise
+    finally:
+        fetch_latency.observe(time.time() - start)
+
+
 """
 Enhanced Real-Time Data Pipeline with Circuit Breakers and Streaming
 Advanced data pipeline with resilience patterns, real-time streaming, and intelligent routing
@@ -20,9 +43,12 @@ import pandas as pd
 import websockets
 
 from backend.services.intelligent_cache_service import intelligent_cache_service
+from backend.services.unified_error_handler import unified_error_handler
+from backend.services.unified_logging import unified_logging
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("enhanced_data_pipeline")
+unified_logger = unified_logging.get_logger("enhanced_data_pipeline")
 
 
 class DataSourceState(Enum):
@@ -32,6 +58,34 @@ class DataSourceState(Enum):
     DEGRADED = "degraded"
     FAILED = "failed"
     MAINTENANCE = "maintenance"
+
+
+async def fetch_with_retries(url, max_retries=3, timeout=10):
+    attempt = 0
+    while attempt < max_retries:
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=timeout) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        unified_logger.info(
+                            {"url": url, "status": response.status, "attempt": attempt}
+                        )
+                        return data
+                    else:
+                        unified_logger.warn(
+                            {"url": url, "status": response.status, "attempt": attempt}
+                        )
+        except Exception as e:
+            unified_error_handler.handle_error(
+                e,
+                context="fetch_with_retries",
+                user_context={"url": url, "attempt": attempt},
+            )
+        attempt += 1
+        await asyncio.sleep(2 * attempt)  # Exponential backoff
+    unified_logger.error({"url": url, "error": "Max retries exceeded"})
+    return None
 
 
 class CircuitBreakerState(Enum):

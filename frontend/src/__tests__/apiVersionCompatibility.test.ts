@@ -4,6 +4,33 @@ import {
   detectSportsApiVersion,
 } from '../services/SportsService';
 
+// Mock httpFetch to prevent real network requests and timeouts
+jest.mock('../services/HttpClient', () => ({
+  httpFetch: jest.fn((url, options) => {
+    if (url.includes('/api/v2/sports/activate')) {
+      if (options?.method === 'OPTIONS')
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({}) });
+      if (options?.method === 'POST')
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({ status: 'success', version_used: 'v2' }),
+        });
+    }
+    if (url.includes('/api/sports/activate/MLB')) {
+      if (options?.method === 'OPTIONS')
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({}) });
+      if (options?.method === 'POST')
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({ status: 'success', version_used: 'v1' }),
+        });
+    }
+    return Promise.resolve({ ok: false, status: 404, json: async () => ({}) });
+  }),
+}));
+
 describe('API Version Compatibility', () => {
   it('should detect available API version', async () => {
     const version = await detectSportsApiVersion();

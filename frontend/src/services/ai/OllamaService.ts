@@ -1,3 +1,4 @@
+import { getEnvVar } from '../../utils/getEnvVar';
 /**
  * Ollama Service - Frontend service for AI-powered sports analytics
  * Provides streaming AI explanations and analysis via Ollama LLM
@@ -50,7 +51,8 @@ class OllamaService {
   private baseUrl: string;
 
   private constructor() {
-    this.baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+    this.baseUrl =
+      getEnvVar('VITE_API_BASE_URL', 'http://localhost:8000') ?? 'http://localhost:8000';
   }
 
   static getInstance(): OllamaService {
@@ -76,7 +78,7 @@ class OllamaService {
         status: 'unavailable',
         ollamaAvailable: false,
         availableModels: [],
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
@@ -138,7 +140,9 @@ class OllamaService {
       console.error('Stream explanation error:', error);
       yield {
         type: 'error',
-        content: `⚠️ Explanation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        content: `⚠️ Explanation failed: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
         error: true,
       };
     }
@@ -147,7 +151,9 @@ class OllamaService {
   /**
    * Stream AI analysis for prop betting opportunity
    */
-  async *streamPropAnalysis(request: PropAnalysisRequest): AsyncGenerator<AIResponse, void, unknown> {
+  async *streamPropAnalysis(
+    request: PropAnalysisRequest
+  ): AsyncGenerator<AIResponse, void, unknown> {
     try {
       const response = await fetch(`${this.baseUrl}/v1/ai/analyze-prop`, {
         method: 'POST',
@@ -201,7 +207,9 @@ class OllamaService {
       console.error('Stream prop analysis error:', error);
       yield {
         type: 'error',
-        content: `⚠️ Prop analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        content: `⚠️ Prop analysis failed: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
         error: true,
       };
     }
@@ -210,7 +218,9 @@ class OllamaService {
   /**
    * Stream comprehensive player research summary
    */
-  async *streamPlayerSummary(request: PlayerSummaryRequest): AsyncGenerator<AIResponse, void, unknown> {
+  async *streamPlayerSummary(
+    request: PlayerSummaryRequest
+  ): AsyncGenerator<AIResponse, void, unknown> {
     try {
       const response = await fetch(`${this.baseUrl}/v1/ai/player-summary`, {
         method: 'POST',
@@ -264,7 +274,9 @@ class OllamaService {
       console.error('Stream player summary error:', error);
       yield {
         type: 'error',
-        content: `⚠️ Player summary failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        content: `⚠️ Player summary failed: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
         error: true,
       };
     }
@@ -287,7 +299,9 @@ class OllamaService {
       return fullContent || 'No explanation generated';
     } catch (error) {
       console.error('Simple explanation error:', error);
-      return `⚠️ Explanation unavailable: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      return `⚠️ Explanation unavailable: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`;
     }
   }
 }

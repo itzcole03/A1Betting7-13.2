@@ -1,6 +1,6 @@
 // Allow test code to set this flag to force error state in getEnhancedBets
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+   
   interface Global {
     __MOCK_GET_ENHANCED_BETS_ERROR__?: boolean;
   }

@@ -168,7 +168,7 @@ describe('PropOllamaUnified E2E', () => {
       .mockImplementation(async (sport?: string) => {
         // Always return all mockProps for 'All' or undefined sport
         if (!sport || sport === 'All') {
-          // eslint-disable-next-line no-console
+           
           console.log(
             '[E2E DEBUG] fetchFeaturedProps called with:',
             sport,
@@ -178,7 +178,7 @@ describe('PropOllamaUnified E2E', () => {
           return mockProps;
         }
         const filtered = mockProps.filter(p => p.sport === sport);
-        // eslint-disable-next-line no-console
+         
         console.log('[E2E DEBUG] fetchFeaturedProps called with:', sport, 'Returning:', filtered);
         return filtered;
       });

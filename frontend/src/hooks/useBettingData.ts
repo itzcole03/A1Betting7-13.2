@@ -74,7 +74,7 @@ export const _useBettingData = ({
       ]);
 
       // Process PrizePicks props
-      let _propsData: PlayerProp[] = [];
+      const _propsData: PlayerProp[] = [];
       if (propsResponse.status === 'fulfilled') {
         propsData = propsResponse.value.data || [];
         //         console.log(`✅ Fetched ${propsData.length} PrizePicks props`);
@@ -83,7 +83,7 @@ export const _useBettingData = ({
       }
 
       // Process betting opportunities
-      let _opportunitiesData: Opportunity[] = [];
+      const _opportunitiesData: Opportunity[] = [];
       if (opportunitiesResponse.status === 'fulfilled') {
         opportunitiesData = opportunitiesResponse.value.data || [];
         //         console.log(`✅ Fetched ${opportunitiesData.length} betting opportunities`);

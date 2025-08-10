@@ -17,7 +17,7 @@ export class UnifiedStateService extends BaseService {
   private listenerIdCounter = 0;
 
   protected constructor() {
-    // @ts-expect-error TS(2554): Expected 2 arguments, but got 1.
+    // @ts-expect-error TS(2554): Expected 2 arguments, but got 1. BaseService expects two arguments, but only one is provided here for singleton pattern compatibility.
     super('UnifiedStateService');
     this.initializeDefaultState();
   }

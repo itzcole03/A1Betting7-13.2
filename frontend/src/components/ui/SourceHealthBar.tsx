@@ -34,7 +34,7 @@ interface SourceHealthBarProps {
 }
 
 const _getHealthColor = (healthScore: number, variant: string = 'default') => {
-  let _color = 'green';
+  const _color = 'green';
   if (healthScore < 30) color = 'red';
   else if (healthScore < 60) color = 'orange';
   else if (healthScore < 80) color = 'yellow';

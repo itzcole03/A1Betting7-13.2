@@ -58,7 +58,7 @@ const _LineupBuilder = () => {
   const _fetchLineup = async (refresh: boolean = false) => {
     setLoading(true);
     setError('');
-    let _url = '/api/lineup';
+    const _url = '/api/lineup';
     const _params: string[] = [];
     if (filterDate) params.push(`date=${filterDate}`);
     if (filterStatus !== 'All') params.push(`status=${filterStatus}`);

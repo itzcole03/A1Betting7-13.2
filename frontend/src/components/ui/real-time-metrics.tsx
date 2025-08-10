@@ -276,8 +276,8 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
   };
 
   const _formatValue = (value: number, unit: string) => {
-    let _formattedValue = value;
-    let _suffix = '';
+    const _formattedValue = value;
+    const _suffix = '';
 
     if (value >= 1000000) {
       formattedValue = value / 1000000;

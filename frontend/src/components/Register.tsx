@@ -1,8 +1,6 @@
-// Only import these once below
-import { useAuth } from '../contexts/AuthContext';
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 const _Register = () => {
   const [formData, setFormData] = useState({
     username: '',

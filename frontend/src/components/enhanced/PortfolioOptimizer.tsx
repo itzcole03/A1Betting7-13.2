@@ -46,7 +46,7 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
   // Auto-select top bets based on optimization mode
   useEffect(() => {
     if (predictions.length > 0) {
-      let _sortedPredictions = [...predictions];
+      const _sortedPredictions = [...predictions];
 
       switch (optimizationMode) {
         case 'aggressive':

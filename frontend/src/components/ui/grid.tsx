@@ -102,7 +102,7 @@ export const _Grid: React.FC<GridProps> = ({
   const _getResponsiveClasses = () => {
     if (!responsive) return '';
 
-    let _classes = '';
+    const _classes = '';
     if (responsive.sm) classes += ` sm:${getColsClass(responsive.sm)}`;
     if (responsive.md) classes += ` md:${getColsClass(responsive.md)}`;
     if (responsive.lg) classes += ` lg:${getColsClass(responsive.lg)}`;

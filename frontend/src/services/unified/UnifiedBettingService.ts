@@ -10,6 +10,27 @@ interface BettingConfig {
 }
 
 export class UnifiedBettingService extends BaseService {
+  setConfig(newConfig: Partial<BettingConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+    this.logger.info('Betting config updated', this.config);
+  }
+
+  getConfig(): BettingConfig {
+    return { ...this.config };
+  }
+
+  private emit(event: string, data?: unknown): void {
+    // Emit events through the EventEmitter interface
+    super.emit(event, data);
+  }
+
+  async get<T>(url: string): Promise<T> {
+    return this.api.get(url).then(response => response.data);
+  }
+
+  async post<T>(url: string, data: unknown): Promise<T> {
+    return this.api.post(url, data).then(response => response.data);
+  }
   private static instance: UnifiedBettingService;
   private readonly wsService: UnifiedWebSocketService;
   // @ts-expect-error TS(2416): Property 'config' in type 'UnifiedBettingService' ... Remove this comment to see the full error message
@@ -23,7 +44,7 @@ export class UnifiedBettingService extends BaseService {
   private readonly apiUrl = '/api/betting';
 
   protected constructor() {
-    // @ts-expect-error TS(2554): Expected 2 arguments, but got 1.
+    // @ts-expect-error TS(2554): Expected 2 arguments, but got 1. BaseService expects two arguments, but only one is provided here for singleton pattern compatibility.
     super('UnifiedBettingService');
     this.wsService = UnifiedWebSocketService.getInstance();
     this.initializeWebSocketHandlers();
@@ -47,7 +68,8 @@ export class UnifiedBettingService extends BaseService {
   }
 
   private handleBettingOpportunities(data: unknown): void {
-    const _validatedOpportunities = this.validateBettingOpportunities(data);
+    const opportunities = Array.isArray(data) ? (data as BettingOpportunity[]) : [];
+    const validatedOpportunities = this.validateBettingOpportunities(opportunities);
     this.emit('opportunities_updated', validatedOpportunities);
   }
 
@@ -56,18 +78,18 @@ export class UnifiedBettingService extends BaseService {
     this.emit('bet_result', data);
   }
 
-  private validateBettingOpportunities(opportunities: unknown[]): unknown[] {
+  private validateBettingOpportunities(opportunities: BettingOpportunity[]): BettingOpportunity[] {
     return opportunities.filter(opp => {
-      const _confidence = this.calculateOpportunityConfidence(opp);
+      const confidence = this.calculateOpportunityConfidence(opp);
       return confidence >= this.config.minConfidence;
     });
   }
 
-  private calculateOpportunityConfidence(opportunity: unknown): number {
+  private calculateOpportunityConfidence(opportunity: BettingOpportunity): number {
     // Simple confidence calculation based on odds and market analysis
     const { odds, marketDepth, volume } = opportunity;
-    const _baseConfidence = Math.min(1, (marketDepth * volume) / 1000);
-    const _oddsConfidence = Math.min(1, 1 / odds);
+    const baseConfidence = Math.min(1, (marketDepth * volume) / 1000);
+    const oddsConfidence = Math.min(1, 1 / odds);
     return (baseConfidence + oddsConfidence) / 2;
   }
 
@@ -76,7 +98,7 @@ export class UnifiedBettingService extends BaseService {
     this.emit('metrics_updated', this.calculateMetrics());
   }
 
-  private calculateMetrics(): unknown {
+  private calculateMetrics(): BettingMetrics {
     return {
       winRate: this.calculateWinRate(),
       averageOdds: this.calculateAverageOdds(),
@@ -101,9 +123,9 @@ export class UnifiedBettingService extends BaseService {
     return 0.15;
   }
 
-  async getBettingOpportunities(): Promise<unknown[]> {
+  async getBettingOpportunities(): Promise<BettingOpportunity[]> {
     try {
-      const _response = await this.get<unknown[]>(`${this.apiUrl}/opportunities`);
+      const response = await this.get<BettingOpportunity[]>(`${this.apiUrl}/opportunities`);
       return this.validateBettingOpportunities(response);
     } catch (error) {
       this.logger.error('Failed to fetch betting opportunities', error);
@@ -111,7 +133,7 @@ export class UnifiedBettingService extends BaseService {
     }
   }
 
-  async placeBet(bet: unknown): Promise<boolean> {
+  async placeBet(bet: BettingOpportunity): Promise<boolean> {
     try {
       await this.post(`${this.apiUrl}/place`, bet);
       this.logger.info('Bet placed successfully', { betId: bet.id });
@@ -122,9 +144,9 @@ export class UnifiedBettingService extends BaseService {
     }
   }
 
-  async getBettingMetrics(): Promise<unknown> {
+  async getBettingMetrics(): Promise<BettingMetrics> {
     try {
-      const _response = await this.get(`${this.apiUrl}/metrics`);
+      const response = await this.get<BettingMetrics>(`${this.apiUrl}/metrics`);
       return response;
     } catch (error) {
       this.logger.error('Failed to fetch betting metrics', error);
@@ -132,37 +154,34 @@ export class UnifiedBettingService extends BaseService {
     }
   }
 
-  async getBetHistory(): Promise<unknown[]> {
+  async getBetHistory(): Promise<BettingOpportunity[]> {
     try {
-      const _response = await this.get<unknown[]>(`${this.apiUrl}/history`);
+      const response = await this.get<BettingOpportunity[]>(`${this.apiUrl}/history`);
       return response;
     } catch (error) {
       this.logger.error('Failed to fetch bet history', error);
       return [];
     }
   }
-
-  setConfig(newConfig: Partial<BettingConfig>): void {
-    this.config = { ...this.config, ...newConfig };
-    this.logger.info('Betting config updated', this.config);
-  }
-
-  getConfig(): BettingConfig {
-    return { ...this.config };
-  }
-
-  private emit(event: string, data?: unknown): void {
-    // Emit events through the EventEmitter interface
-    super.emit(event, data);
-  }
-
-  async get<T>(url: string): Promise<T> {
-    return this.api.get(url).then(response => response.data);
-  }
-
-  async post<T>(url: string, data: unknown): Promise<T> {
-    return this.api.post(url, data).then(response => response.data);
-  }
 }
+
+// Explicit interfaces for opportunities and metrics
+export interface BettingOpportunity {
+  id: string;
+  odds: number;
+  marketDepth: number;
+  volume: number;
+  [key: string]: any;
+}
+
+export interface BettingMetrics {
+  winRate: number;
+  averageOdds: number;
+  roi: number;
+  totalBets: number;
+  profit: number;
+}
+
+// (Removed duplicate methods and extra closing brace)
 
 export default UnifiedBettingService;

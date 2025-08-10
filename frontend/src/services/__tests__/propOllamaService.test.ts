@@ -1,3 +1,8 @@
+// Mock getEnvVar to prevent ReferenceError in OllamaService
+jest.mock('../../utils/getEnvVar', () => ({
+  getEnvVar: jest.fn(() => 'http://localhost:8000'),
+}));
+
 import axios from 'axios';
 
 jest.mock('axios', () => {

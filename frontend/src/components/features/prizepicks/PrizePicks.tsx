@@ -206,7 +206,7 @@ const _PrizePicks: React.FC = () => {
 
     const _multiplier = prizePicksMultipliers[selectedProps.length] || 1;
 
-    let _risk: 'low' | 'medium' | 'high' = 'low';
+    const _risk: 'low' | 'medium' | 'high' = 'low';
     if (avgConfidence < 65) risk = 'high';
     else if (avgConfidence < 75) risk = 'medium';
 

@@ -129,7 +129,7 @@ export const _usePredictionCacheManager = (options: CacheManagerOptions = {}) =>
    */
   const _getAiExplanation = useCallback((propId: string): unknown | null => {
     // First try memory cache
-    let _explanation = predictionCache.getAiExplanation(propId);
+    const _explanation = predictionCache.getAiExplanation(propId);
 
     // Fall back to localStorage
     if (!explanation) {
@@ -257,8 +257,8 @@ export const _usePredictionCacheManager = (options: CacheManagerOptions = {}) =>
       );
       const _comparison = getPredictionComparison(projection);
 
-      let _cache_status: 'fresh' | 'stale' | 'missing' = 'missing';
-      let _freshness_score = 0;
+      const _cache_status: 'fresh' | 'stale' | 'missing' = 'missing';
+      const _freshness_score = 0;
 
       if (cached) {
         const _age = Date.now() - new Date(cached.timestamp).getTime();

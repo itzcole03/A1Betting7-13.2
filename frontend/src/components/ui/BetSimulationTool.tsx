@@ -219,7 +219,7 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
     const _outcomes: number[] = [];
 
     for (let _i = 0; i < iterations; i++) {
-      let _portfolioOutcome = 0;
+      const _portfolioOutcome = 0;
 
       for (const _scenario of betScenarios) {
         const _random = Math.random();

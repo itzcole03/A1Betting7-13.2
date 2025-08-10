@@ -38,7 +38,7 @@ const LockedBets: React.FC = () => {
       setError(null);
       setSourceErrors({});
       let allBets: LockedBet[] = [];
-      let errors: Record<string, string> = {};
+      const errors: Record<string, string> = {};
       const sources = filterSources.length > 0 ? filterSources : Object.keys(_API_ENDPOINTS);
       await Promise.all(
         sources.map(async source => {

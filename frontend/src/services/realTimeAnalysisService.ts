@@ -288,7 +288,7 @@ class RealTimeAnalysisService {
     analysisId: string
   ): AsyncGenerator<AnalysisProgress, void, unknown> {
     const _pollInterval = 2000; // Poll every 2 seconds
-    let _isCompleted = false;
+    const _isCompleted = false;
 
     while (!isCompleted) {
       try {

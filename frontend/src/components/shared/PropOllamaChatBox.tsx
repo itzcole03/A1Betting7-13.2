@@ -121,7 +121,7 @@ Welcome! I'm your AI sports betting expert. I can help with:
       console.error('Error sending message:', error);
 
       // Generate intelligent fallback response based on user input
-      let _fallbackContent = `🤖 **PropOllama AI (Offline Mode)**
+      const _fallbackContent = `🤖 **PropOllama AI (Offline Mode)**
 
 I'm currently offline, but here's some general advice:`;
 

@@ -114,7 +114,7 @@ const _InteractiveSHAPDashboard: React.FC<InteractiveSHAPDashboardProps> = ({
     const _data: number[] = [];
     const _backgroundColor: string[] = [];
 
-    let _cumulativeValue = explanation.baseValue;
+    const _cumulativeValue = explanation.baseValue;
     data.push(cumulativeValue);
     backgroundColor.push('#94a3b8');
 

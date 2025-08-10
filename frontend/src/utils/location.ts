@@ -49,7 +49,7 @@ export const navigateTo = (url: string): void => {
   }
   try {
     // Validate URL (relative or absolute)
-    // eslint-disable-next-line no-new
+     
     new URL(url, window.location.origin);
   } catch {
     throw new Error(`navigateTo: Invalid URL: ${url}`);

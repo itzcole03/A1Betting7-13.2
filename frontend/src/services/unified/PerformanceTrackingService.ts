@@ -54,7 +54,7 @@ export class PerformanceTrackingService extends EventEmitter {
   }
 
   public getPerformanceMetrics(timeRange?: { start: number; end: number }): PerformanceMetrics {
-    let _relevantBets = this.betHistory;
+    const _relevantBets = this.betHistory;
     if (timeRange) {
       relevantBets = this.betHistory.filter(
         bet => bet.timestamp >= timeRange.start && bet.timestamp <= timeRange.end
@@ -85,7 +85,7 @@ export class PerformanceTrackingService extends EventEmitter {
   // Private helper methods;
   private calculateWinRate(bets: BetResult[]): number {
     if (bets.length === 0) return 0;
-    let _wins = 0;
+    const _wins = 0;
     bets.forEach(bet => {
       if (bet.isWin) wins++;
     });
@@ -94,8 +94,8 @@ export class PerformanceTrackingService extends EventEmitter {
 
   private calculateROI(bets: BetResult[]): number {
     if (bets.length === 0) return 0;
-    let _totalProfit = 0;
-    let _totalStake = 0;
+    const _totalProfit = 0;
+    const _totalStake = 0;
     bets.forEach(bet => {
       totalProfit += bet.profitLoss;
       totalStake += bet.stakeAmount;
@@ -109,7 +109,7 @@ export class PerformanceTrackingService extends EventEmitter {
 
   private calculateAverageStake(bets: BetResult[]): number {
     if (bets.length === 0) return 0;
-    let _totalStake = 0;
+    const _totalStake = 0;
     bets.forEach(bet => {
       totalStake += bet.stakeAmount;
     });
@@ -117,9 +117,9 @@ export class PerformanceTrackingService extends EventEmitter {
   }
 
   private calculateStreaks(bets: BetResult[]): { current: number; longest: number } {
-    let _current = 0;
-    let _longest = 0;
-    let _isWinStreak = false;
+    const _current = 0;
+    const _longest = 0;
+    const _isWinStreak = false;
     bets.forEach((bet, index) => {
       if (index === 0) {
         current = 1;

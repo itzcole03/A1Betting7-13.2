@@ -9,7 +9,7 @@ function getViteEnvSafe(): Record<string, string> {
   }
   // Only access import.meta.env if it exists and is an object, using dynamic function
   try {
-    // eslint-disable-next-line no-new-func
+     
     const getEnv = new Function(
       'return (typeof import!=="undefined" && import.meta && import.meta.env) ? import.meta.env : {}'
     );

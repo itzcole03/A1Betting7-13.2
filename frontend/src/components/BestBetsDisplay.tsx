@@ -44,8 +44,8 @@ const BestBetsDisplay: React.FC<BestBetsDisplayProps> = () => {
       });
 
       if (response.ok) {
-        let data = await response.json();
-        let bets = Array.isArray(data) ? data : Array.isArray(data.props) ? data.props : [];
+        const data = await response.json();
+        const bets = Array.isArray(data) ? data : Array.isArray(data.props) ? data.props : [];
         const sortedBets = bets.sort(
           (a: BestBet, b: BestBet) => (b.confidence || 0) - (a.confidence || 0)
         );

@@ -180,7 +180,7 @@ export const _Slider: React.FC<SliderProps> = ({
   const _handleKeyDown = (event: React.KeyboardEvent) => {
     if (disabled) return;
 
-    let _newValue = value;
+    const _newValue = value;
     switch (event.key) {
       case 'ArrowRight':
       case 'ArrowUp':

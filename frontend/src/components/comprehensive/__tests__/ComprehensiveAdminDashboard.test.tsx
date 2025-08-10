@@ -79,9 +79,9 @@ const _queryClient = new QueryClient();
 
 describe('ComprehensiveAdminDashboard', () => {
   // For debugging: log the DOM after clicking the bet
-  // eslint-disable-next-line no-console
+
   // @ts-ignore
-  // eslint-disable-next-line
+
   // console.log(document.body.innerHTML);
   it('renders dashboard data and panels when loaded', async () => {
     (useEnhancedBets as jest.Mock).mockImplementation(() => ({
@@ -167,7 +167,7 @@ describe('ComprehensiveAdminDashboard', () => {
 
     await userEvent.click(johnDoeBet);
     // Debug: log the DOM after clicking the bet
-    // eslint-disable-next-line no-console
+
     console.log(document.body.innerHTML);
 
     // Wait for the AI insight text to appear

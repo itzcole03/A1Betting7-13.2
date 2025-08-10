@@ -38,7 +38,7 @@ export class UnifiedErrorService extends BaseService {
   private retryDelays = [1000, 2000, 5000]; // milliseconds
 
   protected constructor() {
-    // @ts-expect-error TS(2554): Expected 2 arguments, but got 1.
+    // @ts-expect-error TS(2554): Expected 2 arguments, but got 1. BaseService expects two arguments, but only one is provided here for singleton pattern compatibility.
     super('UnifiedErrorService');
   }
 
@@ -51,7 +51,7 @@ export class UnifiedErrorService extends BaseService {
 
   reportError(
     error: Error | string,
-    context: unknown = {},
+    context: Record<string, any> = {},
     category: ErrorCategory = ErrorCategory.UNKNOWN,
     severity: ErrorSeverity = ErrorSeverity.MEDIUM
   ): string {
@@ -78,9 +78,10 @@ export class UnifiedErrorService extends BaseService {
     // Serialize context safely
     let serializedContext: any = {};
     try {
-      serializedContext = typeof context === 'object' && context !== null
-        ? JSON.parse(JSON.stringify(context))
-        : context;
+      serializedContext =
+        typeof context === 'object' && context !== null
+          ? JSON.parse(JSON.stringify(context))
+          : context;
     } catch (serializationError) {
       serializedContext = { error: 'Failed to serialize context', original: String(context) };
     }
@@ -101,15 +102,16 @@ export class UnifiedErrorService extends BaseService {
     this.errors.set(_errorId, _errorDetails);
 
     // Log with properly serialized data
-    console.error('[UnifiedErrorService] Error reported:', {
-      id: _errorId,
-      message: errorMessage,
-      code: errorCode,
-      category,
-      severity,
-      context: serializedContext,
-      timestamp: _errorDetails.timestamp.toISOString()
-    });
+    // Production console statements disabled for lint compliance
+    // console.error('[UnifiedErrorService] Error reported:', {
+    //   id: _errorId,
+    //   message: errorMessage,
+    //   code: errorCode,
+    //   category,
+    //   severity,
+    //   context: serializedContext,
+    //   timestamp: _errorDetails.timestamp.toISOString()
+    // });
 
     this.logger.error('Error reported', _errorDetails);
     this.emit('error_reported', _errorDetails);
@@ -129,7 +131,7 @@ export class UnifiedErrorService extends BaseService {
 
   async retryOperation<T>(
     operation: () => Promise<T>,
-    context: unknown = {},
+    context: Record<string, any> = {},
     category: ErrorCategory = ErrorCategory.NETWORK
   ): Promise<T> {
     let lastError: Error | null = null;
@@ -194,7 +196,7 @@ export class UnifiedErrorService extends BaseService {
   ): ErrorDetails[] {
     const _allErrors = Array.from(this.errors.values());
 
-    return allErrors.filter(error => {
+    return _allErrors.filter(error => {
       if (filters.category && error.category !== filters.category) return false;
       if (filters.severity && error.severity !== filters.severity) return false;
       if (filters.resolved !== undefined && error.resolved !== filters.resolved) return false;
@@ -252,19 +254,19 @@ export class UnifiedErrorService extends BaseService {
   }
 
   // Helper methods for common error categories
-  reportNetworkError(error: Error, context: unknown = {}): string {
+  reportNetworkError(error: Error, context: Record<string, any> = {}): string {
     return this.reportError(error, context, ErrorCategory.NETWORK, ErrorSeverity.MEDIUM);
   }
 
-  reportValidationError(message: string, context: unknown = {}): string {
+  reportValidationError(message: string, context: Record<string, any> = {}): string {
     return this.reportError(message, context, ErrorCategory.VALIDATION, ErrorSeverity.LOW);
   }
 
-  reportAuthError(error: Error, context: unknown = {}): string {
+  reportAuthError(error: Error, context: Record<string, any> = {}): string {
     return this.reportError(error, context, ErrorCategory.AUTHENTICATION, ErrorSeverity.HIGH);
   }
 
-  reportCriticalError(error: Error, context: unknown = {}): string {
+  reportCriticalError(error: Error, context: Record<string, any> = {}): string {
     return this.reportError(error, context, ErrorCategory.SYSTEM, ErrorSeverity.CRITICAL);
   }
 }

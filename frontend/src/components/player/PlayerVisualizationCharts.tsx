@@ -177,7 +177,7 @@ export const PlayerVisualizationCharts: React.FC<PlayerVisualizationChartsProps>
 
     // Calculate rolling average
     const rollingAvg: number[] = [];
-    let runningSum = 0;
+    const runningSum = 0;
     let runningHits = 0;
     let runningAtBats = 0;
 

@@ -195,7 +195,7 @@ class PredictionCacheService {
    * Clean expired entries
    */
   cleanExpiredEntries(): number {
-    let _cleaned = 0;
+    const _cleaned = 0;
     const _now = Date.now();
 
     // Clean prediction cache
@@ -325,7 +325,7 @@ class PredictionCacheService {
       change_reasons.push(`Prediction shifted by ${prediction_change.toFixed(2)}`);
     if (change_reasons.length === 0) change_reasons.push('Minor adjustments');
 
-    let _accuracy_trend: 'improving' | 'declining' | 'stable' = 'stable';
+    const _accuracy_trend: 'improving' | 'declining' | 'stable' = 'stable';
     if (current.accuracy_score && previous.accuracy_score) {
       const _diff = current.accuracy_score - previous.accuracy_score;
       if (diff > 5) accuracy_trend = 'improving';
@@ -350,8 +350,8 @@ class PredictionCacheService {
    * Update cache metrics
    */
   private updateMetrics(): void {
-    let _totalPredictions = 0;
-    let _accuratePredictions = 0;
+    const _totalPredictions = 0;
+    const _accuratePredictions = 0;
 
     for (const _history of this.cache.values()) {
       totalPredictions += history.length;
@@ -536,7 +536,7 @@ export const _StorageUtils = {
    * Clean expired localStorage entries
    */
   cleanExpired: (): number => {
-    let _cleaned = 0;
+    const _cleaned = 0;
     const _keysToRemove: string[] = [];
 
     try {
@@ -573,7 +573,7 @@ export const _StorageUtils = {
    */
   getStorageStats: (): { used: number; total: number; percentage: number } => {
     try {
-      let _used = 0;
+      const _used = 0;
       for (let _i = 0; i < localStorage.length; i++) {
         const _key = localStorage.key(i);
         if (key) {

@@ -204,7 +204,7 @@ export const _ModernActivityFeed: React.FC<ModernActivityFeedProps> = ({
 
   // Filter and group activities
   useEffect(() => {
-    let _filtered = activities;
+    const _filtered = activities;
 
     // Apply filters
     if (currentFilter.types?.length) {

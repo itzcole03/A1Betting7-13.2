@@ -235,7 +235,7 @@ const _SportsManager: React.FC = () => {
   };
 
   const _getFilteredSports = () => {
-    let _filtered = SPORTS_CONFIG;
+    const _filtered = SPORTS_CONFIG;
 
     // Category filter
     if (selectedCategory !== 'all') {

@@ -329,9 +329,9 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
     const _y = event.clientY - svgRect.top;
 
     // Find closest point
-    let _closestPoint: ChartDataPoint | null = null;
-    let _closestSeries: ChartSeries | null = null;
-    let _minDistance = Infinity;
+    const _closestPoint: ChartDataPoint | null = null;
+    const _closestSeries: ChartSeries | null = null;
+    const _minDistance = Infinity;
 
     state.validatedData.forEach(series => {
       if (!series.visible) return;

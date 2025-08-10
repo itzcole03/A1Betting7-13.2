@@ -126,7 +126,7 @@ class BettingService {
     maxRisk?: string;
     minValue?: number;
   }): Promise<BettingOpportunity[]> {
-    let _opportunities = Array.from(this.opportunities.values());
+    const _opportunities = Array.from(this.opportunities.values());
 
     // Filter expired opportunities
     const _now = new Date();

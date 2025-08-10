@@ -76,15 +76,24 @@ describe('Betting Interface E2E', () => {
     );
     // Wait for betting interface heading
     expect(await screen.findByTestId('betting-interface-heading')).toBeInTheDocument();
+
+    // Wait for bet slip section in Opportunities tab (should not be present yet)
+    expect(screen.queryByTestId('bet-slip-section')).not.toBeInTheDocument();
+
+    // Simulate adding a bet in Opportunities tab
+    const addBetButtons = await screen.findAllByRole('button', { name: /Add to Bet Slip/i });
+    act(() => {
+      addBetButtons[0].click();
+    });
+
+    // Switch to Bet Slip tab
+    const betSlipTabButtons = await screen.findAllByRole('button', { name: /Bet Slip/i });
+    act(() => {
+      betSlipTabButtons[0].click();
+    });
+
     // Wait for bet slip section
     expect(await screen.findByTestId('bet-slip-section')).toBeInTheDocument();
-    // Wait for empty bet slip message
-    expect(await screen.findByTestId('bet-slip-empty')).toBeInTheDocument();
-    // Simulate adding a bet (find first Add to Bet Slip button)
-    const addBetButton = await screen.findByRole('button', { name: /Add to Bet Slip/i });
-    act(() => {
-      addBetButton.click();
-    });
     // Wait for bet slip item
     expect(await screen.findByTestId('bet-slip-item')).toBeInTheDocument();
     // Optionally check for Kelly Criterion and arbitrage opportunities if present

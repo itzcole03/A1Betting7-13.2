@@ -1,3 +1,4 @@
+import { getEnvVar } from '../utils/getEnvVar';
 /**
  * Enhanced Service Client for Peak Functionality
  * Integrates with all new backend services: ML predictions, real-time data, user auth, bankroll management
@@ -110,14 +111,8 @@ class EnhancedServiceClient {
 
   constructor() {
     // Use the same base URL as existing services
-    // Use Vite environment variables directly
-    const getEnvVar = (key: string, fallback: string) => {
-      if (typeof import.meta !== 'undefined' && import.meta.env) {
-        return import.meta.env[key] || fallback;
-      }
-      return fallback;
-    };
-    this.baseURL = getEnvVar('VITE_API_BASE_URL', 'http://localhost:8000');
+    this.baseURL =
+      getEnvVar('VITE_API_BASE_URL', 'http://localhost:8000') || 'http://localhost:8000';
 
     // Load stored tokens
     this.loadStoredTokens();
@@ -421,7 +416,9 @@ class EnhancedServiceClient {
         };
 
         this.wsConnection.onerror = error => {
-          console.warn('[EnhancedServiceClient] WebSocket connection issue (application continues in local mode)');
+          console.warn(
+            '[EnhancedServiceClient] WebSocket connection issue (application continues in local mode)'
+          );
           reject(new Error('WebSocket connection failed'));
         };
 

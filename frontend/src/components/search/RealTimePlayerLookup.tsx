@@ -234,7 +234,7 @@ const RealTimePlayerLookup: React.FC = () => {
   }, [recentSearches]);
 
   const filteredAndSortedResults = useMemo(() => {
-    let filtered = searchResults.filter(player => {
+    const filtered = searchResults.filter(player => {
       if (filters.team.length > 0 && !filters.team.includes(player.team.split(' ').pop() || '')) return false;
       if (filters.position.length > 0 && !filters.position.includes(player.position)) return false;
       if (player.props.length > 0 && Math.max(...player.props.map(p => p.confidence)) < filters.minConfidence) return false;

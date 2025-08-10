@@ -106,8 +106,8 @@ const _getCategoryColor = (category: string, variant: string = 'default') => {
 
 const _sortControlsByPriority = (controls: SmartControl[], context: SmartContext) => {
   return [...controls].sort((a, b) => {
-    let _scoreA = a.priority * 10;
-    let _scoreB = b.priority * 10;
+    const _scoreA = a.priority * 10;
+    const _scoreB = b.priority * 10;
 
     // Boost AI suggested controls
     if (a.aiSuggested) scoreA += 20;

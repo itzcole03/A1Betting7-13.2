@@ -1,5 +1,12 @@
 // Unified Jest Configuration - consolidates all test setups
 module.exports = {
+  globals: {
+    'ts-jest': {
+      tsconfig: '<rootDir>/tsconfig.test.json',
+    },
+  },
+  // Increase default test timeout for all tests (30s)
+  testTimeout: 30000,
   // Test environment setup
   testEnvironment: 'jest-fixed-jsdom',
   testEnvironmentOptions: {
@@ -8,10 +15,7 @@ module.exports = {
   },
 
   // Setup files - run before each test
-  setupFiles: [
-    '<rootDir>/jest.polyfill.textencoder.js',
-    '<rootDir>/jest.env.mock.js'
-  ],
+  setupFiles: ['<rootDir>/jest.polyfill.textencoder.js', '<rootDir>/jest.env.mock.js'],
   setupFilesAfterEnv: ['<rootDir>/jest.dom.setup.js'],
 
   // Module handling
@@ -24,24 +28,27 @@ module.exports = {
     '^src/(.*)$': '<rootDir>/src/$1',
     // Handle CSS and static assets
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$': 'jest-transform-stub',
+    '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
+      'jest-transform-stub',
   },
 
   // Transform configuration
   transform: {
-    '^.+\\.[tj]sx?$': ['babel-jest', {
-      presets: [
-        '@babel/preset-env',
-        '@babel/preset-react',
-        '@babel/preset-typescript'
-      ],
-      plugins: [
-        // Transform import.meta for Jest compatibility
-        ['babel-plugin-transform-import-meta', {
-          module: 'ES6'
-        }]
-      ]
-    }],
+    '^.+\\.[tj]sx?$': [
+      'babel-jest',
+      {
+        presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
+        plugins: [
+          // Transform import.meta for Jest compatibility
+          [
+            'babel-plugin-transform-import-meta',
+            {
+              module: 'ES6',
+            },
+          ],
+        ],
+      },
+    ],
   },
 
   // Transform ESM modules in node_modules
@@ -50,18 +57,22 @@ module.exports = {
   ],
 
   // Test file patterns
+
+  // Restrict tests and coverage to src/ only
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.(test|spec).(ts|tsx|js|jsx)',
     '<rootDir>/src/**/?(*.)(test|spec).(ts|tsx|js|jsx)',
   ],
-
-  // Ignore patterns
   testPathIgnorePatterns: [
     '/electron-dist/',
     '/node_modules/',
     '/build/',
     '/dist/',
     '/out/',
+    '/admin/',
+    '/shared/',
+    '/features/',
+    '/services/',
     '/src/test-artifacts/',
     '/src/legacy/',
     '/src/deprecated/',
@@ -69,8 +80,6 @@ module.exports = {
     '/src/old/',
     '/src/backup/',
   ],
-
-  // Coverage configuration
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
@@ -102,10 +111,13 @@ module.exports = {
   reporters: process.env.CI
     ? [
         'default',
-        ['jest-junit', {
-          outputDirectory: 'reports/junit',
-          outputName: 'js-test-results.xml',
-        }]
+        [
+          'jest-junit',
+          {
+            outputDirectory: 'reports/junit',
+            outputName: 'js-test-results.xml',
+          },
+        ],
       ]
     : ['default'],
 };

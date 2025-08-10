@@ -15,7 +15,7 @@
     ],
 
     // Enhanced module resolution for 2025
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
     "isolatedModules": true,

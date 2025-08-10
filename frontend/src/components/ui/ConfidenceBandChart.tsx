@@ -178,7 +178,7 @@ const _createSmoothPath = (
     return `M ${x} ${y}`;
   }
 
-  let _path = '';
+  const _path = '';
   for (let _i = 0; i < points.length; i++) {
     const _x = xScale(points[i].x);
     const _y = yScale(points[i].y);
@@ -266,9 +266,9 @@ export const _ConfidenceBandChart: React.FC<ConfidenceBandChartProps> = ({
     const _y = event.clientY - svgRect.top;
 
     // Find closest data point
-    let _closestPoint: ChartDataPoint | null = null;
-    let _closestSeries: ChartSeries | null = null;
-    let _minDistance = Infinity;
+    const _closestPoint: ChartDataPoint | null = null;
+    const _closestSeries: ChartSeries | null = null;
+    const _minDistance = Infinity;
 
     series.forEach(s => {
       if (!s.visible) return;

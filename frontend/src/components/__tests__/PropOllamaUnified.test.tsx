@@ -152,7 +152,7 @@ describe('PropOllamaUnified', () => {
       { timeout: 15000 }
     );
     // Debug: print DOM after expansion
-    // eslint-disable-next-line no-console
+     
     console.log('[TEST DEBUG] DOM after expanding card:', document.documentElement.outerHTML);
     // Query for the Deep AI Analysis button inside the expanded card
     const expandedCard = screen.getByTestId('prop-card-expanded');
@@ -230,7 +230,7 @@ describe('PropOllamaUnified', () => {
     });
   });
   // Print DOM after expansion
-  // eslint-disable-next-line no-console
+   
   console.log('[TEST DEBUG] DOM after expanding card:', document.documentElement.outerHTML);
 
   it('expand/collapse explanation', async () => {
@@ -326,7 +326,7 @@ describe('PropOllamaUnified', () => {
         const cards = screen.getAllByTestId('prop-card-wrapper');
         expect(cards.length).toBeGreaterThan(0);
         // Optionally, print debug info for the first card
-        // eslint-disable-next-line no-console
+         
         console.log(`[Explanation] Prop card HTML:`, cards[0].outerHTML);
       },
       { timeout: 30000 }
@@ -364,7 +364,7 @@ describe('PropOllamaUnified', () => {
         } else if (noAnalysisNodes.length > 0) {
           expect(noAnalysisNodes[0]).toHaveTextContent('No analysis available.');
         } else {
-          // eslint-disable-next-line no-console
+           
           console.log('[TEST DEBUG] Neither analysis node found');
           screen.debug();
           throw new Error('No analysis node found');

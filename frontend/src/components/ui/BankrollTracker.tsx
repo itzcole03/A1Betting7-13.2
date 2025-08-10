@@ -80,10 +80,10 @@ const _calculateStats = (entries: BankrollEntry[], initialBalance: number = 0): 
   const _averageBetSize = betEntries.length > 0 ? bets / betEntries.length : 0;
 
   // Calculate streaks
-  let _currentWinStreak = 0;
-  let _currentLossStreak = 0;
-  let _longestWinStreak = 0;
-  let _longestLossStreak = 0;
+  const _currentWinStreak = 0;
+  const _currentLossStreak = 0;
+  const _longestWinStreak = 0;
+  const _longestLossStreak = 0;
 
   const _gambleEntries = entries
     .filter(e => e.type === 'win' || e.type === 'loss')

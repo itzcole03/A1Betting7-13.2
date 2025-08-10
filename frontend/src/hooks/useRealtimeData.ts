@@ -152,7 +152,7 @@ export function useRealtimeData<T = RealtimeData>({
         apiService.getPerformanceMetrics(),
       ]);
 
-      let _combinedData = initializeDefaultData();
+      const _combinedData = initializeDefaultData();
 
       // Process health check data
       if (healthResponse.status === 'fulfilled') {

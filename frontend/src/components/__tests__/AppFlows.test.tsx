@@ -1,3 +1,11 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import '@testing-library/jest-dom';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { _AuthProvider } from '../../contexts/AuthContext';
+import LoginForm from '../auth/LoginForm';
+import BetSlip from '../BetSlip';
+import Register from '../Register';
 // Ensure modern fake timers for React 18+ compatibility
 beforeEach(() => {
   jest.useFakeTimers();
@@ -5,17 +13,6 @@ beforeEach(() => {
 afterEach(() => {
   jest.useRealTimers();
 });
-// (deleted)
-// Legacy AppFlows test removed as part of canonicalization.
-import '@testing-library/jest-dom';
-
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { _AuthProvider } from '../../contexts/AuthContext';
-import LoginForm from '../auth/LoginForm';
-import BetSlip from '../BetSlip';
-import Register from '../Register';
 
 // Mock useAuth for registration test
 jest.mock('../../contexts/AuthContext', () => {

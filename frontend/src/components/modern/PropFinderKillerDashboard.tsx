@@ -247,7 +247,7 @@ const PropFinderKillerDashboard: React.FC = () => {
 
   // Advanced filtering logic
   const applyFilters = useMemo(() => {
-    let filtered = opportunities.filter(opp => {
+    const filtered = opportunities.filter(opp => {
       // Search filter
       if (searchQuery) {
         const query = searchQuery.toLowerCase();

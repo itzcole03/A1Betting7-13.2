@@ -111,7 +111,7 @@ class MLService {
     type?: string;
     status?: string;
   }): Promise<MLModel[]> {
-    let _models = Array.from(this.models.values());
+    const _models = Array.from(this.models.values());
 
     if (filters) {
       if (filters.sport) models = models.filter(m => m.sport === filters.sport);

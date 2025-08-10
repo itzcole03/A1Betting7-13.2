@@ -1,5 +1,5 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
-import App from '../App';
+import UserFriendlyApp from '../components/user-friendly/UserFriendlyApp';
 
 describe('User Context Switching E2E', () => {
   beforeEach(() => {
@@ -17,9 +17,14 @@ describe('User Context Switching E2E', () => {
   });
 
   it('switches user context and updates permissions', async () => {
-    render(<App />);
-    // Wait for admin dashboard
-    expect(await screen.findByText(/Admin Dashboard|User Management/i)).toBeInTheDocument();
+    render(<UserFriendlyApp />);
+    // Wait for admin dashboard (robust matcher for split/nested nodes)
+    expect(
+      await screen.findByText((content, node) => {
+        const text = node?.textContent || '';
+        return /Admin Dashboard|User Management/i.test(text);
+      })
+    ).toBeInTheDocument();
     // Simulate switching to user role
     const switchUserButton = await screen.findByRole('button', { name: /Switch to User/i });
     act(() => {

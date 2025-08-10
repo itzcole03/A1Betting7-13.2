@@ -91,12 +91,18 @@ describe('App E2E - Empty State', () => {
 
   it('shows empty state if no enhanced bets are returned', async () => {
     jest.useFakeTimers();
-    const App = (await import('../App')).default;
-    render(<App />);
-    // Advance timers to allow loading state to resolve
-    jest.runAllTimers();
-    const emptyState = await screen.findByText(/No props found/i, {}, { timeout: 5000 });
-    expect(emptyState).toBeInTheDocument();
-    jest.useRealTimers();
-  });
+    try {
+      const App = (await import('../App')).default;
+      await (
+        await import('react-dom/test-utils')
+      ).act(async () => {
+        render(<App />);
+        jest.runAllTimers();
+      });
+      const emptyState = await screen.findByText(/No props found/i, {}, { timeout: 5000 });
+      expect(emptyState).toBeInTheDocument();
+    } finally {
+      jest.useRealTimers();
+    }
+  }, 10000);
 });

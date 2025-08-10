@@ -68,7 +68,7 @@ const _RealTimePredictions: React.FC<RealTimePredictionsProps> = ({
       );
 
       // Personalize predictions for the current user
-      let _personalizedPredictions = predictionData;
+      const _personalizedPredictions = predictionData;
       if (user && user.id) {
         personalizedPredictions = await Promise.all(
           predictionData.map(prediction =>

@@ -136,8 +136,8 @@ const _LineupBuilder: React.FC = () => {
     const _requiredPositions = selectedContest.positions;
     const _salaryCap = selectedContest.salaryCap;
 
-    let _lineup: Player[] = [];
-    let _totalSalary = 0;
+    const _lineup: Player[] = [];
+    const _totalSalary = 0;
 
     // Lock in required players first
     lockedPlayers.forEach(playerId => {

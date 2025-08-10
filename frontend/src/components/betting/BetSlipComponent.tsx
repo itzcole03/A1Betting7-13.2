@@ -17,34 +17,42 @@
  * ```
  */
 
-import React, { useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, DollarSign, TrendingUp, Calculator, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from 'react';
+// import { cn } from '@/lib/utils'; // Removed unused import
 import type { BetSlipComponentProps } from './types';
 
 // Import from shared types - will be migrated to new types
-import { SelectedProp } from '../shared/PropOllamaTypes';
 
-export const BetSlipComponent: React.FC<BetSlipComponentProps> = ({
-  selectedProps = [], // Provide default value to prevent undefined errors
+export const BetSlipComponent: React.FC<
+  BetSlipComponentProps & { getOpportunityById?: (id: string) => any }
+> = ({
+  selectedProps = [],
   entryAmount,
   onRemoveProp,
   onEntryAmountChange,
   onClearSlip,
   onPlaceBet,
+  getOpportunityById,
 }) => {
   // Calculate total potential payout
-  const totalPayout = selectedProps.reduce((sum, prop) => {
-    const stake = entryAmount / selectedProps.length; // Divide stake evenly
-    return sum + (stake * (prop.odds - 1));
+  const totalPayout = selectedProps.reduce((sum, item) => {
+    const opportunity = getOpportunityById
+      ? getOpportunityById(item.opportunityId || item.id)
+      : item.opportunity || item;
+    const stake = entryAmount / selectedProps.length;
+    return sum + stake * ((opportunity?.odds ?? 1) - 1);
   }, 0);
 
   return (
     <div className='space-y-6'>
-      <div className='bg-slate-700/50 backdrop-blur-sm rounded-lg shadow-md border border-slate-600' data-testid='bet-slip-section'>
+      <div
+        className='bg-slate-700/50 backdrop-blur-sm rounded-lg shadow-md border border-slate-600'
+        data-testid='bet-slip-section'
+      >
         <div className='px-6 py-4 border-b border-slate-600'>
-          <h3 className='text-lg font-semibold text-white'>Bet Slip ({selectedProps.length} props)</h3>
+          <h3 className='text-lg font-semibold text-white'>
+            Bet Slip ({selectedProps.length} props)
+          </h3>
         </div>
         {selectedProps.length === 0 ? (
           <div className='p-6 text-center text-slate-400' data-testid='bet-slip-empty'>
@@ -53,21 +61,31 @@ export const BetSlipComponent: React.FC<BetSlipComponentProps> = ({
           </div>
         ) : (
           <div className='divide-y divide-slate-600'>
-            {selectedProps.map((prop: SelectedProp) => {
+            {selectedProps.map(item => {
+              const opportunity = getOpportunityById
+                ? getOpportunityById(item.opportunityId || item.id)
+                : item.opportunity || item;
               const individualStake = entryAmount / selectedProps.length;
-              const potentialWin = individualStake * (prop.odds - 1);
+              const potentialWin = individualStake * ((opportunity?.odds ?? 1) - 1);
 
               return (
-                <div key={prop.id} className='p-6' data-testid='bet-slip-item'>
+                <div
+                  key={item.opportunity_id || item.id}
+                  className='p-6'
+                  data-testid='bet-slip-item'
+                >
                   <div className='flex items-center justify-between mb-3'>
                     <div>
-                      <h4 className='font-semibold text-white'>{prop.player}</h4>
+                      <h4 className='font-semibold text-white'>
+                        {opportunity?.player || opportunity?.selection || 'Unknown'}
+                      </h4>
                       <p className='text-sm text-slate-400'>
-                        {prop.statType} • {prop.choice} {prop.line}
+                        {opportunity?.statType || opportunity?.market || ''} •{' '}
+                        {opportunity?.choice || opportunity?.pick || ''} {opportunity?.line || ''}
                       </p>
                     </div>
                     <button
-                      onClick={() => onRemoveProp(prop.id)}
+                      onClick={() => onRemoveProp(item.opportunity_id || item.id)}
                       className='text-red-400 hover:text-red-300 text-sm'
                     >
                       Remove
@@ -85,7 +103,7 @@ export const BetSlipComponent: React.FC<BetSlipComponentProps> = ({
                     <div>
                       <label className='block text-sm font-medium text-slate-300 mb-1'>Odds</label>
                       <div className='px-3 py-2 bg-slate-600 border border-slate-500 rounded-md text-white'>
-                        {prop.odds ? prop.odds.toFixed(2) : 'N/A'}
+                        {opportunity?.odds ? opportunity.odds.toFixed(2) : 'N/A'}
                       </div>
                     </div>
                     <div>
@@ -112,16 +130,14 @@ export const BetSlipComponent: React.FC<BetSlipComponentProps> = ({
                   min='1'
                   max='1000'
                   value={entryAmount}
-                  onChange={(e) => onEntryAmountChange(Number(e.target.value))}
+                  onChange={e => onEntryAmountChange(Number(e.target.value))}
                   className='w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-md text-white focus:ring-blue-500 focus:border-blue-500'
                 />
               </div>
 
               <div className='flex justify-between items-center mb-4'>
                 <span className='text-lg font-semibold text-white'>Total Stake:</span>
-                <span className='text-lg font-bold text-white'>
-                  ${entryAmount.toFixed(2)}
-                </span>
+                <span className='text-lg font-bold text-white'>${entryAmount.toFixed(2)}</span>
               </div>
               <div className='flex justify-between items-center mb-4'>
                 <span className='text-lg font-semibold text-white'>Potential Payout:</span>

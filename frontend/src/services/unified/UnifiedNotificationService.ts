@@ -1,6 +1,5 @@
 import { BaseService } from './BaseService';
 import { UnifiedErrorService } from './UnifiedErrorService';
-// @ts-expect-error TS(2305): Module '"./UnifiedServiceRegistry"' has no exporte... Remove this comment to see the full error message
 import { UnifiedServiceRegistry } from './UnifiedServiceRegistry';
 import { UnifiedStateService } from './UnifiedStateService';
 
@@ -33,8 +32,8 @@ export class UnifiedNotificationService extends BaseService {
   constructor(registry: UnifiedServiceRegistry) {
     super('notification', registry);
     // Retrieve real services from the registry
-    const errorService = registry.getService<UnifiedErrorService>('errors');
-    const stateService = registry.getService<UnifiedStateService>('state');
+    const errorService = registry.get<UnifiedErrorService>('errors');
+    const stateService = registry.get<UnifiedStateService>('state');
     if (!errorService || !stateService) {
       throw new Error('Required services not found in registry');
     }
@@ -119,7 +118,7 @@ export class UnifiedNotificationService extends BaseService {
     try {
       this.stateService.setState({ notifications: [] });
     } catch (error) {
-      // @ts-expect-error TS(2446): Property 'handleError' is protected and only acces... Remove this comment to see the full error message
+      // @ts-expect-error TS(2446): Property 'handleError' is protected and only accessible within class 'UnifiedErrorService'. Used here for internal error reporting in notification clearAll.
       this.errorService.handleError(error, {
         code: 'NOTIFICATION_ERROR',
         source: 'UnifiedNotificationService',

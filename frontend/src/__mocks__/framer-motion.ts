@@ -1,4 +1,4 @@
-/* eslint-disable react/display-name */
+ 
 import * as React from 'react';
 
 const actual = jest.requireActual('framer-motion');

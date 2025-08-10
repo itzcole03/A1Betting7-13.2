@@ -1,3 +1,12 @@
+# Use centralized odds fetcher and schema
+from backend.services.data_fetchers import LiveOddsSchema, fetch_live_odds_from_api
+
+
+async def get_validated_live_odds(api_url: str) -> list[LiveOddsSchema]:
+    """Fetch live odds using centralized odds fetcher."""
+    return await fetch_live_odds_from_api(api_url)
+
+
 """
 Real Data Service
 
@@ -14,11 +23,13 @@ import httpx
 from config_manager import get_api_key
 from sqlalchemy import func
 from utils.circuit_breaker import CircuitBreaker
-from utils.error_handler import ErrorHandler
 
 from backend.models.api_models import BettingOpportunity, PerformanceStats
+from backend.services.unified_error_handler import unified_error_handler
+from backend.services.unified_logging import unified_logging
 
 logger = logging.getLogger(__name__)
+unified_logger = unified_logging.get_logger("real_data_service")
 
 # Import unified database service
 try:
@@ -28,7 +39,7 @@ try:
     logger.info("✅ Database service loaded successfully")
 except ImportError as e:
     DATABASE_AVAILABLE = False
-    logger.warning(f"Database service not available: {e}")
+    logger.warning("Database service not available: %s", e)
 
 
 @dataclass
@@ -78,28 +89,32 @@ class RealDataService:
     async def fetch_real_betting_opportunities(self) -> List[BettingOpportunity]:
         """Fetch real betting opportunities from multiple sportsbook APIs"""
         opportunities = []
-
         try:
             # Fetch from The Odds API
             odds_opportunities = await self._fetch_from_odds_api()
-            opportunities.extend(odds_opportunities)  # type: ignore
+            opportunities.extend(odds_opportunities)
 
             # Fetch from database-stored opportunities
             if DATABASE_AVAILABLE:
                 db_opportunities = await self._fetch_from_database()
-                opportunities.extend(db_opportunities)  # type: ignore
+                opportunities.extend(db_opportunities)
 
             # Calculate value bets using real odds comparison
-            value_opportunities = await self._calculate_value_bets(opportunities)  # type: ignore
-
-            logger.info(
-                f"Fetched {len(value_opportunities)} real betting opportunities"
+            value_opportunities = await self._calculate_value_bets(opportunities)
+            unified_logger.info(
+                {
+                    "event": "fetch_real_betting_opportunities",
+                    "count": len(value_opportunities),
+                }
             )
             return value_opportunities
-
         except Exception as e:
-            ErrorHandler.log_error(e, "fetching real betting opportunities")
-            # Fallback to minimal real data instead of mock
+            unified_error_handler.handle_error(
+                e, context="fetch_real_betting_opportunities"
+            )
+            unified_logger.error(
+                {"event": "fetch_real_betting_opportunities", "error": str(e)}
+            )
             return await self._get_fallback_opportunities()
 
     async def _fetch_from_odds_api(self) -> List[BettingOpportunity]:
@@ -137,15 +152,20 @@ class RealDataService:
                             opportunities.extend(event_opportunities)  # type: ignore
                         except Exception as e:
                             logger.warning(
-                                f"Error parsing event {event.get('id', 'unknown')}: {e}"
+                                "Error parsing event %s: %s",
+                                event.get("id", "unknown"),
+                                e,
                             )
                             continue
 
                 except httpx.HTTPError as e:
-                    logger.error(f"HTTP error fetching {sport} odds: {e}")
+                    logger.error("HTTP error fetching %s odds: %s", sport, e)
                     continue
                 except Exception as e:
-                    ErrorHandler.log_error(e, f"fetching odds for {sport}")
+                    unified_error_handler.handle_error(e, context=None)
+                    unified_logger.error(
+                        {"event": "fetching odds", "sport": sport, "error": str(e)}
+                    )
                     continue
 
         return opportunities
@@ -196,7 +216,9 @@ class RealDataService:
                             opportunities.append(opportunity)
 
                 except Exception as e:
-                    logger.warning(f"Error creating opportunity for {market_key}: {e}")
+                    logger.warning(
+                        "Error creating opportunity for %s: %s", market_key, e
+                    )
                     continue
 
         return opportunities
@@ -286,7 +308,7 @@ class RealDataService:
                 odds = float(outcome.get("price", 0))
 
                 # Calculate probability and value
-                implied_prob = 1 / odds
+                # implied_prob removed (unused variable)
                 # Simplified model: assume fair probability around 50% for spreads
                 true_prob = 0.52 if spread > 0 else 0.48
                 expected_value = true_prob * odds - 1
@@ -345,7 +367,7 @@ class RealDataService:
             return None
 
         # Use over bet as primary
-        implied_prob = 1 / over_odds
+        # implied_prob removed (unused variable)
         # Simplified model for totals
         true_prob = 0.51
         expected_value = true_prob * over_odds - 1
@@ -417,7 +439,10 @@ class RealDataService:
             db.close()
 
         except Exception as e:
-            ErrorHandler.log_error(e, "fetching opportunities from database")
+            unified_error_handler.handle_error(e, context=None)
+            unified_logger.error(
+                {"event": "fetching opportunities from database", "error": str(e)}
+            )
 
         return opportunities
 
@@ -426,7 +451,7 @@ class RealDataService:
     ) -> List[BettingOpportunity]:
         """Calculate value bets by comparing odds across opportunities"""
         # Group opportunities by event
-        event_groups = {}
+        event_groups: Dict[str, List[BettingOpportunity]] = {}
         for opp in opportunities:
             key = f"{opp.sport}_{opp.event}"
             if key not in event_groups:
@@ -435,7 +460,7 @@ class RealDataService:
 
         value_bets = []
 
-        for event_key, event_opps in event_groups.items():
+        for event_opps in event_groups.values():
             if len(event_opps) > 1:
                 # Find best odds for comparison
                 best_odds = max(opp.odds for opp in event_opps)
@@ -509,7 +534,10 @@ class RealDataService:
             return opportunities
 
         except Exception as e:
-            ErrorHandler.log_error(e, "generating fallback opportunities")
+            unified_error_handler.handle_error(e, context=None)
+            unified_logger.error(
+                {"event": "generating fallback opportunities", "error": str(e)}
+            )
             return []
         finally:
             db.close()
@@ -610,7 +638,7 @@ class RealDataService:
             )
 
             logger.info(
-                f"Calculated real performance stats for user {user_id or 'aggregate'}"
+                "Calculated real performance stats for user %s", user_id or "aggregate"
             )
 
             return PerformanceStats(
@@ -625,7 +653,10 @@ class RealDataService:
             )
 
         except Exception as e:
-            ErrorHandler.log_error(e, "calculating real performance stats")
+            unified_error_handler.handle_error(e, context=None)
+            unified_logger.error(
+                {"event": "calculating real performance stats", "error": str(e)}
+            )
             # Return minimal real stats instead of mock
             return PerformanceStats(
                 today_profit=0.0,
@@ -675,15 +706,18 @@ class RealDataService:
                         }
                         props.append(prop)
                     except (ValueError, KeyError) as e:
-                        logger.warning(f"Error parsing PrizePicks projection: {e}")
+                        logger.warning("Error parsing PrizePicks projection: %s", e)
                         continue
-                logger.info(f"Fetched {len(props)} real PrizePicks props")
+                logger.info("Fetched %d real PrizePicks props", len(props))
                 return props[:20]  # Return top 20 props
         except httpx.HTTPError as e:
-            logger.error(f"HTTP error fetching PrizePicks props: {e}")
+            logger.error("HTTP error fetching PrizePicks props: %s", e)
             return await self._fetch_prizepicks_fallback()
         except Exception as e:
-            ErrorHandler.log_error(e, "fetching real PrizePicks props")
+            unified_error_handler.handle_error(e, context=None)
+            unified_logger.error(
+                {"event": "fetching real PrizePicks props", "error": str(e)}
+            )
             return await self._fetch_prizepicks_fallback()
 
     async def _fetch_prizepicks_fallback(self) -> List[Dict[str, Any]]:
@@ -706,11 +740,11 @@ class RealDataService:
                             data = await espn_circuit_breaker.call(espn_api_call)
                         except RuntimeError as cb_err:
                             logger.error(
-                                f"ESPN circuit breaker open for {sport}: {cb_err}"
+                                "ESPN circuit breaker open for %s: %s", sport, cb_err
                             )
                             continue
                         except Exception as api_err:
-                            logger.error(f"ESPN API error for {sport}: {api_err}")
+                            logger.error("ESPN API error for %s: %s", sport, api_err)
                             continue
                         for event in data.get("events", [])[
                             :3
@@ -744,11 +778,17 @@ class RealDataService:
                                     }
                                     props.append(prop)
                     except Exception as e:
-                        logger.warning(f"Error in ESPN fallback for {sport}: {e}")
+                        logger.warning("Error in ESPN fallback for %s: %s", sport, e)
                         continue
             return props[:15]  # Return top 15 fallback props
         except Exception as e:
-            ErrorHandler.log_error(e, "generating PrizePicks fallback props (ESPN)")
+            unified_error_handler.handle_error(e, context=None)
+            unified_logger.error(
+                {
+                    "event": "generating PrizePicks fallback props (ESPN)",
+                    "error": str(e),
+                }
+            )
             return []
 
 

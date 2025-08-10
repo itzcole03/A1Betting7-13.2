@@ -247,7 +247,7 @@ const AdvancedSearchPanel: React.FC<AdvancedSearchPanelProps> = ({
     try {
       // For demo, use the specific endpoint based on data type
       let endpoint = '/api/v1/search/execute';
-      let params = new URLSearchParams();
+      const params = new URLSearchParams();
 
       if (dataType === 'players') {
         endpoint = '/api/v1/search/players';

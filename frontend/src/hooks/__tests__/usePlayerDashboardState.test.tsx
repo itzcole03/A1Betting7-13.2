@@ -15,7 +15,7 @@ jest.mock('../../services/MasterServiceRegistry', () => ({
     setupMetricsCollection: jest.fn(),
   },
 }));
-// @jsxImportSource react
+// (removed unnecessary jsxImportSource comment)
 import { act, render } from '@testing-library/react';
 import React from 'react';
 import UnifiedErrorService from '../../services/unified/UnifiedErrorService';

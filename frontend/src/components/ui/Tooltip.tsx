@@ -65,7 +65,7 @@ export const _Tooltip: React.FC<TooltipProps> = ({
         height: window.innerHeight,
       };
 
-      let _bestPosition = 'top';
+      const _bestPosition = 'top';
 
       // Check space availability in each direction
       const _spaceTop = triggerRect.top;

@@ -118,7 +118,7 @@ export const _NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   // Filter and sort notifications
   useEffect(() => {
-    let _filtered = notifications;
+    const _filtered = notifications;
 
     if (showUnreadOnly) {
       filtered = filtered.filter(n => !n.read);

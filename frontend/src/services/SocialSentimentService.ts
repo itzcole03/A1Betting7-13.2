@@ -14,7 +14,7 @@
     // Check if the feature is enabled in config
     // Import UnifiedConfig dynamically to avoid circular deps if needed
     // (Assume import is available in the test context)
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+     
     const { UnifiedConfig } = require('../core/UnifiedConfig');
     const enabled = UnifiedConfig.getInstance().get('enableSocialSentiment') as boolean;
     if (!enabled) {

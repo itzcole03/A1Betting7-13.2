@@ -176,7 +176,7 @@ const _EnhancedDashboard: React.FC = () => {
     }
 
     const _team1 = teams[Math.floor(Math.random() * teams.length)];
-    let _team2 = teams[Math.floor(Math.random() * teams.length)];
+    const _team2 = teams[Math.floor(Math.random() * teams.length)];
     while (team2 === team1) {
       team2 = teams[Math.floor(Math.random() * teams.length)];
     }

@@ -1,8 +1,10 @@
-import React, { useState, useEffect, memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import EnhancedNavigation from '../navigation/EnhancedNavigation';
+import ApiHealthIndicator from '../ApiHealthIndicator';
 import PropOllamaContainer from '../containers/PropOllamaContainer';
+import EnhancedNavigation from '../navigation/EnhancedNavigation';
 import OptimizedPropOllamaContainer from '../optimized/OptimizedPropOllamaContainer';
+import WebSocketStatusIndicator from '../WebSocketStatusIndicator';
 
 // Lazy load enhanced components with PropFinder-killer features
 const PropFinderKillerDashboard = React.lazy(() => import('../modern/PropFinderKillerDashboard'));
@@ -20,9 +22,13 @@ const UltimateMoneyMaker = React.lazy(() => import('../MoneyMaker/UltimateMoneyM
 
 // NEW: PropFinder-competing features
 const OddsComparison = React.lazy(() => import('../features/odds/OddsComparison'));
-const CheatsheetsDashboard = React.lazy(() => import('../features/cheatsheets/CheatsheetsDashboard'));
+const CheatsheetsDashboard = React.lazy(
+  () => import('../features/cheatsheets/CheatsheetsDashboard')
+);
 const KellyCalculator = React.lazy(() => import('../features/risk/KellyCalculator'));
-const PropFinderCompetitorDashboard = React.lazy(() => import('../welcome/PropFinderCompetitorDashboard'));
+const PropFinderCompetitorDashboard = React.lazy(
+  () => import('../welcome/PropFinderCompetitorDashboard')
+);
 const SuccessMetricsPage = React.lazy(() => import('../features/testimonials/SuccessMetricsPage'));
 
 // NEW: Roadmap Phase 4 components
@@ -40,7 +46,9 @@ const AdvancedAIDashboard = React.lazy(() => import('../ai/AdvancedAIDashboard')
 const LiveBettingDashboard = React.lazy(() => import('../live-betting/LiveBettingDashboard'));
 
 // NEW: Phase 4.2 Advanced Arbitrage Dashboard
-const AdvancedArbitrageDashboard = React.lazy(() => import('../arbitrage/AdvancedArbitrageDashboard'));
+const AdvancedArbitrageDashboard = React.lazy(
+  () => import('../arbitrage/AdvancedArbitrageDashboard')
+);
 
 // NEW: Phase 4.3 Advanced Kelly Dashboard
 const AdvancedKellyDashboard = React.lazy(() => import('../kelly/AdvancedKellyDashboard'));
@@ -55,7 +63,9 @@ const UnifiedSearchInterface = React.lazy(() => import('../search/UnifiedSearchI
 const InteractiveChartsHub = React.lazy(() => import('../visualizations/InteractiveChartsHub'));
 
 // NEW: Phase 3 Unified AI Predictions Dashboard
-const UnifiedAIPredictionsDashboard = React.lazy(() => import('../ai/UnifiedAIPredictionsDashboard'));
+const UnifiedAIPredictionsDashboard = React.lazy(
+  () => import('../ai/UnifiedAIPredictionsDashboard')
+);
 
 const UserFriendlyApp: React.FC = memo(() => {
   const location = useLocation();
@@ -91,9 +101,13 @@ const UserFriendlyApp: React.FC = memo(() => {
     };
   }, []);
 
-
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white'>
+      {/* Global API Health Indicator and WebSocket Status Indicator for all routes */}
+      <div className='fixed top-2 right-2 z-50 flex flex-col gap-2 items-end'>
+        <ApiHealthIndicator />
+        <WebSocketStatusIndicator />
+      </div>
       {/* Enhanced Navigation */}
       <EnhancedNavigation
         isOpen={navigationOpen}
@@ -109,7 +123,10 @@ const UserFriendlyApp: React.FC = memo(() => {
               <div className='flex items-center justify-center h-64'>
                 <div className='relative'>
                   <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400'></div>
-                  <div className='absolute inset-0 rounded-full border-t-2 border-purple-400 animate-spin' style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+                  <div
+                    className='absolute inset-0 rounded-full border-t-2 border-purple-400 animate-spin'
+                    style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}
+                  ></div>
                 </div>
               </div>
             }
@@ -120,52 +137,22 @@ const UserFriendlyApp: React.FC = memo(() => {
                 path='/'
                 element={isMobile ? <MobilePropResearch /> : <PropFinderKillerDashboard />}
               />
-              <Route
-                path='/prop-killer'
-                element={<PropFinderKillerDashboard />}
-              />
-              <Route
-                path='/mobile-research'
-                element={<MobilePropResearch />}
-              />
-              <Route
-                path='/money-maker'
-                element={<UltimateMoneyMaker />}
-              />
+              <Route path='/prop-killer' element={<PropFinderKillerDashboard />} />
+              <Route path='/mobile-research' element={<MobilePropResearch />} />
+              <Route path='/money-maker' element={<UltimateMoneyMaker />} />
 
               {/* Player Research Routes */}
-              <Route
-                path='/player/:playerId?'
-                element={<EnhancedPlayerDashboard />}
-              />
-              <Route
-                path='/unified-player'
-                element={<UnifiedPlayerDashboard />}
-              />
-              <Route
-                path='/unified-search'
-                element={<UnifiedSearchInterface />}
-              />
-              <Route
-                path='/charts'
-                element={<InteractiveChartsHub />}
-              />
-              <Route
-                path='/ai-predictions'
-                element={<UnifiedAIPredictionsDashboard />}
-              />
+              <Route path='/player/:playerId?' element={<EnhancedPlayerDashboard />} />
+              <Route path='/unified-player' element={<UnifiedPlayerDashboard />} />
+              <Route path='/unified-search' element={<UnifiedSearchInterface />} />
+              <Route path='/charts' element={<InteractiveChartsHub />} />
+              <Route path='/ai-predictions' element={<UnifiedAIPredictionsDashboard />} />
               <Route
                 path='/prop-scanner'
                 element={isMobile ? <MobilePropResearch /> : <PropFinderKillerDashboard />}
               />
-              <Route
-                path='/matchup-analyzer'
-                element={<EnhancedPlayerDashboard />}
-              />
-              <Route
-                path='/injury-tracker'
-                element={<EnhancedPlayerDashboard />}
-              />
+              <Route path='/matchup-analyzer' element={<EnhancedPlayerDashboard />} />
+              <Route path='/injury-tracker' element={<EnhancedPlayerDashboard />} />
 
               {/* Tools Routes */}
               <Route path='/arbitrage' element={<ArbitrageOpportunities />} />
@@ -193,7 +180,9 @@ const UserFriendlyApp: React.FC = memo(() => {
               {/* Legacy Routes */}
               <Route
                 path='/legacy-propollama'
-                element={useOptimizedMode ? <OptimizedPropOllamaContainer /> : <PropOllamaContainer />}
+                element={
+                  useOptimizedMode ? <OptimizedPropOllamaContainer /> : <PropOllamaContainer />
+                }
               />
               <Route path='/betting' element={<UnifiedBettingInterface />} />
               <Route path='/test-dashboard' element={<PlayerDashboardTest />} />

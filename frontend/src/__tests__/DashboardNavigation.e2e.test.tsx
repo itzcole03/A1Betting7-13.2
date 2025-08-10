@@ -1,5 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
-import App from '../App';
+import UserFriendlyApp from '../components/user-friendly/UserFriendlyApp';
 
 describe('Dashboard Navigation E2E', () => {
   beforeEach(() => {
@@ -16,10 +16,14 @@ describe('Dashboard Navigation E2E', () => {
     );
   });
   it('renders dashboard and navigates between main routes', async () => {
-    render(<App />);
-    // Wait for dashboard main heading
+    render(<UserFriendlyApp />);
+    // Wait for dashboard main heading (robust matcher for split/nested nodes)
     expect(
-      await screen.findByText(content => /sports analytics/i.test(content))
+      await screen.findByText((content, node) => {
+        // Check if node or its children contain the text
+        const text = node?.textContent || '';
+        return /sports analytics/i.test(text);
+      })
     ).toBeInTheDocument();
     // Navigate to AI/ML Models
     const mlTab = await screen.findByRole('link', { name: /AI\/ML Models/i });

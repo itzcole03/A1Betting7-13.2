@@ -156,7 +156,7 @@ const _AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   };
 
   const _getActiveFilterCount = (): number => {
-    let _count = 0;
+    const _count = 0;
     if (filters.sports.length > 0) count++;
     if (filters.categories.length > 0) count++;
     if (filters.seasons.length > 0) count++;

@@ -23,6 +23,7 @@ const ApiHealthIndicator = () => {
 
   return (
     <span
+      data-testid='api-health-indicator'
       className={`inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-${color}-100 text-${color}-700`}
       title='Backend API health'
     >

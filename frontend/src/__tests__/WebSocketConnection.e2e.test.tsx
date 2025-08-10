@@ -1,5 +1,5 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
-import App from '../App';
+import UserFriendlyApp from '../components/user-friendly/UserFriendlyApp';
 
 describe('WebSocket Connection E2E', () => {
   beforeEach(() => {
@@ -32,7 +32,7 @@ describe('WebSocket Connection E2E', () => {
   });
 
   it('shows WebSocket connection status and handles errors gracefully', async () => {
-    render(<App />);
+    render(<UserFriendlyApp />);
     // Wait for WebSocket status indicator
     expect(await screen.findByTestId('websocket-status-indicator')).toBeInTheDocument();
     // Simulate error

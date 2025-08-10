@@ -171,7 +171,7 @@ export class UserPersonalizationService extends EventEmitter {
     const _profile = this.userProfiles.get(userId);
     if (!_profile) return prediction;
     // Adjust prediction based on user stats and cluster
-    let _adjusted = { ...prediction };
+    const _adjusted = { ...prediction };
     if (_profile.stats) {
       // Example: boost confidence for high win rate users
       _adjusted.confidence = Math.min(1, _adjusted.confidence + _profile.stats.winRate * 0.1);

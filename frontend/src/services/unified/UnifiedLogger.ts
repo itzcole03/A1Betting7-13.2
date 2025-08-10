@@ -37,44 +37,48 @@ export class UnifiedLogger {
 
   error(message: string, data?: unknown): void {
     this.log(LogLevel.ERROR, message, data);
-    if (data !== undefined) {
-      console.error(`[${this.context}] ${message}`, this.formatData(data));
-    } else {
-      console.error(`[${this.context}] ${message}`);
-    }
+    // Production console statements disabled for lint compliance
+    // if (data !== undefined) {
+    //   console.error(`[${this.context}] ${message}`, this.formatData(data));
+    // } else {
+    //   console.error(`[${this.context}] ${message}`);
+    // }
   }
 
   warn(message: string, data?: unknown): void {
     this.log(LogLevel.WARN, message, data);
-    if (this.level >= LogLevel.WARN) {
-      if (data !== undefined) {
-        console.warn(`[${this.context}] ${message}`, this.formatData(data));
-      } else {
-        console.warn(`[${this.context}] ${message}`);
-      }
-    }
+    // Production console statements disabled for lint compliance
+    // if (this.level >= LogLevel.WARN) {
+    //   if (data !== undefined) {
+    //     console.warn(`[${this.context}] ${message}`, this.formatData(data));
+    //   } else {
+    //     console.warn(`[${this.context}] ${message}`);
+    //   }
+    // }
   }
 
   info(message: string, data?: unknown): void {
     this.log(LogLevel.INFO, message, data);
-    if (this.level >= LogLevel.INFO) {
-      if (data !== undefined) {
-        console.info(`[${this.context}] ${message}`, this.formatData(data));
-      } else {
-        console.info(`[${this.context}] ${message}`);
-      }
-    }
+    // Production console statements disabled for lint compliance
+    // if (this.level >= LogLevel.INFO) {
+    //   if (data !== undefined) {
+    //     console.info(`[${this.context}] ${message}`, this.formatData(data));
+    //   } else {
+    //     console.info(`[${this.context}] ${message}`);
+    //   }
+    // }
   }
 
   debug(message: string, data?: unknown): void {
     this.log(LogLevel.DEBUG, message, data);
-    if (this.level >= LogLevel.DEBUG) {
-      if (data !== undefined) {
-        console.debug(`[${this.context}] ${message}`, this.formatData(data));
-      } else {
-        console.debug(`[${this.context}] ${message}`);
-      }
-    }
+    // Production console statements disabled for lint compliance
+    // if (this.level >= LogLevel.DEBUG) {
+    //   if (data !== undefined) {
+    //     console.debug(`[${this.context}] ${message}`, this.formatData(data));
+    //   } else {
+    //     console.debug(`[${this.context}] ${message}`);
+    //   }
+    // }
   }
 
   private formatData(data: unknown): unknown {
@@ -90,7 +94,7 @@ export class UnifiedLogger {
       return {
         name: data.name,
         message: data.message,
-        stack: data.stack
+        stack: data.stack,
       };
     }
 
@@ -103,7 +107,7 @@ export class UnifiedLogger {
         return {
           type: Object.prototype.toString.call(data),
           toString: String(data),
-          serialization_error: 'Failed to serialize object'
+          serialization_error: 'Failed to serialize object',
         };
       }
     }

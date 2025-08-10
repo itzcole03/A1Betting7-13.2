@@ -2,10 +2,9 @@ import React from 'react';
 import { setupBackendMocks } from './mocks/backend';
 
 // DEBUG: Log React version and object identity in E2E test
-// eslint-disable-next-line no-console
+
 console.log('[E2E Test] React version:', React.version, 'object:', React);
 if (typeof window !== 'undefined') {
-  // eslint-disable-next-line no-console
   console.log('[E2E Test] window.__REACT_DEBUG__:', window.__REACT_DEBUG__);
 }
 
@@ -92,7 +91,6 @@ jest.mock('../services/unified/FeaturedPropsService', () => {
       }
       // Always return all mockProps for 'All' or undefined sport
       if (!sport || sport === 'All') {
-        // eslint-disable-next-line no-console
         console.log('[MOCK fetchFeaturedProps]', {
           sport,
           result: mockProps,
@@ -101,7 +99,7 @@ jest.mock('../services/unified/FeaturedPropsService', () => {
         return mockProps;
       }
       const filtered = mockProps.filter(p => p.sport === sport);
-      // eslint-disable-next-line no-console
+
       console.log('[MOCK fetchFeaturedProps]', {
         sport,
         result: filtered,
@@ -117,7 +115,7 @@ jest.mock('../services/unified/FeaturedPropsService', () => {
         underReasoning: 'Under Analysis',
       }));
       // Debug log
-      // eslint-disable-next-line no-console
+
       console.log('[MOCK fetchBatchPredictions]', { props, enriched });
       return enriched;
     }),
@@ -130,7 +128,7 @@ jest.mock('../services/unified/FeaturedPropsService', () => {
 import '../../../jest.setup.e2e.js';
 
 // DEBUG: Log React version and object identity in E2E test
-// eslint-disable-next-line no-console
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import App from '../App';
@@ -220,9 +218,10 @@ describe('App E2E', () => {
       // Check for error banner (App.tsx) or alert (PropOllamaUnified)
       const errorBanners = document.querySelectorAll('.error-banner');
       const alertNodes = screen.queryAllByRole('alert');
-      const errorTextNodes = screen.queryAllByText(content =>
-        /Cannot connect|Error|Failed|Unable to load/i.test(content)
-      );
+      const errorTextNodes = screen.queryAllByText((content, node) => {
+        const text = node?.textContent || '';
+        return /Cannot connect|Error|Failed|Unable to load/i.test(text);
+      });
       if (errorBanners.length === 0 && alertNodes.length === 0 && errorTextNodes.length === 0) {
         screen.debug();
       }

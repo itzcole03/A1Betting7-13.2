@@ -248,7 +248,7 @@ class EnhancedBackendApiService {
     const result = await this.postUnifiedAnalysis(request);
 
     // Defensive extraction for summary and key_factors
-    let summary = result.analysis || 'No analysis';
+    const summary = result.analysis || 'No analysis';
     let key_factors: string[] = [];
     if (Array.isArray(result.key_factors)) {
       key_factors = result.key_factors.filter((k: any) => typeof k === 'string');
@@ -293,7 +293,7 @@ class EnhancedBackendApiService {
     this.errorService = UnifiedErrorService.getInstance();
     // Use getEnvVar for robust env access
     // @ts-ignore
-    const { getEnvVar } = require('../../utils/getEnvVar');
+    import { getEnvVar } from '../../utils/getEnvVar';
     this.baseURL = getEnvVar(
       'VITE_BACKEND_URL',
       getEnvVar('VITE_API_URL', 'http://localhost:8000')
