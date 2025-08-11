@@ -3,7 +3,7 @@
  * Provides navigation for Phase 3 unified architecture features
  */
 
-import React from 'react';
+import * as React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Home as HomeIcon,

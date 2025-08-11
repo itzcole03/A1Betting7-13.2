@@ -3,7 +3,8 @@
  * Showcases the new unified backend architecture and consolidated domains
  */
 
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import {
   BarChart3 as ChartBarIcon,
   Cpu as CpuChipIcon,

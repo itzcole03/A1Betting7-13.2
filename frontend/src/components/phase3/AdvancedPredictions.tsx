@@ -3,7 +3,8 @@
  * Showcases unified prediction domain with SHAP explanations
  */
 
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import {
   Sparkles as SparklesIcon,
   BarChart3 as ChartBarIcon,
