@@ -13,21 +13,26 @@ Domains:
 """
 
 from .prediction import prediction_router, UnifiedPredictionService
+from .data import data_router, UnifiedDataService
 
 # Domain registry for centralized management
 DOMAIN_ROUTERS = {
     "prediction": prediction_router,
+    "data": data_router,
     # Additional domains will be added here
 }
 
 DOMAIN_SERVICES = {
     "prediction": UnifiedPredictionService,
-    # Additional domains will be added here  
+    "data": UnifiedDataService,
+    # Additional domains will be added here
 }
 
 __all__ = [
     "DOMAIN_ROUTERS",
-    "DOMAIN_SERVICES", 
+    "DOMAIN_SERVICES",
     "prediction_router",
     "UnifiedPredictionService",
+    "data_router",
+    "UnifiedDataService",
 ]
