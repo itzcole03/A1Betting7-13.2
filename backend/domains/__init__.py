@@ -16,6 +16,7 @@ from .prediction import prediction_router, UnifiedPredictionService
 from .data import data_router, UnifiedDataService
 from .analytics import analytics_router, UnifiedAnalyticsService
 from .integration import integration_router, UnifiedIntegrationService
+from .optimization import optimization_router, UnifiedOptimizationService
 
 # Domain registry for centralized management
 DOMAIN_ROUTERS = {
@@ -23,7 +24,7 @@ DOMAIN_ROUTERS = {
     "data": data_router,
     "analytics": analytics_router,
     "integration": integration_router,
-    # Additional domains will be added here
+    "optimization": optimization_router,
 }
 
 DOMAIN_SERVICES = {
@@ -31,7 +32,7 @@ DOMAIN_SERVICES = {
     "data": UnifiedDataService,
     "analytics": UnifiedAnalyticsService,
     "integration": UnifiedIntegrationService,
-    # Additional domains will be added here
+    "optimization": UnifiedOptimizationService,
 }
 
 __all__ = [
@@ -45,4 +46,6 @@ __all__ = [
     "UnifiedAnalyticsService",
     "integration_router",
     "UnifiedIntegrationService",
+    "optimization_router",
+    "UnifiedOptimizationService",
 ]
