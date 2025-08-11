@@ -4,16 +4,16 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { 
-  ChartBarIcon, 
-  CpuChipIcon, 
-  SparklesIcon, 
-  TrophyIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  FireIcon
-} from '@heroicons/react/24/outline';
+import {
+  BarChart3 as ChartBarIcon,
+  Cpu as CpuChipIcon,
+  Sparkles as SparklesIcon,
+  Trophy as TrophyIcon,
+  Clock as ClockIcon,
+  CheckCircle as CheckCircleIcon,
+  AlertTriangle as ExclamationTriangleIcon,
+  Flame as FireIcon
+} from 'lucide-react';
 import { unifiedApiService, type HealthData, type AnalyticsData, type PredictionResponse } from '../../services/unifiedApiService';
 
 interface SystemMetric {
