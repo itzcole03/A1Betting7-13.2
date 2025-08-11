@@ -405,8 +405,18 @@ const PerformanceMonitoringDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Phase 4 Badge */}
-      <div className="mt-6 flex justify-end">
+      {/* Phase 4 Badge and Demo Notice */}
+      <div className="mt-6 flex justify-between items-center">
+        {isUsingMockData && (
+          <div className="bg-yellow-600/20 border border-yellow-500 rounded-lg px-3 py-2">
+            <div className="flex items-center space-x-2">
+              <WifiOff className="w-4 h-4 text-yellow-400" />
+              <span className="text-yellow-400 text-sm">
+                Demo Mode: Backend API not available, showing realistic mock data
+              </span>
+            </div>
+          </div>
+        )}
         <div className="bg-blue-600/20 border border-blue-500 rounded-lg px-3 py-1">
           <span className="text-blue-400 text-sm font-semibold">Phase 4 Enhanced</span>
         </div>
