@@ -218,7 +218,46 @@ async def api_info():
                     "POST /api/v1/predictions/optimize/quantum"
                 ]
             },
-            # Additional domain info will be added as domains are implemented
+                "data": {
+                "description": "Data integration and processing capabilities",
+                "endpoints": [
+                    "POST /api/v1/data/",
+                    "GET /api/v1/data/sports/{sport}/games",
+                    "GET /api/v1/data/sports/{sport}/players",
+                    "GET /api/v1/data/odds/live",
+                    "POST /api/v1/data/validate"
+                ]
+            },
+            "analytics": {
+                "description": "Performance tracking and analytics",
+                "endpoints": [
+                    "POST /api/v1/analytics/",
+                    "GET /api/v1/analytics/performance",
+                    "GET /api/v1/analytics/models/performance",
+                    "GET /api/v1/analytics/system/health",
+                    "GET /api/v1/analytics/dashboard/{id}"
+                ]
+            },
+            "integration": {
+                "description": "External API integrations and sportsbooks",
+                "endpoints": [
+                    "POST /api/v1/integration/sportsbook/odds",
+                    "POST /api/v1/integration/external/data",
+                    "GET /api/v1/integration/arbitrage",
+                    "GET /api/v1/integration/status",
+                    "POST /api/v1/integration/webhooks/register"
+                ]
+            },
+            "optimization": {
+                "description": "Portfolio optimization and risk management",
+                "endpoints": [
+                    "POST /api/v1/optimization/portfolio",
+                    "POST /api/v1/optimization/kelly",
+                    "POST /api/v1/optimization/arbitrage",
+                    "POST /api/v1/optimization/risk",
+                    "GET /api/v1/optimization/strategies/compare"
+                ]
+            }
         },
         "features": [
             "Quantum-inspired optimization",
