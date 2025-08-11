@@ -9,6 +9,11 @@ export interface SelectedProp {
   line: number | string;
   choice: string;
   odds: number;
+  // Advanced analytics
+  over_prob?: number;
+  under_prob?: number;
+  expected_value?: number;
+  explanation?: string;
 }
 
 export interface ConnectionHealth {

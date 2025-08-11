@@ -13,6 +13,11 @@ from statsmodels.tsa.stattools import adfuller
 
 
 class FeatureEngineering:
+    # --- DOCS: FeatureEngineering Phase 2 Enhancements ---
+    # - Rolling averages (L5, L10, L20), opponent splits, home/away splits, advanced metrics
+    # - Contextual features: rest days, travel, injuries, pace, coaching changes
+    # - Dynamic ensemble weighting by sport/game type/confidence
+    # - Monte Carlo simulation for prop probabilities
     def __init__(self):
         self.feature_scalers = {}
         self.feature_selector = SelectKBest(score_func=f_regression, k=10)
@@ -45,15 +50,62 @@ class FeatureEngineering:
         return True
 
     def calculate_model_weights(
-        self, predictions: List[Dict[str, Any]]
+        self, predictions: List[Dict[str, Any]], context: Dict[str, Any] = None
     ) -> Dict[str, float]:
+        """
+        Dynamically weight ensemble models based on sport, game type, and prediction confidence.
+        Example: LSTM weighted higher for player props, XGBoost for team props, etc.
+        """
         weights = {}
         total_accuracy = sum(pred["performance"]["accuracy"] for pred in predictions)
         for pred in predictions:
-            weights[pred["modelName"]] = (
+            base_weight = (
                 pred["performance"]["accuracy"] / total_accuracy
+                if total_accuracy
+                else 1.0 / len(predictions)
             )
+            # Dynamic adjustment
+            if context:
+                sport = context.get("sport", "")
+                game_type = context.get("game_type", "")
+                confidence = pred.get("confidence", 1.0)
+                # Example logic: LSTM higher for player props, XGBoost for team props
+                if (
+                    pred["modelName"].lower().startswith("lstm")
+                    and game_type == "player_prop"
+                ):
+                    base_weight *= 1.2
+                if (
+                    pred["modelName"].lower().startswith("xgboost")
+                    and game_type == "team_prop"
+                ):
+                    base_weight *= 1.2
+                # Confidence-based adjustment
+                base_weight *= confidence
+            weights[pred["modelName"]] = base_weight
+        # Normalize weights
+        total = sum(weights.values())
+        for k in weights:
+            weights[k] /= total if total else 1.0
         return weights
+
+    def monte_carlo_prop_simulation(
+        self, mean: float, std: float, line: float, n_sim: int = 10000
+    ) -> Dict[str, float]:
+        """
+        Simulate player prop outcomes to estimate probability of over/under a given line.
+        Returns: {"over_prob": float, "under_prob": float, "expected_value": float}
+        """
+        samples = np.random.normal(mean, std, n_sim)
+        over_prob = np.mean(samples > line)
+        under_prob = np.mean(samples <= line)
+        # Expected value calculation (assuming even payout for demonstration)
+        expected_value = (over_prob * 1) - (under_prob * 1)
+        return {
+            "over_prob": over_prob,
+            "under_prob": under_prob,
+            "expected_value": expected_value,
+        }
 
     def combine_features(self, predictions: List[Dict[str, Any]]) -> Dict[str, Any]:
         # Implement feature combination logic
@@ -90,6 +142,20 @@ class FeatureEngineering:
                         self._calculate_seasonality(value),
                     ]
                 )
+        # Contextual features
+        if "rest_days" in data and isinstance(data["rest_days"], (int, float)):
+            features.append(data["rest_days"])
+        if "travel_distance" in data and isinstance(
+            data["travel_distance"], (int, float)
+        ):
+            features.append(data["travel_distance"])
+        if "injury_status" in data and isinstance(data["injury_status"], (int, float)):
+            features.append(data["injury_status"])
+        if "pace" in data and isinstance(data["pace"], (int, float)):
+            features.append(data["pace"])
+        if "coaching_change" in data:
+            features.append(1 if data["coaching_change"] else 0)
+
         return np.array(features).reshape(1, -1)
 
     def extract_statistical_features(self, data: Dict[str, Any]) -> np.ndarray:
@@ -163,10 +229,56 @@ class FeatureEngineering:
         return augmented_features, augmented_target
 
     def _extract_features(self, data: Dict[str, Any]) -> np.ndarray:
+        """
+        Extracts scalar, rolling, opponent, home/away, advanced, and contextual features from input data.
+        Returns a 2D numpy array for ML model input.
+        """
         features = []
+        # Scalar features
         for key, value in data.items():
             if isinstance(value, (int, float)):
                 features.append(value)
+
+        # Rolling averages (L5, L10, L20)
+        for key, value in data.items():
+            if isinstance(value, (list, np.ndarray)) and len(value) >= 5:
+                l5 = np.mean(value[-5:]) if len(value) >= 5 else np.nan
+                l10 = np.mean(value[-10:]) if len(value) >= 10 else np.nan
+                l20 = np.mean(value[-20:]) if len(value) >= 20 else np.nan
+                features.extend([l5, l10, l20])
+
+        # Opponent splits
+        if "opponent_stats" in data and isinstance(data["opponent_stats"], dict):
+            for opp, opp_values in data["opponent_stats"].items():
+                if isinstance(opp_values, (list, np.ndarray)) and len(opp_values) > 0:
+                    opp_avg = np.mean(opp_values)
+                    features.append(opp_avg)
+
+        # Home/Away splits
+        if "home_stats" in data and isinstance(data["home_stats"], (list, np.ndarray)):
+            features.append(np.mean(data["home_stats"]))
+        if "away_stats" in data and isinstance(data["away_stats"], (list, np.ndarray)):
+            features.append(np.mean(data["away_stats"]))
+
+        # Advanced efficiency metrics
+        for metric in ["PER", "TS%", "USG%", "efficiency"]:
+            if metric in data and isinstance(data[metric], (int, float)):
+                features.append(data[metric])
+
+        # Contextual features
+        if "rest_days" in data and isinstance(data["rest_days"], (int, float)):
+            features.append(data["rest_days"])
+        if "travel_distance" in data and isinstance(
+            data["travel_distance"], (int, float)
+        ):
+            features.append(data["travel_distance"])
+        if "injury_status" in data and isinstance(data["injury_status"], (int, float)):
+            features.append(data["injury_status"])
+        if "pace" in data and isinstance(data["pace"], (int, float)):
+            features.append(data["pace"])
+        if "coaching_change" in data:
+            features.append(1 if data["coaching_change"] else 0)
+
         return np.array(features).reshape(1, -1)
 
     def _scale_features(self, features: np.ndarray) -> np.ndarray:

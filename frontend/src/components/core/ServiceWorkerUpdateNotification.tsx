@@ -8,7 +8,7 @@
  */
 
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useActionState, useOptimistic } from 'react';
+import React, { useActionState, useState } from 'react';
 import { useServiceWorkerUpdate } from '../../services/serviceWorkerManager';
 
 interface ServiceWorkerUpdateProps {
@@ -41,14 +41,11 @@ export const ServiceWorkerUpdateNotification: React.FC<ServiceWorkerUpdateProps>
 }) => {
   const { hasUpdate, isInstalling, error } = useServiceWorkerUpdate();
 
-  // React 19: useOptimistic for instant UI feedback
-  const [optimisticState, addOptimistic] = useOptimistic(
-    { updating: false, error: null as string | null },
-    (state, optimisticValue: { updating: boolean; error: string | null }) => ({
-      ...state,
-      ...optimisticValue,
-    })
-  );
+  // Standard optimistic UI state
+  const [optimisticState, setOptimisticState] = useState<{
+    updating: boolean;
+    error: string | null;
+  }>({ updating: false, error: null });
 
   // React 19: useActionState for form actions
   const [actionState, submitAction, isPending] = useActionState(applyUpdateAction, {
@@ -58,7 +55,7 @@ export const ServiceWorkerUpdateNotification: React.FC<ServiceWorkerUpdateProps>
 
   const handleUpdate = () => {
     // Optimistically update UI
-    addOptimistic({ updating: true, error: null });
+    setOptimisticState({ updating: true, error: null });
 
     // Submit the actual action
     const formData = new FormData();

@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import UserFriendlyApp from '../components/user-friendly/UserFriendlyApp';
 import { MasterServiceRegistry } from '../services/MasterServiceRegistry';
 
@@ -17,7 +18,11 @@ describe('Service Registry Health Monitoring E2E', () => {
     );
   });
   it('shows service health indicators and updates status', async () => {
-    render(<UserFriendlyApp />);
+    render(
+      <MemoryRouter>
+        <UserFriendlyApp />
+      </MemoryRouter>
+    );
     // Wait for health indicator to appear
     expect(await screen.findByTestId('api-health-indicator')).toBeInTheDocument();
     // Simulate service registry health check

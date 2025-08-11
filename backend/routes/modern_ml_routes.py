@@ -751,6 +751,11 @@ async def optimized_prediction(request: PredictionRequest):
                     "phase2_optimized": True,
                     "ensemble_prediction": result.ensemble_prediction,
                 },
+                # New advanced analytics fields
+                "over_prob": result.over_prob,
+                "under_prob": result.under_prob,
+                "expected_value": result.expected_value,
+                "explanation": result.explanation,
             }
         )
 

@@ -1,5 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
-import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import UserFriendlyApp from '../components/user-friendly/UserFriendlyApp';
 
 describe('Dashboard Navigation E2E', () => {
@@ -17,7 +17,11 @@ describe('Dashboard Navigation E2E', () => {
     );
   });
   it('renders dashboard and navigates between main routes', async () => {
-    render(<UserFriendlyApp />);
+    render(
+      <MemoryRouter>
+        <UserFriendlyApp />
+      </MemoryRouter>
+    );
     // Wait for dashboard main heading (robust matcher for split/nested nodes)
     expect(
       await screen.findByText((content, node) => {

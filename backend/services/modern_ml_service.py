@@ -26,6 +26,8 @@ import torch.nn as nn
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
+from backend.feature_engineering import FeatureEngineering
+
 # Modern ML imports
 try:
     import mlflow
@@ -148,6 +150,14 @@ class ModernPredictionResult:
     processing_time: float = 0.0
     experiment_id: Optional[str] = None
     timestamp: datetime = None
+
+    # Monte Carlo simulation results
+    over_prob: Optional[float] = None
+    under_prob: Optional[float] = None
+    expected_value: Optional[float] = None
+
+    # Human-readable explanation
+    explanation: Optional[str] = None
 
 
 class AutomatedFeatureEngineering:
@@ -328,6 +338,7 @@ class ModernMLService:
 
         # Initialize components
         self.feature_engineer = AutomatedFeatureEngineering()
+        self.advanced_feature_engineer = FeatureEngineering()
         self.models = {}
         self.ensemble_optimizer = None
 
@@ -413,16 +424,19 @@ class ModernMLService:
             # Prepare data
             historical_df = pd.DataFrame(request.historical_data)
 
-            # Feature engineering
-            if request.use_automated_features and len(historical_df) > 0:
-                engineered_features = self.feature_engineer.engineer_features(
-                    historical_df
-                )
-                temporal_features = self.feature_engineer.create_temporal_features(
-                    engineered_features
+            # Advanced feature engineering (Phase 2)
+            advanced_features = None
+            if len(historical_df) > 0:
+                # Convert DataFrame to dict for FeatureEngineering
+                data_dict = historical_df.to_dict(orient="list")
+                advanced_features = self.advanced_feature_engineer._extract_features(
+                    data_dict
                 )
             else:
-                temporal_features = historical_df
+                advanced_features = np.zeros((1, 32))  # Fallback shape
+
+            # Use advanced_features as model input
+            temporal_features = pd.DataFrame(advanced_features)
 
             # Prepare model inputs
             model_predictions = []
@@ -446,15 +460,30 @@ class ModernMLService:
 
             # Ensemble prediction
             if len(model_predictions) > 1:
-                if self.ensemble_optimizer is None:
-                    # Initialize ensemble with dummy models for now
-                    self.ensemble_optimizer = BayesianEnsembleOptimizer(
-                        [None] * len(model_predictions)
-                    )
-
-                ensemble_pred, uncertainty = self.ensemble_optimizer.ensemble_predict(
-                    model_predictions
+                # Prepare context for dynamic weighting
+                context = {
+                    "sport": request.sport,
+                    "game_type": request.stat_type,
+                }
+                # Prepare dummy prediction dicts for weighting
+                predictions_for_weighting = [
+                    {
+                        "modelName": name,
+                        "performance": {"accuracy": 1.0},
+                        "confidence": confidence,
+                    }
+                    for name in models_used
+                ]
+                weights = self.advanced_feature_engineer.calculate_model_weights(
+                    predictions_for_weighting, context
                 )
+                # Weighted ensemble prediction
+                weighted_preds = [
+                    model_predictions[i] * weights.get(models_used[i], 1.0)
+                    for i in range(len(model_predictions))
+                ]
+                ensemble_pred = sum(weighted_preds)
+                uncertainty = np.std(model_predictions)
             elif len(model_predictions) == 1:
                 ensemble_pred = model_predictions[0]
                 uncertainty = 0.1  # Default uncertainty for single model
@@ -470,6 +499,22 @@ class ModernMLService:
 
             # Feature importance (simplified)
             feature_importance = self._calculate_feature_importance(temporal_features)
+
+            # Monte Carlo simulation for prop probabilities
+            mc_sim = self.advanced_feature_engineer.monte_carlo_prop_simulation(
+                mean=ensemble_pred,
+                std=uncertainty,
+                line=request.line_score,
+                n_sim=10000,
+            )
+
+            # Aggregate SHAP values (placeholder: use feature_importance for demo)
+            shap_values = feature_importance if feature_importance else {}
+            explanation = self.advanced_feature_engineer.generate_explanation(
+                final_value=ensemble_pred,
+                confidence=confidence,
+                shap_values=shap_values,
+            )
 
             # Create result
             result = ModernPredictionResult(
@@ -490,7 +535,7 @@ class ModernMLService:
                 ),
                 ensemble_prediction=ensemble_pred,
                 feature_importance=feature_importance,
-                shap_values={},  # Would be populated by SHAP analysis
+                shap_values=shap_values,
                 prediction_quality_score=confidence,
                 model_agreement=1.0
                 - (np.std(model_predictions) if len(model_predictions) > 1 else 0.0),
@@ -501,6 +546,12 @@ class ModernMLService:
                 processing_time=time.time() - start_time,
                 experiment_id=experiment_id,
                 timestamp=datetime.now(),
+                # Add Monte Carlo simulation results
+                over_prob=mc_sim["over_prob"],
+                under_prob=mc_sim["under_prob"],
+                expected_value=mc_sim["expected_value"],
+                # Add explanation
+                explanation=explanation,
             )
 
             # Log to MLflow

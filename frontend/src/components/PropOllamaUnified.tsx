@@ -17,6 +17,11 @@ type FeaturedProp = {
   insights?: { icon: React.ReactNode; text: string }[];
   _originalData?: any;
   alternativeProps?: any[];
+  // Advanced analytics
+  over_prob?: number;
+  under_prob?: number;
+  expected_value?: number;
+  explanation?: string;
 };
 
 type PropOllamaUnifiedProps = {
@@ -121,6 +126,34 @@ const PropOllamaUnified: React.FC<PropOllamaUnifiedProps> = ({ projections }) =>
         <div key={`${proj.id}-${proj.player}-${proj.stat}-${idx}`} data-testid='prop-card-wrapper'>
           <div data-testid='stat-text'>{proj.stat}</div>
           <div data-testid='stat-text'>{toSnakeCase(proj.stat)}</div>
+          {/* Advanced analytics: Over/Under probabilities */}
+          {(proj.over_prob !== undefined || proj.under_prob !== undefined) && (
+            <div
+              className='probability-analytics'
+              style={{ display: 'flex', gap: '1rem', margin: '0.5rem 0' }}
+            >
+              <span
+                style={{
+                  color: proj.over_prob !== undefined && proj.over_prob > 0.5 ? 'green' : 'red',
+                  fontWeight: 'bold',
+                }}
+                title='Probability the prop goes OVER the line'
+              >
+                Over:{' '}
+                {proj.over_prob !== undefined ? `${(proj.over_prob * 100).toFixed(1)}%` : 'N/A'}
+              </span>
+              <span
+                style={{
+                  color: proj.under_prob !== undefined && proj.under_prob > 0.5 ? 'green' : 'red',
+                  fontWeight: 'bold',
+                }}
+                title='Probability the prop goes UNDER the line'
+              >
+                Under:{' '}
+                {proj.under_prob !== undefined ? `${(proj.under_prob * 100).toFixed(1)}%` : 'N/A'}
+              </span>
+            </div>
+          )}
           {isExpanded ? (
             <div data-testid='prop-card-expanded'>
               <div data-testid='expanded-stat-text'>{proj.stat}</div>

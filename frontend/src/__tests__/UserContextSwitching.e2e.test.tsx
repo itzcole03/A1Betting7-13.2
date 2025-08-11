@@ -1,5 +1,5 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import UserFriendlyApp from '../components/user-friendly/UserFriendlyApp';
 
 describe('User Context Switching E2E', () => {
@@ -18,7 +18,11 @@ describe('User Context Switching E2E', () => {
   });
 
   it('switches user context and updates permissions', async () => {
-    render(<UserFriendlyApp />);
+    render(
+      <MemoryRouter>
+        <UserFriendlyApp />
+      </MemoryRouter>
+    );
     // Wait for admin dashboard (robust matcher for split/nested nodes)
     expect(
       await screen.findByText((content, node) => {
