@@ -33,6 +33,7 @@ from domains.database import (
     UnifiedCacheService, SchemaManager, get_schema_manager,
     cache_service
 )
+from docs.enhanced_openapi import generate_enhanced_openapi
 
 # Configure logging
 logging.basicConfig(
