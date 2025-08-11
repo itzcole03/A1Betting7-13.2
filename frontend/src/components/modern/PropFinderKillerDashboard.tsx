@@ -38,6 +38,7 @@ import {
   Calculator,
 } from 'lucide-react';
 import CommunityEngagement from '../community/CommunityEngagement';
+import PerformanceMonitoringDashboard from '../phase4/PerformanceMonitoringDashboard';
 
 // Enhanced interfaces based on competitor analysis
 interface PropOpportunity {
@@ -954,6 +955,11 @@ const PropFinderKillerDashboard: React.FC = () => {
             </button>
           </div>
         )}
+      </div>
+
+      {/* Performance Monitoring Section - Phase 4 */}
+      <div className="mt-8">
+        <PerformanceMonitoringDashboard />
       </div>
 
       {/* Community Engagement Section */}
