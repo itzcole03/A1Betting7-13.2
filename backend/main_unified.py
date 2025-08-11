@@ -112,16 +112,34 @@ async def lifespan(app: FastAPI):
         logger.info("Shutdown complete")
 
 
-# Create FastAPI application
+# Create FastAPI application with enhanced documentation
 app = FastAPI(
     title="A1Betting Unified API",
-    description="Consolidated API for A1Betting sports analytics platform",
+    description="Next-Generation Sports Betting Analytics Platform",
     version="2.0.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
-    lifespan=lifespan
+    lifespan=lifespan,
+    contact={
+        "name": "A1Betting API Support",
+        "url": "https://a1betting.com/support",
+        "email": "api-support@a1betting.com"
+    },
+    license_info={
+        "name": "Proprietary",
+        "url": "https://a1betting.com/license"
+    },
+    terms_of_service="https://a1betting.com/terms"
 )
+
+# Apply enhanced OpenAPI schema
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    return generate_enhanced_openapi(app)
+
+app.openapi = custom_openapi
 
 # Add middleware
 app.add_middleware(
