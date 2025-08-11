@@ -324,7 +324,7 @@ ROI: Immediate + Long-term value
 ### System Architecture
 
 ```
-┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────��─────��─┐
+┌─────────────────────┐    ┌─────────��───────────┐    ┌─────────────��─────��─┐
 │   React 19 Frontend │    │   FastAPI Backend    │    │   External APIs     │
 │                     │    │                      │    │                     │
 │ • Quantum AI UI     │◄──►│ 🧠 Quantum AI Engine │◄──►│ • DraftKings        │
@@ -390,6 +390,33 @@ A1Betting/
 │   ├── 📁 services/                  # Business logic
 │   └── 📁 models/                    # Database models
 └── 📄 README.md                      # This guide
+
+### Phase 4 Testing Structure (Added January 2025)
+
+tests/                                # 🧪 Comprehensive Testing Framework
+├── 📁 unit/                          # Jest Unit Testing (90%+ coverage)
+│   ├── 📁 components/                # Component testing suite
+│   │   ├── 📄 Dashboard.test.tsx     # Dashboard component testing
+│   │   └── 📄 ...                    # Additional component tests
+│   ├── 📁 services/                  # Service layer testing
+│   │   ├── 📄 ApiService.test.ts     # API service testing
+│   │   └── 📄 ...                    # Additional service tests
+│   └── 📁 utils/                     # Testing utilities
+│       └── 📄 testUtils.tsx          # Test data factories and helpers
+├── 📁 integration/                   # Integration testing automation
+│   ├── 📁 api/                       # API endpoint validation (85%+ coverage)
+│   ├── 📁 auth/                      # Authentication flow testing
+│   ├── 📁 analytics/                 # Analytics and AI service testing
+│   └── 📁 utils/                     # Integration test framework
+├── 📁 e2e/                           # Playwright End-to-End Testing
+│   ├── 📁 specs/                     # Test specifications (40+ scenarios)
+│   │   ├── 📄 matchup-analysis.spec.ts    # User workflow testing
+│   │   ├── 📄 dashboard.spec.ts           # Dashboard functionality
+│   │   └── 📄 ...                         # Additional E2E tests
+│   ├── 📁 utils/                     # Page Object Model framework
+│   │   └── 📄 pageObjects.ts         # Reusable page components
+│   └── 📄 playwright.config.ts       # Multi-browser configuration
+└── 📄 jest.config.enhanced.cjs       # Enhanced Jest configuration
 ```
 
 ---
