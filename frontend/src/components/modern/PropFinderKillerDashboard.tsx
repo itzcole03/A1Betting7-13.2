@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useTransition, useDeferredValue, startTransition, useCallback } from 'react';
+import Phase3Banner from '../phase3/Phase3Banner';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
