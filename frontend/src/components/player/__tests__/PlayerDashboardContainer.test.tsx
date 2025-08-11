@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
 import { setupServer } from 'msw/node';
 import { PlayerDashboardContainer } from '../PlayerDashboardContainer';
 

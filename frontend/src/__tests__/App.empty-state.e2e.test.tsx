@@ -21,6 +21,7 @@ jest.mock('../services/unified/FeaturedPropsService', () => ({
 }));
 
 import { render, screen } from '@testing-library/react';
+import React from 'react';
 import '../../../jest.setup.e2e.js';
 import * as backendDiscoveryModule from '../services/backendDiscovery';
 import * as getBackendUrlModule from '../utils/getBackendUrl';

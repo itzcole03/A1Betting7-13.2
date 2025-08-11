@@ -44,11 +44,11 @@ import websockets
 
 from backend.services.intelligent_cache_service import intelligent_cache_service
 from backend.services.unified_error_handler import unified_error_handler
-from backend.services.unified_logging import unified_logging
+from backend.services.unified_logging import get_logger, unified_logging
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("enhanced_data_pipeline")
-unified_logger = unified_logging.get_logger("enhanced_data_pipeline")
+unified_logger = get_logger("enhanced_data_pipeline")
 
 
 class DataSourceState(Enum):

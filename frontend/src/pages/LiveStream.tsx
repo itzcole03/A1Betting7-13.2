@@ -1,10 +1,8 @@
-// Users can browse and select live sports streams directly from the embedded site.
-// Duplicate export removed. Only one export default function LiveStream should exist in this file.
 // LiveStream.tsx
 // Modern live stream page with embedded preview of https://gostreameast.link/official/
 // Users can browse and select live sports streams directly from the embedded site.
-// Users can browse and select live sports streams directly from the embedded site.
-// Duplicate export removed. Only one export default function LiveStream should exist in this file.
+
+import React from 'react';
 
 export default function LiveStream() {
   return (

@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
 import { useAIInsights } from '../../../hooks/useAIInsights';
 import { useEnhancedBets } from '../../../hooks/useEnhancedBets';
 import { usePortfolioOptimization } from '../../../hooks/usePortfolioOptimization';

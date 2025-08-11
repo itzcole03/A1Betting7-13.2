@@ -45,6 +45,7 @@ export interface WebSocketContextType {
  * React context for WebSocket state and messaging.
  */
 const _WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
+export { _WebSocketContext };
 
 /**
  * WebSocketProvider component.
@@ -108,7 +109,7 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
   // Robust connect logic with exponential backoff and error tracking
   const connectWebSocket = React.useCallback(() => {
     const _wsUrl = getWebSocketUrl();
-    
+
     // If WebSocket URL is null, it means WebSocket is disabled
     if (!_wsUrl) {
       setStatus('disconnected');
@@ -120,9 +121,9 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
 
     setStatus(reconnectAttempts.current > 0 ? 'reconnecting' : 'connecting');
     setLastError(null);
-    
+
     if (verboseLogging) console.debug(`[WebSocket] Connecting to: ${_wsUrl}`);
-    
+
     try {
       const _ws = new WebSocket(_wsUrl);
       _wsRef.current = _ws;
