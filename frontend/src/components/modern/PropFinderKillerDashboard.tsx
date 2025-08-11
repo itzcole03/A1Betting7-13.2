@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useMemo, useTransition, useDeferredValue, startTransition, useCallback } from 'react';
-import Phase3Banner from '../phase3/Phase3Banner';
+import Phase4Banner from '../phase4/Phase4Banner';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -608,9 +608,9 @@ const PropFinderKillerDashboard: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Phase 3 Banner */}
+      {/* Phase 4 Banner */}
       <div className="px-6 pt-6">
-        <Phase3Banner />
+        <Phase4Banner />
       </div>
 
       {/* Main Content */}
