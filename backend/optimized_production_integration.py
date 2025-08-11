@@ -17,6 +17,7 @@ from fastapi.responses import JSONResponse
 
 from backend.config_manager import A1BettingConfig
 from backend.routes.optimized_api_routes import router as optimized_router
+from backend.routes.comprehensive_sportradar_routes import router as sportradar_router
 from backend.services.optimized_cache_service import get_cache_service
 from backend.utils.enhanced_logging import get_logger
 
