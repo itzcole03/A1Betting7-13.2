@@ -1,0 +1,99 @@
+# A1Betting Unified Backend Requirements
+# Consolidated dependencies for the new domain architecture
+
+# Core Framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.4.0
+
+# Async Support  
+aiofiles>=23.2.1
+aiohttp>=3.8.6
+asyncio-mqtt>=0.11.1
+
+# Database
+sqlalchemy>=2.0.23
+alembic>=1.12.1
+asyncpg>=0.29.0  # PostgreSQL async driver
+psycopg2-binary>=2.9.7  # PostgreSQL sync driver
+
+# Caching & Storage
+redis>=5.0.1
+aioredis>=2.0.1
+
+# ML/AI Core
+numpy>=1.24.3
+pandas>=2.0.3
+scikit-learn>=1.3.0
+scipy>=1.11.3
+
+# ML Models
+xgboost>=1.7.6
+lightgbm>=4.1.0
+catboost>=1.2.2
+
+# Deep Learning (Optional)
+torch>=2.0.1
+transformers>=4.34.0
+
+# SHAP Explainability
+shap>=0.42.1
+matplotlib>=3.7.2
+
+# Model Persistence
+joblib>=1.3.2
+pickle5>=0.0.11
+
+# Data Validation
+pandera>=0.17.2
+great-expectations>=0.17.19
+
+# Feature Engineering  
+featuretools>=1.26.0
+tsfresh>=0.20.1
+
+# Time Series
+prophet>=1.1.4
+neuralprophet>=0.6.1
+sktime>=0.22.0
+
+# Sports Data
+pybaseball>=2.2.7
+
+# HTTP Client
+httpx>=0.25.0
+requests>=2.31.0
+
+# Utilities
+python-dotenv>=1.0.0
+python-multipart>=0.0.6
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+
+# Monitoring & Logging
+loguru>=0.7.2
+prometheus-client>=0.17.1
+psutil>=5.9.6
+
+# Testing
+pytest>=7.4.2
+pytest-asyncio>=0.21.1
+httpx>=0.25.0  # For testing FastAPI
+
+# Development
+black>=23.9.1
+isort>=5.12.0
+flake8>=6.1.0
+mypy>=1.6.0
+
+# Data Processing
+pyarrow>=13.0.0
+openpyxl>=3.1.2
+
+# Quantum Computing (Optional - for advanced optimization)
+qiskit>=0.44.2
+dimod>=0.12.11
+
+# Additional utilities
+typer>=0.9.0  # CLI tools
+rich>=13.6.0  # Rich terminal output
