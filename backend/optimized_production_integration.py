@@ -130,6 +130,9 @@ def create_optimized_app() -> FastAPI:
     
     # Include optimized routes
     app.include_router(optimized_router, prefix="", tags=["Optimized API"])
+
+    # Include comprehensive SportRadar routes
+    app.include_router(sportradar_router, tags=["SportRadar API"])
     
     # Add health check endpoints
     @app.get("/")
