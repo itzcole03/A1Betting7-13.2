@@ -67,6 +67,9 @@ const UnifiedAIPredictionsDashboard = React.lazy(
   () => import('../ai/UnifiedAIPredictionsDashboard')
 );
 
+// Phase 3 Components
+const Phase3Page = React.lazy(() => import('../../pages/Phase3Page'));
+
 const UserFriendlyApp: React.FC = memo(() => {
   const location = useLocation();
   const [navigationOpen, setNavigationOpen] = useState(false);
