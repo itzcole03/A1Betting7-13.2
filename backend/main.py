@@ -38,26 +38,35 @@ except ImportError:
     logger.info("🚀 Starting A1Betting Backend (basic logging)...")
 
 
-# Try enhanced production integration first, fallback to original
+# Try optimized production integration first, then fallback options
 try:
-    from backend.enhanced_production_integration import create_enhanced_app
+    from backend.optimized_production_integration import create_optimized_app
 
-    app = create_enhanced_app()
-    logger.info("✅ Enhanced production integration loaded successfully")
+    app = create_optimized_app()
+    logger.info("✅ Optimized production integration loaded successfully (Phase 4)")
 except ImportError as e:
     logger.warning(
-        "⚠️ Enhanced integration not available (%s), falling back to original", str(e)
+        "⚠️ Optimized integration not available (%s), falling back to enhanced", str(e)
     )
     try:
-        from backend.production_integration import create_production_app
+        from backend.enhanced_production_integration import create_enhanced_app
 
-        app = create_production_app()
-        logger.info("✅ Original production integration loaded")
+        app = create_enhanced_app()
+        logger.info("✅ Enhanced production integration loaded")
     except ImportError as e2:
-        logger.error(
-            "❌ Both integrations failed: enhanced=%s, original=%s", str(e), str(e2)
+        logger.warning(
+            "⚠️ Enhanced integration not available (%s), falling back to original", str(e2)
         )
-        raise RuntimeError("No production integration available") from e2
+        try:
+            from backend.production_integration import create_production_app
+
+            app = create_production_app()
+            logger.info("✅ Original production integration loaded")
+        except ImportError as e3:
+            logger.error(
+                "❌ All integrations failed: optimized=%s, enhanced=%s, original=%s", str(e), str(e2), str(e3)
+            )
+            raise RuntimeError("No production integration available") from e3
 
 # Add request correlation middleware
 try:
