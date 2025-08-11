@@ -5,13 +5,13 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  SparklesIcon, 
-  XMarkIcon,
-  RocketLaunchIcon,
-  ChartBarIcon,
-  CpuChipIcon
-} from '@heroicons/react/24/outline';
+import {
+  Sparkles as SparklesIcon,
+  X as XMarkIcon,
+  Rocket as RocketLaunchIcon,
+  BarChart3 as ChartBarIcon,
+  Cpu as CpuChipIcon
+} from 'lucide-react';
 
 export const Phase3Banner: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);

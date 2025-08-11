@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useMemo, useTransition, useDeferredValue, startTransition, useCallback } from 'react';
-import Phase3Banner from '../phase3/Phase3Banner';
+import * as React from 'react';
+import { useState, useEffect, useMemo, useTransition, useDeferredValue, startTransition, useCallback } from 'react';
+import Phase4Banner from '../phase4/Phase4Banner';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -37,6 +38,7 @@ import {
   Calculator,
 } from 'lucide-react';
 import CommunityEngagement from '../community/CommunityEngagement';
+import PerformanceMonitoringDashboard from '../phase4/PerformanceMonitoringDashboard';
 
 // Enhanced interfaces based on competitor analysis
 interface PropOpportunity {
@@ -374,7 +376,7 @@ const PropFinderKillerDashboard: React.FC = () => {
         )
       );
     });
-  }, [], { priority: 'low', batchUpdates: true });
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
@@ -607,9 +609,9 @@ const PropFinderKillerDashboard: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Phase 3 Banner */}
+      {/* Phase 4 Banner */}
       <div className="px-6 pt-6">
-        <Phase3Banner />
+        <Phase4Banner />
       </div>
 
       {/* Main Content */}
@@ -953,6 +955,11 @@ const PropFinderKillerDashboard: React.FC = () => {
             </button>
           </div>
         )}
+      </div>
+
+      {/* Performance Monitoring Section - Phase 4 */}
+      <div className="mt-8">
+        <PerformanceMonitoringDashboard />
       </div>
 
       {/* Community Engagement Section */}

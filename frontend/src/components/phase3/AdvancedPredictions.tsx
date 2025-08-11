@@ -3,16 +3,17 @@
  * Showcases unified prediction domain with SHAP explanations
  */
 
-import React, { useState, useEffect } from 'react';
-import { 
-  SparklesIcon, 
-  ChartBarIcon, 
-  LightBulbIcon,
-  TrophyIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
-  ClockIcon
-} from '@heroicons/react/24/outline';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
+import {
+  Sparkles as SparklesIcon,
+  BarChart3 as ChartBarIcon,
+  Lightbulb as LightBulbIcon,
+  Trophy as TrophyIcon,
+  AlertTriangle as ExclamationTriangleIcon,
+  CheckCircle as CheckCircleIcon,
+  Clock as ClockIcon
+} from 'lucide-react';
 import { unifiedApiService, type PredictionRequest, type PredictionResponse } from '../../services/unifiedApiService';
 
 export const AdvancedPredictions: React.FC = () => {

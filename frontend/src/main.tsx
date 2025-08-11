@@ -1,7 +1,7 @@
 /// <reference types="node" />
 /// <reference types="react" />
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import * as React from 'react';
+import { createRoot } from 'react-dom/client';
 import App from './App'; // Change to import the correct App component
 import { logger } from './utils/logger';
 import './utils/tracing';
@@ -133,7 +133,7 @@ window.addEventListener('unhandledrejection', event => {
 const rootElement = document.getElementById('root'); // Removed underscore
 if (!rootElement) throw new Error('Failed to find the root element');
 
-const root = ReactDOM.createRoot(rootElement); // Removed underscore
+const root = createRoot(rootElement); // Removed underscore
 root.render(
   <React.StrictMode>
     <App /> {/* Render the correct App component */}
