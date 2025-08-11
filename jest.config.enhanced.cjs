@@ -1,7 +1,7 @@
 // Enhanced Jest Configuration for Phase 4 Testing Automation
 module.exports = {
   rootDir: ".",
-  testEnvironment: "jsdom",
+  testEnvironment: "jest-environment-jsdom",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.enhanced.ts"],
   moduleFileExtensions: ["js", "jsx", "ts", "tsx", "json"],
   
