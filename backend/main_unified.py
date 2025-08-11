@@ -15,6 +15,7 @@ Key Changes:
 import asyncio
 import logging
 import time
+import os
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
@@ -28,6 +29,10 @@ import uvicorn
 # Import domain routers
 from domains import DOMAIN_ROUTERS, DOMAIN_SERVICES
 from domains.prediction import UnifiedPredictionService
+from domains.database import (
+    UnifiedCacheService, SchemaManager, get_schema_manager,
+    cache_service
+)
 
 # Configure logging
 logging.basicConfig(
