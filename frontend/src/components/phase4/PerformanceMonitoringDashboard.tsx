@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Activity, BarChart3, Cpu, Database, Gauge, Clock, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { fetchHealthData, fetchPerformanceStats } from '../../utils/robustApi';
 
 interface PerformanceMetrics {
   api_performance: {
@@ -111,52 +112,19 @@ const PerformanceMonitoringDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      // Try to fetch performance stats with proper error handling
-      try {
-        const perfResponse = await fetch('/performance/stats');
-        if (perfResponse.ok) {
-          const contentType = perfResponse.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const perfData = await perfResponse.json();
-            setMetrics(perfData.data || perfData);
-          } else {
-            // API returned HTML instead of JSON, use mock data
-            setMetrics(getMockMetrics());
-          }
-        } else {
-          // API not available, use mock data
-          setMetrics(getMockMetrics());
-        }
-      } catch (perfErr) {
-        console.warn('Performance stats API not available, using mock data');
-        setMetrics(getMockMetrics());
-      }
+      // Use robust API client with automatic fallbacks
+      const [healthData, perfData] = await Promise.all([
+        fetchHealthData(),
+        fetchPerformanceStats()
+      ]);
 
-      // Try to fetch health status with proper error handling
-      try {
-        const healthResponse = await fetch('/health');
-        if (healthResponse.ok) {
-          const contentType = healthResponse.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const healthData = await healthResponse.json();
-            setHealth(healthData.data || healthData);
-          } else {
-            // API returned HTML instead of JSON, use mock data
-            setHealth(getMockHealth());
-          }
-        } else {
-          // API not available, use mock data
-          setHealth(getMockHealth());
-        }
-      } catch (healthErr) {
-        console.warn('Health API not available, using mock data');
-        setHealth(getMockHealth());
-      }
+      setHealth(healthData);
+      setMetrics(perfData.data || perfData);
 
     } catch (err) {
       console.error('Failed to fetch performance data:', err);
-      setError('API not available - using demo data');
-      // Provide fallback data even on error
+      setError('Using demo data - API may be unavailable');
+      // Provide fallback data
       setMetrics(getMockMetrics());
       setHealth(getMockHealth());
     } finally {
