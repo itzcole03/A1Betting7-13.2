@@ -1,178 +1,43 @@
 # A1Betting - Ultimate Sports Intelligence Platform
 
-<<<<<<< HEAD
-![License](https://img.shields.io/badge/license-MIT-blue.svg) ![React](https://img.shields.io/badge/react-19.1.0-blue) ![TypeScript](https://img.shields.io/badge/typescript-5.7.3-blue) ![Build](https://img.shields.io/badge/build-stable-green) ![Status](https://img.shields.io/badge/status-production--ready-brightgreen) ![Vite](https://img.shields.io/badge/vite-7.0.6-blue) ![Phase](https://img.shields.io/badge/phase-4%20complete-success) ![Testing](https://img.shields.io/badge/testing-90%25%2B%20coverage-brightgreen)
-=======
-<<<<<<< HEAD
-## 📝 Recent Updates (January 2025)
+![License](https://img.shields.io/badge/license-MIT-blue.svg) ![React](https://img.shields.io/badge/react-19.1.0-blue) ![TypeScript](https://img.shields.io/badge/typescript-5.7.3-blue) ![Build](https://img.shields.io/badge/build-stable-green) ![Status](https://img.shields.io/badge/status-production--ready-brightgreen) ![Vite](https://img.shields.io/badge/vite-7.0.6-blue) ![Phase](https://img.shields.io/badge/phase-4%20complete-success) ![Testing](https://img.shields.io/badge/testing-90%25%2B%20coverage-brightgreen) ![SportRadar](https://img.shields.io/badge/SportRadar-19%20APIs-orange)
 
-### 🧪 Phase 4: Comprehensive Testing Automation Framework (January 2025)
-
-**Complete enterprise-grade testing infrastructure implementation covering unit, integration, and end-to-end testing with advanced automation and reporting capabilities.**
-
-#### Phase 4.1: Advanced Unit Testing Framework ✅ COMPLETE
-
-- **Enhanced Jest Configuration**: Production-ready setup with TypeScript support, 90%+ coverage thresholds, and advanced module mapping
-- **Comprehensive Test Utilities**: Data factories, custom render functions, performance helpers, and mock infrastructure
-- **Component Testing Suite**: Complete testing for Dashboard, API services, authentication flows, and accessibility compliance
-- **Mock Infrastructure**: Sophisticated mocking for external dependencies, API services, and third-party integrations
-- **Performance Testing**: Benchmarking utilities for component rendering and service performance validation
-
-#### Phase 4.2: Integration Testing Automation ✅ COMPLETE
-
-- **Advanced Integration Framework**: Comprehensive test framework with authentication management and performance monitoring
-- **API Endpoint Coverage**: 85%+ coverage across authentication, analytics, AI services, and sportsbook integrations
-- **Authentication Testing**: Complete flows including registration, login, token refresh, and security validation
-- **Analytics API Validation**: Model performance testing, ensemble predictions, and cross-sport analysis
-- **AI Services Testing**: Comprehensive validation of ML models, prediction engines, and optimization algorithms
-
-#### Phase 4.3: End-to-End Testing with Playwright ✅ COMPLETE
-
-- **Multi-Browser Testing**: Chrome, Firefox, Safari, and mobile device support with comprehensive configuration
-- **Page Object Model Framework**: Reusable components for navigation, matchup analysis, dashboard, and analytics pages
-- **User Journey Coverage**: 100% coverage of critical user workflows including betting, analysis, and portfolio management
-- **Accessibility Testing**: WCAG 2.1 AA compliance validation with automated accessibility checks
-- **Mobile Responsiveness**: Complete mobile experience testing with touch interactions and responsive design validation
-- **Visual Regression Testing**: Screenshot comparisons and visual validation across different viewports
-- **Performance Monitoring**: Load time benchmarking and performance metrics collection during E2E tests
-
-#### Testing Infrastructure Highlights
-
-- **40+ E2E Test Scenarios**: Comprehensive user workflow validation
-- **600+ Unit Tests**: Component, service, and utility function coverage
-- **500+ Integration Tests**: API endpoint and service integration validation
-- **Automated Test Execution**: CI/CD pipeline integration with detailed reporting
-- **Multi-Environment Support**: Development, staging, and production testing configurations
-- **Error Recovery Testing**: Comprehensive error handling and fallback mechanism validation
-- **Performance Benchmarking**: Load testing capabilities and stress testing scenarios
-
-### Backend Validation & Fixes (Previous)
-
-- Validated backend API endpoints for real MLB data and comprehensive prop generation:
-  - `/mlb/todays-games` returns live, scheduled, and upcoming MLB games.
-  - `/mlb/comprehensive-props/{game_id}` returns AI-generated props with ML/AI metadata.
-  - `/mlb/ml-performance-analytics/` returns ML integration, uncertainty quantification, and system health.
-- Fixed unified logging usage in `backend/services/enhanced_data_pipeline.py` to use `get_logger(...)` for robust error handling and monitoring.
-- Confirmed backend error handling, fallback logic, and logging are robust and production-ready.
-
----
-
-### 🖥️ Dashboard Customization API (Phase 3)
-
-**New endpoints for customizable dashboards, widgets, user preferences, and templates.**
-
-#### Features
-
-- Save/load dashboard layouts
-- Widget data provisioning (stats, charts, opportunities, bankroll, etc.)
-- User preferences management (theme, refresh, layout)
-- Dashboard templates for different user types
-- Real-time data updates and caching
-
-#### API Endpoints
-
-**GET `/api/v1/dashboard/layouts`**
-
-> Returns available dashboard layouts for a user (mock data, production-ready for DB integration).
-
-**GET `/api/v1/dashboard/layouts/{layout_id}`**
-
-> Returns a specific dashboard layout by ID, with caching.
-
-**POST `/api/v1/dashboard/layouts`**
-
-> Saves a dashboard layout (updates timestamp, caches, supports user layout lists).
-
-**DELETE `/api/v1/dashboard/layouts/{layout_id}`**
-
-> Deletes a dashboard layout and updates user layout lists.
-
-**POST `/api/v1/dashboard/widget-data`**
-
-> Returns data for a specific widget (stats, charts, bets, opportunities, bankroll, etc.), with caching and mock data generation.
-
-**GET `/api/v1/dashboard/preferences`**
-
-> Returns user dashboard preferences (theme, layout, refresh, etc.), with caching and defaults.
-
-**POST `/api/v1/dashboard/preferences`**
-
-> Saves user dashboard preferences.
-
-**GET `/api/v1/dashboard/templates`**
-
-> Returns available dashboard templates for different user types (beginner, professional, live betting).
-
-#### Example Request/Response
-
-**GET `/api/v1/dashboard/layouts`**
-
-```json
-{
-  "layouts": [
-    {
-      "id": "default",
-      "name": "Default Dashboard",
-      "widgets": [...],
-      "grid_cols": 6,
-      "created_at": "2024-01-01T00:00:00Z",
-      ...
-    }
-  ]
-}
-```
-
-**POST `/api/v1/dashboard/widget-data`**
-
-```json
-{
-  "widget_id": "profit_card",
-  "widget_type": "stats_card",
-  "config": { "metric": "total_profit" },
-  "time_range": "7d"
-}
-```
-
-Response:
-
-```json
-{
-  "value": 2547.83,
-  "change": 12.3,
-  "label": "Total Profit",
-  "trend": "up",
-  "previous_value": 2265.45
-}
-```
-
----
-
-**See `backend/routes/dashboard_customization_routes.py` for full implementation details.**
-
-### Frontend Validation & Fixes (Previous)
-
-- Resolved missing dependency error for `@radix-ui/react-label` by installing the package in the `frontend` directory.
-- Confirmed frontend dev server starts successfully after dependency installation.
-- Validated frontend build and hot-reload workflows.
-
-### General Improvements
-
-- Documented all validation steps and fixes in this README for future reference.
-- Ensured all code changes follow project architecture and unified service patterns.
-- **Phase 4 Testing Complete**: Enterprise-grade testing automation framework with comprehensive coverage and reporting
-
----
-
-=======
->>>>>>> 2313c3a323d510bca9ce25db559371e1ee38afde
-![License](https://img.shields.io/badge/license-MIT-blue.svg) ![React](https://img.shields.io/badge/react-19.1.0-blue) ![TypeScript](https://img.shields.io/badge/typescript-5.7.3-blue) ![Build](https://img.shields.io/badge/build-stable-green) ![Status](https://img.shields.io/badge/status-production--ready-brightgreen) ![Vite](https://img.shields.io/badge/vite-7.0.6-blue)
->>>>>>> origin/main
-
-**The next-generation sports prop research and analytics platform engineered to surpass PropFinder and PropGPT. Features advanced AI with quantum-inspired optimization, comprehensive risk management, multi-sportsbook arbitrage detection, and enterprise-grade reliability.**
+**The next-generation sports prop research and analytics platform engineered to surpass PropFinder and PropGPT. Features advanced AI with quantum-inspired optimization, comprehensive risk management, multi-sportsbook arbitrage detection, enterprise-grade reliability, and now powered by comprehensive SportRadar API integration.**
 
 ---
 
 ## 🎯 **Latest Updates (January 2025)**
+
+### ✅ **NEW: Comprehensive SportRadar Integration**
+
+**Complete integration of all 19 SportRadar trial APIs providing professional-grade sports data, odds comparison, and media assets.**
+
+#### 🏆 **SportRadar API Coverage**
+- **Sports Data APIs**: MLB, NFL, NBA, NHL, Soccer, Tennis, MMA, NASCAR, WNBA, NCAAFB, Table Tennis
+- **Odds Comparison APIs**: Futures, Prematch, Player Props, Regular odds across all major sportsbooks
+- **Image APIs**: Getty Images, College PressBox, SportRadar Images, Associated Press
+- **Live Data**: Real-time scores, injury reports, player statistics, team profiles
+- **Trial Period**: August 11, 2025 - September 10, 2025 (1,000 requests/API, 100 for images)
+
+#### ⚡ **Smart API Management**
+- **Intelligent Quota Monitoring**: Real-time tracking across all 19 APIs with usage visualization
+- **Automatic Rate Limiting**: 1 QPS per API with intelligent request queuing
+- **Cloud Environment Detection**: Automatic fallback to demo data in cloud deployments
+- **Parallel Data Fetching**: Concurrent requests across multiple APIs with failure tolerance
+- **Advanced Caching**: Sport-specific TTL strategies (30s for live data, 1hr for images, 15min for futures)
+
+#### 🌐 **New API Endpoints**
+```bash
+# SportRadar Integration Dashboard
+GET  /api/v1/sportradar/health           # Service health and quota status
+GET  /api/v1/sportradar/quota            # Detailed quota usage across all APIs
+GET  /api/v1/sportradar/comprehensive    # Aggregated data from all APIs
+GET  /api/v1/sportradar/live/{sport}     # Live scores and real-time data
+GET  /api/v1/sportradar/sports/{sport}/{endpoint}  # Individual sport data
+GET  /api/v1/sportradar/odds/{type}/{sport}/{competition}  # Odds comparison
+GET  /api/v1/sportradar/images/{provider}/{sport}/{competition}  # Media assets
+GET  /api/v1/sportradar/apis             # List all available APIs and status
+```
 
 ### ✅ **Phase 4: Performance Optimization & Launch Preparation - COMPLETE**
 
@@ -254,6 +119,9 @@ npm install
 # Backend setup (optional - app works in demo mode)
 cd ../backend
 pip install -r requirements.txt
+
+# Set SportRadar API key (optional - includes demo mode)
+export SPORTRADAR_API_KEY=your_api_key_here
 ```
 
 ---
@@ -263,6 +131,7 @@ pip install -r requirements.txt
 | Feature | PropFinder | A1Betting | Advantage |
 |---------|------------|-----------|-----------|
 | **Cost** | $29+/month | Free Forever | **Save $348+ annually** |
+| **Data Source** | Limited | SportRadar (19 APIs) | **Official sports data provider** |
 | **AI Engine** | None | Quantum-Inspired Optimization | **Advanced mathematical algorithms** |
 | **Performance** | Standard | React 19 + Virtual Scrolling | **10x faster, handles 10,000+ props** |
 | **Testing** | Unknown | Enterprise testing framework | **90%+ coverage with E2E validation** |
@@ -271,6 +140,7 @@ pip install -r requirements.txt
 | **Analytics** | Basic | 6 analysis types + Bayesian modeling | **Professional-grade statistical tools** |
 | **Risk Management** | Limited | Kelly Criterion + Advanced optimization | **Mathematically optimal bet sizing** |
 | **Cloud Support** | Limited | Advanced cloud deployment ready | **Enterprise-grade scalability** |
+| **API Integration** | Basic | 19 SportRadar APIs + Smart Management | **Professional data infrastructure** |
 
 ---
 
@@ -284,28 +154,36 @@ pip install -r requirements.txt
 - **Virtual Scrolling Performance**: Handle 10,000+ props with React 19 concurrent features
 - **Real-time Monitoring**: Live system health and performance tracking
 
-### 💰 **2. Multi-Sportsbook Arbitrage**
+### 📊 **2. Comprehensive SportRadar Integration**
+- **19 Professional APIs**: Complete sports data ecosystem with official SportRadar integration
+- **Live Sports Data**: Real-time scores, player stats, injury reports across 11+ sports
+- **Odds Comparison**: Futures, prematch, and player props odds from multiple sportsbooks
+- **Media Assets**: Getty Images, AP Photos, team logos, and country flags
+- **Smart Quota Management**: Intelligent usage tracking with automatic rate limiting
+- **Cloud-Ready**: Automatic fallback and demo mode for seamless deployment
+
+### 💰 **3. Multi-Sportsbook Arbitrage**
 - **8+ Sportsbooks**: DraftKings, FanDuel, BetMGM, Caesars, BetRivers+
 - **Real-Time Detection**: Automatic profit opportunity identification
 - **Advanced Mathematical Calculations**: Sophisticated arbitrage and EV calculations
 - **Alert System**: Push notifications for high-value opportunities
 - **Best Line Finder**: ML-powered optimal line selection
 
-### 🧮 **3. Advanced Risk Management**
+### 🧮 **4. Advanced Risk Management**
 - **Kelly Criterion Calculator**: Mathematically optimal bet sizing
 - **Advanced Portfolio Optimization**: Risk-adjusted return analysis with quantum-inspired mathematical modeling
 - **Bankroll Tracking**: Comprehensive performance monitoring
 - **Drawdown Protection**: Automated risk mitigation
 - **Monte Carlo Simulation**: Advanced probability modeling
 
-### 🤖 **4. Advanced AI Intelligence Center**
+### 🤖 **5. Advanced AI Intelligence Center**
 - **Ollama LLM Integration**: Privacy-focused local AI processing
 - **Quantum-Inspired Optimization**: Mathematical optimization using quantum annealing simulation
 - **Neural Network Ensemble**: XGBoost, LSTM, Random Forest consensus
 - **Real-time Model Tracking**: Live performance metrics with confidence intervals
 - **SHAP Explainability**: Transparent AI reasoning
 
-### 📊 **5. Comprehensive Analytics Suite**
+### 📈 **6. Comprehensive Analytics Suite**
 - **Statistical Analysis Tools**: 6 analysis types including Bayesian modeling
 - **Predictive Insights**: Confidence intervals and statistical significance
 - **Performance Monitoring**: Real-time pipeline health and data quality validation
@@ -330,8 +208,15 @@ pip install -r requirements.txt
 - **Pydantic V2** - Runtime type validation and serialization
 - **SQLAlchemy 2** - Modern async ORM with connection pooling and query optimization
 - **Redis Caching** - Intelligent caching with automatic fallback mechanisms
-- **Sportradar Integration** - Official sports data with circuit breaker protection
+- **SportRadar Integration** - Official sports data with 19 professional APIs
 - **Data Quality Monitoring** - Real-time validation with anomaly detection
+
+### **SportRadar Integration**
+- **19 Professional APIs** - Sports data, odds comparison, and media assets
+- **Intelligent Rate Limiting** - 1 QPS per API with request queuing
+- **Automatic Quota Management** - Real-time tracking and usage optimization
+- **Cloud Environment Detection** - Seamless fallback for demo deployments
+- **Parallel Data Processing** - Concurrent API calls with failure tolerance
 
 ### **AI/ML Infrastructure**
 - **Quantum-Inspired Optimization** - Classical algorithms using quantum annealing and variational methods
@@ -400,6 +285,15 @@ black backend/           # Format code
 mypy backend/            # Type checking
 ```
 
+### **SportRadar API Testing**
+```bash
+# Test SportRadar integration
+curl http://localhost:8000/api/v1/sportradar/health
+curl http://localhost:8000/api/v1/sportradar/quota
+curl http://localhost:8000/api/v1/sportradar/live/mlb
+curl http://localhost:8000/api/v1/sportradar/comprehensive
+```
+
 ---
 
 ## 🔧 **Configuration**
@@ -408,8 +302,10 @@ mypy backend/            # Type checking
 Create `.env` in the `backend/` directory:
 
 ```env
-# API Keys (optional - demo mode works without)
-SPORTRADAR_API_KEY=your_key_here
+# SportRadar API Integration (NEW)
+SPORTRADAR_API_KEY=your_sportradar_api_key_here
+
+# Additional API Keys (optional - demo mode works without)
 ODDS_API_KEY=your_key_here
 DRAFTKINGS_API_KEY=your_key_here
 
@@ -428,6 +324,11 @@ ENABLE_QUANTUM_AI_SIMULATION=true
 REDIS_URL=redis://localhost:6379
 ENABLE_CACHING=true
 PERFORMANCE_ALERT_THRESHOLD=500
+
+# SportRadar Configuration
+ENABLE_SPORTRADAR_INTEGRATION=true
+SPORTRADAR_QUOTA_ALERT_THRESHOLD=80
+ENABLE_CLOUD_FALLBACK=true
 ```
 
 ---
@@ -443,11 +344,16 @@ rm -rf node_modules package-lock.json
 npm install && npm run dev
 ```
 
-**Import Errors**
+**SportRadar API Issues**
 ```bash
-# All import paths standardized with absolute aliases
-# Clear Vite cache if persistent:
-rm -rf node_modules/.vite && npm run dev
+# Check SportRadar integration status
+curl http://localhost:8000/api/v1/sportradar/health
+
+# Verify API key configuration
+echo $SPORTRADAR_API_KEY
+
+# Test quota usage
+curl http://localhost:8000/api/v1/sportradar/quota
 ```
 
 **Performance Issues**
@@ -455,7 +361,7 @@ rm -rf node_modules/.vite && npm run dev
 # Virtual scrolling handles 10,000+ props
 # React 19 concurrent features for smooth rendering
 # Performance monitoring built-in for optimization
-# Check performance dashboard at /monitoring
+# Check performance dashboard at /api/v1/sportradar/comprehensive
 ```
 
 **API Issues**
@@ -464,6 +370,7 @@ rm -rf node_modules/.vite && npm run dev
 # Fallback data automatically provided during server errors
 # Demo mode provides full functionality without backend
 # Cloud environment detection prevents fetch errors
+# SportRadar integration includes automatic quota management
 ```
 
 **Testing Issues**
@@ -472,6 +379,7 @@ rm -rf node_modules/.vite && npm run dev
 npm run test:debug       # Debug test failures
 npm run test:coverage    # Generate coverage reports
 npm run test:watch       # Watch mode for development
+npm run test:sportradar  # Test SportRadar integration
 ```
 
 ---
@@ -485,8 +393,10 @@ npm run test:watch       # Watch mode for development
 - **🎯 [Feature Documentation](frontend/FEATURE_DOCUMENTATION.md)** - Comprehensive feature guide and technical reference
 - **🧪 [Testing Documentation](frontend/TESTING_DOCUMENTATION.md)** - Complete testing framework guide
 - **⚡ [Performance Guide](frontend/PERFORMANCE_GUIDE.md)** - Optimization best practices
+- **📊 [SportRadar Integration Guide](docs/SPORTRADAR_INTEGRATION.md)** - Complete API integration documentation
 
 ### **API Reference**
+- **SportRadar API Integration** - 19 professional APIs with smart quota management
 - **Performance Optimization Service** - LRU caching and memory management
 - **Quantum AI Engine** - Superposition state analysis and neural networks
 - **Monitoring Dashboard** - Real-time system health and performance tracking
@@ -505,7 +415,7 @@ npm run test:watch       # Watch mode for development
 6. Submit PR with detailed description
 
 ### **Priority Areas**
-- 🎯 **Advanced AI Enhancements** - Sophisticated mathematical optimization algorithms
+- 🎯 **SportRadar Enhancement** - Extend API coverage and optimize data processing
 - 🤖 **Neural Network Models** - Improve ensemble predictions
 - 📊 **Advanced Analytics** - New statistical modeling features
 - 📱 **Mobile Experience** - PWA enhancements with virtual scrolling
@@ -534,10 +444,11 @@ Free and open source forever. Build businesses, customize freely, and share with
 ```
 PropFinder Subscription: $29-49/month ($348-588/year)
 A1Betting Cost: $0 forever
-Features: Superior with Advanced AI + Performance Optimization + Enterprise Testing
+Features: Superior with SportRadar + Advanced AI + Performance Optimization + Enterprise Testing
 Support: Open source community + comprehensive documentation
 Customization: Unlimited with development standards
 Performance: 15x faster with React 19 + Virtual Scrolling
+Data: Official SportRadar APIs vs. limited data sources
 ```
 
 ### **⚡ Performance Superiority**
@@ -550,9 +461,11 @@ Risk Management: PropFinder Basic →  A1Betting Kelly + Advanced Optimization
 Testing:         PropFinder None  →  A1Betting Enterprise Framework (90%+ coverage)
 Documentation:   PropFinder Limited → A1Betting 200+ pages
 Memory Usage:    PropFinder High  →  A1Betting Optimized (<50MB)
+Data Source:     PropFinder Unknown → A1Betting SportRadar (19 APIs)
 ```
 
 ### **🔧 Technical Advantages**
+- **Official SportRadar Integration**: 19 professional APIs with intelligent quota management
 - **Advanced AI Engine**: Sophisticated prediction modeling with quantum-inspired algorithms
 - **Virtual Scrolling**: Handle unlimited datasets with smooth 60fps performance
 - **React 19 Concurrent**: Latest features for optimal user experience
@@ -573,17 +486,21 @@ Memory Usage:    PropFinder High  →  A1Betting Optimized (<50MB)
 # Performance Dashboard: http://localhost:5173/monitoring
 # System Testing: http://localhost:5173/testing
 # Documentation Hub: http://localhost:5173/docs
+# SportRadar Status: http://localhost:8000/api/v1/sportradar/health
+# SportRadar Dashboard: http://localhost:5173/sportradar
 ```
 
 ---
 
-**🎯 Stop paying for PropFinder. Get advanced AI analysis with superior performance, comprehensive testing, and enterprise-grade features - completely free.**
+**🎯 Stop paying for PropFinder. Get advanced AI analysis with official SportRadar data, superior performance, comprehensive testing, and enterprise-grade features - completely free.**
 
-_Built with ❤️ by the open source community. Empowering bettors worldwide with advanced AI technology and PropFinder-level analytics._
+_Built with ❤️ by the open source community. Empowering bettors worldwide with advanced AI technology, official sports data, and PropFinder-level analytics._
 
 ---
 
-**🔴 LIVE STATUS**: Production-ready with enhanced error handling and cloud deployment optimization - Full functionality with 96% launch readiness
+**🔴 LIVE STATUS**: Production-ready with SportRadar integration, enhanced error handling, and cloud deployment optimization - Full functionality with 96% launch readiness
+
+**📊 SPORTRADAR STATUS**: 19 APIs integrated with intelligent quota management, automatic rate limiting, and cloud fallback support
 
 **🧪 TESTING STATUS**: Phase 4 comprehensive testing framework active with 90%+ unit coverage, 85%+ integration coverage, and 100% user journey validation through 40+ E2E test scenarios
 
@@ -591,4 +508,4 @@ _Built with ❤️ by the open source community. Empowering bettors worldwide wi
 
 **🚀 LAUNCH STATUS**: Phase 4 launch preparation complete with system testing, documentation hub, onboarding flow, performance monitoring, and deployment readiness fully operational
 
-_Last Updated: January 2025 - Version 9.0.0 - Phase 4 Performance Optimization & Launch Preparation Complete_
+_Last Updated: January 2025 - Version 9.1.0 - SportRadar Integration Complete + Phase 4 Performance Optimization Complete_
