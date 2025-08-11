@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, BarChart3, Cpu, Database, Gauge, Clock, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { Activity, BarChart3, Cpu, Database, Gauge, Clock, CheckCircle, AlertTriangle, XCircle, Wifi, WifiOff } from 'lucide-react';
 import { fetchHealthData, fetchPerformanceStats } from '../../utils/robustApi';
+import StatusIndicator from './StatusIndicator';
 
 interface PerformanceMetrics {
   api_performance: {
@@ -106,6 +107,7 @@ const PerformanceMonitoringDashboard: React.FC = () => {
   const [health, setHealth] = useState<SystemHealth | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUsingMockData, setIsUsingMockData] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -121,12 +123,20 @@ const PerformanceMonitoringDashboard: React.FC = () => {
       setHealth(healthData);
       setMetrics(perfData.data || perfData);
 
+      // Check if we're using mock data
+      setIsUsingMockData(
+        healthData.status === 'healthy' &&
+        healthData.services?.cache === 'operational' &&
+        perfData.data?.system_info?.caching_strategy?.includes('Demo Mode')
+      );
+
     } catch (err) {
       console.error('Failed to fetch performance data:', err);
       setError('Using demo data - API may be unavailable');
       // Provide fallback data
       setMetrics(getMockMetrics());
       setHealth(getMockHealth());
+      setIsUsingMockData(true);
     } finally {
       setLoading(false);
     }
@@ -218,18 +228,38 @@ const PerformanceMonitoringDashboard: React.FC = () => {
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-3">
           <Gauge className="w-6 h-6 text-blue-400" />
           <h3 className="text-xl font-bold text-white">Performance Monitoring</h3>
+          {isUsingMockData ? (
+            <StatusIndicator
+              status="warning"
+              message="Demo Mode - Mock Data"
+              size="sm"
+            />
+          ) : (
+            <StatusIndicator
+              status="healthy"
+              message="Live Data"
+              size="sm"
+            />
+          )}
         </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={fetchData}
-          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
-        >
-          Refresh
-        </motion.button>
+        <div className="flex items-center space-x-2">
+          {isUsingMockData ? (
+            <WifiOff className="w-4 h-4 text-yellow-400" title="Using mock data" />
+          ) : (
+            <Wifi className="w-4 h-4 text-green-400" title="Connected to API" />
+          )}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={fetchData}
+            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
+          >
+            Refresh
+          </motion.button>
+        </div>
       </div>
 
       {/* System Health */}
