@@ -16,7 +16,8 @@ import {
   BookOpen,
   Target,
   Wifi,
-  WifiOff
+  WifiOff,
+  Cloud
 } from 'lucide-react';
 import { cheatsheetsService, type PropOpportunity, type CheatsheetFilters as ServiceFilters } from '../../../services/cheatsheetsService';
 import BackendConnectionTest from '../../debug/BackendConnectionTest';
@@ -85,6 +86,17 @@ export const CheatsheetsDashboard: React.FC = () => {
   const [apiHealth, setApiHealth] = useState<boolean | null>(null);
   const [dataSource, setDataSource] = useState<string>('api');
   const [processingTime, setProcessingTime] = useState<number>(0);
+  const [isCloudDemo, setIsCloudDemo] = useState(false);
+
+  // Detect cloud environment
+  const isCloudEnvironment = useMemo(() => {
+    const hostname = window.location.hostname;
+    return hostname.includes('.fly.dev') ||
+           hostname.includes('.vercel.app') ||
+           hostname.includes('.netlify.app') ||
+           hostname.includes('.herokuapp.com') ||
+           !hostname.includes('localhost');
+  }, []);
 
   // Fetch opportunities using optimized service
   const fetchOpportunities = useCallback(async () => {
@@ -111,6 +123,7 @@ export const CheatsheetsDashboard: React.FC = () => {
       setLastRefresh(new Date(response.last_updated));
       setProcessingTime(response.processing_time_ms);
       setDataSource(response.cache_hit ? 'cache' : response.data_sources?.[0] || 'api');
+      setIsCloudDemo(!!(response as any).cloud_demo_mode);
 
       // Check if this is fallback data due to server error
       const responseData = response as any;
@@ -270,9 +283,21 @@ export const CheatsheetsDashboard: React.FC = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Prop Cheatsheets</h1>
-              <p className="text-slate-300">Ranked betting opportunities with calculated edge</p>
+            <div className="flex items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-white mb-2">Prop Cheatsheets</h1>
+                <p className="text-slate-300">Ranked betting opportunities with calculated edge</p>
+              </div>
+              {(isCloudEnvironment || isCloudDemo) && (
+                <div className="bg-blue-600/20 border border-blue-500 rounded-lg px-3 py-2">
+                  <div className="flex items-center space-x-2">
+                    <Cloud className="w-4 h-4 text-blue-400" />
+                    <span className="text-blue-400 text-sm font-medium">
+                      Cloud Demo Mode
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <button
