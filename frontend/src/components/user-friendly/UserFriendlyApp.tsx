@@ -175,6 +175,9 @@ const UserFriendlyApp: React.FC = memo(() => {
               <Route path='/ai-dashboard' element={<AdvancedAIDashboard />} />
               <Route path='/live-betting' element={<LiveBettingDashboard />} />
 
+              {/* Phase 3 Unified Architecture */}
+              <Route path='/phase3/*' element={<Phase3Page />} />
+
               {/* Roadmap Phase 4 Routes */}
               <Route path='/advanced-player' element={<AdvancedPlayerDashboard />} />
               <Route path='/player-lookup' element={<RealTimePlayerLookup />} />
