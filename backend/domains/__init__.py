@@ -15,12 +15,14 @@ Domains:
 from .prediction import prediction_router, UnifiedPredictionService
 from .data import data_router, UnifiedDataService
 from .analytics import analytics_router, UnifiedAnalyticsService
+from .integration import integration_router, UnifiedIntegrationService
 
 # Domain registry for centralized management
 DOMAIN_ROUTERS = {
     "prediction": prediction_router,
     "data": data_router,
     "analytics": analytics_router,
+    "integration": integration_router,
     # Additional domains will be added here
 }
 
@@ -28,6 +30,7 @@ DOMAIN_SERVICES = {
     "prediction": UnifiedPredictionService,
     "data": UnifiedDataService,
     "analytics": UnifiedAnalyticsService,
+    "integration": UnifiedIntegrationService,
     # Additional domains will be added here
 }
 
@@ -40,4 +43,6 @@ __all__ = [
     "UnifiedDataService",
     "analytics_router",
     "UnifiedAnalyticsService",
+    "integration_router",
+    "UnifiedIntegrationService",
 ]
