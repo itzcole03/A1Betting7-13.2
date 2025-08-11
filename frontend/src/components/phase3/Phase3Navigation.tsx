@@ -5,15 +5,15 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  HomeIcon,
-  ChartBarIcon,
-  CpuChipIcon,
-  SparklesIcon,
-  BeakerIcon,
-  CogIcon,
-  DocumentTextIcon
-} from '@heroicons/react/24/outline';
+import {
+  Home as HomeIcon,
+  BarChart3 as ChartBarIcon,
+  Cpu as CpuChipIcon,
+  Sparkles as SparklesIcon,
+  TestTube as BeakerIcon,
+  Settings as CogIcon,
+  FileText as DocumentTextIcon
+} from 'lucide-react';
 
 interface NavItem {
   id: string;
