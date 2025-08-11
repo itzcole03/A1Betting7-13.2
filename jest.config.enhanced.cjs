@@ -1,8 +1,8 @@
 // Enhanced Jest Configuration for Phase 4 Testing Automation
 module.exports = {
   rootDir: ".",
-  testEnvironment: "jest-fixed-jsdom",
-  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+  testEnvironment: "jsdom",
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.enhanced.ts"],
   moduleFileExtensions: ["js", "jsx", "ts", "tsx", "json"],
   
   // Enhanced Transform Configuration
@@ -209,10 +209,8 @@ module.exports = {
   notify: false,
   notifyMode: "failure-change",
   
-  // Collect Coverage From Test Files
-  collectCoverageOnlyFrom: {
-    "frontend/src/**/*.{ts,tsx}": true,
-  },
+  // Collect Coverage From Frontend Source Files Only
+  coverageDirectory: "coverage",
   
   // Force Exit After Tests
   forceExit: true,
