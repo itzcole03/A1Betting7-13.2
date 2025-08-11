@@ -339,7 +339,7 @@ ROI: Immediate + Long-term value
                                ┌─────▼─────┐
                                │  Ollama   │
                                │ AI Server │
-                               └───────────┘
+                               └────────���──┘
 ```
 
 ### Data Flow Architecture
@@ -432,10 +432,16 @@ npm run build            # Production build
 npm run build:analyze    # Bundle analysis
 npm run preview          # Test production build
 
-# Testing
-npm run test             # Jest unit tests
-npm run test:watch       # Watch mode
-npm run test:e2e         # Playwright E2E tests
+# Testing - Phase 4 Comprehensive Framework
+npm run test             # Jest unit tests (90%+ coverage)
+npm run test:watch       # Watch mode with hot reload
+npm run test:coverage    # Detailed coverage reporting
+npm run test:integration # Integration test suite
+npm run test:e2e         # Playwright E2E tests (multi-browser)
+npm run test:e2e:mobile  # Mobile E2E testing
+npm run test:a11y        # Accessibility testing (WCAG 2.1 AA)
+npm run test:performance # Performance benchmarking
+npm run test:all         # Complete test suite execution
 
 # Code Quality
 npm run lint             # ESLint checking
