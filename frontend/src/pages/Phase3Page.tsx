@@ -3,7 +3,7 @@
  * Entry point for Phase 3 unified architecture features
  */
 
-import React from 'react';
+import * as React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Phase3Layout from '../components/phase3/Phase3Layout';
 import UnifiedDashboard from '../components/phase3/UnifiedDashboard';
