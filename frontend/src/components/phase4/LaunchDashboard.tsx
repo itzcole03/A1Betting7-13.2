@@ -379,7 +379,215 @@ const LaunchDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Additional tabs would be implemented similarly */}
+      {/* Performance Tab */}
+      {selectedTab === 'performance' && (
+        <div className="space-y-6">
+          <div className="bg-slate-800/50 backdrop-blur-lg border border-slate-700 rounded-xl p-6">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+              <Zap className="w-6 h-6 mr-3 text-yellow-400" />
+              Performance Metrics
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">API Performance</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Average Response Time</span>
+                    <span className="text-green-400 font-semibold">145ms</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">95th Percentile</span>
+                    <span className="text-yellow-400 font-semibold">298ms</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Throughput</span>
+                    <span className="text-blue-400 font-semibold">1,247 req/min</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">Database Performance</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Query Time</span>
+                    <span className="text-green-400 font-semibold">23ms</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Connections</span>
+                    <span className="text-blue-400 font-semibold">47/200</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Cache Hit Rate</span>
+                    <span className="text-green-400 font-semibold">94.7%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">ML Performance</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Prediction Time</span>
+                    <span className="text-green-400 font-semibold">67ms</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Model Accuracy</span>
+                    <span className="text-green-400 font-semibold">94.2%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Predictions/min</span>
+                    <span className="text-blue-400 font-semibold">89</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Security Tab */}
+      {selectedTab === 'security' && (
+        <div className="space-y-6">
+          <div className="bg-slate-800/50 backdrop-blur-lg border border-slate-700 rounded-xl p-6">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+              <Shield className="w-6 h-6 mr-3 text-green-400" />
+              Security Status
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">Security Checks</h3>
+                <div className="space-y-3">
+                  {[
+                    { name: 'SSL/TLS Configuration', status: 'complete' },
+                    { name: 'Authentication System', status: 'complete' },
+                    { name: 'API Security', status: 'complete' },
+                    { name: 'Data Encryption', status: 'complete' },
+                    { name: 'Access Controls', status: 'complete' },
+                    { name: 'Vulnerability Scan', status: 'complete' }
+                  ].map((check, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <CheckCircle className="w-5 h-5 text-green-400" />
+                      <span className="text-slate-300">{check.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">Compliance</h3>
+                <div className="space-y-3">
+                  {[
+                    { name: 'GDPR Compliance', status: 'complete' },
+                    { name: 'SOC 2 Type II', status: 'complete' },
+                    { name: 'PCI DSS', status: 'complete' },
+                    { name: 'ISO 27001', status: 'in_progress' }
+                  ].map((compliance, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <span className="text-slate-300">{compliance.name}</span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(compliance.status)}`}>
+                        {compliance.status.replace('_', ' ').toUpperCase()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Deployment Tab */}
+      {selectedTab === 'deployment' && (
+        <div className="space-y-6">
+          <div className="bg-slate-800/50 backdrop-blur-lg border border-slate-700 rounded-xl p-6">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+              <Globe className="w-6 h-6 mr-3 text-blue-400" />
+              Deployment Pipeline
+            </h2>
+
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-slate-900/50 border border-slate-600 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-white mb-3">Development</h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span className="text-slate-300 text-sm">Tests Passing</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span className="text-slate-300 text-sm">Code Quality</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span className="text-slate-300 text-sm">Security Scan</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/50 border border-slate-600 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-white mb-3">Staging</h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span className="text-slate-300 text-sm">Integration Tests</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span className="text-slate-300 text-sm">Performance Tests</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Clock className="w-4 h-4 text-yellow-400" />
+                      <span className="text-slate-300 text-sm">Load Testing</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/50 border border-slate-600 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-white mb-3">Production</h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span className="text-slate-300 text-sm">Infrastructure Ready</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span className="text-slate-300 text-sm">Monitoring Setup</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Clock className="w-4 h-4 text-yellow-400" />
+                      <span className="text-slate-300 text-sm">Final Validation</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-900/50 border border-slate-600 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-white mb-3">Deployment History</h3>
+                <div className="space-y-3">
+                  {[
+                    { version: 'v4.0.0-rc.3', status: 'success', timestamp: '2024-01-17 15:30:00', environment: 'staging' },
+                    { version: 'v4.0.0-rc.2', status: 'success', timestamp: '2024-01-17 14:15:00', environment: 'staging' },
+                    { version: 'v4.0.0-rc.1', status: 'success', timestamp: '2024-01-17 10:45:00', environment: 'staging' },
+                  ].map((deployment, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-slate-800 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle className="w-5 h-5 text-green-400" />
+                        <span className="text-white font-medium">{deployment.version}</span>
+                        <span className="text-slate-400 text-sm">{deployment.environment}</span>
+                      </div>
+                      <span className="text-slate-400 text-sm">{deployment.timestamp}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
