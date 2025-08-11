@@ -3,7 +3,7 @@
  * Main layout for Phase 3 unified architecture features
  */
 
-import React from 'react';
+import * as React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Phase3Navigation from './Phase3Navigation';
 
