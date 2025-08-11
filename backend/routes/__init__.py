@@ -20,6 +20,7 @@ from .performance import router as performance_router
 from .prizepicks import router as prizepicks_router
 from .propollama import router as propollama_router
 from .user import router as user_router
+from .enhanced_search_routes import router as enhanced_search_router
 
 __all__ = [
     "admin_router",
