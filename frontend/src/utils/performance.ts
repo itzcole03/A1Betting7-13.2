@@ -5,7 +5,7 @@
  * insights for optimization.
  */
 
-import React from 'react';
+import * as React from 'react';
 import { logger } from './logger';
 
 interface PerformanceMetrics {
