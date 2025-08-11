@@ -24,8 +24,9 @@ class A1BettingHandler(BaseHTTPRequestHandler):
     
     def do_GET(self):
         """Handle GET requests"""
+        print(f"GET request for: {self.path}")
         self.send_cors_headers()
-        
+
         if self.path == '/api/health' or self.path == '/health':
             self.handle_health_check()
         elif self.path.startswith('/api/v1/predictions'):
