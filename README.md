@@ -38,6 +38,7 @@
 - **Error Recovery Testing**: Comprehensive error handling and fallback mechanism validation
 - **Performance Benchmarking**: Load testing capabilities and stress testing scenarios
 
+
 ### Backend Validation & Fixes (Previous)
 
 - Validated backend API endpoints for real MLB data and comprehensive prop generation:
@@ -46,6 +47,87 @@
   - `/mlb/ml-performance-analytics/` returns ML integration, uncertainty quantification, and system health.
 - Fixed unified logging usage in `backend/services/enhanced_data_pipeline.py` to use `get_logger(...)` for robust error handling and monitoring.
 - Confirmed backend error handling, fallback logic, and logging are robust and production-ready.
+
+---
+
+### 🖥️ Dashboard Customization API (Phase 3)
+
+**New endpoints for customizable dashboards, widgets, user preferences, and templates.**
+
+#### Features
+- Save/load dashboard layouts
+- Widget data provisioning (stats, charts, opportunities, bankroll, etc.)
+- User preferences management (theme, refresh, layout)
+- Dashboard templates for different user types
+- Real-time data updates and caching
+
+#### API Endpoints
+
+**GET `/api/v1/dashboard/layouts`**
+> Returns available dashboard layouts for a user (mock data, production-ready for DB integration).
+
+**GET `/api/v1/dashboard/layouts/{layout_id}`**
+> Returns a specific dashboard layout by ID, with caching.
+
+**POST `/api/v1/dashboard/layouts`**
+> Saves a dashboard layout (updates timestamp, caches, supports user layout lists).
+
+**DELETE `/api/v1/dashboard/layouts/{layout_id}`**
+> Deletes a dashboard layout and updates user layout lists.
+
+**POST `/api/v1/dashboard/widget-data`**
+> Returns data for a specific widget (stats, charts, bets, opportunities, bankroll, etc.), with caching and mock data generation.
+
+**GET `/api/v1/dashboard/preferences`**
+> Returns user dashboard preferences (theme, layout, refresh, etc.), with caching and defaults.
+
+**POST `/api/v1/dashboard/preferences`**
+> Saves user dashboard preferences.
+
+**GET `/api/v1/dashboard/templates`**
+> Returns available dashboard templates for different user types (beginner, professional, live betting).
+
+#### Example Request/Response
+
+**GET `/api/v1/dashboard/layouts`**
+```json
+{
+  "layouts": [
+    {
+      "id": "default",
+      "name": "Default Dashboard",
+      "widgets": [...],
+      "grid_cols": 6,
+      "created_at": "2024-01-01T00:00:00Z",
+      ...
+    }
+  ]
+}
+```
+
+**POST `/api/v1/dashboard/widget-data`**
+```json
+{
+  "widget_id": "profit_card",
+  "widget_type": "stats_card",
+  "config": {"metric": "total_profit"},
+  "time_range": "7d"
+}
+```
+Response:
+```json
+{
+  "value": 2547.83,
+  "change": 12.3,
+  "label": "Total Profit",
+  "trend": "up",
+  "previous_value": 2265.45
+}
+```
+
+---
+
+**See `backend/routes/dashboard_customization_routes.py` for full implementation details.**
 
 ### Frontend Validation & Fixes (Previous)
 
