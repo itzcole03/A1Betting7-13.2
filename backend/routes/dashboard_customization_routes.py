@@ -19,7 +19,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 # Core services
-from ..services.core.unified_cache_service import get_cache
+from backend.services.unified_cache_service import get_cache
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/dashboard", tags=["Dashboard Customization"])
