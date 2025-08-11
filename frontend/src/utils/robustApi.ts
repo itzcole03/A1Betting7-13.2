@@ -161,8 +161,17 @@ export class RobustApiClient {
   }
 }
 
+// Detect backend URL
+const getBackendUrl = () => {
+  // Try to detect if we're in development mode
+  if (import.meta.env?.DEV || process.env?.NODE_ENV === 'development') {
+    return 'http://localhost:8000';
+  }
+  return '';
+};
+
 // Global instance
-export const robustApi = new RobustApiClient();
+export const robustApi = new RobustApiClient(getBackendUrl());
 
 // Convenience functions with fallback data
 export const fetchWithFallback = async <T>(
@@ -180,7 +189,7 @@ export const fetchHealthData = async () => {
     status: 'healthy',
     services: {
       api: 'operational',
-      cache: 'operational', 
+      cache: 'operational',
       database: 'operational'
     },
     performance: {
@@ -190,7 +199,19 @@ export const fetchHealthData = async () => {
     uptime_seconds: 3600
   };
 
-  return fetchWithFallback('/health', mockHealthData);
+  // Try both health endpoints
+  const result1 = await robustApi.get('/health', { fallbackData: mockHealthData, timeout: 3000 });
+  if (result1.success) {
+    return result1.data?.data || result1.data || mockHealthData;
+  }
+
+  const result2 = await robustApi.get('/api/health', { fallbackData: mockHealthData, timeout: 3000 });
+  if (result2.success) {
+    return result2.data || mockHealthData;
+  }
+
+  console.warn('Both health endpoints failed, using mock data');
+  return mockHealthData;
 };
 
 // Performance stats with mock data
@@ -229,7 +250,17 @@ export const fetchPerformanceStats = async () => {
     }
   };
 
-  return fetchWithFallback('/performance/stats', { data: mockStats });
+  const result = await robustApi.get('/performance/stats', {
+    fallbackData: { data: mockStats },
+    timeout: 3000
+  });
+
+  if (result.success) {
+    return result.data;
+  }
+
+  console.warn('Performance stats API failed, using mock data');
+  return { data: mockStats };
 };
 
 export default robustApi;
