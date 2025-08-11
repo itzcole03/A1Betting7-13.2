@@ -44,6 +44,10 @@ logger = logging.getLogger(__name__)
 # Global service instances
 services = {}
 
+# Global database and cache instances
+schema_manager = None
+global_cache_service = cache_service
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
