@@ -38,4 +38,5 @@ __all__ = [
     "prizepicks_router",
     "propollama_router",
     "user_router",
+    "enhanced_search_router",
 ]
