@@ -81,7 +81,7 @@ class APIKeysConfig:
     @classmethod
     def from_env(cls) -> "APIKeysConfig":
         return cls(
-            sportradar_api_key=os.getenv("SPORTRADAR_API_KEY"),
+            sportradar_api_key=os.getenv("SPORTRADAR_API_KEY", "SFvaMFGToGtrHBBEhROlT2keKedDtDVijvaDbiNz"),
             theodds_api_key=os.getenv("THE_ODDS_API_KEY"),
             # prizepicks_api_key=os.getenv("PRIZEPICKS_API_KEY"),  # Deprecated, not used
             espn_api_key=os.getenv("ESPN_API_KEY"),
