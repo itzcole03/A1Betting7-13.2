@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, BarChart3, Cpu, Database, Gauge, Clock, CheckCircle, AlertTriangle, XCircle, Wifi, WifiOff } from 'lucide-react';
+import { Activity, BarChart3, Cpu, Database, Gauge, Clock, CheckCircle, AlertTriangle, XCircle, Wifi, WifiOff, Cloud } from 'lucide-react';
 import { fetchHealthData, fetchPerformanceStats } from '../../utils/robustApi';
 import StatusIndicator from './StatusIndicator';
 
@@ -108,11 +108,22 @@ const PerformanceMonitoringDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUsingMockData, setIsUsingMockData] = useState(false);
+  const [isCloudEnvironment, setIsCloudEnvironment] = useState(false);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
+
+      // Check if we're in a cloud environment
+      const hostname = window.location.hostname;
+      const isCloud = hostname.includes('.fly.dev') ||
+                     hostname.includes('.vercel.app') ||
+                     hostname.includes('.netlify.app') ||
+                     hostname.includes('.herokuapp.com') ||
+                     !hostname.includes('localhost');
+
+      setIsCloudEnvironment(isCloud);
 
       // Use robust API client with automatic fallbacks
       const [healthData, perfData] = await Promise.all([
@@ -125,9 +136,11 @@ const PerformanceMonitoringDashboard: React.FC = () => {
 
       // Check if we're using mock data
       setIsUsingMockData(
-        healthData.status === 'healthy' &&
-        healthData.services?.cache === 'operational' &&
-        perfData.data?.system_info?.caching_strategy?.includes('Demo Mode')
+        isCloud ||
+        (healthData.status === 'healthy' &&
+         healthData.services?.cache === 'operational' &&
+         (perfData.data?.system_info?.caching_strategy?.includes('Demo Mode') ||
+          perfData.data?.system_info?.caching_strategy?.includes('Cloud Demo')))
       );
 
     } catch (err) {
@@ -231,7 +244,13 @@ const PerformanceMonitoringDashboard: React.FC = () => {
         <div className="flex items-center space-x-3">
           <Gauge className="w-6 h-6 text-blue-400" />
           <h3 className="text-xl font-bold text-white">Performance Monitoring</h3>
-          {isUsingMockData ? (
+          {isCloudEnvironment ? (
+            <StatusIndicator
+              status="warning"
+              message="Cloud Demo Mode"
+              size="sm"
+            />
+          ) : isUsingMockData ? (
             <StatusIndicator
               status="warning"
               message="Demo Mode - Mock Data"
@@ -246,7 +265,9 @@ const PerformanceMonitoringDashboard: React.FC = () => {
           )}
         </div>
         <div className="flex items-center space-x-2">
-          {isUsingMockData ? (
+          {isCloudEnvironment ? (
+            <Cloud className="w-4 h-4 text-blue-400" title="Cloud environment" />
+          ) : isUsingMockData ? (
             <WifiOff className="w-4 h-4 text-yellow-400" title="Using mock data" />
           ) : (
             <Wifi className="w-4 h-4 text-green-400" title="Connected to API" />
@@ -407,12 +428,19 @@ const PerformanceMonitoringDashboard: React.FC = () => {
 
       {/* Phase 4 Badge and Demo Notice */}
       <div className="mt-6 flex justify-between items-center">
-        {isUsingMockData && (
-          <div className="bg-yellow-600/20 border border-yellow-500 rounded-lg px-3 py-2">
+        {(isUsingMockData || isCloudEnvironment) && (
+          <div className="bg-blue-600/20 border border-blue-500 rounded-lg px-3 py-2">
             <div className="flex items-center space-x-2">
-              <WifiOff className="w-4 h-4 text-yellow-400" />
-              <span className="text-yellow-400 text-sm">
-                Demo Mode: Backend API not available, showing realistic mock data
+              {isCloudEnvironment ? (
+                <Cloud className="w-4 h-4 text-blue-400" />
+              ) : (
+                <WifiOff className="w-4 h-4 text-yellow-400" />
+              )}
+              <span className="text-blue-400 text-sm">
+                {isCloudEnvironment
+                  ? 'Cloud Demo Mode: Running in production with realistic mock data'
+                  : 'Demo Mode: Backend API not available, showing realistic mock data'
+                }
               </span>
             </div>
           </div>
