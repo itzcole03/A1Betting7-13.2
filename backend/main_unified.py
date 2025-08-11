@@ -54,25 +54,40 @@ async def lifespan(app: FastAPI):
     """Application lifespan management"""
     
     # Startup
-    logger.info("Starting A1Betting Unified Backend...")
-    
+    logger.info("🚀 Starting A1Betting Unified Backend with Database Optimization...")
+
     try:
-        # Initialize domain services
+        # Initialize database schema manager
+        global schema_manager
+        database_url = os.getenv('DATABASE_URL', 'sqlite:///./a1betting.db')
+        schema_manager = get_schema_manager(database_url)
+        logger.info("✅ Database schema manager initialized")
+
+        # Initialize cache service
+        await global_cache_service.initialize()
+        logger.info("✅ Cache service initialized")
+
+        # Initialize domain services with database and cache dependencies
         for domain_name, service_class in DOMAIN_SERVICES.items():
             logger.info(f"Initializing {domain_name} service...")
-            service = service_class()
-            
+
+            # Pass database and cache to services that need them
+            if domain_name in ['prediction', 'data', 'analytics']:
+                service = service_class(schema_manager=schema_manager, cache_service=global_cache_service)
+            else:
+                service = service_class()
+
             # Initialize service if it has an initialize method
             if hasattr(service, 'initialize'):
                 success = await service.initialize()
                 if not success:
                     logger.error(f"Failed to initialize {domain_name} service")
                     raise RuntimeError(f"Service initialization failed: {domain_name}")
-            
+
             services[domain_name] = service
-            logger.info(f"{domain_name} service initialized successfully")
-        
-        logger.info("All services initialized successfully")
+            logger.info(f"✅ {domain_name} service initialized successfully")
+
+        logger.info("🎯 All services initialized successfully with optimized architecture")
         
         yield
         
