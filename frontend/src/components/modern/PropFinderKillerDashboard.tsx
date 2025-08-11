@@ -607,6 +607,11 @@ const PropFinderKillerDashboard: React.FC = () => {
         </AnimatePresence>
       </div>
 
+      {/* Phase 3 Banner */}
+      <div className="px-6 pt-6">
+        <Phase3Banner />
+      </div>
+
       {/* Main Content */}
       <div className="px-6 py-6">
         {/* Stats Overview */}
