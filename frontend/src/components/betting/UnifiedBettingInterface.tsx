@@ -1,24 +1,8 @@
-import { BetSlipComponent } from '@/components/betting/BetSlipComponent';
-import { BettingFilters } from '@/components/filters/BettingFilters';
 import { BarChart3, DollarSign, Plus, Settings, Target, TrendingUp } from 'lucide-react';
-const UnifiedBettingInterface = props => {
-  const {
-    error = null,
-    loading = false,
-    onRetry = () => {},
-    filters = {},
-    setFilters = () => {},
-    filteredOpportunities = [],
-    betSlip = [],
-    entryAmount = 0,
-    removeFromBetSlip = () => {},
-    setEntryAmount = () => {},
-    handleClearSlip = () => {},
-    handlePlaceBet = () => {},
-    addToBetSlip = () => {},
-    activeTab = 'opportunities',
-    setActiveTab = () => {},
-  } = props;
+import React from 'react';
+import { BetSlipComponent } from '../betting/BetSlipComponent';
+import { BettingFilters } from '../filters/BettingFilters';
+
 interface Opportunity {
   id: string;
   sport: string;
@@ -37,7 +21,7 @@ interface Opportunity {
 }
 
 interface UnifiedBettingInterfaceProps {
-  error?: any;
+  error?: { message?: string } | null;
   loading?: boolean;
   onRetry?: () => void;
   filters?: any;
@@ -54,7 +38,23 @@ interface UnifiedBettingInterfaceProps {
   setActiveTab?: (tab: string) => void;
 }
 
-const UnifiedBettingInterface: React.FC<UnifiedBettingInterfaceProps> = (props) => {
+const UnifiedBettingInterface: React.FC<UnifiedBettingInterfaceProps> = ({
+  error = null,
+  loading = false,
+  onRetry = () => {},
+  filters = {},
+  setFilters = () => {},
+  filteredOpportunities = [],
+  betSlip = [],
+  entryAmount = 0,
+  removeFromBetSlip = () => {},
+  setEntryAmount = () => {},
+  handleClearSlip = () => {},
+  handlePlaceBet = () => {},
+  addToBetSlip = () => {},
+  activeTab = 'opportunities',
+  setActiveTab = () => {},
+}) => {
   // Render helpers
   const renderOpportunities = () => (
     <div className='space-y-6'>
@@ -145,61 +145,58 @@ const UnifiedBettingInterface: React.FC<UnifiedBettingInterfaceProps> = (props) 
     }
   };
 
-  // Main return: always render dashboard shell, header, tabs, and content
-    return (
-      <div className='min-h-screen bg-gray-50 p-6'>
-        <div className='max-w-7xl mx-auto'>
-          <div className='mb-6'>
-            <h1
-              className='text-3xl font-bold text-gray-900 flex items-center space-x-3'
-              data-testid='betting-interface-heading'
-            >
-              <Target className='w-7 h-7 text-blue-500' />
-              <span>Unified Betting Interface</span>
-            </h1>
-            <p className='text-gray-600 mt-2'>
-              Professional trading interface for institutional-grade betting and arbitrage
-            </p>
-          </div>
-          {/* Navigation Tabs */}
-          <div className='mb-6'>
-            <div className='border-b border-gray-200'>
-              <nav className='-mb-px flex space-x-8'>
-                {[
-                  { id: 'opportunities', label: 'Opportunities', icon: Target },
-                  { id: 'betslip', label: 'Bet Slip', icon: DollarSign, badge: betSlip?.length || 0 },
-                  { id: 'portfolio', label: 'Portfolio', icon: BarChart3 },
-                  { id: 'autotrading', label: 'Auto Trading', icon: Settings },
-                  { id: 'performance', label: 'Performance', icon: TrendingUp },
-                ].map(tab => {
-                  const Icon = tab.icon;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
-                        activeTab === tab.id
-                          ? 'border-green-500 text-green-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      <Icon className='w-4 h-4' />
-                      <span>{tab.label}</span>
-                      {tab.badge && tab.badge > 0 && (
-                        <span className='bg-green-500 text-white text-xs rounded-full px-2 py-1 ml-1'>
-                          {tab.badge}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </nav>
-            </div>
+  return (
+    <div className='min-h-screen bg-gray-50 p-6'>
+      <div className='max-w-7xl mx-auto'>
+        <div className='mb-6'>
+          <h1
+            className='text-3xl font-bold text-gray-900 flex items-center space-x-3'
+            data-testid='betting-interface-heading'
+          >
+            <Target className='w-7 h-7 text-blue-500' />
+            <span>Unified Betting Interface</span>
+          </h1>
+          <p className='text-gray-600 mt-2'>
+            Professional trading interface for institutional-grade betting and arbitrage
+          </p>
+        </div>
+        {/* Navigation Tabs */}
+        <div className='mb-6'>
+          <div className='border-b border-gray-200'>
+            <nav className='-mb-px flex space-x-8'>
+              {[
+                { id: 'opportunities', label: 'Opportunities', icon: Target },
+                { id: 'betslip', label: 'Bet Slip', icon: DollarSign, badge: betSlip?.length || 0 },
+                { id: 'portfolio', label: 'Portfolio', icon: BarChart3 },
+                { id: 'autotrading', label: 'Auto Trading', icon: Settings },
+                { id: 'performance', label: 'Performance', icon: TrendingUp },
+              ].map(tab => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                      activeTab === tab.id
+                        ? 'border-green-500 text-green-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <Icon className='w-4 h-4' />
+                    <span>{tab.label}</span>
+                    {tab.badge && tab.badge > 0 && (
+                      <span className='bg-green-500 text-white text-xs rounded-full px-2 py-1 ml-1'>
+                        {tab.badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
           </div>
         </div>
-      </div>
-  );
-}
+
+        {/* Error Banner */}
         {error && (
           <div className='min-h-[200px] bg-red-50 p-6 rounded mb-6'>
             <div className='text-center'>
@@ -220,6 +217,7 @@ const UnifiedBettingInterface: React.FC<UnifiedBettingInterfaceProps> = (props) 
                 onClick={onRetry}
                 className='mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600'
                 aria-label='Try again'
+                data-testid='betting-error-retry-btn'
               >
                 Try again
               </button>
@@ -227,12 +225,15 @@ const UnifiedBettingInterface: React.FC<UnifiedBettingInterfaceProps> = (props) 
                 onClick={() => window.location.reload()}
                 className='mt-2 ml-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600'
                 aria-label='Refresh page'
+                data-testid='betting-error-refresh-btn'
               >
                 Refresh
               </button>
             </div>
           </div>
         )}
+
+        {/* Loading Banner */}
         {loading && (
           <div className='min-h-[200px] bg-slate-100 p-6 rounded mb-6 flex items-center justify-center'>
             <span className='text-slate-500'>Loading opportunities...</span>
