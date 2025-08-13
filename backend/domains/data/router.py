@@ -5,30 +5,31 @@ RESTful API endpoints for all data operations.
 Consolidates data routes into a logical, maintainable structure.
 """
 
-from datetime import datetime, date
-from typing import List, Optional
-from fastapi import APIRouter, HTTPException, Depends, Query, Path
-from fastapi.responses import JSONResponse
 import logging
+from datetime import date, datetime
+from typing import List, Optional
 
-from .service import UnifiedDataService
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from fastapi.responses import JSONResponse
+
 from .models import (
+    DataError,
+    DataQualityMetrics,
+    DataQualityRequest,
     DataRequest,
     DataResponse,
-    DataValidationRequest,
-    DataQualityRequest,
-    DataQualityMetrics,
-    ValidationResult,
-    PlayerData,
-    TeamData,
-    GameData,
-    OddsData,
-    HealthResponse,
-    DataError,
-    Sport,
     DataSource,
     DataType,
+    DataValidationRequest,
+    GameData,
+    HealthResponse,
+    OddsData,
+    PlayerData,
+    Sport,
+    TeamData,
+    ValidationResult,
 )
+from .service import UnifiedDataService
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +40,9 @@ data_router = APIRouter(
     responses={
         404: {"model": DataError, "description": "Not found"},
         500: {"model": DataError, "description": "Internal server error"},
-    }
+    },
 )
+
 
 # Service dependency
 async def get_data_service() -> UnifiedDataService:
@@ -52,9 +54,7 @@ async def get_data_service() -> UnifiedDataService:
 
 
 @data_router.get("/health", response_model=HealthResponse)
-async def health_check(
-    service: UnifiedDataService = Depends(get_data_service)
-):
+async def health_check(service: UnifiedDataService = Depends(get_data_service)):
     """
     Check data service health
     """
@@ -67,12 +67,11 @@ async def health_check(
 
 @data_router.post("/", response_model=DataResponse)
 async def get_data(
-    request: DataRequest,
-    service: UnifiedDataService = Depends(get_data_service)
+    request: DataRequest, service: UnifiedDataService = Depends(get_data_service)
 ):
     """
     Get data based on request parameters
-    
+
     **Request Body:**
     - **sport**: Sport type (mlb, nba, nfl, nhl)
     - **data_type**: Type of data (game, player, team, odds, props, stats)
@@ -83,7 +82,7 @@ async def get_data(
     - **source**: Optional preferred data source
     - **include_props**: Include prop bet data
     - **real_time**: Real-time data required
-    
+
     **Returns:**
     - Data response with games, players, teams, or odds
     - Quality metrics and validation status
@@ -104,21 +103,21 @@ async def get_sport_games(
     team_id: Optional[str] = Query(None, description="Team filter"),
     include_props: bool = Query(False, description="Include prop bets"),
     source: Optional[DataSource] = Query(None, description="Data source"),
-    service: UnifiedDataService = Depends(get_data_service)
+    service: UnifiedDataService = Depends(get_data_service),
 ):
     """
     Get games for a specific sport
-    
+
     **Path Parameters:**
     - **sport**: Sport type (mlb, nba, nfl, nhl)
-    
+
     **Query Parameters:**
     - **date_start**: Start date for games
     - **date_end**: End date for games
     - **team_id**: Filter by team
     - **include_props**: Include prop betting data
     - **source**: Preferred data source
-    
+
     **Returns:**
     - List of games with details and odds
     """
@@ -128,16 +127,16 @@ async def get_sport_games(
             date_range = [date_start, date_end]
         elif date_start:
             date_range = [date_start, date_start]
-        
+
         request = DataRequest(
             sport=sport,
             data_type=DataType.GAME,
             date_range=date_range,
             team_id=team_id,
             include_props=include_props,
-            source=source
+            source=source,
         )
-        
+
         return await service.get_data(request)
     except Exception as e:
         logger.error(f"Get sport games failed: {e}")
@@ -151,31 +150,28 @@ async def get_sport_players(
     position: Optional[str] = Query(None, description="Position filter"),
     active_only: bool = Query(True, description="Active players only"),
     source: Optional[DataSource] = Query(None, description="Data source"),
-    service: UnifiedDataService = Depends(get_data_service)
+    service: UnifiedDataService = Depends(get_data_service),
 ):
     """
     Get players for a specific sport
-    
+
     **Path Parameters:**
     - **sport**: Sport type (mlb, nba, nfl, nhl)
-    
+
     **Query Parameters:**
     - **team_id**: Filter by team
     - **position**: Filter by position
     - **active_only**: Active players only
     - **source**: Preferred data source
-    
+
     **Returns:**
     - List of players with stats and details
     """
     try:
         request = DataRequest(
-            sport=sport,
-            data_type=DataType.PLAYER,
-            team_id=team_id,
-            source=source
+            sport=sport, data_type=DataType.PLAYER, team_id=team_id, source=source
         )
-        
+
         return await service.get_data(request)
     except Exception as e:
         logger.error(f"Get sport players failed: {e}")
@@ -188,29 +184,25 @@ async def get_sport_teams(
     conference: Optional[str] = Query(None, description="Conference filter"),
     division: Optional[str] = Query(None, description="Division filter"),
     source: Optional[DataSource] = Query(None, description="Data source"),
-    service: UnifiedDataService = Depends(get_data_service)
+    service: UnifiedDataService = Depends(get_data_service),
 ):
     """
     Get teams for a specific sport
-    
+
     **Path Parameters:**
     - **sport**: Sport type (mlb, nba, nfl, nhl)
-    
+
     **Query Parameters:**
     - **conference**: Filter by conference
     - **division**: Filter by division
     - **source**: Preferred data source
-    
+
     **Returns:**
     - List of teams with records and stats
     """
     try:
-        request = DataRequest(
-            sport=sport,
-            data_type=DataType.TEAM,
-            source=source
-        )
-        
+        request = DataRequest(sport=sport, data_type=DataType.TEAM, source=source)
+
         return await service.get_data(request)
     except Exception as e:
         logger.error(f"Get sport teams failed: {e}")
@@ -224,20 +216,20 @@ async def get_player_details(
     include_stats: bool = Query(True, description="Include statistics"),
     include_props: bool = Query(False, description="Include prop data"),
     source: Optional[DataSource] = Query(None, description="Data source"),
-    service: UnifiedDataService = Depends(get_data_service)
+    service: UnifiedDataService = Depends(get_data_service),
 ):
     """
     Get detailed player information
-    
+
     **Path Parameters:**
     - **player_id**: Player identifier
-    
+
     **Query Parameters:**
     - **sport**: Sport type
     - **include_stats**: Include player statistics
     - **include_props**: Include prop betting data
     - **source**: Preferred data source
-    
+
     **Returns:**
     - Detailed player information with stats and props
     """
@@ -247,9 +239,9 @@ async def get_player_details(
             data_type=DataType.PLAYER,
             player_id=player_id,
             include_props=include_props,
-            source=source
+            source=source,
         )
-        
+
         return await service.get_data(request)
     except Exception as e:
         logger.error(f"Get player details failed: {e}")
@@ -262,28 +254,25 @@ async def get_live_odds(
     game_id: Optional[str] = Query(None, description="Specific game"),
     market_type: Optional[str] = Query(None, description="Market type"),
     sportsbook: Optional[str] = Query(None, description="Sportsbook filter"),
-    service: UnifiedDataService = Depends(get_data_service)
+    service: UnifiedDataService = Depends(get_data_service),
 ):
     """
     Get live odds data
-    
+
     **Query Parameters:**
     - **sport**: Sport type
     - **game_id**: Optional game filter
     - **market_type**: Market type (moneyline, spread, total, prop)
     - **sportsbook**: Sportsbook filter
-    
+
     **Returns:**
     - Live odds from multiple sportsbooks
     """
     try:
         request = DataRequest(
-            sport=sport,
-            data_type=DataType.ODDS,
-            game_id=game_id,
-            real_time=True
+            sport=sport, data_type=DataType.ODDS, game_id=game_id, real_time=True
         )
-        
+
         return await service.get_data(request)
     except Exception as e:
         logger.error(f"Get live odds failed: {e}")
@@ -293,16 +282,16 @@ async def get_live_odds(
 @data_router.post("/validate", response_model=List[ValidationResult])
 async def validate_data(
     request: DataValidationRequest,
-    service: UnifiedDataService = Depends(get_data_service)
+    service: UnifiedDataService = Depends(get_data_service),
 ):
     """
     Validate data quality
-    
+
     **Request Body:**
     - **data_id**: Data identifier to validate
     - **validation_rules**: List of validation rules to apply
     - **strict_mode**: Strict validation mode
-    
+
     **Returns:**
     - List of validation results with status and details
     """
@@ -319,28 +308,25 @@ async def get_quality_metrics(
     data_type: DataType = Query(..., description="Data type"),
     time_window: int = Query(24, description="Time window in hours"),
     sources: Optional[List[DataSource]] = Query(None, description="Sources to check"),
-    service: UnifiedDataService = Depends(get_data_service)
+    service: UnifiedDataService = Depends(get_data_service),
 ):
     """
     Get data quality metrics
-    
+
     **Query Parameters:**
     - **sport**: Sport type
     - **data_type**: Type of data to assess
     - **time_window**: Time window in hours
     - **sources**: Optional source filter
-    
+
     **Returns:**
     - Data quality metrics including completeness, accuracy, consistency
     """
     try:
         request = DataQualityRequest(
-            sport=sport,
-            data_type=data_type,
-            time_window=time_window,
-            sources=sources
+            sport=sport, data_type=data_type, time_window=time_window, sources=sources
         )
-        
+
         return await service.get_quality_metrics(request)
     except Exception as e:
         logger.error(f"Get quality metrics failed: {e}")
@@ -348,12 +334,10 @@ async def get_quality_metrics(
 
 
 @data_router.get("/sources/status")
-async def get_sources_status(
-    service: UnifiedDataService = Depends(get_data_service)
-):
+async def get_sources_status(service: UnifiedDataService = Depends(get_data_service)):
     """
     Get data sources status
-    
+
     **Returns:**
     - Status of all data sources
     """
@@ -363,7 +347,7 @@ async def get_sources_status(
             "sources_online": health.sources_online,
             "sources_total": health.sources_total,
             "source_status": health.source_status,
-            "last_check": health.last_update
+            "last_check": health.last_update,
         }
     except Exception as e:
         logger.error(f"Get sources status failed: {e}")
@@ -375,16 +359,16 @@ async def trigger_data_pipeline(
     sport: Sport = Query(..., description="Sport type"),
     data_type: DataType = Query(..., description="Data type"),
     force_refresh: bool = Query(False, description="Force refresh"),
-    service: UnifiedDataService = Depends(get_data_service)
+    service: UnifiedDataService = Depends(get_data_service),
 ):
     """
     Trigger data pipeline (admin operation)
-    
+
     **Query Parameters:**
     - **sport**: Sport type
     - **data_type**: Data type to process
     - **force_refresh**: Force refresh existing data
-    
+
     **Returns:**
     - Pipeline status
     """
@@ -395,36 +379,8 @@ async def trigger_data_pipeline(
             "sport": sport,
             "data_type": data_type,
             "pipeline_id": "pipeline_" + str(datetime.now().timestamp()),
-            "estimated_completion": "5 minutes"
+            "estimated_completion": "5 minutes",
         }
     except Exception as e:
         logger.error(f"Trigger pipeline failed: {e}")
         raise HTTPException(status_code=500, detail="Failed to trigger pipeline")
-
-
-# Error handlers
-@data_router.exception_handler(HTTPException)
-async def http_exception_handler(request, exc):
-    """Handle HTTP exceptions"""
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "error_code": f"HTTP_{exc.status_code}",
-            "message": exc.detail,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-    )
-
-
-@data_router.exception_handler(Exception)
-async def general_exception_handler(request, exc):
-    """Handle general exceptions"""
-    logger.error(f"Unhandled exception in data router: {exc}")
-    return JSONResponse(
-        status_code=500,
-        content={
-            "error_code": "INTERNAL_ERROR",
-            "message": "Internal server error",
-            "timestamp": datetime.utcnow().isoformat()
-        }
-    )

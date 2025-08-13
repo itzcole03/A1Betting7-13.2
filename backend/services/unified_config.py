@@ -124,6 +124,7 @@ class ExternalAPIConfig:
     # Sports APIs
     mlb_stats_api_url: str = "https://statsapi.mlb.com/api/v1"
     baseball_savant_enabled: bool = True
+    sportradar_api_key: Optional[str] = "mock-key-for-tests"
 
     # Betting APIs
     prizepicks_api_key: Optional[str] = None

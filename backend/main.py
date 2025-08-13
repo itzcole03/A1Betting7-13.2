@@ -214,6 +214,38 @@ def error_response(message="Test error response", status_code=400, details=None)
     return JSONResponse(content=body, status_code=status_code)
 
 
+from datetime import datetime
+
+# --- Global Exception Handlers ---
+from fastapi import HTTPException, Request
+from fastapi.responses import JSONResponse
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error_code": f"HTTP_{exc.status_code}",
+            "message": exc.detail,
+            "timestamp": datetime.utcnow().isoformat(),
+        },
+    )
+
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled exception: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error_code": "INTERNAL_ERROR",
+            "message": "Internal server error",
+            "timestamp": datetime.utcnow().isoformat(),
+        },
+    )
+
+
 logger.info("f389 A1Betting Backend startup complete!")
 
 # Export the app for uvicorn

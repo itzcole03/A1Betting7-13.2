@@ -1,0 +1,53 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0
+rootdir: C:\Users\bcmad\Downloads\A1Betting7-13.2
+configfile: pytest.ini
+plugins: anyio-4.9.0, Faker-37.5.3, asyncio-1.1.0, cov-6.2.1, typeguard-4.4.4
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 226 items / 1 error
+
+=================================== ERRORS ====================================
+___________ ERROR collecting backend/testing/test_suite_unified.py ____________
+ImportError while importing test module 'C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\testing\test_suite_unified.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\testing\test_suite_unified.py:23: in <module>
+    from domains.database import cache_service, get_schema_manager
+backend\domains\database\__init__.py:7: in <module>
+    from .cache_service import UnifiedCacheService
+backend\domains\database\cache_service.py:13: in <module>
+    import aioredis
+E   ModuleNotFoundError: No module named 'aioredis'
+============================== warnings summary ===============================
+backend\domains\prediction\models.py:78
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\domains\prediction\models.py:78: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('line_score')
+
+..\..\AppData\Roaming\Python\Python313\site-packages\pydantic\_internal\_config.py:323: 37 warnings
+  C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pydantic\_internal\_config.py:323: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+..\..\AppData\Roaming\Python\Python313\site-packages\pydantic\_internal\_generate_schema.py:298: 67 warnings
+  C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pydantic\_internal\_generate_schema.py:298: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.11/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(
+
+backend\domains\data\models.py:78
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\domains\data\models.py:78: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('date_range')
+
+backend\services\database_service.py:29
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\database_service.py:29: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+backend\domains\analytics\models.py:116
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\domains\analytics\models.py:116: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator('data_points')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR backend/testing/test_suite_unified.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+======================= 108 warnings, 1 error in 12.62s =======================
