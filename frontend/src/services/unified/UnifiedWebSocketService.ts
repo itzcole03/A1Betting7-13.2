@@ -275,7 +275,7 @@ export class UnifiedWebSocketService extends BaseService {
   }
 
   private setConnectionState(state: WebSocketConnectionState): void {
-    const _oldState = this.connectionState;
+    const oldState = this.connectionState;
     this.connectionState = state;
 
     if (oldState !== state) {
@@ -285,12 +285,12 @@ export class UnifiedWebSocketService extends BaseService {
 
   private handleMessage(event: MessageEvent): void {
     try {
-      const _message: WebSocketMessage = JSON.parse(event.data);
+      const message: WebSocketMessage = JSON.parse(event.data);
 
       this.logger.debug('WebSocket message received', { type: message.type });
 
       // Notify specific subscribers
-      for (const _subscription of this.subscriptions.values()) {
+      for (const subscription of this.subscriptions.values()) {
         if (subscription.type === message.type || subscription.type === '*') {
           try {
             subscription.callback(message.data);
@@ -313,7 +313,7 @@ export class UnifiedWebSocketService extends BaseService {
 
   private processMessageQueue(): void {
     while (this.messageQueue.length > 0) {
-      const _message = this.messageQueue.shift();
+      const message = this.messageQueue.shift();
       if (message) {
         this.sendMessage(message);
       }
@@ -330,7 +330,7 @@ export class UnifiedWebSocketService extends BaseService {
     this.setConnectionState(WebSocketConnectionState.RECONNECTING);
     this.reconnectAttempts++;
 
-    const _delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
+    const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
     this.logger.info('Attempting WebSocket reconnection', {
       attempt: this.reconnectAttempts,

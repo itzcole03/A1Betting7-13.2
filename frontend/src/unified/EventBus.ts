@@ -1,1 +1,1 @@
-export { EventBus, _eventBus } from '../../core/EventBus';
+export { EventBus, _eventBus } from '@/core/EventBus';

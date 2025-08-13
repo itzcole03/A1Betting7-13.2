@@ -26,9 +26,9 @@ interface CacheEntry<T> {
   lastAccess: number;
 }
 
-interface DataSubscription {
+interface DataSubscription<T = unknown> {
   key: string;
-  callback: (data: any) => void;
+  callback: (data: T) => void;
   options: {
     realtime?: boolean;
     prefetch?: boolean;
@@ -39,7 +39,7 @@ interface DataSubscription {
 interface BatchRequest {
   id: string;
   endpoint: string;
-  params?: Record<string, any>;
+  params?: Record<string, unknown>;
   priority?: 'high' | 'normal' | 'low';
 }
 
@@ -53,9 +53,9 @@ interface RequestMetrics {
 }
 
 class EnhancedDataManager {
-  private cache: Map<string, CacheEntry<any>> = new Map();
-  private subscriptions: Map<string, DataSubscription[]> = new Map();
-  private pendingRequests: Map<string, Promise<any>> = new Map();
+  private cache: Map<string, CacheEntry<unknown>> = new Map();
+  private subscriptions: Map<string, DataSubscription<unknown>[]> = new Map();
+  private pendingRequests: Map<string, Promise<unknown>> = new Map();
   private batchQueue: BatchRequest[] = [];
   private metrics: RequestMetrics = {
     totalRequests: 0,
@@ -149,7 +149,7 @@ class EnhancedDataManager {
             cacheKey,
           }
         );
-        return await this.pendingRequests.get(cacheKey)!;
+        return (await this.pendingRequests.get(cacheKey)!) as T;
       }
 
       // Create the request promise
@@ -534,14 +534,14 @@ class EnhancedDataManager {
       console.error(`[DataManager] Failed to fetch ${sport} props:`, error);
 
       // Check if this is a connectivity issue (including axios errors)
-      const isConnectivityError = error instanceof Error && (
-        error.message.includes('Failed to fetch') ||
-        error.message.includes('Network Error') ||
-        error.message.includes('timeout') ||
-        error.message.includes('signal timed out') ||
-        error.name === 'NetworkError' ||
-        (error as any).code === 'ERR_NETWORK'
-      );
+      const isConnectivityError =
+        error instanceof Error &&
+        (error.message.includes('Failed to fetch') ||
+          error.message.includes('Network Error') ||
+          error.message.includes('timeout') ||
+          error.message.includes('signal timed out') ||
+          error.name === 'NetworkError' ||
+          (error as any).code === 'ERR_NETWORK');
 
       if (isConnectivityError) {
         console.log(`[DataManager] Backend unavailable for ${sport} - using mock data`);
@@ -559,7 +559,7 @@ class EnhancedDataManager {
             confidence: 85,
             sport: sport,
             gameTime: new Date().toISOString(),
-            pickType: 'over'
+            pickType: 'over',
           },
           {
             id: 'mock-mike-trout-hits',
@@ -572,7 +572,7 @@ class EnhancedDataManager {
             confidence: 78,
             sport: sport,
             gameTime: new Date().toISOString(),
-            pickType: 'over'
+            pickType: 'over',
           },
           {
             id: 'mock-mookie-betts-rbis',
@@ -585,11 +585,18 @@ class EnhancedDataManager {
             confidence: 82,
             sport: sport,
             gameTime: new Date().toISOString(),
-            pickType: 'over'
-          }
+            pickType: 'over',
+          },
         ];
 
-        return mockProps;
+        // Ensure mockProps match FeaturedProp interface
+        return mockProps.map(p => ({
+          ...p,
+          dataSource: 'mock',
+          validatedAt: new Date().toISOString(),
+          qualityScore: 50,
+          _originalData: p,
+        })) as FeaturedProp[];
       }
 
       throw error;
@@ -816,7 +823,7 @@ class EnhancedDataManager {
   ): Promise<T> {
     const { retries = 0, compression = false } = options; // Disable retries for faster fallback
 
-    let lastError: Error;
+    let lastError: Error | undefined;
 
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
@@ -861,13 +868,12 @@ class EnhancedDataManager {
 
     // Check if this is a connectivity issue and normalize the error message
     if (lastError) {
-      const isConnectivityError = (
+      const isConnectivityError =
         lastError.message.includes('Network Error') ||
         lastError.message.includes('Failed to fetch') ||
         lastError.message.includes('timeout') ||
-        lastError.code === 'ERR_NETWORK' ||
-        !lastError.response // No response means network issue
-      );
+        (lastError as any).code === 'ERR_NETWORK' ||
+        !(lastError as any).response; // No response means network issue
 
       if (isConnectivityError) {
         // Create a normalized error that fallback logic can detect
@@ -899,12 +905,12 @@ class EnhancedDataManager {
     entry.accessCount++;
     entry.lastAccess = now;
 
-    return entry.data;
+    return entry.data as T;
   }
 
   private getStaleData<T>(key: string): T | null {
     const entry = this.cache.get(key);
-    return entry ? entry.data : null;
+    return entry ? (entry.data as T) : null;
   }
 
   private setCachedData<T>(key: string, data: T, ttl: number): void {
@@ -1125,8 +1131,16 @@ class EnhancedDataManager {
 
   private initializeWebSocket(): void {
     try {
-      // Use backend WebSocket port (8000) instead of hardcoded 8765
-      const wsUrl = `ws://${window.location.hostname}:8000/ws`;
+      // Use backend WebSocket port (8000) and include clientId in path
+      let clientId = '';
+      // Try to use user ID, session, or fallback to random string
+      if (window.localStorage.getItem('clientId')) {
+        clientId = window.localStorage.getItem('clientId')!;
+      } else {
+        clientId = `client_${Math.random().toString(36).substr(2, 9)}`;
+        window.localStorage.setItem('clientId', clientId);
+      }
+      const wsUrl = `ws://${window.location.hostname}:8000/ws/${clientId}`;
       this.websocket = new WebSocket(wsUrl);
 
       this.websocket.onopen = () => {
@@ -1143,7 +1157,7 @@ class EnhancedDataManager {
         }
       };
 
-      this.websocket.onclose = (event) => {
+      this.websocket.onclose = event => {
         console.log('[DataManager] WebSocket disconnected - continuing in local mode');
         this.websocket = null;
 
@@ -1156,17 +1170,24 @@ class EnhancedDataManager {
             this.initializeWebSocket();
           }, delay);
         } else {
-          console.log('[DataManager] WebSocket reconnection stopped - application will continue in local mode');
+          console.log(
+            '[DataManager] WebSocket reconnection stopped - application will continue in local mode'
+          );
         }
       };
 
       this.websocket.onerror = error => {
         // Handle WebSocket errors gracefully without flooding console
-        console.warn('[DataManager] WebSocket connection issue (application continues in local mode)');
+        console.warn(
+          '[DataManager] WebSocket connection issue (application continues in local mode)'
+        );
         // Don't log the full error object as it's often just [object Event]
       };
     } catch (error) {
-      console.warn('[DataManager] WebSocket initialization failed - application will continue in local mode:', error);
+      console.warn(
+        '[DataManager] WebSocket initialization failed - application will continue in local mode:',
+        error
+      );
     }
   }
 

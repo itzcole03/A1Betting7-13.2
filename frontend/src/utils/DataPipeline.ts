@@ -5,7 +5,7 @@
  *
  * @module utils/DataPipeline
  */
-import { EventBus } from '../../core/EventBus';
+import { EventBus } from '@/core/EventBus';
 import { PerformanceMonitor } from './PerformanceMonitor';
 import { DataSource } from './PredictionEngine';
 

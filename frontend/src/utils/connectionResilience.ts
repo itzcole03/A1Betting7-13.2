@@ -3,13 +3,19 @@
  * Implements modern retry patterns, circuit breakers, and health monitoring
  */
 
+// Branded type for connection errors
+export type ConnectionError = Error & {
+  code?: string;
+  response?: { status: number };
+};
+
 interface RetryConfig {
   maxRetries?: number;
   baseDelay?: number;
   maxDelay?: number;
   backoffMultiplier?: number;
-  retryCondition?: (error: any) => boolean;
-  onRetry?: (error: any, attempt: number) => void;
+  retryCondition?: (error: ConnectionError) => boolean;
+  onRetry?: (error: ConnectionError, attempt: number) => void;
 }
 
 interface HealthCheckConfig {
@@ -27,6 +33,15 @@ interface CircuitBreakerConfig {
 }
 
 class ConnectionResilience {
+  /**
+   * Called on successful operation to reset failure tracking and circuit breaker
+   */
+  private onSuccess(): void {
+    this.failureCount = 0;
+    if (this.circuitBreakerState === 'half-open') {
+      this.circuitBreakerState = 'closed';
+    }
+  }
   private healthStatus: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
   private circuitBreakerState: 'closed' | 'open' | 'half-open' = 'closed';
   private failureCount = 0;
@@ -67,7 +82,7 @@ class ConnectionResilience {
       ...retryConfig,
     };
 
-    let lastError: any;
+    let lastError: ConnectionError | undefined;
 
     for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
       try {
@@ -82,10 +97,13 @@ class ConnectionResilience {
         this.onSuccess();
         return result;
       } catch (error) {
-        lastError = error;
-        this.onFailure(error);
+        // Runtime guard for error object
+        const connectionError: ConnectionError =
+          error instanceof Error ? (error as ConnectionError) : new Error(String(error));
+        lastError = connectionError;
+        this.onFailure(connectionError);
 
-        if (attempt === config.maxRetries || !config.retryCondition(error)) {
+        if (attempt === config.maxRetries || !config.retryCondition(connectionError)) {
           break;
         }
 
@@ -97,12 +115,12 @@ class ConnectionResilience {
         const jitter = delay * 0.1 * Math.random(); // Add 10% jitter
         const finalDelay = delay + jitter;
 
-        config.onRetry(error, attempt + 1);
+        config.onRetry(connectionError, attempt + 1);
         console.warn(
-          `[ConnectionResilience] Retrying in ${Math.round(finalDelay)}ms (attempt ${attempt + 1}/${
-            config.maxRetries + 1
-          })`,
-          error
+          `[ConnectionResilience] Retrying in ${Math.round(finalDelay)}ms (attempt ${
+            attempt + 1
+          }/$${config.maxRetries + 1})`,
+          connectionError
         );
 
         await this.sleep(finalDelay);
@@ -137,93 +155,54 @@ class ConnectionResilience {
         return;
       }
 
-      try {
-        // Use getEnvVar for robust env access
-        const { getEnvVar } = await import('./getEnvVar');
-        const backendUrl = getEnvVar('VITE_BACKEND_URL', 'http://localhost:8000');
-        const healthUrl = `${backendUrl}${this.config.endpoint}`;
-
-        // Use Promise.race to handle timeout - wrapped to suppress console errors
-        const fetchPromise = new Promise<Response>((resolve, reject) => {
-          fetch(healthUrl, {
-            cache: 'no-cache',
-            method: 'GET',
-            headers: {
-              Accept: 'application/json',
-            },
-          })
-            .then(resolve)
-            .catch(reject);
-        });
-
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => {
-            reject(new Error('Health check timeout'));
-          }, this.config.timeout);
-        });
-
-        const response = await Promise.race([fetchPromise, timeoutPromise]);
-
-        if (response.ok) {
-          this.consecutiveFailures = 0; // Reset on success
-          this.updateHealthStatus('healthy');
-        } else {
-          this.consecutiveFailures++;
-          this.updateHealthStatus('degraded');
+      const checkHealth = async () => {
+        if (this.consecutiveFailures >= this.maxConsecutiveFailures) {
+          if (this.healthCheckInterval) {
+            clearInterval(this.healthCheckInterval);
+            this.healthCheckInterval = null;
+          }
+          return;
         }
-      } catch (error) {
-        this.consecutiveFailures++;
-
-        // Improve error handling for AbortError and reduce console noise
-        if (error instanceof Error) {
-          if (error.name === 'AbortError') {
-            // Only log timeout on first few attempts to avoid spam
-            if (this.consecutiveFailures <= 3) {
-              console.warn(
-                '[ConnectionResilience] Health check timed out after',
-                this.config.timeout,
-                'ms (application continues in demo mode)'
-              );
-            }
-          } else if (error.message.includes('Failed to fetch')) {
-            // Only log fetch failures on first few attempts
-            if (this.consecutiveFailures <= 3) {
-              console.warn('[ConnectionResilience] Backend unavailable (demo mode active)');
-            }
+        try {
+          const { getEnvVar } = await import('./getEnvVar');
+          const backendUrl = getEnvVar('VITE_BACKEND_URL', 'http://localhost:8000');
+          const healthUrl = `${backendUrl}${this.config.endpoint}`;
+          const fetchPromise = new Promise<Response>((resolve, reject) => {
+            fetch(healthUrl, {
+              cache: 'no-cache',
+              method: 'GET',
+              headers: {
+                Accept: 'application/json',
+              },
+            })
+              .then(resolve)
+              .catch(reject);
+          });
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => {
+              reject(new Error('Health check timeout'));
+            }, this.config.timeout);
+          });
+          const response = await Promise.race([fetchPromise, timeoutPromise]);
+          if (response.ok) {
+            this.consecutiveFailures = 0;
+            this.updateHealthStatus('healthy');
           } else {
-            // Log other errors only on first occurrence
-            if (this.consecutiveFailures <= 1) {
-              console.warn('[ConnectionResilience] Health check failed:', error.message);
-            }
+            this.consecutiveFailures++;
+            this.updateHealthStatus('degraded');
           }
-        } else {
-          if (this.consecutiveFailures <= 1) {
-            console.warn('[ConnectionResilience] Health check failed:', error);
-          }
+        } catch (error) {
+          this.consecutiveFailures++;
+          this.updateHealthStatus('unhealthy');
         }
-        this.updateHealthStatus('unhealthy');
-      }
-    };
-
-    // Initial health check
-    await checkHealth();
-
-    // Schedule recurring health checks
-    this.healthCheckInterval = setInterval(checkHealth, this.config.interval);
-  }
-
-  /**
-   * Circuit breaker pattern implementation
-   */
-  private onSuccess(): void {
-    this.failureCount = 0;
-    if (this.circuitBreakerState === 'half-open') {
-      this.circuitBreakerState = 'closed';
+      };
+      await checkHealth();
+      this.healthCheckInterval = setInterval(checkHealth, this.config.interval);
       // console.log('[ConnectionResilience] Circuit breaker closed - service recovered');
-    }
+    };
   }
 
-  private onFailure(error: any): void {
+  private onFailure(error: ConnectionError): void {
     this.failureCount++;
     this.lastFailureTime = Date.now();
 
@@ -262,14 +241,16 @@ class ConnectionResilience {
     }
   }
 
-  private defaultRetryCondition = (error: any): boolean => {
+  private defaultRetryCondition = (error: ConnectionError): boolean => {
     // Retry on network errors, 5xx errors, timeouts
     return (
       error.name === 'AbortError' ||
       error.name === 'TypeError' ||
       error.code === 'ECONNREFUSED' ||
       error.code === 'ETIMEDOUT' ||
-      (error.response?.status >= 500 && error.response?.status < 600)
+      (error.response?.status !== undefined &&
+        error.response.status >= 500 &&
+        error.response.status < 600)
     );
   };
 

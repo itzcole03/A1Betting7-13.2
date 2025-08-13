@@ -1,7 +1,7 @@
 import { DailyFantasyData } from '../adapters/DailyFantasyAdapter';
 import { Analyzer } from '../core/Analyzer';
 import { EventBus } from '../unified/EventBus';
-import { PerformanceMonitor } from '../utils/PerformanceMonitor';
+import { PerformanceMonitor } from '../unified/PerformanceMonitor';
 
 export interface PredictionMetrics {
   predicted: number;

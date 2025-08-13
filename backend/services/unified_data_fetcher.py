@@ -22,18 +22,20 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
 import httpx
-from backend.services.unified_error_handler import unified_error_handler
 
 from backend.models.api_models import (
     BettingOpportunity,
     HistoricalGameResult,
     PerformanceStats,
 )
+from backend.services.unified_error_handler import unified_error_handler
 
 logger = logging.getLogger(__name__)
 
+
 class DataFetchError(Exception):
     """Custom exception for data fetching errors"""
+
     pass
 
 
@@ -411,46 +413,85 @@ class UnifiedDataFetcher:
 
         return props
 
-    def _generate_mlb_props(self) -> List[Dict[str, Any]]:
-        """Generate MLB-specific props"""
-        players = [
-            "Mike Trout",
-            "Mookie Betts",
-            "Aaron Judge",
-            "Ronald Acuña Jr.",
-            "Shohei Ohtani",
-        ]
-        props = []
+    async def _generate_mlb_props(self) -> List[Dict[str, Any]]:
+        """Fetch real MLB props from PrizePicks API with browser-like headers and full cookie support"""
+        url = "https://api.prizepicks.com/projections?league_id=7&per_page=500"
+        # Load cookies from environment (JSON string, semicolon string, or fallback to single _session cookie)
+        cookies = {}
+        cookies_json = os.getenv("PRIZEPICKS_COOKIES_JSON", None)
+        cookies_str = os.getenv("PRIZEPICKS_COOKIES_STRING", None)
+        session_cookie = os.getenv("PRIZEPICKS_SESSION_COOKIE", None)
+        if cookies_json:
+            import json
 
-        for player in players:
-            props.extend(
-                [
+            try:
+                cookies = json.loads(cookies_json)
+            except Exception as e:
+                logger.warning(f"⚠️ Could not parse PRIZEPICKS_COOKIES_JSON: {e}")
+        elif cookies_str:
+            # Format: "key1=value1; key2=value2; ..."
+            try:
+                for pair in cookies_str.split(";"):
+                    if "=" in pair:
+                        k, v = pair.strip().split("=", 1)
+                        cookies[k.strip()] = v.strip()
+            except Exception as e:
+                logger.warning(f"⚠️ Could not parse PRIZEPICKS_COOKIES_STRING: {e}")
+        elif session_cookie:
+            cookies["_session"] = session_cookie
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*",
+            "Referer": "https://app.prizepicks.com/",
+            "Origin": "https://app.prizepicks.com",
+            "Connection": "keep-alive",
+        }
+        try:
+            response = await self.client.get(url, headers=headers, cookies=cookies)
+            response.raise_for_status()
+            data = response.json()
+            props = []
+            for item in data.get("data", []):
+                # Normalize PrizePicks response to unified model
+                attributes = item.get("attributes", {})
+                player_name = attributes.get("name", "Unknown")
+                stat_type = attributes.get("stat_type", "Unknown")
+                line = attributes.get("line_score", None)
+                over_odds = attributes.get("over_odds", None)
+                under_odds = attributes.get("under_odds", None)
+                game_time = attributes.get("game_time", None)
+                prop_id = item.get("id", None)
+                props.append(
                     {
-                        "id": f"mlb_{player.replace(' ', '_').lower()}_hits",
-                        "player": player,
-                        "stat_type": "Hits",
-                        "line": random.choice([0.5, 1.5, 2.5]),
-                        "over_odds": random.randint(-150, 150),
-                        "under_odds": random.randint(-150, 150),
+                        "id": f"mlb_{prop_id}",
+                        "player": player_name,
+                        "stat_type": stat_type,
+                        "line": line,
+                        "over_odds": over_odds,
+                        "under_odds": under_odds,
                         "sport": "MLB",
-                        "game_time": datetime.now(timezone.utc)
-                        + timedelta(hours=random.randint(1, 8)),
-                    },
-                    {
-                        "id": f"mlb_{player.replace(' ', '_').lower()}_rbis",
-                        "player": player,
-                        "stat_type": "RBIs",
-                        "line": random.choice([0.5, 1.5, 2.5]),
-                        "over_odds": random.randint(-150, 150),
-                        "under_odds": random.randint(-150, 150),
-                        "sport": "MLB",
-                        "game_time": datetime.now(timezone.utc)
-                        + timedelta(hours=random.randint(1, 8)),
-                    },
-                ]
-            )
-
-        return props
+                        "game_time": game_time,
+                    }
+                )
+            if not props:
+                logger.warning(
+                    f"⚠️ No MLB props returned. Response status: {response.status_code}, headers: {dict(response.headers)}, body: {response.text[:500]}"
+                )
+            logger.info(f"✅ Fetched {len(props)} MLB props from PrizePicks API")
+            return props
+        except Exception as e:
+            error_context = {
+                "operation": "_generate_mlb_props",
+                "url": url,
+                "headers": headers,
+                "cookies": cookies,
+                "cookies_json_present": bool(cookies_json),
+                "cookies_str_present": bool(cookies_str),
+                "session_cookie_present": bool(session_cookie),
+            }
+            logger.error(f"❌ Error fetching MLB props from PrizePicks: {e}")
+            self.error_handler.handle_error(e, error_context)
+            return []
 
     def _generate_nba_props(self) -> List[Dict[str, Any]]:
         """Generate NBA-specific props"""

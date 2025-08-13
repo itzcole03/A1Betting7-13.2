@@ -2,8 +2,8 @@
  * UserInvitationService - Handles user invitations sent by admins
  */
 
+import { _emailNotificationService } from './EmailNotificationService';
 import { Role } from './PermissionService';
-import { emailNotificationService } from './EmailNotificationService';
 
 export interface UserInvitation {
   id: string;
@@ -324,12 +324,12 @@ class UserInvitationService {
     });
 
     // In a real implementation, this would send an email with the invitation link
-    await emailNotificationService.notifyUserOfInvitation({
+    await _emailNotificationService.notifyUserOfInvitation({
       userEmail: data.email,
       role: data.role,
       invitedBy: adminEmail,
       invitationUrl,
-      message: data.message,
+      message: data.message ?? '',
       expiresInDays: data.expiresInDays || 7,
     });
 

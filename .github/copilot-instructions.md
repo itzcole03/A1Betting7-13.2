@@ -1,3 +1,31 @@
+# AI Agent Onboarding Summary (2024-06)
+
+Welcome to A1Betting7-13.2! This guide is for AI agents and developers to achieve immediate productivity. Follow these rules and patterns for robust integration and onboarding:
+
+## Immediate Productivity Checklist
+
+- **Directory Discipline:**
+  - Backend: Run all commands from project root (`A1Betting7-13.2/`). Never from `backend/`.
+  - Frontend: Run all commands from `frontend/` subdirectory. Never from project root.
+- **Unified Services:**
+  - Use `unified_data_fetcher`, `unified_cache_service`, `unified_error_handler`, `unified_logging`, `unified_config` for backend features.
+  - Use `MasterServiceRegistry.getInstance().getService('data')` for frontend service access.
+- **Component Architecture:**
+  - Prefer modular components and hooks (see `PropOllamaContainer`, `usePropOllamaState`).
+  - Always pass sport context: `mapToFeaturedProps(props, sport)`.
+  - Virtualize lists >100 items with `VirtualizedPropList`.
+- **ML/LLM Integration:**
+  - Use try/except import patterns for robust fallback if dependencies are missing.
+- **Testing:**
+  - Backend: `pytest` (root), Frontend: Jest/Playwright (from `frontend/`).
+- **Documentation:**
+  - See `PRIZEPICKS_COOKIES_JSON_USAGE.md` for API authentication/cookie setup.
+- **Troubleshooting:**
+  - For empty props, check sport context and backend logs.
+  - For connection issues, verify Vite proxy and port config.
+
+For details, see the full instructions below.
+
 # Copilot Agent Instructions: A1Betting7-13.2
 
 ## Big Picture Architecture
@@ -1488,3 +1516,7 @@ const ComponentWithVirtualization: React.FC<Props> = ({ data }) => {
 3. **Handle errors gracefully** using `unified_error_handler.py`
 4. **Use descriptive operation names** for debugging
 5. **Integrate with service health checks** for registry monitoring
+
+### Always -
+
+1. Use sequential thinking. Use context7.

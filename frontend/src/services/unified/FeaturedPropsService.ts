@@ -23,7 +23,7 @@ export interface FeaturedProp {
   pickType: string;
   espnPlayerId?: string;
   // Preserve original raw data for backend processing
-  _originalData?: any;
+  _originalData?: Record<string, unknown>;
 }
 
 /**
@@ -278,14 +278,14 @@ export async function fetchFeaturedProps(
     }
 
     // Check if this is a connectivity issue (including axios errors)
-    const isConnectivityError = error instanceof Error && (
-      error.message.includes('Failed to fetch') ||
-      error.message.includes('Network Error') ||
-      error.message.includes('timeout') ||
-      error.message.includes('signal timed out') ||
-      error.name === 'NetworkError' ||
-      (error as any).code === 'ERR_NETWORK'
-    );
+    const isConnectivityError =
+      error instanceof Error &&
+      (error.message.includes('Failed to fetch') ||
+        error.message.includes('Network Error') ||
+        error.message.includes('timeout') ||
+        error.message.includes('signal timed out') ||
+        error.name === 'NetworkError' ||
+        (error as any).code === 'ERR_NETWORK');
 
     if (isConnectivityError) {
       console.log(`[FeaturedPropsService] Backend unavailable for ${sport} - using mock data`);
@@ -303,7 +303,7 @@ export async function fetchFeaturedProps(
           confidence: 85,
           sport: sport || 'MLB',
           gameTime: new Date().toISOString(),
-          pickType: 'over'
+          pickType: 'over',
         },
         {
           id: 'mock-mike-trout-hits',
@@ -316,7 +316,7 @@ export async function fetchFeaturedProps(
           confidence: 78,
           sport: sport || 'MLB',
           gameTime: new Date().toISOString(),
-          pickType: 'over'
+          pickType: 'over',
         },
         {
           id: 'mock-mookie-betts-rbis',
@@ -329,8 +329,8 @@ export async function fetchFeaturedProps(
           confidence: 82,
           sport: sport || 'MLB',
           gameTime: new Date().toISOString(),
-          pickType: 'over'
-        }
+          pickType: 'over',
+        },
       ];
 
       return mockProps;

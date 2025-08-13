@@ -67,6 +67,29 @@ export interface PropSorting {
   sortOrder: 'asc' | 'desc';
 }
 
+/**
+ * FeaturedProp - main prop analytics type
+ */
+export interface FeaturedProp {
+  id: string;
+  player: string;
+  stat: string;
+  line: number;
+  confidence: number;
+  matchup: string;
+  espnPlayerId: string;
+  position?: string;
+  summary?: string;
+  analysis?: string;
+  stats?: { label: string; value: number }[];
+  insights?: { icon: React.ReactNode; text: string }[];
+  _originalData?: Record<string, unknown>;
+  alternativeProps?: FeaturedProp[];
+  over_prob?: number;
+  under_prob?: number;
+  expected_value?: number;
+  explanation?: string;
+}
 export interface PropDisplayOptions {
   visiblePropsCount: number;
   useVirtualization: boolean;
@@ -83,7 +106,7 @@ export type SortByType =
   | 'analytics_score';
 
 // Utility functions
-export function safeCell(val: any): string {
+export function safeCell(val: unknown): string {
   if (val === undefined || val === null) return '';
   if (typeof val === 'number' && isNaN(val)) return '';
   return String(val);
@@ -103,7 +126,7 @@ export function formatPercentage(value: number): string {
 // Main application state interface
 export interface PropOllamaState {
   // Data
-  visibleProjections: any[];
+  visibleProjections: FeaturedProp[];
   selectedProps: SelectedProp[];
   upcomingGames: UpcomingGame[];
   availableSports: string[];
@@ -137,7 +160,7 @@ export interface PropOllamaState {
   };
 
   // Analysis
-  enhancedAnalysisCache: Record<string, any>;
+  enhancedAnalysisCache: Record<string, FeaturedProp | undefined>;
   loadingAnalysis: Record<string, boolean>;
 }
 
@@ -149,16 +172,10 @@ export interface PropOllamaActions {
   // Sorting
   updateSorting: (sorting: Partial<PropSorting>) => void;
 
-  // UI
-  toggleExpand: (key: string) => void;
-
   // Data
-  selectGame: (gameId: number) => void;
-  requestEnhancedAnalysis: (prop: any) => void;
 
-  // Betting
-  addProp: (prop: SelectedProp) => void;
-  removeProp: (propId: string) => void;
+  // Analysis
+  loadingAnalysis: Record<string, boolean>;
   updateEntryAmount: (amount: number) => void;
   clearAllProps: () => void;
   placeBet: () => void;

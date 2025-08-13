@@ -4,7 +4,7 @@ interface LogEntry {
   level: LogLevel;
   message: string;
   data?: unknown;
-  context?: string;
+  context?: string | undefined;
   timestamp: string;
 }
 
@@ -21,7 +21,7 @@ class Logger {
       level,
       message,
       data,
-      context,
+      context: context === undefined ? undefined : context,
       timestamp: new Date().toISOString(),
     };
   }
@@ -35,11 +35,12 @@ class Logger {
     const fullMessage = `${timestamp} ${prefix} ${message}`;
 
     // Properly serialize data for logging
-    const logData = data !== undefined ? (
-      typeof data === 'object' && data !== null
-        ? JSON.stringify(data, null, 2)
-        : data
-    ) : '';
+    const logData =
+      data !== undefined
+        ? typeof data === 'object' && data !== null
+          ? JSON.stringify(data, null, 2)
+          : data
+        : '';
 
     switch (level) {
       case 'info':

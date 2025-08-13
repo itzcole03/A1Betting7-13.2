@@ -1,36 +1,55 @@
 // Standardized service exports for cleaner imports across the application
-export { discoverBackend } from './backendDiscovery';
 export { apiClient, get, post } from './api/client';
 export * from './api/index';
+export { discoverBackend } from './backendDiscovery';
 
 // Export commonly used services
 export { default as OllamaService } from './ai/OllamaService';
-export type { ExplainRequest, AIResponse } from './ai/OllamaService';
+export type { AIResponse, ExplainRequest } from './ai/OllamaService';
 
 // Export unified services
 export { default as UnifiedErrorService } from './unified/UnifiedErrorService';
 export { default as UnifiedStateService } from './unified/UnifiedStateService';
+export { UnifiedLogger } from './UnifiedLogger';
 
 // Export performance services
 export { default as PerformanceOptimizationService } from './performance/PerformanceOptimizationService';
-export type { PerformanceMetrics, OptimizationConfig } from './performance/PerformanceOptimizationService';
+export type { PerformanceMetrics } from './performance/PerformanceOptimizationService';
 
 // Export http client
 export { httpFetch } from './HttpClient';
 
 // Export feature services
-export { default as PrizePicksService } from './prizePicks';
 export { cheatsheetsService } from './cheatsheetsService';
-export type { PropOpportunity, CheatsheetFilters } from './cheatsheetsService';
+export type { CheatsheetFilters, PropOpportunity } from './cheatsheetsService';
+export { default as PrizePicksService } from './prizePicks';
 
 // Export analytics services
-export type { 
+export type {
   CrossSportInsight,
-  SportSummary,
   ModelPerformanceSnapshot,
-  PerformanceAlert
+  PerformanceAlert,
+  SportSummary,
 } from '../types/analytics';
 
 // Export enhanced services
 export { EnhancedPropAnalysis } from './EnhancedPropAnalysisService';
-export { FeaturedProp } from './unified/FeaturedPropsService';
+
+// Export injury service and types (strict typing)
+export * from './injuryService';
+export { _injuryService, default as injuryService } from './injuryService';
+export type { HealthAlert, InjuryReport, InjuryTrend, PlayerInjury } from './injuryService';
+
+// Export enhanced data manager and debug manager (strict typing)
+export { debugEnhancedDataManager } from './DebugEnhancedDataManager';
+export { enhancedDataManager } from './EnhancedDataManager';
+// export type { FeaturedProp as EnhancedFeaturedProp } from './EnhancedDataManager';
+export {
+  clearPropsCache,
+  fetchBatchPredictions,
+  fetchEnhancedPropAnalysis,
+  fetchFeaturedProps,
+  getDataManagerMetrics,
+  prefetchPropsData,
+  subscribeToPropsUpdates,
+} from './unified/FeaturedPropsService';

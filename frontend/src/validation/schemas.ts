@@ -57,7 +57,7 @@ export const _validateRequest = (schema: ZodSchema<unknown> | ZodTypeAny) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       await schema.parseAsync(req.body);
-      next();
+      return next();
     } catch (error) {
       if (error instanceof Error) {
         return res.status(400).json({
@@ -65,7 +65,7 @@ export const _validateRequest = (schema: ZodSchema<unknown> | ZodTypeAny) => {
           details: error.message,
         });
       }
-      next(error);
+      return next(error);
     }
   };
 };

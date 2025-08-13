@@ -1,5 +1,5 @@
-import { EventBus } from '../../core/EventBus';
-import { PerformanceMonitor } from './PerformanceMonitor';
+import { EventBus } from '../unified/EventBus';
+import { PerformanceMonitor } from '../unified/PerformanceMonitor';
 
 export interface FeatureMetadata {
   id: string;

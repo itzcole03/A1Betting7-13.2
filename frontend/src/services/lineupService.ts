@@ -1,6 +1,18 @@
 import { Contest, ContestsResponseSchema } from '../schemas/contest';
 import _apiService from './unified/ApiService';
 
+// Branded type for cache payloads
+type LineupCachePayload =
+  | Contest[]
+  | Player[]
+  | PlayerProjection[]
+  | LineupOptimization[]
+  | LineupStrategy[]
+  | { [playerId: string]: number }
+  | { [playerId: string]: { [playerId: string]: number } };
+
+// Branded type for cache payloads
+
 export interface Player {
   id: string;
   name: string;
@@ -128,15 +140,15 @@ export interface OptimizationConstraints {
 
 class LineupService {
   private apiService: typeof _apiService;
-  private cache: Map<string, { data: unknown; timestamp: number }> = new Map();
+  private cache = new Map<string, { data: LineupCachePayload; timestamp: number }>();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
     this.apiService = _apiService;
   }
 
-  private getCacheKey(method: string, params?: unknown): string {
-    return `${method}_${JSON.stringify(params || {})}`;
+  private getCacheKey(method: string, params?: object): string {
+    return `${method}_${JSON.stringify(params ?? {})}`;
   }
 
   private isValidCache(_cacheKey: string): boolean {
@@ -145,12 +157,20 @@ class LineupService {
     return Date.now() - _cached.timestamp < this.CACHE_TTL;
   }
 
-  private getFromCache<T>(_cacheKey: string): T | null {
+  private getFromCache<T extends LineupCachePayload>(_cacheKey: string): T | null {
     const _cached = this.cache.get(_cacheKey);
-    return _cached ? (_cached.data as T) : null;
+    if (!_cached) return null;
+    // Runtime guard for array/object types
+    if (Array.isArray(_cached.data)) {
+      return _cached.data as T;
+    }
+    if (typeof _cached.data === 'object' && _cached.data !== null) {
+      return _cached.data as T;
+    }
+    return null;
   }
 
-  private setCache(_cacheKey: string, data: unknown): void {
+  private setCache<T extends LineupCachePayload>(_cacheKey: string, data: T): void {
     this.cache.set(_cacheKey, {
       data,
       timestamp: Date.now(),
@@ -300,14 +320,17 @@ class LineupService {
           ...options,
         },
       });
-
-      return (_response.data as any[]).map((_optimization: any) => ({
-        ..._optimization,
-        lineup: _optimization.lineup.map((_player: any) => ({
-          ..._player,
-          gameTime: new Date(_player.gameTime),
-        })),
-      }));
+      // Runtime guard for array of LineupOptimization
+      if (!Array.isArray(_response.data)) return this.getFallbackOptimization();
+      return _response.data.map((opt: Partial<LineupOptimization>) => ({
+        ...opt,
+        lineup: Array.isArray(opt.lineup)
+          ? opt.lineup.map((player: Partial<Player>) => ({
+              ...player,
+              gameTime: player.gameTime ? new Date(player.gameTime) : new Date(),
+            }))
+          : [],
+      })) as LineupOptimization[];
     } catch (error) {
       console.error('Error optimizing lineup:', error);
       return this.getFallbackOptimization();
@@ -328,9 +351,12 @@ class LineupService {
       const _response = await this.apiService.get('/strategies', {
         params: { contestType },
       });
-
-      this.setCache(_cacheKey, _response.data);
-      return _response.data as LineupStrategy[];
+      // Runtime guard for array of LineupStrategy
+      if (Array.isArray(_response.data)) {
+        this.setCache(_cacheKey, _response.data as LineupStrategy[]);
+        return _response.data as LineupStrategy[];
+      }
+      return this.getFallbackStrategies();
     } catch (error) {
       console.error('Error fetching strategies:', error);
       return this.getFallbackStrategies();
@@ -373,13 +399,36 @@ class LineupService {
       const _response = await this.apiService.post(`/contests/${contestId}/validate`, {
         lineup: lineup.map(p => p.id),
       });
-
-      return _response.data as {
-        isValid: boolean;
-        errors: string[];
-        warnings: string[];
-        totalSalary: number;
-        projectedPoints: number;
+      // Runtime guard for expected response shape
+      const d = _response.data;
+      if (
+        typeof d === 'object' &&
+        d !== null &&
+        'isValid' in d &&
+        typeof (d as any).isValid === 'boolean' &&
+        'errors' in d &&
+        Array.isArray((d as any).errors) &&
+        'warnings' in d &&
+        Array.isArray((d as any).warnings) &&
+        'totalSalary' in d &&
+        typeof (d as any).totalSalary === 'number' &&
+        'projectedPoints' in d &&
+        typeof (d as any).projectedPoints === 'number'
+      ) {
+        return d as {
+          isValid: boolean;
+          errors: string[];
+          warnings: string[];
+          totalSalary: number;
+          projectedPoints: number;
+        };
+      }
+      return {
+        isValid: false,
+        errors: ['Validation failed'],
+        warnings: [],
+        totalSalary: lineup.reduce((sum, p) => sum + p.salary, 0),
+        projectedPoints: lineup.reduce((sum, p) => sum + p.projectedPoints, 0),
       };
     } catch (error) {
       console.error('Error validating lineup:', error);
@@ -405,9 +454,16 @@ class LineupService {
 
     try {
       const _response = await this.apiService.get(`/contests/${contestId}/ownership`);
-
-      this.setCache(_cacheKey, _response.data);
-      return _response.data as { [playerId: string]: number };
+      // Runtime guard for object with string keys and number values
+      if (
+        typeof _response.data === 'object' &&
+        _response.data !== null &&
+        Object.values(_response.data).every(v => typeof v === 'number')
+      ) {
+        this.setCache(_cacheKey, _response.data as { [playerId: string]: number });
+        return _response.data as { [playerId: string]: number };
+      }
+      return {};
     } catch (error) {
       console.error('Error fetching ownership projections:', error);
       return {};
@@ -434,9 +490,25 @@ class LineupService {
       const _response = await this.apiService.post('/analytics/correlations', {
         playerIds,
       });
-
-      this.setCache(_cacheKey, _response.data);
-      return _response.data as { [playerId: string]: { [playerId: string]: number } };
+      // Runtime guard for object with string keys and values as objects of string:number
+      if (
+        typeof _response.data === 'object' &&
+        _response.data !== null &&
+        !('playerIds' in _response.data) &&
+        Object.values(_response.data).every(
+          v =>
+            typeof v === 'object' &&
+            v !== null &&
+            Object.values(v).every(n => typeof n === 'number')
+        )
+      ) {
+        this.setCache(
+          _cacheKey,
+          _response.data as { [playerId: string]: { [playerId: string]: number } }
+        );
+        return _response.data as { [playerId: string]: { [playerId: string]: number } };
+      }
+      return {};
     } catch (error) {
       console.error('Error fetching correlation matrix:', error);
       return {};
@@ -457,8 +529,11 @@ class LineupService {
         format,
         contestId,
       });
-
-      return _response.data as string;
+      // Runtime guard for string response
+      if (typeof _response.data === 'string') {
+        return _response.data;
+      }
+      return '';
     } catch (error) {
       console.error('Error exporting lineup:', error);
       throw error;
@@ -479,11 +554,12 @@ class LineupService {
         format,
         contestId,
       });
-
-      return (_response.data as any[]).map((_player: any) => ({
-        ..._player,
-        gameTime: new Date(_player.gameTime),
-      }));
+      // Runtime guard for array of Player
+      if (!Array.isArray(_response.data)) return [];
+      return _response.data.map((player: Partial<Player>) => ({
+        ...player,
+        gameTime: player.gameTime ? new Date(player.gameTime) : new Date(),
+      })) as Player[];
     } catch (error) {
       console.error('Error importing lineup:', error);
       throw error;
@@ -579,23 +655,45 @@ class LineupService {
         currentLineup: currentLineup.map(p => p.id),
         strategy,
       });
-
-      const _data = _response.data as any;
+      // Runtime guard for expected object shape
+      const d = _response.data;
+      const hasSuggestions =
+        d && typeof d === 'object' && 'suggestions' in d && Array.isArray(d.suggestions);
+      const hasImprovements =
+        d && typeof d === 'object' && 'improvements' in d && Array.isArray(d.improvements);
       return {
-        ...(_data || {}),
-        suggestions: (_data?.suggestions || []).map((_suggestion: any) => ({
-          ..._suggestion,
-          player: {
-            ..._suggestion.player,
-            gameTime: new Date(_suggestion.player.gameTime),
-          },
-          replacement: _suggestion.replacement
-            ? {
-                ..._suggestion.replacement,
-                gameTime: new Date(_suggestion.replacement.gameTime),
-              }
-            : undefined,
-        })),
+        suggestions: hasSuggestions
+          ? (
+              d.suggestions as Array<{
+                action: 'add' | 'remove' | 'swap';
+                player: Player;
+                replacement?: Player;
+                reasoning: string;
+                impact: number;
+              }>
+            ).map(suggestion => ({
+              ...suggestion,
+              player:
+                suggestion.player && suggestion.player.gameTime
+                  ? { ...suggestion.player, gameTime: new Date(suggestion.player.gameTime) }
+                  : suggestion.player,
+              replacement:
+                suggestion.replacement && suggestion.replacement.gameTime
+                  ? {
+                      ...suggestion.replacement,
+                      gameTime: new Date(suggestion.replacement.gameTime),
+                    }
+                  : suggestion.replacement,
+            }))
+          : [],
+        improvements: hasImprovements
+          ? (d.improvements as Array<{
+              metric: string;
+              current: number;
+              potential: number;
+              confidence: number;
+            }>)
+          : [],
       };
     } catch (error) {
       console.error('Error fetching recommendations:', error);
@@ -606,16 +704,22 @@ class LineupService {
   /**
    * Fetch live betting recommendations from the backend
    */
-  async getLiveRecommendations(): Promise<unknown[]> {
+  async getLiveRecommendations(): Promise<Player[]> {
     try {
       const _response = await this.apiService.get(`/api/betting/recommendations`, { cache: false });
-      // Return the recommendations array from the backend
-      return _response.data as unknown[];
+      // Runtime guard for array of Player
+      if (!Array.isArray(_response.data)) return [];
+      return _response.data.map((player: Partial<Player>) => ({
+        ...player,
+        gameTime: player.gameTime ? new Date(player.gameTime) : new Date(),
+      })) as Player[];
     } catch (error) {
       console.error('Error fetching live recommendations:', error);
       return [];
     }
   }
+
+  // Branded type for cache payloads
 
   /**
    * Clear all cached data

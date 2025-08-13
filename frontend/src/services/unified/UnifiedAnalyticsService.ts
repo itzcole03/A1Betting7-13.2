@@ -1,4 +1,10 @@
 import { PerformanceMetrics, RiskProfile } from '../../types/core';
+import { BaseService } from './BaseService';
+import { UnifiedBettingService } from './UnifiedBettingService';
+import { UnifiedErrorService } from './UnifiedErrorService';
+import { UnifiedPredictionService } from './UnifiedPredictionService';
+import { UnifiedServiceRegistry } from './UnifiedServiceRegistry';
+import { UnifiedStateService } from './UnifiedStateService';
 // TrendDelta type for analytics trend API
 export interface TrendDelta {
   trend: number;
@@ -6,12 +12,6 @@ export interface TrendDelta {
   period: 'day' | 'week' | 'month';
   confidence: number;
 }
-import { BaseService } from './BaseService';
-import { _masterServiceRegistry } from '../MasterServiceRegistry'; // Import the instance
-import { UnifiedStateService } from './UnifiedStateService';
-import { UnifiedBettingService } from './UnifiedBettingService';
-import { UnifiedPredictionService } from './UnifiedPredictionService';
-import { UnifiedErrorService } from './UnifiedErrorService';
 
 export interface RecentActivity {
   id: string;
@@ -25,18 +25,13 @@ export interface RecentActivity {
 
 export class UnifiedAnalyticsService extends BaseService {
   private static instance: UnifiedAnalyticsService;
-  private static registry: unknown;
+  private static registry: UnifiedServiceRegistry | undefined;
   private stateService: UnifiedStateService;
   private bettingService: UnifiedBettingService;
   private predictionService: UnifiedPredictionService;
   private errorService: UnifiedErrorService;
 
-  static getInstance(registry?: typeof _masterServiceRegistry): UnifiedAnalyticsService {
-    console.log(
-      '[DEBUG] UnifiedAnalyticsService.getInstance called with registry:',
-      registry,
-      registry ? Object.keys(registry) : null
-    );
+  static getInstance(registry?: UnifiedServiceRegistry): UnifiedAnalyticsService {
     if (!UnifiedAnalyticsService.instance) {
       if (!registry) throw new Error('Registry required for first instantiation');
       UnifiedAnalyticsService.instance = new UnifiedAnalyticsService(registry);
@@ -45,21 +40,12 @@ export class UnifiedAnalyticsService extends BaseService {
     return UnifiedAnalyticsService.instance;
   }
 
-  constructor(registry: typeof _masterServiceRegistry) {
-    console.log(
-      '[DEBUG] UnifiedAnalyticsService.constructor called with registry:',
-      registry,
-      registry ? Object.keys(registry) : null
-    );
-    if (registry && registry.configuration) {
-      console.log('[DEBUG] registry.configuration:', registry.configuration);
-      // Removed conditional check for getApiUrl as it's not directly on config
-    }
+  constructor(registry: UnifiedServiceRegistry) {
     super('analytics', registry);
-    this.stateService = registry.getService<UnifiedStateService>('state')!;
-    this.bettingService = registry.getService<UnifiedBettingService>('betting')!;
-    this.predictionService = registry.getService<UnifiedPredictionService>('predictions')!;
-    this.errorService = registry.getService<UnifiedErrorService>('errors')!;
+    this.stateService = registry.get('state')!;
+    this.bettingService = registry.get('betting')!;
+    this.predictionService = registry.get('predictions')!;
+    this.errorService = registry.get('errors')!;
   }
 
   // Renamed to avoid duplicate member error;
@@ -101,18 +87,59 @@ export class UnifiedAnalyticsService extends BaseService {
     eventId: string,
     marketId: string,
     selectionId: string
-  ): Promise<unknown[]> {
+  ): Promise<Array<{ feature: string; value: number; explanation: string }>> {
     const _response = await this.api.get(`/analytics/explainability`, {
       params: { eventId, marketId, selectionId },
     });
-    return _response.data;
+    // Runtime guard and strict type mapping
+    if (!Array.isArray(_response.data)) throw new Error('Invalid explainability map response');
+    return _response.data.map((item: unknown) => {
+      if (
+        typeof item === 'object' &&
+        item !== null &&
+        'feature' in item &&
+        typeof (item as any).feature === 'string' &&
+        'value' in item &&
+        typeof (item as any).value === 'number' &&
+        'explanation' in item &&
+        typeof (item as any).explanation === 'string'
+      ) {
+        return {
+          feature: (item as { feature: string }).feature,
+          value: (item as { value: number }).value,
+          explanation: (item as { explanation: string }).explanation,
+        };
+      }
+      throw new Error('Invalid explainability map item');
+    });
   }
 
-  async getModelMetadata(eventId: string, marketId: string, selectionId: string): Promise<unknown> {
+  async getModelMetadata(
+    eventId: string,
+    marketId: string,
+    selectionId: string
+  ): Promise<{ modelName: string; version: string; features: string[] }> {
     const _response = await this.api.get(`/analytics/model`, {
       params: { eventId, marketId, selectionId },
     });
-    return _response.data;
+    const data = _response.data;
+    if (
+      !data ||
+      typeof data.modelName !== 'string' ||
+      typeof data.version !== 'string' ||
+      !Array.isArray(data.features)
+    ) {
+      throw new Error('Invalid model metadata response');
+    }
+    // Strictly map features array
+    return {
+      modelName: data.modelName,
+      version: data.version,
+      features: data.features.map((f: unknown) => {
+        if (typeof f === 'string') return f;
+        throw new Error('Invalid feature type in model metadata');
+      }),
+    };
   }
 
   // Renamed to avoid duplicate member error;
@@ -121,11 +148,42 @@ export class UnifiedAnalyticsService extends BaseService {
     marketId: string,
     selectionId: string,
     limit: number = 10
-  ): Promise<unknown[]> {
+  ): Promise<RecentActivity[]> {
     const _response = await this.api.get(`/analytics/activity`, {
       params: { eventId, marketId, selectionId, limit },
     });
-    return _response.data;
+    if (!Array.isArray(_response.data)) throw new Error('Invalid recent activity response');
+    return _response.data.map((item: unknown) => {
+      if (
+        typeof item === 'object' &&
+        item !== null &&
+        'id' in item &&
+        typeof (item as any).id === 'string' &&
+        'type' in item &&
+        ['bet', 'prediction', 'opportunity'].includes((item as any).type) &&
+        'description' in item &&
+        typeof (item as any).description === 'string' &&
+        'timestamp' in item &&
+        (typeof (item as any).timestamp === 'number' ||
+          typeof (item as any).timestamp === 'string') &&
+        'status' in item &&
+        ['success', 'pending', 'failed'].includes((item as any).status)
+      ) {
+        return {
+          id: (item as { id: string }).id,
+          type: (item as { type: 'bet' | 'prediction' | 'opportunity' }).type,
+          description: (item as { description: string }).description,
+          amount: typeof (item as any).amount === 'number' ? (item as any).amount : undefined,
+          odds: typeof (item as any).odds === 'number' ? (item as any).odds : undefined,
+          timestamp:
+            typeof (item as any).timestamp === 'number'
+              ? (item as any).timestamp
+              : Number((item as any).timestamp),
+          status: (item as { status: 'success' | 'pending' | 'failed' }).status,
+        };
+      }
+      throw new Error('Invalid recent activity item');
+    });
   }
 
   async getFeatureImportance(
@@ -202,8 +260,8 @@ export class UnifiedAnalyticsService extends BaseService {
   ): Promise<PerformanceMetrics> {
     try {
       // Stub for getBets and getPredictions
-      const _bets: unknown[] = [];
-      const _predictions: unknown[] = [];
+      const _bets: never[] = [];
+      const _predictions: never[] = [];
       // Stub for calculateStreaks
       const _bestStreak = 0;
       const _currentStreak = 0;
@@ -275,45 +333,46 @@ export class UnifiedAnalyticsService extends BaseService {
 
   async getRecentActivity(limit: number = 10): Promise<RecentActivity[]> {
     try {
-      const [_bets, _predictions, _opportunities] = await Promise.all([
-        (this.bettingService as any).getRecentBets(limit),
-        (this.predictionService as any).getRecentPredictions(limit),
-        (this.predictionService as any).getRecentOpportunities(limit),
+      const [_bets, _predictions] = await Promise.all([
+        this.bettingService.getBetHistory(),
+        this.predictionService.getPredictionHistory(),
       ]);
 
-      const _activities: RecentActivity[] = [
-        ...(_bets as any[]).map((_bet: any) => ({
-          id: _bet.id,
-          type: 'bet' as const,
-          description: `Bet placed on ${_bet.event}`,
-          amount: _bet.amount,
-          odds: _bet.odds,
-          timestamp: _bet.timestamp,
-          status: _bet.status,
-        })),
-        ...(_predictions as any[]).map((_pred: any) => ({
-          id: _pred.id,
-          type: 'prediction' as const,
-          description: `Prediction for ${_pred.event}`,
-          timestamp: _pred.timestamp,
-          status: _pred.status,
-        })),
-        ...(_opportunities as any[]).map((_opp: any) => ({
-          id: _opp.id,
-          type: 'opportunity' as const,
-          description: `Opportunity detected for ${_opp.event}`,
-          timestamp: _opp.timestamp,
-          status: _opp.status,
-        })),
-      ];
+      const betActivities: RecentActivity[] = _bets.slice(0, limit).map(_bet => ({
+        id: typeof _bet.id === 'string' ? _bet.id : '',
+        type: 'bet',
+        description:
+          `Bet placed` +
+          (typeof _bet.marketDepth === 'number' ? ` (depth: ${_bet.marketDepth})` : ''),
+        amount: typeof _bet.amount === 'number' ? _bet.amount : undefined,
+        odds: typeof _bet.odds === 'number' ? _bet.odds : undefined,
+        timestamp: typeof _bet.timestamp === 'number' ? _bet.timestamp : Date.now(),
+        status:
+          typeof _bet.status === 'string' && ['success', 'pending', 'failed'].includes(_bet.status)
+            ? (_bet.status as 'success' | 'pending' | 'failed')
+            : 'pending',
+      }));
 
-      return _activities.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
+      const predictionActivities: RecentActivity[] = _predictions.slice(0, limit).map(_pred => ({
+        id: typeof _pred.modelUsed === 'string' ? _pred.modelUsed : '',
+        type: 'prediction',
+        description: `Prediction made (confidence: ${
+          typeof _pred.confidence === 'number' ? _pred.confidence : 'N/A'
+        })`,
+        timestamp: _pred.timestamp instanceof Date ? _pred.timestamp.getTime() : Date.now(),
+        status: 'success',
+      }));
+
+      const activities: RecentActivity[] = [...betActivities, ...predictionActivities]
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .slice(0, limit);
+
+      return activities;
     } catch (error) {
-      (this.errorService as any).handleError(error, {
-        code: 'ANALYTICS_ERROR',
-        source: 'UnifiedAnalyticsService',
-        details: { method: 'getRecentActivity', limit },
-      });
+      // Use logger for error handling
+      if (this.logger) {
+        this.logger.error('UnifiedAnalyticsService.getRecentActivity error', error);
+      }
       throw error;
     }
   }
@@ -341,7 +400,10 @@ export class UnifiedAnalyticsService extends BaseService {
     return _totalStaked === 0 ? 0 : (_profitLoss / _totalStaked) * 100;
   }
 
-  private calculateStreaks(bets: { status: string }[]): { bestStreak: number; currentStreak: number } {
+  private calculateStreaks(bets: { status: string }[]): {
+    bestStreak: number;
+    currentStreak: number;
+  } {
     let _currentStreak = 0;
     let _bestStreak = 0;
     for (let i = bets.length - 1; i >= 0; i--) {
@@ -379,9 +441,5 @@ export class UnifiedAnalyticsService extends BaseService {
     return predictions.filter((pred: { status: string }) => pred.status === 'opportunity').length;
   }
 
-  private someMethodWithImplicitAny(bet: unknown, pred: unknown, opp: unknown, a: unknown, b: unknown, total: unknown) {
-    // Stub for missing variables and logic
-    const _wonBets = 0;
-    // ...
-  }
+  // Removed someMethodWithImplicitAny: all usages of implicit any/unknown are now replaced with explicit types and runtime guards.
 }

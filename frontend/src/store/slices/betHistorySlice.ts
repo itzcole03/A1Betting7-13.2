@@ -51,7 +51,7 @@ export interface BetHistoryState {
 }
 
 // Initial state with mock data
-const _initialUserHistory: UserHistory = {
+const initialUserHistory: UserHistory = {
   totalBets: 127,
   winRate: 68.5,
   totalProfit: 2847.5,
@@ -96,7 +96,7 @@ const _initialUserHistory: UserHistory = {
   ],
 };
 
-const _initialModelHistory: ModelHistory[] = [
+const initialModelHistory: ModelHistory[] = [
   {
     model: 'Neural Network Alpha',
     market: 'NBA Spreads',
@@ -150,7 +150,7 @@ const _initialModelHistory: ModelHistory[] = [
   },
 ];
 
-export const _useBetHistoryStore = create<BetHistoryState>()(
+export const useBetHistoryStore = create<BetHistoryState>()(
   devtools(
     (set, get) => ({
       userHistory: initialUserHistory,
@@ -192,11 +192,11 @@ export const _useBetHistoryStore = create<BetHistoryState>()(
 
       addBetEntry: (entry: BetEntry) => {
         const { userHistory } = get();
-        const _updatedEntries = [entry, ...userHistory.entries];
-        const _totalBets = updatedEntries.length;
-        const _wins = updatedEntries.filter(e => e.result === 'Win').length;
-        const _totalProfit = updatedEntries.reduce((sum, e) => sum + e.profit, 0);
-        const _totalAmount = updatedEntries.reduce((sum, e) => sum + e.amount, 0);
+        const updatedEntries = [entry, ...userHistory.entries];
+        const totalBets = updatedEntries.length;
+        const wins = updatedEntries.filter(e => e.result === 'Win').length;
+        const totalProfit = updatedEntries.reduce((sum, e) => sum + e.profit, 0);
+        const totalAmount = updatedEntries.reduce((sum, e) => sum + e.amount, 0);
 
         set({
           userHistory: {
@@ -212,13 +212,13 @@ export const _useBetHistoryStore = create<BetHistoryState>()(
 
       updateBetResult: (betId: string, result: BetEntry['result'], profit: number) => {
         const { userHistory } = get();
-        const _updatedEntries = userHistory.entries.map(entry =>
+        const updatedEntries = userHistory.entries.map(entry =>
           entry.betId === betId ? { ...entry, result, profit } : entry
         );
 
-        const _wins = updatedEntries.filter(e => e.result === 'Win').length;
-        const _totalProfit = updatedEntries.reduce((sum, e) => sum + e.profit, 0);
-        const _totalAmount = updatedEntries.reduce((sum, e) => sum + e.amount, 0);
+        const wins = updatedEntries.filter(e => e.result === 'Win').length;
+        const totalProfit = updatedEntries.reduce((sum, e) => sum + e.profit, 0);
+        const totalAmount = updatedEntries.reduce((sum, e) => sum + e.amount, 0);
 
         set({
           userHistory: {

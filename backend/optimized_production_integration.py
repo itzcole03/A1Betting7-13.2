@@ -26,10 +26,10 @@ logger = get_logger("optimized_production")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Enhanced application lifespan with service initialization"""
+    """Enhanced application lifespan with service initialization and persistent blocking"""
     start_time = time.time()
     logger.info("🚀 Starting A1Betting Optimized Backend...")
-
+    cache_service = None
     try:
         # Initialize cache service
         cache_service = await get_cache_service()
@@ -39,6 +39,7 @@ async def lifespan(app: FastAPI):
         startup_time = time.time() - start_time
         logger.info(f"✅ Backend startup completed in {startup_time:.2f}s")
 
+        # Yield control to FastAPI (keeps app running)
         yield
 
     except Exception as e:
@@ -48,8 +49,8 @@ async def lifespan(app: FastAPI):
         # Cleanup
         logger.info("🛑 Shutting down services...")
         try:
-            cache_service = await get_cache_service()
-            await cache_service.close()
+            if cache_service:
+                await cache_service.close()
             logger.info("✅ Services shutdown completed")
         except Exception as e:
             logger.error(f"⚠️ Shutdown error: {e}")
@@ -137,6 +138,20 @@ def create_optimized_app() -> FastAPI:
 
     # Include comprehensive SportRadar routes
     app.include_router(sportradar_router, tags=["SportRadar API"])
+
+    # Include unified intelligence routes (for /props, /predictions, /analytics)
+    try:
+        from backend.routes import unified_api
+
+        app.include_router(
+            unified_api.router, prefix="/api", tags=["Unified Intelligence"]
+        )
+        app.include_router(unified_api.router, prefix="", tags=["Unified Intelligence"])
+        logger.info(
+            "✅ Unified API routes included successfully (/props, /predictions, /analytics)"
+        )
+    except Exception as e:
+        logger.warning(f"⚠️ Could not import unified_api router: {e}")
 
     # Add health check endpoints
     @app.get("/")

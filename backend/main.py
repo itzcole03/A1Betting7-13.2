@@ -8,8 +8,11 @@ Enhanced A1Betting Backend Main Entry Point
 Incorporates Phase 1 optimizations with 2024-2025 FastAPI best practices
 """
 
+
 import logging
 from pathlib import Path
+
+from fastapi.middleware.cors import CORSMiddleware
 
 # Load environment variables from .env file
 try:
@@ -17,7 +20,7 @@ try:
 
     env_path = Path(__file__).parent.parent / ".env"
     load_dotenv(dotenv_path=env_path, override=True)
-    print(f"✅ Loaded .env from: {env_path}")
+    print(f"Loaded .env from: {env_path}")
 except ImportError:
     print("⚠️ python-dotenv not available, using system environment variables")
 
@@ -55,7 +58,8 @@ except ImportError as e:
         logger.info("✅ Enhanced production integration loaded")
     except ImportError as e2:
         logger.warning(
-            "⚠️ Enhanced integration not available (%s), falling back to original", str(e2)
+            "⚠️ Enhanced integration not available (%s), falling back to original",
+            str(e2),
         )
         try:
             from backend.production_integration import create_production_app
@@ -64,9 +68,26 @@ except ImportError as e:
             logger.info("✅ Original production integration loaded")
         except ImportError as e3:
             logger.error(
-                "❌ All integrations failed: optimized=%s, enhanced=%s, original=%s", str(e), str(e2), str(e3)
+                "❌ All integrations failed: optimized=%s, enhanced=%s, original=%s",
+                str(e),
+                str(e2),
+                str(e3),
             )
             raise RuntimeError("No production integration available") from e3
+
+# Add CORS middleware for frontend-backend connectivity
+origins = [
+    "http://localhost:5173",
+    "http://localhost:8000",
+    # Add deployed frontend URLs if needed
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Add request correlation middleware
 try:

@@ -5,6 +5,6 @@
  */
 
 // Re-export from unified types for backward compatibility
-export { PrizePicksPlayer, PrizePicksProjection, PrizePicksData } from './prizePicksUnified';
+export type { PrizePicksData, PrizePicksPlayer, PrizePicksProjection } from './prizePicksUnified';
 
 export {};

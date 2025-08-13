@@ -1,11 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="2" failures="0" errors="0" time="1.158">
-  <testsuite name="PredictionExplanationModal" errors="0" failures="0" skipped="0" timestamp="2025-08-10T16:54:49" time="0.572" tests="1">
-    <testcase classname="PredictionExplanationModal should run a placeholder test" name="PredictionExplanationModal should run a placeholder test" time="0.001">
-    </testcase>
-  </testsuite>
-  <testsuite name="FantasyPredictionEnhancer" errors="0" failures="0" skipped="0" timestamp="2025-08-10T16:54:49" time="0.081" tests="1">
-    <testcase classname="FantasyPredictionEnhancer should run a placeholder test" name="FantasyPredictionEnhancer should run a placeholder test" time="0.001">
-    </testcase>
-  </testsuite>
+<testsuites name="jest tests" tests="0" failures="0" errors="0" time="2.821">
 </testsuites>

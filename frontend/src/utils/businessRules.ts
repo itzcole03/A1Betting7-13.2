@@ -16,11 +16,11 @@ export const _MIN_WIN_RATE = 0.84;
 
 // Example: Enforce team diversification (no more than X players from the same team)
 export function isTeamDiversified(_props: PlayerProp[], _maxPerTeam = 2): boolean {
-  const _teamCounts: Record<string, number> = {};
-  for (const _prop of props) {
-    const _teamId = prop.teamId;
+  const teamCounts: Record<string, number> = {};
+  for (const prop of _props) {
+    const teamId = prop.teamId;
     teamCounts[teamId] = (teamCounts[teamId] || 0) + 1;
-    if (teamCounts[teamId] > maxPerTeam) return false;
+    if (teamCounts[teamId] > _maxPerTeam) return false;
   }
   return true;
 }
@@ -30,7 +30,7 @@ export function isTeamDiversified(_props: PlayerProp[], _maxPerTeam = 2): boolea
  * Extend this logic as new types or business rules are added.
  */
 export function getMultiplier(_type: 'goblin' | 'normal' | 'demon'): number {
-  switch (type) {
+  switch (_type) {
     case 'goblin':
       return 1.5;
     case 'demon':
@@ -43,13 +43,13 @@ export function getMultiplier(_type: 'goblin' | 'normal' | 'demon'): number {
 
 // Validate entry against all business rules;
 export function validateEntry(_entry: Entry): string[] {
-  const _errors: string[] = [];
+  const errors: string[] = [];
   // Enforce minimum win rate;
-  if (entry.props.some((prop: PlayerProp) => prop.confidence < MIN_WIN_RATE)) {
-    errors.push(`All props must have at least ${(MIN_WIN_RATE * 100).toFixed(0)}% win rate.`);
+  if (_entry.props.some((prop: PlayerProp) => prop.confidence < _MIN_WIN_RATE)) {
+    errors.push(`All props must have at least ${(_MIN_WIN_RATE * 100).toFixed(0)}% win rate.`);
   }
   // Enforce team diversification;
-  if (!isTeamDiversified(entry.props)) {
+  if (!isTeamDiversified(_entry.props)) {
     errors.push('Too many props from the same team.');
   }
   // Add more rules as needed;

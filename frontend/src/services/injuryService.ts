@@ -1,4 +1,18 @@
 import _apiService from './unified/ApiService';
+import { UnifiedLogger } from './UnifiedLogger';
+
+type InjuryCachePayload =
+  | PlayerInjury
+  | PlayerInjury[]
+  | InjuryReport[]
+  | InjuryTrend[]
+  | HealthAlert[];
+
+export interface PlayerInjuryProgressNote {
+  date: Date;
+  note: string;
+  source: string;
+}
 
 export interface PlayerInjury {
   id: string;
@@ -16,11 +30,7 @@ export interface PlayerInjury {
   actualReturn: Date | null;
   gamesAffected: number;
   description: string;
-  progressNotes: Array<{
-    date: Date;
-    note: string;
-    source: string;
-  }>;
+  progressNotes: PlayerInjuryProgressNote[];
   marketImpact: {
     playerProps: number;
     teamPerformance: number;
@@ -78,6 +88,10 @@ export interface HealthAlert {
   source: string;
 }
 
+// Branded type for cache payloads
+
+// Branded type for cache payloads
+
 export interface InjurySearchFilters {
   sport?: string;
   team?: string;
@@ -89,20 +103,20 @@ export interface InjurySearchFilters {
     start: Date;
     end: Date;
   };
-  [key: string]: any; // Add index signature
+  [key: string]: unknown; // Add index signature
 }
 
 class InjuryService {
   private apiService: typeof _apiService;
-  private cache: Map<string, { data: any; timestamp: number }> = new Map();
+  private cache = new Map<string, { data: InjuryCachePayload; timestamp: number }>();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
     this.apiService = _apiService;
   }
 
-  private getCacheKey(method: string, params?: any): string {
-    return `${method}_${JSON.stringify(params || {})}`;
+  private getCacheKey(method: string, params?: object): string {
+    return `${method}_${JSON.stringify(params ?? {})}`;
   }
 
   private isValidCache(_cacheKey: string): boolean {
@@ -111,12 +125,17 @@ class InjuryService {
     return Date.now() - _cached.timestamp < this.CACHE_TTL;
   }
 
-  private getFromCache<T>(_cacheKey: string): T | null {
+  private getFromCache<T extends InjuryCachePayload>(_cacheKey: string): T | null {
     const _cached = this.cache.get(_cacheKey);
-    return _cached ? _cached.data : null;
+    if (!_cached) return null;
+    // Runtime guard for array/object types
+    if (Array.isArray(_cached.data) || typeof _cached.data === 'object') {
+      return _cached.data as T;
+    }
+    return null;
   }
 
-  private setCache(_cacheKey: string, data: any): void {
+  private setCache<T extends InjuryCachePayload>(_cacheKey: string, data: T): void {
     this.cache.set(_cacheKey, {
       data,
       timestamp: Date.now(),
@@ -124,7 +143,9 @@ class InjuryService {
   }
 
   /**
-   * Get all active injuries with optional filtering
+   * Get all active injuries with optional filtering.
+   * @param {InjurySearchFilters} [filters] - Optional filters for injury search.
+   * @returns {Promise<PlayerInjury[]>} Array of PlayerInjury objects.
    */
   async getInjuries(filters?: InjurySearchFilters): Promise<PlayerInjury[]> {
     const _cacheKey = this.getCacheKey('getInjuries', filters);
@@ -138,37 +159,46 @@ class InjuryService {
         params: filters,
       });
 
-      const _injuries = (_response.data as any[]).map((_injury: any) => ({
-        id: _injury.id,
-        playerId: _injury.playerId,
-        playerName: _injury.playerName,
-        team: _injury.team,
-        position: _injury.position,
-        sport: _injury.sport,
-        injuryType: _injury.injuryType,
-        bodyPart: _injury.bodyPart,
-        severity: _injury.severity,
-        status: _injury.status,
-        injuryDate: new Date(_injury.injuryDate),
+      // Runtime guard for array of PlayerInjury
+      if (!Array.isArray(_response.data)) return this.getFallbackInjuries();
+      const _injuries = _response.data.map((_injury: Partial<PlayerInjury>) => ({
+        id: _injury.id ?? '',
+        playerId: _injury.playerId ?? '',
+        playerName: _injury.playerName ?? '',
+        team: _injury.team ?? '',
+        position: _injury.position ?? '',
+        sport: _injury.sport ?? '',
+        injuryType: _injury.injuryType ?? '',
+        bodyPart: _injury.bodyPart ?? '',
+        severity: _injury.severity ?? 'minor',
+        status: _injury.status ?? 'healthy',
+        injuryDate: _injury.injuryDate ? new Date(_injury.injuryDate) : new Date(),
         estimatedReturn: _injury.estimatedReturn ? new Date(_injury.estimatedReturn) : null,
         actualReturn: _injury.actualReturn ? new Date(_injury.actualReturn) : null,
-        gamesAffected: _injury.gamesAffected,
-        description: _injury.description,
-        progressNotes: (_injury.progressNotes || []).map((_note: any) => ({
-          date: new Date(_note.date),
-          note: _note.note,
-          source: _note.source,
-        })),
-        marketImpact: _injury.marketImpact,
-        replacementPlayer: _injury.replacementPlayer,
-        upcomingGames: _injury.upcomingGames,
-        lastUpdated: new Date(_injury.lastUpdated),
+        gamesAffected: _injury.gamesAffected ?? 0,
+        description: _injury.description ?? '',
+        progressNotes: Array.isArray(_injury.progressNotes)
+          ? _injury.progressNotes.map((_note: Partial<PlayerInjuryProgressNote>) => ({
+              date: _note.date ? new Date(_note.date) : new Date(),
+              note: _note.note ?? '',
+              source: _note.source ?? '',
+            }))
+          : [],
+        marketImpact: _injury.marketImpact ?? {
+          playerProps: 0,
+          teamPerformance: 0,
+          spreadMovement: 0,
+          totalMovement: 0,
+        },
+        replacementPlayer: _injury.replacementPlayer ?? { name: '', projectedPerformance: 0 },
+        upcomingGames: Array.isArray(_injury.upcomingGames) ? _injury.upcomingGames : [],
+        lastUpdated: _injury.lastUpdated ? new Date(_injury.lastUpdated) : new Date(),
       }));
 
       this.setCache(_cacheKey, _injuries);
       return _injuries;
     } catch (error) {
-      console.error('Error fetching injuries:', error);
+      UnifiedLogger.error('Error fetching injuries:', error);
 
       // Return fallback data if API fails
       return this.getFallbackInjuries();
@@ -176,7 +206,9 @@ class InjuryService {
   }
 
   /**
-   * Get injury details for a specific player
+   * Get injury details for a specific player.
+   * @param {string} playerId - The player ID to fetch injury details for.
+   * @returns {Promise<PlayerInjury | null>} PlayerInjury object or null if not found.
    */
   async getPlayerInjury(playerId: string): Promise<PlayerInjury | null> {
     const _cacheKey = this.getCacheKey('getPlayerInjury', { playerId });
@@ -188,46 +220,53 @@ class InjuryService {
     try {
       const _response = await this.apiService.get(`/injuries/player/${playerId}`);
 
-      if (!_response.data) return null;
-
-      const _injuryData = _response.data as any; // Cast to any for easier property access
+      if (!_response.data || typeof _response.data !== 'object') return null;
+      const d = _response.data as Partial<PlayerInjury>;
       const _injury: PlayerInjury = {
-        id: _injuryData.id,
-        playerId: _injuryData.playerId,
-        playerName: _injuryData.playerName,
-        team: _injuryData.team,
-        position: _injuryData.position,
-        sport: _injuryData.sport,
-        injuryType: _injuryData.injuryType,
-        bodyPart: _injuryData.bodyPart,
-        severity: _injuryData.severity,
-        status: _injuryData.status,
-        injuryDate: new Date(_injuryData.injuryDate),
-        estimatedReturn: _injuryData.estimatedReturn ? new Date(_injuryData.estimatedReturn) : null,
-        actualReturn: _injuryData.actualReturn ? new Date(_injuryData.actualReturn) : null,
-        gamesAffected: _injuryData.gamesAffected,
-        description: _injuryData.description,
-        progressNotes: (_injuryData.progressNotes || []).map((_note: any) => ({
-          date: new Date(_note.date),
-          note: _note.note,
-          source: _note.source,
-        })),
-        marketImpact: _injuryData.marketImpact,
-        replacementPlayer: _injuryData.replacementPlayer,
-        upcomingGames: _injuryData.upcomingGames,
-        lastUpdated: new Date(_injuryData.lastUpdated),
+        id: d.id ?? '',
+        playerId: d.playerId ?? '',
+        playerName: d.playerName ?? '',
+        team: d.team ?? '',
+        position: d.position ?? '',
+        sport: d.sport ?? '',
+        injuryType: d.injuryType ?? '',
+        bodyPart: d.bodyPart ?? '',
+        severity: d.severity ?? 'minor',
+        status: d.status ?? 'healthy',
+        injuryDate: d.injuryDate ? new Date(d.injuryDate) : new Date(),
+        estimatedReturn: d.estimatedReturn ? new Date(d.estimatedReturn) : null,
+        actualReturn: d.actualReturn ? new Date(d.actualReturn) : null,
+        gamesAffected: d.gamesAffected ?? 0,
+        description: d.description ?? '',
+        progressNotes: Array.isArray(d.progressNotes)
+          ? d.progressNotes.map((_note: Partial<{ date: Date; note: string; source: string }>) => ({
+              date: _note.date ? new Date(_note.date) : new Date(),
+              note: _note.note ?? '',
+              source: _note.source ?? '',
+            }))
+          : [],
+        marketImpact: d.marketImpact ?? {
+          playerProps: 0,
+          teamPerformance: 0,
+          spreadMovement: 0,
+          totalMovement: 0,
+        },
+        replacementPlayer: d.replacementPlayer,
+        upcomingGames: Array.isArray(d.upcomingGames) ? d.upcomingGames : [],
+        lastUpdated: d.lastUpdated ? new Date(d.lastUpdated) : new Date(),
       };
-
       this.setCache(_cacheKey, _injury);
       return _injury;
     } catch (error) {
-      console.error('Error fetching player injury:', error);
+      UnifiedLogger.error('Error fetching player injury:', error);
       return null;
     }
   }
 
   /**
-   * Get injury reports for upcoming games
+   * Get injury reports for upcoming games.
+   * @param {string} [teamId] - Optional team ID to filter reports.
+   * @returns {Promise<InjuryReport[]>} Array of InjuryReport objects.
    */
   async getInjuryReports(teamId?: string): Promise<InjuryReport[]> {
     const _cacheKey = this.getCacheKey('getInjuryReports', { teamId });
@@ -241,32 +280,45 @@ class InjuryService {
         params: { teamId },
       });
 
-      const _reports = (_response.data as any[]).map((_report: any) => ({
-        id: _report.id,
-        team: _report.team,
-        gameId: _report.gameId,
-        reportDate: new Date(_report.reportDate),
-        injuries: (_report.injuries || []).map((_inj: any) => ({
-          playerId: _inj.playerId,
-          playerName: _inj.playerName,
-          status: _inj.status,
-          probability: _inj.probability,
-        })),
-        teamImpact: _report.teamImpact,
-        reliability: _report.reliability,
-        source: _report.source,
+      if (!Array.isArray(_response.data)) return [];
+      const _reports = _response.data.map((_report: Partial<InjuryReport>) => ({
+        id: _report.id ?? '',
+        team: _report.team ?? '',
+        gameId: _report.gameId ?? '',
+        reportDate: _report.reportDate ? new Date(_report.reportDate) : new Date(),
+        injuries: Array.isArray(_report.injuries)
+          ? _report.injuries.map(
+              (
+                _inj: Partial<{
+                  playerId: string;
+                  playerName: string;
+                  status: string;
+                  probability: number;
+                }>
+              ) => ({
+                playerId: _inj.playerId ?? '',
+                playerName: _inj.playerName ?? '',
+                status: _inj.status ?? '',
+                probability: _inj.probability ?? 0,
+              })
+            )
+          : [],
+        teamImpact: _report.teamImpact ?? 0,
+        reliability: _report.reliability ?? 0,
+        source: _report.source ?? '',
       }));
-
       this.setCache(_cacheKey, _reports);
       return _reports;
     } catch (error) {
-      console.error('Error fetching injury reports:', error);
+      UnifiedLogger.error('Error fetching injury reports:', error);
       return this.getFallbackReports();
     }
   }
 
   /**
-   * Get injury trends and analytics
+   * Get injury trends and analytics.
+   * @param {string} [sport] - Optional sport to filter trends.
+   * @returns {Promise<InjuryTrend[]>} Array of InjuryTrend objects.
    */
   async getInjuryTrends(sport?: string): Promise<InjuryTrend[]> {
     const _cacheKey = this.getCacheKey('getInjuryTrends', { sport });
@@ -280,16 +332,19 @@ class InjuryService {
         params: { sport },
       });
 
-      this.setCache(_cacheKey, _response.data);
+      if (!Array.isArray(_response.data)) return this.getFallbackTrends();
+      this.setCache(_cacheKey, _response.data as InjuryTrend[]);
       return _response.data as InjuryTrend[];
     } catch (error) {
-      console.error('Error fetching injury trends:', error);
+      UnifiedLogger.error('Error fetching injury trends:', error);
       return this.getFallbackTrends();
     }
   }
 
   /**
-   * Get health alerts
+   * Get health alerts.
+   * @param {boolean} [dismissed=false] - Whether to include dismissed alerts.
+   * @returns {Promise<HealthAlert[]>} Array of HealthAlert objects.
    */
   async getHealthAlerts(dismissed = false): Promise<HealthAlert[]> {
     const _cacheKey = this.getCacheKey('getHealthAlerts', { dismissed });
@@ -303,34 +358,37 @@ class InjuryService {
         params: { dismissed },
       });
 
-      const _alerts = (_response.data as any[]).map((_alert: any) => ({
-        id: _alert.id,
-        type: _alert.type,
-        playerId: _alert.playerId,
-        playerName: _alert.playerName,
-        team: _alert.team,
-        message: _alert.message,
-        severity: _alert.severity,
-        timestamp: new Date(_alert.timestamp),
-        affectedMarkets: _alert.affectedMarkets,
-        dismissed: _alert.dismissed,
-        source: _alert.source,
+      if (!Array.isArray(_response.data)) return this.getFallbackAlerts();
+      const _alerts = _response.data.map((_alert: Partial<HealthAlert>) => ({
+        id: typeof _alert.id === 'string' ? _alert.id : '',
+        type: typeof _alert.type === 'string' ? _alert.type : 'new_injury',
+        playerId: typeof _alert.playerId === 'string' ? _alert.playerId : '',
+        playerName: typeof _alert.playerName === 'string' ? _alert.playerName : '',
+        team: typeof _alert.team === 'string' ? _alert.team : '',
+        message: typeof _alert.message === 'string' ? _alert.message : '',
+        severity: typeof _alert.severity === 'string' ? _alert.severity : 'low',
+        timestamp: _alert.timestamp ? new Date(_alert.timestamp) : new Date(),
+        affectedMarkets: Array.isArray(_alert.affectedMarkets) ? _alert.affectedMarkets : [],
+        dismissed: typeof _alert.dismissed === 'boolean' ? _alert.dismissed : false,
+        source: typeof _alert.source === 'string' ? _alert.source : '',
       }));
 
       this.setCache(_cacheKey, _alerts);
       return _alerts;
     } catch (error) {
-      console.error('Error fetching health alerts:', error);
+      UnifiedLogger.error('Error fetching health alerts:', error);
       return this.getFallbackAlerts();
     }
   }
 
   /**
-   * Dismiss a health alert
+   * Dismiss a health alert.
+   * @param {string} alertId - The alert ID to dismiss.
+   * @returns {Promise<boolean>} True if successful, false otherwise.
    */
   async dismissAlert(alertId: string): Promise<boolean> {
     try {
-      await this.apiService.patch(`/injuries/alerts/${alertId}/dismiss`);
+      await this.apiService.patch(`/injuries/alerts/${alertId}/dismiss`, {}, {});
 
       // Invalidate alerts cache
       Array.from(this.cache.keys())
@@ -339,13 +397,17 @@ class InjuryService {
 
       return true;
     } catch (error) {
-      console.error('Error dismissing alert:', error);
+      UnifiedLogger.error('Error dismissing alert:', error);
       return false;
     }
   }
 
   /**
-   * Update injury status
+   * Update injury status.
+   * @param {string} injuryId - The injury ID to update.
+   * @param {PlayerInjury['status']} status - The new status value.
+   * @param {string} [notes] - Optional notes for the update.
+   * @returns {Promise<boolean>} True if successful, false otherwise.
    */
   async updateInjuryStatus(
     injuryId: string,
@@ -362,39 +424,45 @@ class InjuryService {
       this.cache.clear();
       return true;
     } catch (error) {
-      console.error('Error updating injury status:', error);
+      UnifiedLogger.error('Error updating injury status:', error);
       return false;
     }
   }
 
   /**
-   * Get market impact analysis for an injury
+   * Get market impact analysis for an injury.
+   * @param {string} injuryId - The injury ID to analyze.
+   * @returns {Promise<PlayerInjury['marketImpact'] | null>} Market impact object or null if not found.
    */
   async getMarketImpact(injuryId: string): Promise<PlayerInjury['marketImpact'] | null> {
     try {
       const _response = await this.apiService.get(`/injuries/${injuryId}/market-impact`);
       return _response.data as PlayerInjury['marketImpact'];
     } catch (error) {
-      console.error('Error fetching market impact:', error);
+      UnifiedLogger.error('Error fetching market impact:', error);
       return null;
     }
   }
 
   /**
-   * Subscribe to real-time injury updates
+   * Subscribe to real-time injury updates.
+   * @param {(injury: PlayerInjury) => void} callback - Callback for injury updates.
+   * @returns {() => void} Unsubscribe function.
    */
   subscribeToUpdates(callback: (injury: PlayerInjury) => void): () => void {
     // Implementation would depend on WebSocket service
-    console.log('Subscribing to injury updates...');
+    UnifiedLogger.log('Subscribing to injury updates...');
 
     // Return unsubscribe function
     return () => {
-      console.log('Unsubscribing from injury updates...');
+      UnifiedLogger.log('Unsubscribing from injury updates...');
     };
   }
 
   /**
-   * Get team injury summary
+   * Get team injury summary.
+   * @param {string} teamId - The team ID to summarize.
+   * @returns {Promise<{ totalInjuries: number; keyPlayerInjuries: number; estimatedTeamImpact: number; activeAlerts: number; }>} Team injury summary object.
    */
   async getTeamInjurySummary(teamId: string): Promise<{
     totalInjuries: number;
@@ -411,7 +479,7 @@ class InjuryService {
         activeAlerts: number;
       };
     } catch (error) {
-      console.error('Error fetching team injury summary:', error);
+      UnifiedLogger.error('Error fetching team injury summary:', error);
       return {
         totalInjuries: 0,
         keyPlayerInjuries: 0,
@@ -422,7 +490,10 @@ class InjuryService {
   }
 
   /**
-   * Search injuries with advanced filters
+   * Search injuries with advanced filters.
+   * @param {string} query - Search query string.
+   * @param {InjurySearchFilters} [filters] - Optional filters for search.
+   * @returns {Promise<PlayerInjury[]>} Array of PlayerInjury objects.
    */
   async searchInjuries(query: string, filters?: InjurySearchFilters): Promise<PlayerInjury[]> {
     try {
@@ -430,42 +501,50 @@ class InjuryService {
         params: { query, ...filters },
       });
 
-      const _injuries = (_response.data as any[]).map((_injury: any) => ({
-        id: _injury.id,
-        playerId: _injury.playerId,
-        playerName: _injury.playerName,
-        team: _injury.team,
-        position: _injury.position,
-        sport: _injury.sport,
-        injuryType: _injury.injuryType,
-        bodyPart: _injury.bodyPart,
-        severity: _injury.severity,
-        status: _injury.status,
-        injuryDate: new Date(_injury.injuryDate),
+      if (!Array.isArray(_response.data)) return [];
+      const _injuries = _response.data.map((_injury: Partial<PlayerInjury>) => ({
+        id: _injury.id ?? '',
+        playerId: _injury.playerId ?? '',
+        playerName: _injury.playerName ?? '',
+        team: _injury.team ?? '',
+        position: _injury.position ?? '',
+        sport: _injury.sport ?? '',
+        injuryType: _injury.injuryType ?? '',
+        bodyPart: _injury.bodyPart ?? '',
+        severity: _injury.severity ?? 'minor',
+        status: _injury.status ?? 'healthy',
+        injuryDate: _injury.injuryDate ? new Date(_injury.injuryDate) : new Date(),
         estimatedReturn: _injury.estimatedReturn ? new Date(_injury.estimatedReturn) : null,
         actualReturn: _injury.actualReturn ? new Date(_injury.actualReturn) : null,
-        gamesAffected: _injury.gamesAffected,
-        description: _injury.description,
-        progressNotes: (_injury.progressNotes || []).map((_note: any) => ({
-          date: new Date(_note.date),
-          note: _note.note,
-          source: _note.note,
-        })),
-        marketImpact: _injury.marketImpact,
-        replacementPlayer: _injury.replacementPlayer,
-        upcomingGames: _injury.upcomingGames,
-        lastUpdated: new Date(_injury.lastUpdated),
+        gamesAffected: _injury.gamesAffected ?? 0,
+        description: _injury.description ?? '',
+        progressNotes: Array.isArray(_injury.progressNotes)
+          ? _injury.progressNotes.map((_note: Partial<PlayerInjuryProgressNote>) => ({
+              date: _note.date ? new Date(_note.date) : new Date(),
+              note: _note.note ?? '',
+              source: _note.source ?? '',
+            }))
+          : [],
+        marketImpact: _injury.marketImpact ?? {
+          playerProps: 0,
+          teamPerformance: 0,
+          spreadMovement: 0,
+          totalMovement: 0,
+        },
+        replacementPlayer: _injury.replacementPlayer ?? { name: '', projectedPerformance: 0 },
+        upcomingGames: Array.isArray(_injury.upcomingGames) ? _injury.upcomingGames : [],
+        lastUpdated: _injury.lastUpdated ? new Date(_injury.lastUpdated) : new Date(),
       }));
 
       return _injuries;
     } catch (error) {
-      console.error('Error searching injuries:', error);
+      UnifiedLogger.error('Error searching injuries:', error);
       return [];
     }
   }
 
   /**
-   * Clear cache
+   * Clear the internal cache for injury data.
    */
   clearCache(): void {
     this.cache.clear();

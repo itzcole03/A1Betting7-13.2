@@ -7,10 +7,14 @@ import axios, { AxiosError, AxiosInstance } from 'axios';
 import EventEmitter from 'eventemitter3';
 import { withRequestCorrelation } from './withRequestCorrelation';
 
-export interface ApiServiceEvents {
+/**
+ * ApiServiceEvents - Event signatures for API service
+ * @template T - Type of API response data
+ */
+export interface ApiServiceEvents<T = any> {
   error: (error: Error) => void;
   request: (endpoint: string) => void;
-  response: (response: ApiResponse<unknown>) => void;
+  response: (response: ApiResponse<T>) => void;
 }
 
 export interface ApiConfig {
@@ -20,7 +24,11 @@ export interface ApiConfig {
   retryDelay?: number;
 }
 
-export interface ApiResponse<T = unknown> {
+/**
+ * ApiResponse - Standardized API response
+ * @template T - Type of response data
+ */
+export interface ApiResponse<T = any> {
   data: T;
   status: number;
   statusText?: string;
@@ -30,7 +38,7 @@ export interface ApiResponse<T = unknown> {
 
 export interface RequestConfig {
   headers?: Record<string, string>;
-  params?: Record<string, unknown>;
+  params?: Record<string, string | number | boolean | null>;
   timeout?: number;
   retries?: number;
   cache?: boolean;
@@ -38,7 +46,7 @@ export interface RequestConfig {
 }
 
 // Abstract base class for API services
-export abstract class BaseApiService extends EventEmitter<ApiServiceEvents> {
+export abstract class BaseApiService<T = any> extends EventEmitter<ApiServiceEvents<T>> {
   protected readonly client: AxiosInstance;
   protected readonly config: ApiConfig;
 
@@ -82,8 +90,8 @@ export abstract class BaseApiService extends EventEmitter<ApiServiceEvents> {
     // Response interceptor
     client.interceptors.response.use(
       response => {
-        const apiResponse: ApiResponse<any> = {
-          data: response.data,
+        const apiResponse: ApiResponse<T> = {
+          data: response.data as T,
           status: response.status,
           statusText: response.statusText,
           timestamp: Date.now(),
@@ -105,24 +113,30 @@ export abstract class BaseApiService extends EventEmitter<ApiServiceEvents> {
     console.error('API Error:', error);
   }
 
-  protected handleResponse<T>(response: ApiResponse<T>): void {
+  protected handleResponse(response: ApiResponse<T>): void {
     this.emit('response', response);
   }
 
-  abstract get<T>(endpoint: string, params?: Record<string, unknown>): Promise<T>;
-  abstract post<T>(endpoint: string, data: unknown): Promise<T>;
-  abstract put<T>(endpoint: string, data: unknown): Promise<T>;
-  abstract delete<T>(endpoint: string): Promise<T>;
+  abstract get<U = T>(
+    endpoint: string,
+    params?: Record<string, string | number | boolean | null>
+  ): Promise<U>;
+  abstract post<U = T>(endpoint: string, data: U): Promise<U>;
+  abstract put<U = T>(endpoint: string, data: U): Promise<U>;
+  abstract delete<U = T>(endpoint: string): Promise<U>;
 }
 
 // Concrete implementation
-export class ApiService extends BaseApiService {
-  private cache = new Map<string, { data: any; timestamp: number }>();
+export class ApiService<T = any> extends BaseApiService<T> {
+  private cache = new Map<string, { data: T; timestamp: number }>();
 
   get = withRequestCorrelation(
-    async <T>(endpoint: string, params?: Record<string, unknown>): Promise<T> => {
+    async <U = T>(
+      endpoint: string,
+      params?: Record<string, string | number | boolean | null>
+    ): Promise<U> => {
       try {
-        const response = await this.client.get<T>(endpoint, { params });
+        const response = await this.client.get<U>(endpoint, { params });
         return response.data;
       } catch (error) {
         this.handleError(error as Error);
@@ -131,9 +145,9 @@ export class ApiService extends BaseApiService {
     }
   );
 
-  post = withRequestCorrelation(async <T>(endpoint: string, data: unknown): Promise<T> => {
+  post = withRequestCorrelation(async <U = T>(endpoint: string, data: U): Promise<U> => {
     try {
-      const response = await this.client.post<T>(endpoint, data);
+      const response = await this.client.post<U>(endpoint, data);
       return response.data;
     } catch (error) {
       this.handleError(error as Error);
@@ -141,9 +155,9 @@ export class ApiService extends BaseApiService {
     }
   });
 
-  put = withRequestCorrelation(async <T>(endpoint: string, data: unknown): Promise<T> => {
+  put = withRequestCorrelation(async <U = T>(endpoint: string, data: U): Promise<U> => {
     try {
-      const response = await this.client.put<T>(endpoint, data);
+      const response = await this.client.put<U>(endpoint, data);
       return response.data;
     } catch (error) {
       this.handleError(error as Error);
@@ -151,9 +165,9 @@ export class ApiService extends BaseApiService {
     }
   });
 
-  delete = withRequestCorrelation(async <T>(endpoint: string): Promise<T> => {
+  delete = withRequestCorrelation(async <U = T>(endpoint: string): Promise<U> => {
     try {
-      const response = await this.client.delete<T>(endpoint);
+      const response = await this.client.delete<U>(endpoint);
       return response.data;
     } catch (error) {
       this.handleError(error as Error);
@@ -162,19 +176,25 @@ export class ApiService extends BaseApiService {
   });
 
   // Cached get method
-  async getCached<T>(
+  /**
+   * Cached GET method with runtime type guard
+   * @template U - Type of response data
+   */
+  async getCached(
     endpoint: string,
-    params?: Record<string, unknown>,
+    params?: Record<string, string | number | boolean | null>,
     cacheTime = 5 * 60 * 1000
   ): Promise<T> {
     const cacheKey = `${endpoint}_${JSON.stringify(params || {})}`;
     const cached = this.cache.get(cacheKey);
 
     if (cached && Date.now() - cached.timestamp < cacheTime) {
-      return cached.data;
+      if (cached.data !== null && typeof cached.data !== 'undefined') {
+        return cached.data;
+      }
     }
 
-    const data = await this.get<T>(endpoint, params);
+    const data = await this.get(endpoint, params);
     this.cache.set(cacheKey, { data, timestamp: Date.now() });
     return data;
   }

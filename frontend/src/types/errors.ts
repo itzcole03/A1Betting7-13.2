@@ -16,7 +16,7 @@ export class PropOllamaError extends Error {
   type: PropOllamaErrorType;
   retryable: boolean;
   fallbackAvailable: boolean;
-  details?: Record<string, any>;
+  details?: Record<string, any> | undefined;
 
   constructor(
     message: string,
@@ -30,7 +30,7 @@ export class PropOllamaError extends Error {
     this.type = type;
     this.retryable = retryable;
     this.fallbackAvailable = fallbackAvailable;
-    this.details = details;
+    this.details = details === undefined ? undefined : details;
   }
 
   static networkError(message: string, details?: Record<string, any>): PropOllamaError {

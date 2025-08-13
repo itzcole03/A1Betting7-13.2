@@ -85,6 +85,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
       _mediaQuery.addEventListener('change', _handleSystemThemeChange);
       return () => _mediaQuery.removeEventListener('change', _handleSystemThemeChange);
     }
+    // Always return undefined if no cleanup is needed
+    return undefined;
   }, [defaultTheme, enableSystemTheme]);
 
   const setTheme = (themeId: string) => {

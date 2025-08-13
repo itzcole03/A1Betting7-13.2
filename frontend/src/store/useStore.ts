@@ -2,7 +2,7 @@
  * Stub implementation of useStore hook for test compatibility.
  * Replace with full implementation as needed.
  */
-const _useStore = () => ({
+const useStore = () => ({
   // Add state and methods as needed for tests
 });
 

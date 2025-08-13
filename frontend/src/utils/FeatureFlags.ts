@@ -1,6 +1,6 @@
-import { UnifiedConfigManager } from '../../core/UnifiedConfigManager';
-import { UnifiedMonitor } from '../../core/UnifiedMonitor';
-import { EventBus } from '../../unified/EventBus';
+import { UnifiedConfigManager } from '../core/UnifiedConfigManager';
+import { UnifiedMonitor } from '../core/UnifiedMonitor';
+import { EventBus } from '../unified/EventBus';
 
 export interface Feature {
   id: string;

@@ -58,6 +58,8 @@ sw.addEventListener('activate', (event: ExtendableEvent) => {
             ) {
               // console.log('[ServiceWorker] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
+            } else {
+              return Promise.resolve(undefined);
             }
           })
         );

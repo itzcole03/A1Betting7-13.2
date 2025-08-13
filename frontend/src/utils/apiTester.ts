@@ -16,27 +16,24 @@ export class APITester {
   /**
    * Test a specific API endpoint with detailed error reporting
    */
-  static async testEndpoint(
-    endpoint: string, 
-    options: RequestInit = {}
-  ): Promise<APITestResult> {
+  static async testEndpoint(endpoint: string, options: RequestInit = {}): Promise<APITestResult> {
     const startTime = Date.now();
-    
+
     try {
       const response = await fetch(endpoint, {
         method: 'GET',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
-          ...options.headers
+          ...options.headers,
         },
         signal: AbortSignal.timeout(10000), // 10 second timeout
-        ...options
+        ...options,
       });
 
       const responseTime = Date.now() - startTime;
       const headers = Object.fromEntries(response.headers.entries());
-      
+
       let responseBody: any = null;
       try {
         const contentType = response.headers.get('content-type');
@@ -50,25 +47,27 @@ export class APITester {
         responseBody = null;
       }
 
-      return {
+      const result: APITestResult = {
         success: response.ok,
         status: response.status,
         statusText: response.statusText,
         responseTime,
         responseBody,
         headers,
-        error: response.ok ? undefined : `HTTP ${response.status}: ${response.statusText}`
       };
-
+      if (!response.ok) {
+        result.error = `HTTP ${response.status}: ${response.statusText}`;
+      }
+      return result;
     } catch (error) {
       const responseTime = Date.now() - startTime;
       const errorMessage = error instanceof Error ? error.message : String(error);
-      
+
       return {
         success: false,
         responseTime,
         error: errorMessage,
-        responseBody: null
+        responseBody: null,
       };
     }
   }
@@ -83,26 +82,37 @@ export class APITester {
   }> {
     const [health, opportunities, summary] = await Promise.allSettled([
       this.testEndpoint('/api/v1/cheatsheets/health'),
-      this.testEndpoint('/api/v1/cheatsheets/opportunities?min_edge=1&min_confidence=50&sports=MLB&max_results=1'),
-      this.testEndpoint('/api/v1/cheatsheets/summary')
+      this.testEndpoint(
+        '/api/v1/cheatsheets/opportunities?min_edge=1&min_confidence=50&sports=MLB&max_results=1'
+      ),
+      this.testEndpoint('/api/v1/cheatsheets/summary'),
     ]);
 
     return {
-      health: health.status === 'fulfilled' ? health.value : {
-        success: false,
-        responseTime: 0,
-        error: health.status === 'rejected' ? health.reason : 'Unknown error'
-      },
-      opportunities: opportunities.status === 'fulfilled' ? opportunities.value : {
-        success: false,
-        responseTime: 0,
-        error: opportunities.status === 'rejected' ? opportunities.reason : 'Unknown error'
-      },
-      summary: summary.status === 'fulfilled' ? summary.value : {
-        success: false,
-        responseTime: 0,
-        error: summary.status === 'rejected' ? summary.reason : 'Unknown error'
-      }
+      health:
+        health.status === 'fulfilled'
+          ? health.value
+          : {
+              success: false,
+              responseTime: 0,
+              error: health.status === 'rejected' ? health.reason : 'Unknown error',
+            },
+      opportunities:
+        opportunities.status === 'fulfilled'
+          ? opportunities.value
+          : {
+              success: false,
+              responseTime: 0,
+              error: opportunities.status === 'rejected' ? opportunities.reason : 'Unknown error',
+            },
+      summary:
+        summary.status === 'fulfilled'
+          ? summary.value
+          : {
+              success: false,
+              responseTime: 0,
+              error: summary.status === 'rejected' ? summary.reason : 'Unknown error',
+            },
     };
   }
 
@@ -140,7 +150,9 @@ export class APITester {
     if (!endpoints.opportunities.success) {
       issues.push(`Opportunities endpoint failed: ${endpoints.opportunities.error}`);
       if (endpoints.opportunities.status === 500) {
-        recommendations.push('Server error (500) indicates backend API issues - check backend logs');
+        recommendations.push(
+          'Server error (500) indicates backend API issues - check backend logs'
+        );
         recommendations.push('Verify database connections and API route handlers');
       }
     }
@@ -157,8 +169,9 @@ export class APITester {
       }
     });
 
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    
+    const isLocal =
+      window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
     if (!isLocal && issues.length > 0) {
       recommendations.push('In cloud environments, ensure backend is properly connected');
     }
@@ -167,15 +180,15 @@ export class APITester {
       overall: {
         healthy: Object.values(endpoints).every(e => e.success),
         issues,
-        recommendations
+        recommendations,
       },
       endpoints,
       environment: {
         isLocal,
         hostname: window.location.hostname,
         userAgent: navigator.userAgent,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     };
   }
 }

@@ -22,14 +22,28 @@ export interface ApiServiceEvents {
 }
 
 export abstract class BaseApiService extends EventEmitter<ApiServiceEvents> {
-  protected readonly client: unknown;
-  protected readonly config: any;
-  constructor(config: any) {
+  protected readonly client: object;
+  protected readonly config: ApiConfig;
+  constructor(config: ApiConfig) {
     super();
+    // Runtime guard for config
+    if (
+      !config ||
+      typeof config.baseURL !== 'string' ||
+      typeof config.timeout !== 'number' ||
+      typeof config.retryAttempts !== 'number' ||
+      typeof config.retryDelay !== 'number'
+    ) {
+      throw new Error('Invalid ApiConfig');
+    }
     this.config = config;
-    this.client = this.initializeClient();
+    const client = this.initializeClient();
+    if (typeof client !== 'object' || client === null) {
+      throw new Error('Invalid client initialization');
+    }
+    this.client = client;
   }
-  protected abstract initializeClient(): unknown;
+  protected abstract initializeClient(): object;
   protected abstract handleError(error: Error): void;
 }
 
@@ -52,13 +66,13 @@ interface RequestConfig {
 export class ApiService {
   private static instance: ApiService;
   private config: ApiConfig;
-  private cache: Map<string, { data: unknown; expires: number }> = new Map();
+  private cache: Map<string, { data: ApiResponse<unknown>; expires: number }> = new Map();
   private requestInterceptors: Array<(config: RequestConfig) => RequestConfig> = [];
-  private responseInterceptors: Array<(response: ApiResponse) => ApiResponse> = [];
+  private responseInterceptors: Array<(response: ApiResponse<unknown>) => ApiResponse<unknown>> =
+    [];
 
   private constructor() {
     // Use getEnvVar for robust env access
-    // @ts-ignore
     const getEnvVar = (() => {
       try {
         return (key: string, fallback?: string) => {
@@ -67,8 +81,13 @@ export class ApiService {
             return process.env[key] || fallback;
           }
           // In browser environment, try window.__VITE_ENV__ if available
-          if (typeof window !== 'undefined' && (window as any).__VITE_ENV__) {
-            return (window as any).__VITE_ENV__[key] || fallback;
+          if (
+            typeof window !== 'undefined' &&
+            typeof (window as { __VITE_ENV__?: Record<string, string> }).__VITE_ENV__ === 'object'
+          ) {
+            return (
+              (window as { __VITE_ENV__?: Record<string, string> }).__VITE_ENV__![key] || fallback
+            );
           }
           return fallback;
         };
@@ -76,10 +95,11 @@ export class ApiService {
         return (_key: string, fallback?: string) => fallback;
       }
     })();
+    const baseURL = getEnvVar('VITE_API_BASE_URL', 'http://localhost:8000');
     this.config = {
-      baseURL: getEnvVar('VITE_API_BASE_URL', 'http://localhost:8000'),
-      timeout: 3000,  // 3 second timeout for faster fallback to mock data
-      retryAttempts: 0, // No retries for faster fallback
+      baseURL: typeof baseURL === 'string' ? baseURL : 'http://localhost:8000',
+      timeout: 3000,
+      retryAttempts: 0,
       retryDelay: 1000,
     };
   }
@@ -118,27 +138,33 @@ export class ApiService {
     this.requestInterceptors.push(interceptor);
   }
 
-  addResponseInterceptor(interceptor: (response: ApiResponse) => ApiResponse): void {
+  addResponseInterceptor(
+    interceptor: (response: ApiResponse<unknown>) => ApiResponse<unknown>
+  ): void {
     this.responseInterceptors.push(interceptor);
   }
 
   private async executeRequest<T>(
     method: string,
     url: string,
-    data?: unknown,
+    data?: T,
     config: RequestConfig = {}
   ): Promise<ApiResponse<T>> {
+    let _fullUrl = '';
+    let _cacheKey = '';
     try {
       const _baseURL = await this.getBaseURL();
-      const _fullUrl = `${_baseURL}${url}`;
-      const _cacheKey = `${method}:${_fullUrl}:${JSON.stringify(data || {})}`;
+      _fullUrl = `${_baseURL}${url}`;
+      _cacheKey = `${method}:${_fullUrl}:${JSON.stringify(data || {})}`;
 
       // Check cache for GET requests
       if (method === 'GET' && config.cache !== false) {
         const _cached = this.cache.get(_cacheKey);
         if (_cached && _cached.expires > Date.now()) {
-          // @ts-ignore: TS2322 - Type 'unknown' is not assignable to type 'T'.
-          return _cached.data;
+          // Runtime type guard for cached data
+          if (_cached.data && typeof _cached.data === 'object' && 'data' in _cached.data) {
+            return _cached.data as ApiResponse<T>;
+          }
         }
       }
     } catch (error) {
@@ -178,8 +204,12 @@ export class ApiService {
         }
 
         const _responseData = await _response.json();
+        // Runtime guard for responseData
+        if (typeof _responseData !== 'object' || _responseData === null) {
+          throw new Error('Invalid API response data');
+        }
         const _apiResponse: ApiResponse<T> = {
-          data: _responseData,
+          data: _responseData as T,
           status: _response.status,
           statusText: _response.statusText,
           headers: Object.fromEntries(_response.headers.entries()),
@@ -188,14 +218,14 @@ export class ApiService {
         // Apply response interceptors
         let _finalResponse: ApiResponse<T> = _apiResponse;
         for (const _interceptor of this.responseInterceptors) {
-          _finalResponse = _interceptor(_finalResponse) as ApiResponse<T>;
+          _finalResponse = _interceptor(_finalResponse as ApiResponse<unknown>) as ApiResponse<T>;
         }
 
         // Cache successful GET requests
         if (method === 'GET' && config.cache !== false) {
           const _cacheTime = config.cacheTime || 300000; // 5 minutes default
           this.cache.set(_cacheKey, {
-            data: _finalResponse,
+            data: _finalResponse as ApiResponse<unknown>,
             expires: Date.now() + _cacheTime,
           });
         }
@@ -215,22 +245,22 @@ export class ApiService {
   }
 
   async get<T>(url: string, config?: RequestConfig): Promise<ApiResponse<T>> {
-    return this.executeRequest<T>('GET', url, undefined, config);
+    return this.executeRequest<T>('GET', url, undefined as T, config);
   }
 
-  async post<T>(url: string, data?: unknown, config?: RequestConfig): Promise<ApiResponse<T>> {
+  async post<T>(url: string, data: T, config?: RequestConfig): Promise<ApiResponse<T>> {
     return this.executeRequest<T>('POST', url, data, config);
   }
 
-  async put<T>(url: string, data?: unknown, config?: RequestConfig): Promise<ApiResponse<T>> {
+  async put<T>(url: string, data: T, config?: RequestConfig): Promise<ApiResponse<T>> {
     return this.executeRequest<T>('PUT', url, data, config);
   }
 
   async delete<T>(url: string, config?: RequestConfig): Promise<ApiResponse<T>> {
-    return this.executeRequest<T>('DELETE', url, undefined, config);
+    return this.executeRequest<T>('DELETE', url, undefined as T, config);
   }
 
-  async patch<T>(url: string, data?: unknown, config?: RequestConfig): Promise<ApiResponse<T>> {
+  async patch<T>(url: string, data: T, config?: RequestConfig): Promise<ApiResponse<T>> {
     return this.executeRequest<T>('PATCH', url, data, config);
   }
 
@@ -251,8 +281,8 @@ export class ApiService {
       // Use shorter timeout and no retries for health checks to fail fast
       const _response = await this.get('/health', {
         timeout: 2000, // 2 second timeout
-        retries: 0,     // No retries for health checks
-        cache: false    // Don't cache health check results
+        retries: 0, // No retries for health checks
+        cache: false, // Don't cache health check results
       });
       return _response.status === 200;
     } catch (error) {

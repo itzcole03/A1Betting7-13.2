@@ -158,42 +158,41 @@ class UnifiedPredictionService:
 
             # MLB: Use MLBProviderClient for real odds/props, but enrich with AI/ML logic
             if sport and sport.upper() == "MLB":
-                from backend.services.mlb_provider_client import \
-                    MLBProviderClient
+                from backend.services.mlb_provider_client import MLBProviderClient
 
                 mlb_client = MLBProviderClient()
                 try:
-                    mlb_odds = await mlb_client.fetch_odds_comparison(market_type="regular")
+                    mlb_odds = await mlb_client.fetch_odds_comparison(
+                        market_type="regular"
+                    )
                     logger.debug("[MLB] Raw odds from MLBProviderClient: %r", mlb_odds)
                     if not mlb_odds:
-                        raise ValueError('No odds data returned from provider')
+                        raise ValueError("No odds data returned from provider")
                 except Exception as e:
-                    logger.error(f'[MLB] Failed to fetch odds: {str(e)}')
+                    logger.error(f"[MLB] Failed to fetch odds: {str(e)}")
                     raise  # Do not fallback; propagate the error
                 logger.info("[MLB] Number of odds fetched: %d", len(mlb_odds))
                 enhanced_predictions = []
                 filtered_out = 0
                 for odd in mlb_odds:
                     enriched_input = dict(odd)  # Start with a copy
-                    enriched_input['sport'] = 'MLB'
-                    enriched_input['player_name'] = str(odd.get('player_name') or 'Team')
-                    enriched_input["team"] = str(
-                        odd.get("event_name", "Unknown Team")
+                    enriched_input["sport"] = "MLB"
+                    enriched_input["player_name"] = str(
+                        odd.get("player_name") or "Team"
                     )
+                    enriched_input["team"] = str(odd.get("event_name", "Unknown Team"))
                     enriched_input["stat_type"] = str(
                         odd.get("stat_type") or odd.get("odds_type", "unknown")
                     )
                     enriched_input["line_score"] = float(odd.get("value", 0.0))
-                    enriched_input["confidence"] = float(
-                        odd.get("confidence", confidence)
+                    enriched_input["confidence"] = float(odd.get("confidence", 75.0))
+                    if odd.get("stat_type", "").lower() == "totals":
+                        enriched_input["overOdds"] = odd.get("overOdds", 0)
+                        enriched_input["underOdds"] = odd.get("underOdds", 0)
+                    enhanced_pred = await self._enhance_prediction(
+                        enriched_input, include_ai_insights, user_profile
                     )
-                    if odd.get('stat_type', '').lower() == 'totals':
-                        enriched_input['overOdds'] = odd.get('overOdds', 0)
-                        enriched_input['underOdds'] = odd.get('underOdds', 0)
-                    enhanced_pred = await self._enhance_prediction(enriched_input, include_ai_insights, user_profile)
-                    logger.debug(
-                        "[MLB] Enriched EnhancedPrediction: %r", enhanced_pred
-                    )
+                    logger.debug("[MLB] Enriched EnhancedPrediction: %r", enhanced_pred)
                     enhanced_predictions.append(enhanced_pred)
                 logger.info(
                     f"[MLB] Filtered out {filtered_out} odds due to low confidence."
@@ -381,14 +380,16 @@ class UnifiedPredictionService:
         confidence = prop.get("confidence", 75.0)
         position = prop.get("position", "")
         stat_type = prop.get("stat_type", "")
-        
+
         # Check if this is a team prop
-        is_team_prop = (position == "TEAM" or 
-                       stat_type.startswith("team_") or 
-                       stat_type in ["team_total_runs", "team_total_hits", "first_to_score"])
-        
+        is_team_prop = (
+            position == "TEAM"
+            or stat_type.startswith("team_")
+            or stat_type in ["team_total_runs", "team_total_hits", "first_to_score"]
+        )
+
         base_quantum = confidence / 100.0
-        
+
         if is_team_prop:
             # Team props have different quantum confidence characteristics
             if stat_type == "team_total_runs":
@@ -405,26 +406,28 @@ class UnifiedPredictionService:
         else:
             # Player prop quantum calculation (existing logic)
             quantum_boost = 0.15
-        
+
         return min(0.95, base_quantum + quantum_boost)
 
     def _calculate_neural_score(self, prop: Dict[str, Any]) -> float:
         """Calculate neural network pattern recognition score"""
         position = prop.get("position", "")
         stat_type = prop.get("stat_type", "")
-        
+
         # Check if this is a team prop
-        is_team_prop = (position == "TEAM" or 
-                       stat_type.startswith("team_") or 
-                       stat_type in ["team_total_runs", "team_total_hits", "first_to_score"])
-        
+        is_team_prop = (
+            position == "TEAM"
+            or stat_type.startswith("team_")
+            or stat_type in ["team_total_runs", "team_total_hits", "first_to_score"]
+        )
+
         # Simulate neural network layers with team-specific adjustments
         if is_team_prop:
             input_features = [
                 prop.get("confidence", 75.0),
                 hash(prop.get("sport", "")) % 100,
                 hash(f"team_{stat_type}") % 100,  # Team-specific hash
-                prop.get("line_score", 0) * 8,   # Reduced weight for team props
+                prop.get("line_score", 0) * 8,  # Reduced weight for team props
             ]
             # Team props use different neural architecture
             hidden_weight = 0.75  # Teams have less complex patterns
@@ -515,17 +518,19 @@ class UnifiedPredictionService:
         line_score = prop.get("line_score", 0)
 
         # Check if this is a team prop
-        is_team_prop = (position == "TEAM" or 
-                       stat_type.startswith("team_") or 
-                       stat_type in ["team_total_runs", "team_total_hits", "first_to_score"])
+        is_team_prop = (
+            position == "TEAM"
+            or stat_type.startswith("team_")
+            or stat_type in ["team_total_runs", "team_total_hits", "first_to_score"]
+        )
 
         if is_team_prop:
             # Enhanced team-specific SHAP features with realistic calculations
             base_confidence = confidence / 100.0
-            
+
             # Team offensive rating (influenced by line score and confidence)
             offensive_rating = base_confidence * 0.28 * (1 + (line_score - 4.5) * 0.05)
-            
+
             # Starting pitcher quality (varies by stat type)
             if stat_type == "team_total_runs":
                 pitcher_impact = 0.25  # High impact for run totals
@@ -533,26 +538,32 @@ class UnifiedPredictionService:
                 pitcher_impact = 0.20  # Moderate impact for hits
             else:
                 pitcher_impact = 0.15  # Lower for other team props
-            
+
             pitcher_quality = base_confidence * 0.22 * pitcher_impact / 0.20
-            
+
             # Bullpen strength (late game factor)
-            bullpen_factor = 0.85 if confidence > 75 else 1.15  # Strong teams have better bullpens
+            bullpen_factor = (
+                0.85 if confidence > 75 else 1.15
+            )  # Strong teams have better bullpens
             bullpen_strength = base_confidence * 0.18 * bullpen_factor
-            
+
             # Home field advantage (venue-specific)
             home_advantage = base_confidence * 0.12 * (1.1 if line_score > 4.5 else 0.9)
-            
+
             # Recent team form (performance trend)
             form_boost = 1.05 if confidence > 80 else 0.95
             recent_form = base_confidence * 0.10 * form_boost
-            
+
             # Weather impact (outdoor games)
-            weather_impact = base_confidence * 0.06 * (0.9 if stat_type == "team_total_runs" else 1.0)
-            
+            weather_impact = (
+                base_confidence
+                * 0.06
+                * (0.9 if stat_type == "team_total_runs" else 1.0)
+            )
+
             # Historical matchup data
             matchup_history = base_confidence * 0.04
-            
+
             features = {
                 "team_offensive_rating": confidence * offensive_rating,
                 "starting_pitcher_quality": confidence * pitcher_quality,
@@ -585,8 +596,10 @@ class UnifiedPredictionService:
             "feature_engineering": {
                 "total_features": len(features),
                 "feature_variance": max(features.values()) - min(features.values()),
-                "feature_balance": len([v for v in features.values() if v > confidence * 0.10])
-            }
+                "feature_balance": len(
+                    [v for v in features.values() if v > confidence * 0.10]
+                ),
+            },
         }
 
     def _calculate_risk_assessment(self, prop: Dict[str, Any]) -> Dict[str, Any]:
@@ -597,26 +610,32 @@ class UnifiedPredictionService:
         stat_type = prop.get("stat_type", "")
 
         # Check if this is a team prop
-        is_team_prop = (position == "TEAM" or 
-                       stat_type.startswith("team_") or 
-                       stat_type in ["team_total_runs", "team_total_hits", "first_to_score"])
+        is_team_prop = (
+            position == "TEAM"
+            or stat_type.startswith("team_")
+            or stat_type in ["team_total_runs", "team_total_hits", "first_to_score"]
+        )
 
         # Risk factors
         confidence_risk = (
             max(0, 90 - confidence) / 90
         )  # Higher risk for lower confidence
         line_risk = min(0.5, abs(line_score - 50) / 100)  # Risk from extreme lines
-        
+
         if is_team_prop:
             # Team props have different risk characteristics
-            market_risk = 0.15  # Lower market risk - teams more predictable than individuals
+            market_risk = (
+                0.15  # Lower market risk - teams more predictable than individuals
+            )
             # Team props are generally less volatile than player props
             volatility_adjustment = 0.85  # 15% reduction in overall risk
         else:
-            market_risk = 0.2   # Base market risk for player props
+            market_risk = 0.2  # Base market risk for player props
             volatility_adjustment = 1.0  # No adjustment
 
-        overall_risk = ((confidence_risk + line_risk + market_risk) / 3) * volatility_adjustment
+        overall_risk = (
+            (confidence_risk + line_risk + market_risk) / 3
+        ) * volatility_adjustment
 
         return {
             "overall_risk": overall_risk,

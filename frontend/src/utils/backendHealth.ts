@@ -39,7 +39,8 @@ export class BackendHealthChecker {
     logger.info('[BackendHealth] Checking backend connectivity...');
 
     // In cloud environment, we can only test same-origin endpoints
-    const isCloudEnvironment = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const isCloudEnvironment =
+      window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
 
     if (isCloudEnvironment) {
       // Only test proxy endpoints in cloud environment
@@ -56,7 +57,7 @@ export class BackendHealthChecker {
             this.setCachedResult(cacheKey, result);
             logger.info('[BackendHealth] Backend found and healthy (via proxy)', {
               endpoint: testCase.endpoint,
-              responseTime: result.responseTime
+              responseTime: result.responseTime,
             });
             return result;
           }
@@ -64,7 +65,7 @@ export class BackendHealthChecker {
           const errorMessage = error instanceof Error ? error.message : String(error);
           logger.debug('[BackendHealth] Test failed', {
             endpoint: testCase.endpoint,
-            error: errorMessage
+            error: errorMessage,
           });
         }
       }
@@ -89,7 +90,7 @@ export class BackendHealthChecker {
             logger.info('[BackendHealth] Backend found and healthy', {
               port: testCase.port,
               endpoint: testCase.endpoint,
-              responseTime: result.responseTime
+              responseTime: result.responseTime,
             });
             return result;
           }
@@ -98,7 +99,7 @@ export class BackendHealthChecker {
           logger.debug('[BackendHealth] Test failed', {
             port: testCase.port,
             endpoint: testCase.endpoint,
-            error: errorMessage
+            error: errorMessage,
           });
         }
       }
@@ -110,7 +111,7 @@ export class BackendHealthChecker {
       responseTime: 0,
       error: isCloudEnvironment
         ? 'Backend not responding via proxy - check if backend is connected to this cloud environment'
-        : 'No backend found on common ports (8000, 8001, 3000, 5000)'
+        : 'No backend found on common ports (8000, 8001, 3000, 5000)',
     };
 
     this.setCachedResult(cacheKey, failureResult);
@@ -124,17 +125,19 @@ export class BackendHealthChecker {
     const startTime = Date.now();
 
     try {
-      const isCloudEnvironment = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+      const isCloudEnvironment =
+        window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
 
       // In cloud environment, don't try direct localhost connections
       if (port && isCloudEnvironment) {
-        return {
+        const result: BackendHealthInfo = {
           isHealthy: false,
           responseTime: 0,
-          port,
-          endpoint,
-          error: 'Direct localhost connections not available in cloud environment'
         };
+        if (port !== undefined) result.port = port;
+        if (endpoint !== undefined) result.endpoint = endpoint;
+        result.error = 'Direct localhost connections not available in cloud environment';
+        return result;
       }
 
       const url = port ? `http://localhost:${port}${endpoint}` : endpoint;
@@ -142,7 +145,7 @@ export class BackendHealthChecker {
       const response = await fetch(url, {
         method: 'GET',
         signal: AbortSignal.timeout(3000),
-        mode: port ? 'cors' : 'same-origin'
+        mode: port ? 'cors' : 'same-origin',
       });
 
       const responseTime = Date.now() - startTime;
@@ -156,32 +159,35 @@ export class BackendHealthChecker {
           // Response might not be JSON, that's okay
         }
 
-        return {
+        const result: BackendHealthInfo = {
           isHealthy: true,
           responseTime,
-          port,
-          endpoint,
-          version
         };
+        if (port !== undefined) result.port = port;
+        if (endpoint !== undefined) result.endpoint = endpoint;
+        if (version !== undefined) result.version = version;
+        return result;
       } else {
-        return {
+        const result: BackendHealthInfo = {
           isHealthy: false,
           responseTime,
-          port,
-          endpoint,
-          error: `HTTP ${response.status}: ${response.statusText}`
         };
+        if (port !== undefined) result.port = port;
+        if (endpoint !== undefined) result.endpoint = endpoint;
+        result.error = `HTTP ${response.status}: ${response.statusText}`;
+        return result;
       }
     } catch (error: any) {
       const responseTime = Date.now() - startTime;
       const errorMessage = error instanceof Error ? error.message : String(error);
-      return {
+      const result: BackendHealthInfo = {
         isHealthy: false,
         responseTime,
-        port,
-        endpoint,
-        error: error.name === 'AbortError' ? 'Timeout' : errorMessage
       };
+      if (port !== undefined) result.port = port;
+      if (endpoint !== undefined) result.endpoint = endpoint;
+      result.error = error.name === 'AbortError' ? 'Timeout' : errorMessage;
+      return result;
     }
   }
 
@@ -200,10 +206,11 @@ export class BackendHealthChecker {
       this.setCachedResult(cacheKey, result);
       return result;
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       const failureResult: BackendHealthInfo = {
         isHealthy: false,
         responseTime: 0,
-        error: error.message
+        error: errorMessage,
       };
       this.setCachedResult(cacheKey, failureResult);
       return failureResult;
@@ -218,11 +225,11 @@ export class BackendHealthChecker {
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
       return cached.result;
     }
-    
+
     if (cached) {
       this.healthCache.delete(key);
     }
-    
+
     return null;
   }
 
@@ -232,7 +239,7 @@ export class BackendHealthChecker {
   private setCachedResult(key: string, result: BackendHealthInfo): void {
     this.healthCache.set(key, {
       result,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -254,7 +261,7 @@ export class BackendHealthChecker {
   }> {
     const [backendHealth, cheatsheetsAPI] = await Promise.all([
       this.checkBackendHealth(),
-      this.checkCheatsheetsAPI()
+      this.checkCheatsheetsAPI(),
     ]);
 
     const suggestions: string[] = [];
@@ -279,7 +286,7 @@ export class BackendHealthChecker {
     return {
       backendHealth,
       cheatsheetsAPI,
-      suggestions
+      suggestions,
     };
   }
 }

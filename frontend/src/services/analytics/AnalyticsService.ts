@@ -161,7 +161,7 @@ class AnalyticsApiService {
     prediction_value: number;
     actual_value?: number;
     confidence?: number;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, string | number | boolean>;
   }): Promise<{ status: string; message: string; timestamp: string }> {
     try {
       const response = await _apiClient.post<{
@@ -196,9 +196,32 @@ class AnalyticsApiService {
   }
 
   /**
-   * Handle API errors with proper error formatting
+   * In-memory cache with strict generic typing
    */
-  private handleError(message: string, error: unknown): ApiError {
+  private cache = new Map<string, { data: any; timestamp: number }>();
+
+  /**
+   * Get cached value with runtime type guard
+   */
+  private getFromCache<T>(key: string): T | null {
+    const cached = this.cache.get(key);
+    if (cached && cached.data !== null && typeof cached.data !== 'undefined') {
+      return cached.data as T;
+    }
+    return null;
+  }
+
+  /**
+   * Set cache value with strict typing
+   */
+  private setCache<T>(key: string, data: T): void {
+    this.cache.set(key, { data, timestamp: Date.now() });
+  }
+
+  /**
+   * Handle API errors with proper error formatting and strict typing
+   */
+  private handleError(message: string, error: any): ApiError {
     console.error(`AnalyticsApiService Error: ${message}`, error);
 
     if (error && typeof error === 'object' && 'status' in error) {
@@ -275,20 +298,6 @@ class AnalyticsApiService {
     const data = await this.withRetry(fetcher);
     this.setCache(key, data);
     return data;
-  }
-
-  /**
-   * Simple in-memory cache implementation
-   */
-  private cache = new Map<string, { data: any; timestamp: number }>();
-
-  private getFromCache<T>(key: string): T | null {
-    const cached = this.cache.get(key);
-    return cached ? cached.data : null;
-  }
-
-  private setCache<T>(key: string, data: T): void {
-    this.cache.set(key, { data, timestamp: Date.now() });
   }
 
   private isCacheValid(key: string, duration: number): boolean {

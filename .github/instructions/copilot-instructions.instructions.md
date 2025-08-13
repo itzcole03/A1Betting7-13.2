@@ -381,4 +381,6 @@ Infrastructure as Code (IaC): Manage infrastructure as code for consistency and 
 
 By focusing on these areas, A1Betting7-13.2 can significantly improve its ability to return results properly, provide a highly responsive and engaging user experience, and align with the best practices observed in leading sports analytics applications.
 
+Use sequential thinking. Use context7.
+
 ---

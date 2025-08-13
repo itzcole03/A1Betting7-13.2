@@ -237,7 +237,7 @@ export class React19ErrorBoundary extends React.Component<ErrorBoundaryProps, Er
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Enhanced error reporting with React 19 features
     console.error('React 19 Error Boundary caught an error:', error, errorInfo);
 
@@ -246,7 +246,7 @@ export class React19ErrorBoundary extends React.Component<ErrorBoundaryProps, Er
     monitor.measureRender('ErrorBoundary', performance.now());
   }
 
-  render() {
+  override render() {
     if (this.state.hasError && this.state.error) {
       const Fallback = this.props.fallback;
       if (Fallback) {

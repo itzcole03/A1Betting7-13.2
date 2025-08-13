@@ -1,4 +1,4 @@
-import { ComponentMetrics, PerformanceMetrics } from '../../types/core';
+import type { ComponentMetrics, PerformanceMetrics } from '../types/core';
 import { ErrorHandler } from './ErrorHandler.js';
 
 interface MetricData {
@@ -125,6 +125,18 @@ export class PerformanceMonitor {
 
   private initializeMetrics(): PerformanceMetrics {
     return {
+      totalBets: 0,
+      winRate: 0,
+      roi: 0,
+      profitLoss: 0,
+      clvAverage: 0,
+      edgeRetention: 0,
+      kellyMultiplier: 0,
+      marketEfficiencyScore: 0,
+      averageOdds: 0,
+      maxDrawdown: 0,
+      sharpeRatio: 0,
+      betterThanExpected: 0,
       timestamp: Date.now(),
       cpu: {
         usage: 0,
@@ -160,6 +172,9 @@ export class PerformanceMonitor {
       },
       errorRate: 0,
       uptime: 0,
+      predictionId: '',
+      confidence: 0,
+      riskScore: 0,
     };
   }
 
@@ -222,6 +237,13 @@ export class PerformanceMonitor {
 
   public updateComponentMetrics(componentId: string, metrics: Partial<ComponentMetrics>): void {
     const _currentMetrics = this.componentMetrics.get(componentId) || {
+      component: componentId,
+      timestamp: Date.now(),
+      value: 0,
+      errorRate: 0,
+      throughput: 0,
+      resourceUsage: { cpu: 0, memory: 0, network: 0 },
+      riskMitigation: { riskLevel: '', mitigationStatus: '' },
       renderCount: 0,
       renderTime: 0,
       memoryUsage: 0,
@@ -232,6 +254,19 @@ export class PerformanceMonitor {
     this.componentMetrics.set(componentId, {
       ..._currentMetrics,
       ...metrics,
+      value: typeof metrics.value === 'number' ? metrics.value : _currentMetrics.value,
+      errorRate:
+        typeof metrics.errorRate === 'number' ? metrics.errorRate : _currentMetrics.errorRate,
+      throughput:
+        typeof metrics.throughput === 'number' ? metrics.throughput : _currentMetrics.throughput,
+      riskMitigation:
+        metrics.riskMitigation !== undefined
+          ? {
+              riskLevel: metrics.riskMitigation.riskLevel ?? '',
+              mitigationStatus: metrics.riskMitigation.mitigationStatus ?? '',
+            }
+          : _currentMetrics.riskMitigation,
+      component: componentId,
       lastUpdate: Date.now(),
     });
   }
@@ -252,6 +287,18 @@ export class PerformanceMonitor {
       return this.initializeMetrics();
     }
     return {
+      totalBets: this.average(_recentMetrics.map(m => m.totalBets)),
+      winRate: this.average(_recentMetrics.map(m => m.winRate)),
+      roi: this.average(_recentMetrics.map(m => m.roi)),
+      profitLoss: this.average(_recentMetrics.map(m => m.profitLoss)),
+      clvAverage: this.average(_recentMetrics.map(m => m.clvAverage)),
+      edgeRetention: this.average(_recentMetrics.map(m => m.edgeRetention)),
+      kellyMultiplier: this.average(_recentMetrics.map(m => m.kellyMultiplier)),
+      marketEfficiencyScore: this.average(_recentMetrics.map(m => m.marketEfficiencyScore)),
+      averageOdds: this.average(_recentMetrics.map(m => m.averageOdds)),
+      maxDrawdown: this.average(_recentMetrics.map(m => m.maxDrawdown)),
+      sharpeRatio: this.average(_recentMetrics.map(m => m.sharpeRatio)),
+      betterThanExpected: this.average(_recentMetrics.map(m => m.betterThanExpected)),
       timestamp: Date.now(),
       cpu: {
         usage: this.average(_recentMetrics.map(m => m.cpu.usage)),
@@ -289,6 +336,9 @@ export class PerformanceMonitor {
       },
       errorRate: this.average(_recentMetrics.map(m => m.errorRate)),
       uptime: this.average(_recentMetrics.map(m => m.uptime)),
+      predictionId: '',
+      confidence: this.average(_recentMetrics.map(m => m.confidence)),
+      riskScore: this.average(_recentMetrics.map(m => m.riskScore)),
     };
   }
 

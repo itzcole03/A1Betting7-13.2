@@ -125,7 +125,7 @@ describe('PropOllamaUnified', () => {
     (FeaturedPropsService.fetchBatchPredictions as jest.Mock).mockResolvedValue(mlbMockData);
     render(
       <CompositeProvider>
-        <PropOllamaUnified />
+        <PropOllamaUnified projections={mlbMockData} />
       </CompositeProvider>
     );
     const mlbTab = await screen.findByRole('tab', { name: /MLB/i });
@@ -133,15 +133,14 @@ describe('PropOllamaUnified', () => {
     const statTypeSelect = await screen.findByLabelText(/Stat Type:/i, {}, { timeout: 5000 });
     fireEvent.change(statTypeSelect, { target: { value: 'Popular' } });
     await waitFor(
-      () => expect(screen.getAllByTestId('prop-card-wrapper').length).toBeGreaterThan(0),
+      () => expect(screen.getAllByTestId('condensed-prop-card').length).toBeGreaterThan(0),
       { timeout: 15000 }
     );
-    // Find the CondensedPropCard inside the wrapper and click it
-    const cardWrappers = screen.getAllByTestId('prop-card-wrapper');
-    const condensedCard = cardWrappers[0].querySelector('[data-testid="condensed-prop-card"]');
-    expect(condensedCard).toBeTruthy();
+    // Click the first CondensedPropCard
+    const cardWrappers = screen.getAllByTestId('condensed-prop-card');
+    expect(cardWrappers[0]).toBeTruthy();
     await import('react-dom/test-utils').then(({ act }) =>
-      act(() => fireEvent.click(condensedCard!))
+      act(() => fireEvent.click(cardWrappers[0]))
     );
     // Wait for the expanded card to appear
     await waitFor(
@@ -152,7 +151,7 @@ describe('PropOllamaUnified', () => {
       { timeout: 15000 }
     );
     // Debug: print DOM after expansion
-     
+
     console.log('[TEST DEBUG] DOM after expanding card:', document.documentElement.outerHTML);
     // Query for the Deep AI Analysis button inside the expanded card
     const expandedCard = screen.getByTestId('prop-card-expanded');
@@ -199,14 +198,14 @@ describe('PropOllamaUnified', () => {
     (FeaturedPropsService.fetchBatchPredictions as jest.Mock).mockResolvedValue(mlbMockData);
     render(
       <CompositeProvider>
-        <PropOllamaUnified />
+        <PropOllamaUnified projections={mlbMockData} />
       </CompositeProvider>
     );
     const mlbTab = await screen.findByRole('tab', { name: /MLB/i });
     mlbTab.click();
     // Wait for both cards to be present and assert their badges
     await waitFor(async () => {
-      const wrappers = await screen.findAllByTestId('prop-card-wrapper');
+      const wrappers = await screen.findAllByTestId('condensed-prop-card');
       expect(wrappers.length).toBeGreaterThanOrEqual(2);
       const cardTitles = wrappers.map(
         wrapper =>
@@ -230,7 +229,7 @@ describe('PropOllamaUnified', () => {
     });
   });
   // Print DOM after expansion
-   
+
   console.log('[TEST DEBUG] DOM after expanding card:', document.documentElement.outerHTML);
 
   it('expand/collapse explanation', async () => {
@@ -312,7 +311,7 @@ describe('PropOllamaUnified', () => {
     (FeaturedPropsService.fetchBatchPredictions as jest.Mock).mockResolvedValue(mlbMockData);
     render(
       <CompositeProvider>
-        <PropOllamaUnified />
+        <PropOllamaUnified projections={mlbMockData} />
       </CompositeProvider>
     );
     const mlbTab = await screen.findByRole('tab', { name: /MLB/i });
@@ -323,21 +322,19 @@ describe('PropOllamaUnified', () => {
     });
     await waitFor(
       () => {
-        const cards = screen.getAllByTestId('prop-card-wrapper');
+        const cards = screen.getAllByTestId('condensed-prop-card');
         expect(cards.length).toBeGreaterThan(0);
         // Optionally, print debug info for the first card
-         
         console.log(`[Explanation] Prop card HTML:`, cards[0].outerHTML);
       },
       { timeout: 30000 }
     );
-    // Simulate expansion by clicking the CondensedPropCard inside the first wrapper
-    const cards = screen.getAllByTestId('prop-card-wrapper');
-    const condensedCard = cards[0].querySelector('[data-testid="condensed-prop-card"]');
-    expect(condensedCard).toBeTruthy();
+    // Simulate expansion by clicking the first CondensedPropCard
+    const cards = screen.getAllByTestId('condensed-prop-card');
+    expect(cards[0]).toBeTruthy();
     await import('react-dom/test-utils').then(({ act }) => {
       act(() => {
-        fireEvent.click(condensedCard!);
+        fireEvent.click(cards[0]);
       });
     });
     // Wait for the expanded card to appear
@@ -364,7 +361,6 @@ describe('PropOllamaUnified', () => {
         } else if (noAnalysisNodes.length > 0) {
           expect(noAnalysisNodes[0]).toHaveTextContent('No analysis available.');
         } else {
-           
           console.log('[TEST DEBUG] Neither analysis node found');
           screen.debug();
           throw new Error('No analysis node found');
@@ -414,6 +410,9 @@ describe('PropOllamaUnified', () => {
         confidence: 80,
         expected_value: 2.1,
         gameTime: `${today}T19:00:00Z`,
+        overOdds: 120,
+        underOdds: -110,
+        pickType: 'over',
       },
       {
         id: 'game1-devers',
@@ -426,13 +425,16 @@ describe('PropOllamaUnified', () => {
         confidence: 75,
         expected_value: 1.8,
         gameTime: `${today}T19:00:00Z`,
+        overOdds: 105,
+        underOdds: -120,
+        pickType: 'over',
       },
     ];
     (FeaturedPropsService.fetchFeaturedProps as jest.Mock).mockResolvedValue(mlbMockData);
     (FeaturedPropsService.fetchBatchPredictions as jest.Mock).mockResolvedValue(mlbMockData);
     render(
       <CompositeProvider>
-        <PropOllamaUnified />
+        <PropOllamaUnified projections={mlbMockData} />
       </CompositeProvider>
     );
     // Set sport filter to 'MLB' to ensure both cards are visible
@@ -441,7 +443,7 @@ describe('PropOllamaUnified', () => {
     mlbTab.click();
     await waitFor(
       () => {
-        const propCards = screen.getAllByTestId('prop-card-wrapper');
+        const propCards = screen.getAllByTestId('condensed-prop-card');
         expect(propCards.length).toBeGreaterThanOrEqual(2);
         expect(screen.getAllByText(/BOS/i).length).toBeGreaterThan(0);
         expect(screen.getAllByText(/Aaron Judge/i).length).toBeGreaterThan(0);
@@ -449,11 +451,11 @@ describe('PropOllamaUnified', () => {
         // Filter for stat text inside prop cards only
         const hitsNodes = screen
           .getAllByText(/hits/i)
-          .filter(node => node.closest('[data-testid="prop-card-wrapper"]'));
+          .filter(node => node.closest('[data-testid="condensed-prop-card"]'));
         expect(hitsNodes.length).toBeGreaterThan(0);
         const hrNodes = screen
           .getAllByText(/home_runs/i)
-          .filter(node => node.closest('[data-testid="prop-card-wrapper"]'));
+          .filter(node => node.closest('[data-testid="condensed-prop-card"]'));
         expect(hrNodes.length).toBeGreaterThan(0);
       },
       { timeout: 12000 }

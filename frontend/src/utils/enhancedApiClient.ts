@@ -1,3 +1,6 @@
+// Branded types for cache keys and payloads
+export type ApiCacheKey = string & { readonly brand: unique symbol };
+export type ApiPayload = Record<string, unknown>;
 /**
  * Enhanced API Client with Connection Pooling and Modern Optimizations
  * Implements request memoization, connection pooling, and performance monitoring
@@ -30,7 +33,7 @@ interface PerformanceMetrics {
 }
 
 class EnhancedApiClient {
-  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+  private cache = new Map<ApiCacheKey, { data: unknown; timestamp: number; ttl: number }>();
   private performanceMetrics: PerformanceMetrics = {
     requestCount: 0,
     averageResponseTime: 0,
@@ -72,7 +75,7 @@ class EnhancedApiClient {
    */
   async post<T = any>(
     endpoint: string,
-    data?: any,
+    data?: ApiPayload,
     config: Partial<RequestConfig> = {}
   ): Promise<ApiResponse<T>> {
     return this.request<T>('POST', endpoint, data, { ...config, cache: false });
@@ -83,7 +86,7 @@ class EnhancedApiClient {
    */
   async put<T = any>(
     endpoint: string,
-    data?: any,
+    data?: ApiPayload,
     config: Partial<RequestConfig> = {}
   ): Promise<ApiResponse<T>> {
     return this.request<T>('PUT', endpoint, data, { ...config, cache: false });
@@ -105,12 +108,12 @@ class EnhancedApiClient {
   private async request<T>(
     method: string,
     endpoint: string,
-    data?: any,
+    data?: ApiPayload,
     config: Partial<RequestConfig> = {}
   ): Promise<ApiResponse<T>> {
     const finalConfig = { ...this.defaultConfig, ...config };
     const url = `${this.baseURL}${endpoint}`;
-    const cacheKey = `${method}:${url}:${JSON.stringify(data)}`;
+    const cacheKey = `${method}:${url}:${JSON.stringify(data)}` as ApiCacheKey;
     const startTime = performance.now();
 
     this.performanceMetrics.requestCount++;
@@ -119,13 +122,19 @@ class EnhancedApiClient {
     try {
       // Check cache for GET requests
       if (method === 'GET' && finalConfig.cache) {
-        const cached = this.getFromCache(cacheKey);
-        if (cached) {
+        const cached = this.getFromCache<T>(cacheKey);
+        // Stricter runtime type guard for cache hit
+        if (
+          cached !== null &&
+          (typeof cached === 'object' ||
+            typeof cached === 'string' ||
+            typeof cached === 'number' ||
+            typeof cached === 'boolean')
+        ) {
           this.cacheHits++;
           this.updateCacheHitRate();
-
           return {
-            data: cached,
+            data: cached as T,
             status: 200,
             headers: new Headers(),
             cached: true,
@@ -147,7 +156,7 @@ class EnhancedApiClient {
               Accept: 'application/json',
               ...this.getAuthHeaders(),
             },
-            body: data ? JSON.stringify(data) : undefined,
+            body: data ? JSON.stringify(data) : null,
             signal: controller.signal,
             // Modern fetch optimizations
             keepalive: true,
@@ -207,25 +216,31 @@ class EnhancedApiClient {
   /**
    * Cache management
    */
-  private getFromCache(key: string): any | null {
-    const cached = this.cache.get(key);
+  private getFromCache<T>(key: string): T | null {
+    const cached = this.cache.get(key as ApiCacheKey);
     if (!cached) return null;
-
     if (Date.now() > cached.timestamp + cached.ttl) {
-      this.cache.delete(key);
+      this.cache.delete(key as ApiCacheKey);
       return null;
     }
-
-    return cached.data;
+    // Runtime guard for cached data
+    if (
+      typeof cached.data === 'object' ||
+      typeof cached.data === 'string' ||
+      typeof cached.data === 'number' ||
+      typeof cached.data === 'boolean'
+    ) {
+      return cached.data as T;
+    }
+    return null;
   }
 
   private setToCache(key: string, data: any, ttl: number): void {
-    this.cache.set(key, {
+    this.cache.set(key as ApiCacheKey, {
       data,
       timestamp: Date.now(),
       ttl,
     });
-
     // Cleanup expired entries periodically
     if (this.cache.size > 1000) {
       this.cleanupCache();

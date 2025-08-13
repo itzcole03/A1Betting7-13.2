@@ -1,4 +1,3 @@
-import { EventBus } from '../core/EventBus';
 import {
   PrizePicksAPIResponse,
   PrizePicksIncludedResource,
@@ -7,6 +6,7 @@ import {
   RawPrizePicksIncludedStatType,
   RawPrizePicksProjection,
 } from '../types/prizePicksUnified';
+import { EventBus } from '../unified/EventBus';
 
 const API_BASE_URL = 'https://api.prizepicks.com';
 

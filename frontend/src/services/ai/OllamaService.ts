@@ -4,39 +4,51 @@ import { getEnvVar } from '../../utils/getEnvVar';
  * Provides streaming AI explanations and analysis via Ollama LLM
  */
 
+// Branded types for player IDs and stat types
+export type PlayerId = string & { readonly brand: unique symbol };
+export type StatType = string & { readonly brand: unique symbol };
+export type SportType = 'MLB' | 'NBA' | 'NFL' | 'NHL';
 export interface ExplainRequest {
   context: string;
   question: string;
-  playerIds?: string[];
-  sport?: string;
+  playerIds?: PlayerId[];
+  sport?: SportType;
   includeTrends?: boolean;
   includeMatchups?: boolean;
 }
 
+export type MarketContext = Record<string, string | number | boolean>;
 export interface PropAnalysisRequest {
   playerName: string;
-  statType: string;
+  statType: StatType;
   line: number;
   odds: string;
   recentPerformance?: string;
-  marketContext?: Record<string, any>;
+  marketContext?: MarketContext;
 }
 
+export type SeasonStats = Record<string, number>;
+export type MatchupData = Record<string, string | number | boolean>;
 export interface PlayerSummaryRequest {
   name: string;
   position: string;
   team: string;
-  seasonStats: Record<string, any>;
+  seasonStats: SeasonStats;
   recentTrends?: string;
-  matchupData?: Record<string, any>;
+  matchupData?: MatchupData;
 }
 
+export type AIResponseType = 'start' | 'chunk' | 'complete' | 'error';
 export interface AIResponse {
-  type: 'start' | 'chunk' | 'complete' | 'error';
+  type: AIResponseType;
   content: string;
   fullContent?: string;
   error?: boolean;
   fallback?: boolean;
+}
+export interface AIErrorResponse extends AIResponse {
+  type: 'error';
+  error: true;
 }
 
 export interface AIHealthStatus {
@@ -86,7 +98,10 @@ class OllamaService {
   /**
    * Stream AI explanation for player analysis
    */
-  async *streamExplanation(request: ExplainRequest): AsyncGenerator<AIResponse, void, unknown> {
+  /**
+   * Stream AI explanation for player analysis with runtime type guard
+   */
+  async *streamExplanation(request: ExplainRequest): AsyncGenerator<AIResponse, void, undefined> {
     try {
       const response = await fetch(`${this.baseUrl}/v1/ai/explain`, {
         method: 'POST',
@@ -114,6 +129,21 @@ class OllamaService {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
+      // Enhanced runtime type guard for AIResponse
+      const allowedTypes: AIResponseType[] = ['start', 'chunk', 'complete', 'error'];
+      const isAIResponse = (data: unknown): data is AIResponse => {
+        if (typeof data !== 'object' || data === null) return false;
+        const obj = data as Partial<AIResponse>;
+        return (
+          typeof obj.type === 'string' &&
+          allowedTypes.includes(obj.type as AIResponseType) &&
+          typeof obj.content === 'string' &&
+          (obj.fullContent === undefined || typeof obj.fullContent === 'string') &&
+          (obj.error === undefined || typeof obj.error === 'boolean') &&
+          (obj.fallback === undefined || typeof obj.fallback === 'boolean')
+        );
+      };
+
       try {
         while (true) {
           const { value, done } = await reader.read();
@@ -125,8 +155,12 @@ class OllamaService {
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               try {
-                const data = JSON.parse(line.slice(6));
-                yield data as AIResponse;
+                const data: unknown = JSON.parse(line.slice(6));
+                if (isAIResponse(data)) {
+                  yield data;
+                } else {
+                  console.warn('Received invalid AIResponse:', data);
+                }
               } catch (parseError) {
                 console.warn('Failed to parse SSE data:', parseError);
               }
@@ -138,22 +172,26 @@ class OllamaService {
       }
     } catch (error) {
       console.error('Stream explanation error:', error);
-      yield {
+      const errResp: AIErrorResponse = {
         type: 'error',
         content: `⚠️ Explanation failed: ${
           error instanceof Error ? error.message : 'Unknown error'
         }`,
         error: true,
       };
+      yield errResp;
     }
   }
 
   /**
    * Stream AI analysis for prop betting opportunity
    */
+  /**
+   * Stream AI analysis for prop betting opportunity with runtime type guard
+   */
   async *streamPropAnalysis(
     request: PropAnalysisRequest
-  ): AsyncGenerator<AIResponse, void, unknown> {
+  ): AsyncGenerator<AIResponse, void, undefined> {
     try {
       const response = await fetch(`${this.baseUrl}/v1/ai/analyze-prop`, {
         method: 'POST',
@@ -181,6 +219,21 @@ class OllamaService {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
+      // Enhanced runtime type guard for AIResponse
+      const allowedTypes: AIResponseType[] = ['start', 'chunk', 'complete', 'error'];
+      const isAIResponse = (data: unknown): data is AIResponse => {
+        if (typeof data !== 'object' || data === null) return false;
+        const obj = data as Partial<AIResponse>;
+        return (
+          typeof obj.type === 'string' &&
+          allowedTypes.includes(obj.type as AIResponseType) &&
+          typeof obj.content === 'string' &&
+          (obj.fullContent === undefined || typeof obj.fullContent === 'string') &&
+          (obj.error === undefined || typeof obj.error === 'boolean') &&
+          (obj.fallback === undefined || typeof obj.fallback === 'boolean')
+        );
+      };
+
       try {
         while (true) {
           const { value, done } = await reader.read();
@@ -192,8 +245,12 @@ class OllamaService {
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               try {
-                const data = JSON.parse(line.slice(6));
-                yield data as AIResponse;
+                const data: unknown = JSON.parse(line.slice(6));
+                if (isAIResponse(data)) {
+                  yield data;
+                } else {
+                  console.warn('Received invalid AIResponse:', data);
+                }
               } catch (parseError) {
                 console.warn('Failed to parse SSE data:', parseError);
               }
@@ -205,22 +262,26 @@ class OllamaService {
       }
     } catch (error) {
       console.error('Stream prop analysis error:', error);
-      yield {
+      const errResp: AIErrorResponse = {
         type: 'error',
         content: `⚠️ Prop analysis failed: ${
           error instanceof Error ? error.message : 'Unknown error'
         }`,
         error: true,
       };
+      yield errResp;
     }
   }
 
   /**
    * Stream comprehensive player research summary
    */
+  /**
+   * Stream comprehensive player research summary with runtime type guard
+   */
   async *streamPlayerSummary(
     request: PlayerSummaryRequest
-  ): AsyncGenerator<AIResponse, void, unknown> {
+  ): AsyncGenerator<AIResponse, void, undefined> {
     try {
       const response = await fetch(`${this.baseUrl}/v1/ai/player-summary`, {
         method: 'POST',
@@ -248,6 +309,21 @@ class OllamaService {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
+      // Enhanced runtime type guard for AIResponse
+      const allowedTypes: AIResponseType[] = ['start', 'chunk', 'complete', 'error'];
+      const isAIResponse = (data: unknown): data is AIResponse => {
+        if (typeof data !== 'object' || data === null) return false;
+        const obj = data as Partial<AIResponse>;
+        return (
+          typeof obj.type === 'string' &&
+          allowedTypes.includes(obj.type as AIResponseType) &&
+          typeof obj.content === 'string' &&
+          (obj.fullContent === undefined || typeof obj.fullContent === 'string') &&
+          (obj.error === undefined || typeof obj.error === 'boolean') &&
+          (obj.fallback === undefined || typeof obj.fallback === 'boolean')
+        );
+      };
+
       try {
         while (true) {
           const { value, done } = await reader.read();
@@ -259,8 +335,12 @@ class OllamaService {
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               try {
-                const data = JSON.parse(line.slice(6));
-                yield data as AIResponse;
+                const data: unknown = JSON.parse(line.slice(6));
+                if (isAIResponse(data)) {
+                  yield data;
+                } else {
+                  console.warn('Received invalid AIResponse:', data);
+                }
               } catch (parseError) {
                 console.warn('Failed to parse SSE data:', parseError);
               }
@@ -272,13 +352,14 @@ class OllamaService {
       }
     } catch (error) {
       console.error('Stream player summary error:', error);
-      yield {
+      const errResp: AIErrorResponse = {
         type: 'error',
         content: `⚠️ Player summary failed: ${
           error instanceof Error ? error.message : 'Unknown error'
         }`,
         error: true,
       };
+      yield errResp;
     }
   }
 
@@ -290,10 +371,13 @@ class OllamaService {
       let fullContent = '';
       for await (const response of this.streamExplanation(request)) {
         if (response.type === 'complete') {
-          fullContent = response.fullContent || response.content;
+          fullContent =
+            typeof response.fullContent === 'string' ? response.fullContent : response.content;
           break;
         } else if (response.type === 'error') {
-          throw new Error(response.content);
+          throw new Error(
+            typeof response.content === 'string' ? response.content : 'Unknown error'
+          );
         }
       }
       return fullContent || 'No explanation generated';

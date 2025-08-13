@@ -27,13 +27,11 @@ const socialSignIn = (
   </div>
 );
 
-export const OnboardingFlow: React.FC = () => {
+const OnboardingFlow: React.FC = () => {
   const { currentStep, completedSteps, isNextStepDisabled, setCurrentStep, finishOnboarding } =
     useOnboarding();
   const steps = Object.keys(stepTitles);
   const currentIdx = steps.indexOf(currentStep);
-
-  // Concurrent React hooks
   const [isPending, startTransition] = React.useTransition();
   const deferredSteps = React.useDeferredValue(steps);
 
@@ -121,3 +119,5 @@ export const OnboardingFlow: React.FC = () => {
     </div>
   );
 };
+
+export default OnboardingFlow;

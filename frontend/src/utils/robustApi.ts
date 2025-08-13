@@ -14,6 +14,7 @@ interface ApiOptions {
   timeout?: number;
   retries?: number;
   fallbackData?: any;
+  headers?: Record<string, string>;
 }
 
 export class RobustApiClient {
@@ -147,7 +148,7 @@ export class RobustApiClient {
         'Content-Type': 'application/json',
         ...options?.headers,
       },
-      body: data ? JSON.stringify(data) : undefined,
+      body: data ? JSON.stringify(data) : null,
     });
   }
 }
@@ -229,7 +230,11 @@ export const fetchHealthData = async () => {
     // Try both health endpoints
     const result1 = await robustApi.get('/health', { fallbackData: mockHealthData, timeout: 3000 });
     if (result1.success) {
-      return result1.data?.data || result1.data || mockHealthData;
+      // Defensive: result1.data may be undefined or nested
+      if (result1.data && typeof result1.data === 'object' && 'data' in result1.data) {
+        return (result1.data as any).data || result1.data || mockHealthData;
+      }
+      return result1.data || mockHealthData;
     }
 
     const result2 = await robustApi.get('/api/health', {

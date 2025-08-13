@@ -1,7 +1,5 @@
-// @ts-expect-error TS(2307): Cannot find module '@/core/DataSource' or its corr... Remove this comment to see the full error message
-import { DataSource } from '@/core/DataSource';
-// @ts-expect-error TS(2307): Cannot find module '@/core/EventBus' or its corres... Remove this comment to see the full error message
-import { EventBus } from '@/core/EventBus';
+import { DataSource } from '../unified/DataSource';
+import { EventBus } from '../unified/EventBus';
 // import { PerformanceMonitor } from '@/core/PerformanceMonitor';
 
 export interface ESPNGame {
@@ -53,9 +51,9 @@ export class ESPNAdapter implements DataSource<ESPNData> {
     }
     const [games, headlines] = await Promise.all([this.fetchGames(), this.fetchHeadlines()]);
     const _data: ESPNData = { games, headlines };
-    this.cache = { data, timestamp: Date.now() };
+    this.cache = { data: _data, timestamp: Date.now() };
     // this.eventBus.publish({ type: 'espn-updated', payload: { data } });
-    return data;
+    return _data;
   }
 
   private async fetchGames(): Promise<ESPNGame[]> {
@@ -72,7 +70,7 @@ export class ESPNAdapter implements DataSource<ESPNData> {
 
   private isCacheValid(): boolean {
     const _cacheTimeout = 5 * 60 * 1000; // 5 minutes
-    return this.cache.data !== null && Date.now() - this.cache.timestamp < cacheTimeout;
+    return this.cache.data !== null && Date.now() - this.cache.timestamp < _cacheTimeout;
   }
 
   public clearCache(): void {

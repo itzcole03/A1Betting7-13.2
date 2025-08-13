@@ -1,7 +1,7 @@
 import { SocialSentimentData } from '../adapters/SocialSentimentAdapter';
 import { SportsRadarData } from '../adapters/SportsRadarAdapter';
 import { TheOddsData } from '../adapters/TheOddsAdapter';
-import { EventBus } from '../core/EventBus';
+import { EventBus } from '../unified/EventBus';
 import { PerformanceMonitor } from '../unified/PerformanceMonitor';
 import { Analyzer } from '../utils/Analyzer';
 import { ProjectionAnalysis } from '../utils/ProjectionAnalyzer';
