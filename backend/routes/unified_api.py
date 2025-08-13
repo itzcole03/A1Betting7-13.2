@@ -81,6 +81,9 @@ import redis.asyncio as redis
 from fastapi import APIRouter, Body, HTTPException, Query, status
 from fastapi.responses import JSONResponse
 
+from backend.exceptions.handlers import handle_error
+from backend.utils.response_envelope import fail, ok
+
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 REDIS_TTL = 600  # 10 minutes
 from backend.models.api_models import BetAnalysisResponse
@@ -101,26 +104,39 @@ router = APIRouter(tags=["Unified Intelligence"])
 
 
 # --- New API Endpoints ---
-@router.post("/debug/flush-redis-cache")
-async def flush_redis_cache():
-    """Flush all Redis cache (TEMPORARY DEBUG ENDPOINT)."""
-    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-    r = await redis.from_url(redis_url)
-    await r.flushall()
-    return {"status": "ok", "message": "Redis cache flushed"}
+
+
+@router.post("/debug/flush-redis-cache", response_model=dict, tags=["Debug"])
+async def flush_redis_cache() -> dict:
+    """
+    Flush all Redis cache (TEMPORARY DEBUG ENDPOINT).
+    Returns standardized response contract.
+    """
+    try:
+        redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+        r = await redis.from_url(redis_url)
+        await r.flushall()
+        return ok({"message": "Redis cache flushed"})
+    except Exception as e:
+        error_info = handle_error(e, message="Failed to flush Redis cache")
+        return fail(error_info.code, error_info.user_message)
 
 
 # --- Featured Props Endpoint ---
-@router.get("/props/featured")
+
+
+@router.get("/props/featured", response_model=dict, tags=["Featured Props"])
 async def get_featured_props(
     sport: str = Query("All", description="Sport filter (All, NBA, NFL, MLB, etc.)"),
     min_confidence: int = Query(0, description="Minimum confidence for featured props"),
     max_results: int = Query(
         10, description="Maximum number of featured props to return"
     ),
-):
+) -> dict:
     """
     Returns a list of featured props for the selected sport using real data if available.
+    Example response:
+        {"success": True, "data": [...], "error": None}
     """
     from backend.services.unified_prediction_service import UnifiedPredictionService
 
@@ -133,7 +149,6 @@ async def get_featured_props(
             include_portfolio_optimization=False,
             include_ai_insights=False,
         )
-        # Sort by confidence, then expected_value, then player_name
         predictions = sorted(
             predictions,
             key=lambda p: (
@@ -143,57 +158,17 @@ async def get_featured_props(
             ),
             reverse=True,
         )
-        # Patch: Ensure every prop has a 'stat' field (duplicate stat_type if missing)
         featured = []
         for p in predictions[:max_results]:
             obj = p.model_dump() if hasattr(p, "model_dump") else dict(p)
             if "stat" not in obj:
                 obj["stat"] = obj.get("stat_type", "")
             featured.append(obj)
-        return JSONResponse(content=featured)
+        return ok(featured)
     except Exception as e:
         logger.error(f"[FeaturedProps] Error fetching real props: {e}")
-        mock_props = [
-            {
-                "id": "nba-lebron-points-1",
-                "player_name": "LeBron James",
-                "team": "LAL vs BOS",
-                "sport": "NBA",
-                "stat_type": "points",
-                "line_score": 27.5,
-                "confidence": 72,
-                "expected_value": 0.18,
-            },
-            {
-                "id": "mlb-ohtani-hits-1",
-                "player_name": "Shohei Ohtani",
-                "team": "LAD vs NYY",
-                "sport": "MLB",
-                "stat_type": "hits",
-                "line_score": 1.5,
-                "confidence": 68,
-                "expected_value": 0.12,
-            },
-            {
-                "id": "nfl-mahomes-tds-1",
-                "player_name": "Patrick Mahomes",
-                "team": "KC vs BUF",
-                "sport": "NFL",
-                "stat_type": "touchdowns",
-                "line_score": 2.5,
-                "confidence": 75,
-                "expected_value": 0.22,
-            },
-        ]
-        # Patch: Ensure every mock prop has a 'stat' field
-        for obj in mock_props:
-            if "stat" not in obj:
-                obj["stat"] = obj.get("stat_type", "")
-        if sport and sport != "All":
-            filtered = [p for p in mock_props if p["sport"].lower() == sport.lower()]
-        else:
-            filtered = mock_props
-        return JSONResponse(content=filtered[:max_results])
+        error_info = handle_error(e, message="Failed to fetch featured props")
+        return fail(error_info.code, error_info.user_message)
 
 
 @router.get("/mlb-bet-analysis", response_model=BetAnalysisResponse)
