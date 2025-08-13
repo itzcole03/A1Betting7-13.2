@@ -33,7 +33,7 @@ describe('Service Registry Health Monitoring E2E', () => {
     // Simulate degraded service
     registry.updateServiceHealth('data', 'degraded', -1);
     await waitFor(() => {
-      expect(screen.getByText(/Degraded/i)).toBeInTheDocument();
+      expect(screen.getByTestId('service-status-degraded')).toBeInTheDocument();
     });
   });
 });

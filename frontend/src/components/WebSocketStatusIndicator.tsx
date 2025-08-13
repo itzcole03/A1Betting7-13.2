@@ -18,8 +18,8 @@ export const WebSocketStatusIndicator: React.FC = () => {
 
   return (
     <div
-      data-testid='websocket-status-indicator'
       className='fixed top-2 right-2 z-50 px-3 py-1 rounded bg-slate-800 text-white text-xs shadow'
+      data-testid={`websocket-status-${statusMap[status].replace(/\s+/g, '-').toLowerCase()}`}
     >
       WebSocket: {statusMap[status]}
     </div>

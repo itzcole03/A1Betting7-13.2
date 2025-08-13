@@ -5,9 +5,9 @@
  * - All test mocks align with backend shape.
  * - Only getByTestId/findByTestId/queryByTestId are used for loading, error, and fallback selectors.
  */
+import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import PropOllamaUnified from '../../components/PropOllamaUnified';
 import { AnalysisCacheService } from '../../services/AnalysisCacheService';
@@ -150,12 +150,12 @@ const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 describe('PropOllamaUnified E2E', () => {
   // Helper function to wait for component to be fully loaded
-  const waitForComponentReady = async () => {
+  async function waitForComponentReady() {
     // Wait for prop cards to appear after data loading with longer timeout
     const propCards = await screen.findAllByTestId('prop-card', {}, { timeout: 30000 });
     expect(propCards.length).toBeGreaterThan(0);
     return propCards;
-  };
+  }
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -253,7 +253,7 @@ describe('PropOllamaUnified E2E', () => {
     // Render component first
     render(
       <TestWrapper>
-        <PropOllamaUnified projections={mockProps} />
+        <PropOllamaUnified projections={mockProps.filter(p => p.sport === 'MLB')} />
       </TestWrapper>
     );
     expect(screen.getByText('MLB AI Props')).toBeInTheDocument();
@@ -269,41 +269,42 @@ describe('PropOllamaUnified E2E', () => {
       fireEvent.change(statTypeSelect, { target: { value: 'All' } });
     });
     // Wait for prop cards to appear
-    await waitFor(
-      () => {
-        expect(screen.queryAllByTestId('prop-card').length).toBeGreaterThan(0);
+    await waitFor(async () => {
+      expect(screen.queryAllByTestId('prop-card').length).toBe(2);
+    }, { timeout: 10000 });
       },
       { timeout: 10000 }
     );
   });
 
-  test('simple prop card render test', async () => {
-    // Ensure clean state
-    jest.clearAllMocks();
-    // Render component first
-    const { container } = render(
-      <TestWrapper>
-        <PropOllamaUnified projections={mockProps} />
-      </TestWrapper>
-    );
-    // Simulate clicking the MLB tab to trigger MLB prop rendering
-    const mlbTab = screen.getByRole('tab', { name: /MLB/i });
-    act(() => {
-      fireEvent.click(mlbTab);
-    });
-    // Set stat type to 'All' to ensure all mock props are visible
-    const statTypeSelect = screen.getByLabelText('Stat Type:');
-    act(() => {
-      fireEvent.change(statTypeSelect, { target: { value: 'All' } });
-    });
-    // Wait for prop cards to appear
-    await waitFor(
-      () => {
-        expect(screen.queryAllByTestId('prop-card').length).toBeGreaterThan(0);
-      },
-      { timeout: 10000 }
-    );
-  }, 30000); // 30 second timeout
+  test(
+    'simple prop card render test',
+    async () => {
+      // Ensure clean state
+      jest.clearAllMocks();
+      // Render component first
+      const { container } = render(
+        <TestWrapper>
+          <PropOllamaUnified projections={mockProps.filter(p => p.sport === 'MLB')} />
+        </TestWrapper>
+      );
+      // Simulate clicking the MLB tab to trigger MLB prop rendering
+      const mlbTab = screen.getByRole('tab', { name: /MLB/i });
+      act(() => {
+        fireEvent.click(mlbTab);
+      });
+      // Set stat type to 'All' to ensure all mock props are visible
+      const statTypeSelect = screen.getByLabelText('Stat Type:');
+      act(() => {
+        fireEvent.change(statTypeSelect, { target: { value: 'All' } });
+      });
+      // Wait for prop cards to appear
+      await waitFor(async () => {
+        expect(screen.queryAllByTestId('prop-card').length).toBe(2);
+      }, { timeout: 10000 });
+    },
+    30000 // 30 second timeout
+  );
 
   test('shows loading overlay while fetching analysis', async () => {
     (PropAnalysisAggregator.prototype.getAnalysis as jest.Mock).mockImplementation(

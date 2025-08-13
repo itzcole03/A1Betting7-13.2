@@ -71,6 +71,7 @@ const UnifiedBettingInterface = props => {
                     </div>
                   </div>
                   <button
+                    data-testid={`add-to-bet-slip-btn-${opportunity.id}`}
                     onClick={() => addToBetSlip(opportunity)}
                     className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm flex items-center space-x-2'
                     disabled={betSlip.some(item => item.opportunityId === opportunity.id)}

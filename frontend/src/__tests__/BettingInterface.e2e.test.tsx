@@ -1,4 +1,3 @@
-import('../components/betting/UnifiedBettingInterface');
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
@@ -81,9 +80,10 @@ describe('Betting Interface E2E', () => {
     expect(screen.queryByTestId('bet-slip-section')).not.toBeInTheDocument();
 
     // Simulate adding a bet in Opportunities tab
-    const addBetButtons = await screen.findAllByRole('button', { name: /Add to Bet Slip/i });
+    // Use testid for 'Add to Bet Slip' button
+    const addBetButton = await screen.findByTestId('add-to-bet-slip-btn-opp-1');
     act(() => {
-      addBetButtons[0].click();
+      addBetButton.click();
     });
 
     // Switch to Bet Slip tab

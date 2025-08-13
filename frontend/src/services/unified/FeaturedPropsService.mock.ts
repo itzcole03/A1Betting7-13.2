@@ -3,6 +3,32 @@ import { FeaturedProp } from './FeaturedPropsService';
 
 export const mockProps: FeaturedProp[] = [
   {
+    id: 'mlb-1',
+    player: 'Aaron Judge',
+    matchup: 'Yankees vs Red Sox',
+    stat: 'Home Runs',
+    line: 1.5,
+    overOdds: 2.1,
+    underOdds: 1.7,
+    confidence: 92,
+    sport: 'MLB',
+    gameTime: '2025-07-29T20:00:00Z',
+    pickType: 'Home Runs',
+  },
+  {
+    id: 'mlb-2',
+    player: 'Shohei Ohtani',
+    matchup: 'Angels vs Astros',
+    stat: 'Strikeouts',
+    line: 8.5,
+    overOdds: 1.95,
+    underOdds: 1.85,
+    confidence: 88,
+    sport: 'MLB',
+    gameTime: '2025-07-29T21:00:00Z',
+    pickType: 'Strikeouts',
+  },
+  {
     id: 'nba-1',
     player: 'LeBron James',
     matchup: 'Lakers vs Warriors',
@@ -27,19 +53,6 @@ export const mockProps: FeaturedProp[] = [
     sport: 'NBA',
     gameTime: '2025-07-29T19:00:00Z',
     pickType: '3PT Made',
-  },
-  {
-    id: 'mlb-1',
-    player: 'Aaron Judge',
-    matchup: 'Yankees vs Red Sox',
-    stat: 'Home Runs',
-    line: 1.5,
-    overOdds: 2.1,
-    underOdds: 1.7,
-    confidence: 92,
-    sport: 'MLB',
-    gameTime: '2025-07-29T20:00:00Z',
-    pickType: 'Home Runs',
   },
 ];
 

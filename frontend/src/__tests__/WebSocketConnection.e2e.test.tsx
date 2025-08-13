@@ -46,7 +46,7 @@ describe('WebSocket Connection E2E', () => {
       if (ws && ws.onclose) ws.onclose({ code: 1006, reason: 'Connection lost' });
     });
     await waitFor(() => {
-      expect(screen.getByText(/WebSocket Disconnected|Connection lost/i)).toBeInTheDocument();
+      expect(screen.getByTestId('websocket-status-disconnected')).toBeInTheDocument();
     });
   });
 });

@@ -176,6 +176,7 @@ const HealthBanner: React.FC = () => {
                     ? 'text-yellow-400'
                     : 'text-red-400'
                 }
+                data-testid={`service-status-${info.status}`}
               >
                 {info.status.charAt(0).toUpperCase() + info.status.slice(1)}
               </span>
@@ -238,9 +239,7 @@ const HealthBanner: React.FC = () => {
           {typeof scraperHealth.error_streak === 'number' && scraperHealth.error_streak > 0 && (
             <span className='ml-2 text-red-300'>Error streak: {scraperHealth.error_streak}</span>
           )}
-          {scraperHealth.is_stale && (
-            <span className='ml-2 text-yellow-300'>Data is stale</span>
-          )}
+          {scraperHealth.is_stale && <span className='ml-2 text-yellow-300'>Data is stale</span>}
           {typeof scraperHealth.last_prop_count === 'number' && (
             <span className='ml-2 text-cyan-200'>Props: {scraperHealth.last_prop_count}</span>
           )}

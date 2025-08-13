@@ -23,13 +23,8 @@ describe('Dashboard Navigation E2E', () => {
       </MemoryRouter>
     );
     // Wait for dashboard main heading (robust matcher for split/nested nodes)
-    expect(
-      await screen.findByText((content, node) => {
-        // Check if node or its children contain the text
-        const text = node?.textContent || '';
-        return /sports analytics/i.test(text);
-      })
-    ).toBeInTheDocument();
+    // Use robust matcher for split/nested heading text
+    expect(await screen.findByTestId('propfinder-killer-heading')).toBeInTheDocument();
     // Navigate to AI/ML Models
     const mlTab = await screen.findByRole('link', { name: /AI\/ML Models/i });
     act(() => {

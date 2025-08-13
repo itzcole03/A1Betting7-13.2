@@ -3,6 +3,7 @@ jest.mock('../components/hooks/useSimplePropOllamaData', () => ({
   __esModule: true,
   useSimplePropOllamaData: ({ state, actions }: any) => ({
     fetchData: jest.fn(),
+    // Removed invalid import inside object
     // actions object with all required functions
     actions: {
       setIsLoading: jest.fn(),
@@ -21,7 +22,6 @@ jest.mock('../services/unified/FeaturedPropsService', () => ({
 }));
 
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 import '../../../jest.setup.e2e.js';
 import * as backendDiscoveryModule from '../services/backendDiscovery';
 import * as getBackendUrlModule from '../utils/getBackendUrl';
