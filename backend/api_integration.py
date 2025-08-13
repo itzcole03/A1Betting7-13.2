@@ -24,6 +24,8 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from passlib.context import CryptContext
 from pydantic import BaseModel, Field
 
+from backend.utils.response_envelope import fail, ok
+
 # Place fallback endpoint after app = FastAPI(...)
 app = FastAPI(
     title="A1Betting API",
@@ -1943,20 +1945,31 @@ async def websocket_odds(websocket: WebSocket):
     try:
         while True:
             # Send periodic odds updates
-            odds_update = {
-                "type": "ODDS_UPDATE",
-                "payload": {
-                    "propId": f"prop_{uuid.uuid4()}",
-                    "overOdds": -110,
-                    "underOdds": -110,
-                    "confidence": 85,
-                },
+            data = {
+                "propId": f"prop_{uuid.uuid4()}",
+                "overOdds": -110,
+                "underOdds": -110,
+                "confidence": 85,
+            }
+            meta = {
+                "event": "ODDS_UPDATE",
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
-            await manager.send_personal_message(json.dumps(odds_update), websocket)
+            payload = ok(data, meta)
+            await manager.send_personal_message(json.dumps(payload), websocket)
             await asyncio.sleep(30)  # Update every 30 seconds
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+    except Exception as e:
+        error_payload = fail(
+            "ODDS_SEND_ERROR",
+            str(e),
+            {
+                "event": "ODDS_UPDATE",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+        await manager.send_personal_message(json.dumps(error_payload), websocket)
 
 
 @api_router.websocket("/ws/predictions")
@@ -1966,25 +1979,34 @@ async def websocket_predictions(websocket: WebSocket):
     try:
         while True:
             # Send periodic prediction updates
-            prediction_update = {
-                "type": "PREDICTION_UPDATE",
-                "payload": {
-                    "playerId": f"player_{uuid.uuid4()}",
-                    "prediction": {
-                        "stat": "points",
-                        "value": 25.5,
-                        "confidence": 92,
-                        "recommendation": "over",
-                    },
+            data = {
+                "playerId": f"player_{uuid.uuid4()}",
+                "prediction": {
+                    "stat": "points",
+                    "value": 25.5,
+                    "confidence": 92,
+                    "recommendation": "over",
                 },
+            }
+            meta = {
+                "event": "PREDICTION_UPDATE",
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
-            await manager.send_personal_message(
-                json.dumps(prediction_update), websocket
-            )
+            payload = ok(data, meta)
+            await manager.send_personal_message(json.dumps(payload), websocket)
             await asyncio.sleep(60)  # Update every minute
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+    except Exception as e:
+        error_payload = fail(
+            "PREDICTION_SEND_ERROR",
+            str(e),
+            {
+                "event": "PREDICTION_UPDATE",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+        await manager.send_personal_message(json.dumps(error_payload), websocket)
 
 
 @api_router.websocket("/ws/notifications")
@@ -1993,9 +2015,26 @@ async def websocket_notifications(websocket: WebSocket, user_id: str):
     await manager.connect(websocket, user_id)
     try:
         while True:
-            await asyncio.sleep(1)  # Keep connection alive
+            # Example: send a health ping every 10 seconds
+            meta = {
+                "event": "HEALTH_PING",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+            payload = ok({"message": "Connection alive"}, meta)
+            await manager.send_personal_message(json.dumps(payload), websocket)
+            await asyncio.sleep(10)
     except WebSocketDisconnect:
         manager.disconnect(websocket, user_id)
+    except Exception as e:
+        error_payload = fail(
+            "NOTIFICATION_SEND_ERROR",
+            str(e),
+            {
+                "event": "HEALTH_PING",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+        await manager.send_personal_message(json.dumps(error_payload), websocket)
 
 
 # --- FastAPI App Creation ---

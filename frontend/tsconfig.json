@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     // Modern ES2022 target for better performance and features
-    "target": "ES2022",
+    "target": "ES2017",
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
-    "module": "ESNext",
+    "module": "NodeNext",
     "types": [
       "@testing-library/jest-dom",
       "vite/client",
@@ -15,7 +15,7 @@
     ],
 
     // Enhanced module resolution for 2025
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
