@@ -1,46 +1,34 @@
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import httpx
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 
-router = APIRouter(prefix="/api", tags=["Trending Suggestions"])
+from backend.exceptions.api_exceptions import BusinessLogicException
+from backend.services.trending_suggestions_service import get_trending_suggestions
+from backend.utils.response_envelope import ok
 
-# Example: The Odds API endpoint and key (replace with your real key)
-ODDS_API_KEY = "YOUR_API_KEY"
-ODDS_API_URL = "https://api.the-odds-api.com/v4/sports/basketball_nba/odds?regions=us&markets=h2h&apiKey={key}"
+router = APIRouter(tags=["Trending Suggestions"])
 
 
-@router.get("/trending-suggestions", response_model=List[Dict[str, Any]])
-async def get_trending_suggestions() -> List[Dict[str, Any]]:
+@router.get("/trending-suggestions", response_model=Dict[str, Any], tags=["Trending"])
+def trending_suggestions(
+    sport: str = Query(..., description="Sport name (e.g. MLB, NBA)"),
+    limit: int = Query(10, description="Max number of suggestions"),
+) -> Dict[str, Any]:
     """
-    Fetch trending money lines for chat suggestions from The Odds API
+    Return trending prop suggestions for a sport.
+    Returns standardized response contract.
+    Example success:
+        {"success": True, "data": [...], "error": None}
+    Example error:
+        {"success": False, "data": None, "error": {"code": "trending_error", "message": "..."}}
     """
     try:
-        url = ODDS_API_URL.format(key=ODDS_API_KEY)
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url)
-            response.raise_for_status()
-            data = response.json()
-        suggestions = []
-        for event in data:
-            home = event.get("home_team")
-            away = event.get("away_team")
-            if home and away:
-                suggestions.append(
-                    {
-                        "prompt": f"NBA: {home} vs {away} Money Line",
-                        "type": "moneyline",
-                        "teams": [home, away],
-                        "odds": event.get("bookmakers", []),
-                    }
-                )
-        # Fallback if no suggestions
-        if not suggestions:
-            suggestions = [
-                {"prompt": "What are today's top NBA money lines?", "type": "default"}
-            ]
-        return suggestions
+        suggestions = get_trending_suggestions(sport=sport, limit=limit)
+        return ok(suggestions)
     except Exception as e:
-        logging.error(f"Error fetching trending suggestions: {e}")
-        return [{"prompt": "What are today's top NBA money lines?", "type": "default"}]
+        raise BusinessLogicException(
+            detail=f"Failed to fetch trending suggestions: {str(e)}",
+            error_code="trending_error",
+        )

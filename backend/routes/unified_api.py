@@ -1,5 +1,31 @@
 # Import APIRouter for router definition
-from fastapi import APIRouter, Request
+
+import hashlib
+import json
+import logging
+import os
+from typing import Any, Dict, List, Optional
+
+import redis.asyncio as redis
+from fastapi import APIRouter, Body, HTTPException, Query, Request, status
+from fastapi.responses import JSONResponse
+
+from backend.exceptions.api_exceptions import (
+    AuthorizationException,
+    BusinessLogicException,
+    ValidationException,
+)
+from backend.models.api_models import BetAnalysisResponse
+from backend.services.unified_prediction_service import (
+    UnifiedPredictionService,
+    unified_prediction_service,
+)
+from backend.utils.response_envelope import fail, ok
+
+logger = logging.getLogger(__name__)
+
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+REDIS_TTL = 600  # 10 minutes
 
 # --- Test compatibility: /analysis endpoint always returns non-empty enriched_props ---
 
@@ -58,68 +84,12 @@ async def unified_analysis_stub() -> dict:
             "filters": {"sport": "NBA", "min_confidence": 70, "max_results": 10},
             "status": "ok",
         }
-        return {"success": True, "data": analysis_data, "error": None}
+        return ok(analysis_data)
     except Exception as e:
-        from backend.exceptions.handlers import handle_error
-
-        error_info = handle_error(e, message="Failed to generate NBA props analysis")
-        return {
-            "success": False,
-            "data": None,
-            "error": {"code": error_info.code, "message": error_info.user_message},
-        }
-
-
-# Only one router definition at the top
-import hashlib
-import json
-import logging
-import os
-from typing import Any, Dict, List, Optional
-
-import redis.asyncio as redis
-from fastapi import APIRouter, Body, HTTPException, Query, status
-from fastapi.responses import JSONResponse
-
-from backend.exceptions.handlers import handle_error
-from backend.utils.response_envelope import fail, ok
-
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-REDIS_TTL = 600  # 10 minutes
-from backend.models.api_models import BetAnalysisResponse
-from backend.services.unified_prediction_service import (
-    AIInsights,
-    EnhancedPrediction,
-    PortfolioMetrics,
-    UnifiedPredictionService,
-    unified_prediction_service,
-)
-
-logger = logging.getLogger(__name__)
-
-router = APIRouter(tags=["Unified Intelligence"])
-
-
-# TEMPORARY: Debug endpoint to flush Redis cache
-
-
-# --- New API Endpoints ---
-
-
-@router.post("/debug/flush-redis-cache", response_model=dict, tags=["Debug"])
-async def flush_redis_cache() -> dict:
-    """
-    Flush all Redis cache (TEMPORARY DEBUG ENDPOINT).
-    Returns standardized response contract.
-    """
-    try:
-        redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-        r = await redis.from_url(redis_url)
-        await r.flushall()
-        return ok({"message": "Redis cache flushed"})
-    except Exception as e:
-        error_info = handle_error(e, message="Failed to flush Redis cache")
-        return fail(error_info.code, error_info.user_message)
+        raise BusinessLogicException(
+            detail=f"Failed to generate NBA props analysis: {str(e)}",
+            error_code="ANALYSIS_ERROR",
+        )
 
 
 # --- Featured Props Endpoint ---
@@ -167,8 +137,10 @@ async def get_featured_props(
         return ok(featured)
     except Exception as e:
         logger.error(f"[FeaturedProps] Error fetching real props: {e}")
-        error_info = handle_error(e, message="Failed to fetch featured props")
-        return fail(error_info.code, error_info.user_message)
+    raise BusinessLogicException(
+        detail=f"Failed to fetch featured props: {str(e)}",
+        error_code="FEATURED_PROPS_ERROR",
+    )
 
 
 @router.get("/mlb-bet-analysis", response_model=BetAnalysisResponse)
@@ -327,78 +299,33 @@ async def get_mlb_bet_analysis(
 # --- Featured Props Endpoint ---
 
 
-@router.post("/unified/batch-predictions")
-async def batch_predictions(request: Request) -> Dict[str, Any]:
+@router.post(
+    "/unified/batch-predictions", response_model=dict, tags=["Unified Intelligence"]
+)
+async def batch_predictions(request: Request) -> dict:
     """
     Batch prediction endpoint with Redis caching. Accepts a list of prop dicts, returns predictions for all.
+    Returns standardized response contract.
     """
     try:
-        # Get raw request body to debug what the frontend is sending
         body = await request.body()
-        logger.info(f"[BatchPredictions] Raw request body: {body}")
-
-        # Parse JSON manually to see what we get
-        import json
-
         props = json.loads(body)
-        logger.info(f"[BatchPredictions] Parsed props type: {type(props)}")
-
-        # Ensure props is a list
         if not isinstance(props, list):
-            logger.error(
-                f"[BatchPredictions] Expected list, got {type(props)}: {props}"
+            raise ValidationException(
+                detail=f"Expected list, got {type(props)}", error_code="INVALID_INPUT"
             )
-            return {
-                "predictions": [],
-                "errors": [
-                    {
-                        "error": f"Expected list, got {type(props)}",
-                        "analysis": "MLB prop bet analysis (fallback)",
-                        "confidence": 80.0,
-                        "recommendation": "OVER",
-                        "key_factors": ["trend", "defense", "pitcher"],
-                        "processing_time": 0.01,
-                        "cached": False,
-                        "enriched_props": [],
-                    }
-                ],
-            }
-
-        logger.info(
-            f"[BatchPredictions] Received {len(props)} props for batch processing"
-        )
-        if len(props) > 0:
-            logger.info(
-                f"[BatchPredictions] Sample prop structure: {list(props[0].keys()) if isinstance(props[0], dict) else 'Not a dict'}"
-            )
-            logger.info(f"[BatchPredictions] Sample prop data: {props[0]}")
-
     except Exception as parse_error:
-        logger.error(f"[BatchPredictions] Failed to parse request: {parse_error}")
-        return {
-            "predictions": [],
-            "errors": [
-                {
-                    "error": f"Failed to parse request: {str(parse_error)}",
-                    "analysis": "MLB prop bet analysis (fallback)",
-                    "confidence": 80.0,
-                    "recommendation": "OVER",
-                    "key_factors": ["trend", "defense", "pitcher"],
-                    "processing_time": 0.01,
-                    "cached": False,
-                    "enriched_props": [],
-                }
-            ],
-        }
+        raise ValidationException(
+            detail=f"Failed to parse request: {str(parse_error)}",
+            error_code="PARSE_ERROR",
+        )
 
     redis_conn = await redis.from_url(REDIS_URL, decode_responses=True)
     results = []
     errors = []
     uncached_indices = []
     uncached_props = []
-    # Generate cache keys and check Redis
     for idx, prop in enumerate(props):
-        # Use a hash of the prop dict as cache key
         prop_str = json.dumps(prop, sort_keys=True)
         cache_key = (
             f"unified:prediction:{hashlib.sha256(prop_str.encode()).hexdigest()}"
@@ -408,52 +335,37 @@ async def batch_predictions(request: Request) -> Dict[str, Any]:
             try:
                 results.append(json.loads(cached))
             except Exception as e:
-                results.append(
-                    {"error": f"Cache decode error: {str(e)}", "input": prop}
+                errors.append(
+                    {"code": "CACHE_DECODE_ERROR", "message": str(e), "input": prop}
                 )
+                results.append(None)
         else:
             results.append(None)
             uncached_indices.append(idx)
             uncached_props.append(prop)
-    # Run predictions for uncached props
     if uncached_props:
         service = UnifiedPredictionService()
         for i, prop in enumerate(uncached_props):
             try:
-                # Use the same logic as _enhance_prediction for a single prop
                 pred = await service._enhance_prediction(prop)
-
-                # Convert dataclass to dictionary for JSON serialization
                 if hasattr(pred, "model_dump"):
                     pred_dict = pred.model_dump()
                 elif hasattr(pred, "__dict__"):
-                    # Handle dataclass - convert to dict
                     from dataclasses import asdict
 
                     pred_dict = asdict(pred)
                 else:
                     pred_dict = pred
-
-                # Store in Redis
                 prop_str = json.dumps(prop, sort_keys=True)
                 cache_key = f"unified:prediction:{hashlib.sha256(prop_str.encode()).hexdigest()}"
                 await redis_conn.set(cache_key, json.dumps(pred_dict), ex=REDIS_TTL)
                 results[uncached_indices[i]] = pred_dict
             except Exception as e:
-                error_info = {
-                    "error": str(e),
-                    "input": prop,
-                    "analysis": "MLB prop bet analysis (fallback)",
-                    "confidence": 80.0,
-                    "recommendation": "OVER",
-                    "key_factors": ["trend", "defense", "pitcher"],
-                    "processing_time": 0.01,
-                    "cached": False,
-                    "enriched_props": [],
-                }
-                results[uncached_indices[i]] = error_info
-                errors.append(error_info)
-    return {"predictions": results, "errors": errors}
+                errors.append(
+                    {"code": "PREDICTION_ERROR", "message": str(e), "input": prop}
+                )
+                results[uncached_indices[i]] = None
+    return ok({"predictions": results, "errors": errors})
 
 
 @router.get("/mlb-bet-analysis", response_model=BetAnalysisResponse)
@@ -511,45 +423,46 @@ async def get_mlb_bet_analysis(
         ) from e
 
 
-@router.get("/portfolio-optimization")
-@router.get("/unified/portfolio-optimization")
+@router.get(
+    "/portfolio-optimization", response_model=dict, tags=["Unified Intelligence"]
+)
+@router.get(
+    "/unified/portfolio-optimization",
+    response_model=dict,
+    tags=["Unified Intelligence"],
+)
 async def get_portfolio_optimization(
     sport: Optional[str] = Query(None, description="Filter by sport"),
     min_confidence: int = Query(70, description="Minimum confidence threshold"),
     max_positions: int = Query(
         10, ge=1, le=20, description="Maximum positions in portfolio"
     ),
-) -> Dict[str, Any]:
+) -> dict:
     """
-    Get portfolio optimization recommendations
+    Get portfolio optimization recommendations (stub).
+    Returns standardized response contract.
     """
     # TODO: Implement actual logic or restore from previous version
-    return {"status": "not implemented"}
+    return ok({"message": "Portfolio optimization not implemented yet."})
 
 
-@router.get("/ai-insights")
-@router.get("/unified/ai-insights")
+@router.get("/ai-insights", response_model=dict, tags=["Unified Intelligence"])
+@router.get("/unified/ai-insights", response_model=dict, tags=["Unified Intelligence"])
 async def get_ai_insights(
     sport: Optional[str] = Query(None, description="Filter by sport"),
     min_confidence: int = Query(80, description="Minimum confidence for insights"),
-) -> Dict[str, Any]:
+) -> dict:
     """
-    Get AI-powered insights and explanations
+    Get AI-powered insights and explanations.
+    Returns standardized response contract.
     """
     try:
-        # Get predictions with AI insights
         predictions = await unified_prediction_service.get_enhanced_predictions(
             sport=sport, min_confidence=min_confidence, include_ai_insights=True
         )
-
-        # Get detailed AI insights
         ai_insights = await unified_prediction_service.get_ai_insights()
-
-        # Combine insights with predictions
         insights_data = []
-        for i, (pred, insight) in enumerate(
-            zip(predictions[:10], ai_insights[:10])
-        ):  # Limit to top 10
+        for i, (pred, insight) in enumerate(zip(predictions[:10], ai_insights[:10])):
             insight_data = {
                 "bet_id": pred.id,
                 "player_name": pred.player_name,
@@ -565,15 +478,12 @@ async def get_ai_insights(
                 "key_factors": pred.shap_explanation.get("top_factors", []),
             }
             insights_data.append(insight_data)
-
-        # Global insights summary
         avg_opportunity_score = (
             sum(insight.opportunity_score for insight in ai_insights) / len(ai_insights)
             if ai_insights
             else 0
         )
         total_market_edge = sum(insight.market_edge for insight in ai_insights)
-
         response = {
             "ai_insights": insights_data,
             "summary": {
@@ -608,30 +518,28 @@ async def get_ai_insights(
                 ),
             },
         }
-
-        return response
-
+        return ok(response)
     except Exception as e:
-        logger.error(f"Error generating AI insights: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        raise BusinessLogicException(
             detail=f"Failed to generate AI insights: {str(e)}",
+            error_code="AI_INSIGHTS_ERROR",
         )
 
 
-@router.get("/live-context/{game_id}")
+@router.get(
+    "/live-context/{game_id}", response_model=dict, tags=["Unified Intelligence"]
+)
 async def get_live_game_context(
     game_id: str,
     include_betting_opportunities: bool = Query(
         True, description="Include live betting opportunities"
     ),
-) -> Dict[str, Any]:
+) -> dict:
     """
     Get live game context for streaming integration.
-    Returns live game state, relevant bets, and live betting opportunities.
+    Returns standardized response contract.
     """
     try:
-        # Mock live game context (replace with real data integration as needed)
         live_context = {
             "game_id": game_id,
             "status": "in_progress",
@@ -642,66 +550,49 @@ async def get_live_game_context(
             },
             "last_update": "2025-01-14T15:30:00Z",
         }
-
-        # Get all predictions (robust error handling)
         try:
             all_predictions = (
                 await unified_prediction_service.get_enhanced_predictions()
             )
             if not isinstance(all_predictions, list):
-                logger.warning(
-                    "get_enhanced_predictions did not return a list; defaulting to empty list."
-                )
                 all_predictions = []
-        except Exception as pred_exc:
-            logger.error(f"Error in get_enhanced_predictions: {pred_exc}")
+        except Exception:
             all_predictions = []
-
-        # Match predictions to this game (robust, future-proof logic)
         relevant_bets = []
-        try:
-            for pred in all_predictions:
-                # Defensive: ensure pred has required attributes
-                team = getattr(pred, "team", None)
-                if not team:
-                    continue
-                # Example: match by team in home/away (expand as needed for real data)
-                if team in [
-                    live_context["score"]["home"]["team"],
-                    live_context["score"]["away"]["team"],
-                ]:
-                    bet_context = {
-                        "bet_id": getattr(pred, "id", None),
-                        "player_name": getattr(pred, "player_name", None),
-                        "team": team,
-                        "stat_type": getattr(pred, "stat_type", None),
-                        "line_score": getattr(pred, "line_score", None),
-                        "current_performance": getattr(pred, "line_score", 0)
-                        * 0.7,  # Mock current stats
-                        "pace_to_hit": (
-                            "ON_PACE"
-                            if getattr(pred, "line_score", 0) * 0.7
-                            > getattr(pred, "line_score", 0) * 0.6
-                            else "BEHIND_PACE"
-                        ),
-                        "confidence": getattr(pred, "confidence", None),
-                        "live_adjustment": (
-                            getattr(pred, "quantum_confidence", 0)
-                            - getattr(pred, "confidence", 0)
-                            if hasattr(pred, "quantum_confidence")
-                            and hasattr(pred, "confidence")
-                            else 0
-                        ),
-                    }
-                    relevant_bets.append(bet_context)
-        except Exception as e:
-            logger.error(f"Error matching predictions to game: {e}")
-            relevant_bets = []
-
-        # Live betting opportunities (always return list, even if empty)
+        for pred in all_predictions:
+            team = getattr(pred, "team", None)
+            if not team:
+                continue
+            if team in [
+                live_context["score"]["home"]["team"],
+                live_context["score"]["away"]["team"],
+            ]:
+                bet_context = {
+                    "bet_id": getattr(pred, "id", None),
+                    "player_name": getattr(pred, "player_name", None),
+                    "team": team,
+                    "stat_type": getattr(pred, "stat_type", None),
+                    "line_score": getattr(pred, "line_score", None),
+                    "current_performance": getattr(pred, "line_score", 0) * 0.7,
+                    "pace_to_hit": (
+                        "ON_PACE"
+                        if getattr(pred, "line_score", 0) * 0.7
+                        > getattr(pred, "line_score", 0) * 0.6
+                        else "BEHIND_PACE"
+                    ),
+                    "confidence": getattr(pred, "confidence", None),
+                    "live_adjustment": (
+                        getattr(pred, "quantum_confidence", 0)
+                        - getattr(pred, "confidence", 0)
+                        if hasattr(pred, "quantum_confidence")
+                        and hasattr(pred, "confidence")
+                        else 0
+                    ),
+                }
+                relevant_bets.append(bet_context)
         live_opportunities = []
         if include_betting_opportunities and relevant_bets:
-            for bet in relevant_bets[:3]:  # Top 3 opportunities
+            for bet in relevant_bets[:3]:
                 confidence = (bet["confidence"] or 0) + (bet["live_adjustment"] or 0)
                 recommended_action = (
                     "INCREASE_STAKE"
@@ -719,8 +610,6 @@ async def get_live_game_context(
                     "recommended_action": recommended_action,
                 }
                 live_opportunities.append(opportunity)
-
-        # Alerts (example: momentum shift)
         alerts = []
         if relevant_bets:
             alerts.append(
@@ -730,7 +619,6 @@ async def get_live_game_context(
                     "timestamp": "2025-01-14T15:30:00Z",
                 }
             )
-
         response = {
             "live_context": live_context,
             "relevant_bets": relevant_bets,
@@ -738,70 +626,56 @@ async def get_live_game_context(
             "alerts": alerts,
             "next_update": "2025-01-14T15:35:00Z",
         }
-
-        return response
-
+        return ok(response)
     except Exception as e:
-        logger.error(f"Error fetching live game context: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        raise BusinessLogicException(
             detail=f"Failed to fetch live game context: {str(e)}",
+            error_code="LIVE_CONTEXT_ERROR",
         )
 
 
-@router.get("/multi-platform")
+@router.get("/multi-platform", response_model=dict, tags=["Unified Intelligence"])
 async def get_multi_platform_opportunities(
     sport: Optional[str] = Query(None, description="Filter by sport"),
     min_confidence: int = Query(75, description="Minimum confidence threshold"),
     include_arbitrage: bool = Query(
         True, description="Include arbitrage opportunities"
     ),
-) -> Dict[str, Any]:
+) -> dict:
     """
-    Get betting opportunities across multiple platforms
+    Get betting opportunities across multiple platforms.
+    Returns standardized response contract.
     """
     try:
-        # Get enhanced predictions
         predictions = await unified_prediction_service.get_enhanced_predictions(
             sport=sport, min_confidence=min_confidence
         )
-
-        # Mock multi-platform data (would integrate with real APIs)
         platforms = ["PrizePicks", "DraftKings", "FanDuel", "SuperDraft"]
         multi_platform_opportunities = []
-
-        for pred in predictions[:10]:  # Top 10 opportunities
+        for pred in predictions[:10]:
             platform_data = {
                 "player_name": pred.player_name,
                 "stat_type": pred.stat_type,
                 "platforms": [],
             }
-
-            # Mock platform-specific data
             for platform in platforms:
                 platform_info = {
                     "platform": platform,
-                    "line": pred.line_score
-                    + (hash(platform) % 3 - 1) * 0.5,  # Slight variations
-                    "odds": -110 + (hash(platform) % 20 - 10),  # Odds variations
+                    "line": pred.line_score + (hash(platform) % 3 - 1) * 0.5,
+                    "odds": -110 + (hash(platform) % 20 - 10),
                     "confidence": pred.confidence,
                     "available": True,
                 }
                 platform_data["platforms"].append(platform_info)
-
-            # Calculate best platform
             best_platform = max(
                 platform_data["platforms"], key=lambda x: x["confidence"]
             )
             platform_data["recommended_platform"] = best_platform["platform"]
             platform_data["best_value"] = best_platform
-
             multi_platform_opportunities.append(platform_data)
-
-        # Arbitrage opportunities
         arbitrage_opportunities = []
         if include_arbitrage:
-            for opp in multi_platform_opportunities[:3]:  # Mock arbitrage
+            for opp in multi_platform_opportunities[:3]:
                 if len(opp["platforms"]) >= 2:
                     arbitrage = {
                         "player_name": opp["player_name"],
@@ -813,7 +687,6 @@ async def get_multi_platform_opportunities(
                         "guaranteed_profit": 23,
                     }
                     arbitrage_opportunities.append(arbitrage)
-
         response = {
             "multi_platform_opportunities": multi_platform_opportunities,
             "arbitrage_opportunities": arbitrage_opportunities,
@@ -821,7 +694,7 @@ async def get_multi_platform_opportunities(
                 "total_platforms": len(platforms),
                 "opportunities_found": len(multi_platform_opportunities),
                 "arbitrage_count": len(arbitrage_opportunities),
-                "recommended_primary": "PrizePicks",  # Based on analysis
+                "recommended_primary": "PrizePicks",
             },
             "recommendations": [
                 "PrizePicks offers best overall value and highest confidence predictions",
@@ -830,27 +703,22 @@ async def get_multi_platform_opportunities(
                 "Diversify across platforms for risk management",
             ],
         }
-
-        return response
-
+        return ok(response)
     except Exception as e:
-        logger.error(f"Error fetching multi-platform opportunities: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        raise BusinessLogicException(
             detail=f"Failed to fetch multi-platform opportunities: {str(e)}",
+            error_code="MULTI_PLATFORM_ERROR",
         )
 
 
-@router.get("/health")
-async def get_unified_health() -> Dict[str, Any]:
+@router.get("/health", response_model=dict, tags=["Unified Intelligence"])
+async def get_unified_health() -> dict:
     """
-    Get comprehensive health status of unified services
+    Get comprehensive health status of unified services.
+    Returns standardized response contract.
     """
     try:
-        # Get service health
         service_health = unified_prediction_service.get_health_status()
-
-        # Add API health metrics
         api_health = {
             "api_status": "healthy",
             "endpoints_active": 6,
@@ -858,15 +726,13 @@ async def get_unified_health() -> Dict[str, Any]:
             "response_time_avg": "250ms",
             "error_rate": "0.1%",
         }
-
-        # Combine health data - ensure compatibility with test expectations
         health_status = {
             **service_health,
             "api_health": api_health,
             "overall_status": "OPTIMAL",
-            "status": "healthy",  # Ensure status field exists
-            "uptime": 12345,  # Add uptime field expected by tests
-            "services": {  # Add services field expected by tests
+            "status": "healthy",
+            "uptime": 12345,
+            "services": {
                 "propollama": "healthy",
                 "unified_api": "healthy",
                 "prediction_engine": "healthy",
@@ -881,68 +747,67 @@ async def get_unified_health() -> Dict[str, Any]:
                 "Arbitrage Detection",
             ],
         }
-
-        return health_status
-
+        return ok(health_status)
     except Exception as e:
-        logger.error(f"Error getting health status: {e}")
-        return {"status": "error", "error": str(e), "overall_status": "DEGRADED"}
+        raise BusinessLogicException(
+            detail=f"Error getting health status: {str(e)}", error_code="HEALTH_ERROR"
+        )
 
 
 # --- /props: Alias for /props/featured ---
 from fastapi import Query, Request
 
 
-@router.get("/props")
+@router.get("/props", response_model=dict, tags=["Featured Props"])
 async def api_props(
     sport: str = Query("All", description="Sport filter (All, NBA, NFL, MLB, etc.)"),
     min_confidence: int = Query(0, description="Minimum confidence for featured props"),
     max_results: int = Query(
         10, description="Maximum number of featured props to return"
     ),
-):
-    # Patch: Ensure every prop has a 'stat' field (duplicate stat_type if missing)
-    response = await get_featured_props(
+) -> dict:
+    """
+    Alias for /props/featured. Returns standardized response contract.
+    """
+    return await get_featured_props(
         sport=sport, min_confidence=min_confidence, max_results=max_results
     )
-    # If response is a JSONResponse, patch its content
-    if hasattr(response, "body"):
-        import json
-
-        try:
-            data = json.loads(response.body)
-            for obj in data:
-                if "stat" not in obj:
-                    obj["stat"] = obj.get("stat_type", "")
-            response.body = json.dumps(data).encode()
-        except Exception:
-            pass
-    return response
 
 
 # --- /predictions: Alias for /unified/batch-predictions ---
 
 
 # --- /predictions: POST for batch, GET for status/sample ---
-@router.post("/predictions")
-async def api_predictions(request: Request):
+
+
+@router.post("/predictions", response_model=dict, tags=["Unified Intelligence"])
+async def api_predictions(request: Request) -> dict:
+    """
+    Alias for /unified/batch-predictions. Returns standardized response contract.
+    """
     return await batch_predictions(request)
 
 
-@router.get("/predictions")
-async def api_predictions_get():
-    """GET handler for /api/predictions (returns status/sample for compatibility)"""
-    return {
-        "status": "ok",
-        "message": "Predictions endpoint is available. Use POST for batch predictions.",
-    }
+@router.get("/predictions", response_model=dict, tags=["Unified Intelligence"])
+async def api_predictions_get() -> dict:
+    """
+    GET handler for /api/predictions (returns status/sample for compatibility).
+    Returns standardized response contract.
+    """
+    return ok(
+        {
+            "message": "Predictions endpoint is available. Use POST for batch predictions."
+        }
+    )
 
 
 # --- /analytics: Alias for /mlb-bet-analysis ---
 
 
 # --- /analytics: Alias for /mlb-bet-analysis ---
-@router.get("/analytics")
+
+
+@router.get("/analytics", response_model=dict, tags=["Unified Intelligence"])
 async def api_analytics(
     min_confidence: int = Query(
         70, ge=50, le=99, description="Minimum confidence threshold"
@@ -950,24 +815,19 @@ async def api_analytics(
     max_results: int = Query(
         25, ge=1, le=100, description="Maximum number of MLB props to return"
     ),
-):
-    # Defensive: ensure confidence is defined for fallback/mock
+) -> dict:
+    """
+    Alias for /mlb-bet-analysis. Returns standardized response contract.
+    """
     try:
-        return await get_mlb_bet_analysis(
+        result = await get_mlb_bet_analysis(
             min_confidence=min_confidence, max_results=max_results
         )
+        return ok(result)
     except Exception as e:
-        # Fallback: return mock analytics with confidence
-        return {
-            "analysis": "MLB prop bet analysis (fallback)",
-            "confidence": 80.0,
-            "recommendation": "OVER",
-            "key_factors": ["trend", "defense", "pitcher"],
-            "processing_time": 0.01,
-            "cached": False,
-            "enriched_props": [],
-            "error": str(e),
-        }
+        raise BusinessLogicException(
+            detail=f"Failed to fetch analytics: {str(e)}", error_code="ANALYTICS_ERROR"
+        )
 
 
 # --- Existing endpoints below ---

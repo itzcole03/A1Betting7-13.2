@@ -78,7 +78,15 @@ All endpoints should return:
 }
 ```
 
-### Example: Before/After
+### Standardization: Batch 1 Changelog (2025-08-12)
+
+| Endpoint Path                | File Name                       | Changes Made                                                                               |
+| ---------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------ |
+| /admin/rules-audit-log       | admin.py                        | Standardized response (ok), raised exceptions, added type hints, docstring, response_model |
+| /admin/reload-business-rules | admin.py                        | Standardized response (ok), raised exceptions, added type hints, docstring, response_model |
+| /trending-suggestions        | trending_suggestions.py         | Standardized response (ok), raised exceptions, added type hints, docstring, response_model |
+| /trending-suggestions        | trending_suggestions.py         | Removed broken async/HTTPX code, deduplicated endpoint, fixed function signature           |
+|                              | tests/test_response_contract.py | Added happy-path and error-path tests for both endpoints                                   |
 
 #### Before (Inconsistent)
 
