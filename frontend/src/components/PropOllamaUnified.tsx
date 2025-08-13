@@ -19,6 +19,9 @@ const PropOllamaUnified: React.FC<PropOllamaUnifiedProps> = ({ projections }) =>
   const toSnakeCase = (str: string) => str.replace(/\s+/g, '_').toLowerCase();
   const visibleProjections = allProjections
     .filter(proj => {
+      // Filter by selected sport
+      if (proj.sport && selectedSport && proj.sport !== selectedSport) return false;
+      // Filter by stat type
       if (selectedStatType === 'All') return true;
       if (selectedStatType === 'Popular') return true;
       const statLower = proj.stat.toLowerCase();

@@ -168,7 +168,6 @@ describe('PropOllamaUnified E2E', () => {
       .mockImplementation(async (sport?: string) => {
         // Always return all mockProps for 'All' or undefined sport
         if (!sport || sport === 'All') {
-           
           console.log(
             '[E2E DEBUG] fetchFeaturedProps called with:',
             sport,
@@ -178,7 +177,7 @@ describe('PropOllamaUnified E2E', () => {
           return mockProps;
         }
         const filtered = mockProps.filter(p => p.sport === sport);
-         
+
         console.log('[E2E DEBUG] fetchFeaturedProps called with:', sport, 'Returning:', filtered);
         return filtered;
       });
@@ -251,79 +250,59 @@ describe('PropOllamaUnified E2E', () => {
   });
 
   test('renders the component', async () => {
+    // Render component first
     render(
       <TestWrapper>
-        <PropOllamaUnified />
+        <PropOllamaUnified projections={mockProps} />
       </TestWrapper>
     );
     expect(screen.getByText('MLB AI Props')).toBeInTheDocument();
     expect(screen.getByText('Bet Slip')).toBeInTheDocument();
-    // Wait for component to be fully ready
-    await waitForComponentReady();
+    // Simulate clicking the MLB tab to trigger MLB prop rendering
+    const mlbTab = screen.getByRole('tab', { name: /MLB/i });
+    act(() => {
+      fireEvent.click(mlbTab);
+    });
+    // Set stat type to 'All' to ensure all mock props are visible
+    const statTypeSelect = screen.getByLabelText('Stat Type:');
+    act(() => {
+      fireEvent.change(statTypeSelect, { target: { value: 'All' } });
+    });
+    // Wait for prop cards to appear
+    await waitFor(
+      () => {
+        expect(screen.queryAllByTestId('prop-card').length).toBeGreaterThan(0);
+      },
+      { timeout: 10000 }
+    );
   });
 
   test('simple prop card render test', async () => {
-    console.log('[TEST] Starting simple render test');
-
     // Ensure clean state
     jest.clearAllMocks();
-
+    // Render component first
     const { container } = render(
       <TestWrapper>
-        <PropOllamaUnified />
+        <PropOllamaUnified projections={mockProps} />
       </TestWrapper>
     );
-
-    console.log('[TEST] Component rendered, waiting for data...');
-
-    // First, wait for the data loading logs to appear, which proves the component is working
+    // Simulate clicking the MLB tab to trigger MLB prop rendering
+    const mlbTab = screen.getByRole('tab', { name: /MLB/i });
+    act(() => {
+      fireEvent.click(mlbTab);
+    });
+    // Set stat type to 'All' to ensure all mock props are visible
+    const statTypeSelect = screen.getByLabelText('Stat Type:');
+    act(() => {
+      fireEvent.change(statTypeSelect, { target: { value: 'All' } });
+    });
+    // Wait for prop cards to appear
     await waitFor(
-      async () => {
-        // Check console for evidence that data loading completed
-        // Since we can't directly access component state, we'll wait for rendering evidence
-
-        // Look for any evidence of data in the DOM content
-        const content = container.textContent || '';
-        const hasPlayerName = content.includes('Aaron Judge') || content.includes('LeBron James');
-        const hasMLBContent = content.includes('MLB') || content.includes('Home Runs');
-
-        console.log('[TEST] Content includes player:', hasPlayerName);
-        console.log('[TEST] Content includes MLB:', hasMLBContent);
-        console.log('[TEST] Total content length:', content.length);
-
-        return hasPlayerName || hasMLBContent || content.length > 2000; // Large content suggests data loaded
+      () => {
+        expect(screen.queryAllByTestId('prop-card').length).toBeGreaterThan(0);
       },
-      {
-        timeout: 25000,
-        interval: 2000, // Check every 2 seconds
-      }
+      { timeout: 10000 }
     );
-
-    // Now try to find prop cards with a shorter timeout since data should be loaded
-    const propCards = screen.queryAllByTestId('prop-card');
-    const propCardWrappers = screen.queryAllByTestId('prop-card-wrapper');
-
-    console.log(
-      '[TEST] Final check - prop cards:',
-      propCards.length,
-      'wrappers:',
-      propCardWrappers.length
-    );
-
-    // If we still don't have DOM elements, let's check if the content at least proves the component works
-    const content = container.textContent || '';
-    const hasDataEvidence =
-      content.includes('Aaron Judge') ||
-      content.includes('LeBron James') ||
-      content.includes('Home Runs') ||
-      propCards.length > 0 ||
-      propCardWrappers.length > 0;
-
-    console.log('[TEST] Has data evidence:', hasDataEvidence);
-    console.log('[TEST] Content sample:', content.slice(0, 500));
-
-    // Success if we have cards OR evidence that data loaded successfully
-    expect(hasDataEvidence).toBe(true);
   }, 30000); // 30 second timeout
 
   test('shows loading overlay while fetching analysis', async () => {
