@@ -75,11 +75,11 @@ except ImportError as e:
             )
             raise RuntimeError("No production integration available") from e3
 
-# Add CORS middleware for frontend-backend connectivity
+
+# --- CORS Middleware ---
 origins = [
     "http://localhost:5173",
     "http://localhost:8000",
-    # Add deployed frontend URLs if needed
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -89,17 +89,123 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add request correlation middleware
-try:
-    from backend.middleware.request_correlation import correlation_middleware
+import time
 
-    app.middleware("http")(correlation_middleware)
-    logger.info("✅ Request correlation middleware enabled")
-except Exception as e:
-    logger.warning(f"⚠️ Could not enable request correlation middleware: {e}")
+# --- WebSocket Upgrade Headers & Logging ---
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+
+ws_router = APIRouter()
 
 
-# Utility function for error responses (backward compatibility)
+@ws_router.websocket("/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    logger.info(f"[WS] Client {client_id} attempting connection...")
+    await websocket.accept()
+    logger.info(f"[WS] Client {client_id} connected.")
+    try:
+        while True:
+            data = await websocket.receive_text()
+            logger.info(f"[WS] Received from {client_id}: {data}")
+            await websocket.send_text(f"Echo: {data}")
+    except WebSocketDisconnect:
+        logger.info(f"[WS] Client {client_id} disconnected.")
+    except Exception as e:
+        logger.error(f"[WS] Error for {client_id}: {e}")
+
+
+app.include_router(ws_router)
+
+# --- API Routes (Mock/Test Data) ---
+from fastapi import Request
+
+
+@app.get("/api/health")
+async def api_health():
+    logger.info("[API] /api/health called")
+    return {
+        "success": True,
+        "data": {
+            "status": "healthy",
+            "uptime_seconds": int(time.time()),
+            "error_streak": 0,
+            "last_error": None,
+            "last_success": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "healing_attempts": 0,
+        },
+        "error": None,
+    }
+
+
+@app.get("/api/props")
+async def api_props():
+    logger.info("[API] /api/props called")
+    return {
+        "success": True,
+        "data": [
+            {
+                "id": "mock-aaron-judge-hr",
+                "player": "Aaron Judge",
+                "stat": "Home Runs",
+                "line": 1.5,
+                "confidence": 85,
+            },
+            {
+                "id": "mock-mike-trout-hits",
+                "player": "Mike Trout",
+                "stat": "Hits",
+                "line": 1.5,
+                "confidence": 78,
+            },
+        ],
+        "error": None,
+    }
+
+
+@app.post("/api/v2/sports/activate")
+async def api_activate(request: Request):
+    body = await request.json()
+    sport = body.get("sport", "Unknown")
+    logger.info(f"[API] /api/v2/sports/activate called for sport: {sport}")
+    return {
+        "success": True,
+        "data": {"sport": sport, "activated": True, "version_used": "v2"},
+        "error": None,
+    }
+
+
+@app.get("/api/predictions")
+async def api_predictions():
+    logger.info("[API] /api/predictions called")
+    return {
+        "success": True,
+        "data": [
+            {
+                "id": "nba_luka_points_over",
+                "player": "Luka Dončić",
+                "stat": "Points",
+                "line": 28.5,
+                "prediction": 30,
+                "confidence": 89.3,
+            }
+        ],
+        "error": None,
+    }
+
+
+@app.get("/api/analytics")
+async def api_analytics():
+    logger.info("[API] /api/analytics called")
+    return {
+        "success": True,
+        "data": {
+            "summary": "Analytics mock data",
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        },
+        "error": None,
+    }
+
+
+# --- Utility function for error responses (backward compatibility) ---
 def error_response(message="Test error response", status_code=400, details=None):
     """Create standardized error response"""
     body = {"error": message}
@@ -108,7 +214,7 @@ def error_response(message="Test error response", status_code=400, details=None)
     return JSONResponse(content=body, status_code=status_code)
 
 
-logger.info("🎉 A1Betting Backend startup complete!")
+logger.info("f389 A1Betting Backend startup complete!")
 
 # Export the app for uvicorn
 __all__ = ["app"]

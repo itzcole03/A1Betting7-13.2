@@ -352,23 +352,21 @@ Complete Production System
 
 ---
 
-## 💡 **Development Philosophy**
+### f4a1 **Recent Integration Updates (2025-08-12)**
 
-### **Core Principles:**
-
-1. **Desktop-First**: Native application experience with system integration
-2. **Security-Focused**: Encrypted storage and secure API handling
-3. **Performance-Optimized**: Fast, responsive, and memory-efficient
-4. **User-Centric**: Intuitive interface with comprehensive onboarding
-5. **Reliability-Driven**: Robust error handling and graceful degradation
-
-### **Quality Standards:**
-
-- **Code Quality**: 100% TypeScript coverage with comprehensive linting
-- **Testing Coverage**: > 90% test coverage across all components
-- **Documentation**: Complete API documentation and user guides
-- **Accessibility**: WCAG 2.1 compliance for inclusive design
-- **Performance**: Lighthouse scores > 90 across all metrics
+- Backend CORS and WebSocket headers standardized for local dev (`localhost:5173`, `localhost:8000`).
+- New/updated API endpoints:
+  - `/api/health` (GET)
+  - `/api/props` (GET)
+  - `/api/v2/sports/activate` (POST)
+  - `/api/predictions` (GET)
+  - `/api/analytics` (GET)
+- Frontend WebSocket logic refactored for centralized URL, error/reconnect handling, and lifecycle logging.
+- `.env.local` config required in frontend root:
+  - `VITE_BACKEND_URL=http://localhost:8000`
+  - `VITE_WS_URL=ws://localhost:8000/ws/client_`
+- Dashboard metrics use robust null/undefined checks and fallback messages.
+- All changes covered by backend (pytest) and frontend (Jest/Vitest) tests.
 
 ---
 

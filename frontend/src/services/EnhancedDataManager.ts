@@ -1129,22 +1129,28 @@ class EnhancedDataManager {
     }
   }
 
+  private getWebSocketUrl(): string {
+    // Centralize WS URL, fallback to env or localhost
+    const envWsUrl = (window as any).VITE_WS_URL || process.env.VITE_WS_URL;
+    if (envWsUrl) return envWsUrl;
+    let clientId = '';
+    if (window.localStorage.getItem('clientId')) {
+      clientId = window.localStorage.getItem('clientId')!;
+    } else {
+      clientId = `client_${Math.random().toString(36).substr(2, 9)}`;
+      window.localStorage.setItem('clientId', clientId);
+    }
+    return `ws://localhost:8000/ws/${clientId}`;
+  }
+
   private initializeWebSocket(): void {
     try {
-      // Use backend WebSocket port (8000) and include clientId in path
-      let clientId = '';
-      // Try to use user ID, session, or fallback to random string
-      if (window.localStorage.getItem('clientId')) {
-        clientId = window.localStorage.getItem('clientId')!;
-      } else {
-        clientId = `client_${Math.random().toString(36).substr(2, 9)}`;
-        window.localStorage.setItem('clientId', clientId);
-      }
-      const wsUrl = `ws://${window.location.hostname}:8000/ws/${clientId}`;
+      const wsUrl = this.getWebSocketUrl();
       this.websocket = new WebSocket(wsUrl);
+      enhancedLogger.info('DataManager', 'WebSocket', `Connecting to ${wsUrl}`);
 
       this.websocket.onopen = () => {
-        console.log('[DataManager] WebSocket connected');
+        enhancedLogger.info('DataManager', 'WebSocket', 'WebSocket connected');
         this.reconnectAttempts = 0;
       };
 
@@ -1153,40 +1159,43 @@ class EnhancedDataManager {
           const message = JSON.parse(event.data);
           this.handleWebSocketMessage(message);
         } catch (error) {
-          console.warn('[DataManager] WebSocket message parsing error (non-critical):', error);
+          const errObj = error instanceof Error ? error : new Error(String(error));
+          enhancedLogger.warn('DataManager', 'WebSocket', 'Message parsing error', {}, errObj);
         }
       };
 
       this.websocket.onclose = event => {
-        console.log('[DataManager] WebSocket disconnected - continuing in local mode');
+        enhancedLogger.warn('DataManager', 'WebSocket', `Disconnected (code ${event.code})`);
         this.websocket = null;
-
-        // Only attempt reconnection if it wasn't a normal closure
         if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
           const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
-          console.log(`[DataManager] Attempting WebSocket reconnection in ${delay}ms`);
+          enhancedLogger.info('DataManager', 'WebSocket', `Attempting reconnection in ${delay}ms`);
           setTimeout(() => {
             this.reconnectAttempts++;
             this.initializeWebSocket();
           }, delay);
         } else {
-          console.log(
-            '[DataManager] WebSocket reconnection stopped - application will continue in local mode'
+          enhancedLogger.info(
+            'DataManager',
+            'WebSocket',
+            'Reconnection stopped, continuing in local mode'
           );
         }
       };
 
       this.websocket.onerror = error => {
-        // Handle WebSocket errors gracefully without flooding console
-        console.warn(
-          '[DataManager] WebSocket connection issue (application continues in local mode)'
-        );
-        // Don't log the full error object as it's often just [object Event]
+        const errObj =
+          error instanceof Error ? error : new Error(error?.toString?.() || 'WebSocket error');
+        enhancedLogger.warn('DataManager', 'WebSocket', 'Connection issue', {}, errObj);
       };
     } catch (error) {
-      console.warn(
-        '[DataManager] WebSocket initialization failed - application will continue in local mode:',
-        error
+      const errObj = error instanceof Error ? error : new Error(String(error));
+      enhancedLogger.warn(
+        'DataManager',
+        'WebSocket',
+        'Initialization failed, continuing in local mode',
+        {},
+        errObj
       );
     }
   }

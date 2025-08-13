@@ -472,31 +472,142 @@ For API support and questions:
 
 ## Health & Diagnostics Endpoints
 
-### Get System Health
+### Core API Endpoints (2025-08-12)
 
-Check the backend service health, uptime, and diagnostic status. Useful for admins, support, and troubleshooting.
+#### Health Check
 
 **Endpoint:** `GET /api/health`
-
-**Response:**
+Returns backend health status in standardized contract:
 
 ```json
 {
-  "status": "healthy",
-  "uptime_seconds": 123456,
-  "error_streak": 0,
-  "last_error": null,
-  "last_success": "2024-12-19T23:45:00Z",
-  "healing_attempts": 0
+  "success": true,
+  "data": {
+    "status": "healthy",
+    "uptime_seconds": 123456,
+    "error_streak": 0,
+    "last_error": null,
+    "last_success": "2025-08-12T12:00:00Z",
+    "healing_attempts": 0
+  },
+  "error": null
 }
 ```
 
-- `status`: `healthy`, `degraded`, or `unhealthy`
-- `uptime_seconds`: Seconds since backend start
-- `error_streak`: Consecutive failed health checks
-- `last_error`: Last error message (if any)
-- `last_success`: Timestamp of last successful health check
-- `healing_attempts`: Number of automated recovery attempts
+#### Featured Props
+
+**Endpoint:** `GET /api/props`
+Returns mock/test props for integration testing:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "mock-aaron-judge-hr",
+      "player": "Aaron Judge",
+      "stat": "Home Runs",
+      "line": 1.5,
+      "confidence": 85
+    },
+    {
+      "id": "mock-mike-trout-hits",
+      "player": "Mike Trout",
+      "stat": "Hits",
+      "line": 1.5,
+      "confidence": 78
+    }
+  ],
+  "error": null
+}
+```
+
+#### Sports Activation
+
+**Endpoint:** `POST /api/v2/sports/activate`
+Request: `{ "sport": "MLB" }`
+Response:
+
+```json
+{
+  "success": true,
+  "data": { "sport": "MLB", "activated": true, "version_used": "v2" },
+  "error": null
+}
+```
+
+#### Predictions
+
+**Endpoint:** `GET /api/predictions`
+Returns mock/test predictions:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "nba_luka_points_over",
+      "player": "Luka Dončić",
+      "stat": "Points",
+      "line": 28.5,
+      "prediction": 30,
+      "confidence": 89.3
+    }
+  ],
+  "error": null
+}
+```
+
+#### Analytics
+
+**Endpoint:** `GET /api/analytics`
+Returns mock/test analytics summary:
+
+```json
+{
+  "success": true,
+  "data": {
+    "summary": "Analytics mock data",
+    "timestamp": "2025-08-12T12:00:00Z"
+  },
+  "error": null
+}
+```
+
+---
+
+### WebSocket Integration
+
+- **WS URL:** `ws://localhost:8000/ws/client_` (set via `.env.local`)
+- Connection logic includes error handling, up to 5 reconnect attempts, and lifecycle logging.
+- See `frontend/src/services/EnhancedDataManager.ts` for implementation.
+
+---
+
+### Configuration
+
+**Frontend `.env.local`**
+
+```
+VITE_BACKEND_URL=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000/ws/client_
+```
+
+---
+
+### Defensive UI Checks
+
+- All dashboard metrics use null/undefined checks and fallback messages.
+- See `frontend/src/components/PerformanceMonitoringDashboard.tsx` for details.
+
+---
+
+### Testing
+
+- Backend: Pytest coverage for all new/modified endpoints.
+- Frontend: Jest/Vitest coverage for WS connection logic and dashboard metrics.
+
+---
 
 ### Get Data Source Health
 
