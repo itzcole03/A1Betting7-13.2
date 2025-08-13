@@ -1,6 +1,7 @@
 """
 Global Exception Handlers for FastAPI
 Implements comprehensive error handling following 2024-2025 best practices.
+Includes standardized response helpers ok() and fail().
 """
 
 import traceback
@@ -13,7 +14,30 @@ from pydantic import ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from backend.config.settings import get_settings
-from backend.utils.structured_logging import app_logger, security_logger
+try:
+    from backend.utils.structured_logging import app_logger, security_logger
+except ImportError:
+    import logging
+    app_logger = logging.getLogger(__name__)
+    security_logger = app_logger
+
+
+# Standardized response helpers - available globally
+def ok(data=None, message: Optional[str] = None):
+    """Create a standardized success response"""
+    response = {"success": True, "data": data, "error": None}
+    if message:
+        response["message"] = message
+    return response
+
+
+def fail(error_code="ERROR", message="An error occurred", data=None):
+    """Create a standardized error response"""
+    return {
+        "success": False,
+        "data": data,
+        "error": {"code": error_code, "message": message},
+    }
 
 
 class APIException(HTTPException):

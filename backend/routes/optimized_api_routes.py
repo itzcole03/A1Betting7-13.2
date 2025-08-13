@@ -4,94 +4,165 @@ High-performance endpoints with caching, error handling, and monitoring
 """
 
 from fastapi import APIRouter, HTTPException, Query, Depends
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from backend.services.enhanced_api_service import get_api_service, EnhancedAPIService, APIResponse
 from backend.utils.enhanced_logging import get_logger
+from backend.utils.standard_responses import StandardAPIResponse, ResponseBuilder, BusinessLogicException, ResponseMeta
 
 logger = get_logger("optimized_routes")
 
 router = APIRouter()
 
 
-@router.get("/health", response_model=APIResponse)
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def health_check(
     api_service: EnhancedAPIService = Depends(get_api_service)
-) -> APIResponse:
+) -> StandardAPIResponse[Dict[str, Any]]:
     """Enhanced health check with performance metrics"""
-    return await api_service.get_health_status()
+    result = await api_service.get_health_status()
+    # Convert APIResponse to dict data if needed
+    if hasattr(result, 'data'):
+        data = result.data if isinstance(result.data, dict) else {"result": result.data}
+    elif isinstance(result, dict):
+        data = result
+    else:
+        data = {"result": result}
+    
+    return StandardAPIResponse[Dict[str, Any]](
+        success=True,
+        data=data,
+        error=None,
+        meta=ResponseMeta()
+    )
 
 
-@router.get("/mlb/todays-games", response_model=APIResponse)
+@router.get("/mlb/todays-games", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_mlb_games(
     use_cache: bool = Query(True, description="Use cached data if available"),
     api_service: EnhancedAPIService = Depends(get_api_service)
-) -> APIResponse:
+) -> StandardAPIResponse[Dict[str, Any]]:
     """Get today's MLB games with performance optimization"""
     try:
-        return await api_service.get_mlb_games(use_cache=use_cache)
+        result = await api_service.get_mlb_games(use_cache=use_cache)
+        # Convert APIResponse to dict data if needed
+        if hasattr(result, 'data'):
+            data = result.data if isinstance(result.data, dict) else {"result": result.data}
+        elif isinstance(result, dict):
+            data = result
+        else:
+            data = {"result": result}
+        
+        return StandardAPIResponse[Dict[str, Any]](
+            success=True,
+            data=data,
+            error=None,
+            meta=ResponseMeta()
+        )
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Unexpected error in get_mlb_games: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise BusinessLogicException("Failed to retrieve MLB games", {"error": str(e)})
 
 
-@router.get("/mlb/comprehensive-props/{game_id}", response_model=APIResponse)
+@router.get("/mlb/comprehensive-props/{game_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_comprehensive_props(
     game_id: str,
     use_cache: bool = Query(True, description="Use cached data if available"),
     api_service: EnhancedAPIService = Depends(get_api_service)
-) -> APIResponse:
+) -> StandardAPIResponse[Dict[str, Any]]:
     """Get comprehensive props for a specific game"""
     try:
-        return await api_service.get_game_props(game_id, use_cache=use_cache)
+        result = await api_service.get_game_props(game_id, use_cache=use_cache)
+        # Convert APIResponse to dict data if needed
+        if hasattr(result, 'data'):
+            data = result.data if isinstance(result.data, dict) else {"result": result.data}
+        elif isinstance(result, dict):
+            data = result
+        else:
+            data = {"result": result}
+        
+        return StandardAPIResponse[Dict[str, Any]](
+            success=True,
+            data=data,
+            error=None,
+            meta=ResponseMeta()
+        )
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Unexpected error in get_comprehensive_props: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise BusinessLogicException("Failed to retrieve comprehensive props", {"game_id": game_id, "error": str(e)})
 
 
-@router.get("/ml/predict", response_model=APIResponse)
+@router.get("/ml/predict", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_ml_prediction(
     player: str = Query(..., description="Player name"),
     prop_type: str = Query(..., description="Type of prop (hits, runs, rbis, etc.)"),
     line: float = Query(..., description="Betting line"),
     use_cache: bool = Query(True, description="Use cached predictions if available"),
     api_service: EnhancedAPIService = Depends(get_api_service)
-) -> APIResponse:
+) -> StandardAPIResponse[Dict[str, Any]]:
     """Get AI/ML prediction for player prop"""
     try:
-        return await api_service.get_player_predictions(player, prop_type, line, use_cache=use_cache)
+        result = await api_service.get_player_predictions(player, prop_type, line, use_cache=use_cache)
+        # Convert APIResponse to dict data if needed
+        if hasattr(result, 'data'):
+            data = result.data if isinstance(result.data, dict) else {"result": result.data}
+        elif isinstance(result, dict):
+            data = result
+        else:
+            data = {"result": result}
+        
+        return StandardAPIResponse[Dict[str, Any]](
+            success=True,
+            data=data,
+            error=None,
+            meta=ResponseMeta()
+        )
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Unexpected error in get_ml_prediction: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise BusinessLogicException("Failed to generate ML prediction", {"player": player, "prop_type": prop_type, "error": str(e)})
 
 
-@router.get("/api/v1/odds/{event_id}", response_model=APIResponse)
+@router.get("/api/v1/odds/{event_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_odds_detail(
     event_id: str,
     trigger: Optional[str] = Query(None, description="Trigger parameter"),
     api_service: EnhancedAPIService = Depends(get_api_service)
-) -> APIResponse:
+) -> StandardAPIResponse[Dict[str, Any]]:
     """Get odds detail for specific event (backward compatibility)"""
     try:
         # For backward compatibility, treat as game props
-        return await api_service.get_game_props(event_id, use_cache=True)
+        result = await api_service.get_game_props(event_id, use_cache=True)
+        # Convert APIResponse to dict data if needed
+        if hasattr(result, 'data'):
+            data = result.data if isinstance(result.data, dict) else {"result": result.data}
+        elif isinstance(result, dict):
+            data = result
+        else:
+            data = {"result": result}
+        
+        return StandardAPIResponse[Dict[str, Any]](
+            success=True,
+            data=data,
+            error=None,
+            meta=ResponseMeta()
+        )
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Unexpected error in get_odds_detail: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise BusinessLogicException("Failed to retrieve odds details", {"event_id": event_id, "error": str(e)})
 
 
-@router.get("/mlb/ml-performance-analytics", response_model=APIResponse)
+@router.get("/mlb/ml-performance-analytics", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_ml_performance_analytics(
     api_service: EnhancedAPIService = Depends(get_api_service)
-) -> APIResponse:
+) -> StandardAPIResponse[Dict[str, Any]]:
     """Get ML model performance analytics"""
     try:
         # Return mock ML performance data
@@ -122,20 +193,22 @@ async def get_ml_performance_analytics(
             }
         }
         
-        return APIResponse(
+        return StandardAPIResponse[Dict[str, Any]](
+            success=True,
             data=performance_data,
-            message="ML performance analytics retrieved successfully"
+            error=None,
+            meta=ResponseMeta()
         )
         
     except Exception as e:
         logger.error(f"Unexpected error in get_ml_performance_analytics: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise BusinessLogicException("Failed to retrieve ML performance analytics", {"error": str(e)})
 
 
-@router.get("/performance/stats", response_model=APIResponse)
+@router.get("/performance/stats", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_performance_stats(
     api_service: EnhancedAPIService = Depends(get_api_service)
-) -> APIResponse:
+) -> StandardAPIResponse[Dict[str, Any]]:
     """Get detailed performance statistics"""
     try:
         from backend.services.enhanced_api_service import performance_monitor
@@ -158,19 +231,22 @@ async def get_performance_stats(
             }
         }
         
-        return APIResponse(
+        return StandardAPIResponse[Dict[str, Any]](
+            success=True,
             data=stats_data,
-            message="Performance statistics retrieved successfully"
+            error=None,
+            meta=ResponseMeta()
         )
         
     except Exception as e:
         logger.error(f"Unexpected error in get_performance_stats: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise BusinessLogicException("Failed to retrieve performance statistics", {"error": str(e)})
 
 
-# Include additional backward compatibility routes
-@router.get("/api/v1/dashboard/layouts")
-async def get_dashboard_layouts(api_service: EnhancedAPIService = Depends(get_api_service)):
+@router.get("/api/v1/dashboard/layouts", response_model=StandardAPIResponse[Dict[str, Any]])
+async def get_dashboard_layouts(
+    api_service: EnhancedAPIService = Depends(get_api_service)
+) -> StandardAPIResponse[Dict[str, Any]]:
     """Get dashboard layouts (backward compatibility)"""
     layouts_data = {
         "layouts": [
@@ -191,17 +267,19 @@ async def get_dashboard_layouts(api_service: EnhancedAPIService = Depends(get_ap
         ]
     }
     
-    return APIResponse(
+    return StandardAPIResponse[Dict[str, Any]](
+        success=True,
         data=layouts_data,
-        message="Dashboard layouts retrieved successfully"
+        error=None,
+        meta=ResponseMeta()
     )
 
 
-@router.get("/cheatsheets/{sport}")
+@router.get("/cheatsheets/{sport}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_cheatsheets(
     sport: str,
     api_service: EnhancedAPIService = Depends(get_api_service)
-):
+) -> StandardAPIResponse[Dict[str, Any]]:
     """Get cheatsheets for specific sport (backward compatibility)"""
     cheatsheets_data = {
         "sport": sport,
@@ -214,7 +292,9 @@ async def get_cheatsheets(
         ]
     }
     
-    return APIResponse(
+    return StandardAPIResponse[Dict[str, Any]](
+        success=True,
         data=cheatsheets_data,
-        message=f"{sport} cheatsheets retrieved successfully"
+        error=None,
+        meta=ResponseMeta()
     )

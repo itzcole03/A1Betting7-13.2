@@ -1,6 +1,8 @@
 """
 Production Health Monitoring Routes
 Provides comprehensive health monitoring and validation endpoints for production stability.
+
+All endpoints follow the standardized API contract: {success, data, error, meta}
 """
 
 import asyncio
@@ -9,8 +11,7 @@ import time
 from typing import Any, Dict, List
 
 import psutil
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter
 
 try:
     from backend.services.background_task_manager import BackgroundTaskManager
@@ -22,12 +23,30 @@ except ImportError:
     production_logger = None
     BackgroundTaskManager = None
 
+from backend.utils.standard_responses import (
+    StandardAPIResponse,
+    ResponseBuilder,
+    BusinessLogicException,
+    ValidationException,
+    ServiceUnavailableException
+)
+
 router = APIRouter(prefix="/api/production", tags=["Production Health"])
 
 
-@router.get("/health/comprehensive")
-async def comprehensive_health_check() -> JSONResponse:
-    """Comprehensive production health check with detailed metrics"""
+@router.get("/health/comprehensive", response_model=StandardAPIResponse[Dict[str, Any]])
+async def comprehensive_health_check() -> Dict[str, Any]:
+    """
+    Comprehensive production health check with detailed metrics
+    
+    Returns:
+        StandardAPIResponse with health data including system metrics,
+        async validation, error tracking, and production logging status
+        
+    Raises:
+        BusinessLogicException: When health check encounters errors
+    """
+    builder = ResponseBuilder()
 
     try:
         start_time = time.time()
@@ -45,30 +64,40 @@ async def comprehensive_health_check() -> JSONResponse:
         # Calculate response time
         response_time_ms = (time.time() - start_time) * 1000
 
-        # Create comprehensive health metrics
-        health_metrics = SystemHealthMetrics(
-            timestamp=time.strftime("%Y%m%d_%H%M%S"),
-            backend_status="HEALTHY",
-            background_tasks_active=0,  # Will be updated if manager available
-            background_tasks_failed=0,
-            connection_pool_size=1,
-            memory_usage_mb=memory_info.rss / 1024 / 1024,
-            response_time_ms=response_time_ms,
-            error_rate_percent=0.0,
-        )
+        # Create comprehensive health metrics (handle optional SystemHealthMetrics)
+        try:
+            health_metrics = SystemHealthMetrics(
+                timestamp=time.strftime("%Y%m%d_%H%M%S"),
+                backend_status="HEALTHY",
+                background_tasks_active=0,  # Will be updated if manager available
+                background_tasks_failed=0,
+                connection_pool_size=1,
+                memory_usage_mb=memory_info.rss / 1024 / 1024,
+                response_time_ms=response_time_ms,
+                error_rate_percent=0.0,
+            )
+            timestamp = health_metrics.timestamp
+            memory_usage_mb = health_metrics.memory_usage_mb
+        except Exception:
+            # Fallback if SystemHealthMetrics is not available
+            timestamp = time.strftime("%Y%m%d_%H%M%S")
+            memory_usage_mb = memory_info.rss / 1024 / 1024
 
         # Log the health check
         if production_logger:
-            production_logger.log_system_health(health_metrics)
-            error_summary = production_logger.get_error_summary()
+            try:
+                production_logger.log_system_health(health_metrics)
+                error_summary = production_logger.get_error_summary()
+            except:
+                error_summary = {"status": "logging_error"}
         else:
             error_summary = {"status": "production_logger_not_available"}
 
         health_data = {
             "status": "healthy",
-            "timestamp": health_metrics.timestamp,
+            "timestamp": timestamp,
             "system_metrics": {
-                "memory_usage_mb": health_metrics.memory_usage_mb,
+                "memory_usage_mb": memory_usage_mb,
                 "cpu_percent": cpu_percent,
                 "response_time_ms": response_time_ms,
                 "process_id": os.getpid(),
@@ -83,31 +112,37 @@ async def comprehensive_health_check() -> JSONResponse:
             },
         }
 
-        return JSONResponse(content=health_data)
+        return builder.success(health_data)
 
     except Exception as e:
         if production_logger:
-            production_logger.log_critical_error(
-                "HEALTH_CHECK_FAILED",
-                {"error": str(e), "endpoint": "/api/production/health/comprehensive"},
-            )
+            try:
+                production_logger.log_critical_error(
+                    "HEALTH_CHECK_FAILED",
+                    {"error": str(e), "endpoint": "/api/production/health/comprehensive"},
+                )
+            except:
+                pass  # Don't fail on logging error
 
-        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
+        raise BusinessLogicException(
+            f"Health check failed: {str(e)}", 
+            details={"endpoint": "/api/production/health/comprehensive"}
+        )
 
 
-@router.get("/health/background-tasks")
-async def background_tasks_health() -> JSONResponse:
+@router.get("/health/background-tasks", response_model=StandardAPIResponse[Dict[str, Any]])
+async def background_tasks_health() -> Dict[str, Any]:
     """Detailed health check for background task system"""
+    builder = ResponseBuilder()
 
     try:
         # Test background task manager functionality
         if not BackgroundTaskManager:
-            return JSONResponse(
-                content={
-                    "status": "background_task_manager_not_available",
-                    "message": "BackgroundTaskManager not imported successfully",
-                }
-            )
+            health_data = {
+                "status": "background_task_manager_not_available",
+                "message": "BackgroundTaskManager not imported successfully",
+            }
+            return builder.success(health_data)
 
         # Create a test task manager instance
         test_manager = BackgroundTaskManager()
@@ -153,17 +188,20 @@ async def background_tasks_health() -> JSONResponse:
             }
 
             if production_logger:
-                production_logger.log_background_task_status(
-                    "health_check_validation",
-                    "SUCCESS",
-                    {
-                        "endpoint": "/api/production/health/background-tasks",
-                        "retrieval_time_ms": retrieval_time,
-                        "asyncio_fix_working": True,
-                    },
-                )
+                try:
+                    production_logger.log_background_task_status(
+                        "health_check_validation",
+                        "SUCCESS",
+                        {
+                            "endpoint": "/api/production/health/background-tasks",
+                            "retrieval_time_ms": retrieval_time,
+                            "asyncio_fix_working": True,
+                        },
+                    )
+                except:
+                    pass  # Don't fail on logging error
 
-            return JSONResponse(content=health_data)
+            return builder.success(health_data)
 
         finally:
             # Clean up test manager
@@ -177,88 +215,97 @@ async def background_tasks_health() -> JSONResponse:
         }
 
         if production_logger:
-            production_logger.log_critical_error(
-                "BACKGROUND_TASK_TIMEOUT",
-                {
-                    "endpoint": "/api/production/health/background-tasks",
-                    "error": "Task retrieval timeout",
-                },
-            )
+            try:
+                production_logger.log_critical_error(
+                    "BACKGROUND_TASK_TIMEOUT",
+                    {
+                        "endpoint": "/api/production/health/background-tasks",
+                        "error": "Task retrieval timeout",
+                    },
+                )
+            except:
+                pass  # Don't fail on logging error
 
-        return JSONResponse(content=error_data, status_code=500)
+        raise BusinessLogicException(
+            "Task retrieval timed out - possible asyncio issue",
+            details={"critical_fix_status": "FAILED - asyncio.create_task() wrapping may not be working"}
+        )
 
     except Exception as e:
-        error_data = {
-            "status": "error",
-            "error": str(e),
-            "critical_fix_status": "FAILED - unexpected error during validation",
-        }
-
         if production_logger:
-            production_logger.log_critical_error(
-                "BACKGROUND_TASK_HEALTH_FAILED",
-                {
-                    "error": str(e),
-                    "endpoint": "/api/production/health/background-tasks",
-                },
-            )
+            try:
+                production_logger.log_critical_error(
+                    "BACKGROUND_TASK_HEALTH_FAILED",
+                    {
+                        "error": str(e),
+                        "endpoint": "/api/production/health/background-tasks",
+                    },
+                )
+            except:
+                pass  # Don't fail on logging error
 
-        return JSONResponse(content=error_data, status_code=500)
+        raise BusinessLogicException(
+            f"Background task health check failed: {str(e)}",
+            details={"critical_fix_status": "FAILED - unexpected error during validation"}
+        )
 
 
-@router.get("/logs/error-summary")
-async def get_error_summary() -> JSONResponse:
+@router.get("/logs/error-summary", response_model=StandardAPIResponse[Dict[str, Any]])
+async def get_error_summary() -> Dict[str, Any]:
     """Get comprehensive error tracking summary"""
+    builder = ResponseBuilder()
 
     if not production_logger:
-        return JSONResponse(
-            content={
-                "status": "production_logger_not_available",
-                "message": "Production logging not enabled",
-            }
-        )
+        error_data = {
+            "status": "production_logger_not_available",
+            "message": "Production logging not enabled",
+        }
+        return builder.success(error_data)
 
     try:
         error_summary = production_logger.get_error_summary()
         metrics_count = len(production_logger.metrics_history)
 
-        return JSONResponse(
-            content={
-                "status": "success",
-                "error_tracking": error_summary,
-                "metrics_history_count": metrics_count,
-                "recent_metrics": (
-                    production_logger.metrics_history[-5:]
-                    if production_logger.metrics_history
-                    else []
-                ),
-            }
-        )
+        summary_data = {
+            "status": "success",
+            "error_tracking": error_summary,
+            "metrics_history_count": metrics_count,
+            "recent_metrics": (
+                production_logger.metrics_history[-5:]
+                if production_logger.metrics_history
+                else []
+            ),
+        }
+
+        return builder.success(summary_data)
 
     except Exception as e:
-        return JSONResponse(
-            content={"status": "error", "error": str(e)}, status_code=500
+        raise BusinessLogicException(
+            f"Failed to retrieve error summary: {str(e)}",
+            details={"endpoint": "/api/production/logs/error-summary"}
         )
 
 
-@router.post("/test/background-task-stress")
+@router.post("/test/background-task-stress", response_model=StandardAPIResponse[Dict[str, Any]])
 async def stress_test_background_tasks(
     num_tasks: int = 10, concurrent_workers: int = 3
-) -> JSONResponse:
+) -> Dict[str, Any]:
     """Stress test the background task system to validate the asyncio fix"""
+    builder = ResponseBuilder()
 
     if not BackgroundTaskManager:
-        return JSONResponse(
-            content={"status": "background_task_manager_not_available"}, status_code=400
+        raise ValidationException(
+            "Background task manager not available",
+            details={"feature": "background_task_manager"}
         )
 
     if num_tasks > 50 or concurrent_workers > 10:
-        return JSONResponse(
-            content={
-                "status": "limits_exceeded",
+        raise ValidationException(
+            "Limits exceeded",
+            details={
                 "message": "num_tasks <= 50, concurrent_workers <= 10",
-            },
-            status_code=400,
+                "provided": {"num_tasks": num_tasks, "concurrent_workers": concurrent_workers}
+            }
         )
 
     try:
@@ -349,35 +396,51 @@ async def stress_test_background_tasks(
 
         # Log stress test results
         if production_logger:
-            production_logger.log_system_health(
-                SystemHealthMetrics(
-                    timestamp=time.strftime("%Y%m%d_%H%M%S"),
-                    backend_status="STRESS_TESTED",
-                    background_tasks_active=0,
-                    background_tasks_failed=total_errors,
-                    connection_pool_size=concurrent_workers,
-                    memory_usage_mb=50.0,
-                    response_time_ms=execution_time * 1000,
-                    error_rate_percent=(
-                        (total_errors / num_tasks) * 100 if num_tasks > 0 else 0
-                    ),
-                )
-            )
+            try:
+                # Handle optional SystemHealthMetrics
+                try:
+                    health_metrics = SystemHealthMetrics(
+                        timestamp=time.strftime("%Y%m%d_%H%M%S"),
+                        backend_status="STRESS_TESTED",
+                        background_tasks_active=0,
+                        background_tasks_failed=total_errors,
+                        connection_pool_size=concurrent_workers,
+                        memory_usage_mb=50.0,
+                        response_time_ms=execution_time * 1000,
+                        error_rate_percent=(
+                            (total_errors / num_tasks) * 100 if num_tasks > 0 else 0
+                        ),
+                    )
+                    production_logger.log_system_health(health_metrics)
+                except Exception:
+                    # Fallback logging without SystemHealthMetrics
+                    production_logger.log_background_task_status(
+                        "STRESS_TEST_COMPLETED", "SUCCESS", test_results
+                    )
+            except:
+                pass  # Don't fail on logging error
 
         await test_manager.stop()
-        return JSONResponse(content=test_results)
+        return builder.success(test_results)
 
     except Exception as e:
         if production_logger:
-            production_logger.log_critical_error(
-                "STRESS_TEST_FAILED",
-                {
-                    "error": str(e),
-                    "num_tasks": num_tasks,
-                    "concurrent_workers": concurrent_workers,
-                },
-            )
+            try:
+                production_logger.log_critical_error(
+                    "STRESS_TEST_FAILED",
+                    {
+                        "error": str(e),
+                        "num_tasks": num_tasks,
+                        "concurrent_workers": concurrent_workers,
+                    },
+                )
+            except:
+                pass  # Don't fail on logging error
 
-        return JSONResponse(
-            content={"status": "failed", "error": str(e)}, status_code=500
+        raise BusinessLogicException(
+            f"Stress test failed: {str(e)}",
+            details={
+                "num_tasks": num_tasks,
+                "concurrent_workers": concurrent_workers
+            }
         )

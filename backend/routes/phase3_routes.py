@@ -10,6 +10,16 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+# Import standardized response handling  
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import (
+    BusinessLogicException,
+    AuthenticationException,
+    AuthorizationException,
+    ResourceNotFoundException,
+    ServiceUnavailableException
+)
+
 from ..services.advanced_security_service import (
     AuditEventType,
     SecurityLevel,
@@ -555,7 +565,7 @@ async def create_security_token(token_request: Dict[str, Any], request: Request)
         user_id = token_request["user_id"]
         roles = set(token_request.get("roles", ["user"]))
         permissions = set(token_request.get("permissions", []))
-        ip_address = request.client.host
+        ip_address = request.client.host if request.client else "unknown"
 
         token = await advanced_security_service.create_security_token(
             user_id=user_id,

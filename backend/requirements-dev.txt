@@ -1,5 +1,10 @@
-# Development-only dependencies for A1Betting backend
-pytest>=7.4.2
+# DEPRECATED REQUIREMENTS FILE (2025-08-13):
+# This file is deprecated in favor of root-level requirements-dev.txt
+# Use the canonical requirements file at the repository root instead.
+# This file will be removed in a future version.
+
+# Redirect to canonical requirements
+# pip install -r ../requirements-dev.txt
 pytest-asyncio>=0.21.1
 httpx>=0.25.0
 black>=23.11.0

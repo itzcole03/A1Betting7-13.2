@@ -1,15 +1,5 @@
-# DEPRECATED REQUIREMENTS FILE (2025-08-13):
-# This file is deprecated in favor of root-level requirements.txt and requirements-dev.txt
-# Use the canonical requirements files at the repository root instead.
-# This file will be removed in a future version.
-
-# Redirect to canonical requirements
-# pip install -r ../requirements.txt
-# pip install -r ../requirements-dev.txt
-
-# The canonical requirements are located at:
-# - requirements.txt (production dependencies)
-# - requirements-dev.txt (development dependencies)
+# Core FastAPI and Web Framework
+fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 pydantic>=2.5.0
 pydantic-settings>=2.1.0

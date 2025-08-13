@@ -2,12 +2,15 @@ import pytest
 from fastapi.testclient import TestClient
 
 
-# Canonical app fixture for all tests
+# Canonical app fixture for all tests - SINGLE SOURCE OF TRUTH
 @pytest.fixture(scope="session")
 def test_app():
-    from backend.main import app
-
-    return app
+    """
+    Use the canonical app factory to ensure tests run against the same app as production.
+    This eliminates 404s and fixture drift by using the ONLY app entry point.
+    """
+    from backend.core.app import create_app
+    return create_app()
 
 
 from unittest.mock import MagicMock, patch

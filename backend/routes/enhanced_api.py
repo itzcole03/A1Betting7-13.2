@@ -1,6 +1,8 @@
 """
 Enhanced API Routes for Peak Functionality
 Integrates all new services for real-time data, ML predictions, user management, and betting features.
+
+All endpoints follow the standardized API contract: {success, data, error, meta}
 """
 
 from datetime import datetime
@@ -20,6 +22,14 @@ from backend.services.user_auth_service import (
     user_auth_service,
 )
 from backend.utils.enhanced_logging import get_logger
+from backend.utils.standard_responses import (
+    StandardAPIResponse,
+    success_response,
+    BusinessLogicException,
+    AuthenticationException,
+    ValidationException,
+    ResponseBuilder
+)
 
 logger = get_logger("enhanced_api")
 
@@ -29,14 +39,16 @@ security = HTTPBearer()
 
 
 # Simple test route with no dependencies
-@router.get("/simple-test")
+@router.get("/simple-test", response_model=StandardAPIResponse[Dict[str, Any]])
 async def simple_test():
-    """Simple test endpoint with no dependencies"""
-    return {
+    """Simple test endpoint with no dependencies - returns standardized response"""
+    builder = ResponseBuilder()
+    data = {
         "message": "Enhanced API router is working",
         "status": "success",
         "router_prefix": "/v1",
     }
+    return builder.success(data)
 
 
 # Request/Response Models
@@ -77,85 +89,83 @@ async def get_current_user(
     user_data = await user_auth_service.verify_session(token)
 
     if not user_data:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
-        )
+        raise AuthenticationException("Invalid or expired token")
 
     return user_data
 
 
 # Authentication Endpoints
-@router.post("/auth/register")
+@router.post("/auth/register", response_model=StandardAPIResponse[Dict[str, Any]])
 async def register_user(user_data: UserCreateRequest):
-    """Register a new user"""
+    """Register a new user - returns standardized response"""
+    builder = ResponseBuilder()
+    
     try:
         user = await user_auth_service.register_user(user_data)
-        return {
+        data = {
             "message": "User registered successfully",
             "user": user,
             "status": "success",
         }
-    except HTTPException:
-        raise
+        return builder.success(data)
     except Exception as e:
         logger.error(f"Registration error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Registration failed",
-        )
+        raise BusinessLogicException("Registration failed", str(e))
 
 
-@router.post("/auth/login")
+@router.post("/auth/login", response_model=StandardAPIResponse[Dict[str, Any]])
 async def login_user(
     login_data: UserLoginRequest,
     x_forwarded_for: Optional[str] = Header(None),
     user_agent: Optional[str] = Header(None),
 ):
-    """Login user and create session"""
+    """Login user and create session - returns standardized response"""
+    builder = ResponseBuilder()
+    
     try:
         session = await user_auth_service.login_user(
-            login_data, ip_address=x_forwarded_for, user_agent=user_agent
+            login_data, ip_address=x_forwarded_for or "", user_agent=user_agent or ""
         )
 
-        return {"message": "Login successful", "session": session, "status": "success"}
-    except HTTPException:
-        raise
+        data = {"message": "Login successful", "session": session, "status": "success"}
+        return builder.success(data)
     except Exception as e:
         logger.error(f"Login error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Login failed"
-        )
+        raise BusinessLogicException("Login failed", str(e))
 
 
-@router.post("/auth/logout")
+@router.post("/auth/logout", response_model=StandardAPIResponse[Dict[str, Any]])
 async def logout_user(current_user: Dict = Depends(get_current_user)):
-    """Logout user and invalidate session"""
+    """Logout user and invalidate session - returns standardized response"""
+    builder = ResponseBuilder()
+    
     try:
         await user_auth_service.logout_user(current_user["session_id"])
-        return {"message": "Logout successful", "status": "success"}
+        data = {"message": "Logout successful", "status": "success"}
+        return builder.success(data)
     except Exception as e:
         logger.error(f"Logout error: {e}")
-        return {"message": "Logout completed", "status": "success"}
+        # Even on error, logout is considered successful from user perspective
+        data = {"message": "Logout completed", "status": "success"}
+        return builder.success(data)
 
 
-@router.post("/auth/refresh")
+@router.post("/auth/refresh", response_model=StandardAPIResponse[Dict[str, Any]])
 async def refresh_token(refresh_token: str):
-    """Refresh access token"""
+    """Refresh access token - returns standardized response"""
+    builder = ResponseBuilder()
+    
     try:
         new_session = await user_auth_service.refresh_token(refresh_token)
-        return {
+        data = {
             "message": "Token refreshed successfully",
             "session": new_session,
             "status": "success",
         }
-    except HTTPException:
-        raise
+        return builder.success(data)
     except Exception as e:
         logger.error(f"Token refresh error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Token refresh failed",
-        )
+        raise BusinessLogicException("Token refresh failed", str(e))
 
 
 # Enhanced ML Prediction Endpoints
@@ -191,32 +201,29 @@ async def get_enhanced_prediction(
 
     except Exception as e:
         logger.error(f"Enhanced prediction error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Prediction failed",
-        )
+        raise BusinessLogicException("Prediction failed")
 
 
-@router.get("/predictions/model-performance")
+@router.get("/predictions/model-performance", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_model_performance(current_user: Dict = Depends(get_current_user)):
     """Get comprehensive model performance summary"""
+    builder = ResponseBuilder()
+    
     try:
         if not enhanced_ml_service.is_initialized:
             await enhanced_ml_service.initialize()
 
         performance = await enhanced_ml_service.get_model_performance_summary()
-        return {
+        data = {
             "performance": performance,
             "status": "success",
             "timestamp": datetime.now().isoformat(),
         }
+        return builder.success(data)
 
     except Exception as e:
         logger.error(f"Model performance error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get model performance",
-        )
+        raise BusinessLogicException("Failed to get model performance")
 
 
 # Real-Time Data Endpoints
@@ -272,92 +279,93 @@ async def get_betting_opportunities(
 
     except Exception as e:
         logger.error(f"Betting opportunities error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get betting opportunities",
-        )
+        raise BusinessLogicException("Failed to get betting opportunities")
 
 
 # Bankroll Management Endpoints
-@router.get("/bankroll/status")
+@router.get("/bankroll/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_bankroll_status(current_user: Dict = Depends(get_current_user)):
     """Get current bankroll status and statistics"""
+    builder = ResponseBuilder()
+    
     try:
         user_id = current_user["user_id"]
         status = await bankroll_service.get_bankroll_status(user_id)
 
-        return {
+        data = {
             "bankroll_status": status.dict(),
             "status": "success",
             "timestamp": datetime.now().isoformat(),
         }
+        return builder.success(data)
 
     except Exception as e:
         logger.error(f"Bankroll status error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get bankroll status",
-        )
+        raise BusinessLogicException("Failed to get bankroll status")
 
 
-@router.get("/bankroll/risk-metrics")
+@router.get("/bankroll/risk-metrics", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_risk_metrics(current_user: Dict = Depends(get_current_user)):
     """Get comprehensive risk metrics"""
+    builder = ResponseBuilder()
+    
     try:
         user_id = current_user["user_id"]
         risk_metrics = await bankroll_service.calculate_risk_metrics(user_id)
 
-        return {
+        data = {
             "risk_metrics": risk_metrics.dict(),
             "status": "success",
             "timestamp": datetime.now().isoformat(),
         }
+        return builder.success(data)
 
     except Exception as e:
         logger.error(f"Risk metrics error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get risk metrics",
-        )
+        raise BusinessLogicException("Failed to get risk metrics")
 
 
-@router.post("/bankroll/optimize-portfolio")
+@router.post("/bankroll/optimize-portfolio", response_model=StandardAPIResponse[Dict[str, Any]])
 async def optimize_portfolio(
     request: PortfolioRequest, current_user: Dict = Depends(get_current_user)
 ):
     """Optimize betting portfolio"""
+    builder = ResponseBuilder()
+    
     try:
         user_id = current_user["user_id"]
 
         # Get recommendations based on filters
+        sport_filter = request.sports_filter[0] if request.sports_filter else None
         recommendations = await bankroll_service.generate_bet_recommendations(
-            user_id, sport=request.sports_filter[0] if request.sports_filter else None
+            user_id, sport_filter or ""  # Provide empty string as fallback
         )
 
         # Optimize portfolio
+        max_allocation = request.max_allocation or 1000.0  # Provide default
         optimization = await bankroll_service.optimize_portfolio(
-            user_id, recommendations, request.max_allocation
+            user_id, recommendations, max_allocation
         )
 
-        return {
+        data = {
             "portfolio_optimization": optimization.dict(),
             "status": "success",
             "timestamp": datetime.now().isoformat(),
         }
+        return builder.success(data)
 
     except Exception as e:
         logger.error(f"Portfolio optimization error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Portfolio optimization failed",
-        )
+        raise BusinessLogicException("Portfolio optimization failed")
 
 
-@router.post("/bankroll/calculate-kelly")
+@router.post("/bankroll/calculate-kelly", response_model=StandardAPIResponse[Dict[str, Any]])
 async def calculate_kelly_criterion(
     probability: float, odds: float, current_user: Dict = Depends(get_current_user)
 ):
     """Calculate Kelly Criterion bet sizing"""
+    builder = ResponseBuilder()
+    
     try:
         # Get user's current bankroll
         user_id = current_user["user_id"]
@@ -367,31 +375,31 @@ async def calculate_kelly_criterion(
             probability, odds, bankroll_status.current_balance
         )
 
-        return {
+        data = {
             "kelly_calculation": kelly_result,
             "status": "success",
             "timestamp": datetime.now().isoformat(),
         }
+        return builder.success(data)
 
     except Exception as e:
         logger.error(f"Kelly calculation error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Kelly calculation failed",
-        )
+        raise BusinessLogicException("Kelly calculation failed")
 
 
 # User Profile and Preferences
-@router.get("/user/profile")
+@router.get("/user/profile", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_user_profile(current_user: Dict = Depends(get_current_user)):
     """Get user profile and preferences"""
+    builder = ResponseBuilder()
+    
     try:
         user_id = current_user["user_id"]
 
         # Get user analytics
         analytics = await user_auth_service.get_user_analytics(user_id)
 
-        return {
+        data = {
             "profile": {
                 "user_id": user_id,
                 "email": current_user["email"],
@@ -402,48 +410,45 @@ async def get_user_profile(current_user: Dict = Depends(get_current_user)):
             "analytics": analytics,
             "status": "success",
         }
+        return builder.success(data)
 
     except Exception as e:
         logger.error(f"User profile error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get user profile",
-        )
+        raise BusinessLogicException("Failed to get user profile")
 
 
-@router.put("/user/preferences")
+@router.put("/user/preferences", response_model=StandardAPIResponse[Dict[str, Any]])
 async def update_user_preferences(
     preferences: Dict[str, Any], current_user: Dict = Depends(get_current_user)
 ):
     """Update user preferences"""
+    builder = ResponseBuilder()
+    
     try:
         user_id = current_user["user_id"]
         success = await user_auth_service.update_user_preferences(user_id, preferences)
 
         if success:
-            return {"message": "Preferences updated successfully", "status": "success"}
+            data = {"message": "Preferences updated successfully", "status": "success"}
+            return builder.success(data)
         else:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to update preferences",
-            )
+            raise BusinessLogicException("Failed to update preferences")
 
-    except HTTPException:
+    except BusinessLogicException:
         raise
     except Exception as e:
         logger.error(f"Update preferences error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update preferences",
-        )
+        raise BusinessLogicException("Failed to update preferences")
 
 
 # Real-Time Data Integration
-@router.get("/sports/{sport}/enhanced-data")
+@router.get("/sports/{sport}/enhanced-data", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_enhanced_sport_data(
     sport: str, current_user: Dict = Depends(get_current_user)
 ):
     """Get enhanced real-time data for a specific sport"""
+    builder = ResponseBuilder()
+    
     try:
         await real_data_service.initialize()
 
@@ -461,26 +466,26 @@ async def get_enhanced_sport_data(
                 }
             ]
 
-        return {
+        data = {
             "sport": sport.upper(),
             "enhanced_data": enhanced_data,
             "count": len(enhanced_data),
             "status": "success",
             "timestamp": datetime.now().isoformat(),
         }
+        return builder.success(data)
 
     except Exception as e:
         logger.error(f"Enhanced sport data error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get enhanced sport data",
-        )
+        raise BusinessLogicException("Failed to get enhanced sport data")
 
 
 # System Health and Status
-@router.get("/system/health")
+@router.get("/system/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_system_health():
     """Get comprehensive system health status"""
+    builder = ResponseBuilder()
+    
     try:
         health_status = {
             "status": "healthy",
@@ -512,15 +517,16 @@ async def get_system_health():
         ):
             health_status["status"] = "degraded"
 
-        return health_status
+        return builder.success(health_status)
 
     except Exception as e:
         logger.error(f"Health check error: {e}")
-        return {
+        error_data = {
             "status": "unhealthy",
             "error": str(e),
             "timestamp": datetime.now().isoformat(),
         }
+        return builder.success(error_data)  # Return as success since health endpoint should always respond
 
 
 @router.get("/system/debug")

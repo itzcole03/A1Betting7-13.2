@@ -133,6 +133,116 @@ repos:
       - id: commitizen-branch
         stages: [push]
 
+  # API Contract Enforcement - Critical for hardening
+  - repo: local
+    hooks:
+      - id: api-contract-tests
+        name: API Contract Tests
+        entry: python
+        language: system
+        files: '^backend/(routes/|tests/).*\.py$'
+        args:
+          - -m
+          - pytest
+          - backend/tests/test_contract_http_comprehensive.py
+          - -v
+          - --tb=short
+        pass_filenames: false
+        stages: [commit]
+
+      - id: contract-violation-scan
+        name: Scan for Contract Violations
+        entry: python
+        language: system
+        files: '^backend/routes/.*\.py$'
+        args:
+          - -c
+          - |
+            import re
+            import sys
+            from pathlib import Path
+            
+            violations = []
+            patterns = [
+                r'raise HTTPException\(',
+                r'return\s+\{\s*["\']error["\']:\s*[^}]+\}',
+                r'return\s+\{\s*["\']status["\']:\s*["\']error["\']',
+                r'JSONResponse\([^)]*status_code\s*=\s*[45]\d\d[^)]*["\']error["\']',
+            ]
+            
+            for file_arg in sys.argv[1:]:
+                if not file_arg.endswith('.py'):
+                    continue
+                try:
+                    with open(file_arg, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    for pattern in patterns:
+                        matches = list(re.finditer(pattern, content, re.MULTILINE | re.DOTALL))
+                        for match in matches:
+                            line_num = content[:match.start()].count('\n') + 1
+                            violations.append(f"{file_arg}:{line_num} - {match.group()[:50]}")
+                except Exception as e:
+                    print(f"Warning: Could not scan {file_arg}: {e}")
+            
+            if violations:
+                print("❌ Contract violations found (use exception handlers instead):")
+                for v in violations[:10]:  # Show first 10
+                    print(f"  {v}")
+                if len(violations) > 10:
+                    print(f"  ... and {len(violations) - 10} more")
+                print("\n📖 See API_CONTRACT_GUIDE.md for proper patterns")
+                sys.exit(1)
+            else:
+                print("✅ No contract violations detected")
+        pass_filenames: true
+        stages: [commit]
+
+      - id: response-model-annotations
+        name: Check Response Model Annotations
+        entry: python
+        language: system
+        files: '^backend/routes/(enhanced_api|production_health_routes|unified_api|optimized_api_routes)\.py$'
+        args:
+          - -c
+          - |
+            import re
+            import sys
+            
+            missing = []
+            for file_arg in sys.argv[1:]:
+                try:
+                    with open(file_arg, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    
+                    route_pattern = r'@router\.(get|post|put|delete|patch)\s*\([^)]*\)\s*\n\s*(?:async\s+)?def\s+(\w+)'
+                    response_model_pattern = r'response_model\s*='
+                    
+                    for match in re.finditer(route_pattern, content, re.MULTILINE):
+                        func_name = match.group(2)
+                        if func_name in ['health_check', 'debug_endpoint', 'system_debug']:
+                            continue
+                        
+                        decorator_start = content.rfind('@router', 0, match.start())
+                        decorator_end = match.end()
+                        decorator_section = content[decorator_start:decorator_end]
+                        
+                        if not re.search(response_model_pattern, decorator_section):
+                            line_num = content[:match.start()].count('\n') + 1
+                            missing.append(f"{file_arg}:{line_num} - {func_name}")
+                except Exception as e:
+                    print(f"Warning: Could not check {file_arg}: {e}")
+            
+            if missing:
+                print("❌ Critical routes missing response_model annotations:")
+                for m in missing:
+                    print(f"  {m}")
+                print("\n📖 Add response_model= parameter to route decorators")
+                sys.exit(1)
+            else:
+                print("✅ All critical routes have response_model annotations")
+        pass_filenames: true
+        stages: [commit]
+
   # Security scanning for dependencies
   - repo: local
     hooks:

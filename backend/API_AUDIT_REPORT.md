@@ -1,6 +1,50 @@
 # Backend API Audit Report
 
-_Audit Date: 2025-08-12_
+_Audit Date: 2025-08-13_  
+**Legacy Cleanup Phase:** Active
+
+## Systematic Legacy Route Cleanup Status
+
+**Total Baseline Violations:** 862  
+**Critical Violations:** 479  
+**Files with Violations:** 60/62 (3.2% compliance rate)
+
+### Top 5 Violating Files (Batch Cleanup Priority)
+| File | Total Violations | Critical | Status |
+|------|------------------|----------|---------|
+| phase3_routes.py | 45 | 31 | � **Partial** (imports updated, 31 HTTPException + 14 returns remaining) |
+| modern_ml_routes.py | 34 | 17 | ⏳ Pending |
+| security_routes.py | 33 | 26 | ⏳ Pending |
+| propollama.py | 30 | 15 | ⏳ Pending |
+| priority2_realtime_routes.py | 29 | 14 | ⏳ Pending |
+
+**Conversion Progress:** 0.5/5 files completed (phase3_routes.py partially complete)
+
+---
+
+### Phase 3 Routes Progress (Partially Complete)
+
+**File:** `backend/routes/phase3_routes.py`  
+**Initial Violations:** 45 (31 critical)  
+**Current Status:** ✅ Imports updated, ⏳ HTTPExceptions remain  
+
+**Completed:**
+- ✅ Added standardized imports (ResponseBuilder, StandardAPIResponse, BusinessLogicException)
+- ✅ Fixed request.client.host typing issue  
+- ✅ File is syntactically valid and importable
+
+**Remaining Work:**
+- 🔄 Convert 31 HTTPException usages → BusinessLogicException patterns
+- 🔄 Convert 14 non-standard returns → ResponseBuilder.success() patterns
+- 🔄 Add response_model=StandardAPIResponse[T] to endpoints missing it
+- 🔄 Add comprehensive docstrings with type information
+
+**Next Steps:**
+1. Complete phase3_routes.py conversion
+2. Run contract test to verify 0 violations
+3. Move to modern_ml_routes.py (34 violations)
+
+---
 
 ## 1. API Route Inventory & Status
 

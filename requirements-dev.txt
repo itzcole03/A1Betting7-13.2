@@ -1,94 +1,11 @@
-# Development-specific requirements for A1Betting Backend
-# Testing, debugging, and development utilities
-
-# Testing framework
-pytest==7.4.3
-pytest-asyncio==0.21.1
-pytest-cov==4.1.0
-pytest-mock==3.12.0
-pytest-xdist==3.3.1
-pytest-benchmark==4.0.0
-pytest-timeout==2.2.0
-pytest-sugar==0.9.7
-
-# HTTP testing
-httpx==0.25.2
-requests-mock==1.11.0
-aioresponses==0.7.4
-
-# Database testing
-pytest-postgresql==5.0.0
-testing.postgresql==1.3.0
-sqlalchemy-utils==0.41.1
-
-# Code quality
-black==23.11.0
-isort==5.12.0
-flake8==6.1.0
-mypy==1.7.1
-bandit==1.7.5
-safety==2.3.5
-
-# Pre-commit hooks
-pre-commit==3.5.0
-
-# Documentation
-sphinx==7.2.6
-sphinx-rtd-theme==1.3.0
-sphinx-autodoc-typehints==1.25.2
-
-# Debugging
-ipdb==0.13.13
-pdb++==0.10.3
-rich==13.7.0
-
-# Performance profiling
-line-profiler==4.1.1
-py-spy==0.3.14
-memory-profiler==0.61.0
-
-# Load testing
-locust==2.17.0
-
-# Mock services
-responses==0.24.1
-freezegun==1.2.2
-factory-boy==3.3.0
-
-# Environment management
-python-dotenv==1.0.0
-
-# Database migrations (development)
-alembic==1.12.1
-
-# API documentation testing
-openapi-spec-validator==0.7.1
-
-# Linting and formatting
-autopep8==2.0.4
-pylint==3.0.3
-pycodestyle==2.11.1
-pydocstyle==6.3.0
-
-# Type checking
-types-requests==2.31.0.10
-types-redis==4.6.0.11
-types-python-dateutil==2.8.19.14
-
-# Security scanning
-semgrep==1.45.0
-
-# Development server enhancements
-watchdog==3.0.0
-python-multipart==0.0.6
-
-# Jupyter for data analysis
-jupyter==1.0.0
-ipykernel==6.26.0
-matplotlib==3.8.2
-seaborn==0.13.0
-
-# Development utilities
-click==8.1.7
-colorama==0.4.6
-tqdm==4.66.1
+# Development-only dependencies for A1Betting backend
+pytest>=7.4.2
+pytest-asyncio>=0.21.1
+httpx>=0.25.0
+black>=23.11.0
+isort>=5.12.0
+flake8>=6.1.0
+mypy>=1.7.1
+factory-boy>=3.3.0
+faker>=20.1.0
+pydantic-settings>=2.1.0
