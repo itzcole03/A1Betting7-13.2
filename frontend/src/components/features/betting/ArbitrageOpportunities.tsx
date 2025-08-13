@@ -122,7 +122,7 @@ const ArbitrageOpportunities: React.FC = () => {
 
       // Try to fetch real arbitrage opportunities
       const response = await fetch('/v1/odds/arbitrage?sport=baseball_mlb&min_profit=0.5', {
-        signal: AbortSignal.timeout(10000)
+        signal: AbortSignal.timeout(10000),
       });
 
       if (response.ok) {
@@ -131,38 +131,40 @@ const ArbitrageOpportunities: React.FC = () => {
 
         if (data.opportunities && Array.isArray(data.opportunities)) {
           // Transform API response to match our interface
-          const transformedOpportunities: ArbitrageOpportunity[] = data.opportunities.map((opp: any, index: number) => ({
-            id: opp.id || `arb_${index}`,
-            sport: 'MLB',
-            event: opp.market || `${opp.player_name} Props` || 'Unknown Event',
-            market: 'player_props',
-            start_time: new Date().toISOString(),
-            bookmaker_a: {
-              name: opp.best_over_book || 'BookA',
-              selection: 'Over',
-              odds: 2.15,
-              stake: 100,
-            },
-            bookmaker_b: {
-              name: opp.best_under_book || 'BookB',
-              selection: 'Under',
-              odds: 2.05,
-              stake: 100,
-            },
-            total_stake: 200,
-            guaranteed_profit: opp.arbitrage_profit || 5,
-            profit_margin: ((opp.arbitrage_profit || 5) / 200) * 100,
-            confidence_score: Math.floor(Math.random() * 30) + 70,
-            risk_assessment: {
-              liquidity_risk: 'low',
-              timing_risk: 'low',
-              odds_movement_risk: 'medium',
-              overall_risk: 'low',
-            },
-            execution_time_window: 300,
-            last_updated: new Date().toISOString(),
-            status: 'active',
-          }));
+          const transformedOpportunities: ArbitrageOpportunity[] = data.opportunities.map(
+            (opp: any, index: number) => ({
+              id: opp.id || `arb_${index}`,
+              sport: 'MLB',
+              event: opp.market || `${opp.player_name} Props` || 'Unknown Event',
+              market: 'player_props',
+              start_time: new Date().toISOString(),
+              bookmaker_a: {
+                name: opp.best_over_book || 'BookA',
+                selection: 'Over',
+                odds: 2.15,
+                stake: 100,
+              },
+              bookmaker_b: {
+                name: opp.best_under_book || 'BookB',
+                selection: 'Under',
+                odds: 2.05,
+                stake: 100,
+              },
+              total_stake: 200,
+              guaranteed_profit: opp.arbitrage_profit || 5,
+              profit_margin: ((opp.arbitrage_profit || 5) / 200) * 100,
+              confidence_score: Math.floor(Math.random() * 30) + 70,
+              risk_assessment: {
+                liquidity_risk: 'low',
+                timing_risk: 'low',
+                odds_movement_risk: 'medium',
+                overall_risk: 'low',
+              },
+              execution_time_window: 300,
+              last_updated: new Date().toISOString(),
+              status: 'active',
+            })
+          );
 
           setOpportunities(transformedOpportunities);
 
@@ -170,9 +172,13 @@ const ArbitrageOpportunities: React.FC = () => {
           setSummary({
             total_opportunities: data.total_opportunities || transformedOpportunities.length,
             active_opportunities: transformedOpportunities.length,
-            total_profit_potential: transformedOpportunities.reduce((sum, opp) => sum + opp.guaranteed_profit, 0),
+            total_profit_potential: transformedOpportunities.reduce(
+              (sum, opp) => sum + opp.guaranteed_profit,
+              0
+            ),
             avg_profit_margin: data.avg_profit || 2.5,
-            high_confidence_count: transformedOpportunities.filter(opp => opp.confidence_score > 80).length,
+            high_confidence_count: transformedOpportunities.filter(opp => opp.confidence_score > 80)
+              .length,
             execution_success_rate: 0.85,
             avg_execution_time: 25.0,
           });
@@ -199,14 +205,19 @@ const ArbitrageOpportunities: React.FC = () => {
               date: '2025-08-05',
               opportunities_found: transformedOpportunities.length,
               opportunities_executed: Math.floor(transformedOpportunities.length * 0.8),
-              total_profit: transformedOpportunities.reduce((sum, opp) => sum + opp.guaranteed_profit, 0),
+              total_profit: transformedOpportunities.reduce(
+                (sum, opp) => sum + opp.guaranteed_profit,
+                0
+              ),
               avg_margin: data.avg_profit || 3.0,
-              execution_rate: 0.80,
+              execution_rate: 0.8,
             },
           ];
 
           setHistoricalData(mockHistoricalData);
-          console.log(`[ArbitrageOpportunities] Loaded ${transformedOpportunities.length} real opportunities`);
+          console.log(
+            `[ArbitrageOpportunities] Loaded ${transformedOpportunities.length} real opportunities`
+          );
         } else {
           throw new Error('Invalid response format from arbitrage API');
         }
@@ -215,7 +226,9 @@ const ArbitrageOpportunities: React.FC = () => {
       }
     } catch (err) {
       console.warn('[ArbitrageOpportunities] Failed to load real data, using demo mode:', err);
-      setError(`Failed to load arbitrage data: ${err.message}`);
+      setError(
+        `Failed to load arbitrage data: ${err instanceof Error ? err.message : String(err)}`
+      );
 
       // Fallback to demo data
       const mockOpportunities: ArbitrageOpportunity[] = [
@@ -519,14 +532,15 @@ const ArbitrageOpportunities: React.FC = () => {
           >
             <Calculator className='mr-2 h-4 w-4' />
             Calculator
-          </button>
-
-          <button
-            onClick={handleRefresh}
-            disabled={loading}
-            className='flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50'
-          >
-            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <button
+              data-testid={`arbitrage-opportunity-btn-${opportunity.id}`}
+              className='bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm flex items-center space-x-2'
+              onClick={() => executeArbitrage(opportunity)}
+              disabled={opportunity.status !== 'active'}
+            >
+              <Target className='w-4 h-4' />
+              <span>Execute Arbitrage</span>
+            </button>
             Refresh
           </button>
 
@@ -819,6 +833,7 @@ const ArbitrageOpportunities: React.FC = () => {
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <button
+                      data-testid={`arbitrage-opportunity-btn-${opportunity.id}`}
                       onClick={() => handleExecuteArbitrage(opportunity)}
                       disabled={
                         opportunity.status !== 'active' ||

@@ -44,7 +44,7 @@ export const BetSlipComponent: React.FC<
   }, 0);
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-6' data-testid='bet-slip-container'>
       <div
         className='bg-slate-700/50 backdrop-blur-sm rounded-lg shadow-md border border-slate-600'
         data-testid='bet-slip-section'
@@ -70,7 +70,7 @@ export const BetSlipComponent: React.FC<
 
               return (
                 <div
-                  key={item.opportunity_id || item.id}
+                  key={item.opportunityId || item.id}
                   className='p-6'
                   data-testid='bet-slip-item'
                 >
@@ -85,7 +85,7 @@ export const BetSlipComponent: React.FC<
                       </p>
                     </div>
                     <button
-                      onClick={() => onRemoveProp(item.opportunity_id || item.id)}
+                      onClick={() => onRemoveProp(item.opportunityId || item.id)}
                       className='text-red-400 hover:text-red-300 text-sm'
                     >
                       Remove
