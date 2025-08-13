@@ -20,7 +20,8 @@ import os
 # Add backend to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from domains.database import cache_service, get_schema_manager
+from backend.domains.database import cache_service
+from backend.domains.database.schema_manager import get_schema_manager
 from domains.prediction.service import UnifiedPredictionService
 from domains.data.service import UnifiedDataService
 from domains.analytics.service import UnifiedAnalyticsService

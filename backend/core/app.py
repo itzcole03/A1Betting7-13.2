@@ -1,17 +1,17 @@
+
 """
 A1Betting Core App Instance
 Contains FastAPI app creation, config loading, and DB setup for modular monolith architecture.
 """
 
+
 import logging
 from pathlib import Path
-
 from fastapi import FastAPI
 
 # Load environment variables from .env file
 try:
     from dotenv import load_dotenv
-
     env_path = Path(__file__).parent.parent.parent / ".env"
     load_dotenv(dotenv_path=env_path, override=True)
 except ImportError:

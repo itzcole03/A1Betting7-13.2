@@ -1,3 +1,6 @@
+# DEPRECATED REQUIREMENTS FILE (2025-08-13):
+# Use requirements.txt and requirements-dev.txt only. Remove this file from CI and production.
+
 # Enhanced Revolutionary Accuracy Engine - Mathematical Dependencies
 # Install with: pip install -r enhanced_requirements.txt
 

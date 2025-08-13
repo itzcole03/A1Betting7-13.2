@@ -119,7 +119,6 @@ class ProductionApp:
                 enhanced_initialized = await initialize_enhanced_services()
                 if enhanced_initialized:
                     self.logger.info("✅ Enhanced services initialized successfully")
-                else:
                     self.logger.warning("⚠️ Enhanced services initialization failed")
             except Exception as e:
                 self.logger.warning(f"⚠️ Enhanced services initialization failed: {e}")

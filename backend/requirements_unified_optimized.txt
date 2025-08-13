@@ -1,3 +1,6 @@
+# DEPRECATED REQUIREMENTS FILE (2025-08-13):
+# Use requirements.txt and requirements-dev.txt only. Remove this file from CI and production.
+
 # A1Betting Unified Backend - Optimized Requirements
 # Database optimization and caching dependencies
 

@@ -1,3 +1,15 @@
+import pytest
+from fastapi.testclient import TestClient
+
+
+# Canonical app fixture for all tests
+@pytest.fixture(scope="session")
+def test_app():
+    from backend.main import app
+
+    return app
+
+
 from unittest.mock import MagicMock, patch
 
 import pytest

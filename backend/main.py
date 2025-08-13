@@ -91,6 +91,29 @@ app.add_middleware(
 
 import time
 
+# --- Centralized Exception Mapping ---
+try:
+    from backend.exceptions.handlers import register_exception_handlers
+
+    register_exception_handlers(app)
+    logger.info("✅ Centralized exception handlers registered (exceptions/handlers.py)")
+except ImportError as e:
+    logger.warning(f"⚠️ Could not import centralized exception handlers: {e}")
+
+
+# --- Unified Response Envelope Helpers ---
+def ok(data=None):
+    return {"success": True, "data": data, "error": None}
+
+
+def fail(error_code="ERROR", message="An error occurred", data=None):
+    return {
+        "success": False,
+        "data": data,
+        "error": {"code": error_code, "message": message},
+    }
+
+
 # --- WebSocket Upgrade Headers & Logging ---
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 

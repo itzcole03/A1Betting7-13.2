@@ -1,11 +1,19 @@
+
 import time
+import os
+from prometheus_client import Counter, Histogram, CollectorRegistry
 
-from prometheus_client import Counter, Histogram
-
-# Prometheus metrics for data pipeline health
-fetch_success = Counter("fetch_success_total", "Successful fetches")
-fetch_failure = Counter("fetch_failure_total", "Failed fetches")
-fetch_latency = Histogram("fetch_latency_seconds", "Fetch latency")
+# Avoid metric registration in test mode
+if "PYTEST_CURRENT_TEST" in os.environ or os.getenv("A1BETTING_TEST_MODE") == "1":
+    # Use a fresh registry for tests
+    registry = CollectorRegistry()
+    fetch_success = Counter("fetch_success_total", "Successful fetches", registry=registry)
+    fetch_failure = Counter("fetch_failure_total", "Failed fetches", registry=registry)
+    fetch_latency = Histogram("fetch_latency_seconds", "Fetch latency", registry=registry)
+else:
+    fetch_success = Counter("fetch_success_total", "Successful fetches")
+    fetch_failure = Counter("fetch_failure_total", "Failed fetches")
+    fetch_latency = Histogram("fetch_latency_seconds", "Fetch latency")
 
 
 async def fetch_with_metrics(fetch_func, *args, **kwargs):
