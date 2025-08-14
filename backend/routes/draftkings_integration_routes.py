@@ -13,6 +13,10 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Depends
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel
 
 from ..services.sportsbook_apis.draftkings_api_service import (
@@ -46,7 +50,7 @@ class DraftKingsPropsResponse(BaseModel):
     last_updated: str
     source: str = "DraftKings"
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_draftkings_health(
     service: DraftKingsAPIService = Depends(get_draftkings_service)
 ) -> Dict[str, Any]:
@@ -58,7 +62,7 @@ async def get_draftkings_health(
         
         status = "healthy" if test_events else "degraded"
         
-        return {
+        return ResponseBuilder.success({
             "service": "DraftKings API",
             "status": status,
             "timestamp": datetime.now().isoformat(),
@@ -67,7 +71,7 @@ async def get_draftkings_health(
                 "player_props": True,
                 "live_betting": True,
                 "event_data": True
-            },
+            }),
             "test_result": {
                 "events_retrieved": len(test_events),
                 "response_time_ms": 200  # Would measure actual response time
@@ -76,14 +80,14 @@ async def get_draftkings_health(
         
     except Exception as e:
         logger.error(f"DraftKings health check failed: {e}")
-        return {
+        return ResponseBuilder.success({
             "service": "DraftKings API",
             "status": "unhealthy",
             "timestamp": datetime.now().isoformat(),
             "error": str(e)
-        }
+        })
 
-@router.get("/events")
+@router.get("/events", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_draftkings_events(
     sport: Optional[str] = Query(None, description="Sport filter (NFL, NBA, MLB, NHL)"),
     league: Optional[str] = Query(None, description="League filter"),
@@ -127,17 +131,17 @@ async def get_draftkings_events(
             }
             events_data.append(event_dict)
         
-        return DraftKingsEventsResponse(
+        return ResponseBuilder.success(DraftKingsEventsResponse(
             events=events_data,
-            total_count=len(events_data),
+            total_count=len(events_data)),
             last_updated=datetime.now().isoformat()
         )
         
     except Exception as e:
         logger.error(f"Failed to get DraftKings events: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve events: {str(e)}")
+        raise BusinessLogicException("f"Failed to retrieve events: {str(e")}")
 
-@router.get("/odds")
+@router.get("/odds", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_draftkings_odds(
     event_id: Optional[str] = Query(None, description="Specific event ID"),
     sport: Optional[str] = Query(None, description="Sport filter"),
@@ -200,17 +204,17 @@ async def get_draftkings_odds(
             }
             odds_data.append(odds_dict)
         
-        return DraftKingsOddsResponse(
+        return ResponseBuilder.success(DraftKingsOddsResponse(
             odds=odds_data,
-            total_count=len(odds_data),
+            total_count=len(odds_data)),
             last_updated=datetime.now().isoformat()
         )
         
     except Exception as e:
         logger.error(f"Failed to get DraftKings odds: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve odds: {str(e)}")
+        raise BusinessLogicException("f"Failed to retrieve odds: {str(e")}")
 
-@router.get("/player-props")
+@router.get("/player-props", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_draftkings_player_props(
     sport: str = Query(..., description="Sport (NFL, NBA, MLB, NHL)"),
     player_name: Optional[str] = Query(None, description="Specific player name"),
@@ -230,7 +234,7 @@ async def get_draftkings_player_props(
         sport_type = sport_map.get(sport.upper())
         
         if not sport_type:
-            raise HTTPException(status_code=400, detail=f"Unsupported sport: {sport}")
+            raise BusinessLogicException("f"Unsupported sport: {sport}")
         
         # Parse prop types
         prop_types_list = None
@@ -264,9 +268,9 @@ async def get_draftkings_player_props(
             }
             props_data.append(prop_dict)
         
-        return DraftKingsPropsResponse(
+        return ResponseBuilder.success(DraftKingsPropsResponse(
             props=props_data,
-            total_count=len(props_data),
+            total_count=len(props_data)),
             last_updated=datetime.now().isoformat()
         )
         
@@ -274,18 +278,18 @@ async def get_draftkings_player_props(
         raise
     except Exception as e:
         logger.error(f"Failed to get DraftKings player props: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve player props: {str(e)}")
+        raise BusinessLogicException("f"Failed to retrieve player props: {str(e")}")
 
-@router.get("/markets")
+@router.get("/markets", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_draftkings_markets() -> Dict[str, Any]:
     """Get available markets and sports from DraftKings"""
     
-    return {
+    return ResponseBuilder.success({
         "supported_sports": {
             "NFL": {
                 "name": "National Football League",
                 "markets": ["moneyline", "spread", "total", "player_props", "team_props"]
-            },
+            }),
             "NBA": {
                 "name": "National Basketball Association", 
                 "markets": ["moneyline", "spread", "total", "player_props", "team_props"]
@@ -323,7 +327,7 @@ async def get_draftkings_markets() -> Dict[str, Any]:
         }
     }
 
-@router.get("/compare/{event_id}")
+@router.get("/compare/{event_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def compare_draftkings_odds(
     event_id: str,
     service: DraftKingsAPIService = Depends(get_draftkings_service)
@@ -334,7 +338,7 @@ async def compare_draftkings_odds(
         odds = await service.get_odds(event_id=event_id)
         
         if not odds:
-            raise HTTPException(status_code=404, detail="Event not found or no odds available")
+            raise BusinessLogicException("Event not found or no odds available")
         
         # Group odds by market type for easy comparison
         odds_by_market = {}
@@ -360,21 +364,21 @@ async def compare_draftkings_odds(
             "is_live": odds[0].is_live
         }
         
-        return {
+        return ResponseBuilder.success({
             "event": event_info,
             "markets": odds_by_market,
             "sportsbook": "DraftKings",
             "total_odds": len(odds),
             "last_updated": datetime.now().isoformat()
-        }
+        })
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to get DraftKings comparison odds: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve comparison data: {str(e)}")
+        raise BusinessLogicException("f"Failed to retrieve comparison data: {str(e")}")
 
-@router.post("/refresh")
+@router.post("/refresh", response_model=StandardAPIResponse[Dict[str, Any]])
 async def refresh_draftkings_data(
     sport: Optional[str] = Query(None),
     service: DraftKingsAPIService = Depends(get_draftkings_service)
@@ -403,18 +407,18 @@ async def refresh_draftkings_data(
             for pattern in cache_patterns:
                 await cache.delete_pattern(pattern)
         
-        return {
+        return ResponseBuilder.success({
             "message": "DraftKings data refresh initiated",
             "sport": sport or "all",
             "timestamp": datetime.now().isoformat(),
             "cache_cleared": True
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to refresh DraftKings data: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to refresh data: {str(e)}")
+        raise BusinessLogicException("f"Failed to refresh data: {str(e")}")
 
-@router.get("/stats")
+@router.get("/stats", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_draftkings_stats(
     service: DraftKingsAPIService = Depends(get_draftkings_service)
 ) -> Dict[str, Any]:
@@ -434,7 +438,7 @@ async def get_draftkings_stats(
         test_events = await service.get_events(sport=SportType.NBA)
         response_time = (datetime.now() - start_time).total_seconds() * 1000
         
-        return {
+        return ResponseBuilder.success({
             "service": "DraftKings API",
             "status": "operational",
             "rate_limiting": rate_limit_info,
@@ -442,7 +446,7 @@ async def get_draftkings_stats(
                 "last_response_time_ms": response_time,
                 "test_events_count": len(test_events),
                 "cache_hit_rate": "85%"  # Would be calculated from actual metrics
-            },
+            }),
             "features": {
                 "events_supported": True,
                 "odds_supported": True,
@@ -460,9 +464,9 @@ async def get_draftkings_stats(
         
     except Exception as e:
         logger.error(f"Failed to get DraftKings stats: {e}")
-        return {
+        return ResponseBuilder.success({
             "service": "DraftKings API",
             "status": "error",
             "error": str(e),
             "timestamp": datetime.now().isoformat()
-        }
+        })

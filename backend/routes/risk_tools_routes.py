@@ -8,6 +8,10 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, Field
 
 from backend.services.risk_tools_service import (
@@ -121,18 +125,17 @@ async def calculate_kelly(
         result = risk_service.calculate_kelly(inputs)
 
         # Convert to response model
-        return KellyResultModel(**result.to_dict())
+        return ResponseBuilder.success(KellyResultModel(**result.to_dict()))
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise BusinessLogicException("str(e"))
     except Exception as e:
         logger.error(f"Kelly calculation error: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to calculate Kelly criterion"
-        )
+        raise BusinessLogicException("Failed to calculate Kelly criterion"
+        ")
 
 
-@router.post("/kelly/fractional")
+@router.post("/kelly/fractional", response_model=StandardAPIResponse[Dict[str, Any]])
 async def calculate_fractional_kelly(
     request: FractionalKellyRequest,
     risk_service: RiskToolsService = Depends(get_risk_tools_service),
@@ -163,7 +166,7 @@ async def calculate_fractional_kelly(
         for fraction, result in results.items():
             response[str(fraction)] = result.to_dict()
 
-        return {
+        return ResponseBuilder.success({
             "base_inputs": request.base_inputs.dict(),
             "fraction_results": response,
             "comparison_metrics": {
@@ -172,19 +175,18 @@ async def calculate_fractional_kelly(
                 "max_expected_value": max(r.expected_value for r in results.values()),
                 "min_risk_level": min(r.risk_level.value for r in results.values()),
                 "max_risk_level": max(r.risk_level.value for r in results.values()),
-            },
+            }),
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise BusinessLogicException("str(e"))
     except Exception as e:
         logger.error(f"Fractional Kelly calculation error: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to calculate fractional Kelly"
-        )
+        raise BusinessLogicException("Failed to calculate fractional Kelly"
+        ")
 
 
-@router.post("/kelly/simulate")
+@router.post("/kelly/simulate", response_model=StandardAPIResponse[Dict[str, Any]])
 async def simulate_kelly_outcomes(
     request: SimulationRequest,
     risk_service: RiskToolsService = Depends(get_risk_tools_service),
@@ -210,16 +212,16 @@ async def simulate_kelly_outcomes(
             inputs, request.num_simulations, request.num_bets
         )
 
-        return simulation_results
+        return ResponseBuilder.success(simulation_results)
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise BusinessLogicException("str(e"))
     except Exception as e:
         logger.error(f"Kelly simulation error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to run Kelly simulation")
+        raise BusinessLogicException("Failed to run Kelly simulation")
 
 
-@router.post("/kelly/optimal-fraction")
+@router.post("/kelly/optimal-fraction", response_model=StandardAPIResponse[Dict[str, Any]])
 async def calculate_optimal_fraction(
     request: OptimalFractionRequest,
     risk_service: RiskToolsService = Depends(get_risk_tools_service),
@@ -245,21 +247,20 @@ async def calculate_optimal_fraction(
 
         result = risk_service.calculate_kelly(inputs)
 
-        return {
+        return ResponseBuilder.success({
             "optimal_kelly_fraction": round(optimal_fraction, 3),
             "target_max_drawdown": request.target_max_drawdown,
             "kelly_result": result.to_dict(),
-            "recommendation": f"Use {optimal_fraction:.1%} Kelly for target {request.target_max_drawdown:.1%} max drawdown",
+            "recommendation": f"Use {optimal_fraction:.1%}) Kelly for target {request.target_max_drawdown:.1%} max drawdown",
         }
 
     except Exception as e:
         logger.error(f"Optimal fraction calculation error: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to calculate optimal fraction"
-        )
+        raise BusinessLogicException("Failed to calculate optimal fraction"
+        ")
 
 
-@router.post("/sessions/save")
+@router.post("/sessions/save", response_model=StandardAPIResponse[Dict[str, Any]])
 async def save_betting_session(
     request: SessionRequest,
     user_id: str = Header(None, alias="X-User-ID"),
@@ -300,7 +301,7 @@ async def save_betting_session(
         # Save session
         risk_service.save_session(user_id, session)
 
-        return {
+        return ResponseBuilder.success({
             "session_id": session.id,
             "saved_at": session.timestamp.isoformat(),
             "kelly_recommendation": kelly_result.optimal_bet_size,
@@ -310,14 +311,14 @@ async def save_betting_session(
                 if request.actual_bet_size and kelly_result.optimal_bet_size > 0
                 else None
             ),
-        }
+        })
 
     except Exception as e:
         logger.error(f"Session save error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to save session")
+        raise BusinessLogicException("Failed to save session")
 
 
-@router.get("/sessions")
+@router.get("/sessions", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_betting_sessions(
     user_id: str = Header(None, alias="X-User-ID"),
     limit: int = Query(50, ge=1, le=200),
@@ -326,7 +327,7 @@ async def get_betting_sessions(
     """Get user's betting session history"""
     try:
         if not user_id:
-            return {"sessions": [], "total": 0}
+            return ResponseBuilder.success({"sessions": [], "total": 0})
 
         sessions = risk_service.get_user_sessions(user_id, limit)
 
@@ -350,14 +351,14 @@ async def get_betting_sessions(
             }
             session_data.append(session_dict)
 
-        return {"sessions": session_data, "total": len(session_data)}
+        return ResponseBuilder.success({"sessions": session_data, "total": len(session_data)})
 
     except Exception as e:
         logger.error(f"Session retrieval error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve sessions")
+        raise BusinessLogicException("Failed to retrieve sessions")
 
 
-@router.get("/stats")
+@router.get("/stats", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_bankroll_stats(
     user_id: str = Header(None, alias="X-User-ID"),
     risk_service: RiskToolsService = Depends(get_risk_tools_service),
@@ -370,17 +371,17 @@ async def get_bankroll_stats(
     """
     try:
         if not user_id:
-            return {"error": "User ID required for statistics"}
+            return ResponseBuilder.success({"error": "User ID required for statistics"})
 
         stats = risk_service.calculate_bankroll_stats(user_id)
 
         if not stats:
-            return {
+            return ResponseBuilder.success({
                 "message": "Insufficient data for statistics",
                 "minimum_sessions_required": 2,
-            }
+            })
 
-        return {
+        return ResponseBuilder.success({
             "total_sessions": stats.total_sessions,
             "win_rate": round(stats.win_rate * 100, 1),
             "total_profit_loss": round(stats.total_profit_loss, 2),
@@ -392,14 +393,14 @@ async def get_bankroll_stats(
             "sharpe_ratio": round(stats.sharpe_ratio, 3),
             "kelly_adherence_score": round(stats.kelly_adherence_score * 100, 1),
             "performance_grade": _calculate_performance_grade(stats),
-        }
+        })
 
     except Exception as e:
         logger.error(f"Stats calculation error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to calculate statistics")
+        raise BusinessLogicException("Failed to calculate statistics")
 
 
-@router.get("/tools/odds-converter")
+@router.get("/tools/odds-converter", response_model=StandardAPIResponse[Dict[str, Any]])
 async def convert_odds(
     american: Optional[int] = Query(None, description="American odds"),
     decimal: Optional[float] = Query(None, description="Decimal odds"),
@@ -473,16 +474,16 @@ async def convert_odds(
         else:
             raise ValueError("Must provide odds in one format")
 
-        return result
+        return ResponseBuilder.success(result)
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise BusinessLogicException("str(e"))
     except Exception as e:
         logger.error(f"Odds conversion error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to convert odds")
+        raise BusinessLogicException("Failed to convert odds")
 
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def risk_tools_health_check(
     risk_service: RiskToolsService = Depends(get_risk_tools_service),
 ):
@@ -495,7 +496,7 @@ async def risk_tools_health_check(
 
         test_result = risk_service.calculate_kelly(test_inputs)
 
-        return {
+        return ResponseBuilder.success({
             "status": "healthy",
             "features_available": [
                 "kelly_calculation",
@@ -509,17 +510,17 @@ async def risk_tools_health_check(
                 "inputs": test_inputs.__dict__,
                 "optimal_bet_size": test_result.optimal_bet_size,
                 "risk_level": test_result.risk_level.value,
-            },
+            }),
             "timestamp": datetime.utcnow().isoformat(),
         }
 
     except Exception as e:
         logger.error(f"Risk tools health check failed: {e}")
-        return {
+        return ResponseBuilder.success({
             "status": "degraded",
             "error": str(e),
             "timestamp": datetime.utcnow().isoformat(),
-        }
+        })
 
 
 def _calculate_performance_grade(stats) -> str:

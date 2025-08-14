@@ -93,7 +93,7 @@ class BatchPredictionRequest(BaseModel):
             raise ValueError("data_list cannot be empty")
         if len(v) > 1000:
             raise ValueError("data_list cannot exceed 1000 items")
-        return v
+        return ResponseBuilder.success(v)
 
 
 class PredictionResponse(BaseModel):
@@ -296,7 +296,7 @@ async def get_current_strategy():
     return ResponseBuilder.success(data=strategy)
 
 
-@router.post("/switch-strategy")
+@router.post("/switch-strategy", response_model=StandardAPIResponse[Dict[str, Any]])
 @router.post("/strategy", response_model=StandardAPIResponse[Dict[str, Any]])
 async def switch_strategy(
     strategy: str = Query(..., description="New prediction strategy")
@@ -656,7 +656,7 @@ async def _retrain_models_background(sport: str, model_type: str):
 # Phase 2: Performance Optimization Endpoints
 
 
-@router.post("/phase2/start-optimization")
+@router.post("/phase2/start-optimization", response_model=StandardAPIResponse[Dict[str, Any]])
 async def start_phase2_optimization(background_tasks: BackgroundTasks):
     """Start Phase 2 performance optimization services"""
     try:
@@ -682,7 +682,7 @@ async def start_phase2_optimization(background_tasks: BackgroundTasks):
         )
 
 
-@router.post("/phase2/stop-optimization")
+@router.post("/phase2/stop-optimization", response_model=StandardAPIResponse[Dict[str, Any]])
 async def stop_phase2_optimization(background_tasks: BackgroundTasks):
     """Stop Phase 2 optimization services"""
     try:
@@ -702,7 +702,7 @@ async def stop_phase2_optimization(background_tasks: BackgroundTasks):
         )
 
 
-@router.get("/phase2/optimization-stats")
+@router.get("/phase2/optimization-stats", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_phase2_optimization_stats():
     """Get Phase 2 optimization statistics"""
     try:
@@ -720,7 +720,7 @@ async def get_phase2_optimization_stats():
         )
 
 
-@router.post("/phase2/optimized-prediction")
+@router.post("/phase2/optimized-prediction", response_model=StandardAPIResponse[Dict[str, Any]])
 async def optimized_prediction(request: PredictionRequest):
     """Make optimized prediction using Phase 2 services"""
     try:
@@ -782,7 +782,7 @@ async def optimized_prediction(request: PredictionRequest):
         )
 
 
-@router.get("/phase2/health")
+@router.get("/phase2/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def phase2_health_check():
     """Health check for Phase 2 services"""
     try:

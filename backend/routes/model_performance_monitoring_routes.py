@@ -7,6 +7,10 @@ Part of Phase 3: Advanced AI Enhancement and Multi-Sport Expansion
 from datetime import datetime, timedelta
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, HTTPException, Query, Body
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, Field
 import logging
 
@@ -61,24 +65,24 @@ class ComparativeAnalysisResponse(BaseModel):
     rankings: Dict[str, List[tuple]]
     summary: Dict[str, Any]
 
-@router.get("/status", summary="Get monitoring system status")
+@router.get("/status", summary="Get monitoring system status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_monitoring_status():
     """Get the current status of the monitoring system"""
     try:
         monitoring_service = await get_monitoring_service()
         
-        return {
+        return ResponseBuilder.success({
             "status": "active" if monitoring_service.is_monitoring else "inactive",
             "monitored_models": len(monitoring_service.performance_history),
             "monitoring_window_hours": monitoring_service.monitoring_window_hours,
-            "drift_thresholds": {dt.value: threshold for dt, threshold in monitoring_service.drift_thresholds.items()},
+            "drift_thresholds": {dt.value: threshold for dt, threshold in monitoring_service.drift_thresholds.items()}),
             "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
         logger.error(f"Failed to get monitoring status: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get monitoring status")
+        raise BusinessLogicException("Failed to get monitoring status")
 
-@router.post("/models/register", summary="Register a model for monitoring")
+@router.post("/models/register", summary="Register a model for monitoring", response_model=StandardAPIResponse[Dict[str, Any]])
 async def register_model(request: ModelRegistrationRequest):
     """Register a new model for performance monitoring"""
     try:
@@ -90,19 +94,19 @@ async def register_model(request: ModelRegistrationRequest):
         )
         
         if success:
-            return {
+            return ResponseBuilder.success({
                 "success": True,
-                "message": f"Model {request.model_id} registered successfully",
+                "message": f"Model {request.model_id}) registered successfully",
                 "timestamp": datetime.now().isoformat()
             }
         else:
-            raise HTTPException(status_code=400, detail="Failed to register model")
+            raise BusinessLogicException("Failed to register model")
             
     except Exception as e:
         logger.error(f"Failed to register model: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to register model")
+        raise BusinessLogicException("Failed to register model")
 
-@router.post("/predictions/batch", summary="Record a batch of predictions")
+@router.post("/predictions/batch", summary="Record a batch of predictions", response_model=StandardAPIResponse[Dict[str, Any]])
 async def record_prediction_batch(request: PredictionBatchRequest):
     """Record a batch of predictions for performance monitoring"""
     try:
@@ -114,15 +118,15 @@ async def record_prediction_batch(request: PredictionBatchRequest):
             ground_truth=request.ground_truth
         )
         
-        return {
+        return ResponseBuilder.success({
             "success": True,
-            "message": f"Recorded {len(request.predictions)} predictions for model {request.model_id}",
+            "message": f"Recorded {len(request.predictions)}) predictions for model {request.model_id}",
             "timestamp": datetime.now().isoformat()
         }
         
     except Exception as e:
         logger.error(f"Failed to record prediction batch: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to record prediction batch")
+        raise BusinessLogicException("Failed to record prediction batch")
 
 @router.get("/models/{model_id}/health", response_model=ModelHealthResponse, summary="Get model health status")
 async def get_model_health(model_id: str):
@@ -133,14 +137,14 @@ async def get_model_health(model_id: str):
         health_status = await monitoring_service.get_model_health_status(model_id)
         
         if not health_status:
-            raise HTTPException(status_code=404, detail="Model not found or no data available")
+            raise BusinessLogicException("Model not found or no data available")
         
-        return ModelHealthResponse(
+        return ResponseBuilder.success(ModelHealthResponse(
             model_id=health_status.model_id,
             status=health_status.status.value,
             health_score=health_status.health_score,
             performance_trend=health_status.performance_trend,
-            last_checked=health_status.last_checked.isoformat(),
+            last_checked=health_status.last_checked.isoformat()),
             alerts=[alert.to_dict() for alert in health_status.alerts],
             metrics_summary=health_status.metrics_summary,
             uptime_hours=health_status.uptime_hours
@@ -150,9 +154,9 @@ async def get_model_health(model_id: str):
         raise
     except Exception as e:
         logger.error(f"Failed to get model health for {model_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get model health status")
+        raise BusinessLogicException("Failed to get model health status")
 
-@router.get("/models/{model_id}/metrics", summary="Get model performance metrics")
+@router.get("/models/{model_id}/metrics", summary="Get model performance metrics", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_model_metrics(
     model_id: str,
     limit: int = Query(default=100, description="Maximum number of metrics to return"),
@@ -163,7 +167,7 @@ async def get_model_metrics(
         monitoring_service = await get_monitoring_service()
         
         if model_id not in monitoring_service.performance_history:
-            raise HTTPException(status_code=404, detail="Model not found")
+            raise BusinessLogicException("Model not found")
         
         metrics = monitoring_service.performance_history[model_id]
         
@@ -175,17 +179,17 @@ async def get_model_metrics(
         # Limit results
         metrics = metrics[-limit:] if limit > 0 else metrics
         
-        return {
+        return ResponseBuilder.success({
             "model_id": model_id,
             "total_metrics": len(metrics),
             "metrics": [m.to_dict() for m in metrics]
-        }
+        })
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to get metrics for {model_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get model metrics")
+        raise BusinessLogicException("Failed to get model metrics")
 
 @router.get("/models/compare", response_model=ComparativeAnalysisResponse, summary="Compare multiple models")
 async def compare_models(
@@ -197,17 +201,17 @@ async def compare_models(
         
         comparison = await monitoring_service.get_comparative_analysis(model_ids)
         
-        return ComparativeAnalysisResponse(
+        return ResponseBuilder.success(ComparativeAnalysisResponse(
             models=comparison['models'],
             rankings=comparison['rankings'],
             summary=comparison['summary']
-        )
+        ))
         
     except Exception as e:
         logger.error(f"Failed to compare models: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to compare models")
+        raise BusinessLogicException("Failed to compare models")
 
-@router.get("/models", summary="List all monitored models")
+@router.get("/models", summary="List all monitored models", response_model=StandardAPIResponse[Dict[str, Any]])
 async def list_monitored_models():
     """Get list of all models currently being monitored"""
     try:
@@ -227,17 +231,17 @@ async def list_monitored_models():
             }
             models_info.append(model_info)
         
-        return {
+        return ResponseBuilder.success({
             "total_models": len(models_info),
             "models": models_info,
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to list monitored models: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to list monitored models")
+        raise BusinessLogicException("Failed to list monitored models")
 
-@router.get("/models/{model_id}/report", summary="Export detailed performance report")
+@router.get("/models/{model_id}/report", summary="Export detailed performance report", response_model=StandardAPIResponse[Dict[str, Any]])
 async def export_performance_report(
     model_id: str,
     start_date: Optional[str] = Query(default=None, description="Start date (ISO format)"),
@@ -258,19 +262,19 @@ async def export_performance_report(
         )
         
         if not report:
-            raise HTTPException(status_code=404, detail="Model not found or no data available")
+            raise BusinessLogicException("Model not found or no data available")
         
-        return report
+        return ResponseBuilder.success(report)
         
     except HTTPException:
         raise
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}")
+        raise BusinessLogicException("f"Invalid date format: {str(e")}")
     except Exception as e:
         logger.error(f"Failed to export performance report for {model_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to export performance report")
+        raise BusinessLogicException("Failed to export performance report")
 
-@router.get("/alerts", summary="Get recent alerts")
+@router.get("/alerts", summary="Get recent alerts", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_recent_alerts(
     limit: int = Query(default=50, description="Maximum number of alerts to return"),
     severity: Optional[str] = Query(default=None, description="Filter by severity level"),
@@ -279,48 +283,48 @@ async def get_recent_alerts(
     """Get recent drift and performance alerts"""
     try:
         # In production, this would fetch from an alerts database
-        # For now, return a sample response structure
+        # For now, return ResponseBuilder.success(a) sample response structure
         
         alerts = []  # Placeholder - would fetch from alert storage
         
-        return {
+        return ResponseBuilder.success({
             "total_alerts": len(alerts),
             "alerts": alerts,
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to get recent alerts: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get recent alerts")
+        raise BusinessLogicException("Failed to get recent alerts")
 
-@router.post("/control/start", summary="Start monitoring system")
+@router.post("/control/start", summary="Start monitoring system", response_model=StandardAPIResponse[Dict[str, Any]])
 async def start_monitoring():
     """Start the performance monitoring system"""
     try:
         monitoring_service = await get_monitoring_service()
         
         if monitoring_service.is_monitoring:
-            return {
+            return ResponseBuilder.success({
                 "success": True,
                 "message": "Monitoring system is already running",
                 "timestamp": datetime.now().isoformat()
-            }
+            })
         
         # Note: In production, this would be handled by a background service
         # For now, just mark as monitoring
         monitoring_service.is_monitoring = True
         
-        return {
+        return ResponseBuilder.success({
             "success": True,
             "message": "Monitoring system started",
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to start monitoring: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to start monitoring system")
+        raise BusinessLogicException("Failed to start monitoring system")
 
-@router.post("/control/stop", summary="Stop monitoring system")
+@router.post("/control/stop", summary="Stop monitoring system", response_model=StandardAPIResponse[Dict[str, Any]])
 async def stop_monitoring():
     """Stop the performance monitoring system"""
     try:
@@ -328,17 +332,17 @@ async def stop_monitoring():
         
         await monitoring_service.stop_monitoring()
         
-        return {
+        return ResponseBuilder.success({
             "success": True,
             "message": "Monitoring system stopped",
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to stop monitoring: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to stop monitoring system")
+        raise BusinessLogicException("Failed to stop monitoring system")
 
-@router.get("/dashboard/overview", summary="Get monitoring dashboard overview")
+@router.get("/dashboard/overview", summary="Get monitoring dashboard overview", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_dashboard_overview():
     """Get overview data for the monitoring dashboard"""
     try:
@@ -365,7 +369,7 @@ async def get_dashboard_overview():
         
         avg_health_score = avg_health_score / max(active_models, 1)
         
-        return {
+        return ResponseBuilder.success({
             "system_status": "active" if monitoring_service.is_monitoring else "inactive",
             "total_models": total_models,
             "active_models": active_models,
@@ -374,25 +378,25 @@ async def get_dashboard_overview():
             "model_statuses": model_statuses,
             "monitoring_uptime_hours": 24,  # Placeholder
             "last_updated": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to get dashboard overview: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get dashboard overview")
+        raise BusinessLogicException("Failed to get dashboard overview")
 
 # Health check endpoint
-@router.get("/health", summary="Health check for monitoring service")
+@router.get("/health", summary="Health check for monitoring service", response_model=StandardAPIResponse[Dict[str, Any]])
 async def health_check():
     """Health check endpoint for the monitoring service"""
     try:
         monitoring_service = await get_monitoring_service()
         
-        return {
+        return ResponseBuilder.success({
             "status": "healthy",
             "monitoring_active": monitoring_service.is_monitoring,
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Service unhealthy")
+        raise BusinessLogicException("Service unhealthy")

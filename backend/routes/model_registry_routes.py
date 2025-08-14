@@ -11,6 +11,10 @@ from typing import Dict, List, Optional, Any
 from io import BytesIO
 
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form, Query
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
@@ -148,16 +152,16 @@ async def list_models(
             for model in paginated_models
         ]
         
-        return ModelListResponse(
+        return ResponseBuilder.success(ModelListResponse(
             models=model_responses,
             total_count=total_count,
             page=page,
             page_size=page_size
-        )
+        ))
         
     except Exception as e:
         logger.error(f"Failed to list models: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve models")
+        raise BusinessLogicException("Failed to retrieve models")
 
 @router.get("/{model_id}", response_model=ModelResponse)
 async def get_model(
@@ -174,10 +178,10 @@ async def get_model(
         model = await mlops_service.get_model_by_id(model_id)
         
         if not model:
-            raise HTTPException(status_code=404, detail=f"Model {model_id} not found")
+            raise BusinessLogicException("f"Model {model_id} not found")
         
-        return ModelResponse(
-            id=model.get('id', model_id),
+        return ResponseBuilder.success(ModelResponse(
+            id=model.get('id', model_id)),
             name=model.get('name', ''),
             version=model.get('version', '1.0.0'),
             description=model.get('description', ''),
@@ -199,7 +203,7 @@ async def get_model(
         raise
     except Exception as e:
         logger.error(f"Failed to get model {model_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve model")
+        raise BusinessLogicException("Failed to retrieve model")
 
 @router.post("/", response_model=ModelResponse, status_code=201)
 async def create_model(
@@ -241,11 +245,11 @@ async def create_model(
         await mlops_service.register_model(model_id, model_data)
         
         # Return created model
-        return ModelResponse(**{k: v for k, v in model_data.items() if k != 'model_file_path'})
+        return ResponseBuilder.success(ModelResponse(**{k: v for k, v in model_data.items()) if k != 'model_file_path'})
         
     except Exception as e:
         logger.error(f"Failed to create model: {e}")
-        raise HTTPException(status_code=500, detail="Failed to create model")
+        raise BusinessLogicException("Failed to create model")
 
 @router.put("/{model_id}", response_model=ModelResponse)
 async def update_model(
@@ -263,7 +267,7 @@ async def update_model(
         # Get existing model
         existing_model = await mlops_service.get_model_by_id(model_id)
         if not existing_model:
-            raise HTTPException(status_code=404, detail=f"Model {model_id} not found")
+            raise BusinessLogicException("f"Model {model_id} not found")
         
         # Update fields
         update_data = {}
@@ -281,8 +285,8 @@ async def update_model(
         # Apply updates
         updated_model = await mlops_service.update_model(model_id, update_data)
         
-        return ModelResponse(
-            id=updated_model.get('id', model_id),
+        return ResponseBuilder.success(ModelResponse(
+            id=updated_model.get('id', model_id)),
             name=updated_model.get('name', ''),
             version=updated_model.get('version', '1.0.0'),
             description=updated_model.get('description', ''),
@@ -304,9 +308,9 @@ async def update_model(
         raise
     except Exception as e:
         logger.error(f"Failed to update model {model_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to update model")
+        raise BusinessLogicException("Failed to update model")
 
-@router.delete("/{model_id}")
+@router.delete("/{model_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def delete_model(
     model_id: str,
     force: bool = Query(False, description="Force delete even if model is deployed"),
@@ -321,14 +325,12 @@ async def delete_model(
         # Get model to check status
         model = await mlops_service.get_model_by_id(model_id)
         if not model:
-            raise HTTPException(status_code=404, detail=f"Model {model_id} not found")
+            raise BusinessLogicException("f"Model {model_id} not found")
         
         # Check if model is deployed
         if model.get('status') == 'deployed' and not force:
-            raise HTTPException(
-                status_code=400,
-                detail="Cannot delete deployed model. Use force=true to override."
-            )
+            raise BusinessLogicException("Cannot delete deployed model. Use force=true to override."
+            ")
         
         # Delete model
         await mlops_service.delete_model(model_id)
@@ -344,7 +346,7 @@ async def delete_model(
         raise
     except Exception as e:
         logger.error(f"Failed to delete model {model_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to delete model")
+        raise BusinessLogicException("Failed to delete model")
 
 @router.post("/{model_id}/evaluation", response_model=EvaluationUploadResponse)
 async def upload_evaluation(
@@ -364,31 +366,25 @@ async def upload_evaluation(
         # Verify model exists
         model = await mlops_service.get_model_by_id(model_id)
         if not model:
-            raise HTTPException(status_code=404, detail=f"Model {model_id} not found")
+            raise BusinessLogicException("f"Model {model_id} not found")
         
         # Validate file type
         if not evaluation_file.filename.endswith('.json'):
-            raise HTTPException(
-                status_code=400,
-                detail="Only JSON files are supported for evaluation upload"
-            )
+            raise BusinessLogicException("Only JSON files are supported for evaluation upload"
+            ")
         
         # Read and parse JSON content
         content = await evaluation_file.read()
         try:
             evaluation_data = json.loads(content.decode('utf-8'))
         except json.JSONDecodeError as e:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid JSON format: {str(e)}"
+            raise BusinessLogicException("f"Invalid JSON format: {str(e")}"
             )
         
         # Validate evaluation data structure
         if not isinstance(evaluation_data, dict):
-            raise HTTPException(
-                status_code=400,
-                detail="Evaluation data must be a JSON object"
-            )
+            raise BusinessLogicException("Evaluation data must be a JSON object"
+            ")
         
         # Extract metrics
         metrics = evaluation_data.get('metrics', {})
@@ -423,11 +419,11 @@ async def upload_evaluation(
         if metrics:
             await mlops_service.update_model_metrics(model_id, metrics)
         
-        return EvaluationUploadResponse(
+        return ResponseBuilder.success(EvaluationUploadResponse(
             evaluation_id=evaluation_id,
             model_id=model_id,
             metrics=metrics,
-            uploaded_at=datetime.fromisoformat(evaluation_record['uploaded_at']),
+            uploaded_at=datetime.fromisoformat(evaluation_record['uploaded_at'])),
             status='processed'
         )
         
@@ -435,9 +431,9 @@ async def upload_evaluation(
         raise
     except Exception as e:
         logger.error(f"Failed to upload evaluation for model {model_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to process evaluation upload")
+        raise BusinessLogicException("Failed to process evaluation upload")
 
-@router.get("/{model_id}/evaluations")
+@router.get("/{model_id}/evaluations", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_model_evaluations(
     model_id: str,
     limit: int = Query(10, ge=1, le=100, description="Number of evaluations to return"),
@@ -453,7 +449,7 @@ async def get_model_evaluations(
         # Verify model exists
         model = await mlops_service.get_model_by_id(model_id)
         if not model:
-            raise HTTPException(status_code=404, detail=f"Model {model_id} not found")
+            raise BusinessLogicException("f"Model {model_id} not found")
         
         # Get evaluations
         evaluations = await mlops_service.get_model_evaluations(model_id, limit)
@@ -468,9 +464,9 @@ async def get_model_evaluations(
         raise
     except Exception as e:
         logger.error(f"Failed to get evaluations for model {model_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve evaluations")
+        raise BusinessLogicException("Failed to retrieve evaluations")
 
-@router.get("/stats/summary")
+@router.get("/stats/summary", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_registry_stats(
     mlops_service: MLOpsPipelineService = Depends(get_mlops_service)
 ):
@@ -496,4 +492,4 @@ async def get_registry_stats(
         
     except Exception as e:
         logger.error(f"Failed to get registry stats: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve statistics")
+        raise BusinessLogicException("Failed to retrieve statistics")

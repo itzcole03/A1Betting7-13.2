@@ -10,6 +10,10 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException, Query
 
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+
 from backend.models.nba_models import NBAGame, NBAOddsComparison, NBAPlayer, NBATeam
 from backend.services.nba_service_client import nba_service
 from backend.utils.enhanced_logging import get_logger
@@ -19,10 +23,10 @@ logger = get_logger("nba_routes")
 router = APIRouter(prefix="/nba", tags=["NBA"])
 
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def nba_health_check():
     """NBA service health check"""
-    return await nba_service.health_check()
+    return ResponseBuilder.success(await) nba_service.health_check()
 
 
 @router.get("/teams", response_model=List[Dict[str, Any]])
@@ -31,11 +35,10 @@ async def get_nba_teams():
     try:
         teams = await nba_service.get_nba_teams()
         logger.info(f"Retrieved {len(teams)} NBA teams")
-        return teams
+        return ResponseBuilder.success(teams)
     except Exception as e:
         logger.error(f"Error fetching NBA teams: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch NBA teams: {str(e)}"
+        raise BusinessLogicException("f"Failed to fetch NBA teams: {str(e")}"
         )
 
 
@@ -45,11 +48,10 @@ async def get_team_players(team_id: int):
     try:
         players = await nba_service.get_nba_players(team_id=team_id)
         logger.info(f"Retrieved {len(players)} players for team {team_id}")
-        return players
+        return ResponseBuilder.success(players)
     except Exception as e:
         logger.error(f"Error fetching players for team {team_id}: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch players: {str(e)}"
+        raise BusinessLogicException("f"Failed to fetch players: {str(e")}"
         )
 
 
@@ -59,11 +61,10 @@ async def get_nba_players(team_id: int = Query(None, description="Filter by team
     try:
         players = await nba_service.get_nba_players(team_id=team_id)
         logger.info(f"Retrieved {len(players)} NBA players")
-        return players
+        return ResponseBuilder.success(players)
     except Exception as e:
         logger.error(f"Error fetching NBA players: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch players: {str(e)}"
+        raise BusinessLogicException("f"Failed to fetch players: {str(e")}"
         )
 
 
@@ -89,13 +90,13 @@ async def get_nba_games(
         )
 
         logger.info(f"Retrieved {len(games)} NBA games")
-        return games
+        return ResponseBuilder.success(games)
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}")
+        raise BusinessLogicException("f"Invalid date format: {str(e")}")
     except Exception as e:
         logger.error(f"Error fetching NBA games: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to fetch games: {str(e)}")
+        raise BusinessLogicException("f"Failed to fetch games: {str(e")}")
 
 
 @router.get("/games/today", response_model=List[Dict[str, Any]])
@@ -108,12 +109,11 @@ async def get_todays_nba_games():
         games = await nba_service.get_nba_games(start_date=today, end_date=tomorrow)
 
         logger.info(f"Retrieved {len(games)} NBA games for today")
-        return games
+        return ResponseBuilder.success(games)
 
     except Exception as e:
         logger.error(f"Error fetching today's NBA games: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch today's games: {str(e)}"
+        raise BusinessLogicException("f"Failed to fetch today's games: {str(e")}"
         )
 
 
@@ -125,16 +125,15 @@ async def get_nba_odds_comparison():
         logger.info(
             f"Retrieved NBA odds comparison with {len(odds_data.get('odds', []))} games"
         )
-        return odds_data
+        return ResponseBuilder.success(odds_data)
 
     except Exception as e:
         logger.error(f"Error fetching NBA odds comparison: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch odds comparison: {str(e)}"
+        raise BusinessLogicException("f"Failed to fetch odds comparison: {str(e")}"
         )
 
 
-@router.get("/odds-comparison/team/{team_id}")
+@router.get("/odds-comparison/team/{team_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_team_odds(team_id: int):
     """Get odds for games involving a specific team"""
     try:
@@ -168,48 +167,47 @@ async def get_team_odds(team_id: int):
         logger.info(
             f"Retrieved odds for {len(team_odds)} games involving team {team_id}"
         )
-        return result
+        return ResponseBuilder.success(result)
 
     except Exception as e:
         logger.error(f"Error fetching team odds for team {team_id}: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch team odds: {str(e)}"
+        raise BusinessLogicException("f"Failed to fetch team odds: {str(e")}"
         )
 
 
-@router.get("/standings")
+@router.get("/standings", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_nba_standings():
     """Get NBA standings (placeholder - would integrate with standings API)"""
     # TODO: Integrate with actual NBA standings API
-    return {
+    return ResponseBuilder.success({
         "status": "ok",
         "message": "NBA standings endpoint - coming soon",
         "eastern_conference": [],
         "western_conference": [],
-    }
+    })
 
 
-@router.get("/stats/teams")
+@router.get("/stats/teams", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_team_stats():
     """Get NBA team statistics (placeholder)"""
     # TODO: Integrate with NBA stats API
-    return {
+    return ResponseBuilder.success({
         "status": "ok",
         "message": "NBA team stats endpoint - coming soon",
         "teams": [],
-    }
+    })
 
 
-@router.get("/stats/players")
+@router.get("/stats/players", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_player_stats(
     team_id: int = Query(None, description="Filter by team ID"),
     position: str = Query(None, description="Filter by position"),
 ):
     """Get NBA player statistics (placeholder)"""
     # TODO: Integrate with NBA stats API
-    return {
+    return ResponseBuilder.success({
         "status": "ok",
         "message": "NBA player stats endpoint - coming soon",
         "players": [],
-        "filters": {"team_id": team_id, "position": position},
+        "filters": {"team_id": team_id, "position": position}),
     }

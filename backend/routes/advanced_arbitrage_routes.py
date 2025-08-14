@@ -7,6 +7,10 @@ Part of Phase 4.2: Elite Betting Operations and Automation
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Query, HTTPException, BackgroundTasks
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, Field
 import logging
 
@@ -88,7 +92,7 @@ class ArbitrageFilterRequest(BaseModel):
 
 def _convert_arbitrage_opportunity(opp: ArbitrageOpportunity) -> ArbitrageOpportunityResponse:
     """Convert internal arbitrage opportunity to API response"""
-    return ArbitrageOpportunityResponse(
+    return ResponseBuilder.success(ArbitrageOpportunityResponse(
         opportunity_id=opp.opportunity_id,
         sport=opp.sport,
         game_id=opp.game_id,
@@ -108,7 +112,7 @@ def _convert_arbitrage_opportunity(opp: ArbitrageOpportunity) -> ArbitrageOpport
                 odds_american=odds.odds_american,
                 odds_decimal=odds.odds_decimal,
                 line=odds.line,
-                timestamp=odds.timestamp.isoformat(),
+                timestamp=odds.timestamp.isoformat()),
                 volume=odds.volume,
                 max_bet=odds.max_bet,
                 reliability_score=odds.reliability_score
@@ -181,11 +185,11 @@ async def scan_arbitrage_opportunities(
         total_opportunities = sum(len(opps) for opps in filtered_opportunities.values())
         logger.info(f"Found {total_opportunities} arbitrage opportunities across {len(filtered_opportunities)} categories")
         
-        return filtered_opportunities
+        return ResponseBuilder.success(filtered_opportunities)
         
     except Exception as e:
         logger.error(f"Error scanning arbitrage opportunities: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to scan arbitrage opportunities: {str(e)}")
+        raise BusinessLogicException("f"Failed to scan arbitrage opportunities: {str(e")}")
 
 @router.get("/opportunities", response_model=List[ArbitrageOpportunityResponse])
 async def get_arbitrage_opportunities(
@@ -245,11 +249,11 @@ async def get_arbitrage_opportunities(
         response_opportunities = [_convert_arbitrage_opportunity(opp) for opp in filtered_opportunities]
         
         logger.info(f"Returning {len(response_opportunities)} filtered arbitrage opportunities")
-        return response_opportunities
+        return ResponseBuilder.success(response_opportunities)
         
     except Exception as e:
         logger.error(f"Error getting arbitrage opportunities: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get arbitrage opportunities: {str(e)}")
+        raise BusinessLogicException("f"Failed to get arbitrage opportunities: {str(e")}")
 
 @router.get("/opportunity/{opportunity_id}", response_model=ArbitrageOpportunityResponse)
 async def get_arbitrage_opportunity(opportunity_id: str):
@@ -260,16 +264,16 @@ async def get_arbitrage_opportunity(opportunity_id: str):
         engine = get_arbitrage_engine()
         
         if opportunity_id not in engine.opportunities:
-            raise HTTPException(status_code=404, detail="Arbitrage opportunity not found")
+            raise BusinessLogicException("Arbitrage opportunity not found")
         
         opportunity = engine.opportunities[opportunity_id]
-        return _convert_arbitrage_opportunity(opportunity)
+        return ResponseBuilder.success(_convert_arbitrage_opportunity(opportunity))
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error getting arbitrage opportunity {opportunity_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get arbitrage opportunity: {str(e)}")
+        raise BusinessLogicException("f"Failed to get arbitrage opportunity: {str(e")}")
 
 @router.get("/portfolio", response_model=ArbitragePortfolioResponse)
 async def get_arbitrage_portfolio():
@@ -280,12 +284,12 @@ async def get_arbitrage_portfolio():
         engine = get_arbitrage_engine()
         portfolio = await engine.get_portfolio_summary()
         
-        return ArbitragePortfolioResponse(
+        return ResponseBuilder.success(ArbitragePortfolioResponse(
             total_opportunities=portfolio.total_opportunities,
             active_opportunities=portfolio.active_opportunities,
             total_expected_profit=portfolio.total_expected_profit,
             average_return=portfolio.average_return,
-            risk_distribution={level.value: count for level, count in portfolio.risk_distribution.items()},
+            risk_distribution={level.value: count for level, count in portfolio.risk_distribution.items())},
             sportsbook_distribution=portfolio.sportsbook_distribution,
             success_rate=portfolio.success_rate,
             updated_at=portfolio.updated_at.isoformat()
@@ -293,9 +297,9 @@ async def get_arbitrage_portfolio():
         
     except Exception as e:
         logger.error(f"Error getting arbitrage portfolio: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get arbitrage portfolio: {str(e)}")
+        raise BusinessLogicException("f"Failed to get arbitrage portfolio: {str(e")}")
 
-@router.post("/analyze")
+@router.post("/analyze", response_model=StandardAPIResponse[Dict[str, Any]])
 async def analyze_arbitrage_opportunity(
     opportunity_id: str,
     stake_amount: float = 1000.0
@@ -307,7 +311,7 @@ async def analyze_arbitrage_opportunity(
         engine = get_arbitrage_engine()
         
         if opportunity_id not in engine.opportunities:
-            raise HTTPException(status_code=404, detail="Arbitrage opportunity not found")
+            raise BusinessLogicException("Arbitrage opportunity not found")
         
         opportunity = engine.opportunities[opportunity_id]
         
@@ -352,13 +356,13 @@ async def analyze_arbitrage_opportunity(
             ]
         }
         
-        return analysis
+        return ResponseBuilder.success(analysis)
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error analyzing arbitrage opportunity {opportunity_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to analyze arbitrage opportunity: {str(e)}")
+        raise BusinessLogicException("f"Failed to analyze arbitrage opportunity: {str(e")}")
 
 @router.get("/sportsbooks", response_model=Dict[str, Dict[str, Any]])
 async def get_sportsbook_information():
@@ -378,11 +382,11 @@ async def get_sportsbook_information():
                 "current_reliability_score": engine.sportsbook_reliabilities.get(sportsbook, 0.5)
             }
         
-        return sportsbook_info
+        return ResponseBuilder.success(sportsbook_info)
         
     except Exception as e:
         logger.error(f"Error getting sportsbook information: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get sportsbook information: {str(e)}")
+        raise BusinessLogicException("f"Failed to get sportsbook information: {str(e")}")
 
 @router.get("/stats", response_model=Dict[str, Any])
 async def get_arbitrage_statistics():
@@ -418,13 +422,13 @@ async def get_arbitrage_statistics():
             "last_scan_time": datetime.now().isoformat()
         }
         
-        return stats
+        return ResponseBuilder.success(stats)
         
     except Exception as e:
         logger.error(f"Error getting arbitrage statistics: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get arbitrage statistics: {str(e)}")
+        raise BusinessLogicException("f"Failed to get arbitrage statistics: {str(e")}")
 
-@router.post("/refresh")
+@router.post("/refresh", response_model=StandardAPIResponse[Dict[str, Any]])
 async def refresh_arbitrage_opportunities(background_tasks: BackgroundTasks):
     """
     Manually trigger a refresh of arbitrage opportunities
@@ -435,12 +439,12 @@ async def refresh_arbitrage_opportunities(background_tasks: BackgroundTasks):
         # Start background refresh
         background_tasks.add_task(engine.scan_all_arbitrage_opportunities)
         
-        return {
+        return ResponseBuilder.success({
             "message": "Arbitrage opportunity refresh initiated",
             "timestamp": datetime.now().isoformat(),
             "status": "in_progress"
-        }
+        })
         
     except Exception as e:
         logger.error(f"Error refreshing arbitrage opportunities: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to refresh arbitrage opportunities: {str(e)}")
+        raise BusinessLogicException("f"Failed to refresh arbitrage opportunities: {str(e")}")

@@ -8,6 +8,10 @@ from typing import List, Optional
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Depends, Query
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
@@ -126,11 +130,11 @@ async def get_opportunities(
         avg_edge = sum(opp.edge_percentage for opp in opportunities) / max(1, total_count)
         avg_confidence = sum(opp.confidence for opp in opportunities) / max(1, total_count)
         
-        return OpportunitiesListResponse(
+        return ResponseBuilder.success(OpportunitiesListResponse(
             opportunities=opportunity_responses,
             total_count=total_count,
             filtered_count=total_count,  # Already filtered
-            avg_edge=round(avg_edge, 2),
+            avg_edge=round(avg_edge, 2)),
             avg_confidence=round(avg_confidence, 1),
             filters_applied={
                 "min_edge": min_edge,
@@ -159,7 +163,7 @@ async def get_opportunities(
         else:
             detail = f"Service error: {str(e)}"
 
-        raise HTTPException(status_code=500, detail=detail)
+        raise BusinessLogicException("detail")
 
 @router.post("/opportunities", response_model=OpportunitiesListResponse)
 async def get_opportunities_post(
@@ -199,11 +203,11 @@ async def get_opportunities_post(
         avg_edge = sum(opp.edge_percentage for opp in opportunities) / max(1, total_count)
         avg_confidence = sum(opp.confidence for opp in opportunities) / max(1, total_count)
         
-        return OpportunitiesListResponse(
+        return ResponseBuilder.success(OpportunitiesListResponse(
             opportunities=opportunity_responses,
             total_count=total_count,
             filtered_count=total_count,
-            avg_edge=round(avg_edge, 2),
+            avg_edge=round(avg_edge, 2)),
             avg_confidence=round(avg_confidence, 1),
             filters_applied=filters.dict(),
             last_updated=datetime.utcnow().isoformat()
@@ -211,9 +215,9 @@ async def get_opportunities_post(
         
     except Exception as e:
         logger.error(f"Failed to get opportunities (POST): {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve opportunities")
+        raise BusinessLogicException("Failed to retrieve opportunities")
 
-@router.get("/export/csv")
+@router.get("/export/csv", response_model=StandardAPIResponse[Dict[str, Any]])
 async def export_opportunities_csv(
     min_edge: float = Query(1.0, ge=0.0, le=20.0),
     min_confidence: float = Query(60.0, ge=0.0, le=100.0),
@@ -256,17 +260,17 @@ async def export_opportunities_csv(
             'Content-Disposition': f'attachment; filename="cheatsheet-{datetime.now().strftime("%Y%m%d")}.csv"'
         }
         
-        return Response(
+        return ResponseBuilder.success(Response(
             content=csv_content,
             media_type='text/csv',
             headers=headers
-        )
+        ))
         
     except Exception as e:
         logger.error(f"Failed to export CSV: {e}")
-        raise HTTPException(status_code=500, detail="Failed to export opportunities")
+        raise BusinessLogicException("Failed to export opportunities")
 
-@router.get("/stats/summary")
+@router.get("/stats/summary", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_summary_stats(
     cheatsheets_service: CheatsheetsService = Depends(get_cheatsheets_service)
 ):
@@ -283,12 +287,12 @@ async def get_summary_stats(
         opportunities = await cheatsheets_service.get_ranked_opportunities(filters)
         
         if not opportunities:
-            return {
+            return ResponseBuilder.success({
                 "total_opportunities": 0,
                 "sports_coverage": [],
                 "stat_types_coverage": [],
                 "books_coverage": [],
-                "edge_distribution": {},
+                "edge_distribution": {}),
                 "confidence_distribution": {},
                 "last_updated": datetime.utcnow().isoformat()
             }
@@ -322,7 +326,7 @@ async def get_summary_stats(
             else:
                 conf_ranges["90%+"] += 1
         
-        return {
+        return ResponseBuilder.success({
             "total_opportunities": len(opportunities),
             "sports_coverage": sports,
             "stat_types_coverage": stat_types,
@@ -332,13 +336,13 @@ async def get_summary_stats(
             "avg_edge": round(sum(opp.edge_percentage for opp in opportunities) / len(opportunities), 2),
             "avg_confidence": round(sum(opp.confidence for opp in opportunities) / len(opportunities), 1),
             "last_updated": datetime.utcnow().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to get summary stats: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get summary statistics")
+        raise BusinessLogicException("Failed to get summary statistics")
 
-@router.get("/player/{player_name}")
+@router.get("/player/{player_name}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_player_opportunities(
     player_name: str,
     min_edge: float = Query(0.5, ge=0.0, le=20.0),
@@ -364,7 +368,7 @@ async def get_player_opportunities(
         ]
         
         if not player_opportunities:
-            raise HTTPException(status_code=404, detail=f"No opportunities found for player: {player_name}")
+            raise BusinessLogicException("f"No opportunities found for player: {player_name}")
         
         # Group by stat type
         by_stat_type = {}
@@ -373,19 +377,19 @@ async def get_player_opportunities(
                 by_stat_type[opp.stat_type] = []
             by_stat_type[opp.stat_type].append(opp.to_dict())
         
-        return {
+        return ResponseBuilder.success({
             "player_name": player_name,
             "total_opportunities": len(player_opportunities),
             "opportunities_by_stat": by_stat_type,
             "best_opportunity": max(player_opportunities, key=lambda x: x.edge_percentage).to_dict(),
             "last_updated": datetime.utcnow().isoformat()
-        }
+        })
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to get player opportunities: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get player opportunities")
+        raise BusinessLogicException("Failed to get player opportunities")
 
 @router.get("/health", response_model=HealthResponse)
 async def cheatsheets_health_check(
@@ -396,22 +400,22 @@ async def cheatsheets_health_check(
         # Get basic stats
         cache_size = len(cheatsheets_service.opportunities_cache)
         
-        return HealthResponse(
+        return ResponseBuilder.success(HealthResponse(
             status="healthy",
             opportunities_cached=cache_size,
             last_refresh=None,  # Could track this if needed
             available_sports=["MLB"],  # Could be dynamic
             available_stat_types=["hits", "home_runs", "rbis", "total_bases", "runs_scored"],
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=datetime.utcnow()).isoformat()
         )
         
     except Exception as e:
         logger.error(f"Cheatsheets health check failed: {e}")
-        return HealthResponse(
+        return ResponseBuilder.success(HealthResponse(
             status="degraded",
             opportunities_cached=0,
             last_refresh=None,
             available_sports=[],
             available_stat_types=[],
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=datetime.utcnow()).isoformat()
         )

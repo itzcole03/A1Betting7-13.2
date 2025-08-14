@@ -1,4 +1,8 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, EmailStr
 from typing import Optional, Literal
 from datetime import datetime
@@ -106,7 +110,7 @@ def save_feedback_to_file(feedback: FeedbackRequest) -> str:
         with open(feedback_file, 'w') as f:
             json.dump(feedback_data, f, indent=2)
             
-        return feedback_id
+        return ResponseBuilder.success(feedback_id)
         
     except Exception as e:
         logger.error(f"Failed to save feedback to file: {e}")
@@ -121,11 +125,11 @@ async def submit_feedback(
     try:
         # Validate rating
         if not 0 <= feedback.rating <= 5:
-            raise HTTPException(status_code=400, detail="Rating must be between 0 and 5")
+            raise BusinessLogicException("Rating must be between 0 and 5")
         
         # Validate message
         if not feedback.message.strip():
-            raise HTTPException(status_code=400, detail="Feedback message is required")
+            raise BusinessLogicException("Feedback message is required")
         
         # Save feedback to file (backup)
         feedback_id = save_feedback_to_file(feedback)
@@ -135,27 +139,27 @@ async def submit_feedback(
         
         logger.info(f"Feedback received: {feedback.type} - Rating: {feedback.rating}/5")
         
-        return FeedbackResponse(
+        return ResponseBuilder.success(FeedbackResponse(
             success=True,
             message="Feedback submitted successfully",
             feedback_id=feedback_id
-        )
+        ))
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error submitting feedback: {e}")
-        raise HTTPException(status_code=500, detail="Failed to submit feedback")
+        raise BusinessLogicException("Failed to submit feedback")
 
-@router.get("/feedback/stats")
+@router.get("/feedback/stats", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_feedback_stats():
     """Get feedback statistics (admin only)"""
     try:
         feedback_dir = "data/feedback"
         if not os.path.exists(feedback_dir):
-            return {
+            return ResponseBuilder.success({
                 "total_feedback": 0,
-                "by_type": {},
+                "by_type": {}),
                 "average_rating": 0,
                 "recent_count": 0
             }
@@ -163,9 +167,9 @@ async def get_feedback_stats():
         feedback_files = [f for f in os.listdir(feedback_dir) if f.endswith('.json')]
         
         if not feedback_files:
-            return {
+            return ResponseBuilder.success({
                 "total_feedback": 0,
-                "by_type": {},
+                "by_type": {}),
                 "average_rating": 0,
                 "recent_count": 0
             }
@@ -211,13 +215,13 @@ async def get_feedback_stats():
         
         average_rating = total_rating / rated_count if rated_count > 0 else 0
         
-        return {
+        return ResponseBuilder.success({
             "total_feedback": total_feedback,
             "by_type": by_type,
             "average_rating": round(average_rating, 2),
             "recent_count": recent_count
-        }
+        })
         
     except Exception as e:
         logger.error(f"Error getting feedback stats: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get feedback statistics")
+        raise BusinessLogicException("Failed to get feedback statistics")

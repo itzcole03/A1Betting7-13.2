@@ -9,6 +9,10 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+
 from backend.models.api_models import (
     ArbitrageOpportunity,
     BettingOpportunity,
@@ -65,12 +69,12 @@ async def fetch_betting_opportunities_internal() -> List[BettingOpportunity]:
         ]
 
         logger.info(f"Fetched {len(opportunities)} betting opportunities")
-        return opportunities
+        return ResponseBuilder.success(opportunities)
 
     except Exception as e:
         logger.error(f"Error in fetch_betting_opportunities_internal: {e}")
         # Return empty list on error rather than raise
-        return []
+        return ResponseBuilder.success([])
 
 
 @router.get("/betting-opportunities", response_model=List[BettingOpportunity])
@@ -91,14 +95,11 @@ async def get_betting_opportunities(
         opportunities = opportunities[:limit]
 
         logger.info(f"Returning {len(opportunities)} betting opportunities")
-        return opportunities
+        return ResponseBuilder.success(opportunities)
 
     except Exception as e:
         logger.error(f"Error fetching betting opportunities: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch betting opportunities",
-        )
+        raise BusinessLogicException("Failed to fetch betting opportunities")
 
 
 @router.get("/arbitrage-opportunities", response_model=List[ArbitrageOpportunity])
@@ -133,14 +134,11 @@ async def get_arbitrage_opportunities(limit: int = 5) -> List[ArbitrageOpportuni
 
         opportunities = opportunities[:limit]
         logger.info(f"Returning {len(opportunities)} arbitrage opportunities")
-        return opportunities
+        return ResponseBuilder.success(opportunities)
 
     except Exception as e:
         logger.error(f"Error fetching arbitrage opportunities: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch arbitrage opportunities",
-        )
+        raise BusinessLogicException("Failed to fetch arbitrage opportunities")
 
 
 @router.get("/risk-profiles", response_model=RiskProfilesResponse)
@@ -169,11 +167,8 @@ async def get_risk_profiles() -> RiskProfilesResponse:
         ]
 
         logger.info(f"Returning {len(profiles)} risk profiles")
-        return RiskProfilesResponse(profiles=profiles)
+        return ResponseBuilder.success(RiskProfilesResponse(profiles=profiles))
 
     except Exception as e:
         logger.error(f"Error fetching risk profiles: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch risk profiles",
-        )
+        raise BusinessLogicException("Failed to fetch risk profiles")

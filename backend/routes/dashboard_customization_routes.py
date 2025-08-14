@@ -16,6 +16,10 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, Field
 
 # Core services
@@ -69,7 +73,7 @@ class DashboardPreferences(BaseModel):
     compact_mode: bool = False
 
 
-@router.get("/layouts")
+@router.get("/layouts", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_dashboard_layouts(
     user_id: Optional[str] = Query(None), include_public: bool = Query(True)
 ) -> Dict[str, List[DashboardLayout]]:
@@ -247,14 +251,14 @@ async def get_dashboard_layouts(
             if layout.is_public or user_id:
                 layouts.append(layout)
 
-        return {"layouts": layouts}
+        return ResponseBuilder.success({"layouts": layouts})
 
     except Exception as e:
         logger.error(f"Error getting dashboard layouts: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get dashboard layouts")
+        raise BusinessLogicException("Failed to get dashboard layouts")
 
 
-@router.get("/layouts/{layout_id}")
+@router.get("/layouts/{layout_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_dashboard_layout(layout_id: str) -> DashboardLayout:
     """Get a specific dashboard layout"""
     try:
@@ -263,7 +267,7 @@ async def get_dashboard_layout(layout_id: str) -> DashboardLayout:
         # Check cache first
         cached_layout = await cache.get(f"dashboard_layout:{layout_id}")
         if cached_layout:
-            return DashboardLayout(**cached_layout)
+            return ResponseBuilder.success(DashboardLayout(**cached_layout))
 
         # Mock layout fetch - in production, query database
         if layout_id == "default":
@@ -298,18 +302,18 @@ async def get_dashboard_layout(layout_id: str) -> DashboardLayout:
             # Cache for 1 hour
             await cache.set(f"dashboard_layout:{layout_id}", layout.dict(), ttl=3600)
 
-            return layout
+            return ResponseBuilder.success(layout)
 
-        raise HTTPException(status_code=404, detail="Dashboard layout not found")
+        raise BusinessLogicException("Dashboard layout not found")
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error getting dashboard layout {layout_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get dashboard layout")
+        raise BusinessLogicException("Failed to get dashboard layout")
 
 
-@router.post("/layouts")
+@router.post("/layouts", response_model=StandardAPIResponse[Dict[str, Any]])
 async def save_dashboard_layout(layout: DashboardLayout) -> Dict[str, str]:
     """Save a dashboard layout"""
     try:
@@ -336,17 +340,17 @@ async def save_dashboard_layout(layout: DashboardLayout) -> Dict[str, str]:
             user_layouts.append(layout.id)
             await cache.set(user_layouts_key, user_layouts, ttl=86400 * 30)
 
-        return {
+        return ResponseBuilder.success({
             "layout_id": layout.id,
             "message": "Dashboard layout saved successfully",
-        }
+        })
 
     except Exception as e:
         logger.error(f"Error saving dashboard layout: {e}")
-        raise HTTPException(status_code=500, detail="Failed to save dashboard layout")
+        raise BusinessLogicException("Failed to save dashboard layout")
 
 
-@router.delete("/layouts/{layout_id}")
+@router.delete("/layouts/{layout_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def delete_dashboard_layout(layout_id: str) -> Dict[str, str]:
     """Delete a dashboard layout"""
     try:
@@ -363,14 +367,14 @@ async def delete_dashboard_layout(layout_id: str) -> Dict[str, str]:
             user_layouts.remove(layout_id)
             await cache.set(user_layouts_key, user_layouts, ttl=86400 * 30)
 
-        return {"message": "Dashboard layout deleted successfully"}
+        return ResponseBuilder.success({"message": "Dashboard layout deleted successfully"})
 
     except Exception as e:
         logger.error(f"Error deleting dashboard layout {layout_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to delete dashboard layout")
+        raise BusinessLogicException("Failed to delete dashboard layout")
 
 
-@router.post("/widget-data")
+@router.post("/widget-data", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_widget_data(request: WidgetDataRequest) -> Dict[str, Any]:
     """Get data for a specific widget"""
     try:
@@ -380,7 +384,7 @@ async def get_widget_data(request: WidgetDataRequest) -> Dict[str, Any]:
         cache_key = f"widget_data:{request.widget_id}:{hash(str(request.config))}"
         cached_data = await cache.get(cache_key)
         if cached_data:
-            return cached_data
+            return ResponseBuilder.success(cached_data)
 
         # Generate mock data based on widget type
         widget_data = await generate_widget_data(
@@ -391,11 +395,11 @@ async def get_widget_data(request: WidgetDataRequest) -> Dict[str, Any]:
         cache_ttl = get_widget_cache_ttl(request.widget_type)
         await cache.set(cache_key, widget_data, ttl=cache_ttl)
 
-        return widget_data
+        return ResponseBuilder.success(widget_data)
 
     except Exception as e:
         logger.error(f"Error getting widget data for {request.widget_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get widget data")
+        raise BusinessLogicException("Failed to get widget data")
 
 
 async def generate_widget_data(
@@ -406,29 +410,29 @@ async def generate_widget_data(
     if widget_type == "stats_card":
         metric = config.get("metric", "total_profit")
         if metric == "total_profit":
-            return {
+            return ResponseBuilder.success({
                 "value": 2547.83,
                 "change": 12.3,
                 "label": "Total Profit",
                 "trend": "up",
                 "previous_value": 2265.45,
-            }
+            })
         elif metric == "roi":
-            return {
+            return ResponseBuilder.success({
                 "value": 15.7,
                 "change": 2.1,
                 "label": "ROI (%)",
                 "trend": "up",
                 "previous_value": 13.6,
-            }
+            })
         elif metric == "win_rate":
-            return {
+            return ResponseBuilder.success({
                 "value": 67.5,
                 "change": -1.2,
                 "label": "Win Rate (%)",
                 "trend": "down",
                 "previous_value": 68.7,
-            }
+            })
 
     elif widget_type == "line_chart":
         data_source = config.get("data_source", "performance_history")
@@ -450,14 +454,14 @@ async def generate_widget_data(
                 }
             )
 
-        return {
+        return ResponseBuilder.success({
             "data": data_points,
             "summary": {
                 "total_change": data_points[-1]["value"] - data_points[0]["value"],
                 "avg_value": sum(p["value"] for p in data_points) / len(data_points),
                 "max_value": max(p["value"] for p in data_points),
                 "min_value": min(p["value"] for p in data_points),
-            },
+            }),
         }
 
     elif widget_type == "recent_bets":
@@ -507,7 +511,7 @@ async def generate_widget_data(
 
             mock_bets.append(bet)
 
-        return {
+        return ResponseBuilder.success({
             "bets": mock_bets,
             "summary": {
                 "total_amount": sum(bet["amount"] for bet in mock_bets),
@@ -516,7 +520,7 @@ async def generate_widget_data(
                 "pending_count": len(
                     [b for b in mock_bets if b.get("status") == "pending"]
                 ),
-            },
+            }),
         }
 
     elif widget_type == "prop_opportunities":
@@ -564,7 +568,7 @@ async def generate_widget_data(
         # Sort by EV descending
         opportunities.sort(key=lambda x: x["ev"], reverse=True)
 
-        return {
+        return ResponseBuilder.success({
             "opportunities": opportunities,
             "summary": {
                 "total_opportunities": len(opportunities),
@@ -572,7 +576,7 @@ async def generate_widget_data(
                 / len(opportunities),
                 "avg_ev": sum(opp["ev"] for opp in opportunities) / len(opportunities),
                 "best_ev": max(opp["ev"] for opp in opportunities),
-            },
+            }),
         }
 
     elif widget_type == "bankroll_tracker":
@@ -619,11 +623,11 @@ async def generate_widget_data(
                 "avg_daily_change": round(avg_daily_change, 2),
             }
 
-        return data
+        return ResponseBuilder.success(data)
 
     # Default fallback
-    return {
-        "message": f"Mock data for {widget_type}",
+    return ResponseBuilder.success({
+        "message": f"Mock data for {widget_type})",
         "timestamp": datetime.now().isoformat(),
         "config": config,
     }
@@ -642,10 +646,10 @@ def get_widget_cache_ttl(widget_type: str) -> int:
         "news_feed": 600,  # 10 minutes
     }
 
-    return cache_ttls.get(widget_type, 300)  # Default 5 minutes
+    return ResponseBuilder.success(cache_ttls.get(widget_type, 300))  # Default 5 minutes
 
 
-@router.get("/preferences")
+@router.get("/preferences", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_dashboard_preferences(user_id: str = Query(...)) -> DashboardPreferences:
     """Get user dashboard preferences"""
     try:
@@ -654,7 +658,7 @@ async def get_dashboard_preferences(user_id: str = Query(...)) -> DashboardPrefe
         # Check cache first
         prefs = await cache.get(f"dashboard_prefs:{user_id}")
         if prefs:
-            return DashboardPreferences(**prefs)
+            return ResponseBuilder.success(DashboardPreferences(**prefs))
 
         # Default preferences
         default_prefs = DashboardPreferences(
@@ -669,16 +673,15 @@ async def get_dashboard_preferences(user_id: str = Query(...)) -> DashboardPrefe
         # Cache for 24 hours
         await cache.set(f"dashboard_prefs:{user_id}", default_prefs.dict(), ttl=86400)
 
-        return default_prefs
+        return ResponseBuilder.success(default_prefs)
 
     except Exception as e:
         logger.error(f"Error getting dashboard preferences for user {user_id}: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to get dashboard preferences"
-        )
+        raise BusinessLogicException("Failed to get dashboard preferences"
+        ")
 
 
-@router.post("/preferences")
+@router.post("/preferences", response_model=StandardAPIResponse[Dict[str, Any]])
 async def save_dashboard_preferences(
     preferences: DashboardPreferences,
 ) -> Dict[str, str]:
@@ -691,16 +694,15 @@ async def save_dashboard_preferences(
             f"dashboard_prefs:{preferences.user_id}", preferences.dict(), ttl=86400 * 30
         )
 
-        return {"message": "Dashboard preferences saved successfully"}
+        return ResponseBuilder.success({"message": "Dashboard preferences saved successfully"})
 
     except Exception as e:
         logger.error(f"Error saving dashboard preferences: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to save dashboard preferences"
-        )
+        raise BusinessLogicException("Failed to save dashboard preferences"
+        ")
 
 
-@router.get("/templates")
+@router.get("/templates", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_dashboard_templates() -> Dict[str, List[Dict[str, Any]]]:
     """Get available dashboard templates"""
     try:
@@ -736,11 +738,11 @@ async def get_dashboard_templates() -> Dict[str, List[Dict[str, Any]]]:
             },
         ]
 
-        return {"templates": templates}
+        return ResponseBuilder.success({"templates": templates})
 
     except Exception as e:
         logger.error(f"Error getting dashboard templates: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get dashboard templates")
+        raise BusinessLogicException("Failed to get dashboard templates")
 
 
 # Import required modules for mock data generation

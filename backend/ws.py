@@ -1,9 +1,48 @@
+import json
 import logging
-from typing import List
+from datetime import datetime
+from typing import List, Dict, Any, Optional
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 router = APIRouter()
+
+
+# WebSocket envelope pattern utilities
+def create_websocket_envelope(
+    message_type: str,
+    data: Any = None,
+    status: str = "success",
+    error: Optional[str] = None,
+    timestamp: Optional[str] = None
+) -> Dict[str, Any]:
+    """Create standardized WebSocket message envelope"""
+    envelope = {
+        "type": message_type,
+        "status": status,
+        "timestamp": timestamp or datetime.utcnow().isoformat()
+    }
+    
+    if data is not None:
+        envelope["data"] = data
+    
+    if error:
+        envelope["error"] = error
+        envelope["status"] = "error"
+    
+    return envelope
+
+
+async def send_websocket_message(
+    websocket: WebSocket,
+    message_type: str,
+    data: Any = None,
+    status: str = "success",
+    error: Optional[str] = None
+):
+    """Send standardized WebSocket message"""
+    envelope = create_websocket_envelope(message_type, data, status, error)
+    await websocket.send_text(json.dumps(envelope))
 
 
 class ConnectionManager:
@@ -25,7 +64,11 @@ class ConnectionManager:
         except Exception as e:  # pylint: disable=broad-exception-caught
             logging.error({"event": "ws_disconnect_error", "error": str(e)})
 
-    async def broadcast(self, message: str):
+    async def broadcast(self, message_type: str, data: Any = None):
+        """Broadcast message using envelope pattern"""
+        envelope = create_websocket_envelope(message_type, data)
+        message = json.dumps(envelope)
+        
         for connection in self.active_connections:
             try:
                 await connection.send_text(message)
@@ -42,19 +85,10 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            import json
-            from datetime import datetime
-
-            # Always broadcast as JSON object
-            await manager.broadcast(
-                json.dumps(
-                    {
-                        "type": "PREDICTION_UPDATE",
-                        "payload": data,
-                        "timestamp": datetime.utcnow().isoformat(),
-                    }
-                )
-            )
+            
+            # Always broadcast as envelope pattern
+            await manager.broadcast("PREDICTION_UPDATE", {"payload": data})
+            
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         logging.info({"event": "ws_disconnect", "reason": "client disconnected"})

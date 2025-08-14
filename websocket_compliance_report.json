@@ -1,0 +1,82 @@
+{
+  "scan_type": "websocket_compliance",
+  "scan_date": "2025-08-13",
+  "total_files": 2,
+  "total_endpoints": 5,
+  "total_violations": 8,
+  "overall_compliance_score": 57,
+  "status": "FAIL",
+  "files": [
+    {
+      "file": "realtime_websocket_routes.py",
+      "websocket_endpoints": [
+        "/notifications",
+        "/odds",
+        "/arbitrage",
+        "/portfolio"
+      ],
+      "violations": [
+        {
+          "type": "Incomplete message envelope",
+          "category": "message_envelope",
+          "description": "Message envelope missing fields: type, data, timestamp",
+          "suggestion": "Include required envelope fields: type, data, timestamp"
+        },
+        {
+          "type": "Incomplete message envelope",
+          "category": "message_envelope",
+          "description": "Message envelope missing fields: data, timestamp",
+          "suggestion": "Include required envelope fields: type, data, timestamp"
+        },
+        {
+          "type": "Incomplete message envelope",
+          "category": "message_envelope",
+          "description": "Message envelope missing fields: type, data, timestamp",
+          "suggestion": "Include required envelope fields: type, data, timestamp"
+        },
+        {
+          "type": "Incomplete message envelope",
+          "category": "message_envelope",
+          "description": "Message envelope missing fields: type, data, timestamp",
+          "suggestion": "Include required envelope fields: type, data, timestamp"
+        },
+        {
+          "type": "Incomplete message envelope",
+          "category": "message_envelope",
+          "description": "Message envelope missing fields: type, data, timestamp",
+          "suggestion": "Include required envelope fields: type, data, timestamp"
+        }
+      ],
+      "compliance_score": 75,
+      "status": "violations_found"
+    },
+    {
+      "file": "ws.py",
+      "websocket_endpoints": [
+        "/ws"
+      ],
+      "violations": [
+        {
+          "type": "Incomplete message envelope",
+          "category": "message_envelope",
+          "description": "Message envelope missing fields: type, data, timestamp",
+          "suggestion": "Include required envelope fields: type, data, timestamp"
+        },
+        {
+          "type": "Missing JSON envelope",
+          "category": "message_envelope",
+          "description": "WebSocket message should use json.dumps with envelope pattern",
+          "suggestion": "Use envelope pattern: {\"type\": \"...\", \"data\": {...}, \"timestamp\": \"...\"}"
+        },
+        {
+          "type": "Missing connection cleanup",
+          "category": "connection_lifecycle",
+          "description": "WebSocket endpoints should clean up connections in finally block",
+          "suggestion": "Add finally block with connection cleanup"
+        }
+      ],
+      "compliance_score": 40,
+      "status": "violations_found"
+    }
+  ]
+}

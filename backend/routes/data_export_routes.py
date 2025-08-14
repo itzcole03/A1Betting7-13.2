@@ -14,6 +14,10 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import io
@@ -49,7 +53,7 @@ class BulkExportRequest(BaseModel):
     combine_files: bool = False
     zip_output: bool = True
 
-@router.post("/start")
+@router.post("/start", response_model=StandardAPIResponse[Dict[str, Any]])
 async def start_export(
     request: ExportRequest,
     background_tasks: BackgroundTasks,
@@ -62,34 +66,34 @@ async def start_export(
         data, available_fields = await get_export_data(request.data_type, request.options)
         
         if not data:
-            raise HTTPException(status_code=404, detail="No data found for export")
+            raise BusinessLogicException("No data found for export")
         
         # For small datasets, export immediately
         if len(data) <= 1000 and not request.async_export:
             file_content = await generate_immediate_export(data, available_fields, request.options)
             
             # Return download URL or base64 data
-            return {
+            return ResponseBuilder.success({
                 "export_id": "immediate",
                 "status": "completed",
                 "download_url": f"/api/v1/export/download/immediate",
                 "message": "Export completed immediately"
-            }
+            })
         
         # For large datasets, use async export
         export_id = await export_service.create_export(data, available_fields, request.options)
         
-        return {
+        return ResponseBuilder.success({
             "export_id": export_id,
             "status": "pending", 
-            "message": f"Export started for {len(data)} records. Check progress with export_id."
+            "message": f"Export started for {len(data)}) records. Check progress with export_id."
         }
         
     except Exception as e:
         logger.error(f"Failed to start export: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise BusinessLogicException("f"Export failed: {str(e")}")
 
-@router.get("/progress/{export_id}")
+@router.get("/progress/{export_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_export_progress(
     export_id: str,
     export_service: DataExportService = Depends(get_export_service)
@@ -98,11 +102,11 @@ async def get_export_progress(
     
     progress = await export_service.get_export_progress(export_id)
     if not progress:
-        raise HTTPException(status_code=404, detail="Export not found")
+        raise BusinessLogicException("Export not found")
     
-    return progress
+    return ResponseBuilder.success(progress)
 
-@router.get("/download/{export_id}")
+@router.get("/download/{export_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def download_export(
     export_id: str,
     export_service: DataExportService = Depends(get_export_service)
@@ -114,24 +118,24 @@ async def download_export(
         cache = await get_cache()
         file_data = await cache.get("immediate_export")
         if not file_data:
-            raise HTTPException(status_code=404, detail="Export file not found")
+            raise BusinessLogicException("Export file not found")
         
-        return StreamingResponse(
-            io.BytesIO(file_data["content"]),
+        return ResponseBuilder.success(StreamingResponse(
+            io.BytesIO(file_data["content"])),
             media_type=file_data["media_type"],
             headers={"Content-Disposition": f"attachment; filename={file_data['filename']}"}
         )
     
     progress = await export_service.get_export_progress(export_id)
     if not progress:
-        raise HTTPException(status_code=404, detail="Export not found")
+        raise BusinessLogicException("Export not found")
     
     if progress.status != "completed":
-        raise HTTPException(status_code=400, detail=f"Export not ready. Status: {progress.status}")
+        raise BusinessLogicException("f"Export not ready. Status: {progress.status}")
     
     file_content = await export_service.get_export_file(export_id)
     if not file_content:
-        raise HTTPException(status_code=404, detail="Export file not found")
+        raise BusinessLogicException("Export file not found")
     
     # Determine media type based on format
     media_types = {
@@ -148,13 +152,13 @@ async def download_export(
     
     filename = f"export_{export_id}.{format_ext}"
     
-    return StreamingResponse(
-        io.BytesIO(file_content),
+    return ResponseBuilder.success(StreamingResponse(
+        io.BytesIO(file_content)),
         media_type=media_type,
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
 
-@router.post("/immediate")
+@router.post("/immediate", response_model=StandardAPIResponse[Dict[str, Any]])
 async def immediate_export(
     request: ExportRequest,
     export_service: DataExportService = Depends(get_export_service)
@@ -166,10 +170,8 @@ async def immediate_export(
         data, available_fields = await get_export_data(request.data_type, request.options)
         
         if len(data) > 5000:
-            raise HTTPException(
-                status_code=400, 
-                detail="Dataset too large for immediate export. Use async export instead."
-            )
+            raise BusinessLogicException("Dataset too large for immediate export. Use async export instead."
+            ")
         
         # Generate export
         if request.options.format == "csv":
@@ -188,14 +190,14 @@ async def immediate_export(
             filename = f"export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         
         else:
-            raise HTTPException(status_code=400, detail=f"Format {request.options.format} not supported for immediate export")
+            raise BusinessLogicException("f"Format {request.options.format} not supported for immediate export")
         
         # Return file stream
         if isinstance(content, str):
             content = content.encode('utf-8')
         
-        return StreamingResponse(
-            io.BytesIO(content),
+        return ResponseBuilder.success(StreamingResponse(
+            io.BytesIO(content)),
             media_type=media_type,
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
@@ -204,9 +206,9 @@ async def immediate_export(
         raise
     except Exception as e:
         logger.error(f"Immediate export failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise BusinessLogicException("f"Export failed: {str(e")}")
 
-@router.get("/fields/{data_type}")
+@router.get("/fields/{data_type}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_available_fields(data_type: str) -> Dict[str, List[ExportField]]:
     """Get available fields for a data type"""
     
@@ -270,9 +272,9 @@ async def get_available_fields(data_type: str) -> Dict[str, List[ExportField]]:
     }
     
     fields = field_definitions.get(data_type, [])
-    return {"fields": fields}
+    return ResponseBuilder.success({"fields": fields})
 
-@router.post("/templates")
+@router.post("/templates", response_model=StandardAPIResponse[Dict[str, Any]])
 async def save_export_template(
     template: ExportTemplate,
     cache = Depends(get_cache)
@@ -290,13 +292,13 @@ async def save_export_template(
         
         await cache.set(f"export_template:{template.id}", template_data, ttl=86400 * 365)  # 1 year
         
-        return {"template_id": template.id, "message": "Template saved successfully"}
+        return ResponseBuilder.success({"template_id": template.id, "message": "Template saved successfully"})
         
     except Exception as e:
         logger.error(f"Failed to save export template: {e}")
-        raise HTTPException(status_code=500, detail="Failed to save template")
+        raise BusinessLogicException("Failed to save template")
 
-@router.get("/templates")
+@router.get("/templates", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_export_templates(
     data_type: Optional[str] = Query(None),
     cache = Depends(get_cache)
@@ -352,13 +354,13 @@ async def get_export_templates(
         if data_type:
             mock_templates = [t for t in mock_templates if t["data_type"] == data_type]
         
-        return {"templates": mock_templates}
+        return ResponseBuilder.success({"templates": mock_templates})
         
     except Exception as e:
         logger.error(f"Failed to get export templates: {e}")
-        return {"templates": []}
+        return ResponseBuilder.success({"templates": []})
 
-@router.post("/bulk")
+@router.post("/bulk", response_model=StandardAPIResponse[Dict[str, Any]])
 async def bulk_export(
     request: BulkExportRequest,
     background_tasks: BackgroundTasks,
@@ -380,8 +382,8 @@ async def bulk_export(
                     "record_count": len(data)
                 })
         
-        return {
-            "bulk_export_id": f"bulk_{int(datetime.now().timestamp())}",
+        return ResponseBuilder.success({
+            "bulk_export_id": f"bulk_{int(datetime.now().timestamp())})",
             "exports": export_ids,
             "total_exports": len(export_ids),
             "message": "Bulk export started successfully"
@@ -389,7 +391,7 @@ async def bulk_export(
         
     except Exception as e:
         logger.error(f"Bulk export failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Bulk export failed: {str(e)}")
+        raise BusinessLogicException("f"Bulk export failed: {str(e")}")
 
 # Helper functions
 async def get_export_data(data_type: str, options: ExportOptions) -> tuple[List[Dict[str, Any]], List[ExportField]]:
@@ -411,7 +413,7 @@ async def get_export_data(data_type: str, options: ExportOptions) -> tuple[List[
     else:
         mock_data = []
     
-    return mock_data, available_fields
+    return ResponseBuilder.success(mock_data), available_fields
 
 def generate_mock_bets_data(count: int) -> List[Dict[str, Any]]:
     """Generate mock betting data"""
@@ -441,7 +443,7 @@ def generate_mock_bets_data(count: int) -> List[Dict[str, Any]]:
         }
         data.append(bet)
     
-    return data
+    return ResponseBuilder.success(data)
 
 def generate_mock_players_data(count: int) -> List[Dict[str, Any]]:
     """Generate mock player data"""
@@ -470,7 +472,7 @@ def generate_mock_players_data(count: int) -> List[Dict[str, Any]]:
         }
         data.append(player)
     
-    return data
+    return ResponseBuilder.success(data)
 
 def generate_mock_props_data(count: int) -> List[Dict[str, Any]]:
     """Generate mock props data"""
@@ -501,7 +503,7 @@ def generate_mock_props_data(count: int) -> List[Dict[str, Any]]:
         }
         data.append(prop)
     
-    return data
+    return ResponseBuilder.success(data)
 
 def generate_mock_odds_data(count: int) -> List[Dict[str, Any]]:
     """Generate mock odds data"""
@@ -527,7 +529,7 @@ def generate_mock_odds_data(count: int) -> List[Dict[str, Any]]:
         }
         data.append(odds)
     
-    return data
+    return ResponseBuilder.success(data)
 
 async def generate_immediate_export(data: List[Dict[str, Any]], available_fields: List[ExportField], options: ExportOptions) -> bytes:
     """Generate immediate export for small datasets"""
@@ -536,26 +538,26 @@ async def generate_immediate_export(data: List[Dict[str, Any]], available_fields
     # Use the export service to generate content
     if options.format == "csv":
         content = export_service._generate_csv(data, available_fields, options)
-        return content.encode('utf-8')
+        return ResponseBuilder.success(content.encode('utf-8'))
     elif options.format == "json":
         content = export_service._generate_json(data, available_fields, options)
-        return content.encode('utf-8')
+        return ResponseBuilder.success(content.encode('utf-8'))
     elif options.format == "pdf":
-        return export_service._generate_pdf(data, available_fields, options)
+        return ResponseBuilder.success(export_service._generate_pdf(data, available_fields, options))
     else:
         raise ValueError(f"Format {options.format} not supported for immediate export")
 
 async def generate_csv_export(data: List[Dict[str, Any]], available_fields: List[ExportField], options: ExportOptions) -> str:
     """Generate CSV export content"""
     export_service = await get_export_service()
-    return export_service._generate_csv(data, available_fields, options)
+    return ResponseBuilder.success(export_service._generate_csv(data, available_fields, options))
 
 async def generate_json_export(data: List[Dict[str, Any]], available_fields: List[ExportField], options: ExportOptions) -> str:
     """Generate JSON export content"""
     export_service = await get_export_service()
-    return export_service._generate_json(data, available_fields, options)
+    return ResponseBuilder.success(export_service._generate_json(data, available_fields, options))
 
 async def generate_pdf_export(data: List[Dict[str, Any]], available_fields: List[ExportField], options: ExportOptions) -> bytes:
     """Generate PDF export content"""
     export_service = await get_export_service()
-    return export_service._generate_pdf(data, available_fields, options)
+    return ResponseBuilder.success(export_service._generate_pdf(data, available_fields, options))

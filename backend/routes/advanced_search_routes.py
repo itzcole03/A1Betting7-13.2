@@ -7,6 +7,10 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Body, Depends
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, Field
 
 from ..services.advanced_search_service import (
@@ -194,17 +198,17 @@ async def execute_search(request: SearchRequestModel) -> SearchResultModel:
             for facet in result.facets
         ]
         
-        return SearchResultModel(
+        return ResponseBuilder.success(SearchResultModel(
             items=result.items,
             total_count=result.total_count,
             filtered_count=result.filtered_count,
             facets=facets,
             query_time_ms=result.query_time_ms
-        )
+        ))
         
     except Exception as e:
         logger.error(f"Error executing search: {e}")
-        raise HTTPException(status_code=500, detail=f"Search execution failed: {str(e)}")
+        raise BusinessLogicException("f"Search execution failed: {str(e")}")
 
 @router.get("/players", response_model=SearchResultModel)
 async def search_players_endpoint(
@@ -238,17 +242,17 @@ async def search_players_endpoint(
             for facet in result.facets
         ]
         
-        return SearchResultModel(
+        return ResponseBuilder.success(SearchResultModel(
             items=result.items,
             total_count=result.total_count,
             filtered_count=result.filtered_count,
             facets=facets,
             query_time_ms=result.query_time_ms
-        )
+        ))
         
     except Exception as e:
         logger.error(f"Error searching players: {e}")
-        raise HTTPException(status_code=500, detail=f"Player search failed: {str(e)}")
+        raise BusinessLogicException("f"Player search failed: {str(e")}")
 
 @router.get("/odds", response_model=SearchResultModel)
 async def search_odds_endpoint(
@@ -286,19 +290,19 @@ async def search_odds_endpoint(
             for facet in result.facets
         ]
         
-        return SearchResultModel(
+        return ResponseBuilder.success(SearchResultModel(
             items=result.items,
             total_count=result.total_count,
             filtered_count=result.filtered_count,
             facets=facets,
             query_time_ms=result.query_time_ms
-        )
+        ))
         
     except Exception as e:
         logger.error(f"Error searching odds: {e}")
-        raise HTTPException(status_code=500, detail=f"Odds search failed: {str(e)}")
+        raise BusinessLogicException("f"Odds search failed: {str(e")}")
 
-@router.get("/suggestions/{field}")
+@router.get("/suggestions/{field}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_autocomplete_suggestions(
     field: str,
     text: str = Query(..., description="Partial text for autocomplete"),
@@ -313,7 +317,7 @@ async def get_autocomplete_suggestions(
         elif data_type == "odds":
             data = MOCK_ODDS_DATA
         else:
-            raise HTTPException(status_code=400, detail="Invalid data_type")
+            raise BusinessLogicException("Invalid data_type")
         
         suggestions = await advanced_search_service.suggest_completions(
             data=data,
@@ -322,13 +326,13 @@ async def get_autocomplete_suggestions(
             max_suggestions=max_suggestions
         )
         
-        return suggestions
+        return ResponseBuilder.success(suggestions)
         
     except Exception as e:
         logger.error(f"Error getting suggestions: {e}")
-        raise HTTPException(status_code=500, detail=f"Suggestions failed: {str(e)}")
+        raise BusinessLogicException("f"Suggestions failed: {str(e")}")
 
-@router.get("/statistics/{field}")
+@router.get("/statistics/{field}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_field_statistics(
     field: str,
     data_type: str = Query("players", description="Data type to analyze (players, odds)")
@@ -341,31 +345,31 @@ async def get_field_statistics(
         elif data_type == "odds":
             data = MOCK_ODDS_DATA
         else:
-            raise HTTPException(status_code=400, detail="Invalid data_type")
+            raise BusinessLogicException("Invalid data_type")
         
         stats = await advanced_search_service.get_field_statistics(data, field)
-        return stats
+        return ResponseBuilder.success(stats)
         
     except Exception as e:
         logger.error(f"Error getting field statistics: {e}")
-        raise HTTPException(status_code=500, detail=f"Statistics failed: {str(e)}")
+        raise BusinessLogicException("f"Statistics failed: {str(e")}")
 
-@router.get("/operators")
+@router.get("/operators", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_search_operators() -> Dict[str, List[str]]:
     """Get available search operators by data type"""
-    return {
+    return ResponseBuilder.success({
         "string": ["eq", "ne", "contains", "not_contains", "starts_with", "ends_with", "regex", "fuzzy"],
         "numeric": ["eq", "ne", "gt", "gte", "lt", "lte", "between"],
         "array": ["in", "not_in", "contains"],
         "boolean": ["eq", "ne"],
         "date": ["eq", "ne", "gt", "gte", "lt", "lte", "between"],
         "null_checks": ["is_null", "not_null"]
-    }
+    })
 
-@router.get("/fields")
+@router.get("/fields", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_searchable_fields() -> Dict[str, Dict[str, str]]:
     """Get available searchable fields by data type"""
-    return {
+    return ResponseBuilder.success({
         "players": {
             "player_name": "string",
             "team": "string", 
@@ -375,7 +379,7 @@ async def get_searchable_fields() -> Dict[str, Dict[str, str]]:
             "points_per_game": "float",
             "rebounds_per_game": "float",
             "assists_per_game": "float"
-        },
+        }),
         "odds": {
             "player_name": "string",
             "sport": "string",
@@ -388,7 +392,7 @@ async def get_searchable_fields() -> Dict[str, Dict[str, str]]:
         }
     }
 
-@router.post("/saved-searches")
+@router.post("/saved-searches", response_model=StandardAPIResponse[Dict[str, Any]])
 async def save_search_query(
     name: str = Body(...),
     query: SearchQueryModel = Body(...),
@@ -405,17 +409,17 @@ async def save_search_query(
         "usage_count": 0
     }
     
-    return {
+    return ResponseBuilder.success({
         "status": "success",
         "message": "Search query saved successfully",
         "search": saved_search
-    }
+    })
 
-@router.get("/saved-searches")
+@router.get("/saved-searches", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_saved_searches() -> List[Dict[str, Any]]:
     """Get saved search queries"""
     # Mock saved searches for demo
-    return [
+    return ResponseBuilder.success([
         {
             "id": "search_1",
             "name": "High Scoring NBA Players",
@@ -434,7 +438,7 @@ async def get_saved_searches() -> List[Dict[str, Any]]:
                         "value": 25,
                         "data_type": "float"
                     }
-                ],
+                ]),
                 "sort_by": "points_per_game",
                 "sort_order": "desc"
             },
@@ -468,10 +472,10 @@ async def get_saved_searches() -> List[Dict[str, Any]]:
         }
     ]
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def search_health_check() -> Dict[str, Any]:
     """Health check for search service"""
-    return {
+    return ResponseBuilder.success({
         "status": "healthy",
         "service": "advanced-search",
         "features": {
@@ -481,7 +485,7 @@ async def search_health_check() -> Dict[str, Any]:
             "autocomplete": True,
             "statistics": True,
             "saved_searches": True
-        },
+        }),
         "operators_supported": len(SearchOperator),
         "data_types_supported": len(DataType),
         "timestamp": datetime.now().isoformat()

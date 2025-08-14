@@ -8,6 +8,10 @@ from typing import List, Optional
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Depends, Query
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, Field
 
 from backend.services.odds_aggregation_service import (
@@ -83,21 +87,21 @@ class ArbitrageResponse(BaseModel):
     avg_profit: float
     last_updated: datetime
 
-@router.get("/bookmakers")
+@router.get("/bookmakers", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_available_bookmakers(
     odds_service: OddsAggregationService = Depends(get_odds_service)
 ):
     """Get list of available sportsbooks for odds comparison"""
     try:
         bookmakers = await odds_service.get_available_books()
-        return {
+        return ResponseBuilder.success({
             "bookmakers": bookmakers,
             "total": len(bookmakers),
             "last_updated": datetime.utcnow().isoformat()
-        }
+        })
     except Exception as e:
         logger.error(f"Failed to get bookmakers: {e}")
-        raise HTTPException(status_code=500, detail="Failed to fetch bookmakers")
+        raise BusinessLogicException("Failed to fetch bookmakers")
 
 @router.get("/compare", response_model=OddsComparisonResponse)
 async def compare_odds(
@@ -144,9 +148,9 @@ async def compare_odds(
         
         arbitrage_count = sum(1 for line in limited_lines if line.arbitrage_opportunity)
         
-        return OddsComparisonResponse(
+        return ResponseBuilder.success(OddsComparisonResponse(
             sport=sport,
-            total_lines=len(canonical_models),
+            total_lines=len(canonical_models)),
             total_books=len(all_books),
             best_lines=canonical_models,
             arbitrage_count=arbitrage_count,
@@ -155,7 +159,7 @@ async def compare_odds(
         
     except Exception as e:
         logger.error(f"Odds comparison error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to compare odds")
+        raise BusinessLogicException("Failed to compare odds")
 
 @router.get("/arbitrage", response_model=ArbitrageResponse)
 async def find_arbitrage(
@@ -197,19 +201,19 @@ async def find_arbitrage(
         # Calculate average profit
         avg_profit = sum(opp.profit_percentage for opp in limited_opportunities) / len(limited_opportunities) if limited_opportunities else 0.0
         
-        return ArbitrageResponse(
+        return ResponseBuilder.success(ArbitrageResponse(
             sport=sport,
             opportunities=opportunity_models,
-            total_opportunities=len(opportunity_models),
+            total_opportunities=len(opportunity_models)),
             avg_profit=round(avg_profit, 2),
             last_updated=datetime.utcnow()
         )
         
     except Exception as e:
         logger.error(f"Arbitrage detection error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to find arbitrage opportunities")
+        raise BusinessLogicException("Failed to find arbitrage opportunities")
 
-@router.get("/player/{player_name}")
+@router.get("/player/{player_name}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_player_odds(
     player_name: str,
     sport: str = Query("baseball_mlb", description="Sport to search"),
@@ -226,7 +230,7 @@ async def get_player_odds(
         ]
         
         if not player_lines:
-            raise HTTPException(status_code=404, detail=f"No odds found for player: {player_name}")
+            raise BusinessLogicException("f"No odds found for player: {player_name}")
         
         # Group by stat type
         grouped_lines = {}
@@ -241,21 +245,21 @@ async def get_player_odds(
                 "timestamp": line.timestamp.isoformat()
             })
         
-        return {
+        return ResponseBuilder.success({
             "player_name": player_name,
             "sport": sport,
             "markets": grouped_lines,
             "total_lines": len(player_lines),
             "last_updated": datetime.utcnow().isoformat()
-        }
+        })
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Player odds lookup error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get player odds")
+        raise BusinessLogicException("Failed to get player odds")
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def odds_health_check(
     odds_service: OddsAggregationService = Depends(get_odds_service)
 ):
@@ -264,20 +268,20 @@ async def odds_health_check(
         bookmakers = await odds_service.get_available_books()
         has_api_key = bool(odds_service.api_key)
         
-        return {
+        return ResponseBuilder.success({
             "status": "healthy",
             "api_configured": has_api_key,
             "available_books": len(bookmakers),
             "cache_size": len(odds_service.odds_cache),
             "timestamp": datetime.utcnow().isoformat()
-        }
+        })
     except Exception as e:
         logger.error(f"Odds health check failed: {e}")
-        return {
+        return ResponseBuilder.success({
             "status": "degraded",
             "api_configured": False,
             "available_books": 0,
             "cache_size": 0,
             "error": str(e),
             "timestamp": datetime.utcnow().isoformat()
-        }
+        })

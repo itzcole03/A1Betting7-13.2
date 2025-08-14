@@ -9,12 +9,16 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException
 
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+
 logger = logging.getLogger(__name__)
 
 # router = APIRouter(prefix="/api/prizepicks", tags=["PrizePicks-Simple"])
 
 
-# @router.get("/props")
+# @router.get("/props", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_simple_prizepicks_props(
     sport: Optional[str] = None,
     min_confidence: Optional[int] = 70,
@@ -100,13 +104,13 @@ async def get_simple_prizepicks_props(
         props = [p for p in props if p.get("ensemble_confidence", 0) >= min_confidence]
 
     logger.info(f"✅ Returning {len(props)} props (Phase 1 fix)")
-    return props
+    return ResponseBuilder.success(props)
 
 
-# @router.get("/recommendations")
+# @router.get("/recommendations", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_simple_recommendations() -> List[Dict[str, Any]]:
     """Simple recommendations endpoint"""
-    return [
+    return ResponseBuilder.success([
         {
             "id": "rec_1",
             "type": "high_confidence",
@@ -116,16 +120,16 @@ async def get_simple_recommendations() -> List[Dict[str, Any]]:
             "expected_return": 0.15,
             "props_count": 3,
         }
-    ]
+    ])
 
 
-# @router.get("/status")
+# @router.get("/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_simple_status() -> Dict[str, Any]:
     """Simple status endpoint"""
-    return {
+    return ResponseBuilder.success({
         "status": "healthy",
         "mode": "Phase 1 Development Fix",
         "props_available": 3,
         "last_update": datetime.now(timezone.utc).isoformat(),
         "note": "Using quick mock data for frontend development",
-    }
+    })

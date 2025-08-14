@@ -2,10 +2,14 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter
 
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+
 router = APIRouter(tags=["FanDuel"])
 
 
-@router.get("/lockedbets")
+@router.get("/lockedbets", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_fanduel_lockedbets():
     """Return fast mock FanDuel locked bets for development/testing."""
     now = datetime.now(timezone.utc)
@@ -31,4 +35,4 @@ async def get_fanduel_lockedbets():
             "label": "FanDuel",
         },
     ]
-    return bets
+    return ResponseBuilder.success(bets)

@@ -9,6 +9,10 @@ from datetime import datetime
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException, Query
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel
 
 from backend.services.batch_prop_analysis_service import (
@@ -43,7 +47,7 @@ class PerformanceMetricsResponse(BaseModel):
     timestamp: str
 
 
-@router.post("/batch-prop-analysis")
+@router.post("/batch-prop-analysis", response_model=StandardAPIResponse[Dict[str, Any]])
 async def optimized_batch_prop_analysis(batch_request: BatchPropRequest):
     """
     High-performance batch prop analysis with intelligent optimization
@@ -85,7 +89,7 @@ async def optimized_batch_prop_analysis(batch_request: BatchPropRequest):
         )
 
         # Return results with performance metrics
-        return {
+        return ResponseBuilder.success({
             "successful": [prop.dict() for prop in result.successful],
             "failed": result.failed,
             "performance": {
@@ -94,7 +98,7 @@ async def optimized_batch_prop_analysis(batch_request: BatchPropRequest):
                 "cache_hit_rate": result.cache_hit_rate,
                 "successful_count": len(result.successful),
                 "failed_count": len(result.failed),
-            },
+            }),
             "optimization": {
                 "batch_size": len(batch_request.requests),
                 "cache_enabled": batch_request.use_cache,
@@ -104,12 +108,11 @@ async def optimized_batch_prop_analysis(batch_request: BatchPropRequest):
 
     except Exception as e:
         logger.error(f"Error in optimized batch prop analysis: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Batch processing failed: {str(e)}"
+        raise BusinessLogicException("f"Batch processing failed: {str(e")}"
         )
 
 
-@router.get("/player-data/{player_name}")
+@router.get("/player-data/{player_name}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_optimized_player_data(
     player_name: str,
     stat_types: List[str] = Query(default=["hits", "runs", "home_runs"]),
@@ -129,29 +132,27 @@ async def get_optimized_player_data(
         )
 
         if not player_data:
-            raise HTTPException(
-                status_code=404, detail=f"Player data not found for {player_name}"
-            )
+            raise BusinessLogicException("f"Player data not found for {player_name}"
+            ")
 
-        return {
+        return ResponseBuilder.success({
             "player_data": player_data,
             "optimization": {
                 "cache_used": not force_refresh,
                 "stat_types_requested": stat_types,
                 "fetched_at": player_data.get("fetched_at"),
-            },
+            }),
         }
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error getting optimized player data for {player_name}: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get player data: {str(e)}"
+        raise BusinessLogicException("f"Failed to get player data: {str(e")}"
         )
 
 
-@router.post("/warm-cache")
+@router.post("/warm-cache", response_model=StandardAPIResponse[Dict[str, Any]])
 async def warm_cache_endpoint(
     player_names: List[str],
     stat_types: List[str] = Query(default=["hits", "runs", "home_runs"]),
@@ -170,21 +171,21 @@ async def warm_cache_endpoint(
 
         processing_time = (datetime.now() - start_time).total_seconds()
 
-        return {
+        return ResponseBuilder.success({
             "cache_warming": {
                 "players_warmed": len(player_names),
                 "stat_types": stat_types,
                 "processing_time": processing_time,
                 "status": "completed",
-            }
+            })
         }
 
     except Exception as e:
         logger.error(f"Error warming cache: {e}")
-        raise HTTPException(status_code=500, detail=f"Cache warming failed: {str(e)}")
+        raise BusinessLogicException("f"Cache warming failed: {str(e")}")
 
 
-@router.get("/performance-metrics")
+@router.get("/performance-metrics", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_performance_metrics():
     """
     Get comprehensive performance metrics for optimization monitoring
@@ -213,8 +214,8 @@ async def get_performance_metrics():
                 is not None,
             }
 
-        return PerformanceMetricsResponse(
-            cache_metrics=metrics.get("data_service", {}).get("cache_metrics", {}),
+        return ResponseBuilder.success(PerformanceMetricsResponse(
+            cache_metrics=metrics.get("data_service", {})).get("cache_metrics", {}),
             processing_metrics=metrics.get("batch_processing", {}).get(
                 "batch_processing", {}
             ),
@@ -224,10 +225,10 @@ async def get_performance_metrics():
 
     except Exception as e:
         logger.error(f"Error getting performance metrics: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get metrics: {str(e)}")
+        raise BusinessLogicException("f"Failed to get metrics: {str(e")}")
 
 
-@router.post("/enhanced-prop-analysis")
+@router.post("/enhanced-prop-analysis", response_model=StandardAPIResponse[Dict[str, Any]])
 async def optimized_enhanced_prop_analysis(
     prop_id: str, player_name: str, stat_type: str, line: float, team: str, matchup: str
 ):
@@ -253,27 +254,26 @@ async def optimized_enhanced_prop_analysis(
         processing_time = (datetime.now() - start_time).total_seconds()
 
         if not enriched_prop:
-            raise HTTPException(
-                status_code=404, detail="Enhanced analysis could not be generated"
-            )
+            raise BusinessLogicException("Enhanced analysis could not be generated"
+            ")
 
-        return {
+        return ResponseBuilder.success({
             "analysis": enriched_prop.dict(),
             "performance": {
                 "processing_time": processing_time,
                 "optimization_used": enhanced_prop_analysis_service.optimized_data_service
                 is not None,
-            },
+            }),
         }
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error in optimized enhanced prop analysis: {e}")
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+        raise BusinessLogicException("f"Analysis failed: {str(e")}")
 
 
-@router.get("/cache-stats")
+@router.get("/cache-stats", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_cache_statistics():
     """
     Get detailed cache statistics and optimization insights
@@ -327,16 +327,15 @@ async def get_cache_statistics():
                     "Cache performance is excellent"
                 )
 
-        return stats
+        return ResponseBuilder.success(stats)
 
     except Exception as e:
         logger.error(f"Error getting cache statistics: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get cache stats: {str(e)}"
+        raise BusinessLogicException("f"Failed to get cache stats: {str(e")}"
         )
 
 
-@router.post("/benchmark-performance")
+@router.post("/benchmark-performance", response_model=StandardAPIResponse[Dict[str, Any]])
 async def benchmark_performance(
     player_names: List[str] = Query(
         default=["Aaron Judge", "Mookie Betts", "Shohei Ohtani"]
@@ -401,14 +400,14 @@ async def benchmark_performance(
             ),
         }
 
-        return results
+        return ResponseBuilder.success(results)
 
     except Exception as e:
         logger.error(f"Error in performance benchmark: {e}")
-        raise HTTPException(status_code=500, detail=f"Benchmark failed: {str(e)}")
+        raise BusinessLogicException("f"Benchmark failed: {str(e")}")
 
 
-@router.post("/baseball-savant/generate-props")
+@router.post("/baseball-savant/generate-props", response_model=StandardAPIResponse[Dict[str, Any]])
 async def optimized_baseball_savant_props(
     max_players: int = Query(None, description="Maximum number of players to process"),
     enable_monitoring: bool = Query(
@@ -460,7 +459,7 @@ async def optimized_baseball_savant_props(
             f"Optimized Baseball Savant generation completed: {len(props)} props in {processing_time:.2f}s"
         )
 
-        return {
+        return ResponseBuilder.success({
             "props": props,
             "count": len(props),
             "processing_time": processing_time,
@@ -469,7 +468,7 @@ async def optimized_baseball_savant_props(
                 "total_props": len(props),
                 "processing_time_seconds": processing_time,
                 "props_per_second": len(props) / max(processing_time, 0.1),
-                "cache_hit_rate": metrics.get("cache_metrics", {}).get("hit_rate", 0),
+                "cache_hit_rate": metrics.get("cache_metrics", {})).get("hit_rate", 0),
                 "batch_success_rate": metrics.get("batch_metrics", {}).get(
                     "success_rate", 0
                 ),
@@ -488,31 +487,30 @@ async def optimized_baseball_savant_props(
 
     except Exception as e:
         logger.error(f"Error in optimized Baseball Savant prop generation: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Optimized prop generation failed: {str(e)}"
+        raise BusinessLogicException("f"Optimized prop generation failed: {str(e")}"
         )
 
 
-@router.get("/baseball-savant/health")
+@router.get("/baseball-savant/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def baseball_savant_health():
     """Get health status and performance metrics for optimized Baseball Savant client"""
     try:
         from backend.services.optimized_baseball_savant_client import get_health_status
 
         health_status = await get_health_status()
-        return health_status
+        return ResponseBuilder.success(health_status)
 
     except Exception as e:
         logger.error(f"Error getting Baseball Savant health status: {e}")
-        return {
+        return ResponseBuilder.success({
             "status": "error",
             "client_type": "optimized_baseball_savant",
             "error": str(e),
             "timestamp": datetime.now().isoformat(),
-        }
+        })
 
 
-@router.get("/baseball-savant/metrics")
+@router.get("/baseball-savant/metrics", response_model=StandardAPIResponse[Dict[str, Any]])
 async def baseball_savant_metrics():
     """Get comprehensive performance metrics for optimized Baseball Savant client"""
     try:
@@ -523,11 +521,11 @@ async def baseball_savant_metrics():
         client = await get_optimized_baseball_savant_client()
         metrics = client.get_performance_metrics()
 
-        return {"metrics": metrics, "timestamp": datetime.now().isoformat()}
+        return ResponseBuilder.success({"metrics": metrics, "timestamp": datetime.now().isoformat()})
 
     except Exception as e:
         logger.error(f"Error getting Baseball Savant metrics: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get metrics: {str(e)}")
+        raise BusinessLogicException("f"Failed to get metrics: {str(e")}")
 
 
 # Export router

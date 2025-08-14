@@ -8,14 +8,18 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter
 
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+
 # Create router
 router = APIRouter(prefix="/api/v2/priority2", tags=["Priority 2 Demo"])
 
 
-@router.get("/status")
+@router.get("/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_priority2_status():
     """Get Priority 2 implementation status"""
-    return {
+    return ResponseBuilder.success({
         "success": True,
         "message": "Priority 2 Real-time Data Flow Optimization - COMPLETE",
         "timestamp": datetime.now().isoformat(),
@@ -32,7 +36,7 @@ async def get_priority2_status():
                     "Automatic reconnection",
                     "Granular update subscriptions",
                 ],
-            },
+            }),
             "async_processing_pipelines": {
                 "status": "implemented",
                 "description": "Enhanced async data processing with circuit breakers",
@@ -116,10 +120,10 @@ async def get_priority2_status():
     }
 
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def priority2_health_check():
     """Priority 2 health check endpoint"""
-    return {
+    return ResponseBuilder.success({
         "success": True,
         "message": "All Priority 2 real-time enhancements are operational",
         "timestamp": datetime.now().isoformat(),
@@ -130,7 +134,7 @@ async def priority2_health_check():
             "prop_updates": "healthy",
             "resilience_service": "healthy",
             "integration_service": "healthy",
-        },
+        }),
         "performance_metrics": {
             "websocket_connections": 0,
             "active_pipelines": 3,
@@ -142,10 +146,10 @@ async def priority2_health_check():
     }
 
 
-@router.get("/demo")
+@router.get("/demo", response_model=StandardAPIResponse[Dict[str, Any]])
 async def priority2_demo():
     """Comprehensive demonstration of Priority 2 capabilities"""
-    return {
+    return ResponseBuilder.success({
         "success": True,
         "message": "Priority 2 Real-time Data Flow Optimization - Complete Implementation Demo",
         "timestamp": datetime.now().isoformat(),
@@ -155,7 +159,7 @@ async def priority2_demo():
                 "redis_integration": "✅ Redis caching for scalable WebSocket management",
                 "heartbeat_monitoring": "✅ Connection health monitoring with auto-recovery",
                 "subscription_system": "✅ Granular update subscriptions for targeted data delivery",
-            },
+            }),
             "pipeline_demo": {
                 "async_processing": "✅ Multi-stage async pipeline processing",
                 "circuit_breakers": "✅ Fault tolerance with circuit breaker patterns",
@@ -213,10 +217,10 @@ async def priority2_demo():
     }
 
 
-@router.get("/verification")
+@router.get("/verification", response_model=StandardAPIResponse[Dict[str, Any]])
 async def priority2_verification():
     """Verification of Priority 2 implementation completion"""
-    return {
+    return ResponseBuilder.success({
         "success": True,
         "message": "Priority 2 Implementation Verification - ALL TASKS COMPLETE",
         "timestamp": datetime.now().isoformat(),
@@ -234,7 +238,7 @@ async def priority2_verification():
                 ],
                 "lines_of_code": 580,
                 "completion_date": "2025-08-05",
-            },
+            }),
             "task_2_pipelines": {
                 "task": "Improved Async Processing Pipelines",
                 "status": "✅ COMPLETE",

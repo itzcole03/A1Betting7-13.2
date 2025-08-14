@@ -8,6 +8,10 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, Path, Query
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.responses import JSONResponse
 
 from backend.services.model_performance_tracker import (
@@ -26,7 +30,7 @@ logger = logging.getLogger("propollama.analytics_api")
 router = APIRouter(prefix="/analytics", tags=["Advanced Analytics"])
 
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def analytics_health():
     """Check analytics services health"""
     try:
@@ -41,22 +45,21 @@ async def analytics_health():
             await ensemble_manager.initialize()
             ensemble_ready = ensemble_manager.is_initialized
 
-        return {
+        return ResponseBuilder.success({
             "status": "healthy" if (tracker_ready and ensemble_ready) else "degraded",
             "components": {
                 "performance_tracker": "ready" if tracker_ready else "not_ready",
                 "ensemble_manager": "ready" if ensemble_ready else "not_ready",
-            },
+            }),
             "timestamp": datetime.utcnow().isoformat(),
         }
     except Exception as e:
         logger.error(f"Analytics health check failed: {e}")
-        raise HTTPException(
-            status_code=500, detail="Analytics service health check failed"
-        )
+        raise BusinessLogicException("Analytics service health check failed"
+        ")
 
 
-@router.get("/performance/models")
+@router.get("/performance/models", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_all_models_performance(
     sport: Optional[str] = Query(None, description="Filter by specific sport")
 ):
@@ -64,7 +67,7 @@ async def get_all_models_performance(
     try:
         snapshots = await performance_tracker.get_all_models_performance(sport)
 
-        return {
+        return ResponseBuilder.success({
             "total_models": len(snapshots),
             "sport_filter": sport,
             "models": [
@@ -86,19 +89,18 @@ async def get_all_models_performance(
                         else None
                     ),
                     "timestamp": snapshot.timestamp.isoformat(),
-                }
+                })
                 for snapshot in snapshots
             ],
             "timestamp": datetime.utcnow().isoformat(),
         }
     except Exception as e:
         logger.error(f"Failed to get models performance: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to retrieve model performance data"
-        )
+        raise BusinessLogicException("Failed to retrieve model performance data"
+        ")
 
 
-@router.get("/performance/models/{model_name}/{sport}")
+@router.get("/performance/models/{model_name}/{sport}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_model_performance(
     model_name: str = Path(..., description="Model name"),
     sport: str = Path(..., description="Sport"),
@@ -111,17 +113,15 @@ async def get_model_performance(
         )
 
         if not snapshot:
-            raise HTTPException(
-                status_code=404,
-                detail=f"No performance data found for {model_name} in {sport}",
-            )
+            raise BusinessLogicException("f"No performance data found for {model_name} in {sport}",
+            ")
 
         # Get performance trends
         trends = await performance_tracker.get_performance_trends(
             model_name, sport, days
         )
 
-        return {
+        return ResponseBuilder.success({
             "model_name": snapshot.model_name,
             "sport": snapshot.sport,
             "analysis_period_days": days,
@@ -135,7 +135,7 @@ async def get_model_performance(
                 "total_roi": snapshot.total_roi,
                 "avg_confidence": snapshot.avg_confidence,
                 "error_rate": snapshot.error_rate,
-            },
+            }),
             "trends": trends,
             "last_prediction": (
                 snapshot.last_prediction.isoformat()
@@ -148,12 +148,11 @@ async def get_model_performance(
         raise
     except Exception as e:
         logger.error(f"Failed to get performance for {model_name}: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to retrieve model performance"
-        )
+        raise BusinessLogicException("Failed to retrieve model performance"
+        ")
 
 
-@router.get("/performance/alerts")
+@router.get("/performance/alerts", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_performance_alerts(
     threshold: float = Query(
         0.10, description="Performance degradation threshold", ge=0.01, le=0.50
@@ -167,24 +166,23 @@ async def get_performance_alerts(
         high_severity = [a for a in alerts if a.get("severity") == "high"]
         medium_severity = [a for a in alerts if a.get("severity") == "medium"]
 
-        return {
+        return ResponseBuilder.success({
             "total_alerts": len(alerts),
             "threshold_used": threshold,
             "summary": {
                 "high_severity": len(high_severity),
                 "medium_severity": len(medium_severity),
-            },
+            }),
             "alerts": alerts,
             "timestamp": datetime.utcnow().isoformat(),
         }
     except Exception as e:
         logger.error(f"Failed to get performance alerts: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to retrieve performance alerts"
-        )
+        raise BusinessLogicException("Failed to retrieve performance alerts"
+        ")
 
 
-@router.post("/ensemble/predict")
+@router.post("/ensemble/predict", response_model=StandardAPIResponse[Dict[str, Any]])
 async def generate_ensemble_prediction(request: Dict[str, Any]):
     """Generate ensemble prediction using multiple models"""
     try:
@@ -192,9 +190,8 @@ async def generate_ensemble_prediction(request: Dict[str, Any]):
         required_fields = ["sport", "event_id", "player_name", "prop_type", "features"]
         missing_fields = [field for field in required_fields if field not in request]
         if missing_fields:
-            raise HTTPException(
-                status_code=400, detail=f"Missing required fields: {missing_fields}"
-            )
+            raise BusinessLogicException("f"Missing required fields: {missing_fields}"
+            ")
 
         # Parse voting strategy if provided
         voting_strategy = None
@@ -203,10 +200,8 @@ async def generate_ensemble_prediction(request: Dict[str, Any]):
                 voting_strategy = VotingStrategy(request["voting_strategy"])
             except ValueError:
                 valid_strategies = [s.value for s in VotingStrategy]
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Invalid voting strategy. Valid options: {valid_strategies}",
-                )
+                raise BusinessLogicException("f"Invalid voting strategy. Valid options: {valid_strategies}",
+                ")
 
         # Generate ensemble prediction
         prediction = await ensemble_manager.predict_ensemble(
@@ -220,11 +215,10 @@ async def generate_ensemble_prediction(request: Dict[str, Any]):
         )
 
         if not prediction:
-            raise HTTPException(
-                status_code=500, detail="Failed to generate ensemble prediction"
-            )
+            raise BusinessLogicException("Failed to generate ensemble prediction"
+            ")
 
-        return {
+        return ResponseBuilder.success({
             "request_id": prediction.request_id,
             "sport": prediction.sport,
             "event_id": prediction.event_id,
@@ -235,7 +229,7 @@ async def generate_ensemble_prediction(request: Dict[str, Any]):
                 "confidence": prediction.ensemble_confidence,
                 "probability": prediction.ensemble_probability,
                 "voting_strategy": prediction.voting_strategy.value,
-            },
+            }),
             "model_analysis": {
                 "individual_predictions": prediction.model_predictions,
                 "individual_confidences": prediction.model_confidences,
@@ -268,12 +262,11 @@ async def generate_ensemble_prediction(request: Dict[str, Any]):
         raise
     except Exception as e:
         logger.error(f"Failed to generate ensemble prediction: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to generate ensemble prediction"
-        )
+        raise BusinessLogicException("Failed to generate ensemble prediction"
+        ")
 
 
-@router.get("/ensemble/report")
+@router.get("/ensemble/report", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_ensemble_performance_report(
     sport: Optional[str] = Query(None, description="Filter by specific sport")
 ):
@@ -282,22 +275,20 @@ async def get_ensemble_performance_report(
         report = await ensemble_manager.get_ensemble_performance_report(sport)
 
         if not report:
-            raise HTTPException(
-                status_code=500, detail="Failed to generate ensemble report"
-            )
+            raise BusinessLogicException("Failed to generate ensemble report"
+            ")
 
-        return report
+        return ResponseBuilder.success(report)
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to get ensemble report: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to generate ensemble performance report"
-        )
+        raise BusinessLogicException("Failed to generate ensemble performance report"
+        ")
 
 
-@router.get("/cross-sport/insights")
+@router.get("/cross-sport/insights", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_cross_sport_insights(
     days: int = Query(30, description="Number of days to analyze", ge=7, le=365)
 ):
@@ -311,13 +302,13 @@ async def get_cross_sport_insights(
         ]
         seasonal = [i for i in insights if i.insight_type == "seasonal_pattern"]
 
-        return {
+        return ResponseBuilder.success({
             "analysis_period_days": days,
             "total_insights": len(insights),
             "summary": {
                 "correlations_found": len(correlations),
                 "seasonal_patterns": len(seasonal),
-            },
+            }),
             "insights": [
                 {
                     "type": insight.insight_type,
@@ -335,12 +326,11 @@ async def get_cross_sport_insights(
 
     except Exception as e:
         logger.error(f"Failed to get cross-sport insights: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to analyze cross-sport patterns"
-        )
+        raise BusinessLogicException("Failed to analyze cross-sport patterns"
+        ")
 
 
-@router.get("/dashboard/summary")
+@router.get("/dashboard/summary", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_analytics_dashboard_summary():
     """Get summary data for analytics dashboard"""
     try:
@@ -382,7 +372,7 @@ async def get_analytics_dashboard_summary():
         # Get cross-sport insights
         insights = await ensemble_manager.analyze_cross_sport_patterns(7)  # Last 7 days
 
-        return {
+        return ResponseBuilder.success({
             "sports_summary": sports_summary,
             "overall_metrics": {
                 "total_models": len(all_models),
@@ -391,7 +381,7 @@ async def get_analytics_dashboard_summary():
                 "overall_avg_roi": sum(s.total_roi for s in all_models)
                 / max(len(all_models), 1),
                 "healthy_models": sum(1 for s in all_models if s.error_rate < 0.05),
-            },
+            }),
             "alerts_summary": {
                 "total_alerts": len(alerts),
                 "high_severity": len(
@@ -415,12 +405,11 @@ async def get_analytics_dashboard_summary():
 
     except Exception as e:
         logger.error(f"Failed to get dashboard summary: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to generate dashboard summary"
-        )
+        raise BusinessLogicException("Failed to generate dashboard summary"
+        ")
 
 
-@router.post("/performance/record")
+@router.post("/performance/record", response_model=StandardAPIResponse[Dict[str, Any]])
 async def record_model_prediction(request: Dict[str, Any]):
     """Record a model prediction for performance tracking"""
     try:
@@ -428,9 +417,8 @@ async def record_model_prediction(request: Dict[str, Any]):
         required_fields = ["model_name", "sport", "prediction_value"]
         missing_fields = [field for field in required_fields if field not in request]
         if missing_fields:
-            raise HTTPException(
-                status_code=400, detail=f"Missing required fields: {missing_fields}"
-            )
+            raise BusinessLogicException("f"Missing required fields: {missing_fields}"
+            ")
 
         success = await performance_tracker.record_prediction(
             model_name=request["model_name"],
@@ -442,11 +430,11 @@ async def record_model_prediction(request: Dict[str, Any]):
         )
 
         if not success:
-            raise HTTPException(status_code=500, detail="Failed to record prediction")
+            raise BusinessLogicException("Failed to record prediction")
 
-        return {
+        return ResponseBuilder.success({
             "status": "success",
-            "message": f"Prediction recorded for {request['model_name']} in {request['sport']}",
+            "message": f"Prediction recorded for {request['model_name']}) in {request['sport']}",
             "timestamp": datetime.utcnow().isoformat(),
         }
 
@@ -454,10 +442,10 @@ async def record_model_prediction(request: Dict[str, Any]):
         raise
     except Exception as e:
         logger.error(f"Failed to record prediction: {e}")
-        raise HTTPException(status_code=500, detail="Failed to record model prediction")
+        raise BusinessLogicException("Failed to record model prediction")
 
 
-@router.put("/performance/update")
+@router.put("/performance/update", response_model=StandardAPIResponse[Dict[str, Any]])
 async def update_model_performance(request: Dict[str, Any]):
     """Update performance metrics for a specific model"""
     try:
@@ -465,9 +453,8 @@ async def update_model_performance(request: Dict[str, Any]):
         required_fields = ["model_name", "sport", "metrics"]
         missing_fields = [field for field in required_fields if field not in request]
         if missing_fields:
-            raise HTTPException(
-                status_code=400, detail=f"Missing required fields: {missing_fields}"
-            )
+            raise BusinessLogicException("f"Missing required fields: {missing_fields}"
+            ")
 
         success = await performance_tracker.update_performance_metrics(
             model_name=request["model_name"],
@@ -476,13 +463,12 @@ async def update_model_performance(request: Dict[str, Any]):
         )
 
         if not success:
-            raise HTTPException(
-                status_code=500, detail="Failed to update performance metrics"
-            )
+            raise BusinessLogicException("Failed to update performance metrics"
+            ")
 
-        return {
+        return ResponseBuilder.success({
             "status": "success",
-            "message": f"Performance metrics updated for {request['model_name']} in {request['sport']}",
+            "message": f"Performance metrics updated for {request['model_name']}) in {request['sport']}",
             "timestamp": datetime.utcnow().isoformat(),
         }
 
@@ -490,6 +476,5 @@ async def update_model_performance(request: Dict[str, Any]):
         raise
     except Exception as e:
         logger.error(f"Failed to update performance metrics: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to update model performance metrics"
-        )
+        raise BusinessLogicException("Failed to update model performance metrics"
+        ")

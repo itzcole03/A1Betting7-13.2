@@ -8,11 +8,54 @@ import json
 import logging
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.security import HTTPBearer
 import jwt
 
 from ..services.realtime_notification_service import (
     notification_service,
+
+# WebSocket envelope pattern utilities
+
+def create_websocket_envelope(
+    message_type: str,
+    data: Any = None,
+    status: str = "success",
+    error: str = None,
+    timestamp: str = None
+) -> Dict[str, Any]:
+    """Create standardized WebSocket message envelope"""
+    from datetime import datetime
+    
+    envelope = {
+        "type": message_type,
+        "status": status,
+        "timestamp": timestamp or datetime.utcnow().isoformat()
+    }
+    
+    if data is not None:
+        envelope["data"] = data
+    
+    if error:
+        envelope["error"] = error
+        envelope["status"] = "error"
+    
+    return envelope
+
+async def send_websocket_message(
+    websocket: WebSocket,
+    message_type: str,
+    data: Any = None,
+    status: str = "success",
+    error: str = None
+):
+    """Send standardized WebSocket message"""
+    envelope = create_websocket_envelope(message_type, data, status, error)
+    await websocket.send_text(json.dumps(envelope))
+
     NotificationType,
     NotificationPriority,
     SubscriptionFilter,
@@ -39,7 +82,7 @@ class WebSocketAuthManager:
             
             # Decode JWT (you should use your actual secret key)
             payload = jwt.decode(token, options={"verify_signature": False})
-            return payload.get('user_id') or payload.get('sub')
+            return ResponseBuilder.success(payload.get('user_id')) or payload.get('sub')
         except:
             return None
 
@@ -128,16 +171,10 @@ async def websocket_notifications(
             except WebSocketDisconnect:
                 break
             except json.JSONDecodeError:
-                await websocket.send_text(json.dumps({
-                    "error": "Invalid JSON format",
-                    "type": "error"
-                }))
+                await send_websocket_message(websocket, "error", error="Invalid JSON format")
             except Exception as e:
                 logger.error(f"Error handling WebSocket message: {e}")
-                await websocket.send_text(json.dumps({
-                    "error": str(e),
-                    "type": "error"
-                }))
+                await send_websocket_message(websocket, "error", error=str(e))
                 
     except WebSocketDisconnect:
         pass
@@ -156,10 +193,7 @@ async def handle_websocket_message(connection_id: str, message: Dict[str, Any]):
         # Respond to ping
         connection = notification_service.connections.get(connection_id)
         if connection:
-            await connection.websocket.send_text(json.dumps({
-                "type": "pong",
-                "timestamp": message.get('timestamp')
-            }))
+            await connection.websocket.send_text(json.dumps(create_websocket_envelope("pong")))
     
     elif message_type == 'subscribe':
         # Update subscription filters
@@ -224,11 +258,7 @@ async def update_subscription_filters(connection_id: str, filter_data: Dict[str,
         connection.subscription_filters.append(new_filter)
         
         # Send confirmation
-        await connection.websocket.send_text(json.dumps({
-            "type": "subscription_updated",
-            "filter_count": len(connection.subscription_filters),
-            "message": "Subscription filter added successfully"
-        }))
+        await connection.websocket.send_text(json.dumps(create_websocket_envelope("subscription_updated")))
         
     except Exception as e:
         await connection.websocket.send_text(json.dumps({
@@ -344,12 +374,7 @@ async def websocket_arbitrage_alerts(
     try:
         connection_id = await notification_service.add_connection(websocket, None, filters)
         
-        await websocket.send_text(json.dumps({
-            "type": "arbitrage_subscription_confirmed",
-            "min_profit": min_profit,
-            "sport": sport,
-            "message": "Connected to arbitrage alerts"
-        }))
+        await websocket.send_text(json.dumps(create_websocket_envelope("arbitrage_subscription_confirmed")))
         
         # Keep connection alive
         while True:
@@ -375,10 +400,7 @@ async def websocket_portfolio_updates(
     # Extract user ID from token
     user_id = WebSocketAuthManager.extract_user_from_token(token)
     if not user_id:
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Authentication required for portfolio updates"
-        }))
+        await websocket.send_text(json.dumps(create_websocket_envelope("error")))
         await websocket.close()
         return
     
@@ -396,11 +418,7 @@ async def websocket_portfolio_updates(
     try:
         connection_id = await notification_service.add_connection(websocket, user_id, filters)
         
-        await websocket.send_text(json.dumps({
-            "type": "portfolio_subscription_confirmed",
-            "user_id": user_id,
-            "message": "Connected to portfolio updates"
-        }))
+        await websocket.send_text(json.dumps(create_websocket_envelope("portfolio_subscription_confirmed")))
         
         # Keep connection alive
         while True:
@@ -413,12 +431,12 @@ async def websocket_portfolio_updates(
             await notification_service.remove_connection(connection_id)
 
 # HTTP endpoints for notification management
-@router.get("/notifications/stats")
+@router.get("/notifications/stats", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_notification_stats():
     """Get notification service statistics"""
-    return notification_service.get_stats()
+    return ResponseBuilder.success(notification_service.get_stats())
 
-@router.post("/notifications/test")
+@router.post("/notifications/test", response_model=StandardAPIResponse[Dict[str, Any]])
 async def send_test_notification(
     notification_type: str = "system_alert",
     title: str = "Test Notification",
@@ -438,12 +456,12 @@ async def send_test_notification(
         )
         
         await notification_service.send_notification(notification)
-        return {"status": "success", "message": "Test notification sent"}
+        return ResponseBuilder.success({"status": "success", "message": "Test notification sent"})
         
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return ResponseBuilder.success({"status": "error", "message": str(e)})
 
-@router.post("/notifications/broadcast")
+@router.post("/notifications/broadcast", response_model=StandardAPIResponse[Dict[str, Any]])
 async def broadcast_system_alert(
     title: str,
     message: str,
@@ -454,7 +472,7 @@ async def broadcast_system_alert(
         await notification_service.broadcast_system_alert(
             title, message, NotificationPriority(priority)
         )
-        return {"status": "success", "message": "System alert broadcasted"}
+        return ResponseBuilder.success({"status": "success", "message": "System alert broadcasted"})
         
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return ResponseBuilder.success({"status": "error", "message": str(e)})

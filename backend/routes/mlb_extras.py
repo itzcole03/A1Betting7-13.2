@@ -7,6 +7,10 @@ from typing import Any, Dict, List, Optional
 
 import pytz
 from fastapi import APIRouter, Query
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.responses import JSONResponse
 
 # Optional torch import for Phase 2 analytics
@@ -30,13 +34,13 @@ logger = logging.getLogger("propollama")
 
 
 # --- TEST ENDPOINT FOR ROUTER DEBUG ---
-@router.get("/test-props/")
+@router.get("/test-props/", response_model=StandardAPIResponse[Dict[str, Any]])
 async def test_props():
-    return {"status": "ok", "message": "mlb_extras router is reachable"}
+    return ResponseBuilder.success({"status": "ok", "message": "mlb_extras router is reachable"})
 
 
 # --- DEBUG ENDPOINT FOR PROP GENERATION ERRORS ---
-@router.get("/debug-props/{game_id}")
+@router.get("/debug-props/{game_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def debug_props_generation(game_id: int):
     """
     Debug endpoint to identify prop generation issues with detailed logging
@@ -57,7 +61,7 @@ async def debug_props_generation(game_id: int):
             )
             logger.info(f"🔍 DEBUG: Props generation completed")
 
-            return {
+            return ResponseBuilder.success({
                 "status": "success",
                 "debug_info": {
                     "generator_type": str(type(generator)),
@@ -72,7 +76,7 @@ async def debug_props_generation(game_id: int):
                         if isinstance(props_result, dict)
                         else 0
                     ),
-                },
+                }),
                 "result": props_result,
             }
         except Exception as generation_error:
@@ -80,26 +84,26 @@ async def debug_props_generation(game_id: int):
             logger.error(f"❌ DEBUG: Error type: {type(generation_error)}")
             logger.error(f"❌ DEBUG: Full traceback: {traceback.format_exc()}")
 
-            return {
+            return ResponseBuilder.success({
                 "status": "generation_error",
                 "error": str(generation_error),
                 "error_type": str(type(generation_error)),
                 "traceback": traceback.format_exc(),
-            }
+            })
 
     except Exception as e:
         logger.error(f"❌ DEBUG: Debug endpoint failed: {e}")
         logger.error(f"❌ DEBUG: Full traceback: {traceback.format_exc()}")
 
-        return {
+        return ResponseBuilder.success({
             "status": "debug_error",
             "error": str(e),
             "traceback": traceback.format_exc(),
-        }
+        })
 
 
 # --- COMPREHENSIVE PROP GENERATION TEST ---
-@router.get("/comprehensive-props/")
+@router.get("/comprehensive-props/", response_model=StandardAPIResponse[Dict[str, Any]])
 async def test_comprehensive_props():
     """
     Test comprehensive prop generation with enhanced coverage.
@@ -190,16 +194,16 @@ async def test_comprehensive_props():
         logger.info(
             f"[COMPREHENSIVE-TEST] Generated {total_props} props for {unique_players} players across {unique_teams} teams"
         )
-        return result
+        return ResponseBuilder.success(result)
 
     except Exception as e:
         logger.error(f"[COMPREHENSIVE-TEST] Error in comprehensive prop test: {e}")
-        return {
+        return ResponseBuilder.success({
             "status": "error",
             "error": str(e),
             "test_type": "comprehensive_prop_generation",
             "timestamp": datetime.now().isoformat(),
-        }
+        })
 
 
 @router.get("/enhanced-prop-analysis/{prop_id}", response_model=Optional[EnrichedProp])
@@ -237,7 +241,7 @@ async def get_enhanced_prop_analysis(
 
         if analysis:
             logger.info("[ROUTE] Enhanced analysis generated for %s", player_name)
-            return analysis
+            return ResponseBuilder.success(analysis)
         else:
             logger.warning("[ROUTE] No analysis generated for %s", player_name)
             return None
@@ -326,32 +330,32 @@ async def get_mlb_prizepicks_props():
                 logger.info(
                     f"Successfully formatted {len(formatted_props)} real props for PrizePicks UI"
                 )
-                return formatted_props
+                return ResponseBuilder.success(formatted_props)
             else:
                 logger.warning("Enhanced MLB provider also returned empty results")
 
         except Exception as e:
             logger.error(f"Error retrieving real data from enhanced provider: {e}")
 
-        # If all real data sources fail, return empty array instead of mock data
+        # If all real data sources fail, return ResponseBuilder.success(empty) array instead of mock data
         logger.warning("All real data sources failed. Returning empty array.")
-        return []
+        return ResponseBuilder.success([])
 
-    return result
+    return ResponseBuilder.success(result)
 
 
 @router.get("/action-shots/{event_id}", response_model=List[Dict[str, Any]])
 async def get_action_shots(event_id: str):
     """Get AP Action Shots for a given MLB event."""
     client = MLBProviderClient()
-    return await client.fetch_action_shots_ap(event_id)
+    return ResponseBuilder.success(await) client.fetch_action_shots_ap(event_id)
 
 
 @router.get("/country-flag/{country_code}", response_model=Optional[str])
 async def get_country_flag(country_code: str):
     """Get country flag image URL by country code."""
     client = MLBProviderClient()
-    return await client.fetch_country_flag(country_code)
+    return ResponseBuilder.success(await) client.fetch_country_flag(country_code)
 
 
 @router.get("/odds-comparison/", response_model=List[Dict[str, Any]])
@@ -394,16 +398,16 @@ async def get_odds_comparison(
     result = [item for item in result if isinstance(item, dict)]
 
     if not result:
-        # Log warning about empty results and return empty array
+        # Log warning about empty results and return ResponseBuilder.success(empty) array
         logger.warning(
             f"/mlb/odds-comparison/ returned empty odds data for market_type={market_type}. "
             "This could indicate API issues or no available data for the requested market."
         )
-        return []
-    return result
+        return ResponseBuilder.success([])
+    return ResponseBuilder.success(result)
 
 
-@router.get("/todays-games")
+@router.get("/todays-games", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_todays_games():
     """Get upcoming MLB games from current time through end of next day."""
     try:
@@ -543,21 +547,21 @@ async def get_todays_games():
             )
         )
 
-        return {
+        return ResponseBuilder.success({
             "status": "ok",
             "games": unique_games,
             "count": len(unique_games),
-            "date_range": f"{today.strftime('%Y-%m-%d')} to {tomorrow.strftime('%Y-%m-%d')}",
+            "date_range": f"{today.strftime('%Y-%m-%d')}) to {tomorrow.strftime('%Y-%m-%d')}",
             "current_time": now.isoformat(),
             "end_time": end_of_tomorrow.isoformat(),
         }
 
     except Exception as e:
         logger.error(f"Error fetching upcoming games: {e}")
-        return {"status": "error", "message": str(e), "games": []}
+        return ResponseBuilder.success({"status": "error", "message": str(e), "games": []})
 
 
-@router.get("/live-game-stats/{game_id}")
+@router.get("/live-game-stats/{game_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_live_game_stats(game_id: int):
     """Get live game stats and box score for a specific MLB game."""
     try:
@@ -569,7 +573,7 @@ async def get_live_game_stats(game_id: int):
         game_data = statsapi.get("game", {"gamePk": game_id})
 
         if not game_data:
-            return {"status": "error", "message": "Game not found"}
+            return ResponseBuilder.success({"status": "error", "message": "Game not found"})
 
         # Extract key game information
         game_info = game_data.get("gameData", {})
@@ -590,7 +594,7 @@ async def get_live_game_stats(game_id: int):
         status = game_info.get("status", {})
 
         # Format response
-        return {
+        return ResponseBuilder.success({
             "status": "ok",
             "game_id": game_id,
             "teams": {
@@ -598,7 +602,7 @@ async def get_live_game_stats(game_id: int):
                     "name": away_team.get("name", ""),
                     "abbreviation": away_team.get("abbreviation", ""),
                     "score": away_score,
-                    "hits": teams_score.get("away", {}).get("hits", 0),
+                    "hits": teams_score.get("away", {})).get("hits", 0),
                     "errors": teams_score.get("away", {}).get("errors", 0),
                 },
                 "home": {
@@ -622,10 +626,10 @@ async def get_live_game_stats(game_id: int):
 
     except Exception as e:
         logger.error(f"Error fetching live game stats for game {game_id}: {e}")
-        return {"status": "error", "message": str(e), "game_id": game_id}
+        return ResponseBuilder.success({"status": "error", "message": str(e), "game_id": game_id})
 
 
-@router.get("/play-by-play/{game_id}")
+@router.get("/play-by-play/{game_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_play_by_play(game_id: int):
     """Get play-by-play events for a specific MLB game."""
     try:
@@ -637,7 +641,7 @@ async def get_play_by_play(game_id: int):
         play_data = statsapi.get("game_playByPlay", {"gamePk": game_id})
 
         if not play_data:
-            return {"status": "error", "message": "Game not found"}
+            return ResponseBuilder.success({"status": "error", "message": "Game not found"})
 
         # Get all plays from the play-by-play data
         all_plays = play_data.get("allPlays", [])
@@ -677,19 +681,19 @@ async def get_play_by_play(game_id: int):
                 logger.warning("Error processing play: %s", play_error)
                 continue
 
-        return {
+        return ResponseBuilder.success({
             "status": "ok",
             "game_id": game_id,
             "events": events,
             "last_updated": datetime.now().isoformat(),
-        }
+        })
 
     except Exception as e:
         logger.error("Error fetching play-by-play for game %s: %s", game_id, e)
-        return {"status": "error", "message": str(e), "game_id": game_id, "events": []}
+        return ResponseBuilder.success({"status": "error", "message": str(e), "game_id": game_id, "events": []})
 
 
-@router.get("/past-matchups/{game_id}")
+@router.get("/past-matchups/{game_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_past_matchups(game_id: int):
     """Get past matchup history for the teams in a specific game."""
     try:
@@ -699,7 +703,7 @@ async def get_past_matchups(game_id: int):
         game_info = statsapi.get("game", {"gamePk": game_id})
 
         if not game_info:
-            return {"status": "error", "message": "Game not found"}
+            return ResponseBuilder.success({"status": "error", "message": "Game not found"})
 
         # Extract team information
         teams = game_info.get("gameData", {}).get("teams", {})
@@ -841,10 +845,10 @@ async def get_past_matchups(game_id: int):
 
                 head_to_head_record["total_games"] += 1
 
-        return {
+        return ResponseBuilder.success({
             "status": "ok",
             "game_id": game_id,
-            "teams": {"away": away_name, "home": home_name},
+            "teams": {"away": away_name, "home": home_name}),
             "last_5_matchups": past_matchups[:5],
             "head_to_head_record": head_to_head_record,
             "season_stats": {
@@ -867,14 +871,14 @@ async def get_past_matchups(game_id: int):
 
     except Exception as e:
         logger.error(f"Error fetching past matchups for game {game_id}: {e}")
-        return {
+        return ResponseBuilder.success({
             "status": "error",
-            "message": f"Unable to fetch past matchup data: {str(e)}",
+            "message": f"Unable to fetch past matchup data: {str(e)})",
             "game_id": game_id,
         }
 
 
-@router.get("/comprehensive-props/{game_id}")
+@router.get("/comprehensive-props/{game_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def generate_comprehensive_props(game_id: int):
     """
     Generate comprehensive props for ALL players in a specific game.
@@ -932,7 +936,7 @@ async def generate_comprehensive_props(game_id: int):
             f"Generated {total_props} props for {unique_players} players in game {game_id}"
         )
 
-        return {
+        return ResponseBuilder.success({
             "status": "success",
             "game_id": game_id,
             "props": formatted_props,
@@ -942,20 +946,20 @@ async def generate_comprehensive_props(game_id: int):
                 "unique_players": unique_players,
                 "generation_timestamp": datetime.now().isoformat(),
                 "source": "AI_COMPREHENSIVE_GENERATION",
-            },
+            }),
             "message": f"Successfully generated {total_props} comprehensive props for game {game_id}",
         }
 
     except Exception as e:
         logger.error(f"Error generating comprehensive props for game {game_id}: {e}")
-        return {
+        return ResponseBuilder.success({
             "status": "error",
-            "message": f"Unable to generate comprehensive props: {str(e)}",
+            "message": f"Unable to generate comprehensive props: {str(e)})",
             "game_id": game_id,
         }
 
 
-@router.post("/debug/flush-odds-comparison-cache")
+@router.post("/debug/flush-odds-comparison-cache", response_model=StandardAPIResponse[Dict[str, Any]])
 async def flush_odds_comparison_cache():
     """Flush the Redis cache for MLB odds comparison (regular market)."""
     import redis.asyncio as redis
@@ -965,15 +969,15 @@ async def flush_odds_comparison_cache():
     redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     r = await redis.from_url(redis_url)
     await r.delete(cache_key)
-    return {
+    return ResponseBuilder.success({
         "status": "ok",
         "cache_key": cache_key,
         "message": "Flushed odds comparison cache for regular market.",
-    }
+    })
 
 
 # --- ENHANCED COMPREHENSIVE PROP GENERATION ---
-@router.get("/comprehensive-props/{game_id}")
+@router.get("/comprehensive-props/{game_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def generate_comprehensive_props(
     game_id: int,
     optimize_performance: bool = Query(
@@ -1030,7 +1034,7 @@ async def generate_comprehensive_props(
             f"[COMPREHENSIVE-PROPS] Generated {len(props)} props for game {game_id} in {generation_time:.2f}s"
         )
 
-        return {
+        return ResponseBuilder.success({
             "status": "success",
             "game_id": game_id,
             "props": props_data,
@@ -1040,7 +1044,7 @@ async def generate_comprehensive_props(
             "optimization_enabled": optimize_performance,
             "timestamp": datetime.now().isoformat(),
             "system": "enterprise_comprehensive_generator",
-        }
+        })
 
     except Exception as e:
         logger.error(
@@ -1059,7 +1063,7 @@ async def generate_comprehensive_props(
         )
 
 
-@router.get("/ml-performance-analytics/")
+@router.get("/ml-performance-analytics/", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_ml_performance_analytics():
     """
     Get comprehensive ML performance analytics for the prop generation system.
@@ -1107,11 +1111,11 @@ async def get_ml_performance_analytics():
                 logger.warning(f"ML service HTTP health check failed: {e2}")
                 ml_service_status = "unavailable"
 
-        return {
+        return ResponseBuilder.success({
             "status": "success",
             "timestamp": datetime.now().isoformat(),
             "ml_integration_analytics": analytics,
-            "ml_service_health": {"status": ml_service_status, "details": ml_health},
+            "ml_service_health": {"status": ml_service_status, "details": ml_health}),
             "system_info": {
                 "phase": "Phase 1 - ML Pipeline Integration",
                 "capabilities": [
@@ -1136,7 +1140,7 @@ async def get_ml_performance_analytics():
         )
 
 
-@router.get("/phase2-performance-analytics/")
+@router.get("/phase2-performance-analytics/", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_phase2_performance_analytics():
     """
     Get comprehensive Phase 2 optimization performance analytics
@@ -1312,12 +1316,12 @@ async def get_phase2_performance_analytics():
         logger.info(
             f"[PHASE2-ANALYTICS] Phase 2 integration rate: {integration_rate:.1f}%"
         )
-        return analytics
+        return ResponseBuilder.success(analytics)
 
     except Exception as e:
         logger.warning(f"Phase 2 analytics generation failed: {e}")
-        return {
+        return ResponseBuilder.success({
             "status": "error",
             "error": str(e),
             "timestamp": datetime.now().isoformat(),
-        }
+        })

@@ -10,6 +10,10 @@ import logging
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, status
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, Field
 
 # Import BetAnalysisResponse from models.api_models
@@ -81,18 +85,16 @@ async def start_comprehensive_analysis(
         # Start the analysis engine
         analysis_id = await real_time_engine.start_comprehensive_analysis()
 
-        return AnalysisResponse(
+        return ResponseBuilder.success(AnalysisResponse(
             analysis_id=analysis_id,
             status="started",
             message="Comprehensive analysis started. Analyzing thousands of bets across all sports.",
             estimated_duration_seconds=180,  # 3 minutes estimated
-        )
+        ))
 
     except Exception as e:
         logger.error(f"❌ Failed to start analysis: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to start analysis: {str(e)}",
+        raise BusinessLogicException("f"Failed to start analysis: {str(e")}",
         )
 
 
@@ -106,10 +108,7 @@ async def get_analysis_progress(analysis_id: str) -> ProgressResponse:
     try:
         progress = real_time_engine.get_analysis_progress(analysis_id)
         if not progress:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Analysis not found or completed",
-            )
+            raise BusinessLogicException("Analysis not found or completed")
         # Determine status
         if progress.analyzed_bets == progress.total_bets and progress.total_bets > 0:
             status_msg = "completed"
@@ -117,7 +116,7 @@ async def get_analysis_progress(analysis_id: str) -> ProgressResponse:
             status_msg = "analyzing"
         else:
             status_msg = "collecting_data"
-        return ProgressResponse(
+        return ResponseBuilder.success(ProgressResponse(
             analysis_id=analysis_id,
             progress_percentage=progress.progress_percentage,
             total_bets=progress.total_bets,
@@ -125,7 +124,7 @@ async def get_analysis_progress(analysis_id: str) -> ProgressResponse:
             current_sport=progress.current_sport,
             current_sportsbook=progress.current_sportsbook,
             estimated_completion=(
-                progress.estimated_completion.isoformat()
+                progress.estimated_completion.isoformat())
                 if progress.estimated_completion
                 else None
             ),
@@ -135,9 +134,7 @@ async def get_analysis_progress(analysis_id: str) -> ProgressResponse:
         raise
     except Exception as e:
         logger.error(f"❌ Failed to get progress: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get analysis progress: {str(e)}",
+        raise BusinessLogicException("f"Failed to get analysis progress: {str(e")}",
         )
 
 
@@ -156,19 +153,14 @@ async def get_betting_opportunities(
         logger.info(f"Fetching betting opportunities for analysis_id={analysis_id}")
         results = real_time_engine.get_results(analysis_id)
         if not results or "opportunities" not in results:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No betting opportunities found for this analysis_id",
-            )
-        return results["opportunities"][:limit]
+            raise BusinessLogicException("No betting opportunities found for this analysis_id")
+        return ResponseBuilder.success(results)["opportunities"][:limit]
     except HTTPException:
         raise
     except Exception as e:
         logger = logging.getLogger("real_time_analysis.opportunities")
         logger.error(f"❌ Failed to get opportunities: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get betting opportunities: {str(e)}",
+        raise BusinessLogicException("f"Failed to get betting opportunities: {str(e")}",
         )
 
 
@@ -185,33 +177,28 @@ async def get_optimal_lineups(
         logger.info(f"Fetching optimal lineups for analysis_id={analysis_id}")
         results = real_time_engine.get_results(analysis_id)
         if not results or "lineups" not in results:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No optimal lineups found for this analysis_id",
-            )
-        return results["lineups"]
+            raise BusinessLogicException("No optimal lineups found for this analysis_id")
+        return ResponseBuilder.success(results)["lineups"]
     except HTTPException:
         raise
     except Exception as e:
         logger = logging.getLogger("real_time_analysis.lineups")
         logger.error(f"❌ Failed to get lineups: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get optimal lineups: {str(e)}",
+        raise BusinessLogicException("f"Failed to get optimal lineups: {str(e")}",
         )
 
 
 @router.get("/sports", response_model=List[str])
 async def get_supported_sports() -> List[str]:
     """Get list of all supported sports for analysis"""
-    return [sport.value for sport in SportCategory]
+    return ResponseBuilder.success([sport.value for sport in SportCategory])
 
 
-@router.get("/status")
+@router.get("/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_system_status() -> Dict[str, Any]:
     """Get real-time analysis system status, including business rules version info"""
     rules = getattr(real_time_engine, "business_rules", {})
-    return {
+    return ResponseBuilder.success({
         "status": "operational",
         "supported_sports": len(SportCategory),
         "supported_sportsbooks": 10,
@@ -219,4 +206,4 @@ async def get_system_status() -> Dict[str, Any]:
         "last_health_check": "2024-12-19T23:45:00Z",
         "ruleset_version": rules.get("ruleset_version", "unknown"),
         "rules_last_updated": rules.get("last_updated", "unknown"),
-    }
+    })

@@ -1,0 +1,382 @@
+{
+  "scan_date": "2025-08-13",
+  "total_files": 62,
+  "compliant_files": 62,
+  "violation_files": 0,
+  "total_violations": 0,
+  "status": "PASS",
+  "files": [
+    {
+      "file": "admin.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "advanced_arbitrage_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "advanced_kelly_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "advanced_search_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "ai_recommendations_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "ai_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "analytics_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "auth.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "betting.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "cheatsheets_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "comprehensive_sportradar_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "dashboard_customization_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "data_export_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "data_validation_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "debug_api.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "diagnostics.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "draftkings_integration_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "enhanced_api.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "enhanced_data_validation_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "enhanced_search_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "enhanced_sportsbook_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "fanduel.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "feedback.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "health.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "lazy_sport_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "live_betting_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "metrics.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "mlb_extras.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "model_performance_monitoring_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "model_registry_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "modern_async_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "modern_ml_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "multiple_sportsbook_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "nba_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "odds_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "optimized_api_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "optimized_real_time_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "optimized_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "performance.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "phase2_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "phase3_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "player_dashboard_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "priority2_demo_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "priority2_realtime_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "prizepicks.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "prizepicks_router.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "prizepicks_simple.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "production_health_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "production_health_routes_standardized.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "propollama.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "propollama_router.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "realtime_websocket_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "real_time_analysis.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "risk_tools_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "security_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "shap.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "sports_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "trending_suggestions.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "unified_api.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "unified_sports_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "user.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "versioned_api_routes.py",
+      "violations": [],
+      "count": 0,
+      "status": "compliant"
+    }
+  ]
+}

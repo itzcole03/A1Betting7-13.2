@@ -57,16 +57,16 @@ except ImportError:
     # Fallback mock service
     class MockIntegrationService:
         async def get_system_status(self):
-            return {"status": "mock", "websocket": {"total_connections": 0}}
+            return ResponseBuilder.success({"status": "mock", "websocket": {"total_connections": 0})}
 
         async def get_performance_metrics(self):
-            return {"mock_metrics": True}
+            return ResponseBuilder.success({"mock_metrics": True})
 
         async def health_check(self):
-            return {"status": "healthy"}
+            return ResponseBuilder.success({"status": "healthy"})
 
     async def get_integration_service():
-        return MockIntegrationService()
+        return ResponseBuilder.success(MockIntegrationService())
 
 
 try:
@@ -75,16 +75,16 @@ except ImportError:
     # Fallback resilience decorator
     def resilient(name):
         def decorator(func):
-            return func
+            return ResponseBuilder.success(func)
 
-        return decorator
+        return ResponseBuilder.success(decorator)
 
     class MockResilienceService:
         async def get_all_metrics(self):
-            return {"mock_resilience": True}
+            return ResponseBuilder.success({"mock_resilience": True})
 
     async def get_resilience_service():
-        return MockResilienceService()
+        return ResponseBuilder.success(MockResilienceService())
 
 
 try:
@@ -442,7 +442,7 @@ async def reset_circuit_breaker(service_name: str):
 # =============================================================================
 
 
-@router.websocket("/ws/{user_id}")
+@router.websocket("/ws/{user_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
     """Real-time WebSocket endpoint for live updates"""
     try:
@@ -535,7 +535,7 @@ async def load_test_service(
         # Simulate load test
         async def make_request():
             await asyncio.sleep(0.1)  # Simulate work
-            return {"success": True, "timestamp": datetime.now().isoformat()}
+            return ResponseBuilder.success({"success": True, "timestamp": datetime.now().isoformat()})
 
         # Run concurrent requests
         tasks = []

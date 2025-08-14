@@ -9,6 +9,10 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, Query, Path, Depends
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, Field
 
 from backend.services.comprehensive_sportradar_integration import (
@@ -48,7 +52,7 @@ async def get_service():
     if not hasattr(comprehensive_sportradar_service, '_initialized'):
         await comprehensive_sportradar_service.initialize()
         comprehensive_sportradar_service._initialized = True
-    return comprehensive_sportradar_service
+    return ResponseBuilder.success(comprehensive_sportradar_service)
 
 
 @router.get("/health", response_model=Dict[str, Any])
@@ -56,10 +60,10 @@ async def get_health_status(service = Depends(get_service)):
     """Get comprehensive SportRadar service health status"""
     try:
         health = await service.get_health_status()
-        return health
+        return ResponseBuilder.success(health)
     except Exception as e:
         logger.error(f"��� Health check failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
+        raise BusinessLogicException("f"Health check failed: {str(e")}")
 
 
 @router.get("/quota", response_model=Dict[str, Any])
@@ -67,15 +71,15 @@ async def get_quota_status(service = Depends(get_service)):
     """Get quota usage status for all APIs"""
     try:
         trial_status = service._get_trial_status()
-        return {
+        return ResponseBuilder.success({
             "success": True,
             "quota_status": trial_status,
             "total_apis": len(service.apis),
             "active_apis": len([api for api, usage in service.quota_usage.items() if usage > 0])
-        }
+        })
     except Exception as e:
         logger.error(f"❌ Quota status failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Quota status failed: {str(e)}")
+        raise BusinessLogicException("f"Quota status failed: {str(e")}")
 
 
 # Sports Data Endpoints
@@ -106,17 +110,17 @@ async def get_mlb_data(
         
         data = await service.get_mlb_data(endpoint, **params)
         
-        return SportRadarResponse(
+        return ResponseBuilder.success(SportRadarResponse(
             success=True,
             data=data,
             api_type="mlb",
-            quota_used=service.quota_usage.get(APIType.MLB, 0)
+            quota_used=service.quota_usage.get(APIType.MLB, 0))
         )
     except Exception as e:
         logger.error(f"❌ MLB data fetch failed: {e}")
-        return SportRadarResponse(
+        return ResponseBuilder.success(SportRadarResponse(
             success=False,
-            error=str(e),
+            error=str(e)),
             api_type="mlb"
         )
 
@@ -140,15 +144,15 @@ async def get_nfl_data(
         
         data = await service.get_nfl_data(endpoint, **params)
         
-        return SportRadarResponse(
+        return ResponseBuilder.success(SportRadarResponse(
             success=True,
             data=data,
             api_type="nfl",
-            quota_used=service.quota_usage.get(APIType.NFL, 0)
+            quota_used=service.quota_usage.get(APIType.NFL, 0))
         )
     except Exception as e:
         logger.error(f"❌ NFL data fetch failed: {e}")
-        return SportRadarResponse(success=False, error=str(e), api_type="nfl")
+        return ResponseBuilder.success(SportRadarResponse(success=False, error=str(e)), api_type="nfl")
 
 
 @router.get("/sports/nba/{endpoint}", response_model=SportRadarResponse)
@@ -170,15 +174,15 @@ async def get_nba_data(
         
         data = await service.get_nba_data(endpoint, **params)
         
-        return SportRadarResponse(
+        return ResponseBuilder.success(SportRadarResponse(
             success=True,
             data=data,
             api_type="nba",
-            quota_used=service.quota_usage.get(APIType.NBA, 0)
+            quota_used=service.quota_usage.get(APIType.NBA, 0))
         )
     except Exception as e:
         logger.error(f"❌ NBA data fetch failed: {e}")
-        return SportRadarResponse(success=False, error=str(e), api_type="nba")
+        return ResponseBuilder.success(SportRadarResponse(success=False, error=str(e)), api_type="nba")
 
 
 @router.get("/sports/nhl/{endpoint}", response_model=SportRadarResponse)
@@ -200,15 +204,15 @@ async def get_nhl_data(
         
         data = await service.get_nhl_data(endpoint, **params)
         
-        return SportRadarResponse(
+        return ResponseBuilder.success(SportRadarResponse(
             success=True,
             data=data,
             api_type="nhl",
-            quota_used=service.quota_usage.get(APIType.NHL, 0)
+            quota_used=service.quota_usage.get(APIType.NHL, 0))
         )
     except Exception as e:
         logger.error(f"❌ NHL data fetch failed: {e}")
-        return SportRadarResponse(success=False, error=str(e), api_type="nhl")
+        return ResponseBuilder.success(SportRadarResponse(success=False, error=str(e)), api_type="nhl")
 
 
 @router.get("/sports/soccer/{endpoint}", response_model=SportRadarResponse)
@@ -229,15 +233,15 @@ async def get_soccer_data(
         
         data = await service.get_soccer_data(endpoint, **params)
         
-        return SportRadarResponse(
+        return ResponseBuilder.success(SportRadarResponse(
             success=True,
             data=data,
             api_type="soccer",
-            quota_used=service.quota_usage.get(APIType.SOCCER, 0)
+            quota_used=service.quota_usage.get(APIType.SOCCER, 0))
         )
     except Exception as e:
         logger.error(f"��� Soccer data fetch failed: {e}")
-        return SportRadarResponse(success=False, error=str(e), api_type="soccer")
+        return ResponseBuilder.success(SportRadarResponse(success=False, error=str(e)), api_type="soccer")
 
 
 # Odds Comparison Endpoints
@@ -256,15 +260,15 @@ async def get_player_props_odds(
         
         data = await service.get_player_props_odds(sport, competition, **params)
         
-        return SportRadarResponse(
+        return ResponseBuilder.success(SportRadarResponse(
             success=True,
             data=data,
             api_type="player_props_odds",
-            quota_used=service.quota_usage.get(APIType.ODDS_COMPARISON_PLAYER_PROPS, 0)
+            quota_used=service.quota_usage.get(APIType.ODDS_COMPARISON_PLAYER_PROPS, 0))
         )
     except Exception as e:
         logger.error(f"❌ Player props odds fetch failed: {e}")
-        return SportRadarResponse(success=False, error=str(e), api_type="player_props_odds")
+        return ResponseBuilder.success(SportRadarResponse(success=False, error=str(e)), api_type="player_props_odds")
 
 
 @router.get("/odds/prematch/{sport}/{competition}", response_model=SportRadarResponse)
@@ -282,15 +286,15 @@ async def get_prematch_odds(
         
         data = await service.get_prematch_odds(sport, competition, **params)
         
-        return SportRadarResponse(
+        return ResponseBuilder.success(SportRadarResponse(
             success=True,
             data=data,
             api_type="prematch_odds",
-            quota_used=service.quota_usage.get(APIType.ODDS_COMPARISON_PREMATCH, 0)
+            quota_used=service.quota_usage.get(APIType.ODDS_COMPARISON_PREMATCH, 0))
         )
     except Exception as e:
         logger.error(f"❌ Prematch odds fetch failed: {e}")
-        return SportRadarResponse(success=False, error=str(e), api_type="prematch_odds")
+        return ResponseBuilder.success(SportRadarResponse(success=False, error=str(e)), api_type="prematch_odds")
 
 
 @router.get("/odds/futures/{sport}/{competition}", response_model=SportRadarResponse)
@@ -308,15 +312,15 @@ async def get_futures_odds(
         
         data = await service.get_futures_odds(sport, competition, **params)
         
-        return SportRadarResponse(
+        return ResponseBuilder.success(SportRadarResponse(
             success=True,
             data=data,
             api_type="futures_odds",
-            quota_used=service.quota_usage.get(APIType.ODDS_COMPARISON_FUTURES, 0)
+            quota_used=service.quota_usage.get(APIType.ODDS_COMPARISON_FUTURES, 0))
         )
     except Exception as e:
         logger.error(f"❌ Futures odds fetch failed: {e}")
-        return SportRadarResponse(success=False, error=str(e), api_type="futures_odds")
+        return ResponseBuilder.success(SportRadarResponse(success=False, error=str(e)), api_type="futures_odds")
 
 
 # Image Endpoints
@@ -336,15 +340,15 @@ async def get_getty_images(
         
         data = await service.get_getty_images(sport, competition, image_type, **params)
         
-        return SportRadarResponse(
+        return ResponseBuilder.success(SportRadarResponse(
             success=True,
             data=data,
             api_type="getty_images",
-            quota_used=service.quota_usage.get(APIType.GETTY_IMAGES, 0)
+            quota_used=service.quota_usage.get(APIType.GETTY_IMAGES, 0))
         )
     except Exception as e:
         logger.error(f"❌ Getty images fetch failed: {e}")
-        return SportRadarResponse(success=False, error=str(e), api_type="getty_images")
+        return ResponseBuilder.success(SportRadarResponse(success=False, error=str(e)), api_type="getty_images")
 
 
 @router.get("/images/sportradar/{image_type}", response_model=SportRadarResponse)
@@ -367,15 +371,15 @@ async def get_sportradar_images(
         
         data = await service.get_sportradar_images(image_type, **params)
         
-        return SportRadarResponse(
+        return ResponseBuilder.success(SportRadarResponse(
             success=True,
             data=data,
             api_type="sportradar_images",
-            quota_used=service.quota_usage.get(APIType.SPORTRADAR_IMAGES, 0)
+            quota_used=service.quota_usage.get(APIType.SPORTRADAR_IMAGES, 0))
         )
     except Exception as e:
         logger.error(f"❌ SportRadar images fetch failed: {e}")
-        return SportRadarResponse(success=False, error=str(e), api_type="sportradar_images")
+        return ResponseBuilder.success(SportRadarResponse(success=False, error=str(e)), api_type="sportradar_images")
 
 
 # Comprehensive Data Endpoint
@@ -388,16 +392,16 @@ async def get_comprehensive_sports_data(
     try:
         data = await service.get_comprehensive_sports_data(request.sports)
         
-        return {
+        return ResponseBuilder.success({
             "success": True,
             "comprehensive_data": data,
             "request_params": request.dict(),
-            "apis_accessed": len(data.get("metadata", {}).get("apis_used", [])),
+            "apis_accessed": len(data.get("metadata", {})).get("apis_used", [])),
             "total_quota_used": sum(service.quota_usage.values())
         }
     except Exception as e:
         logger.error(f"❌ Comprehensive data fetch failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Comprehensive data fetch failed: {str(e)}")
+        raise BusinessLogicException("f"Comprehensive data fetch failed: {str(e")}")
 
 
 @router.get("/comprehensive", response_model=Dict[str, Any])
@@ -410,16 +414,16 @@ async def get_comprehensive_sports_data_simple(
         sports_list = [sport.strip() for sport in sports.split(",")]
         data = await service.get_comprehensive_sports_data(sports_list)
         
-        return {
+        return ResponseBuilder.success({
             "success": True,
             "comprehensive_data": data,
             "sports_requested": sports_list,
-            "apis_accessed": len(data.get("metadata", {}).get("apis_used", [])),
+            "apis_accessed": len(data.get("metadata", {})).get("apis_used", [])),
             "total_quota_used": sum(service.quota_usage.values())
         }
     except Exception as e:
         logger.error(f"❌ Comprehensive data fetch failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Comprehensive data fetch failed: {str(e)}")
+        raise BusinessLogicException("f"Comprehensive data fetch failed: {str(e")}")
 
 
 # Live Data Endpoints
@@ -448,19 +452,19 @@ async def get_live_data(
             data = await service.get_soccer_data("live_scores")
             api_type = APIType.SOCCER
         else:
-            raise HTTPException(status_code=400, detail=f"Unsupported sport: {sport}")
+            raise BusinessLogicException("f"Unsupported sport: {sport}")
         
-        return SportRadarResponse(
+        return ResponseBuilder.success(SportRadarResponse(
             success=True,
             data=data,
             api_type=f"live_{sport_lower}",
-            quota_used=service.quota_usage.get(api_type, 0)
+            quota_used=service.quota_usage.get(api_type, 0))
         )
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"❌ Live data fetch failed for {sport}: {e}")
-        return SportRadarResponse(success=False, error=str(e), api_type=f"live_{sport}")
+        return ResponseBuilder.success(SportRadarResponse(success=False, error=str(e)), api_type=f"live_{sport}")
 
 
 # API Documentation
@@ -483,21 +487,21 @@ async def list_available_apis(service = Depends(get_service)):
                 "packages": api_config.packages
             }
         
-        return {
+        return ResponseBuilder.success({
             "success": True,
             "total_apis": len(service.apis),
             "api_details": apis_info,
             "service_status": await service.get_health_status()
-        }
+        })
     except Exception as e:
         logger.error(f"❌ API listing failed: {e}")
-        raise HTTPException(status_code=500, detail=f"API listing failed: {str(e)}")
+        raise BusinessLogicException("f"API listing failed: {str(e")}")
 
 
 @router.get("/", response_model=Dict[str, Any])
 async def sportradar_info():
     """Get SportRadar integration information"""
-    return {
+    return ResponseBuilder.success({
         "service": "Comprehensive SportRadar Integration",
         "version": "1.0.0",
         "description": "Integration for all SportRadar trial APIs",
@@ -512,7 +516,7 @@ async def sportradar_info():
             "health": "/api/v1/sportradar/health",
             "quota": "/api/v1/sportradar/quota",
             "comprehensive": "/api/v1/sportradar/comprehensive",
-            "live_data": "/api/v1/sportradar/live/{sport}",
+            "live_data": "/api/v1/sportradar/live/{sport})",
             "sports_data": "/api/v1/sportradar/sports/{sport}/{endpoint}",
             "odds": "/api/v1/sportradar/odds/{type}/{sport}/{competition}",
             "images": "/api/v1/sportradar/images/{provider}/{sport}/{competition}",

@@ -24,6 +24,10 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, validator
 
@@ -80,7 +84,7 @@ class DataSourceRequest(BaseModel):
         valid_sources = ["mlb_stats_api", "baseball_savant", "statsapi", "external_api"]
         if v.lower() not in valid_sources:
             raise ValueError(f"Invalid source type. Must be one of: {valid_sources}")
-        return v.lower()
+        return ResponseBuilder.success(v.lower())
 
 
 class PlayerValidationRequest(BaseModel):
@@ -101,7 +105,7 @@ class PlayerValidationRequest(BaseModel):
         valid_priorities = ["low", "normal", "high", "critical"]
         if v.lower() not in valid_priorities:
             raise ValueError(f"Invalid priority. Must be one of: {valid_priorities}")
-        return v.lower()
+        return ResponseBuilder.success(v.lower())
 
 
 class GameValidationRequest(BaseModel):
@@ -182,37 +186,25 @@ class MetricsResponse(BaseModel):
 async def get_integration_service() -> EnhancedDataValidationIntegrationService:
     """Dependency to get the enhanced integration service"""
     if not VALIDATION_SERVICES_AVAILABLE:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Validation services are not available",
-        )
+        raise BusinessLogicException("Validation services are not available")
 
     try:
-        return await get_enhanced_integration_service()
+        return ResponseBuilder.success(await) get_enhanced_integration_service()
     except Exception as e:
         logger.error(f"Failed to get integration service: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Validation service is temporarily unavailable",
-        )
+        raise BusinessLogicException("Validation service is temporarily unavailable")
 
 
 async def get_orchestrator() -> OptimizedDataValidationOrchestrator:
     """Dependency to get the optimized orchestrator"""
     if not VALIDATION_SERVICES_AVAILABLE:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Validation services are not available",
-        )
+        raise BusinessLogicException("Validation services are not available")
 
     try:
-        return await get_optimized_orchestrator()
+        return ResponseBuilder.success(await) get_optimized_orchestrator()
     except Exception as e:
         logger.error(f"Failed to get orchestrator: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Validation orchestrator is temporarily unavailable",
-        )
+        raise BusinessLogicException("Validation orchestrator is temporarily unavailable")
 
 
 # Utility functions
@@ -233,7 +225,7 @@ def _convert_data_sources(
         if source_req.source_type in source_mapping:
             converted[source_mapping[source_req.source_type]] = source_req.data
 
-    return converted
+    return ResponseBuilder.success(converted)
 
 
 def _create_validation_context(
@@ -241,8 +233,8 @@ def _create_validation_context(
     operation_type: str,
 ) -> ValidationContext:
     """Create validation context from request"""
-    return ValidationContext(
-        request_id=str(uuid.uuid4()),
+    return ResponseBuilder.success(ValidationContext(
+        request_id=str(uuid.uuid4())),
         operation_type=operation_type,
         entity_id=getattr(request_data, "player_id", None)
         or getattr(request_data, "game_id", None),
@@ -259,12 +251,12 @@ def _convert_report_to_response(
     report: CrossValidationReport, request_id: str, validation_time: float
 ) -> ValidationResponse:
     """Convert validation report to response model"""
-    return ValidationResponse(
+    return ResponseBuilder.success(ValidationResponse(
         status=(
             report.validation_results[0].status.value
             if report.validation_results
             else "unknown"
-        ),
+        )),
         request_id=request_id,
         confidence_score=report.confidence_score,
         validation_time=validation_time,
@@ -392,13 +384,11 @@ async def validate_player_data(
                 _background_optimization_task, context.request_id, report.to_dict()
             )
 
-        return response
+        return ResponseBuilder.success(response)
 
     except Exception as e:
         await validation_error_handler(None, e)  # This will log the error
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Player validation failed: {str(e)}",
+        raise BusinessLogicException("f"Player validation failed: {str(e")}",
         )
 
 
@@ -436,13 +426,11 @@ async def validate_game_data(
             report, context.request_id, validation_time
         )
 
-        return response
+        return ResponseBuilder.success(response)
 
     except Exception as e:
         await validation_error_handler(None, e)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Game validation failed: {str(e)}",
+        raise BusinessLogicException("f"Game validation failed: {str(e")}",
         )
 
 
@@ -505,13 +493,11 @@ async def batch_validate_data(
             )
             responses.append(response)
 
-        return responses
+        return ResponseBuilder.success(responses)
 
     except Exception as e:
         await validation_error_handler(None, e)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Batch validation failed: {str(e)}",
+        raise BusinessLogicException("f"Batch validation failed: {str(e")}",
         )
 
 
@@ -532,18 +518,18 @@ async def health_check(
         health_status = await integration_service.get_health_status()
         performance_metrics = await integration_service.get_enhanced_metrics()
 
-        return HealthCheckResponse(
+        return ResponseBuilder.success(HealthCheckResponse(
             status=health_status["status"],
             timestamp=health_status["timestamp"],
             components=health_status["components"],
             performance_metrics=performance_metrics,
-        )
+        ))
 
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        return HealthCheckResponse(
+        return ResponseBuilder.success(HealthCheckResponse(
             status="unhealthy",
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now()).isoformat(),
             components={"error": str(e)},
             performance_metrics={},
         )
@@ -565,8 +551,8 @@ async def get_metrics(
     try:
         metrics = await integration_service.get_enhanced_metrics()
 
-        return MetricsResponse(
-            total_requests=metrics.get("total_requests", 0),
+        return ResponseBuilder.success(MetricsResponse(
+            total_requests=metrics.get("total_requests", 0)),
             successful_validations=metrics.get("successful_validations", 0),
             failed_validations=metrics.get("failed_validations", 0),
             success_rate=metrics.get("success_rate", 0.0),
@@ -578,10 +564,7 @@ async def get_metrics(
 
     except Exception as e:
         logger.error(f"Metrics retrieval failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve metrics",
-        )
+        raise BusinessLogicException("Failed to retrieve metrics")
 
 
 @router.get(
@@ -589,26 +572,23 @@ async def get_metrics(
     status_code=status.HTTP_200_OK,
     summary="Performance Metrics",
     description="Get detailed performance metrics for monitoring",
-)
+, response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_performance_metrics(
     orchestrator: OptimizedDataValidationOrchestrator = Depends(get_orchestrator),
 ):
     """Get detailed performance metrics from the orchestrator."""
     try:
-        return await orchestrator.get_performance_metrics()
+        return ResponseBuilder.success(await) orchestrator.get_performance_metrics()
     except Exception as e:
         logger.error(f"Performance metrics retrieval failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve performance metrics",
-        )
+        raise BusinessLogicException("Failed to retrieve performance metrics")
 
 
 @router.post(
     "/config/update",
     status_code=status.HTTP_200_OK,
     summary="Update Configuration",
-    description="Update validation configuration (admin only)",
+    description="Update validation configuration (admin only, response_model=StandardAPIResponse[Dict[str, Any]])",
 )
 async def update_configuration(
     config_updates: Dict[str, Any],
@@ -622,25 +602,22 @@ async def update_configuration(
         # For now, just log the configuration update request
         logger.info(f"Configuration update requested: {config_updates}")
 
-        return {
+        return ResponseBuilder.success({
             "message": "Configuration update logged",
             "timestamp": datetime.now().isoformat(),
             "updates": config_updates,
-        }
+        })
 
     except Exception as e:
         logger.error(f"Configuration update failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update configuration",
-        )
+        raise BusinessLogicException("Failed to update configuration")
 
 
 @router.post(
     "/cache/clear",
     status_code=status.HTTP_200_OK,
     summary="Clear Cache",
-    description="Clear validation cache (admin only)",
+    description="Clear validation cache (admin only, response_model=StandardAPIResponse[Dict[str, Any]])",
 )
 async def clear_cache(
     cache_type: str = "all",  # "memory", "redis", "all"
@@ -651,18 +628,15 @@ async def clear_cache(
         # In a production system, this would have proper authentication/authorization
         logger.info(f"Cache clear requested: {cache_type}")
 
-        # For now, just return success
-        return {
-            "message": f"Cache clear initiated for: {cache_type}",
+        # For now, just return ResponseBuilder.success(success)
+        return ResponseBuilder.success({
+            "message": f"Cache clear initiated for: {cache_type})",
             "timestamp": datetime.now().isoformat(),
         }
 
     except Exception as e:
         logger.error(f"Cache clear failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to clear cache",
-        )
+        raise BusinessLogicException("Failed to clear cache")
 
 
 # Background task functions

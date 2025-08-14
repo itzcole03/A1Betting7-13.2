@@ -18,6 +18,10 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, Field
 
 # Core services
@@ -87,7 +91,7 @@ search_analytics = {
 }
 
 
-@router.post("/ai-suggestions")
+@router.post("/ai-suggestions", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_ai_suggestions(
     request: AISuggestionRequest,
 ) -> Dict[str, List[SmartSuggestion]]:
@@ -104,7 +108,7 @@ async def get_ai_suggestions(
         # Check cache first
         cached_suggestions = await cache.get(cache_key)
         if cached_suggestions:
-            return {"suggestions": cached_suggestions}
+            return ResponseBuilder.success({"suggestions": cached_suggestions})
 
         suggestions = []
 
@@ -139,11 +143,11 @@ async def get_ai_suggestions(
         # Cache for 5 minutes
         await cache.set(cache_key, top_suggestions, ttl=300)
 
-        return {"suggestions": top_suggestions}
+        return ResponseBuilder.success({"suggestions": top_suggestions})
 
     except Exception as e:
         logger.error(f"Error generating AI suggestions: {e}")
-        return {"suggestions": []}
+        return ResponseBuilder.success({"suggestions": []})
 
 
 async def generate_ai_suggestions(
@@ -182,7 +186,7 @@ async def generate_ai_suggestions(
     except Exception as e:
         logger.error(f"Error in AI suggestions: {e}")
 
-    return suggestions
+    return ResponseBuilder.success(suggestions)
 
 
 async def suggest_player_names(partial_name: str) -> List[Dict[str, Any]]:
@@ -231,13 +235,13 @@ async def suggest_player_names(partial_name: str) -> List[Dict[str, Any]]:
                     }
                 )
 
-        # Sort by confidence and return top matches
+        # Sort by confidence and return ResponseBuilder.success(top) matches
         matches.sort(key=lambda x: x["confidence"], reverse=True)
-        return matches[:5]
+        return ResponseBuilder.success(matches)[:5]
 
     except Exception as e:
         logger.error(f"Error suggesting player names: {e}")
-        return []
+        return ResponseBuilder.success([])
 
 
 async def generate_contextual_suggestions(
@@ -316,7 +320,7 @@ async def generate_contextual_suggestions(
     except Exception as e:
         logger.error(f"Error generating contextual suggestions: {e}")
 
-    return suggestions
+    return ResponseBuilder.success(suggestions)
 
 
 async def generate_trending_suggestions(
@@ -352,7 +356,7 @@ async def generate_trending_suggestions(
     except Exception as e:
         logger.error(f"Error generating trending suggestions: {e}")
 
-    return suggestions
+    return ResponseBuilder.success(suggestions)
 
 
 async def generate_popular_suggestions(
@@ -381,7 +385,7 @@ async def generate_popular_suggestions(
     except Exception as e:
         logger.error(f"Error generating popular suggestions: {e}")
 
-    return suggestions
+    return ResponseBuilder.success(suggestions)
 
 
 async def generate_autocomplete_suggestions(
@@ -426,10 +430,10 @@ async def generate_autocomplete_suggestions(
     except Exception as e:
         logger.error(f"Error generating autocomplete suggestions: {e}")
 
-    return suggestions
+    return ResponseBuilder.success(suggestions)
 
 
-@router.post("/execute")
+@router.post("/execute", response_model=StandardAPIResponse[Dict[str, Any]])
 async def execute_search(query: SearchQuery) -> SearchResult:
     """
     Execute advanced search with filtering, faceting, and analytics
@@ -454,10 +458,10 @@ async def execute_search(query: SearchQuery) -> SearchResult:
         # Generate facets
         facets = await generate_search_facets(results, query)
 
-        return SearchResult(
+        return ResponseBuilder.success(SearchResult(
             items=results["items"],
             total_count=results["total_count"],
-            filtered_count=len(results["items"]),
+            filtered_count=len(results["items"])),
             facets=facets,
             query_time_ms=query_time,
             suggestions=[],
@@ -465,7 +469,7 @@ async def execute_search(query: SearchQuery) -> SearchResult:
 
     except Exception as e:
         logger.error(f"Error executing search: {e}")
-        raise HTTPException(status_code=500, detail="Search execution failed")
+        raise BusinessLogicException("Search execution failed")
 
 
 async def perform_search(query: SearchQuery) -> Dict[str, Any]:
@@ -587,14 +591,14 @@ async def perform_search(query: SearchQuery) -> Dict[str, Any]:
         end_idx = start_idx + query.limit
         paginated_items = items[start_idx:end_idx]
 
-        return {
+        return ResponseBuilder.success({
             "items": paginated_items,
             "total_count": len(mock_data.get("props", [])),
-        }
+        })
 
     except Exception as e:
         logger.error(f"Error performing search: {e}")
-        return {"items": [], "total_count": 0}
+        return ResponseBuilder.success({"items": [], "total_count": 0})
 
 
 def apply_condition(items: List[Dict], condition: SearchCondition) -> List[Dict]:
@@ -633,11 +637,11 @@ def apply_condition(items: List[Dict], condition: SearchCondition) -> List[Dict]
                     ):
                         filtered_items.append(item)
 
-        return filtered_items
+        return ResponseBuilder.success(filtered_items)
 
     except Exception as e:
         logger.error(f"Error applying condition: {e}")
-        return items
+        return ResponseBuilder.success(items)
 
 
 async def generate_search_facets(
@@ -649,7 +653,7 @@ async def generate_search_facets(
     try:
         items = results.get("items", [])
         if not items:
-            return facets
+            return ResponseBuilder.success(facets)
 
         # Generate facets for categorical fields
         categorical_fields = [
@@ -677,14 +681,14 @@ async def generate_search_facets(
                     }
                 )
 
-        return facets
+        return ResponseBuilder.success(facets)
 
     except Exception as e:
         logger.error(f"Error generating facets: {e}")
-        return []
+        return ResponseBuilder.success([])
 
 
-@router.post("/save")
+@router.post("/save", response_model=StandardAPIResponse[Dict[str, Any]])
 async def save_search(saved_search: SavedSearch) -> Dict[str, str]:
     """Save a search query for later use"""
     try:
@@ -711,14 +715,14 @@ async def save_search(saved_search: SavedSearch) -> Dict[str, str]:
             f"saved_search:{search_id}", search_data, ttl=86400 * 30
         )  # 30 days
 
-        return {"search_id": search_id, "message": "Search saved successfully"}
+        return ResponseBuilder.success({"search_id": search_id, "message": "Search saved successfully"})
 
     except Exception as e:
         logger.error(f"Error saving search: {e}")
-        raise HTTPException(status_code=500, detail="Failed to save search")
+        raise BusinessLogicException("Failed to save search")
 
 
-@router.get("/saved")
+@router.get("/saved", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_saved_searches() -> Dict[str, List[Dict]]:
     """Get all saved searches for the user"""
     try:
@@ -746,14 +750,14 @@ async def get_saved_searches() -> Dict[str, List[Dict]]:
             },
         ]
 
-        return {"saved_searches": saved_searches}
+        return ResponseBuilder.success({"saved_searches": saved_searches})
 
     except Exception as e:
         logger.error(f"Error getting saved searches: {e}")
-        return {"saved_searches": []}
+        return ResponseBuilder.success({"saved_searches": []})
 
 
-@router.get("/history")
+@router.get("/history", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_search_history() -> Dict[str, List[Dict]]:
     """Get search history for the user"""
     try:
@@ -777,18 +781,18 @@ async def get_search_history() -> Dict[str, List[Dict]]:
             },
         ]
 
-        return {"search_history": history}
+        return ResponseBuilder.success({"search_history": history})
 
     except Exception as e:
         logger.error(f"Error getting search history: {e}")
-        return {"search_history": []}
+        return ResponseBuilder.success({"search_history": []})
 
 
-@router.get("/analytics")
+@router.get("/analytics", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_search_analytics() -> Dict[str, Any]:
     """Get search analytics and statistics"""
     try:
-        return {
+        return ResponseBuilder.success({
             "total_searches": search_analytics["total_searches"],
             "popular_terms": dict(
                 sorted(
@@ -798,14 +802,14 @@ async def get_search_analytics() -> Dict[str, Any]:
                 )[:10]
             ),
             "trending_searches": search_analytics.get("trending_searches", []),
-        }
+        })
 
     except Exception as e:
         logger.error(f"Error getting search analytics: {e}")
-        return {"total_searches": 0, "popular_terms": {}, "trending_searches": []}
+        return ResponseBuilder.success({"total_searches": 0, "popular_terms": {}), "trending_searches": []}
 
 
-@router.get("/field-metadata/{data_type}")
+@router.get("/field-metadata/{data_type}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_field_metadata(data_type: str) -> Dict[str, Any]:
     """Get available fields and operators for a data type"""
     try:
@@ -845,8 +849,8 @@ async def get_field_metadata(data_type: str) -> Dict[str, Any]:
             },
         }
 
-        return metadata.get(data_type, {"fields": {}, "operators": {}})
+        return ResponseBuilder.success(metadata.get(data_type, {"fields": {}, "operators": {}}))
 
     except Exception as e:
         logger.error(f"Error getting field metadata: {e}")
-        return {"fields": {}, "operators": {}}
+        return ResponseBuilder.success({"fields": {}), "operators": {}}

@@ -8,6 +8,10 @@ import logging
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Query
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.security import HTTPBearer
 import jwt
 
@@ -41,7 +45,7 @@ async def get_sportsbook_service() -> UnifiedSportsbookService:
     if sportsbook_service is None:
         sportsbook_service = UnifiedSportsbookService(enable_notifications=True)
         await sportsbook_service.__aenter__()
-    return sportsbook_service
+    return ResponseBuilder.success(sportsbook_service)
 
 @router.on_event("startup")
 async def startup_sportsbook_service():
@@ -57,7 +61,7 @@ async def shutdown_sportsbook_service():
         await sportsbook_service.__aexit__(None, None, None)
         logger.info("Enhanced sportsbook service stopped")
 
-@router.get("/odds/all/{sport}")
+@router.get("/odds/all/{sport}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_all_odds(
     sport: str,
     player_name: Optional[str] = Query(None),
@@ -96,7 +100,7 @@ async def get_all_odds(
                 "confidence_score": odds.confidence_score
             })
         
-        return {
+        return ResponseBuilder.success({
             "sport": sport,
             "player_filter": player_name,
             "provider_filter": provider,
@@ -105,13 +109,13 @@ async def get_all_odds(
             "providers_active": len(set(odds.provider for odds in all_odds)),
             "odds_by_market": grouped_odds,
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Error fetching odds for {sport}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to fetch odds: {str(e)}")
+        raise BusinessLogicException("f"Failed to fetch odds: {str(e")}")
 
-@router.get("/odds/best/{sport}")
+@router.get("/odds/best/{sport}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_best_odds(
     sport: str,
     player_name: Optional[str] = Query(None),
@@ -126,7 +130,7 @@ async def get_best_odds(
         # Filter by minimum number of books
         filtered_odds = [odds for odds in best_odds if odds.total_books >= min_books]
         
-        return {
+        return ResponseBuilder.success({
             "sport": sport,
             "player_filter": player_name,
             "min_books": min_books,
@@ -140,7 +144,7 @@ async def get_best_odds(
                         "odds": odds.best_over_odds,
                         "provider": odds.best_over_provider,
                         "decimal": odds.best_over_decimal
-                    },
+                    }),
                     "best_under": {
                         "odds": odds.best_under_odds,
                         "provider": odds.best_under_provider,
@@ -160,9 +164,9 @@ async def get_best_odds(
         
     except Exception as e:
         logger.error(f"Error finding best odds for {sport}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to find best odds: {str(e)}")
+        raise BusinessLogicException("f"Failed to find best odds: {str(e")}")
 
-@router.get("/arbitrage/{sport}")
+@router.get("/arbitrage/{sport}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_arbitrage_opportunities(
     sport: str,
     min_profit: float = Query(2.0, ge=0.1, le=50.0),
@@ -179,7 +183,7 @@ async def get_arbitrage_opportunities(
         # Limit results
         arbitrage_ops = arbitrage_ops[:max_results]
         
-        return {
+        return ResponseBuilder.success({
             "sport": sport,
             "min_profit": min_profit,
             "player_filter": player_name,
@@ -194,7 +198,7 @@ async def get_arbitrage_opportunities(
                         "odds": opp.over_odds,
                         "provider": opp.over_provider,
                         "stake_percentage": opp.over_stake_percentage
-                    },
+                    }),
                     "under_bet": {
                         "odds": opp.under_odds,
                         "provider": opp.under_provider,
@@ -214,9 +218,9 @@ async def get_arbitrage_opportunities(
         
     except Exception as e:
         logger.error(f"Error finding arbitrage opportunities for {sport}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to find arbitrage opportunities: {str(e)}")
+        raise BusinessLogicException("f"Failed to find arbitrage opportunities: {str(e")}")
 
-@router.get("/live-monitoring/{sport}")
+@router.get("/live-monitoring/{sport}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def start_live_monitoring(
     sport: str,
     interval_seconds: int = Query(60, ge=10, le=300),
@@ -251,17 +255,17 @@ async def start_live_monitoring(
     # Start monitoring in background
     background_tasks.add_task(monitor_sport)
     
-    return {
+    return ResponseBuilder.success({
         "status": "started",
         "sport": sport,
         "monitoring_interval": interval_seconds,
         "player_filter": player_name,
         "min_arbitrage_profit": min_arbitrage_profit,
-        "message": f"Live monitoring started for {sport}",
+        "message": f"Live monitoring started for {sport})",
         "timestamp": datetime.now().isoformat()
     }
 
-@router.post("/notifications/test-arbitrage")
+@router.post("/notifications/test-arbitrage", response_model=StandardAPIResponse[Dict[str, Any]])
 async def test_arbitrage_notification(
     sport: str = "nba",
     player_name: str = "LeBron James",
@@ -277,19 +281,19 @@ async def test_arbitrage_notification(
             player_name=player_name
         )
         
-        return {
+        return ResponseBuilder.success({
             "status": "success",
             "message": "Test arbitrage notification sent",
             "sport": sport,
             "player_name": player_name,
             "profit_margin": profit_margin
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to send test arbitrage notification: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to send notification: {str(e)}")
+        raise BusinessLogicException("f"Failed to send notification: {str(e")}")
 
-@router.post("/notifications/test-odds-change")
+@router.post("/notifications/test-odds-change", response_model=StandardAPIResponse[Dict[str, Any]])
 async def test_odds_change_notification(
     sport: str = "nba",
     player_name: str = "Stephen Curry",
@@ -308,20 +312,20 @@ async def test_odds_change_notification(
             player_name=player_name
         )
         
-        return {
+        return ResponseBuilder.success({
             "status": "success",
             "message": "Test odds change notification sent",
             "sport": sport,
             "player_name": player_name,
-            "odds_change": f"{old_odds} → {new_odds}",
+            "odds_change": f"{old_odds}) → {new_odds}",
             "sportsbook": sportsbook
         }
         
     except Exception as e:
         logger.error(f"Failed to send test odds change notification: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to send notification: {str(e)}")
+        raise BusinessLogicException("f"Failed to send notification: {str(e")}")
 
-@router.post("/notifications/test-high-value")
+@router.post("/notifications/test-high-value", response_model=StandardAPIResponse[Dict[str, Any]])
 async def test_high_value_notification(
     sport: str = "nfl",
     player_name: str = "Josh Allen",
@@ -340,7 +344,7 @@ async def test_high_value_notification(
             player_name=player_name
         )
         
-        return {
+        return ResponseBuilder.success({
             "status": "success",
             "message": "Test high value bet notification sent",
             "sport": sport,
@@ -348,13 +352,13 @@ async def test_high_value_notification(
             "expected_value": expected_value,
             "confidence": confidence,
             "recommended_stake": recommended_stake
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to send test high value notification: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to send notification: {str(e)}")
+        raise BusinessLogicException("f"Failed to send notification: {str(e")}")
 
-@router.get("/providers/status")
+@router.get("/providers/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_providers_status(
     service: UnifiedSportsbookService = Depends(get_sportsbook_service)
 ) -> Dict[str, Any]:
@@ -362,20 +366,20 @@ async def get_providers_status(
     try:
         performance_report = service.get_performance_report()
         
-        return {
+        return ResponseBuilder.success({
             "notification_service": {
                 "enabled": service.enable_notifications,
                 "stats": notification_service.get_stats()
-            },
+            }),
             "sportsbook_providers": performance_report,
             "timestamp": datetime.now().isoformat()
         }
         
     except Exception as e:
         logger.error(f"Error getting provider status: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get provider status: {str(e)}")
+        raise BusinessLogicException("f"Failed to get provider status: {str(e")}")
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def health_check() -> Dict[str, Any]:
     """Health check endpoint for the enhanced sportsbook service"""
     try:
@@ -388,14 +392,14 @@ async def health_check() -> Dict[str, Any]:
         
         is_healthy = healthy_providers > 0
         
-        return {
+        return ResponseBuilder.success({
             "status": "healthy" if is_healthy else "degraded",
             "service": "enhanced-sportsbook",
             "providers": {
                 "total": total_providers,
                 "healthy": healthy_providers,
                 "health_percentage": (healthy_providers / total_providers * 100) if total_providers > 0 else 0
-            },
+            }),
             "notifications": {
                 "enabled": service.enable_notifications,
                 "active_connections": notification_service.get_stats().get('active_connections', 0)
@@ -405,9 +409,9 @@ async def health_check() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        return {
+        return ResponseBuilder.success({
             "status": "unhealthy",
             "service": "enhanced-sportsbook",
             "error": str(e),
             "timestamp": datetime.now().isoformat()
-        }
+        })

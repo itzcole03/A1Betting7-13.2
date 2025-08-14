@@ -21,6 +21,10 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.responses import JSONResponse
 
 from ..services.unified_sportsbook_service import (
@@ -82,7 +86,7 @@ async def get_sportsbook_service():
     async with UnifiedSportsbookService() as service:
         yield service
 
-@router.get("/player-props")
+@router.get("/player-props", response_model=StandardAPIResponse[Dict[str, Any]])
 @cache_response(expire_time=30)  # Cache for 30 seconds
 async def get_player_props(
     sport: str = Query(..., description="Sport name (e.g., 'nba', 'nfl', 'mlb')"),
@@ -144,9 +148,9 @@ async def get_player_props(
 
     except Exception as e:
         logger.error(f"Error fetching player props: {e}")
-        raise HTTPException(status_code=500, detail=f"Error fetching player props: {str(e)}")
+        raise BusinessLogicException("f"Error fetching player props: {str(e")}")
 
-@router.get("/best-odds")
+@router.get("/best-odds", response_model=StandardAPIResponse[Dict[str, Any]])
 @cache_response(expire_time=45)  # Cache for 45 seconds
 async def get_best_odds(
     sport: str = Query(..., description="Sport name"),
@@ -216,9 +220,9 @@ async def get_best_odds(
 
     except Exception as e:
         logger.error(f"Error fetching best odds: {e}")
-        raise HTTPException(status_code=500, detail=f"Error fetching best odds: {str(e)}")
+        raise BusinessLogicException("f"Error fetching best odds: {str(e")}")
 
-@router.get("/arbitrage")
+@router.get("/arbitrage", response_model=StandardAPIResponse[Dict[str, Any]])
 @cache_response(expire_time=20)  # Cache for 20 seconds (time-sensitive)
 async def get_arbitrage_opportunities(
     sport: str = Query(..., description="Sport name"),
@@ -276,9 +280,9 @@ async def get_arbitrage_opportunities(
 
     except Exception as e:
         logger.error(f"Error fetching arbitrage opportunities: {e}")
-        raise HTTPException(status_code=500, detail=f"Error fetching arbitrage opportunities: {str(e)}")
+        raise BusinessLogicException("f"Error fetching arbitrage opportunities: {str(e")}")
 
-@router.get("/performance")
+@router.get("/performance", response_model=StandardAPIResponse[Dict[str, Any]])
 @cache_response(expire_time=300)  # Cache for 5 minutes
 async def get_performance_metrics(
     service: UnifiedSportsbookService = Depends(get_sportsbook_service),
@@ -301,9 +305,9 @@ async def get_performance_metrics(
 
     except Exception as e:
         logger.error(f"Error fetching performance metrics: {e}")
-        raise HTTPException(status_code=500, detail=f"Error fetching performance metrics: {str(e)}")
+        raise BusinessLogicException("f"Error fetching performance metrics: {str(e")}")
 
-@router.get("/sports")
+@router.get("/sports", response_model=StandardAPIResponse[Dict[str, Any]])
 @cache_response(expire_time=3600)  # Cache for 1 hour
 async def get_available_sports(
     service: UnifiedSportsbookService = Depends(get_sportsbook_service),
@@ -314,16 +318,16 @@ async def get_available_sports(
     """
     try:
         # This would ideally aggregate from all providers
-        # For now, return common sports
+        # For now, return ResponseBuilder.success(common) sports
         sports = ["nba", "nfl", "mlb", "nhl", "ncaab", "ncaaf", "soccer", "tennis", "golf", "mma"]
         
         return JSONResponse(content=sports)
 
     except Exception as e:
         logger.error(f"Error fetching available sports: {e}")
-        raise HTTPException(status_code=500, detail=f"Error fetching available sports: {str(e)}")
+        raise BusinessLogicException("f"Error fetching available sports: {str(e")}")
 
-@router.get("/search")
+@router.get("/search", response_model=StandardAPIResponse[Dict[str, Any]])
 async def search_player_props(
     player_name: str = Query(..., description="Player name to search"),
     sport: str = Query(..., description="Sport name"),
@@ -365,7 +369,7 @@ async def search_player_props(
 
     except Exception as e:
         logger.error(f"Error searching player props: {e}")
-        raise HTTPException(status_code=500, detail=f"Error searching player props: {str(e)}")
+        raise BusinessLogicException("f"Error searching player props: {str(e")}")
 
 # WebSocket endpoint for real-time updates
 @router.websocket("/ws")
@@ -441,12 +445,12 @@ async def odds_monitoring_task():
             await asyncio.sleep(60)  # Wait longer on error
 
 # Health check endpoint
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def health_check():
     """Health check for sportsbook integration"""
-    return {
+    return ResponseBuilder.success({
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "active_connections": len(connection_manager.active_connections),
         "enabled_providers": [provider.value for provider in SportsbookProvider]
-    }
+    })

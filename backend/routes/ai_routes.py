@@ -8,6 +8,10 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Depends
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -63,22 +67,22 @@ async def ai_health_check(ollama_service: OllamaService = Depends(get_ollama_ser
         is_available = await ollama_service.check_availability()
         models = await ollama_service.get_available_models() if is_available else []
         
-        return HealthResponse(
+        return ResponseBuilder.success(HealthResponse(
             status="healthy" if is_available else "degraded",
             ollama_available=is_available,
             available_models=models,
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=datetime.utcnow()).isoformat()
         )
     except Exception as e:
         logger.error(f"AI health check failed: {e}")
-        return HealthResponse(
+        return ResponseBuilder.success(HealthResponse(
             status="unhealthy",
             ollama_available=False,
             available_models=[],
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=datetime.utcnow()).isoformat()
         )
 
-@router.post("/explain")
+@router.post("/explain", response_model=StandardAPIResponse[Dict[str, Any]])
 async def explain_analysis(
     request: ExplainRequestModel,
     ollama_service: OllamaService = Depends(get_ollama_service)
@@ -92,10 +96,8 @@ async def explain_analysis(
     try:
         # Check if Ollama is available
         if not await ollama_service.check_availability():
-            raise HTTPException(
-                status_code=503, 
-                detail="AI service temporarily unavailable. Please try again later."
-            )
+            raise BusinessLogicException("AI service temporarily unavailable. Please try again later."
+            ")
         
         # Convert Pydantic model to dataclass
         explain_request = ExplainRequest(
@@ -135,8 +137,8 @@ async def explain_analysis(
                     "error": True
                 }) + "\n\n"
         
-        return StreamingResponse(
-            generate_explanation(),
+        return ResponseBuilder.success(StreamingResponse(
+            generate_explanation()),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
@@ -149,9 +151,9 @@ async def explain_analysis(
         raise
     except Exception as e:
         logger.error(f"Explain analysis error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to generate explanation")
+        raise BusinessLogicException("Failed to generate explanation")
 
-@router.post("/analyze-prop")
+@router.post("/analyze-prop", response_model=StandardAPIResponse[Dict[str, Any]])
 async def analyze_prop(
     request: PropAnalysisModel,
     ollama_service: OllamaService = Depends(get_ollama_service)
@@ -165,8 +167,8 @@ async def analyze_prop(
     try:
         if not await ollama_service.check_availability():
             # Provide fallback analysis without AI
-            return StreamingResponse(
-                _generate_fallback_prop_analysis(request),
+            return ResponseBuilder.success(StreamingResponse(
+                _generate_fallback_prop_analysis(request)),
                 media_type="text/event-stream"
             )
         
@@ -208,8 +210,8 @@ async def analyze_prop(
                     "error": True
                 }) + "\n\n"
         
-        return StreamingResponse(
-            generate_prop_analysis(),
+        return ResponseBuilder.success(StreamingResponse(
+            generate_prop_analysis()),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
@@ -220,9 +222,9 @@ async def analyze_prop(
         
     except Exception as e:
         logger.error(f"Prop analysis error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to analyze prop")
+        raise BusinessLogicException("Failed to analyze prop")
 
-@router.post("/player-summary")
+@router.post("/player-summary", response_model=StandardAPIResponse[Dict[str, Any]])
 async def generate_player_summary(
     request: PlayerSummaryModel,
     ollama_service: OllamaService = Depends(get_ollama_service)
@@ -235,8 +237,8 @@ async def generate_player_summary(
     """
     try:
         if not await ollama_service.check_availability():
-            return StreamingResponse(
-                _generate_fallback_player_summary(request),
+            return ResponseBuilder.success(StreamingResponse(
+                _generate_fallback_player_summary(request)),
                 media_type="text/event-stream"
             )
         
@@ -278,8 +280,8 @@ async def generate_player_summary(
                     "error": True
                 }) + "\n\n"
         
-        return StreamingResponse(
-            generate_summary(),
+        return ResponseBuilder.success(StreamingResponse(
+            generate_summary()),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
@@ -290,7 +292,7 @@ async def generate_player_summary(
         
     except Exception as e:
         logger.error(f"Player summary error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to generate summary")
+        raise BusinessLogicException("Failed to generate summary")
 
 # Fallback functions for when Ollama is unavailable
 async def _generate_fallback_prop_analysis(request: PropAnalysisModel):

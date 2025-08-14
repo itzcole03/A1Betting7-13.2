@@ -9,6 +9,10 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, Query, WebSocket, WebSocketDisconnect
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -55,9 +59,9 @@ async def get_optimized_service():
             
         except Exception as e:
             logger.error(f"Failed to initialize optimized service: {e}")
-            raise HTTPException(status_code=500, detail=f"Service initialization failed: {str(e)}")
+            raise BusinessLogicException("f"Service initialization failed: {str(e")}")
     
-    return optimized_service
+    return ResponseBuilder.success(optimized_service)
 
 
 class PlayerDataRequest(BaseModel):
@@ -85,26 +89,26 @@ class HealthMetricsResponse(BaseModel):
     timestamp: str
 
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def health_check():
     """Health check endpoint for optimized real-time service"""
     try:
         service = await get_optimized_service()
         health_data = await service.get_health_status()
         
-        return {
+        return ResponseBuilder.success({
             "status": "healthy",
             "service": "optimized_real_time_data",
             "health_data": health_data,
             "timestamp": datetime.now().isoformat()
-        }
+        })
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        return {
+        return ResponseBuilder.success({
             "status": "unhealthy",
             "error": str(e),
             "timestamp": datetime.now().isoformat()
-        }
+        })
 
 
 @router.get("/metrics", response_model=HealthMetricsResponse)
@@ -126,21 +130,21 @@ async def get_comprehensive_metrics():
                 overall_health = "degraded"
                 break
         
-        return HealthMetricsResponse(
+        return ResponseBuilder.success(HealthMetricsResponse(
             overall_health=overall_health,
             service_metrics=health_metrics,
             circuit_breaker_status=circuit_breaker_status,
             cache_metrics=cache_metrics,
             rate_limit_status=rate_limit_status,
-            timestamp=datetime.now().isoformat()
+            timestamp=datetime.now()).isoformat()
         )
         
     except Exception as e:
         logger.error(f"Failed to get metrics: {e}")
-        raise HTTPException(status_code=500, detail=f"Metrics unavailable: {str(e)}")
+        raise BusinessLogicException("f"Metrics unavailable: {str(e")}")
 
 
-@router.post("/player-data")
+@router.post("/player-data", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_optimized_player_data(request: PlayerDataRequest):
     """Get optimized player data with intelligent caching and real-time updates"""
     try:
@@ -158,10 +162,8 @@ async def get_optimized_player_data(request: PlayerDataRequest):
         processing_time = (datetime.now() - start_time).total_seconds()
         
         if not player_data:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Player data not found for ID: {request.player_id}"
-            )
+            raise BusinessLogicException("f"Player data not found for ID: {request.player_id}"
+            ")
         
         # Get metadata about the response
         metadata = {
@@ -173,20 +175,20 @@ async def get_optimized_player_data(request: PlayerDataRequest):
             "real_time_enabled": True
         }
         
-        return {
+        return ResponseBuilder.success({
             "player_data": player_data,
             "metadata": metadata,
             "status": "success"
-        }
+        })
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to get player data: {e}")
-        raise HTTPException(status_code=500, detail=f"Data retrieval failed: {str(e)}")
+        raise BusinessLogicException("f"Data retrieval failed: {str(e")}")
 
 
-@router.post("/search-players")
+@router.post("/search-players", response_model=StandardAPIResponse[Dict[str, Any]])
 async def search_optimized_players(request: PlayerSearchRequest):
     """Search for players with optimized performance and caching"""
     try:
@@ -203,21 +205,21 @@ async def search_optimized_players(request: PlayerSearchRequest):
         
         processing_time = (datetime.now() - start_time).total_seconds()
         
-        return {
+        return ResponseBuilder.success({
             "results": search_results,
             "query": request.query,
             "sport": request.sport,
             "total_results": len(search_results),
             "processing_time_ms": round(processing_time * 1000, 2),
             "status": "success"
-        }
+        })
         
     except Exception as e:
         logger.error(f"Player search failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+        raise BusinessLogicException("f"Search failed: {str(e")}")
 
 
-@router.post("/cache/warm")
+@router.post("/cache/warm", response_model=StandardAPIResponse[Dict[str, Any]])
 async def warm_cache(
     player_ids: List[str],
     sport: str = Query(default="MLB"),
@@ -234,22 +236,22 @@ async def warm_cache(
         
         processing_time = (datetime.now() - start_time).total_seconds()
         
-        return {
+        return ResponseBuilder.success({
             "cache_warming": {
                 "players_processed": len(player_ids),
                 "successful": results.get("successful", 0),
                 "failed": results.get("failed", 0),
                 "processing_time_seconds": processing_time,
                 "status": "completed"
-            }
+            })
         }
         
     except Exception as e:
         logger.error(f"Cache warming failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Cache warming failed: {str(e)}")
+        raise BusinessLogicException("f"Cache warming failed: {str(e")}")
 
 
-@router.post("/cache/clear")
+@router.post("/cache/clear", response_model=StandardAPIResponse[Dict[str, Any]])
 async def clear_cache(
     player_id: Optional[str] = Query(None),
     sport: str = Query(default="MLB"),
@@ -261,89 +263,89 @@ async def clear_cache(
         
         if clear_all:
             cleared_count = await service.clear_all_cache()
-            return {
+            return ResponseBuilder.success({
                 "cache_clear": {
                     "scope": "all",
                     "cleared_entries": cleared_count,
                     "status": "completed"
-                }
+                })
             }
         elif player_id:
             success = await service.clear_player_cache(player_id, sport)
-            return {
+            return ResponseBuilder.success({
                 "cache_clear": {
                     "scope": "player",
                     "player_id": player_id,
                     "sport": sport,
                     "success": success,
                     "status": "completed"
-                }
+                })
             }
         else:
-            raise HTTPException(status_code=400, detail="Must specify player_id or set clear_all=true")
+            raise BusinessLogicException("Must specify player_id or set clear_all=true")
             
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Cache clear failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Cache clear failed: {str(e)}")
+        raise BusinessLogicException("f"Cache clear failed: {str(e")}")
 
 
-@router.get("/circuit-breaker/status")
+@router.get("/circuit-breaker/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_circuit_breaker_status():
     """Get status of all circuit breakers"""
     try:
         service = await get_optimized_service()
         status = await service.get_circuit_breaker_status()
         
-        return {
+        return ResponseBuilder.success({
             "circuit_breakers": status,
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to get circuit breaker status: {e}")
-        raise HTTPException(status_code=500, detail=f"Status unavailable: {str(e)}")
+        raise BusinessLogicException("f"Status unavailable: {str(e")}")
 
 
-@router.post("/circuit-breaker/reset")
+@router.post("/circuit-breaker/reset", response_model=StandardAPIResponse[Dict[str, Any]])
 async def reset_circuit_breaker(service_name: str):
     """Reset a specific circuit breaker"""
     try:
         service = await get_optimized_service()
         success = await service.reset_circuit_breaker(service_name)
         
-        return {
+        return ResponseBuilder.success({
             "circuit_breaker_reset": {
                 "service": service_name,
                 "success": success,
                 "timestamp": datetime.now().isoformat()
-            }
+            })
         }
         
     except Exception as e:
         logger.error(f"Failed to reset circuit breaker: {e}")
-        raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")
+        raise BusinessLogicException("f"Reset failed: {str(e")}")
 
 
-@router.get("/rate-limits/status")
+@router.get("/rate-limits/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_rate_limit_status():
     """Get current rate limiting status"""
     try:
         service = await get_optimized_service()
         status = await service.get_rate_limit_status()
         
-        return {
+        return ResponseBuilder.success({
             "rate_limits": status,
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to get rate limit status: {e}")
-        raise HTTPException(status_code=500, detail=f"Status unavailable: {str(e)}")
+        raise BusinessLogicException("f"Status unavailable: {str(e")}")
 
 
-@router.get("/performance/benchmark")
+@router.get("/performance/benchmark", response_model=StandardAPIResponse[Dict[str, Any]])
 async def run_performance_benchmark(
     iterations: int = Query(default=5, ge=1, le=20),
     include_cache_test: bool = Query(default=True)
@@ -407,11 +409,11 @@ async def run_performance_benchmark(
                 "performance_grade": "excellent" if sum(response_times) / len(response_times) < 2.0 else "good"
             }
         
-        return benchmark_results
+        return ResponseBuilder.success(benchmark_results)
         
     except Exception as e:
         logger.error(f"Performance benchmark failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Benchmark failed: {str(e)}")
+        raise BusinessLogicException("f"Benchmark failed: {str(e")}")
 
 
 # WebSocket endpoint for real-time updates
@@ -489,21 +491,21 @@ async def websocket_player_updates(websocket: WebSocket):
             pass
 
 
-@router.get("/websocket/status")
+@router.get("/websocket/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_websocket_status():
     """Get WebSocket server status and connection count"""
     try:
         service = await get_optimized_service()
         status = await service.get_websocket_status()
         
-        return {
+        return ResponseBuilder.success({
             "websocket_server": status,
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to get WebSocket status: {e}")
-        raise HTTPException(status_code=500, detail=f"Status unavailable: {str(e)}")
+        raise BusinessLogicException("f"Status unavailable: {str(e")}")
 
 
 # Export router

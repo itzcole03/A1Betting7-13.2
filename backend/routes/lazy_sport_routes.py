@@ -8,6 +8,10 @@ import logging
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, HTTPException
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel
 
 from backend.services.lazy_sport_manager import lazy_sport_manager
@@ -55,10 +59,10 @@ async def activate_sport(sport: str):
 
         result = await lazy_sport_manager.activate_sport(sport)
 
-        return SportActivationResponse(
+        return ResponseBuilder.success(SportActivationResponse(
             status=result["status"],
             sport=result["sport"],
-            load_time=result.get("load_time", 0),
+            load_time=result.get("load_time", 0)),
             cached=result.get("cached", False),
             newly_loaded=result.get("newly_loaded", False),
             error=result.get("error"),
@@ -66,12 +70,11 @@ async def activate_sport(sport: str):
 
     except Exception as e:
         logger.error(f"❌ Error activating sport {sport}: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to activate {sport}: {str(e)}"
+        raise BusinessLogicException("f"Failed to activate {sport}: {str(e")}"
         )
 
 
-@router.post("/deactivate/{sport}")
+@router.post("/deactivate/{sport}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def deactivate_sport(sport: str):
     """
     Deactivate a sport service to free resources.
@@ -86,16 +89,15 @@ async def deactivate_sport(sport: str):
         logger.info(f"🛑 Sport deactivation requested: {sport}")
 
         result = await lazy_sport_manager.deactivate_sport(sport)
-        return result
+        return ResponseBuilder.success(result)
 
     except Exception as e:
         logger.error(f"❌ Error deactivating sport {sport}: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to deactivate {sport}: {str(e)}"
+        raise BusinessLogicException("f"Failed to deactivate {sport}: {str(e")}"
         )
 
 
-@router.get("/status/{sport}")
+@router.get("/status/{sport}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_sport_status(sport: str):
     """
     Get the current status of a sport service.
@@ -107,15 +109,14 @@ async def get_sport_status(sport: str):
         Dict with sport service status information
     """
     try:
-        return lazy_sport_manager.get_sport_status(sport)
+        return ResponseBuilder.success(lazy_sport_manager.get_sport_status(sport))
     except Exception as e:
         logger.error(f"❌ Error getting sport status for {sport}: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get status for {sport}: {str(e)}"
+        raise BusinessLogicException("f"Failed to get status for {sport}: {str(e")}"
         )
 
 
-@router.get("/status")
+@router.get("/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_all_sports_status():
     """
     Get the status of all sport services.
@@ -124,15 +125,14 @@ async def get_all_sports_status():
         Dict with all sport services status information
     """
     try:
-        return lazy_sport_manager.get_all_statuses()
+        return ResponseBuilder.success(lazy_sport_manager.get_all_statuses())
     except Exception as e:
         logger.error(f"❌ Error getting all sports status: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get sports status: {str(e)}"
+        raise BusinessLogicException("f"Failed to get sports status: {str(e")}"
         )
 
 
-@router.post("/optimize")
+@router.post("/optimize", response_model=StandardAPIResponse[Dict[str, Any]])
 async def optimize_resources():
     """
     Manually trigger resource optimization.
@@ -154,22 +154,21 @@ async def optimize_resources():
         # Get status after cleanup
         after_status = lazy_sport_manager.get_all_statuses()
 
-        return {
+        return ResponseBuilder.success({
             "status": "optimized",
             "before": before_status,
             "after": after_status,
             "freed_services": before_status["total_loaded"]
             - after_status["total_loaded"],
-        }
+        })
 
     except Exception as e:
         logger.error(f"❌ Error optimizing resources: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to optimize resources: {str(e)}"
+        raise BusinessLogicException("f"Failed to optimize resources: {str(e")}"
         )
 
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def sports_health_check():
     """
     Health check for the lazy sport management system.
@@ -189,7 +188,7 @@ async def sports_health_check():
 
         health_score = max(0, 100 - (error_services * 25))  # Deduct 25 points per error
 
-        return {
+        return ResponseBuilder.success({
             "status": (
                 "healthy"
                 if health_score >= 75
@@ -197,7 +196,7 @@ async def sports_health_check():
             ),
             "health_score": health_score,
             "active_sport": all_status["active_sport"],
-            "services_loaded": f"{loaded_services}/{total_services}",
+            "services_loaded": f"{loaded_services})/{total_services}",
             "error_count": error_services,
             "performance": {
                 "lazy_loading": "enabled",
@@ -210,4 +209,4 @@ async def sports_health_check():
 
     except Exception as e:
         logger.error(f"❌ Error in sports health check: {e}")
-        return {"status": "unhealthy", "error": str(e), "health_score": 0}
+        return ResponseBuilder.success({"status": "unhealthy", "error": str(e), "health_score": 0})

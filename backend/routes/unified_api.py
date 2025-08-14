@@ -9,6 +9,10 @@ from typing import Any, Dict, List, Optional
 import redis.asyncio as redis
 from fastapi import APIRouter, Body, Query, Request, status
 
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+
 from backend.exceptions.api_exceptions import (
     AuthorizationException,
     BusinessLogicException,
@@ -90,7 +94,7 @@ async def unified_analysis_stub() -> Dict[str, Any]:
             "filters": {"sport": "NBA", "min_confidence": 70, "max_results": 10},
             "status": "ok",
         }
-        return builder.success(analysis_data)
+        return ResponseBuilder.success(builder.success(analysis_data))
     except Exception as e:
         raise BusinessLogicException(
             detail=f"Failed to generate NBA props analysis: {str(e)}",
@@ -115,9 +119,7 @@ async def get_featured_props(
     Args:
         sport: Sport filter (All, NBA, NFL, MLB, etc.)
         min_confidence: Minimum confidence threshold for props
-        max_results: Maximum number of props to return
-        
-    Returns:
+        max_results: Maximum number of props to return ResponseBuilder.success(Returns:)
         StandardAPIResponse with list of featured prop data
         
     Raises:
@@ -151,7 +153,7 @@ async def get_featured_props(
             if "stat" not in obj:
                 obj["stat"] = obj.get("stat_type", "")
             featured.append(obj)
-        return builder.success(featured)
+        return ResponseBuilder.success(builder.success(featured))
     except Exception as e:
         logger.error(f"[FeaturedProps] Error fetching real props: {e}")
         raise BusinessLogicException(
@@ -233,7 +235,7 @@ async def get_mlb_bet_analysis(
             )
     except Exception as e:
         logger.error("Error generating MLB BetAnalysisResponse: %s", e)
-        # Fallback: return mock data for dev/test
+        # Fallback: return ResponseBuilder.success(mock) data for dev/test
         player_info = PlayerInfo(
             name="Mike Yastrzemski",
             team="Giants",
@@ -310,7 +312,7 @@ async def get_mlb_bet_analysis(
     )
     print("[MLB_BET_ANALYSIS] Response payload:", response)
     logger.debug(f"[MLB_BET_ANALYSIS] Response payload: {response}")
-    return response
+    return ResponseBuilder.success(response)
 
 
 # --- Featured Props Endpoint ---
@@ -382,7 +384,7 @@ async def batch_predictions(request: Request) -> dict:
                     {"code": "PREDICTION_ERROR", "message": str(e), "input": prop}
                 )
                 results[uncached_indices[i]] = None
-    return ok({"predictions": results, "errors": errors})
+    return ResponseBuilder.success(ok({"predictions": results, "errors": errors}))
 
 
 @router.get("/mlb-bet-analysis", response_model=BetAnalysisResponse)
@@ -431,7 +433,7 @@ async def get_mlb_bet_analysis(
         )
         print("[MLB_BET_ANALYSIS] Response payload:", response)
         logger.debug(f"[MLB_BET_ANALYSIS] Response payload: {response}")
-        return response
+        return ResponseBuilder.success(response)
     except Exception as e:
         logger.error("Error generating MLB BetAnalysisResponse: %s", e)
         raise BusinessLogicException(
@@ -460,7 +462,7 @@ async def get_portfolio_optimization(
     Returns standardized response contract.
     """
     # TODO: Implement actual logic or restore from previous version
-    return ok({"message": "Portfolio optimization not implemented yet."})
+    return ResponseBuilder.success(ok({"message": "Portfolio optimization not implemented yet."}))
 
 
 @router.get("/ai-insights", response_model=dict, tags=["Unified Intelligence"])
@@ -535,7 +537,7 @@ async def get_ai_insights(
                 ),
             },
         }
-        return ok(response)
+        return ResponseBuilder.success(ok(response))
     except Exception as e:
         raise BusinessLogicException(
             detail=f"Failed to generate AI insights: {str(e)}",
@@ -643,7 +645,7 @@ async def get_live_game_context(
             "alerts": alerts,
             "next_update": "2025-01-14T15:35:00Z",
         }
-        return ok(response)
+        return ResponseBuilder.success(ok(response))
     except Exception as e:
         raise BusinessLogicException(
             detail=f"Failed to fetch live game context: {str(e)}",
@@ -720,7 +722,7 @@ async def get_multi_platform_opportunities(
                 "Diversify across platforms for risk management",
             ],
         }
-        return ok(response)
+        return ResponseBuilder.success(ok(response))
     except Exception as e:
         raise BusinessLogicException(
             detail=f"Failed to fetch multi-platform opportunities: {str(e)}",
@@ -764,7 +766,7 @@ async def get_unified_health() -> dict:
                 "Arbitrage Detection",
             ],
         }
-        return ok(health_status)
+        return ResponseBuilder.success(ok(health_status))
     except Exception as e:
         raise BusinessLogicException(
             detail=f"Error getting health status: {str(e)}", error_code="HEALTH_ERROR"
@@ -786,7 +788,7 @@ async def api_props(
     """
     Alias for /props/featured. Returns standardized response contract.
     """
-    return await get_featured_props(
+    return ResponseBuilder.success(await) get_featured_props(
         sport=sport, min_confidence=min_confidence, max_results=max_results
     )
 
@@ -802,7 +804,7 @@ async def api_predictions(request: Request) -> dict:
     """
     Alias for /unified/batch-predictions. Returns standardized response contract.
     """
-    return await batch_predictions(request)
+    return ResponseBuilder.success(await) batch_predictions(request)
 
 
 @router.get("/predictions", response_model=dict, tags=["Unified Intelligence"])
@@ -811,11 +813,11 @@ async def api_predictions_get() -> dict:
     GET handler for /api/predictions (returns status/sample for compatibility).
     Returns standardized response contract.
     """
-    return ok(
+    return ResponseBuilder.success(ok(
         {
             "message": "Predictions endpoint is available. Use POST for batch predictions."
         }
-    )
+    ))
 
 
 # --- /analytics: Alias for /mlb-bet-analysis ---
@@ -840,7 +842,7 @@ async def api_analytics(
         result = await get_mlb_bet_analysis(
             min_confidence=min_confidence, max_results=max_results
         )
-        return ok(result)
+        return ResponseBuilder.success(ok(result))
     except Exception as e:
         raise BusinessLogicException(
             detail=f"Failed to fetch analytics: {str(e)}", error_code="ANALYTICS_ERROR"

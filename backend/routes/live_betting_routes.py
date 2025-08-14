@@ -7,6 +7,10 @@ Part of Phase 4: Elite Betting Operations and Automation
 from datetime import datetime
 from typing import Optional, List
 from fastapi import APIRouter, Query, HTTPException
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel
 import logging
 
@@ -66,7 +70,7 @@ class LiveGameResponse(BaseModel):
     away_score: int
     game_state: str
 
-@router.get("/odds", summary="Get live odds")
+@router.get("/odds", summary="Get live odds", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_live_odds(
     game_id: Optional[str] = Query(default=None, description="Filter by specific game"),
     sportsbook: Optional[str] = Query(default=None, description="Filter by sportsbook"),
@@ -81,17 +85,17 @@ async def get_live_odds(
         if sport:
             odds = [o for o in odds if o.get('sport') == sport]
         
-        return {
+        return ResponseBuilder.success({
             "total_odds": len(odds),
             "odds": odds,
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to get live odds: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get live odds")
+        raise BusinessLogicException("Failed to get live odds")
 
-@router.get("/opportunities", summary="Get betting opportunities")
+@router.get("/opportunities", summary="Get betting opportunities", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_betting_opportunities(
     sport: Optional[str] = Query(default=None, description="Filter by sport"),
     min_edge: float = Query(default=0.0, description="Minimum edge percentage"),
@@ -105,17 +109,17 @@ async def get_betting_opportunities(
         # Limit results
         opportunities = opportunities[:limit]
         
-        return {
+        return ResponseBuilder.success({
             "total_opportunities": len(opportunities),
             "opportunities": opportunities,
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to get betting opportunities: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get betting opportunities")
+        raise BusinessLogicException("Failed to get betting opportunities")
 
-@router.get("/line-movements", summary="Get line movements")
+@router.get("/line-movements", summary="Get line movements", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_line_movements(
     odds_id: Optional[str] = Query(default=None, description="Filter by specific odds ID"),
     hours_back: int = Query(default=24, description="Hours of history to retrieve"),
@@ -129,17 +133,17 @@ async def get_line_movements(
         # Limit results
         movements = movements[:limit]
         
-        return {
+        return ResponseBuilder.success({
             "total_movements": len(movements),
             "movements": movements,
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to get line movements: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get line movements")
+        raise BusinessLogicException("Failed to get line movements")
 
-@router.get("/games", summary="Get live games")
+@router.get("/games", summary="Get live games", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_live_games(
     sport: Optional[str] = Query(default=None, description="Filter by sport")
 ):
@@ -148,74 +152,74 @@ async def get_live_games(
         engine = await get_live_betting_engine()
         games = await engine.get_live_games(sport=sport)
         
-        return {
+        return ResponseBuilder.success({
             "total_games": len(games),
             "games": games,
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to get live games: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get live games")
+        raise BusinessLogicException("Failed to get live games")
 
-@router.get("/status", summary="Get engine status")
+@router.get("/status", summary="Get engine status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_engine_status():
     """Get live betting engine status and statistics"""
     try:
         engine = await get_live_betting_engine()
         status = await engine.get_engine_status()
         
-        return status
+        return ResponseBuilder.success(status)
         
     except Exception as e:
         logger.error(f"Failed to get engine status: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get engine status")
+        raise BusinessLogicException("Failed to get engine status")
 
-@router.post("/start", summary="Start live betting engine")
+@router.post("/start", summary="Start live betting engine", response_model=StandardAPIResponse[Dict[str, Any]])
 async def start_engine():
     """Start the live betting engine (admin only)"""
     try:
         engine = await get_live_betting_engine()
         
         if engine.is_running:
-            return {
+            return ResponseBuilder.success({
                 "success": True,
                 "message": "Live betting engine is already running",
                 "timestamp": datetime.now().isoformat()
-            }
+            })
         
         # Start engine in background
         import asyncio
         asyncio.create_task(engine.start_engine())
         
-        return {
+        return ResponseBuilder.success({
             "success": True,
             "message": "Live betting engine started",
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to start engine: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to start live betting engine")
+        raise BusinessLogicException("Failed to start live betting engine")
 
-@router.post("/stop", summary="Stop live betting engine")
+@router.post("/stop", summary="Stop live betting engine", response_model=StandardAPIResponse[Dict[str, Any]])
 async def stop_engine():
     """Stop the live betting engine (admin only)"""
     try:
         engine = await get_live_betting_engine()
         await engine.stop_engine()
         
-        return {
+        return ResponseBuilder.success({
             "success": True,
             "message": "Live betting engine stopped",
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to stop engine: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to stop live betting engine")
+        raise BusinessLogicException("Failed to stop live betting engine")
 
-@router.get("/best-odds/{game_id}", summary="Get best odds for a game")
+@router.get("/best-odds/{game_id}", summary="Get best odds for a game", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_best_odds_for_game(game_id: str):
     """Get the best available odds for a specific game across all sportsbooks"""
     try:
@@ -223,7 +227,7 @@ async def get_best_odds_for_game(game_id: str):
         all_odds = await engine.get_live_odds(game_id=game_id)
         
         if not all_odds:
-            raise HTTPException(status_code=404, detail="No odds found for this game")
+            raise BusinessLogicException("No odds found for this game")
         
         # Group by market and selection
         from collections import defaultdict
@@ -240,20 +244,20 @@ async def get_best_odds_for_game(game_id: str):
             best = max(odds_list, key=lambda x: x['odds_american'])
             best_odds[market_key] = best
         
-        return {
+        return ResponseBuilder.success({
             "game_id": game_id,
             "best_odds": best_odds,
             "total_markets": len(best_odds),
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to get best odds for game {game_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get best odds")
+        raise BusinessLogicException("Failed to get best odds")
 
-@router.get("/arbitrage", summary="Get arbitrage opportunities")
+@router.get("/arbitrage", summary="Get arbitrage opportunities", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_arbitrage_opportunities():
     """Get current arbitrage opportunities across sportsbooks"""
     try:
@@ -281,15 +285,15 @@ async def get_arbitrage_opportunities():
                     if arb_opp:
                         arbitrage_opportunities.append(arb_opp)
         
-        return {
+        return ResponseBuilder.success({
             "total_arbitrage_opportunities": len(arbitrage_opportunities),
             "opportunities": arbitrage_opportunities,
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Failed to get arbitrage opportunities: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get arbitrage opportunities")
+        raise BusinessLogicException("Failed to get arbitrage opportunities")
 
 def _check_arbitrage_opportunity(game_id: str, market_type: str, odds_list: List[dict]) -> Optional[dict]:
     """Check if there's an arbitrage opportunity in a market"""
@@ -312,7 +316,7 @@ def _check_arbitrage_opportunity(game_id: str, market_type: str, odds_list: List
                 if total_implied_prob < 1.0:  # Arbitrage exists
                     profit_margin = (1 - total_implied_prob) * 100
                     
-                    return {
+                    return ResponseBuilder.success({
                         "game_id": game_id,
                         "market_type": market_type,
                         "profit_margin_percent": round(profit_margin, 2),
@@ -320,7 +324,7 @@ def _check_arbitrage_opportunity(game_id: str, market_type: str, odds_list: List
                             "sportsbook": best_home['sportsbook'],
                             "odds": best_home['odds_american'],
                             "selection": best_home['selection']
-                        },
+                        }),
                         "away_bet": {
                             "sportsbook": best_away['sportsbook'],
                             "odds": best_away['odds_american'],
@@ -334,18 +338,18 @@ def _check_arbitrage_opportunity(game_id: str, market_type: str, odds_list: List
         logger.error(f"Error checking arbitrage opportunity: {str(e)}")
         return None
 
-@router.get("/health", summary="Health check")
+@router.get("/health", summary="Health check", response_model=StandardAPIResponse[Dict[str, Any]])
 async def health_check():
     """Health check for live betting service"""
     try:
         engine = await get_live_betting_engine()
         status = await engine.get_engine_status()
         
-        return {
+        return ResponseBuilder.success({
             "status": "healthy" if status.get('is_running') else "stopped",
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Service unhealthy")
+        raise BusinessLogicException("Service unhealthy")

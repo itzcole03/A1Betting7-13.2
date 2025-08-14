@@ -10,6 +10,10 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, Field
 
 # Import validation services with fallback
@@ -65,20 +69,20 @@ class GameValidationRequest(BaseModel):
     external_data: Optional[Dict[str, Any]] = None
 
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def validation_health():
     """Get data validation system health status"""
     if not VALIDATION_AVAILABLE:
-        return {
+        return ResponseBuilder.success({
             "status": "unavailable",
             "message": "Data validation services not available",
             "available_features": [],
-        }
+        })
 
     try:
         health_status = await validation_integration_service.health_check()
 
-        return {
+        return ResponseBuilder.success({
             "status": "healthy",
             "validation_available": True,
             "health_check": health_status,
@@ -89,19 +93,18 @@ async def validation_health():
                 "consensus_algorithms",
                 "performance_metrics",
             ],
-        }
+        })
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        return {"status": "unhealthy", "error": str(e), "validation_available": False}
+        return ResponseBuilder.success({"status": "unhealthy", "error": str(e), "validation_available": False})
 
 
-@router.get("/metrics")
+@router.get("/metrics", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_validation_metrics():
     """Get comprehensive data validation metrics"""
     if not VALIDATION_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Data validation services not available"
-        )
+        raise BusinessLogicException("Data validation services not available"
+        ")
 
     try:
         # Get integration service metrics
@@ -110,23 +113,22 @@ async def get_validation_metrics():
         # Get orchestrator metrics
         orchestrator_metrics = data_validation_orchestrator.get_data_quality_metrics()
 
-        return {
+        return ResponseBuilder.success({
             "integration_metrics": integration_metrics,
             "quality_metrics": orchestrator_metrics,
             "generated_at": datetime.now().isoformat(),
-        }
+        })
     except Exception as e:
         logger.error(f"Error retrieving validation metrics: {e}")
-        raise HTTPException(status_code=500, detail=f"Metrics retrieval failed: {e}")
+        raise BusinessLogicException("f"Metrics retrieval failed: {e}")
 
 
-@router.post("/validate/player")
+@router.post("/validate/player", response_model=StandardAPIResponse[Dict[str, Any]])
 async def validate_player_data(request: PlayerValidationRequest):
     """Validate player data from multiple sources"""
     if not VALIDATION_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Data validation services not available"
-        )
+        raise BusinessLogicException("Data validation services not available"
+        ")
 
     try:
         enhanced_data, validation_report = (
@@ -148,20 +150,19 @@ async def validate_player_data(request: PlayerValidationRequest):
         if validation_report:
             response["validation_report"] = validation_report.to_dict()
 
-        return response
+        return ResponseBuilder.success(response)
 
     except Exception as e:
         logger.error(f"Player validation failed for {request.player_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"Player validation failed: {e}")
+        raise BusinessLogicException("f"Player validation failed: {e}")
 
 
-@router.post("/validate/game")
+@router.post("/validate/game", response_model=StandardAPIResponse[Dict[str, Any]])
 async def validate_game_data(request: GameValidationRequest):
     """Validate game data from multiple sources"""
     if not VALIDATION_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Data validation services not available"
-        )
+        raise BusinessLogicException("Data validation services not available"
+        ")
 
     try:
         enhanced_data, validation_report = (
@@ -183,14 +184,14 @@ async def validate_game_data(request: GameValidationRequest):
         if validation_report:
             response["validation_report"] = validation_report.to_dict()
 
-        return response
+        return ResponseBuilder.success(response)
 
     except Exception as e:
         logger.error(f"Game validation failed for {request.game_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"Game validation failed: {e}")
+        raise BusinessLogicException("f"Game validation failed: {e}")
 
 
-@router.get("/validate/comprehensive/{game_id}")
+@router.get("/validate/comprehensive/{game_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def validate_comprehensive_props_data(
     game_id: int,
     include_validation_report: bool = Query(
@@ -199,9 +200,8 @@ async def validate_comprehensive_props_data(
 ):
     """Validate comprehensive props generation data for a game"""
     if not VALIDATION_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Data validation services not available"
-        )
+        raise BusinessLogicException("Data validation services not available"
+        ")
 
     try:
         # Import the comprehensive prop generator
@@ -236,22 +236,20 @@ async def validate_comprehensive_props_data(
                 "validation_metadata", {}
             )
 
-        return response
+        return ResponseBuilder.success(response)
 
     except Exception as e:
         logger.error(f"Comprehensive validation failed for game {game_id}: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Comprehensive validation failed: {e}"
-        )
+        raise BusinessLogicException("f"Comprehensive validation failed: {e}"
+        ")
 
 
-@router.post("/config")
+@router.post("/config", response_model=StandardAPIResponse[Dict[str, Any]])
 async def update_validation_config(config_update: ValidationConfigUpdate):
     """Update validation configuration"""
     if not VALIDATION_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Data validation services not available"
-        )
+        raise BusinessLogicException("Data validation services not available"
+        ")
 
     try:
         # Get current config
@@ -298,7 +296,7 @@ async def update_validation_config(config_update: ValidationConfigUpdate):
 
         logger.info(f"Validation configuration updated: {updates_applied}")
 
-        return {
+        return ResponseBuilder.success({
             "status": "success",
             "updates_applied": updates_applied,
             "current_config": {
@@ -309,43 +307,41 @@ async def update_validation_config(config_update: ValidationConfigUpdate):
                 "enable_fallback_on_failure": current_config.enable_fallback_on_failure,
                 "cache_validation_results": current_config.cache_validation_results,
                 "alert_on_conflicts": current_config.alert_on_conflicts,
-            },
+            }),
         }
 
     except Exception as e:
         logger.error(f"Configuration update failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Configuration update failed: {e}")
+        raise BusinessLogicException("f"Configuration update failed: {e}")
 
 
-@router.post("/cache/clear")
+@router.post("/cache/clear", response_model=StandardAPIResponse[Dict[str, Any]])
 async def clear_validation_cache():
     """Clear validation cache"""
     if not VALIDATION_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Data validation services not available"
-        )
+        raise BusinessLogicException("Data validation services not available"
+        ")
 
     try:
         validation_integration_service.clear_cache()
 
-        return {
+        return ResponseBuilder.success({
             "status": "success",
             "message": "Validation cache cleared successfully",
             "timestamp": datetime.now().isoformat(),
-        }
+        })
 
     except Exception as e:
         logger.error(f"Cache clear failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Cache clear failed: {e}")
+        raise BusinessLogicException("f"Cache clear failed: {e}")
 
 
-@router.get("/sources")
+@router.get("/sources", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_supported_data_sources():
     """Get list of supported data sources for validation"""
     if not VALIDATION_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Data validation services not available"
-        )
+        raise BusinessLogicException("Data validation services not available"
+        ")
 
     try:
         sources = [
@@ -371,26 +367,24 @@ async def get_supported_data_sources():
             },
         ]
 
-        return {
+        return ResponseBuilder.success({
             "supported_sources": sources,
             "total_sources": len(sources),
             "validation_available": True,
-        }
+        })
 
     except Exception as e:
         logger.error(f"Error retrieving data sources: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to retrieve data sources: {e}"
-        )
+        raise BusinessLogicException("f"Failed to retrieve data sources: {e}"
+        ")
 
 
-@router.get("/schemas")
+@router.get("/schemas", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_validation_schemas():
     """Get available validation schemas"""
     if not VALIDATION_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Data validation services not available"
-        )
+        raise BusinessLogicException("Data validation services not available"
+        ")
 
     try:
         schemas = {
@@ -424,8 +418,8 @@ async def get_validation_schemas():
             },
         }
 
-        return {"available_schemas": schemas, "schema_validation_available": True}
+        return ResponseBuilder.success({"available_schemas": schemas, "schema_validation_available": True})
 
     except Exception as e:
         logger.error(f"Error retrieving validation schemas: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve schemas: {e}")
+        raise BusinessLogicException("f"Failed to retrieve schemas: {e}")

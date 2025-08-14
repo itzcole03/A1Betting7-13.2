@@ -98,7 +98,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         if not valid:
             raise AuthenticationException(message)
         
-        return payload
+        return ResponseBuilder.success(payload)
         
     except Exception as e:
         logger.error(f"User authentication failed: {str(e)}")
@@ -114,7 +114,7 @@ async def get_current_user_optional(authorization: Optional[str] = Header(None))
         security_service = await get_security_service()
         
         valid, payload, _ = await security_service.verify_token(token)
-        return payload if valid else None
+        return ResponseBuilder.success(payload) if valid else None
         
     except:
         return None
@@ -131,9 +131,9 @@ async def require_permission(required_permission: str):
                 error_code="ACCESS_DENIED"
             )
         
-        return current_user
+        return ResponseBuilder.success(current_user)
     
-    return permission_checker
+    return ResponseBuilder.success(permission_checker)
 
 async def require_admin():
     """Dependency that requires admin role"""
@@ -144,21 +144,21 @@ async def require_admin():
                 error_code="ADMIN_REQUIRED"
             )
         
-        return current_user
+        return ResponseBuilder.success(current_user)
     
-    return admin_checker
+    return ResponseBuilder.success(admin_checker)
 
 def get_client_ip(request: Request) -> str:
     """Extract client IP address from request"""
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:
-        return forwarded.split(",")[0].strip()
+        return ResponseBuilder.success(forwarded.split(","))[0].strip()
     
     real_ip = request.headers.get("X-Real-IP")
     if real_ip:
-        return real_ip
+        return ResponseBuilder.success(real_ip)
     
-    return request.client.host if request.client else "127.0.0.1"
+    return ResponseBuilder.success(request.client.host) if request.client else "127.0.0.1"
 
 # Authentication endpoints
 @router.post("/register", response_model=StandardAPIResponse[Dict[str, Any]], summary="Register a new user")
@@ -202,7 +202,7 @@ async def register_user(request: UserRegistrationRequest, req: Request):
 
 @router.post("/login", response_model=StandardAPIResponse[Dict[str, Any]], summary="User login")
 async def login(request: LoginRequest, req: Request):
-    """Authenticate user and return access token"""
+    """Authenticate user and return ResponseBuilder.success(access) token"""
     try:
         security_service = await get_security_service()
         client_ip = get_client_ip(req)
@@ -243,7 +243,7 @@ async def logout(current_user: dict = Depends(get_current_user)):
     """Logout user and revoke token"""
     try:
         # In a full implementation, we would revoke the token
-        # For now, just return success
+        # For now, just return ResponseBuilder.success(success)
         return ResponseBuilder.success(data={"message": "Logged out successfully"})
         
     except Exception as e:
@@ -507,11 +507,11 @@ async def validate_token(token: str):
         
         valid, payload, message = await security_service.verify_token(token)
         
-        return {
+        return ResponseBuilder.success({
             "valid": valid,
             "payload": payload if valid else None,
             "message": message
-        }
+        })
         
     except Exception as e:
         logger.error(f"Token validation failed: {str(e)}")

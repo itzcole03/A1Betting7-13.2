@@ -8,6 +8,10 @@ Part of Phase 4.3: Elite Betting Operations and Automation
 from datetime import datetime
 from typing import Optional, List, Dict, Any, Union
 from fastapi import APIRouter, Query, HTTPException, Body
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, Field
 import logging
 
@@ -98,11 +102,11 @@ class RiskManagementResponse(BaseModel):
 
 def _convert_betting_opportunity(req: BettingOpportunityRequest) -> BettingOpportunity:
     """Convert request to internal betting opportunity"""
-    return BettingOpportunity(
+    return ResponseBuilder.success(BettingOpportunity(
         opportunity_id=req.opportunity_id,
         description=req.description,
         sport=req.sport,
-        market_type=BetType(req.market_type.lower()),
+        market_type=BetType(req.market_type.lower())),
         offered_odds=req.offered_odds,
         true_probability=req.true_probability,
         confidence_interval=(req.confidence_interval_low, req.confidence_interval_high),
@@ -115,7 +119,7 @@ def _convert_betting_opportunity(req: BettingOpportunityRequest) -> BettingOppor
 
 def _convert_kelly_result(result: KellyResult) -> KellyResultResponse:
     """Convert internal Kelly result to API response"""
-    return KellyResultResponse(
+    return ResponseBuilder.success(KellyResultResponse(
         opportunity_id=result.opportunity_id,
         classic_kelly_fraction=result.classic_kelly_fraction,
         recommended_fraction=result.recommended_fraction,
@@ -128,7 +132,7 @@ def _convert_kelly_result(result: KellyResult) -> KellyResultResponse:
         risk_warnings=result.risk_warnings,
         variant_used=result.variant_used.value,
         calculation_metadata=result.calculation_metadata
-    )
+    ))
 
 @router.post("/calculate", response_model=KellyResultResponse)
 async def calculate_kelly_bet_size(
@@ -148,7 +152,7 @@ async def calculate_kelly_bet_size(
         try:
             kelly_variant = KellyVariant(variant.lower())
         except ValueError:
-            raise HTTPException(status_code=400, detail=f"Invalid Kelly variant: {variant}")
+            raise BusinessLogicException("f"Invalid Kelly variant: {variant}")
         
         # Calculate optimal bet size
         result = await engine.calculate_optimal_bet_size(betting_opp, kelly_variant)
@@ -156,13 +160,13 @@ async def calculate_kelly_bet_size(
         logger.info(f"Calculated Kelly bet size for {opportunity.opportunity_id}: "
                    f"{result.recommended_bet_size:.2f} ({result.bankroll_percentage:.2%})")
         
-        return _convert_kelly_result(result)
+        return ResponseBuilder.success(_convert_kelly_result(result))
         
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise BusinessLogicException("str(e"))
     except Exception as e:
         logger.error(f"Error calculating Kelly bet size: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to calculate bet size: {str(e)}")
+        raise BusinessLogicException("f"Failed to calculate bet size: {str(e")}")
 
 @router.post("/portfolio-optimization", response_model=Dict[str, KellyResultResponse])
 async def optimize_portfolio(
@@ -183,10 +187,10 @@ async def optimize_portfolio(
         
         # Validate opportunities
         if not opportunities:
-            raise HTTPException(status_code=400, detail="No opportunities provided")
+            raise BusinessLogicException("No opportunities provided")
         
         if len(opportunities) > 20:
-            raise HTTPException(status_code=400, detail="Too many opportunities (max 20)")
+            raise BusinessLogicException("Too many opportunities (max 20")")
         
         # Calculate portfolio optimization
         results = await engine.calculate_portfolio_optimization(opportunities)
@@ -199,13 +203,13 @@ async def optimize_portfolio(
         
         logger.info(f"Calculated portfolio optimization for {len(opportunities)} opportunities")
         
-        return response_results
+        return ResponseBuilder.success(response_results)
         
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise BusinessLogicException("str(e"))
     except Exception as e:
         logger.error(f"Error optimizing portfolio: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to optimize portfolio: {str(e)}")
+        raise BusinessLogicException("f"Failed to optimize portfolio: {str(e")}")
 
 @router.get("/portfolio-metrics", response_model=PortfolioMetricsResponse)
 async def get_portfolio_metrics():
@@ -216,7 +220,7 @@ async def get_portfolio_metrics():
         engine = get_kelly_engine()
         metrics = await engine.get_portfolio_metrics()
         
-        return PortfolioMetricsResponse(
+        return ResponseBuilder.success(PortfolioMetricsResponse(
             total_bankroll=metrics.total_bankroll,
             allocated_capital=metrics.allocated_capital,
             available_capital=metrics.available_capital,
@@ -228,11 +232,11 @@ async def get_portfolio_metrics():
             correlation_risk=metrics.correlation_risk,
             diversification_score=metrics.diversification_score,
             risk_adjusted_kelly=metrics.risk_adjusted_kelly
-        )
+        ))
         
     except Exception as e:
         logger.error(f"Error getting portfolio metrics: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get portfolio metrics: {str(e)}")
+        raise BusinessLogicException("f"Failed to get portfolio metrics: {str(e")}")
 
 @router.get("/risk-management", response_model=RiskManagementResponse)
 async def get_risk_management_status():
@@ -280,17 +284,17 @@ async def get_risk_management_status():
         if portfolio_status["max_drawdown"] > settings.drawdown_stop_loss:
             risk_alerts.append(f"Maximum drawdown ({portfolio_status['max_drawdown']:.1%}) exceeds stop-loss ({settings.drawdown_stop_loss:.1%})")
         
-        return RiskManagementResponse(
+        return ResponseBuilder.success(RiskManagementResponse(
             current_settings=settings_dict,
             portfolio_status=portfolio_status,
             risk_alerts=risk_alerts
-        )
+        ))
         
     except Exception as e:
         logger.error(f"Error getting risk management status: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get risk management status: {str(e)}")
+        raise BusinessLogicException("f"Failed to get risk management status: {str(e")}")
 
-@router.post("/risk-management/update")
+@router.post("/risk-management/update", response_model=StandardAPIResponse[Dict[str, Any]])
 async def update_risk_management(
     settings: RiskManagementRequest
 ):
@@ -325,16 +329,16 @@ async def update_risk_management(
         
         logger.info("Risk management settings updated")
         
-        return {
+        return ResponseBuilder.success({
             "message": "Risk management settings updated successfully",
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Error updating risk management settings: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to update settings: {str(e)}")
+        raise BusinessLogicException("f"Failed to update settings: {str(e")}")
 
-@router.post("/bankroll/update")
+@router.post("/bankroll/update", response_model=StandardAPIResponse[Dict[str, Any]])
 async def update_bankroll(
     request: BankrollUpdateRequest
 ):
@@ -359,19 +363,19 @@ async def update_bankroll(
         
         logger.info(f"Bankroll updated from ${old_bankroll:.2f} to ${request.new_bankroll:.2f}")
         
-        return {
+        return ResponseBuilder.success({
             "message": "Bankroll updated successfully",
             "old_bankroll": old_bankroll,
             "new_bankroll": request.new_bankroll,
             "change": request.new_bankroll - old_bankroll,
             "timestamp": datetime.now().isoformat()
-        }
+        })
         
     except Exception as e:
         logger.error(f"Error updating bankroll: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to update bankroll: {str(e)}")
+        raise BusinessLogicException("f"Failed to update bankroll: {str(e")}")
 
-@router.get("/bankroll/history")
+@router.get("/bankroll/history", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_bankroll_history(
     days: int = Query(30, description="Number of days of history to return")
 ):
@@ -427,7 +431,7 @@ async def get_bankroll_history(
             total_return = 0
             max_dd = 0
         
-        return {
+        return ResponseBuilder.success({
             "history": bankroll_progression,
             "summary": {
                 "starting_bankroll": starting_bankroll,
@@ -436,14 +440,14 @@ async def get_bankroll_history(
                 "max_drawdown": max_dd,
                 "days": days,
                 "total_bets": len([e for e in recent_history if e.get('action') == 'bet'])
-            }
+            })
         }
         
     except Exception as e:
         logger.error(f"Error getting bankroll history: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get bankroll history: {str(e)}")
+        raise BusinessLogicException("f"Failed to get bankroll history: {str(e")}")
 
-@router.get("/simulation")
+@router.get("/simulation", response_model=StandardAPIResponse[Dict[str, Any]])
 async def run_kelly_simulation(
     probability: float = Query(..., ge=0.01, le=0.99, description="Win probability"),
     odds: float = Query(..., gt=1.0, description="Decimal odds"),
@@ -460,7 +464,7 @@ async def run_kelly_simulation(
         try:
             kelly_variant = KellyVariant(variant.lower())
         except ValueError:
-            raise HTTPException(status_code=400, detail=f"Invalid Kelly variant: {variant}")
+            raise BusinessLogicException("f"Invalid Kelly variant: {variant}")
         
         engine = get_kelly_engine()
         
@@ -519,14 +523,14 @@ async def run_kelly_simulation(
         else:
             growth_rate = 0
         
-        return {
+        return ResponseBuilder.success({
             "simulation_parameters": {
                 "probability": probability,
                 "odds": odds,
                 "num_bets": num_bets,
                 "kelly_variant": variant,
                 "kelly_fraction": kelly_fraction
-            },
+            }),
             "results": {
                 "final_bankroll": final_bankroll,
                 "total_return": final_bankroll - 1.0,
@@ -541,9 +545,9 @@ async def run_kelly_simulation(
         
     except Exception as e:
         logger.error(f"Error running Kelly simulation: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to run simulation: {str(e)}")
+        raise BusinessLogicException("f"Failed to run simulation: {str(e")}")
 
-@router.get("/status")
+@router.get("/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_kelly_engine_status():
     """
     Get current status and configuration of the Kelly engine
@@ -551,7 +555,7 @@ async def get_kelly_engine_status():
     try:
         engine = get_kelly_engine()
         
-        return {
+        return ResponseBuilder.success({
             "engine_status": "active",
             "current_bankroll": engine.current_bankroll,
             "initial_bankroll": engine.initial_bankroll,
@@ -562,7 +566,7 @@ async def get_kelly_engine_status():
                 "max_daily_risk": engine.risk_settings.max_daily_risk,
                 "max_total_exposure": engine.risk_settings.max_total_exposure,
                 "kelly_fraction_cap": engine.risk_settings.kelly_fraction_cap
-            },
+            }),
             "performance_metrics": {
                 "volatility_estimate": engine.volatility_estimate,
                 "confidence_factor": engine.confidence_factor,
@@ -574,4 +578,4 @@ async def get_kelly_engine_status():
         
     except Exception as e:
         logger.error(f"Error getting Kelly engine status: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get engine status: {str(e)}")
+        raise BusinessLogicException("f"Failed to get engine status: {str(e")}")

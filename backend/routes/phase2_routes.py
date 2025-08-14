@@ -3,10 +3,14 @@ Phase 2 Performance API Routes
 Provides endpoints for Phase 2 performance optimization services.
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 
 try:
     from backend.utils.structured_logging import app_logger, performance_logger
@@ -56,7 +60,7 @@ except ImportError:
 router = APIRouter(prefix="/api/phase2", tags=["Phase 2 Performance"])
 
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def phase2_health_check():
     """
     Comprehensive health check for all Phase 2 services
@@ -209,55 +213,55 @@ async def phase2_health_check():
     elif health_status["summary"]["degraded_services"] > 0:
         health_status["status"] = "degraded"
 
-    return health_status
+    return ResponseBuilder.success(health_status)
 
 
-@router.get("/connection-pool/status")
+@router.get("/connection-pool/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_connection_pool_status():
     """Get async connection pool status and metrics"""
 
     if not CONNECTION_POOL_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Connection pool service not available"
+        raise BusinessLogicException(
+            "Connection pool service not available", 
+            business_rule="service_availability"
         )
 
     try:
         status = await async_connection_pool_manager.get_pool_status()
-        return status
+        return ResponseBuilder.success(status)
     except Exception as e:
         app_logger.error(f"Error getting connection pool status: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to get connection pool status"
+        raise BusinessLogicException(
+            "Failed to get connection pool status",
+            business_rule="connection_pool_status_error"
         )
 
 
-@router.get("/cache/status")
+@router.get("/cache/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_cache_status():
     """Get advanced caching system status and metrics"""
 
     if not ADVANCED_CACHE_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Advanced cache service not available"
-        )
+        raise BusinessLogicException("Advanced cache service not available"
+        ")
 
     try:
         status = await advanced_caching_system.get_cache_stats()
-        return status
+        return ResponseBuilder.success(status)
     except Exception as e:
         app_logger.error(f"Error getting cache status: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get cache status")
+        raise BusinessLogicException("Failed to get cache status")
 
 
-@router.delete("/cache/clear")
+@router.delete("/cache/clear", response_model=StandardAPIResponse[Dict[str, Any]])
 async def clear_cache(
     pattern: Optional[str] = Query(None, description="Pattern to match cache keys")
 ):
     """Clear cache entries"""
 
     if not ADVANCED_CACHE_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Advanced cache service not available"
-        )
+        raise BusinessLogicException("Advanced cache service not available"
+        ")
 
     try:
         if pattern:
@@ -265,101 +269,94 @@ async def clear_cache(
         else:
             result = await advanced_caching_system.clear()
 
-        return {"message": "Cache cleared successfully", "result": result}
+        return ResponseBuilder.success({"message": "Cache cleared successfully", "result": result})
     except Exception as e:
         app_logger.error(f"Error clearing cache: {e}")
-        raise HTTPException(status_code=500, detail="Failed to clear cache")
+        raise BusinessLogicException("Failed to clear cache")
 
 
-@router.get("/query-optimizer/report")
+@router.get("/query-optimizer/report", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_query_performance_report():
     """Get query optimizer performance report"""
 
     if not QUERY_OPTIMIZER_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Query optimizer service not available"
-        )
+        raise BusinessLogicException("Query optimizer service not available"
+        ")
 
     try:
         report = query_optimizer.get_performance_report()
-        return report
+        return ResponseBuilder.success(report)
     except Exception as e:
         app_logger.error(f"Error getting query report: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to get query performance report"
-        )
+        raise BusinessLogicException("Failed to get query performance report"
+        ")
 
 
-@router.get("/query-optimizer/slow-queries")
+@router.get("/query-optimizer/slow-queries", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_slow_queries():
     """Get recent slow queries"""
 
     if not QUERY_OPTIMIZER_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Query optimizer service not available"
-        )
+        raise BusinessLogicException("Query optimizer service not available"
+        ")
 
     try:
         slow_queries = query_optimizer.get_slow_queries()
-        return {"slow_queries": slow_queries}
+        return ResponseBuilder.success({"slow_queries": slow_queries})
     except Exception as e:
         app_logger.error(f"Error getting slow queries: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get slow queries")
+        raise BusinessLogicException("Failed to get slow queries")
 
 
-@router.get("/background-tasks/status")
+@router.get("/background-tasks/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_background_tasks_status():
     """Get background task manager status"""
 
     if not BACKGROUND_TASKS_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Background task service not available"
-        )
+        raise BusinessLogicException("Background task service not available"
+        ")
 
     try:
         status = background_task_manager.get_queue_status()
-        return status
+        return ResponseBuilder.success(status)
     except Exception as e:
         app_logger.error(f"Error getting background tasks status: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to get background tasks status"
-        )
+        raise BusinessLogicException("Failed to get background tasks status"
+        ")
 
 
-@router.get("/background-tasks/history")
+@router.get("/background-tasks/history", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_background_tasks_history(
     limit: int = Query(50, ge=1, le=200, description="Number of tasks to return")
 ):
     """Get background task execution history"""
 
     if not BACKGROUND_TASKS_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Background task service not available"
-        )
+        raise BusinessLogicException("Background task service not available"
+        ")
 
     try:
         history = background_task_manager.get_task_history(limit)
-        return {"tasks": history}
+        return ResponseBuilder.success({"tasks": history})
     except Exception as e:
         app_logger.error(f"Error getting task history: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get task history")
+        raise BusinessLogicException("Failed to get task history")
 
 
-@router.get("/background-tasks/{task_id}/status")
+@router.get("/background-tasks/{task_id}/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_task_status(task_id: str):
     """Get specific background task status"""
 
     if not BACKGROUND_TASKS_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Background task service not available"
-        )
+        raise BusinessLogicException("Background task service not available"
+        ")
 
     try:
         task_result = background_task_manager.get_task_status(task_id)
         if not task_result:
-            raise HTTPException(status_code=404, detail="Task not found")
+            raise BusinessLogicException("Task not found")
 
-        return {
+        return ResponseBuilder.success({
             "task_id": task_result.task_id,
             "status": task_result.status.value,
             "result": task_result.result,
@@ -374,58 +371,54 @@ async def get_task_status(task_id: str):
                 else None
             ),
             "retry_count": task_result.retry_count,
-        }
+        })
     except HTTPException:
         raise
     except Exception as e:
         app_logger.error(f"Error getting task status: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get task status")
+        raise BusinessLogicException("Failed to get task status")
 
 
-@router.delete("/background-tasks/{task_id}")
+@router.delete("/background-tasks/{task_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def cancel_background_task(task_id: str):
     """Cancel a background task"""
 
     if not BACKGROUND_TASKS_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Background task service not available"
-        )
+        raise BusinessLogicException("Background task service not available"
+        ")
 
     try:
         cancelled = background_task_manager.cancel_task(task_id)
         if not cancelled:
-            raise HTTPException(
-                status_code=404, detail="Task not found or cannot be cancelled"
-            )
+            raise BusinessLogicException("Task not found or cannot be cancelled"
+            ")
 
-        return {"message": "Task cancelled successfully", "task_id": task_id}
+        return ResponseBuilder.success({"message": "Task cancelled successfully", "task_id": task_id})
     except HTTPException:
         raise
     except Exception as e:
         app_logger.error(f"Error cancelling task: {e}")
-        raise HTTPException(status_code=500, detail="Failed to cancel task")
+        raise BusinessLogicException("Failed to cancel task")
 
 
-@router.get("/response-optimizer/report")
+@router.get("/response-optimizer/report", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_response_performance_report():
     """Get response optimizer performance report"""
 
     if not RESPONSE_OPTIMIZER_AVAILABLE:
-        raise HTTPException(
-            status_code=503, detail="Response optimizer service not available"
-        )
+        raise BusinessLogicException("Response optimizer service not available"
+        ")
 
     try:
         report = response_optimizer.get_performance_report()
-        return report
+        return ResponseBuilder.success(report)
     except Exception as e:
         app_logger.error(f"Error getting response report: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to get response performance report"
-        )
+        raise BusinessLogicException("Failed to get response performance report"
+        ")
 
 
-@router.get("/performance/summary")
+@router.get("/performance/summary", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_performance_summary():
     """Get comprehensive Phase 2 performance summary"""
 
@@ -518,4 +511,4 @@ async def get_performance_summary():
         except Exception as e:
             summary["performance_metrics"]["responses"] = {"error": str(e)}
 
-    return summary
+    return ResponseBuilder.success(summary)

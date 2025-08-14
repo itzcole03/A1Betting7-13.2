@@ -23,7 +23,7 @@ def add_request_logging_middleware(app: FastAPI):
             logger.info(
                 f"[MIDDLEWARE] Completed {request.method} {request.url} in {duration:.2f}s"
             )
-            return response
+            return ResponseBuilder.success(response)
 
     app.add_middleware(RequestLoggingMiddleware)
 
@@ -150,7 +150,7 @@ async def pre_llm_business_logic(request):
         session,
         entry_amt,
     )
-    return enriched_props, entry_amt, user, session
+    return ResponseBuilder.success(enriched_props), entry_amt, user, session
 
 
 from typing import Optional
@@ -176,13 +176,13 @@ async def fetch_injury_status(
     # Placeholder: Replace with real API integration (e.g., SportsDataIO, Sportradar, etc.)
     if http_client is None:
         async with httpx.AsyncClient() as client:
-            return await fetch_injury_status(
+            return ResponseBuilder.success(await) fetch_injury_status(
                 player, http_client=client, api_key=api_key, sport=sport
             )
     # Example: resp = await http_client.get(f"https://api.sportsdata.io/v3/nba/injuries/json/PlayerInjuries/{player}?key={api_key}")
     # resp.raise_for_status()
     # data = resp.json()
-    # return data.get("InjuryStatus", "unknown")
+    # return ResponseBuilder.success(data.get("InjuryStatus", "unknown"))
     raise NotImplementedError(
         "fetch_injury_status must be implemented with a real data source."
     )
@@ -285,7 +285,7 @@ def build_ensemble_prompt(props, entry_amt, user, session):
         logger.info(
             f"Prompt built for user {user}, session {session}, entry {entry_amt}, {len(props)} props, sport={sport}, bet_type={bet_type}, version={version}."
         )
-        return prompt
+        return ResponseBuilder.success(prompt)
     except Exception as e:
         logger.error(f"build_ensemble_prompt error: {e}")
         raise
@@ -366,11 +366,11 @@ async def post_llm_business_logic(llm_response, props, entry_amt, user, session)
                 import numpy as np
 
                 if isinstance(obj, (np.integer,)):
-                    return int(obj)
+                    return ResponseBuilder.success(int(obj))
                 if isinstance(obj, (np.floating,)):
-                    return float(obj)
+                    return ResponseBuilder.success(float(obj))
                 if isinstance(obj, (np.ndarray,)):
-                    return obj.tolist()
+                    return ResponseBuilder.success(obj.tolist())
             except ImportError:
                 pass
             # Fallback for pandas types
@@ -378,12 +378,12 @@ async def post_llm_business_logic(llm_response, props, entry_amt, user, session)
                 import pandas as pd
 
                 if isinstance(obj, pd.Timestamp):
-                    return obj.isoformat()
+                    return ResponseBuilder.success(obj.isoformat())
             except ImportError:
                 pass
-            return str(obj)
+            return ResponseBuilder.success(str(obj))
 
-        return _json.dumps(parsed, default=default_serializer)
+        return ResponseBuilder.success(_json.dumps(parsed, default=default_serializer))
     except Exception as e:
         logger.error("Exception in post_llm_business_logic: %s", str(e), exc_info=True)
         # Return a minimal contract-compliant error JSON string
@@ -394,23 +394,23 @@ async def post_llm_business_logic(llm_response, props, entry_amt, user, session)
                 import numpy as np
 
                 if isinstance(obj, (np.integer,)):
-                    return int(obj)
+                    return ResponseBuilder.success(int(obj))
                 if isinstance(obj, (np.floating,)):
-                    return float(obj)
+                    return ResponseBuilder.success(float(obj))
                 if isinstance(obj, (np.ndarray,)):
-                    return obj.tolist()
+                    return ResponseBuilder.success(obj.tolist())
             except ImportError:
                 pass
             try:
                 import pandas as pd
 
                 if isinstance(obj, pd.Timestamp):
-                    return obj.isoformat()
+                    return ResponseBuilder.success(obj.isoformat())
             except ImportError:
                 pass
-            return str(obj)
+            return ResponseBuilder.success(str(obj))
 
-        return _json.dumps(
+        return ResponseBuilder.success(_json.dumps(
             {
                 "risk_assessment": None,
                 "correlation_analysis": None,
@@ -418,7 +418,7 @@ async def post_llm_business_logic(llm_response, props, entry_amt, user, session)
                 "recommendation": None,
                 "confidence_score": None,
                 "key_factors": [],
-                "raw": str(llm_response),
+                "raw": str(llm_response)),
                 "warnings": [f"Exception: {str(e)}"],
                 "user": user,
                 "session": session,
@@ -486,11 +486,11 @@ async def propollama_pull_model(
                 }
             )
         )
-        return {
+        return ResponseBuilder.success({
             "success": False,
             "error": "Model name must be a string between 3 and 64 characters.",
             "request_id": request_id,
-        }
+        })
     if not re.match(r"^[a-zA-Z0-9_\-/]+:[a-zA-Z0-9_\-.]+$", model_name):
         logger.error(
             json.dumps(
@@ -501,11 +501,11 @@ async def propollama_pull_model(
                 }
             )
         )
-        return {
+        return ResponseBuilder.success({
             "success": False,
             "error": "Invalid model name. Use format 'name:tag' (e.g., 'llama2:7b'). Only alphanumerics, dashes, underscores, slashes, and colon are allowed.",
             "request_id": request_id,
-        }
+        })
     try:
         logger.info(
             json.dumps(
@@ -538,9 +538,9 @@ async def propollama_pull_model(
             )
             proc.kill()
             await proc.wait()
-            return {
+            return ResponseBuilder.success({
                 "success": False,
-                "error": f"Timeout: Model pull took too long for '{model_name}'.",
+                "error": f"Timeout: Model pull took too long for '{model_name})'.",
                 "request_id": request_id,
             }
         if proc.returncode == 0:
@@ -553,11 +553,11 @@ async def propollama_pull_model(
                     }
                 )
             )
-            return {
+            return ResponseBuilder.success({
                 "success": True,
                 "output": stdout.decode(),
                 "request_id": request_id,
-            }
+            })
         else:
             logger.error(
                 json.dumps(
@@ -570,11 +570,11 @@ async def propollama_pull_model(
                     }
                 )
             )
-            return {
+            return ResponseBuilder.success({
                 "success": False,
                 "error": stderr.decode() or stdout.decode(),
                 "request_id": request_id,
-            }
+            })
     except Exception as e:
         logger.error(
             json.dumps(
@@ -586,9 +586,9 @@ async def propollama_pull_model(
                 }
             )
         )
-        return {
+        return ResponseBuilder.success({
             "success": False,
-            "error": f"Model pull failed: {str(e)}",
+            "error": f"Model pull failed: {str(e)})",
             "request_id": request_id,
         }
 
@@ -652,8 +652,8 @@ def add_global_error_handlers(app: FastAPI):
         detail = (
             exc.detail if isinstance(exc.detail, dict) else {"message": str(exc.detail)}
         )
-        return create_error_response(
-            error=detail.get("error", "HTTPException"),
+        return ResponseBuilder.success(create_error_response(
+            error=detail.get("error", "HTTPException")),
             message=detail.get("message", str(exc.detail)),
             fields=detail.get("fields"),
             trace=detail.get("trace"),
@@ -664,7 +664,7 @@ def add_global_error_handlers(app: FastAPI):
     async def validation_exception_handler(
         request: StarletteRequest, exc: FastAPIRequestValidationError
     ):
-        # If the request is for /api/propollama/final_analysis, return contract-compliant BetAnalysisResponse
+        # If the request is for /api/propollama/final_analysis, return ResponseBuilder.success(contract)-compliant BetAnalysisResponse
         if request.url.path.endswith("/api/propollama/final_analysis"):
             return ResponseBuilder.success({
                 "analysis": "",
@@ -676,11 +676,11 @@ def add_global_error_handlers(app: FastAPI):
                 "enriched_props": [],
                 "error": "Validation Error: Invalid request payload.",
             })
-        # Otherwise, return the default error response
-        return create_error_response(
+        # Otherwise, return ResponseBuilder.success(the) default error response
+        return ResponseBuilder.success(create_error_response(
             error="Validation Error",
             message="Invalid request payload.",
-            fields=exc.errors(),
+            fields=exc.errors()),
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
 
@@ -688,9 +688,9 @@ def add_global_error_handlers(app: FastAPI):
     async def generic_exception_handler(request: StarletteRequest, exc: Exception):
         import traceback
 
-        return create_error_response(
+        return ResponseBuilder.success(create_error_response(
             error="Internal Server Error",
-            message=str(exc),
+            message=str(exc)),
             trace=traceback.format_exc(),
             status_code=500,
         )
@@ -923,7 +923,7 @@ async def propollama_chat(request: Request):
         context = req_obj.context if req_obj.context is not None else {}
         model = req_obj.model or "llama3:8b"
 
-        # Step 7.5: Check for test environment - return mock response for tests
+        # Step 7.5: Check for test environment - return ResponseBuilder.success(mock) response for tests
         is_test_env = (
             os.getenv("PYTEST_CURRENT_TEST") is not None
             or "test" in os.getenv("PYTHONPATH", "").lower()
@@ -931,10 +931,10 @@ async def propollama_chat(request: Request):
         if is_test_env:
             # Return predictable test response
             test_response = f"You said: {req_obj.message}"
-            return PropOllamaChatResponse(
+            return ResponseBuilder.success(PropOllamaChatResponse(
                 response=test_response,
                 model_used="PropOllama_Enhanced_LLM_v6.0",
-                timestamp=datetime.now().isoformat(),
+                timestamp=datetime.now()).isoformat(),
             ).model_dump() | {"request_id": request_id}
 
         # Step 8: Use Ollama AsyncClient for chat
@@ -1036,10 +1036,10 @@ async def propollama_chat(request: Request):
                 # Don't raise here - this is cleanup, not critical
 
         # Step 9: Return response
-        return PropOllamaChatResponse(
+        return ResponseBuilder.success(PropOllamaChatResponse(
             response=response_text,
             model_used=used_model,
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now()).isoformat(),
         ).model_dump() | {"request_id": request_id}
 
     except HTTPException as http_exc:
@@ -1092,7 +1092,7 @@ async def propollama_models():
         if not models:
             await llm_engine.refresh_models()
             models = llm_engine.models or []
-        # Only return valid generation models for chat that are healthy/ready
+        # Only return ResponseBuilder.success(valid) generation models for chat that are healthy/ready
         client = getattr(llm_engine, "client", None)
         model_health = getattr(client, "model_health", {}) if client else {}
         valid_models = [
@@ -1106,7 +1106,7 @@ async def propollama_models():
     except Exception as e:
         import traceback
 
-        return ResponseBuilder.error("OPERATION_FAILED", f"Failed to retrieve models: {str(e)}")
+        return ResponseBuilder.success(ResponseBuilder.error("OPERATION_FAILED", f"Failed to retrieve models: {str(e))}")
 
 
 # --- Ollama Model Health Endpoint ---
@@ -1160,7 +1160,7 @@ async def propollama_model_health():
     except Exception as e:
         import traceback
 
-        return ResponseBuilder.error("OPERATION_FAILED", f"Failed to retrieve model health: {str(e)}")
+        return ResponseBuilder.success(ResponseBuilder.error("OPERATION_FAILED", f"Failed to retrieve model health: {str(e))}")
 
 
 # Rate limiting configuration
@@ -1201,14 +1201,14 @@ def get_cache_key(request) -> str:
         if hasattr(request, "selectedProps")
         else "noprops"
     )
-    return f"{getattr(request, 'userId', 'nouser')}:{getattr(request, 'sessionId', 'nosession')}:{getattr(request, 'entryAmount', 'noamt')}:{props_hash}"
+    return ResponseBuilder.success(f)"{getattr(request, 'userId', 'nouser')}:{getattr(request, 'sessionId', 'nosession')}:{getattr(request, 'entryAmount', 'noamt')}:{props_hash}"
 
 
 def is_cache_valid(cache_key: str) -> bool:
     """
     Check if a cached response is still valid (not expired).
     """
-    return (
+    return ResponseBuilder.success(()
         cache_key in cache_timestamps
         and time.time() - cache_timestamps[cache_key] < CACHE_TTL
     )
@@ -1260,8 +1260,8 @@ async def _analyze_bet_unified_impl(
             if is_cache_valid(cache_key):
                 logger.info("[Cache] Hit for key: %s", cache_key)
                 cached_response = response_cache[cache_key]
-                return BetAnalysisResponse(
-                    analysis=cached_response.get("analysis", ""),
+                return ResponseBuilder.success(BetAnalysisResponse(
+                    analysis=cached_response.get("analysis", "")),
                     confidence=cached_response.get("confidence", 0.0),
                     recommendation=cached_response.get("recommendation", ""),
                     key_factors=cached_response.get("key_factors", []),
@@ -1308,15 +1308,15 @@ async def _analyze_bet_unified_impl(
                 error=""
             )
             logger.info("[TRACE] _analyze_bet_unified_impl END")
-            return response
+            return ResponseBuilder.success(response)
         except asyncio.TimeoutError:
             logger.error("[Timeout] pre_llm_business_logic enrichment timed out.")
-            return BetAnalysisResponse(
+            return ResponseBuilder.success(BetAnalysisResponse(
                 analysis="",
                 confidence=0.0,
                 recommendation="",
                 key_factors=[],
-                processing_time=time.time() - start_time,
+                processing_time=time.time()) - start_time,
                 cached=False,
                 enriched_props=[],
                 error="Enrichment step timed out."
@@ -1327,12 +1327,12 @@ async def _analyze_bet_unified_impl(
             if not err_msg or err_msg == "None":
                 err_msg = "Unknown validation error"
             logger.error(f"[DEBUG] Returning error string: {err_msg!r}")
-            return BetAnalysisResponse(
+            return ResponseBuilder.success(BetAnalysisResponse(
                 analysis="",
                 confidence=0.0,
                 recommendation="",
                 key_factors=[],
-                processing_time=time.time() - start_time,
+                processing_time=time.time()) - start_time,
                 cached=False,
                 enriched_props=[],
                 error=err_msg
@@ -1340,12 +1340,12 @@ async def _analyze_bet_unified_impl(
         except Exception as e:
             logger.error("[Error] in _analyze_bet_unified_impl inner try: %s", e)
             err_msg = str(e) or "Unknown error."
-            return BetAnalysisResponse(
+            return ResponseBuilder.success(BetAnalysisResponse(
                 analysis="",
                 confidence=0.0,
                 recommendation="",
                 key_factors=[],
-                processing_time=time.time() - start_time,
+                processing_time=time.time()) - start_time,
                 cached=False,
                 enriched_props=[],
                 error=err_msg
@@ -1355,12 +1355,12 @@ async def _analyze_bet_unified_impl(
             f"[Fatal Error] _analyze_bet_unified_impl error: {e}", exc_info=True
         )
         err_msg = str(e) or "Analysis failed."
-        return BetAnalysisResponse(
+        return ResponseBuilder.success(BetAnalysisResponse(
             analysis="",
             confidence=0.0,
             recommendation="",
             key_factors=[],
-            processing_time=time.time() - start_time,
+            processing_time=time.time()) - start_time,
             cached=False,
             enriched_props=[],
             error=err_msg
@@ -1381,4 +1381,4 @@ async def analyze_bet_final_analysis(
     start_time = time.time()
     print("[DEBUG] TOP OF analyze_bet_final_analysis endpoint")
     logger.info("[TRACE] TOP OF /final_analysis handler START")
-    return await _analyze_bet_unified_impl(request, req, rate_limit)
+    return ResponseBuilder.success(await) _analyze_bet_unified_impl(request, req, rate_limit)

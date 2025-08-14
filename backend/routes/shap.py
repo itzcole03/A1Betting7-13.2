@@ -8,6 +8,10 @@ import logging
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, status
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -51,7 +55,7 @@ async def explain_prediction(
                 model_type=request.model_type,
             )
 
-            return ShapExplanationResponse(**explanation)
+            return ResponseBuilder.success(ShapExplanationResponse(**explanation))
 
         except ImportError:
             logger.warning("SHAP explainer not available, using mock explanation")
@@ -112,28 +116,25 @@ async def explain_prediction(
                 95, max(65, 75 + (abs(sum(mock_shap_values.values())) * 10))
             )
 
-            return ShapExplanationResponse(
+            return ResponseBuilder.success(ShapExplanationResponse(
                 base_value=base_value,
                 shap_values=mock_shap_values,
                 feature_importance=feature_importance,
                 explanation=explanation_text,
                 prediction=prediction,
                 confidence=confidence,
-            )
+            ))
 
     except Exception as e:
         logger.error(f"Error generating SHAP explanation: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to generate SHAP explanation",
-        )
+        raise BusinessLogicException("Failed to generate SHAP explanation")
 
 
-@router.get("/features")
+@router.get("/features", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_available_features() -> Dict[str, List[str]]:
     """Get available features for SHAP explanations"""
     try:
-        return {
+        return ResponseBuilder.success({
             "player_features": [
                 "recent_performance",
                 "season_average",
@@ -168,27 +169,21 @@ async def get_available_features() -> Dict[str, List[str]]:
                 "game_script",
                 "motivation_factors",
             ],
-        }
+        })
 
     except Exception as e:
         logger.error(f"Error fetching available features: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch available features",
-        )
+        raise BusinessLogicException("Failed to fetch available features")
 
 
-@router.post("/batch-explain")
+@router.post("/batch-explain", response_model=StandardAPIResponse[Dict[str, Any]])
 async def batch_explain_predictions(
     requests: List[ShapExplanationRequest],
 ) -> List[ShapExplanationResponse]:
     """Generate SHAP explanations for multiple predictions"""
     try:
         if len(requests) > 50:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Maximum 50 explanations per batch request",
-            )
+            raise BusinessLogicException("Maximum 50 explanations per batch request")
 
         explanations = []
         for request in requests:
@@ -212,11 +207,8 @@ async def batch_explain_predictions(
                 )
 
         logger.info(f"Generated {len(explanations)} SHAP explanations")
-        return explanations
+        return ResponseBuilder.success(explanations)
 
     except Exception as e:
         logger.error(f"Error in batch SHAP explanation: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to generate batch SHAP explanations",
-        )
+        raise BusinessLogicException("Failed to generate batch SHAP explanations")

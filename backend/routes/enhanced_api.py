@@ -9,6 +9,10 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, WebSocket, status
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 
@@ -48,7 +52,7 @@ async def simple_test():
         "status": "success",
         "router_prefix": "/v1",
     }
-    return builder.success(data)
+    return ResponseBuilder.success(builder.success(data))
 
 
 # Request/Response Models
@@ -91,7 +95,7 @@ async def get_current_user(
     if not user_data:
         raise AuthenticationException("Invalid or expired token")
 
-    return user_data
+    return ResponseBuilder.success(user_data)
 
 
 # Authentication Endpoints
@@ -107,7 +111,7 @@ async def register_user(user_data: UserCreateRequest):
             "user": user,
             "status": "success",
         }
-        return builder.success(data)
+        return ResponseBuilder.success(builder.success(data))
     except Exception as e:
         logger.error(f"Registration error: {e}")
         raise BusinessLogicException("Registration failed", str(e))
@@ -128,7 +132,7 @@ async def login_user(
         )
 
         data = {"message": "Login successful", "session": session, "status": "success"}
-        return builder.success(data)
+        return ResponseBuilder.success(builder.success(data))
     except Exception as e:
         logger.error(f"Login error: {e}")
         raise BusinessLogicException("Login failed", str(e))
@@ -142,12 +146,12 @@ async def logout_user(current_user: Dict = Depends(get_current_user)):
     try:
         await user_auth_service.logout_user(current_user["session_id"])
         data = {"message": "Logout successful", "status": "success"}
-        return builder.success(data)
+        return ResponseBuilder.success(builder.success(data))
     except Exception as e:
         logger.error(f"Logout error: {e}")
         # Even on error, logout is considered successful from user perspective
         data = {"message": "Logout completed", "status": "success"}
-        return builder.success(data)
+        return ResponseBuilder.success(builder.success(data))
 
 
 @router.post("/auth/refresh", response_model=StandardAPIResponse[Dict[str, Any]])
@@ -162,7 +166,7 @@ async def refresh_token(refresh_token: str):
             "session": new_session,
             "status": "success",
         }
-        return builder.success(data)
+        return ResponseBuilder.success(builder.success(data))
     except Exception as e:
         logger.error(f"Token refresh error: {e}")
         raise BusinessLogicException("Token refresh failed", str(e))
@@ -190,14 +194,14 @@ async def get_enhanced_prediction(
                 "feature_importance": request.features,
             }
 
-        return PredictionResponse(
+        return ResponseBuilder.success(PredictionResponse(
             prediction=prediction["prediction"],
             confidence=prediction["confidence"],
             ensemble_size=prediction["ensemble_size"],
             sport=request.sport,
             explanation=explanation,
             timestamp=prediction["prediction_timestamp"],
-        )
+        ))
 
     except Exception as e:
         logger.error(f"Enhanced prediction error: {e}")
@@ -219,7 +223,7 @@ async def get_model_performance(current_user: Dict = Depends(get_current_user)):
             "status": "success",
             "timestamp": datetime.now().isoformat(),
         }
-        return builder.success(data)
+        return ResponseBuilder.success(builder.success(data))
 
     except Exception as e:
         logger.error(f"Model performance error: {e}")
@@ -266,9 +270,9 @@ async def get_betting_opportunities(
             if rec.confidence >= min_confidence and rec.risk_level <= max_risk
         ]
 
-        return BettingOpportunityResponse(
+        return ResponseBuilder.success(BettingOpportunityResponse(
             opportunities=filtered_opportunities,
-            total_count=len(filtered_opportunities),
+            total_count=len(filtered_opportunities)),
             filters_applied={
                 "sport": sport,
                 "min_confidence": min_confidence,
@@ -297,7 +301,7 @@ async def get_bankroll_status(current_user: Dict = Depends(get_current_user)):
             "status": "success",
             "timestamp": datetime.now().isoformat(),
         }
-        return builder.success(data)
+        return ResponseBuilder.success(builder.success(data))
 
     except Exception as e:
         logger.error(f"Bankroll status error: {e}")
@@ -318,7 +322,7 @@ async def get_risk_metrics(current_user: Dict = Depends(get_current_user)):
             "status": "success",
             "timestamp": datetime.now().isoformat(),
         }
-        return builder.success(data)
+        return ResponseBuilder.success(builder.success(data))
 
     except Exception as e:
         logger.error(f"Risk metrics error: {e}")
@@ -352,7 +356,7 @@ async def optimize_portfolio(
             "status": "success",
             "timestamp": datetime.now().isoformat(),
         }
-        return builder.success(data)
+        return ResponseBuilder.success(builder.success(data))
 
     except Exception as e:
         logger.error(f"Portfolio optimization error: {e}")
@@ -380,7 +384,7 @@ async def calculate_kelly_criterion(
             "status": "success",
             "timestamp": datetime.now().isoformat(),
         }
-        return builder.success(data)
+        return ResponseBuilder.success(builder.success(data))
 
     except Exception as e:
         logger.error(f"Kelly calculation error: {e}")
@@ -410,7 +414,7 @@ async def get_user_profile(current_user: Dict = Depends(get_current_user)):
             "analytics": analytics,
             "status": "success",
         }
-        return builder.success(data)
+        return ResponseBuilder.success(builder.success(data))
 
     except Exception as e:
         logger.error(f"User profile error: {e}")
@@ -430,7 +434,7 @@ async def update_user_preferences(
 
         if success:
             data = {"message": "Preferences updated successfully", "status": "success"}
-            return builder.success(data)
+            return ResponseBuilder.success(builder.success(data))
         else:
             raise BusinessLogicException("Failed to update preferences")
 
@@ -455,7 +459,7 @@ async def get_enhanced_sport_data(
         if sport.upper() == "NFL":
             enhanced_data = await real_data_service.enhance_nfl_service()
         else:
-            # For other sports, return basic enhanced structure
+            # For other sports, return ResponseBuilder.success(basic) enhanced structure
             enhanced_data = [
                 {
                     "id": f"{sport.lower()}_001",
@@ -473,7 +477,7 @@ async def get_enhanced_sport_data(
             "status": "success",
             "timestamp": datetime.now().isoformat(),
         }
-        return builder.success(data)
+        return ResponseBuilder.success(builder.success(data))
 
     except Exception as e:
         logger.error(f"Enhanced sport data error: {e}")
@@ -517,7 +521,7 @@ async def get_system_health():
         ):
             health_status["status"] = "degraded"
 
-        return builder.success(health_status)
+        return ResponseBuilder.success(builder.success(health_status))
 
     except Exception as e:
         logger.error(f"Health check error: {e}")
@@ -526,21 +530,21 @@ async def get_system_health():
             "error": str(e),
             "timestamp": datetime.now().isoformat(),
         }
-        return builder.success(error_data)  # Return as success since health endpoint should always respond
+        return ResponseBuilder.success(builder.success(error_data))  # Return as success since health endpoint should always respond
 
 
-@router.get("/system/debug")
+@router.get("/system/debug", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_system_debug():
     """Debug endpoint to check system status"""
-    return {
+    return ResponseBuilder.success({
         "message": "Enhanced API is working!",
         "timestamp": datetime.now().isoformat(),
         "services_available": True,
-    }
+    })
 
 
 # WebSocket endpoint for real-time updates
-@router.websocket("/ws/{client_id}")
+@router.websocket("/ws/{client_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
     """WebSocket endpoint for real-time updates"""
     try:

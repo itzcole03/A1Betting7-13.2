@@ -50,7 +50,7 @@ logger = logging.getLogger(__name__)
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Security(security),
 ):
-    """Validate user credentials and return user info"""
+    """Validate user credentials and return ResponseBuilder.success(user) info"""
     if not credentials:
         raise AuthenticationException("Authentication required")
 

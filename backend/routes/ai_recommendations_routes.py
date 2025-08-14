@@ -8,6 +8,10 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Depends, Query, Body
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
@@ -166,9 +170,9 @@ async def generate_recommendations(
             for rec in filtered_recommendations
         ]
         
-        return RecommendationListResponse(
+        return ResponseBuilder.success(RecommendationListResponse(
             recommendations=recommendation_responses,
-            total_count=len(recommendation_responses),
+            total_count=len(recommendation_responses)),
             filters_applied={
                 "sport": filters.sport,
                 "min_edge": filters.min_edge,
@@ -182,7 +186,7 @@ async def generate_recommendations(
         
     except Exception as e:
         logger.error(f"Failed to generate recommendations: {e}")
-        raise HTTPException(status_code=500, detail="Failed to generate recommendations")
+        raise BusinessLogicException("Failed to generate recommendations")
 
 @router.get("/quick", response_model=RecommendationListResponse)
 async def get_quick_recommendations(
@@ -254,9 +258,9 @@ async def get_quick_recommendations(
             for rec in filtered_recommendations[:count]
         ]
         
-        return RecommendationListResponse(
+        return ResponseBuilder.success(RecommendationListResponse(
             recommendations=recommendation_responses,
-            total_count=len(recommendation_responses),
+            total_count=len(recommendation_responses)),
             filters_applied={
                 "sport": sport,
                 "risk_level": risk_level,
@@ -269,9 +273,9 @@ async def get_quick_recommendations(
         
     except Exception as e:
         logger.error(f"Failed to get quick recommendations: {e}")
-        raise HTTPException(status_code=500, detail="Failed to generate quick recommendations")
+        raise BusinessLogicException("Failed to generate quick recommendations")
 
-@router.get("/recommendation/{recommendation_id}")
+@router.get("/recommendation/{recommendation_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_recommendation_details(
     recommendation_id: str,
     ai_service: AIRecommendationsService = Depends(get_ai_recommendations_service)
@@ -284,7 +288,7 @@ async def get_recommendation_details(
     """
     try:
         # This would retrieve from database or cache
-        # For now, return mock detailed analysis
+        # For now, return ResponseBuilder.success(mock) detailed analysis
         
         return JSONResponse(content={
             "recommendation_id": recommendation_id,
@@ -318,9 +322,9 @@ async def get_recommendation_details(
         
     except Exception as e:
         logger.error(f"Failed to get recommendation details: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve recommendation details")
+        raise BusinessLogicException("Failed to retrieve recommendation details")
 
-@router.post("/alerts/preferences")
+@router.post("/alerts/preferences", response_model=StandardAPIResponse[Dict[str, Any]])
 async def set_alert_preferences(
     preferences: AlertPreferencesRequest,
     ai_service: AIRecommendationsService = Depends(get_ai_recommendations_service)
@@ -333,7 +337,7 @@ async def set_alert_preferences(
     """
     try:
         # This would save to database
-        # For now, just validate and return success
+        # For now, just validate and return ResponseBuilder.success(success)
         
         return JSONResponse(content={
             "message": "Alert preferences updated successfully",
@@ -350,9 +354,9 @@ async def set_alert_preferences(
         
     except Exception as e:
         logger.error(f"Failed to set alert preferences: {e}")
-        raise HTTPException(status_code=500, detail="Failed to update alert preferences")
+        raise BusinessLogicException("Failed to update alert preferences")
 
-@router.get("/stats/performance")
+@router.get("/stats/performance", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_recommendation_performance():
     """
     Get AI recommendation performance statistics
@@ -388,9 +392,9 @@ async def get_recommendation_performance():
         
     except Exception as e:
         logger.error(f"Failed to get performance stats: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve performance statistics")
+        raise BusinessLogicException("Failed to retrieve performance statistics")
 
-@router.get("/market-analysis/{sport}")
+@router.get("/market-analysis/{sport}", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_market_analysis(
     sport: str,
     date: Optional[str] = Query(None, description="Date in YYYY-MM-DD format")
@@ -447,9 +451,9 @@ async def get_market_analysis(
         
     except Exception as e:
         logger.error(f"Failed to get market analysis: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve market analysis")
+        raise BusinessLogicException("Failed to retrieve market analysis")
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def ai_recommendations_health_check():
     """Check AI recommendations service health"""
     try:

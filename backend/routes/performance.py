@@ -9,6 +9,10 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+
 from backend.models.api_models import (
     ActiveBetModel,
     ActiveBetsResponse,
@@ -35,14 +39,11 @@ async def get_performance_stats(
     try:
         stats = await fetch_performance_stats_internal()
         logger.info("Performance stats retrieved successfully")
-        return stats
+        return ResponseBuilder.success(stats)
 
     except Exception as e:
         logger.error(f"Error fetching performance stats: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch performance statistics",
-        )
+        raise BusinessLogicException("Failed to fetch performance statistics")
 
 
 @router.get("/transactions", response_model=TransactionsResponse)
@@ -57,16 +58,13 @@ async def get_transactions(
         transactions = await transaction_service.get_user_transactions(user_id)
 
         logger.info(f"Returning {len(transactions)} transactions")
-        return TransactionsResponse(
-            transactions=transactions, total_count=len(transactions)
+        return ResponseBuilder.success(TransactionsResponse(
+            transactions=transactions, total_count=len(transactions))
         )
 
     except Exception as e:
         logger.error(f"Error fetching transactions: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch transactions",
-        )
+        raise BusinessLogicException("Failed to fetch transactions")
 
 
 @router.get("/active-bets", response_model=ActiveBetsResponse)
@@ -81,11 +79,8 @@ async def get_active_bets(
         active_bets = await transaction_service.get_user_active_bets(user_id)
 
         logger.info(f"Returning {len(active_bets)} active bets")
-        return ActiveBetsResponse(active_bets=active_bets, total_count=len(active_bets))
+        return ResponseBuilder.success(ActiveBetsResponse(active_bets=active_bets, total_count=len(active_bets)))
 
     except Exception as e:
         logger.error(f"Error fetching active bets: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch active bets",
-        )
+        raise BusinessLogicException("Failed to fetch active bets")

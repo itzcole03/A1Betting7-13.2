@@ -1,4 +1,8 @@
 from fastapi import Depends
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlmodel import Session as SQLModelSession
 
@@ -17,12 +21,8 @@ def get_current_user_sync(
         user_service = UserService(session)
         user = user_service.get_user_by_id_sync(token_data.user_id)
         if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User not found",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        return user
+            raise BusinessLogicException("User not found")
+        return ResponseBuilder.success(user)
 
 
 import logging
@@ -85,20 +85,17 @@ async def register_user(
             "preferred_stake": getattr(user_profile, "preferred_stake", None),
             "bookmakers": getattr(user_profile, "bookmakers", []),
         }
-        return TokenResponse(
+        return ResponseBuilder.success(TokenResponse(
             access_token=access_token,
             refresh_token=refresh_token,
             token_type="bearer",
             user=user_dict,
-        )
+        ))
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error registering user: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Registration failed",
-        )
+        raise BusinessLogicException("Registration failed")
 
 
 logger = logging.getLogger(__name__)
@@ -123,32 +120,21 @@ async def get_current_user(
         user_service = UserService(session)
         user = await user_service.get_user_by_id(token_data.user_id)
         if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User not found",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            raise BusinessLogicException("User not found")
         logger.info(
             f"[DEBUG] get_current_user returning type: {type(user)} value: {user}"
         )
-        return user
+        return ResponseBuilder.success(user)
 
     except Exception as e:
         logger.error(f"Error getting current user: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise BusinessLogicException("Could not validate credentials")
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error registering user: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Registration failed",
-        )
+        raise BusinessLogicException("Registration failed")
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -171,10 +157,7 @@ async def login_user(
         if not db_user or not verify_password(
             login_data.password, db_user.hashed_password
         ):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid username or password",
-            )
+            raise BusinessLogicException("Invalid username or password")
         # Build user profile dict
         user_dict = {
             "id": db_user.id,
@@ -193,22 +176,20 @@ async def login_user(
         }
         access_token = create_access_token(token_data)
         refresh_token = create_refresh_token(token_data)
-        return TokenResponse(
+        return ResponseBuilder.success(TokenResponse(
             access_token=access_token,
             refresh_token=refresh_token,
             token_type="bearer",
             user=user_dict,
-        )
+        ))
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error logging in user: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Login failed"
-        )
+        raise BusinessLogicException("Login failed")
 
 
-@router.post("/refresh")
+@router.post("/refresh", response_model=StandardAPIResponse[Dict[str, Any]])
 async def refresh_token(
     refresh_token: str, session: AsyncSession = Depends(get_async_session)
 ) -> TokenResponse:
@@ -221,18 +202,13 @@ async def refresh_token(
         user_id = payload.get("user_id")
 
         if not username or not user_id:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
-            )
+            raise BusinessLogicException("Invalid refresh token")
 
         # Get user to ensure they still exist and are active
         user_service = UserService(session)
         user_profile = await user_service.get_user_by_id(user_id)
         if user_profile is None or not user_profile.is_active:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User not found or inactive",
-            )
+            raise BusinessLogicException("User not found or inactive")
 
         # Create new access token
         token_data = {
@@ -252,29 +228,27 @@ async def refresh_token(
             "last_name": user_profile.last_name,
         }
 
-        return TokenResponse(
+        return ResponseBuilder.success(TokenResponse(
             access_token=new_access_token,
             refresh_token=refresh_token,  # Keep the same refresh token
             token_type="bearer",
             user=user_dict,
-        )
+        ))
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error refreshing token: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token refresh failed"
-        )
+        raise BusinessLogicException("Token refresh failed")
 
 
-@router.get("/me")
+@router.get("/me", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_current_user_info(
     current_user: UserProfile = Depends(get_current_user),
 ) -> Dict[str, Any]:
     """Get current user information"""
     try:
-        return {
+        return ResponseBuilder.success({
             "id": current_user.user_id,
             "username": current_user.username,
             "email": current_user.email,
@@ -287,14 +261,11 @@ async def get_current_user_info(
             "is_verified": getattr(current_user, "is_verified", False),
             "created_at": getattr(current_user, "created_at", None),
             "last_login": getattr(current_user, "last_login", None),
-        }
+        })
 
     except Exception as e:
         logger.error(f"Error fetching user profile: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch user profile",
-        )
+        raise BusinessLogicException("Failed to fetch user profile")
 
 
 @router.put("/api/user/profile", response_model=UserProfileResponse)
@@ -319,28 +290,23 @@ async def update_user_profile(
         )
 
         if updated_profile is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-            )
+            raise BusinessLogicException("User not found")
 
-        return UserProfileResponse(
+        return ResponseBuilder.success(UserProfileResponse(
             user_id=updated_profile.user_id,
             risk_tolerance=updated_profile.risk_tolerance,
             preferred_stake=updated_profile.preferred_stake,
             bookmakers=updated_profile.bookmakers,
-        )
+        ))
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error updating user profile: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update user profile",
-        )
+        raise BusinessLogicException("Failed to update user profile")
 
 
-@router.post("/change-password")
+@router.post("/change-password", response_model=StandardAPIResponse[Dict[str, Any]])
 async def change_password(
     old_password: str,
     new_password: str,
@@ -354,20 +320,20 @@ async def change_password(
             current_user.user_id, old_password, new_password
         )
 
-        # Always return success
-        return {
+        # Always return ResponseBuilder.success(success)
+        return ResponseBuilder.success({
             "success": True,
             "message": "If this email is registered, a password reset link has been sent.",
-        }
+        })
     except Exception as e:
         logger.error(f"Error in forgot_password: {e}")
-        return {
+        return ResponseBuilder.success({
             "success": True,
             "message": "If this email is registered, a password reset link has been sent.",
-        }
+        })
 
 
-@router.post("/api/auth/reset-password")
+@router.post("/api/auth/reset-password", response_model=StandardAPIResponse[Dict[str, Any]])
 async def reset_password(
     request: Dict[str, str], session: AsyncSession = Depends(get_async_session)
 ):
@@ -378,25 +344,25 @@ async def reset_password(
     new_password = request.get("new_password")
     logger = logging.getLogger(__name__)
     if not token or not new_password:
-        return {"success": False, "message": "Token and new password are required."}
+        return ResponseBuilder.success({"success": False, "message": "Token and new password are required."})
     try:
         user_id = security_manager.verify_password_reset_token(token)
         user_service = UserService(session)
         user = await user_service.get_user_by_id(user_id)
         if not user:
             logger.warning(f"Password reset: user not found for token {token}")
-            return {"success": False, "message": "Invalid or expired token."}
+            return ResponseBuilder.success({"success": False, "message": "Invalid or expired token."})
         # Hash new password and update
         hashed = security_manager.hash_password(new_password)
         await user_service.update_user_password(user_id, hashed)
         logger.info(f"Password reset successful for user: {user.email}")
-        return {"success": True, "message": "Password has been reset successfully."}
+        return ResponseBuilder.success({"success": True, "message": "Password has been reset successfully."})
     except Exception as e:
         logger.error(f"Error in reset_password: {e}")
-        return {"success": False, "message": "Invalid or expired token."}
+        return ResponseBuilder.success({"success": False, "message": "Invalid or expired token."})
 
 
-@router.post("/verify-email/")
+@router.post("/verify-email/", response_model=StandardAPIResponse[Dict[str, Any]])
 async def verify_email(token: str, session: AsyncSession = Depends(get_async_session)):
     try:
         # Logic to verify the token and update user status
@@ -406,7 +372,7 @@ async def verify_email(token: str, session: AsyncSession = Depends(get_async_ses
         if user:
             user.is_verified = True  # Update user model
             await session.commit()
-            return {"message": "Email verified successfully"}
-        raise HTTPException(status_code=400, detail="Invalid token")
+            return ResponseBuilder.success({"message": "Email verified successfully"})
+        raise BusinessLogicException("Invalid token")
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise BusinessLogicException("str(e"))

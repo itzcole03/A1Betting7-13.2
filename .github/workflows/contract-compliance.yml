@@ -1,0 +1,80 @@
+name: Contract Compliance Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/routes/**'
+      - 'backend/core/**'
+      - 'ci_contract_scanner.py'
+
+jobs:
+  contract-compliance:
+    name: HTTP Contract Compliance
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # Only install minimal dependencies needed for scanning
+        pip install fastapi
+        
+    - name: Run Contract Compliance Scanner
+      run: |
+        echo "🔍 Running HTTP Contract Compliance Scan..."
+        python ci_contract_scanner.py --fail-on-violations
+        
+    - name: Upload compliance report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: contract-compliance-report
+        path: contract_compliance_report.json
+        retention-days: 30
+        
+    - name: Comment PR with violations
+      if: failure() && github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          try {
+            const reportData = JSON.parse(fs.readFileSync('contract_compliance_report.json', 'utf8'));
+            
+            if (reportData.total_violations > 0) {
+              let comment = `## ❌ HTTP Contract Compliance Failed\n\n`;
+              comment += `**Total Violations:** ${reportData.total_violations}\n`;
+              comment += `**Files with Violations:** ${reportData.violation_files}\n\n`;
+              
+              comment += `### Files requiring attention:\n`;
+              reportData.files.filter(f => f.count > 0).slice(0, 10).forEach(file => {
+                comment += `- \`${file.file}\` (${file.count} violations)\n`;
+              });
+              
+              comment += `\n### Common violations to fix:\n`;
+              comment += `- Replace \`HTTPException\` with \`BusinessLogicException\`/\`AuthenticationException\`\n`;
+              comment += `- Add \`response_model=StandardAPIResponse[T]\` to router endpoints\n`;
+              comment += `- Wrap returns with \`ResponseBuilder.success()\`\n`;
+              comment += `\n**Please run the contract scanner locally and fix violations before merging.**`;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+          } catch (error) {
+            console.log('Could not read compliance report:', error);
+          }

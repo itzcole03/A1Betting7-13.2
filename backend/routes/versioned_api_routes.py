@@ -7,6 +7,10 @@ from datetime import date, datetime
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -64,10 +68,10 @@ v1_router = VersionedAPIRouter(version="v1", tags=["v1"], deprecated=True)
 @v1_router.get("/health", response_model=APIResponse)
 async def v1_health_check():
     """V1 Health check endpoint (deprecated)"""
-    return APIResponse(
+    return ResponseBuilder.success(APIResponse(
         success=True,
         message="API v1 is operational but deprecated. Please migrate to v2.",
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.utcnow()),
     )
 
 
@@ -96,9 +100,9 @@ async def v1_get_games(sport: Optional[str] = None):
             total=8.5,
         ).model_dump()
     ]
-    return ListResponse(
+    return ResponseBuilder.success(ListResponse(
         success=True,
-        message="Games retrieved (v1 deprecated format)",
+        message="Games retrieved (v1 deprecated format))",
         data=mock_games,
         total_count=len(mock_games),
         filters_applied={"sport": sport},
@@ -130,9 +134,9 @@ async def v1_get_props(game_id: Optional[str] = None):
             sharp_money=None,
         ).model_dump()
     ]
-    return ListResponse(
+    return ResponseBuilder.success(ListResponse(
         success=True,
-        message="Props retrieved (v1 deprecated format)",
+        message="Props retrieved (v1 deprecated format))",
         data=mock_props,
         total_count=len(mock_props),
         filters_applied={"game_id": game_id},
@@ -166,7 +170,7 @@ v2_router = VersionedAPIRouter(version="v2", tags=["v2"])
 
 @v2_router.options("/sports/activate", status_code=200)
 async def options_sports_activate():
-    return {"status": "ok"}
+    return ResponseBuilder.success({"status": "ok"})
 
 
 class SportActivateRequest(BaseModel):
@@ -179,20 +183,20 @@ async def activate_sport(request: SportActivateRequest):
         sport = request.sport.upper()
         logger.info(f"Activating sport: {sport}")
         # Here you would add logic to activate/configure the sport in the backend
-        # For now, just return a success response
-        return {"status": "success", "sport": sport}
+        # For now, just return ResponseBuilder.success(a) success response
+        return ResponseBuilder.success({"status": "success", "sport": sport})
     except Exception as e:
         error_info = handle_error(e, message="Failed to activate sport")
-        raise HTTPException(status_code=500, detail=error_info.user_message)
+        raise BusinessLogicException("error_info.user_message")
 
 
 @v2_router.get("/health", response_model=APIResponse)
 async def v2_health_check():
     """V2 Enhanced health check with detailed system status"""
-    return APIResponse(
+    return ResponseBuilder.success(APIResponse(
         success=True,
         message="API v2 operational with full feature support",
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.utcnow()),
         request_id="health_check_v2",
     )
 
@@ -230,7 +234,7 @@ async def v2_get_games(
         ).model_dump()
     ]
 
-    return DataResponse(
+    return ResponseBuilder.success(DataResponse(
         success=True,
         message="Enhanced games retrieved with full metadata",
         data={
@@ -238,7 +242,7 @@ async def v2_get_games(
             "pagination": {
                 "limit": limit,
                 "offset": offset,
-                "total": len(enhanced_games),
+                "total": len(enhanced_games)),
             },
             "filters_applied": {"sport": sport, "date": game_date, "status": status},
         },
@@ -313,11 +317,11 @@ async def v2_get_game_props(
             ).model_dump()
         ]
 
-    return DataResponse(
+    return ResponseBuilder.success(DataResponse(
         success=True,
         message="Enhanced props retrieved with ML predictions",
         data=response_data,
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.utcnow()),
         request_id="v2_get_game_props",
     )
 
@@ -369,9 +373,9 @@ async def v2_comprehensive_analysis(request: PropAnalysisRequest):
         ).model_dump()
         analysis_results.append(analysis)
 
-    return DataResponse(
+    return ResponseBuilder.success(DataResponse(
         success=True,
-        message=f"Comprehensive analysis completed for {len(request.prop_ids)} props",
+        message=f"Comprehensive analysis completed for {len(request.prop_ids))} props",
         data={
             "analyses": analysis_results,
             "processing_summary": {
@@ -414,7 +418,7 @@ class APIVersionManager:
     @classmethod
     def get_version_info(cls, version: str) -> Optional[APIVersionInfo]:
         """Get information for specific API version"""
-        return cls.VERSIONS.get(version)
+        return ResponseBuilder.success(cls.VERSIONS.get(version))
 
     @classmethod
     def get_current_version(cls) -> str:
@@ -425,7 +429,7 @@ class APIVersionManager:
     def is_version_deprecated(cls, version: str) -> bool:
         """Check if version is deprecated"""
         info = cls.get_version_info(version)
-        return bool(info and info.status == "deprecated")
+        return ResponseBuilder.success(bool(info and info.status == "deprecated"))
 
     @classmethod
     def is_version_supported(cls, version: str) -> bool:
@@ -437,7 +441,7 @@ class APIVersionManager:
         if info.sunset_date and datetime.now().date() > info.sunset_date:
             return False
 
-        return info.status in ["current", "deprecated"]
+        return ResponseBuilder.success(info.status) in ["current", "deprecated"]
 
 
 # Version info endpoint
@@ -465,13 +469,13 @@ async def get_version_info():
             for version, info in APIVersionManager.VERSIONS.items()
         },
     }
-    return {
+    return ResponseBuilder.success({
         "version": version,
         "success": True,
         "message": "API version information",
         "data": data,
         "timestamp": datetime.utcnow(),
-    }
+    })
 
 
 @version_router.get("/version/{version}", response_model=DataResponse)
@@ -479,11 +483,11 @@ async def get_specific_version_info(version: str):
     """Get specific version information"""
     info = APIVersionManager.get_version_info(version)
     if not info:
-        raise HTTPException(status_code=404, detail=f"API version {version} not found")
-    return DataResponse(
+        raise BusinessLogicException("f"API version {version} not found")
+    return ResponseBuilder.success(DataResponse(
         success=True,
         message=f"Information for API version {version}",
-        data=info.model_dump(),
+        data=info.model_dump()),
         timestamp=datetime.utcnow(),
         request_id=f"get_version_{version}",
     )

@@ -3,6 +3,10 @@
 from typing import Dict
 
 from fastapi import APIRouter
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel
 
 from backend.utils.metrics_collector import metrics_collector
@@ -39,25 +43,25 @@ class SystemStats(BaseModel):
 @router.get("/stats/system", response_model=SystemStats)
 async def get_system_stats() -> Dict[str, float]:
     """Get overall system statistics"""
-    return metrics_collector.get_overall_stats()
+    return ResponseBuilder.success(metrics_collector.get_overall_stats())
 
 
 @router.get("/stats/endpoint/{endpoint}", response_model=EndpointStats)
 async def get_endpoint_stats(endpoint: str) -> Dict[str, float]:
     """Get statistics for a specific endpoint"""
-    return metrics_collector.get_endpoint_stats(endpoint)
+    return ResponseBuilder.success(metrics_collector.get_endpoint_stats(endpoint))
 
 
-@router.get("/stats/models")
+@router.get("/stats/models", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_model_stats() -> Dict[str, Dict[str, float]]:
     """Get model usage statistics"""
-    return metrics_collector.get_model_stats()
+    return ResponseBuilder.success(metrics_collector.get_model_stats())
 
 
-@router.get("/stats/endpoints")
+@router.get("/stats/endpoints", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_all_endpoint_stats() -> Dict[str, Dict[str, float]]:
     """Get statistics for all endpoints"""
     stats = {}
     for endpoint in metrics_collector.total_requests.keys():
         stats[endpoint] = metrics_collector.get_endpoint_stats(endpoint)
-    return stats
+    return ResponseBuilder.success(stats)

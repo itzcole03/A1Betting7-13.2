@@ -8,6 +8,10 @@ import logging
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -100,17 +104,14 @@ async def place_bet_modern(
         # Process bet with async service
         result = await betting_service.process_bet_placement(bet_data, context, db)
 
-        return BetPlacementResponse(**result)
+        return ResponseBuilder.success(BetPlacementResponse(**result))
 
     except ValueError as e:
         logger.warning(f"Bet validation failed: {e}")
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise BusinessLogicException("str(e"))
     except Exception as e:
         logger.error(f"Bet placement failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error during bet placement",
-        )
+        raise BusinessLogicException("Internal server error during bet placement")
 
 
 @router.post("/analytics/analyze-game", response_model=Dict[str, Any])
@@ -131,14 +132,11 @@ async def analyze_game_sync(
             analysis_request.game_id, context, db
         )
 
-        return {"success": True, "analysis": result, "request_id": context.request_id}
+        return ResponseBuilder.success({"success": True, "analysis": result, "request_id": context.request_id})
 
     except Exception as e:
         logger.error(f"Game analysis failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error during game analysis",
-        )
+        raise BusinessLogicException("Internal server error during game analysis")
 
 
 @router.post("/analytics/analyze-game-async", response_model=TaskResponse)
@@ -161,19 +159,16 @@ async def analyze_game_async(
             analysis_type=analysis_request.analysis_type,
         )
 
-        return TaskResponse(
+        return ResponseBuilder.success(TaskResponse(
             task_id=task_id,
             status="pending",
             message="Game analysis started in background",
             estimated_completion="30-60 seconds",
-        )
+        ))
 
     except Exception as e:
         logger.error(f"Failed to start background analysis: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to start background analysis",
-        )
+        raise BusinessLogicException("Failed to start background analysis")
 
 
 @router.post("/data/refresh-async", response_model=TaskResponse)
@@ -193,19 +188,16 @@ async def refresh_data_async(
             example_data_refresh_task, context=context, data_source=data_source
         )
 
-        return TaskResponse(
+        return ResponseBuilder.success(TaskResponse(
             task_id=task_id,
             status="pending",
             message=f"Data refresh started for {data_source}",
             estimated_completion="10-30 seconds",
-        )
+        ))
 
     except Exception as e:
         logger.error(f"Failed to start data refresh: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to start data refresh",
-        )
+        raise BusinessLogicException("Failed to start data refresh")
 
 
 # =============================================================================
@@ -223,24 +215,18 @@ async def get_task_status(
     try:
         status = task_manager.get_task_status(task_id)
         if not status:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Task not found: {task_id}",
-            )
+            raise BusinessLogicException("f"Task not found: {task_id}")
 
-        return status
+        return ResponseBuilder.success(status)
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to get task status: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve task status",
-        )
+        raise BusinessLogicException("Failed to retrieve task status")
 
 
-@router.get("/tasks/{task_id}/wait")
+@router.get("/tasks/{task_id}/wait", response_model=StandardAPIResponse[Dict[str, Any]])
 async def wait_for_task(
     task_id: str,
     timeout: Optional[int] = Query(30, description="Timeout in seconds"),
@@ -255,30 +241,23 @@ async def wait_for_task(
         # Wait for task with timeout
         result = await task_manager.wait_for_task(task_id, timeout=timeout)
 
-        return {
+        return ResponseBuilder.success({
             "success": True,
             "task_id": task_id,
             "result": result,
             "request_id": context.request_id,
-        }
+        })
 
     except asyncio.TimeoutError:
-        raise HTTPException(
-            status_code=status.HTTP_408_REQUEST_TIMEOUT,
-            detail=f"Task timeout after {timeout} seconds",
-        )
+        raise BusinessLogicException("f"Task timeout after {timeout} seconds")
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise BusinessLogicException("str(e"))
     except RuntimeError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        raise BusinessLogicException("str(e")
         )
     except Exception as e:
         logger.error(f"Failed to wait for task: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to wait for task completion",
-        )
+        raise BusinessLogicException("Failed to wait for task completion")
 
 
 @router.get("/tasks", response_model=List[TaskStatus])
@@ -297,14 +276,11 @@ async def list_tasks(
         if limit > 0:
             tasks = tasks[:limit]
 
-        return tasks
+        return ResponseBuilder.success(tasks)
 
     except Exception as e:
         logger.error(f"Failed to list tasks: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to list tasks",
-        )
+        raise BusinessLogicException("Failed to list tasks")
 
 
 # =============================================================================
@@ -312,7 +288,7 @@ async def list_tasks(
 # =============================================================================
 
 
-@router.post("/analytics/batch-analyze")
+@router.post("/analytics/batch-analyze", response_model=StandardAPIResponse[Dict[str, Any]])
 async def batch_analyze_games(
     game_ids: List[str],
     context: RequestContext = Depends(get_request_context),
@@ -328,10 +304,10 @@ async def batch_analyze_games(
         # Create concurrent tasks for all games
         async def analyze_single_game(game_id: str):
             try:
-                return await analytics_service.analyze_predictions(game_id, context, db)
+                return ResponseBuilder.success(await) analytics_service.analyze_predictions(game_id, context, db)
             except Exception as e:
                 logger.error(f"Failed to analyze game {game_id}: {e}")
-                return {"game_id": game_id, "error": str(e)}
+                return ResponseBuilder.success({"game_id": game_id, "error": str(e)})
 
         # Run all analyses concurrently
         start_time = asyncio.get_event_loop().time()
@@ -353,7 +329,7 @@ async def batch_analyze_games(
             else:
                 successful_analyses.append(result)
 
-        return {
+        return ResponseBuilder.success({
             "success": True,
             "request_id": context.request_id,
             "processing_time": end_time - start_time,
@@ -362,14 +338,11 @@ async def batch_analyze_games(
             "failed_analyses": len(failed_analyses),
             "results": successful_analyses,
             "errors": failed_analyses,
-        }
+        })
 
     except Exception as e:
         logger.error(f"Batch analysis failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error during batch analysis",
-        )
+        raise BusinessLogicException("Internal server error during batch analysis")
 
 
 # =============================================================================
@@ -377,7 +350,7 @@ async def batch_analyze_games(
 # =============================================================================
 
 
-@router.get("/health/async")
+@router.get("/health/async", response_model=StandardAPIResponse[Dict[str, Any]])
 async def async_health_check(
     context: RequestContext = Depends(get_request_context),
 ) -> Dict[str, Any]:
@@ -397,7 +370,7 @@ async def async_health_check(
 
         end_time = asyncio.get_event_loop().time()
 
-        return {
+        return ResponseBuilder.success({
             "status": "healthy",
             "request_id": context.request_id,
             "response_time": end_time - start_time,
@@ -406,7 +379,7 @@ async def async_health_check(
                 "analytics_service": "initialized",
                 "betting_service": "initialized",
                 "task_manager": "running",
-            },
+            }),
             "active_tasks": len(task_manager.running_tasks),
             "total_tasks": len(task_manager.tasks),
             "timestamp": context.timestamp.isoformat(),
@@ -414,7 +387,5 @@ async def async_health_check(
 
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Service unhealthy: {str(e)}",
+        raise BusinessLogicException("f"Service unhealthy: {str(e")}",
         )

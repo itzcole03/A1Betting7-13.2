@@ -10,6 +10,10 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+
 from backend.auth.security import get_current_admin_user  # Import the new dependency
 from backend.middleware.caching import TTLCache, retry_and_cache
 from backend.services.comprehensive_prizepicks_service import (
@@ -70,20 +74,17 @@ async def get_prizepicks_props(
             time.time() - start_time,
         )
         # Return as a list for frontend contract alignment
-        return props
+        return ResponseBuilder.success(props)
     except Exception as e:
         logger.error("[ERROR] Exception in /api/prizepicks/props: %s", e)
         logger.error(
             "[EXIT] /api/prizepicks/props failed. Total time: %.2fs",
             time.time() - start_time,
         )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to scrape PrizePicks props",
-        )
+        raise BusinessLogicException("Failed to scrape PrizePicks props")
 
 
-@router.get("/recommendations")
+@router.get("/recommendations", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_prizepicks_recommendations(
     sport: Optional[str] = None,
     _strategy: Optional[str] = "balanced",  # Prefixed with _ to indicate unused
@@ -149,17 +150,14 @@ async def get_prizepicks_recommendations(
             ]
 
         logger.info(f"Returning {len(recommendations)} PrizePicks recommendations")
-        return recommendations
+        return ResponseBuilder.success(recommendations)
 
     except Exception as e:
         logger.error(f"Error fetching PrizePicks recommendations: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch PrizePicks recommendations",
-        )
+        raise BusinessLogicException("Failed to fetch PrizePicks recommendations")
 
 
-@router.get("/comprehensive-projections")
+@router.get("/comprehensive-projections", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_comprehensive_projections(
     sport: Optional[str] = None,
     league: Optional[str] = None,
@@ -186,16 +184,13 @@ async def get_comprehensive_projections(
                 for p in props
                 if p.get("league") and str(p.get("league")).lower() == league.lower()
             ]
-        return props
+        return ResponseBuilder.success(props)
     except Exception as e:
         logger.error(f"Error scraping comprehensive PrizePicks projections: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to scrape comprehensive PrizePicks projections",
-        )
+        raise BusinessLogicException("Failed to scrape comprehensive PrizePicks projections")
 
 
-@router.post("/lineup/optimize")
+@router.post("/lineup/optimize", response_model=StandardAPIResponse[Dict[str, Any]])
 async def optimize_lineup(request_data: Dict[str, Any]) -> Dict[str, Any]:
     """Optimize lineup using advanced ML algorithms"""
     try:
@@ -203,10 +198,7 @@ async def optimize_lineup(request_data: Dict[str, Any]) -> Dict[str, Any]:
         # optimization_params = request_data.get("optimization_params", {}) # Removed unused variable
 
         if len(entries) < 2:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="At least 2 entries required for optimization",
-            )
+            raise BusinessLogicException("At least 2 entries required for optimization")
 
         # Mock optimization logic - in production would use real ML optimization
         total_confidence = sum(entry.get("confidence", 0) for entry in entries) / len(
@@ -263,20 +255,17 @@ async def optimize_lineup(request_data: Dict[str, Any]) -> Dict[str, Any]:
         }
 
         logger.info(f"Optimized lineup with {len(entries)} entries")
-        return optimization_result
+        return ResponseBuilder.success(optimization_result)
 
     except HTTPException as http_exc:
         logger.error(f"Error optimizing lineup: {http_exc}")
         raise http_exc
     except Exception as e:
         logger.error(f"Error optimizing lineup: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to optimize lineup",
-        )
+        raise BusinessLogicException("Failed to optimize lineup")
 
 
-@router.get("/lineup/optimal")
+@router.get("/lineup/optimal", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_optimal_lineup(
     lineup_size: int = Query(5, ge=1, le=10, description="Number of props in lineup"),
     sport: Optional[str] = Query(None, description="Filter by specific sport"),
@@ -309,24 +298,22 @@ async def get_optimal_lineup(
 
         # The generate_optimal_betting_lineup function is now part of the service
         # and handles the ensemble prediction logic.
-        # For now, we'll just return the filtered props.
+        # For now, we'll just return ResponseBuilder.success(the) filtered props.
         # The actual lineup generation and prediction will happen within the service.
 
         logger.info(f"🏆 Returning {len(props)} props for optimal lineup")
-        return {
+        return ResponseBuilder.success({
             "props": props,
             "message": "Optimal lineup generation is pending integration with ensemble prediction.",
-        }
+        })
 
     except Exception as e:
         logger.error(f"Error generating optimal lineup: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate optimal lineup: {str(e)}",
+        raise BusinessLogicException("f"Failed to generate optimal lineup: {str(e")}",
         )
 
 
-@router.get("/lineup/analysis")
+@router.get("/lineup/analysis", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_lineup_analysis(
     prop_ids: List[str] = Query(..., description="List of prop IDs to analyze"),
 ) -> Dict[str, Any]:
@@ -347,33 +334,28 @@ async def get_lineup_analysis(
         ]
 
         if not selected_props:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No props found with provided IDs",
-            )
+            raise BusinessLogicException("No props found with provided IDs")
 
         # The generate_optimal_betting_lineup function is now part of the service
         # and handles the ensemble prediction logic.
-        # For now, we'll just return the filtered props.
+        # For now, we'll just return ResponseBuilder.success(the) filtered props.
         # The actual lineup generation and prediction will happen within the service.
 
         logger.info(f"🔍 Analyzing custom lineup with {len(selected_props)} props")
-        return {
+        return ResponseBuilder.success({
             "props": selected_props,
             "message": "Lineup analysis is pending integration with ensemble prediction.",
-        }
+        })
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error analyzing custom lineup: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to analyze lineup: {str(e)}",
+        raise BusinessLogicException("f"Failed to analyze lineup: {str(e")}",
         )
 
 
-@router.get("/trends")
+@router.get("/trends", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_prop_trends(
     player_name: Optional[str] = Query(None, description="Filter by player name"),
     sport: Optional[str] = Query(None, description="Filter by sport"),
@@ -386,7 +368,7 @@ async def get_prop_trends(
         logger.info(f"📈 Analyzing prop trends for {days} days")
 
         # This would integrate with historical data analysis
-        # For now, return a basic response
+        # For now, return ResponseBuilder.success(a) basic response
         trends: Dict[str, Any] = {
             "analysis_period": f"{days} days",
             "filters": {"player_name": player_name, "sport": sport},
@@ -404,17 +386,14 @@ async def get_prop_trends(
             "ensemble_status": "available",  # This status is now managed by the service
         }
 
-        return trends
+        return ResponseBuilder.success(trends)
 
     except Exception as e:
         logger.error(f"Error fetching prop trends: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch prop trends",
-        )
+        raise BusinessLogicException("Failed to fetch prop trends")
 
 
-@router.post("/props/{prop_id}/explain")
+@router.post("/props/{prop_id}/explain", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_prop_ai_explanation(prop_id: str) -> Dict[str, Any]:
     """
     Get AI explanation for a specific prop
@@ -434,9 +413,8 @@ async def get_prop_ai_explanation(prop_id: str) -> Dict[str, Any]:
                 break
 
         if not target_prop:
-            raise HTTPException(
-                status_code=404, detail=f"Prop with ID {prop_id} not found"
-            )
+            raise BusinessLogicException("f"Prop with ID {prop_id} not found"
+            ")
 
         # Initialize explanation_data here to avoid re-declaration errors
         explanation_data: Dict[str, Any] = {}
@@ -502,7 +480,7 @@ async def get_prop_ai_explanation(prop_id: str) -> Dict[str, Any]:
                 }
             )
 
-        return {
+        return ResponseBuilder.success({
             "prop_id": prop_id,
             "player_name": target_prop.get("player_name"),
             "stat_type": target_prop.get("stat_type"),
@@ -511,19 +489,16 @@ async def get_prop_ai_explanation(prop_id: str) -> Dict[str, Any]:
             "sport": target_prop.get("sport"),
             "confidence": target_prop.get("confidence"),
             **explanation_data,
-        }
+        })
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error generating AI explanation for prop {prop_id}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to generate AI explanation",
-        )
+        raise BusinessLogicException("Failed to generate AI explanation")
 
 
-@router.get("/props/enhanced")
+@router.get("/props/enhanced", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_enhanced_prizepicks_props(
     sport: Optional[str] = None,
     min_confidence: Optional[int] = 70,
@@ -588,50 +563,46 @@ async def get_enhanced_prizepicks_props(
             "[EXIT] /api/prizepicks/props/enhanced returning response, count=%d",
             len(enhanced_props),
         )
-        return enhanced_props
+        return ResponseBuilder.success(enhanced_props)
     except ImportError as e:
         logger.error(f"[ERROR] Failed to import enhanced fetcher: {e}")
-        raise HTTPException(
-            status_code=503,
-            detail="Enhanced data fetchers not available - import error",
-        )
+        raise BusinessLogicException("Enhanced data fetchers not available - import error",
+        ")
     except Exception as e:
         logger.error(f"[ERROR] Exception in /api/prizepicks/props/enhanced: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch enhanced PrizePicks props: {str(e)}",
+        raise BusinessLogicException("f"Failed to fetch enhanced PrizePicks props: {str(e")}",
         )
 
 
 # Legacy endpoint for backward compatibility
-@router.get("/props/legacy")
+@router.get("/props/legacy", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_prizepicks_props_legacy(
     sport: Optional[str] = None, min_confidence: Optional[int] = 70
 ) -> List[Dict[str, Any]]:
     """Legacy endpoint - use /props instead"""
-    return await get_prizepicks_props(
+    return ResponseBuilder.success(await) get_prizepicks_props(
         sport=sport, min_confidence=min_confidence, enhanced=False
     )
 
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_prizepicks_health():
     """Get PrizePicks scraper health and status for frontend monitoring (public endpoint)."""
     # Return health from enhanced service v2, fallback to other services
     try:
-        return enhanced_prizepicks_service_v2.get_scraper_health()
+        return ResponseBuilder.success(enhanced_prizepicks_service_v2.get_scraper_health())
     except Exception:
         try:
-            return enhanced_prizepicks_service.get_scraper_health()
+            return ResponseBuilder.success(enhanced_prizepicks_service.get_scraper_health())
         except Exception:
             from backend.services.comprehensive_prizepicks_service import (
                 comprehensive_prizepicks_service,
             )
 
-            return comprehensive_prizepicks_service.get_scraper_health()
+            return ResponseBuilder.success(comprehensive_prizepicks_service.get_scraper_health())
 
 
-@router.post("/heal")
+@router.post("/heal", response_model=StandardAPIResponse[Dict[str, Any]])
 async def trigger_prizepicks_healing(
     current_user: Any = Depends(get_current_admin_user),
 ):  # Create and secure heal endpoint
@@ -648,10 +619,8 @@ async def trigger_prizepicks_healing(
         # await comprehensive_prizepicks_service.reset_scraper_state()
 
         logger.info("PrizePicks scraper healing triggered successfully.")
-        return {"message": "PrizePicks scraper healing initiated.", "status": "success"}
+        return ResponseBuilder.success({"message": "PrizePicks scraper healing initiated.", "status": "success"})
     except Exception as e:
         logger.error(f"Error triggering PrizePicks scraper healing: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to trigger PrizePicks scraper healing: {str(e)}",
+        raise BusinessLogicException("f"Failed to trigger PrizePicks scraper healing: {str(e")}",
         )

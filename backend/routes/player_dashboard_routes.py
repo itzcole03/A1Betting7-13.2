@@ -8,6 +8,10 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, Path, Query, Request
 
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+
 from ..models.player_models import PlayerDashboardResponse
 from ..services.player_dashboard_service import PlayerDashboardService
 
@@ -15,10 +19,10 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v2/players", tags=["Player Dashboard"])
 
 
-@router.get("/health")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def health_check():
     """Health check endpoint for player dashboard service"""
-    return {"status": "healthy", "service": "player_dashboard"}
+    return ResponseBuilder.success({"status": "healthy", "service": "player_dashboard"})
 
 
 player_dashboard_service = PlayerDashboardService()
@@ -27,10 +31,10 @@ player_dashboard_service = PlayerDashboardService()
 @router.get("/{player_id}/dashboard", response_model=PlayerDashboardResponse)
 async def get_player_dashboard(player_id: str, request: Request):
     """Get comprehensive player dashboard data including stats, trends, and prop history."""
-    return await player_dashboard_service.get_player_dashboard(player_id, request)
+    return ResponseBuilder.success(await) player_dashboard_service.get_player_dashboard(player_id, request)
 
 
-@router.get("/search")
+@router.get("/search", response_model=StandardAPIResponse[Dict[str, Any]])
 async def search_players(
     q: str = Query(..., min_length=2, description="Search query (player name or team)"),
     sport: str = Query("MLB", description="Sport to search in"),
@@ -53,14 +57,14 @@ async def search_players(
         }
 
         logger.info(f"Found {len(players)} players for query: '{q}'")
-        return response_data
+        return ResponseBuilder.success(response_data)
 
     except Exception as e:
         logger.error(f"Failed to search players: {e}")
-        raise HTTPException(status_code=500, detail="Search failed")
+        raise BusinessLogicException("Search failed")
 
 
-@router.get("/{player_id}/trends")
+@router.get("/{player_id}/trends", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_player_trends(
     player_id: str = Path(..., description="Player ID or slug"),
     period: str = Query(
@@ -89,14 +93,14 @@ async def get_player_trends(
         logger.info(
             f"Trends retrieved successfully for {player_id}: {len(trends)} games"
         )
-        return response_data
+        return ResponseBuilder.success(response_data)
 
     except Exception as e:
         logger.error(f"Failed to get player trends: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve trends")
+        raise BusinessLogicException("Failed to retrieve trends")
 
 
-@router.get("/{player_id}/matchup")
+@router.get("/{player_id}/matchup", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_matchup_analysis(
     player_id: str = Path(..., description="Player ID or slug"),
     opponent: str = Query(..., description="Opponent team code (e.g., BOS, NYY)"),
@@ -115,14 +119,14 @@ async def get_matchup_analysis(
         response_data = {"status": "success", "matchup": analysis}
 
         logger.info(f"Matchup analysis completed: {player_id} vs {opponent}")
-        return response_data
+        return ResponseBuilder.success(response_data)
 
     except Exception as e:
         logger.error(f"Failed to get matchup analysis: {e}")
-        raise HTTPException(status_code=500, detail="Matchup analysis failed")
+        raise BusinessLogicException("Matchup analysis failed")
 
 
-@router.get("/{player_id}/props")
+@router.get("/{player_id}/props", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_player_props(
     player_id: str = Path(..., description="Player ID or slug"),
     game_id: Optional[str] = Query(None, description="Specific game ID (optional)"),
@@ -147,14 +151,14 @@ async def get_player_props(
         }
 
         logger.info(f"Generated {len(props)} props for {player_id}")
-        return response_data
+        return ResponseBuilder.success(response_data)
 
     except Exception as e:
         logger.error(f"Failed to get player props: {e}")
-        raise HTTPException(status_code=500, detail="Failed to generate props")
+        raise BusinessLogicException("Failed to generate props")
 
 
-@router.get("/{player_id}/stats")
+@router.get("/{player_id}/stats", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_player_stats(
     player_id: str = Path(..., description="Player ID or slug"),
     season: Optional[int] = Query(None, description="Season year (optional)"),
@@ -189,14 +193,14 @@ async def get_player_stats(
         }
 
         logger.info(f"{stat_type.title()} stats retrieved for {player_id}")
-        return response_data
+        return ResponseBuilder.success(response_data)
 
     except Exception as e:
         logger.error(f"Failed to get player stats: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve stats")
+        raise BusinessLogicException("Failed to retrieve stats")
 
 
-@router.post("/{player_id}/cache/clear")
+@router.post("/{player_id}/cache/clear", response_model=StandardAPIResponse[Dict[str, Any]])
 async def clear_player_cache(
     player_id: str = Path(..., description="Player ID or slug"),
     sport: str = Query("MLB", description="Sport"),
@@ -218,14 +222,14 @@ async def clear_player_cache(
         }
 
         logger.info(f"Cache cleared successfully for {player_id}")
-        return response_data
+        return ResponseBuilder.success(response_data)
 
     except Exception as e:
         logger.error(f"Failed to clear player cache: {e}")
-        raise HTTPException(status_code=500, detail="Cache clear failed")
+        raise BusinessLogicException("Cache clear failed")
 
 
-@router.get("/metrics")
+@router.get("/metrics", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_service_metrics() -> Dict[str, Any]:
     """
     Get player dashboard service metrics
@@ -240,8 +244,8 @@ async def get_service_metrics() -> Dict[str, Any]:
             ),
         }
 
-        return metrics
+        return ResponseBuilder.success(metrics)
 
     except Exception as e:
         logger.error(f"Failed to get service metrics: {e}")
-        raise HTTPException(status_code=500, detail="Metrics unavailable")
+        raise BusinessLogicException("Metrics unavailable")

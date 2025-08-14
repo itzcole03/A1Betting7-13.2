@@ -13,6 +13,10 @@ from typing import Any, Dict, List
 import psutil
 from fastapi import APIRouter
 
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+
 try:
     from backend.services.background_task_manager import BackgroundTaskManager
     from backend.services.production_logging_service import (
@@ -112,7 +116,7 @@ async def comprehensive_health_check() -> Dict[str, Any]:
             },
         }
 
-        return builder.success(health_data)
+        return ResponseBuilder.success(builder.success(health_data))
 
     except Exception as e:
         if production_logger:
@@ -142,7 +146,7 @@ async def background_tasks_health() -> Dict[str, Any]:
                 "status": "background_task_manager_not_available",
                 "message": "BackgroundTaskManager not imported successfully",
             }
-            return builder.success(health_data)
+            return ResponseBuilder.success(builder.success(health_data))
 
         # Create a test task manager instance
         test_manager = BackgroundTaskManager()
@@ -201,7 +205,7 @@ async def background_tasks_health() -> Dict[str, Any]:
                 except:
                     pass  # Don't fail on logging error
 
-            return builder.success(health_data)
+            return ResponseBuilder.success(builder.success(health_data))
 
         finally:
             # Clean up test manager
@@ -260,7 +264,7 @@ async def get_error_summary() -> Dict[str, Any]:
             "status": "production_logger_not_available",
             "message": "Production logging not enabled",
         }
-        return builder.success(error_data)
+        return ResponseBuilder.success(builder.success(error_data))
 
     try:
         error_summary = production_logger.get_error_summary()
@@ -277,7 +281,7 @@ async def get_error_summary() -> Dict[str, Any]:
             ),
         }
 
-        return builder.success(summary_data)
+        return ResponseBuilder.success(builder.success(summary_data))
 
     except Exception as e:
         raise BusinessLogicException(
@@ -340,7 +344,7 @@ async def stress_test_background_tasks(
                             {"worker_id": worker_id, "task_number": i, "error": str(e)},
                         )
 
-            return {"processed": processed, "errors": errors}
+            return ResponseBuilder.success({"processed": processed, "errors": errors})
 
         # Run concurrent workers
         workers = [
@@ -421,7 +425,7 @@ async def stress_test_background_tasks(
                 pass  # Don't fail on logging error
 
         await test_manager.stop()
-        return builder.success(test_results)
+        return ResponseBuilder.success(builder.success(test_results))
 
     except Exception as e:
         if production_logger:

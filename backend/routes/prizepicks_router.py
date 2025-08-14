@@ -2,6 +2,10 @@ import logging
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, Request
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.responses import JSONResponse
 
 router = APIRouter()
@@ -11,7 +15,7 @@ logger = logging.getLogger(__name__)
 from backend.production_fix import prediction_engine, prizepicks_service
 
 
-@router.get("/api/prizepicks/props")
+@router.get("/api/prizepicks/props", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_prizepicks_props():
     """
     Phase 3: Real PrizePicks data with ML-powered predictions
@@ -67,26 +71,26 @@ async def get_prizepicks_props():
             "matchup_rating": player.get("matchup_difficulty", "medium"),
         }
         projections.append(projection)
-    return {"props": projections}
+    return ResponseBuilder.success({"props": projections})
 
 
 # --- SHIM ENDPOINTS FOR TESTS ---
-@router.get("/api/prizepicks/recommendations")
+@router.get("/api/prizepicks/recommendations", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_prizepicks_recommendations():
     """Shim: Return empty recommendations list for tests."""
-    return []
+    return ResponseBuilder.success([])
 
 
-@router.get("/api/prizepicks/comprehensive-projections")
+@router.get("/api/prizepicks/comprehensive-projections", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_comprehensive_projections():
     """Shim: Return empty projections list for tests."""
-    return []
+    return ResponseBuilder.success([])
 
 
 from fastapi.responses import JSONResponse
 
 
-@router.post("/api/prizepicks/lineup/optimize")
+@router.post("/api/prizepicks/lineup/optimize", response_model=StandardAPIResponse[Dict[str, Any]])
 async def optimize_lineup(request: Request):
     """Process lineup optimization request."""
     try:
@@ -109,7 +113,7 @@ async def optimize_lineup(request: Request):
         )
 
 
-@router.get("/api/prizepicks/health")
+@router.get("/api/prizepicks/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_prizepicks_health():
     """Shim: Return healthy status for tests."""
-    return {"status": "healthy", "message": "PrizePicks API is healthy."}
+    return ResponseBuilder.success({"status": "healthy", "message": "PrizePicks API is healthy."})

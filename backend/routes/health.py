@@ -2,6 +2,10 @@ import logging
 from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, HTTPException
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel
 
 from backend.auth.security import get_current_admin_user
@@ -15,9 +19,9 @@ router = APIRouter()
 
 
 # Simple version endpoint for frontend health/version checks
-@router.get("/version")
+@router.get("/version", response_model=StandardAPIResponse[Dict[str, Any]])
 async def version():
-    return {"version": "1.0.0", "status": "ok"}
+    return ResponseBuilder.success({"version": "1.0.0", "status": "ok"})
 
 
 """Health check endpoints for service monitoring."""
@@ -60,7 +64,7 @@ async def health_check(
         # Get PrizePicks scraper health
         scraper_health_data = comprehensive_prizepicks_service.get_scraper_health()
 
-        return {
+        return ResponseBuilder.success({
             "status": (
                 "healthy"
                 if models_ready and scraper_health_data.get("is_healthy")
@@ -76,27 +80,27 @@ async def health_check(
                 "successful_requests": MODEL_STATE["successful_requests"],
                 "propollama_requests": MODEL_STATE["propollama_requests"],
                 "propollama_successes": MODEL_STATE["propollama_successes"],
-            },
+            }),
             "prizepicks_scraper_health": scraper_health_data,  # Include scraper health data
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
+        raise BusinessLogicException("f"Health check failed: {str(e")}")
 
 
-@router.get("/model/{model_name}/health")
+@router.get("/model/{model_name}/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def model_health_check(
     model_name: str, current_user: Any = Depends(get_current_admin_user)
 ) -> Dict[str, Any]:
     """Get health status for a specific model"""
     try:
         if not llm_engine:
-            raise HTTPException(status_code=503, detail="LLM engine not initialized")
+            raise BusinessLogicException("LLM engine not initialized")
 
         # Check if model is in available models
         models = getattr(llm_engine, "models", [])
         status = "ready" if model_name in models else "unknown"
 
-        return {
+        return ResponseBuilder.success({
             "name": model_name,
             "status": status,
             "response_time": 0.0,
@@ -104,21 +108,20 @@ async def model_health_check(
             "success_count": 0,
             "last_error": None,
             "last_check": None,
-        }
+        })
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Model health check failed: {str(e)}"
+        raise BusinessLogicException("f"Model health check failed: {str(e")}"
         )
 
 
-@router.get("/queue/status")
+@router.get("/queue/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def queue_status(
     current_user: Any = Depends(get_current_admin_user),
 ) -> Dict[str, Any]:
     """Get request queue status"""
-    return {
+    return ResponseBuilder.success({
         "size": MODEL_STATE["request_queue_size"],
         "max_size": 100,  # MAX_QUEUE_SIZE constant
         "processing": False,  # Default value
         "ready_for_requests": MODEL_STATE["ready_for_requests"],
-    }
+    })

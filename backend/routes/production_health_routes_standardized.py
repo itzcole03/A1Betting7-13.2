@@ -13,6 +13,10 @@ from typing import Any, Dict, List
 import psutil
 from fastapi import APIRouter
 
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+
 try:
     from backend.services.background_task_manager import BackgroundTaskManager
     from backend.services.production_logging_service import (
@@ -97,7 +101,7 @@ async def comprehensive_health_check() -> Dict[str, Any]:
             },
         }
 
-        return builder.success(health_data)
+        return ResponseBuilder.success(builder.success(health_data))
 
     except Exception as e:
         if production_logger:
@@ -183,7 +187,7 @@ async def background_tasks_health() -> Dict[str, Any]:
                     },
                 )
 
-            return builder.success(health_data)
+            return ResponseBuilder.success(builder.success(health_data))
 
         finally:
             # Clean up test manager
@@ -252,7 +256,7 @@ async def get_error_summary() -> Dict[str, Any]:
             ),
         }
         
-        return builder.success(summary_data)
+        return ResponseBuilder.success(builder.success(summary_data))
 
     except Exception as e:
         raise BusinessLogicException(
@@ -262,13 +266,13 @@ async def get_error_summary() -> Dict[str, Any]:
 
 
 # Legacy endpoint with redirect message
-@router.post("/test/background-task-stress")
+@router.post("/test/background-task-stress", response_model=StandardAPIResponse[Dict[str, Any]])
 async def stress_test_redirect():
     """Legacy stress test endpoint - redirects to new format"""
     builder = ResponseBuilder()
     
-    return builder.success({
+    return ResponseBuilder.success(builder.success({
         "message": "This endpoint has been updated to follow standardized API contract",
         "migration_note": "All responses now follow {success, data, error, meta} format",
         "contact": "See API documentation for updated contract format"
-    })
+    }))
