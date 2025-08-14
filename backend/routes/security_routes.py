@@ -18,6 +18,10 @@ from ..services.enterprise_security_service import (
     PermissionLevel
 )
 
+# Standardized imports for API contract compliance
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+
 logger = logging.getLogger(__name__)
 
 # Create router
@@ -92,13 +96,13 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         valid, payload, message = await security_service.verify_token(credentials.credentials)
         
         if not valid:
-            raise HTTPException(status_code=401, detail=message)
+            raise AuthenticationException(message)
         
         return payload
         
     except Exception as e:
         logger.error(f"User authentication failed: {str(e)}")
-        raise HTTPException(status_code=401, detail="Authentication failed")
+        raise AuthenticationException("Authentication failed")
 
 async def get_current_user_optional(authorization: Optional[str] = Header(None)):
     """Get current user (optional for public endpoints)"""
@@ -122,7 +126,10 @@ async def require_permission(required_permission: str):
         user_permissions = set(current_user.get('permissions', []))
         
         if not await security_service.check_permission(user_permissions, required_permission):
-            raise HTTPException(status_code=403, detail="Insufficient permissions")
+            raise BusinessLogicException(
+                message="Insufficient permissions",
+                error_code="ACCESS_DENIED"
+            )
         
         return current_user
     
@@ -132,7 +139,10 @@ async def require_admin():
     """Dependency that requires admin role"""
     async def admin_checker(current_user: dict = Depends(get_current_user)):
         if current_user.get('role') != UserRole.ADMIN.value:
-            raise HTTPException(status_code=403, detail="Admin access required")
+            raise BusinessLogicException(
+                message="Admin access required",
+                error_code="ADMIN_REQUIRED"
+            )
         
         return current_user
     
@@ -151,7 +161,7 @@ def get_client_ip(request: Request) -> str:
     return request.client.host if request.client else "127.0.0.1"
 
 # Authentication endpoints
-@router.post("/register", summary="Register a new user")
+@router.post("/register", response_model=StandardAPIResponse[Dict[str, Any]], summary="Register a new user")
 async def register_user(request: UserRegistrationRequest, req: Request):
     """Register a new user account"""
     try:
@@ -161,7 +171,10 @@ async def register_user(request: UserRegistrationRequest, req: Request):
         try:
             role = UserRole(request.role.lower())
         except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid role")
+            raise BusinessLogicException(
+                message="Invalid role specified",
+                error_code="INVALID_ROLE"
+            )
         
         success, message = await security_service.register_user(
             username=request.username,
@@ -171,17 +184,23 @@ async def register_user(request: UserRegistrationRequest, req: Request):
         )
         
         if success:
-            return {"success": True, "message": message}
+            return ResponseBuilder.success(data={"message": message})
         else:
-            raise HTTPException(status_code=400, detail=message)
+            raise BusinessLogicException(
+                message=message,
+                error_code="VALIDATION_ERROR"
+            )
             
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Registration failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Registration failed")
+        raise BusinessLogicException(
+                message="User registration failed",
+                error_code="REGISTRATION_FAILED"
+            )
 
-@router.post("/login", response_model=TokenResponse, summary="User login")
+@router.post("/login", response_model=StandardAPIResponse[Dict[str, Any]], summary="User login")
 async def login(request: LoginRequest, req: Request):
     """Authenticate user and return access token"""
     try:
@@ -197,36 +216,45 @@ async def login(request: LoginRequest, req: Request):
         if success and access_token:
             expires_in = int((access_token.expires_at - access_token.issued_at).total_seconds())
             
-            return TokenResponse(
-                access_token=access_token.token,
-                expires_in=expires_in,
-                user_id=access_token.user_id,
-                role=access_token.role.value,
-                permissions=list(access_token.permissions)
-            )
+            token_data = {
+                "access_token": access_token.token,
+                "token_type": "bearer",
+                "expires_in": expires_in,
+                "user_id": access_token.user_id,
+                "role": access_token.role.value,
+                "permissions": list(access_token.permissions)
+            }
+            
+            return ResponseBuilder.success(data=token_data)
         else:
-            raise HTTPException(status_code=401, detail=message)
+            raise AuthenticationException(message)
             
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Login failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Login failed")
+        raise BusinessLogicException(
+                message="Login operation failed",
+                error_code="LOGIN_FAILED"
+            )
 
-@router.post("/logout", summary="User logout")
+@router.post("/logout", response_model=StandardAPIResponse[Dict[str, Any]], summary="User logout")
 async def logout(current_user: dict = Depends(get_current_user)):
     """Logout user and revoke token"""
     try:
         # In a full implementation, we would revoke the token
         # For now, just return success
-        return {"success": True, "message": "Logged out successfully"}
+        return ResponseBuilder.success(data={"message": "Logged out successfully"})
         
     except Exception as e:
         logger.error(f"Logout failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Logout failed")
+        raise BusinessLogicException(
+                message="Logout operation failed",
+                error_code="LOGOUT_FAILED"
+            )
 
 # User management endpoints
-@router.get("/user/me", response_model=UserInfoResponse, summary="Get current user info")
+@router.get("/user/me", response_model=StandardAPIResponse[Dict[str, Any]], summary="Get current user info")
 async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     """Get information about the currently authenticated user"""
     try:
@@ -235,17 +263,23 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
         user_info = await security_service.get_user_info(current_user['user_id'])
         
         if not user_info:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise BusinessLogicException(
+                message="User not found",
+                error_code="USER_NOT_FOUND"
+            )
         
-        return UserInfoResponse(**user_info)
+        return ResponseBuilder.success(data=user_info)
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to get user info: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get user info")
+        raise BusinessLogicException(
+                message="Failed to retrieve user information",
+                error_code="USER_INFO_FAILED"
+            )
 
-@router.get("/users", summary="List all users (admin only)")
+@router.get("/users", response_model=StandardAPIResponse[Dict[str, Any]], summary="List all users (admin only)")
 async def list_users(admin_user: dict = Depends(require_admin())):
     """List all users (admin only)"""
     try:
@@ -257,14 +291,17 @@ async def list_users(admin_user: dict = Depends(require_admin())):
             if user_info:
                 users.append(user_info)
         
-        return {"total_users": len(users), "users": users}
+        return ResponseBuilder.success(data={"total_users": len(users), "users": users})
         
     except Exception as e:
         logger.error(f"Failed to list users: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to list users")
+        raise BusinessLogicException(
+                message="Failed to list users",
+                error_code="USER_LIST_FAILED"
+            )
 
 # API Key management endpoints
-@router.post("/api-keys", response_model=APIKeyResponse, summary="Create API key")
+@router.post("/api-keys", response_model=StandardAPIResponse[Dict[str, Any]], summary="Create API key")
 async def create_api_key(request: APIKeyRequest, current_user: dict = Depends(get_current_user)):
     """Create a new API key for the current user"""
     try:
@@ -277,7 +314,10 @@ async def create_api_key(request: APIKeyRequest, current_user: dict = Depends(ge
         # Check if user has all requested permissions
         for perm in requested_permissions:
             if not await security_service.check_permission(user_permissions, perm):
-                raise HTTPException(status_code=403, detail=f"Permission '{perm}' not available to user")
+                raise BusinessLogicException(
+                message=f"Permission '{{perm}}' not available to user",
+                error_code="PERMISSION_DENIED"
+            )
         
         success, api_key, message = await security_service.create_api_key(
             user_id=current_user['user_id'],
@@ -289,25 +329,33 @@ async def create_api_key(request: APIKeyRequest, current_user: dict = Depends(ge
         )
         
         if success and api_key:
-            return APIKeyResponse(
-                key_id=api_key.key_id,
-                api_key=api_key.api_key,  # Only shown on creation
-                name=api_key.name,
-                permissions=list(api_key.permissions),
-                rate_limit=api_key.rate_limit,
-                expires_at=api_key.expires_at.isoformat() if api_key.expires_at else None,
-                created_at=api_key.created_at.isoformat()
-            )
+            api_key_data = {
+                "key_id": api_key.key_id,
+                "api_key": api_key.api_key,  # Only shown on creation
+                "name": api_key.name,
+                "permissions": list(api_key.permissions),
+                "rate_limit": api_key.rate_limit,
+                "expires_at": api_key.expires_at.isoformat() if api_key.expires_at else None,
+                "created_at": api_key.created_at.isoformat()
+            }
+            
+            return ResponseBuilder.success(data=api_key_data)
         else:
-            raise HTTPException(status_code=400, detail=message)
+            raise BusinessLogicException(
+                message=message,
+                error_code="VALIDATION_ERROR"
+            )
             
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to create API key: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to create API key")
+        raise BusinessLogicException(
+                message="Failed to create API key",
+                error_code="API_KEY_CREATE_FAILED"
+            )
 
-@router.get("/api-keys", summary="List user's API keys")
+@router.get("/api-keys", response_model=StandardAPIResponse[Dict[str, Any]], summary="List user's API keys")
 async def list_api_keys(current_user: dict = Depends(get_current_user)):
     """List API keys for the current user"""
     try:
@@ -319,13 +367,16 @@ async def list_api_keys(current_user: dict = Depends(get_current_user)):
                 key_dict = api_key.to_dict()
                 user_keys.append(key_dict)
         
-        return {"total_keys": len(user_keys), "api_keys": user_keys}
+        return ResponseBuilder.success(data={"total_keys": len(user_keys), "api_keys": user_keys})
         
     except Exception as e:
         logger.error(f"Failed to list API keys: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to list API keys")
+        raise BusinessLogicException(
+                message="Failed to list API keys",
+                error_code="API_KEY_LIST_FAILED"
+            )
 
-@router.delete("/api-keys/{key_id}", summary="Deactivate API key")
+@router.delete("/api-keys/{key_id}", response_model=StandardAPIResponse[Dict[str, Any]], summary="Deactivate API key")
 async def deactivate_api_key(key_id: str, current_user: dict = Depends(get_current_user)):
     """Deactivate an API key"""
     try:
@@ -334,18 +385,24 @@ async def deactivate_api_key(key_id: str, current_user: dict = Depends(get_curre
         success = await security_service.deactivate_api_key(key_id, current_user['user_id'])
         
         if success:
-            return {"success": True, "message": "API key deactivated"}
+            return ResponseBuilder.success(data={"message": "API key deactivated"})
         else:
-            raise HTTPException(status_code=404, detail="API key not found or access denied")
+            raise BusinessLogicException(
+                message="API key not found or access denied",
+                error_code="API_KEY_NOT_FOUND"
+            )
             
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to deactivate API key: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to deactivate API key")
+        raise BusinessLogicException(
+                message="Failed to deactivate API key",
+                error_code="API_KEY_DEACTIVATE_FAILED"
+            )
 
 # Security monitoring endpoints
-@router.get("/events", summary="Get security events")
+@router.get("/events", response_model=StandardAPIResponse[Dict[str, Any]], summary="Get security events")
 async def get_security_events(
     limit: int = 100,
     event_type: Optional[str] = None,
@@ -361,7 +418,10 @@ async def get_security_events(
             try:
                 event_type_enum = SecurityEventType(event_type)
             except ValueError:
-                raise HTTPException(status_code=400, detail="Invalid event type")
+                raise BusinessLogicException(
+                message="Invalid event type",
+                error_code="INVALID_EVENT_TYPE"
+            )
         
         events = await security_service.get_security_events(
             event_type=event_type_enum,
@@ -382,15 +442,18 @@ async def get_security_events(
                 timestamp=event.timestamp.isoformat()
             ))
         
-        return {"total_events": len(event_responses), "events": event_responses}
+        return ResponseBuilder.success(data={"total_events": len(event_responses), "events": event_responses})
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to get security events: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get security events")
+        raise BusinessLogicException(
+                message="Failed to retrieve security events",
+                error_code="SECURITY_EVENTS_FAILED"
+            )
 
-@router.get("/dashboard", summary="Get security dashboard")
+@router.get("/dashboard", response_model=StandardAPIResponse[Dict[str, Any]], summary="Get security dashboard")
 async def get_security_dashboard(admin_user: dict = Depends(require_admin())):
     """Get security dashboard overview (admin only)"""
     try:
@@ -398,14 +461,17 @@ async def get_security_dashboard(admin_user: dict = Depends(require_admin())):
         
         dashboard = await security_service.get_security_dashboard()
         
-        return dashboard
+        return ResponseBuilder.success(data=dashboard)
         
     except Exception as e:
         logger.error(f"Failed to get security dashboard: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get security dashboard")
+        raise BusinessLogicException(
+                message="Failed to retrieve security dashboard",
+                error_code="DASHBOARD_FAILED"
+            )
 
 # Permission checking endpoint
-@router.post("/check-permission", summary="Check if user has permission")
+@router.post("/check-permission", response_model=StandardAPIResponse[Dict[str, Any]], summary="Check if user has permission")
 async def check_permission(
     permission: str,
     current_user: dict = Depends(get_current_user)
@@ -417,18 +483,23 @@ async def check_permission(
         
         has_permission = await security_service.check_permission(user_permissions, permission)
         
-        return {
+        permission_data = {
             "user_id": current_user['user_id'],
             "permission": permission,
             "has_permission": has_permission
         }
         
+        return ResponseBuilder.success(data=permission_data)
+        
     except Exception as e:
         logger.error(f"Permission check failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Permission check failed")
+        raise BusinessLogicException(
+                message="Permission check failed",
+                error_code="PERMISSION_CHECK_FAILED"
+            )
 
 # Token validation endpoint (for other services)
-@router.post("/validate-token", summary="Validate token")
+@router.post("/validate-token", response_model=StandardAPIResponse[Dict[str, Any]], summary="Validate token")
 async def validate_token(token: str):
     """Validate a token (internal use)"""
     try:
@@ -444,16 +515,19 @@ async def validate_token(token: str):
         
     except Exception as e:
         logger.error(f"Token validation failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Token validation failed")
+        raise BusinessLogicException(
+                message="Token validation failed",
+                error_code="TOKEN_VALIDATION_FAILED"
+            )
 
 # Health check endpoint
-@router.get("/health", summary="Security service health check")
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]], summary="Security service health check")
 async def health_check():
     """Health check for the security service"""
     try:
         security_service = await get_security_service()
         
-        return {
+        health_data = {
             "status": "healthy",
             "total_users": len(security_service.users),
             "active_sessions": len(security_service.active_sessions),
@@ -461,12 +535,17 @@ async def health_check():
             "timestamp": datetime.now().isoformat()
         }
         
+        return ResponseBuilder.success(data=health_data)
+        
     except Exception as e:
         logger.error(f"Security health check failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Service unhealthy")
+        raise BusinessLogicException(
+                message="Security service is unhealthy",
+                error_code="SERVICE_UNHEALTHY"
+            )
 
 # System status endpoint
-@router.get("/status", summary="Get system security status")
+@router.get("/status", response_model=StandardAPIResponse[Dict[str, Any]], summary="Get system security status")
 async def get_system_status(current_user: dict = Depends(require_permission("system:read"))):
     """Get overall system security status"""
     try:
@@ -485,7 +564,7 @@ async def get_system_status(current_user: dict = Depends(require_permission("sys
         # Failed login attempts
         failed_logins = [e for e in recent_events if e.event_type == SecurityEventType.LOGIN_FAILURE]
         
-        return {
+        system_status_data = {
             "system_status": "secure",
             "security_level": "high" if len(high_risk_events) == 0 else "medium" if len(high_risk_events) < 5 else "low",
             "total_users": total_users,
@@ -498,6 +577,11 @@ async def get_system_status(current_user: dict = Depends(require_permission("sys
             "timestamp": now.isoformat()
         }
         
+        return ResponseBuilder.success(data=system_status_data)
+        
     except Exception as e:
         logger.error(f"Failed to get system status: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get system status")
+        raise BusinessLogicException(
+                message="Failed to retrieve system status",
+                error_code="SYSTEM_STATUS_FAILED"
+            )
