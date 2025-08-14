@@ -34,6 +34,10 @@ from ..services.modern_ml_integration import (
 # Import modern ML service for Phase 2
 from ..services.modern_ml_service import modern_ml_service
 
+# Import standardized API components
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+
 logger = logging.getLogger(__name__)
 
 # Initialize router
@@ -142,7 +146,7 @@ class PerformanceStats(BaseModel):
     feature_engineering_stats: Dict[str, Any]
 
 
-@router.post("/predict", response_model=PredictionResponse)
+@router.post("/predict", response_model=StandardAPIResponse[Dict[str, Any]])
 async def predict(request: PredictionRequest) -> PredictionResponse:
     """
     Generate enhanced prediction with uncertainty quantification
@@ -162,7 +166,10 @@ async def predict(request: PredictionRequest) -> PredictionResponse:
                     request.strategy_override
                 )
             except ValueError as e:
-                raise HTTPException(status_code=400, detail=str(e))
+                raise BusinessLogicException(
+                    message=f"Invalid prediction strategy: {str(e)}",
+                    error_code="INVALID_STRATEGY"
+                )
 
         # Generate prediction
         result = await integration_service.predict(
@@ -173,36 +180,39 @@ async def predict(request: PredictionRequest) -> PredictionResponse:
         if request.strategy_override:
             integration_service.prediction_strategy = original_strategy
 
-        # Convert to response model
-        response = PredictionResponse(
-            prediction=result.prediction,
-            confidence=result.confidence,
-            prediction_interval=list(result.prediction_interval),
-            model_type=result.model_type.value,
-            model_version=result.model_version,
-            feature_count=result.feature_count,
-            epistemic_uncertainty=result.epistemic_uncertainty,
-            aleatoric_uncertainty=result.aleatoric_uncertainty,
-            total_uncertainty=result.total_uncertainty,
-            shap_values=result.shap_values,
-            feature_importance=result.feature_importance,
-            attention_weights=result.attention_weights,
-            processing_time=result.processing_time,
-            model_complexity=result.model_complexity,
-            experiment_id=result.experiment_id,
-            treatment_group=result.treatment_group,
-            calibration_score=result.calibration_score,
-            reliability_score=result.reliability_score,
-        )
+        # Convert to response data
+        response_data = {
+            "prediction": result.prediction,
+            "confidence": result.confidence,
+            "prediction_interval": list(result.prediction_interval),
+            "model_type": result.model_type.value,
+            "model_version": result.model_version,
+            "feature_count": result.feature_count,
+            "epistemic_uncertainty": result.epistemic_uncertainty,
+            "aleatoric_uncertainty": result.aleatoric_uncertainty,
+            "total_uncertainty": result.total_uncertainty,
+            "shap_values": result.shap_values,
+            "feature_importance": result.feature_importance,
+            "attention_weights": result.attention_weights,
+            "processing_time": result.processing_time,
+            "model_complexity": result.model_complexity,
+            "experiment_id": result.experiment_id,
+            "treatment_group": result.treatment_group,
+            "calibration_score": result.calibration_score,
+            "reliability_score": result.reliability_score,
+        }
 
-        return response
+        return ResponseBuilder.success(data=response_data)
 
     except Exception as e:
         logger.error(f"Prediction endpoint error: {e}")
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+        raise BusinessLogicException(
+            message=f"Prediction failed: {str(e)}",
+            error_code="PREDICTION_FAILED"
+        )
 
 
-@router.post("/batch-predict", response_model=List[PredictionResponse])
+@router.post("/batch-predict", response_model=StandardAPIResponse[Dict[str, Any]])
 async def batch_predict(request: BatchPredictionRequest) -> List[PredictionResponse]:
     """
     Generate batch predictions with optimization
@@ -221,7 +231,10 @@ async def batch_predict(request: BatchPredictionRequest) -> List[PredictionRespo
                     request.strategy_override
                 )
             except ValueError as e:
-                raise HTTPException(status_code=400, detail=str(e))
+                raise BusinessLogicException(
+                    message=f"Invalid prediction strategy: {str(e)}",
+                    error_code="INVALID_STRATEGY"
+                )
 
         # Generate batch predictions
         results = await integration_service.batch_predict(
@@ -234,56 +247,60 @@ async def batch_predict(request: BatchPredictionRequest) -> List[PredictionRespo
         if request.strategy_override:
             integration_service.prediction_strategy = original_strategy
 
-        # Convert to response models
-        responses = []
+        # Convert to response data
+        response_data = []
         for result in results:
-            response = PredictionResponse(
-                prediction=result.prediction,
-                confidence=result.confidence,
-                prediction_interval=list(result.prediction_interval),
-                model_type=result.model_type.value,
-                model_version=result.model_version,
-                feature_count=result.feature_count,
-                epistemic_uncertainty=result.epistemic_uncertainty,
-                aleatoric_uncertainty=result.aleatoric_uncertainty,
-                total_uncertainty=result.total_uncertainty,
-                shap_values=result.shap_values,
-                feature_importance=result.feature_importance,
-                attention_weights=result.attention_weights,
-                processing_time=result.processing_time,
-                model_complexity=result.model_complexity,
-                experiment_id=result.experiment_id,
-                treatment_group=result.treatment_group,
-                calibration_score=result.calibration_score,
-                reliability_score=result.reliability_score,
-            )
-            responses.append(response)
+            response_item = {
+                "prediction": result.prediction,
+                "confidence": result.confidence,
+                "prediction_interval": list(result.prediction_interval),
+                "model_type": result.model_type.value,
+                "model_version": result.model_version,
+                "feature_count": result.feature_count,
+                "epistemic_uncertainty": result.epistemic_uncertainty,
+                "aleatoric_uncertainty": result.aleatoric_uncertainty,
+                "total_uncertainty": result.total_uncertainty,
+                "shap_values": result.shap_values,
+                "feature_importance": result.feature_importance,
+                "attention_weights": result.attention_weights,
+                "processing_time": result.processing_time,
+                "model_complexity": result.model_complexity,
+                "experiment_id": result.experiment_id,
+                "treatment_group": result.treatment_group,
+                "calibration_score": result.calibration_score,
+                "reliability_score": result.reliability_score,
+            }
+            response_data.append(response_item)
 
-        return responses
+        return ResponseBuilder.success(data=response_data)
 
     except Exception as e:
         logger.error(f"Batch prediction endpoint error: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Batch prediction failed: {str(e)}"
+        raise BusinessLogicException(
+            message=f"Batch prediction failed: {str(e)}",
+            error_code="BATCH_PREDICTION_FAILED"
         )
 
 
-@router.get("/strategies", response_model=List[str])
-async def get_available_strategies() -> List[str]:
+@router.get("/strategies", response_model=StandardAPIResponse[Dict[str, Any]])
+async def get_available_strategies():
     """Get list of available prediction strategies"""
-    return [strategy.value for strategy in PredictionStrategy]
+    strategies = [strategy.value for strategy in PredictionStrategy]
+    return ResponseBuilder.success(data=strategies)
 
 
-@router.get("/current-strategy", response_model=str)
-async def get_current_strategy() -> str:
+@router.get("/current-strategy", response_model=StandardAPIResponse[Dict[str, Any]])
+async def get_current_strategy():
     """Get current prediction strategy"""
-    return integration_service.prediction_strategy.value
+    strategy = integration_service.prediction_strategy.value
+    return ResponseBuilder.success(data=strategy)
 
 
 @router.post("/switch-strategy")
+@router.post("/strategy", response_model=StandardAPIResponse[Dict[str, Any]])
 async def switch_strategy(
     strategy: str = Query(..., description="New prediction strategy")
-) -> JSONResponse:
+):
     """
     Switch prediction strategy
 
@@ -296,21 +313,23 @@ async def switch_strategy(
     """
     try:
         integration_service.switch_prediction_strategy(strategy)
-        return JSONResponse(
-            content={"message": f"Strategy switched to {strategy}"}, status_code=200
-        )
+        return ResponseBuilder.success(data={"message": f"Strategy switched to {strategy}"})
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Invalid strategy: {str(e)}",
+            error_code="INVALID_STRATEGY"
+        )
 
 
-@router.get("/ab-test/config", response_model=ABTestConfig)
-async def get_ab_test_config() -> ABTestConfig:
+@router.get("/ab-test/config", response_model=StandardAPIResponse[Dict[str, Any]])
+async def get_ab_test_config():
     """Get current A/B test configuration"""
-    return integration_service.ab_test_config
+    config = integration_service.ab_test_config
+    return ResponseBuilder.success(data=config)
 
 
-@router.post("/ab-test/config")
-async def update_ab_test_config(config_update: ABTestConfigUpdate) -> JSONResponse:
+@router.post("/ab-test/config", response_model=StandardAPIResponse[Dict[str, Any]])
+async def update_ab_test_config(config_update: ABTestConfigUpdate):
     """
     Update A/B test configuration
 
@@ -326,17 +345,17 @@ async def update_ab_test_config(config_update: ABTestConfigUpdate) -> JSONRespon
 
         integration_service.update_ab_test_config(config_dict)
 
-        return JSONResponse(
-            content={"message": "A/B test configuration updated successfully"},
-            status_code=200,
-        )
+        return ResponseBuilder.success(data={"message": "A/B test configuration updated successfully"})
     except Exception as e:
         logger.error(f"A/B test config update error: {e}")
-        raise HTTPException(status_code=500, detail=f"Config update failed: {str(e)}")
+        raise BusinessLogicException(
+            message=f"Config update failed: {str(e)}",
+            error_code="CONFIG_UPDATE_FAILED"
+        )
 
 
-@router.get("/performance", response_model=PerformanceStats)
-async def get_performance_stats() -> PerformanceStats:
+@router.get("/performance", response_model=StandardAPIResponse[Dict[str, Any]])
+async def get_performance_stats():
     """
     Get comprehensive performance statistics
 
@@ -349,41 +368,44 @@ async def get_performance_stats() -> PerformanceStats:
     try:
         stats = integration_service.get_performance_stats()
 
-        return PerformanceStats(
-            total_predictions=stats["total_predictions"],
-            legacy_predictions=stats["legacy_predictions"],
-            modern_predictions=stats["modern_predictions"],
-            ensemble_predictions=stats["ensemble_predictions"],
-            errors=stats["errors"],
-            legacy_percentage=stats["legacy_percentage"],
-            modern_percentage=stats["modern_percentage"],
-            ensemble_percentage=stats["ensemble_percentage"],
-            error_rate=stats["error_rate"],
-            avg_processing_time=stats["avg_processing_time"],
-            feature_engineering_stats=stats["feature_engineering_stats"],
-        )
+        performance_data = {
+            "total_predictions": stats["total_predictions"],
+            "legacy_predictions": stats["legacy_predictions"],
+            "modern_predictions": stats["modern_predictions"],
+            "ensemble_predictions": stats["ensemble_predictions"],
+            "errors": stats["errors"],
+            "legacy_percentage": stats["legacy_percentage"],
+            "modern_percentage": stats["modern_percentage"],
+            "ensemble_percentage": stats["ensemble_percentage"],
+            "error_rate": stats["error_rate"],
+            "avg_processing_time": stats["avg_processing_time"],
+            "feature_engineering_stats": stats["feature_engineering_stats"],
+        }
+        return ResponseBuilder.success(data=performance_data)
     except Exception as e:
         logger.error(f"Performance stats error: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get performance stats: {str(e)}"
+        raise BusinessLogicException(
+            message=f"Failed to get performance stats: {str(e)}",
+            error_code="PERFORMANCE_STATS_FAILED"
         )
 
 
-@router.post("/clear-cache")
-async def clear_cache() -> JSONResponse:
+@router.post("/clear-cache", response_model=StandardAPIResponse[Dict[str, Any]])
+async def clear_cache():
     """Clear feature engineering cache to free memory"""
     try:
         integration_service.feature_engineering.clear_cache()
-        return JSONResponse(
-            content={"message": "Cache cleared successfully"}, status_code=200
-        )
+        return ResponseBuilder.success(data={"message": "Cache cleared successfully"})
     except Exception as e:
         logger.error(f"Cache clear error: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to clear cache: {str(e)}")
+        raise BusinessLogicException(
+            message=f"Failed to clear cache: {str(e)}",
+            error_code="CACHE_CLEAR_FAILED"
+        )
 
 
-@router.get("/health")
-async def health_check() -> JSONResponse:
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
+async def health_check():
     """
     Health check endpoint for modern ML services
 
@@ -430,22 +452,20 @@ async def health_check() -> JSONResponse:
             }
             health_status["warnings"] = [f"Missing dependencies: {str(e)}"]
 
-        return JSONResponse(content=health_status, status_code=200)
+        return ResponseBuilder.success(data=health_status)
 
     except Exception as e:
         logger.error(f"Health check error: {e}")
-        return JSONResponse(
-            content={
-                "status": "unhealthy",
-                "timestamp": datetime.now().isoformat(),
-                "error": str(e),
-            },
-            status_code=503,
-        )
+        error_data = {
+            "status": "unhealthy",
+            "timestamp": datetime.now().isoformat(),
+            "error": str(e),
+        }
+        return ResponseBuilder.success(data=error_data)
 
 
-@router.get("/model-info")
-async def get_model_info() -> JSONResponse:
+@router.get("/model-info", response_model=StandardAPIResponse[Dict[str, Any]])
+async def get_model_info():
     """
     Get detailed information about available models
 
@@ -499,21 +519,22 @@ async def get_model_info() -> JSONResponse:
             },
         }
 
-        return JSONResponse(content=model_info, status_code=200)
+        return ResponseBuilder.success(data=model_info)
 
     except Exception as e:
         logger.error(f"Model info error: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get model info: {str(e)}"
+        raise BusinessLogicException(
+            message=f"Failed to get model info: {str(e)}",
+            error_code="MODEL_INFO_FAILED"
         )
 
 
-@router.post("/retrain", status_code=202)
+@router.post("/retrain", status_code=202, response_model=StandardAPIResponse[Dict[str, Any]])
 async def trigger_model_retraining(
     background_tasks: BackgroundTasks,
     sport: str = Query("MLB", description="Sport to retrain models for"),
     model_type: str = Query("all", description="Model type to retrain"),
-) -> JSONResponse:
+):
     """
     Trigger model retraining (background task)
 
@@ -528,23 +549,22 @@ async def trigger_model_retraining(
             _retrain_models_background, sport=sport, model_type=model_type
         )
 
-        return JSONResponse(
-            content={
-                "message": f"Model retraining initiated for {sport} - {model_type}",
-                "status": "accepted",
-                "estimated_duration": "15-30 minutes",
-            },
-            status_code=202,
-        )
+        retrain_data = {
+            "message": f"Model retraining initiated for {sport} - {model_type}",
+            "status": "accepted",
+            "estimated_duration": "15-30 minutes",
+        }
+        return ResponseBuilder.success(data=retrain_data)
 
     except Exception as e:
         logger.error(f"Retraining trigger error: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to trigger retraining: {str(e)}"
+        raise BusinessLogicException(
+            message=f"Failed to trigger retraining: {str(e)}",
+            error_code="RETRAINING_FAILED"
         )
 
 
-@router.get("/live-mlb-games", summary="Get Live MLB Games")
+@router.get("/live-mlb-games", response_model=StandardAPIResponse[Dict[str, Any]], summary="Get Live MLB Games")
 async def get_live_mlb_games():
     """Get today's live MLB games for modern ML prediction context"""
     try:
@@ -556,7 +576,7 @@ async def get_live_mlb_games():
 
         if isinstance(games_data, dict):
             games = games_data.get("games", [])
-            return {
+            games_response_data = {
                 "status": "success",
                 "games_count": len(games),
                 "games": games[:3],  # Show first 3 games
@@ -564,13 +584,14 @@ async def get_live_mlb_games():
                 "date": "2025-08-04",
                 "phase_2_integration": "active",
             }
+            return ResponseBuilder.success(data=games_response_data)
         else:
-            return {"status": "error", "message": "Invalid response format"}
+            return ResponseBuilder.success(data={"status": "error", "message": "Invalid response format"})
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return ResponseBuilder.success(data={"status": "error", "message": str(e)})
 
 
-@router.get("/phase-2-verification", summary="Phase 2 Integration Verification")
+@router.get("/phase-2-verification", response_model=StandardAPIResponse[Dict[str, Any]], summary="Phase 2 Integration Verification")
 async def verify_phase_2():
     """Verify Phase 2 performance optimization and real data integration"""
     try:
@@ -605,10 +626,10 @@ async def verify_phase_2():
         except:
             verification_results["components"]["live_mlb_data"] = "⚠️ Connection issue"
 
-        return verification_results
+        return ResponseBuilder.success(data=verification_results)
 
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return ResponseBuilder.success(data={"status": "error", "message": str(e)})
 
 
 async def _retrain_models_background(sport: str, model_type: str):
@@ -641,24 +662,23 @@ async def start_phase2_optimization(background_tasks: BackgroundTasks):
     try:
         background_tasks.add_task(modern_ml_service.start_phase2_services)
 
-        return JSONResponse(
-            content={
-                "message": "Phase 2 optimization services starting",
-                "status": "accepted",
-                "services": [
-                    "Real-time model updates",
-                    "Inference optimization",
-                    "Advanced caching",
-                    "Distributed processing",
-                ],
-            },
-            status_code=202,
-        )
+        phase2_data = {
+            "message": "Phase 2 optimization services starting",
+            "status": "accepted",
+            "services": [
+                "Real-time model updates",
+                "Inference optimization",
+                "Advanced caching",
+                "Distributed processing",
+            ],
+        }
+        return ResponseBuilder.success(data=phase2_data)
 
     except Exception as e:
         logger.error(f"Phase 2 startup error: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to start Phase 2 services: {str(e)}"
+        raise BusinessLogicException(
+            message=f"Failed to start Phase 2 services: {str(e)}",
+            error_code="PHASE2_STARTUP_FAILED"
         )
 
 
@@ -668,18 +688,17 @@ async def stop_phase2_optimization(background_tasks: BackgroundTasks):
     try:
         background_tasks.add_task(modern_ml_service.stop_phase2_services)
 
-        return JSONResponse(
-            content={
-                "message": "Phase 2 optimization services stopping",
-                "status": "accepted",
-            },
-            status_code=202,
-        )
+        stop_data = {
+            "message": "Phase 2 optimization services stopping",
+            "status": "accepted",
+        }
+        return ResponseBuilder.success(data=stop_data)
 
     except Exception as e:
         logger.error(f"Phase 2 shutdown error: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to stop Phase 2 services: {str(e)}"
+        raise BusinessLogicException(
+            message=f"Failed to stop Phase 2 services: {str(e)}",
+            error_code="PHASE2_SHUTDOWN_FAILED"
         )
 
 
@@ -689,18 +708,15 @@ async def get_phase2_optimization_stats():
     try:
         stats = modern_ml_service.get_performance_metrics()
 
-        return JSONResponse(
-            content={
-                "phase2_stats": stats,
+        return ResponseBuilder.success(data={"phase2_stats": stats,
                 "timestamp": datetime.now().isoformat(),
-                "services_active": hasattr(modern_ml_service, "inference_optimizer"),
-            }
-        )
+                "services_active": hasattr(modern_ml_service, "inference_optimizer"),})
 
     except Exception as e:
         logger.error(f"Phase 2 stats error: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get optimization stats: {str(e)}"
+        raise BusinessLogicException(
+            message=f"Failed to get optimization stats: {str(e)}",
+            error_code="OPTIMIZATION_STATS_FAILED"
         )
 
 
@@ -733,36 +749,36 @@ async def optimized_prediction(request: PredictionRequest):
         else:
             result = await modern_ml_service.predict(modern_request)
 
-        return JSONResponse(
-            content={
-                "prediction": result.prediction,
-                "confidence": result.confidence,
-                "uncertainty_lower": result.uncertainty_lower,
-                "uncertainty_upper": result.uncertainty_upper,
-                "processing_time": result.processing_time,
-                "models_used": result.models_used or [],
-                "feature_importance": result.feature_importance or {},
-                "timestamp": (
-                    result.timestamp.isoformat()
-                    if result.timestamp
-                    else datetime.now().isoformat()
-                ),
-                "optimization_metadata": {
-                    "phase2_optimized": True,
-                    "ensemble_prediction": result.ensemble_prediction,
-                },
-                # New advanced analytics fields
-                "over_prob": result.over_prob,
-                "under_prob": result.under_prob,
-                "expected_value": result.expected_value,
-                "explanation": result.explanation,
-            }
-        )
+        prediction_data = {
+            "prediction": result.prediction,
+            "confidence": result.confidence,
+            "uncertainty_lower": result.uncertainty_lower,
+            "uncertainty_upper": result.uncertainty_upper,
+            "processing_time": result.processing_time,
+            "models_used": result.models_used or [],
+            "feature_importance": result.feature_importance or {},
+            "timestamp": (
+                result.timestamp.isoformat()
+                if result.timestamp
+                else datetime.now().isoformat()
+            ),
+            "optimization_metadata": {
+                "phase2_optimized": True,
+                "ensemble_prediction": result.ensemble_prediction,
+            },
+            # New advanced analytics fields
+            "over_prob": result.over_prob,
+            "under_prob": result.under_prob,
+            "expected_value": result.expected_value,
+            "explanation": result.explanation,
+        }
+        return ResponseBuilder.success(data=prediction_data)
 
     except Exception as e:
         logger.error(f"Optimized prediction error: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Optimized prediction failed: {str(e)}"
+        raise BusinessLogicException(
+            message=f"Optimized prediction failed: {str(e)}",
+            error_code="OPTIMIZED_PREDICTION_FAILED"
         )
 
 
@@ -841,19 +857,17 @@ async def phase2_health_check():
         )
         health_status["phase2_available"] = health_status["integration_rate"] > 50
 
-        return JSONResponse(content=health_status)
+        return ResponseBuilder.success(data=health_status)
 
     except Exception as e:
         logger.error(f"Phase 2 health check error: {e}")
-        return JSONResponse(
-            content={
-                "phase2_available": False,
-                "error": str(e),
-                "overall_status": "unhealthy",
-                "integration_rate": 0.0,
-            },
-            status_code=503,
-        )
+        error_data = {
+            "phase2_available": False,
+            "error": str(e),
+            "overall_status": "unhealthy",
+            "integration_rate": 0.0,
+        }
+        return ResponseBuilder.success(data=error_data)
 
 
 # Export router for main app

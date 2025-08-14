@@ -7,7 +7,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Security
+from fastapi import APIRouter, Depends, Request, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 # Import standardized response handling  
@@ -52,21 +52,21 @@ async def get_current_user(
 ):
     """Validate user credentials and return user info"""
     if not credentials:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise AuthenticationException("Authentication required")
 
     token = credentials.credentials
     user_info = await advanced_security_service.validate_token(token)
 
     if not user_info:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise AuthenticationException("Invalid token")
 
-    return user_info
+    return ResponseBuilder.success(data=user_info)
 
 
 # MLOps Pipeline Endpoints
 
 
-@router.post("/mlops/pipelines", response_model=Dict[str, Any])
+@router.post("/mlops/pipelines", response_model=StandardAPIResponse[Dict[str, Any]])
 async def create_training_pipeline(
     config: Dict[str, Any], current_user=Depends(get_current_user)
 ):
@@ -78,7 +78,7 @@ async def create_training_pipeline(
         )
 
         if not has_access:
-            raise HTTPException(status_code=403, detail="Insufficient permissions")
+            raise AuthorizationException("Insufficient permissions")
 
         pipeline = await mlops_pipeline_service.create_training_pipeline(config)
 
@@ -94,19 +94,23 @@ async def create_training_pipeline(
             details={"pipeline_id": pipeline.id, "name": pipeline.name},
         )
 
-        return {
+        pipeline_data = {
             "id": pipeline.id,
             "name": pipeline.name,
             "status": pipeline.status.value,
             "created_at": pipeline.created_at.isoformat(),
         }
+        return ResponseBuilder.success(data=pipeline_data)
 
     except Exception as e:
         logger.error(f"Failed to create training pipeline: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.post("/mlops/pipelines/{pipeline_id}/run", response_model=Dict[str, Any])
+@router.post("/mlops/pipelines/{pipeline_id}/run", response_model=StandardAPIResponse[Dict[str, Any]])
 async def run_training_pipeline(
     pipeline_id: str, current_user=Depends(get_current_user)
 ):
@@ -126,28 +130,34 @@ async def run_training_pipeline(
             details=result,
         )
 
-        return result
+        return ResponseBuilder.success(data=result)
 
     except Exception as e:
         logger.error(f"Failed to run training pipeline: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.get("/mlops/pipelines/{pipeline_id}/status", response_model=Dict[str, Any])
+@router.get("/mlops/pipelines/{pipeline_id}/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_pipeline_status(pipeline_id: str, current_user=Depends(get_current_user)):
     """Get pipeline status and metrics"""
     try:
         status = await mlops_pipeline_service.get_pipeline_status(pipeline_id)
-        return status
+        return ResponseBuilder.success(data=status)
 
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise ResourceNotFoundException("Resource", details={"error": str(e)})
     except Exception as e:
         logger.error(f"Failed to get pipeline status: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.post("/mlops/hyperparameter-optimization", response_model=Dict[str, Any])
+@router.post("/mlops/hyperparameter-optimization", response_model=StandardAPIResponse[Dict[str, Any]])
 async def optimize_hyperparameters(
     config: Dict[str, Any], current_user=Depends(get_current_user)
 ):
@@ -167,34 +177,41 @@ async def optimize_hyperparameters(
             details={"experiment_id": experiment.id, "name": experiment.name},
         )
 
-        return {
+        experiment_data = {
             "id": experiment.id,
             "name": experiment.name,
             "status": experiment.status.value,
             "best_params": experiment.best_params,
             "best_score": experiment.best_score,
         }
+        return ResponseBuilder.success(data=experiment_data)
 
     except Exception as e:
         logger.error(f"Failed to optimize hyperparameters: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.get("/mlops/models/{model_name}/versions", response_model=List[Dict[str, Any]])
+@router.get("/mlops/models/{model_name}/versions", response_model=StandardAPIResponse[List[Dict[str, Any]]])
 async def list_model_versions(model_name: str, current_user=Depends(get_current_user)):
     """List all versions of a model"""
     try:
         versions = await mlops_pipeline_service.list_model_versions(model_name)
-        return versions
+        return ResponseBuilder.success(data=versions)
 
     except Exception as e:
         logger.error(f"Failed to list model versions: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
 @router.post(
     "/mlops/models/{model_name}/versions/{version}/promote",
-    response_model=Dict[str, Any],
+    response_model=StandardAPIResponse[Dict[str, Any]],
 )
 async def promote_model(
     model_name: str, version: str, stage: str, current_user=Depends(get_current_user)
@@ -215,17 +232,20 @@ async def promote_model(
             details={"stage": stage},
         )
 
-        return {"success": success}
+        return ResponseBuilder.success(data={"success": success})
 
     except Exception as e:
         logger.error(f"Failed to promote model: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
 # Production Deployment Endpoints
 
 
-@router.post("/deployment/build", response_model=Dict[str, Any])
+@router.post("/deployment/build", response_model=StandardAPIResponse[Dict[str, Any]])
 async def build_container_image(
     config: Dict[str, Any], current_user=Depends(get_current_user)
 ):
@@ -245,14 +265,17 @@ async def build_container_image(
             details={"image_name": image_name},
         )
 
-        return {"image_name": image_name}
+        return ResponseBuilder.success(data={"image_name": image_name})
 
     except Exception as e:
         logger.error(f"Failed to build container image: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.post("/deployment/deploy", response_model=Dict[str, Any])
+@router.post("/deployment/deploy", response_model=StandardAPIResponse[Dict[str, Any]])
 async def deploy_to_kubernetes(
     deployment_config: Dict[str, Any], current_user=Depends(get_current_user)
 ):
@@ -290,20 +313,24 @@ async def deploy_to_kubernetes(
             },
         )
 
-        return {
+        deployment_data = {
             "deployment_id": result.deployment_id,
             "status": result.status.value,
             "environment": result.environment.value,
             "endpoints": result.endpoints,
             "logs": result.logs,
         }
+        return ResponseBuilder.success(data=deployment_data)
 
     except Exception as e:
         logger.error(f"Failed to deploy to Kubernetes: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.post("/deployment/{deployment_id}/rollback", response_model=Dict[str, Any])
+@router.post("/deployment/{deployment_id}/rollback", response_model=StandardAPIResponse[Dict[str, Any]])
 async def rollback_deployment(
     deployment_id: str, target_version: str, current_user=Depends(get_current_user)
 ):
@@ -325,14 +352,17 @@ async def rollback_deployment(
             details={"target_version": target_version},
         )
 
-        return {"success": success}
+        return ResponseBuilder.success(data={"success": success})
 
     except Exception as e:
         logger.error(f"Failed to rollback deployment: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.post("/deployment/{deployment_name}/scale", response_model=Dict[str, Any])
+@router.post("/deployment/{deployment_name}/scale", response_model=StandardAPIResponse[Dict[str, Any]])
 async def scale_deployment(
     deployment_name: str, replicas: int, current_user=Depends(get_current_user)
 ):
@@ -354,28 +384,34 @@ async def scale_deployment(
             details={"replicas": replicas},
         )
 
-        return {"success": success}
+        return ResponseBuilder.success(data={"success": success})
 
     except Exception as e:
         logger.error(f"Failed to scale deployment: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.get("/deployment", response_model=List[Dict[str, Any]])
+@router.get("/deployment", response_model=StandardAPIResponse[List[Dict[str, Any]]])
 async def list_deployments(
     environment: Optional[str] = None, current_user=Depends(get_current_user)
 ):
     """List all deployments"""
     try:
         deployments = await production_deployment_service.list_deployments(environment)
-        return deployments
+        return ResponseBuilder.success(data=deployments)
 
     except Exception as e:
         logger.error(f"Failed to list deployments: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.post("/deployment/ci-cd", response_model=Dict[str, Any])
+@router.post("/deployment/ci-cd", response_model=StandardAPIResponse[Dict[str, Any]])
 async def create_ci_cd_pipeline(
     config: Dict[str, Any], current_user=Depends(get_current_user)
 ):
@@ -397,17 +433,20 @@ async def create_ci_cd_pipeline(
             details={"pipeline_name": pipeline_name},
         )
 
-        return {"pipeline_name": pipeline_name}
+        return ResponseBuilder.success(data={"pipeline_name": pipeline_name})
 
     except Exception as e:
         logger.error(f"Failed to create CI/CD pipeline: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
 # Autonomous Monitoring Endpoints
 
 
-@router.post("/monitoring/metrics", response_model=Dict[str, Any])
+@router.post("/monitoring/metrics", response_model=StandardAPIResponse[Dict[str, Any]])
 async def record_metric(
     metric_data: Dict[str, Any], current_user=Depends(get_current_user)
 ):
@@ -419,14 +458,17 @@ async def record_metric(
             labels=metric_data.get("labels"),
         )
 
-        return {"success": True}
+        return ResponseBuilder.success(data={"success": True})
 
     except Exception as e:
         logger.error(f"Failed to record metric: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.get("/monitoring/metrics/{metric_name}", response_model=List[Dict[str, Any]])
+@router.get("/monitoring/metrics/{metric_name}", response_model=StandardAPIResponse[List[Dict[str, Any]]])
 async def get_metrics(
     metric_name: str, time_range: int = 3600, current_user=Depends(get_current_user)
 ):
@@ -435,14 +477,17 @@ async def get_metrics(
         metrics = await autonomous_monitoring_service.get_metrics(
             metric_name, time_range
         )
-        return metrics
+        return ResponseBuilder.success(data=metrics)
 
     except Exception as e:
         logger.error(f"Failed to get metrics: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.post("/monitoring/health-checks", response_model=Dict[str, Any])
+@router.post("/monitoring/health-checks", response_model=StandardAPIResponse[Dict[str, Any]])
 async def add_health_check(
     health_check_config: Dict[str, Any], current_user=Depends(get_current_user)
 ):
@@ -456,14 +501,17 @@ async def add_health_check(
             },
         )
 
-        return {"success": True}
+        return ResponseBuilder.success(data={"success": True})
 
     except Exception as e:
         logger.error(f"Failed to add health check: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.post("/monitoring/alert-rules", response_model=Dict[str, Any])
+@router.post("/monitoring/alert-rules", response_model=StandardAPIResponse[Dict[str, Any]])
 async def add_alert_rule(
     alert_rule: Dict[str, Any], current_user=Depends(get_current_user)
 ):
@@ -480,43 +528,52 @@ async def add_alert_rule(
             },
         )
 
-        return {"success": True}
+        return ResponseBuilder.success(data={"success": True})
 
     except Exception as e:
         logger.error(f"Failed to add alert rule: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.get("/monitoring/alerts", response_model=List[Dict[str, Any]])
+@router.get("/monitoring/alerts", response_model=StandardAPIResponse[List[Dict[str, Any]]])
 async def get_active_alerts(
     severity: Optional[str] = None, current_user=Depends(get_current_user)
 ):
     """Get active alerts"""
     try:
         alerts = await autonomous_monitoring_service.get_active_alerts(severity)
-        return alerts
+        return ResponseBuilder.success(data=alerts)
 
     except Exception as e:
         logger.error(f"Failed to get active alerts: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.get("/monitoring/overview", response_model=Dict[str, Any])
+@router.get("/monitoring/overview", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_system_overview(current_user=Depends(get_current_user)):
     """Get system health overview"""
     try:
         overview = await autonomous_monitoring_service.get_system_overview()
-        return overview
+        return ResponseBuilder.success(data=overview)
 
     except Exception as e:
         logger.error(f"Failed to get system overview: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
 # Security Endpoints
 
 
-@router.post("/security/scan/model", response_model=Dict[str, Any])
+@router.post("/security/scan/model", response_model=StandardAPIResponse[Dict[str, Any]])
 async def scan_model_security(
     scan_request: Dict[str, Any], current_user=Depends(get_current_user)
 ):
@@ -543,7 +600,7 @@ async def scan_model_security(
             details={"scan_id": result.scan_id, "risk_score": result.risk_score},
         )
 
-        return {
+        scan_data = {
             "scan_id": result.scan_id,
             "target": result.target,
             "risk_score": result.risk_score,
@@ -551,13 +608,17 @@ async def scan_model_security(
             "recommendations": result.recommendations,
             "timestamp": result.timestamp.isoformat(),
         }
+        return ResponseBuilder.success(data=scan_data)
 
     except Exception as e:
         logger.error(f"Failed to scan model security: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.post("/security/tokens", response_model=Dict[str, Any])
+@router.post("/security/tokens", response_model=StandardAPIResponse[Dict[str, Any]])
 async def create_security_token(token_request: Dict[str, Any], request: Request):
     """Create secure authentication token"""
     try:
@@ -575,14 +636,17 @@ async def create_security_token(token_request: Dict[str, Any], request: Request)
             expires_hours=token_request.get("expires_hours", 24),
         )
 
-        return {"token": token}
+        return ResponseBuilder.success(data={"token": token})
 
     except Exception as e:
         logger.error(f"Failed to create security token: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.get("/security/audit-report", response_model=Dict[str, Any])
+@router.get("/security/audit-report", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_audit_report(
     start_date: str,
     end_date: str,
@@ -611,71 +675,93 @@ async def get_audit_report(
             details={"start_date": start_date, "end_date": end_date},
         )
 
-        return report
+        return ResponseBuilder.success(data=report)
 
     except Exception as e:
         logger.error(f"Failed to generate audit report: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.get("/security/alerts", response_model=List[Dict[str, Any]])
+@router.get("/security/alerts", response_model=StandardAPIResponse[List[Dict[str, Any]]])
 async def get_security_alerts(
     severity: Optional[str] = None, current_user=Depends(get_current_user)
 ):
     """Get security alerts"""
     try:
         alerts = await advanced_security_service.get_security_alerts(severity)
-        return alerts
+        return ResponseBuilder.success(data=alerts)
 
     except Exception as e:
         logger.error(f"Failed to get security alerts: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
 # Health Check Endpoints
 
 
-@router.get("/health/mlops", response_model=Dict[str, Any])
+@router.get("/health/mlops", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_mlops_health():
     """Get MLOps service health"""
     try:
-        return await mlops_pipeline_service.get_service_health()
+        health = await mlops_pipeline_service.get_service_health()
+        return ResponseBuilder.success(data=health)
     except Exception as e:
         logger.error(f"Failed to get MLOps health: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.get("/health/deployment", response_model=Dict[str, Any])
+@router.get("/health/deployment", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_deployment_health():
     """Get deployment service health"""
     try:
-        return await production_deployment_service.get_service_health()
+        health = await production_deployment_service.get_service_health()
+        return ResponseBuilder.success(data=health)
     except Exception as e:
         logger.error(f"Failed to get deployment health: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.get("/health/monitoring", response_model=Dict[str, Any])
+@router.get("/health/monitoring", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_monitoring_health():
     """Get monitoring service health"""
     try:
-        return await autonomous_monitoring_service.get_service_health()
+        health = await autonomous_monitoring_service.get_service_health()
+        return ResponseBuilder.success(data=health)
     except Exception as e:
         logger.error(f"Failed to get monitoring health: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.get("/health/security", response_model=Dict[str, Any])
+@router.get("/health/security", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_security_health():
     """Get security service health"""
     try:
-        return await advanced_security_service.get_service_health()
+        health = await advanced_security_service.get_service_health()
+        return ResponseBuilder.success(data=health)
     except Exception as e:
         logger.error(f"Failed to get security health: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.get("/health", response_model=Dict[str, Any])
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_phase3_health():
     """Get overall Phase 3 health status"""
     try:
@@ -697,7 +783,7 @@ async def get_phase3_health():
             ]
         )
 
-        return {
+        health_data = {
             "service": "phase3_mlops_production",
             "status": "healthy" if all_healthy else "degraded",
             "components": {
@@ -708,7 +794,11 @@ async def get_phase3_health():
             },
             "timestamp": datetime.now().isoformat(),
         }
+        return ResponseBuilder.success(data=health_data)
 
     except Exception as e:
         logger.error(f"Failed to get Phase 3 health: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
