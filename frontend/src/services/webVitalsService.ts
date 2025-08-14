@@ -38,6 +38,7 @@ class WebVitalsService {
   };
 
   private entries: PerformanceEntry[] = [];
+  private lcpLogged: boolean = false;
 
   private getRating(name: string, value: number): 'good' | 'needs-improvement' | 'poor' {
     const thresholds = {
@@ -57,6 +58,11 @@ class WebVitalsService {
   }
 
   private logMetric(metric: Metric): void {
+    // Skip LCP logging if already logged once
+    if (metric.name === 'LCP' && this.lcpLogged) {
+      return;
+    }
+
     const entry: PerformanceEntry = {
       name: metric.name,
       value: metric.value,
@@ -69,8 +75,14 @@ class WebVitalsService {
     this.entries.push(entry);
     this.metrics[metric.name as keyof WebVitalsMetrics] = metric.value;
 
+    // Mark LCP as logged
+    if (metric.name === 'LCP') {
+      this.lcpLogged = true;
+    }
+
     // Log to console in development
     if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
       console.log(`[WebVitals] ${metric.name}:`, {
         value: metric.value,
         rating: entry.rating,
@@ -118,7 +130,7 @@ class WebVitalsService {
     if (typeof window === 'undefined') return;
 
     // Track all Core Web Vitals
-    onLCP(this.logMetric.bind(this));
+    onLCP((metric) => this.logMetric(metric));
     onCLS(this.logMetric.bind(this));
     onINP(this.logMetric.bind(this)); // New in 2024, replaces FID
     onTTFB(this.logMetric.bind(this));
@@ -129,9 +141,23 @@ class WebVitalsService {
   }
 
   private trackCustomMetrics(): void {
-    // Track JavaScript bundle size
+    // Track total load time using modern Navigation Timing API
     if ('performance' in window && 'getEntriesByType' in window.performance) {
       window.addEventListener('load', () => {
+        try {
+          const start = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
+          const totalLoadTime = Math.round(start.duration);
+          
+          if (totalLoadTime > 0) {
+            // eslint-disable-next-line no-console
+            console.log('[Performance] Total Load Time:', `${totalLoadTime}ms`);
+          }
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.warn('[Performance] Could not calculate total load time:', error);
+        }
+
+        // Track JavaScript bundle size
         const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
         const jsResources = resources.filter(
           resource => resource.name.includes('.js') && !resource.name.includes('node_modules')
@@ -141,6 +167,7 @@ class WebVitalsService {
           return total + (resource.transferSize || 0);
         }, 0);
 
+        // eslint-disable-next-line no-console
         console.log('[Performance] Total JS Bundle Size:', `${(totalJSSize / 1024).toFixed(2)} KB`);
       });
     }
@@ -148,6 +175,7 @@ class WebVitalsService {
     // Track memory usage if available
     if ('memory' in performance) {
       const memoryInfo = (performance as any).memory;
+      // eslint-disable-next-line no-console
       console.log('[Performance] Memory Usage:', {
         used: `${(memoryInfo.usedJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
         total: `${(memoryInfo.totalJSHeapSize / 1024 / 1024).toFixed(2)} MB`,

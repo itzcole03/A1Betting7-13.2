@@ -4,9 +4,40 @@
 
 **The next-generation sports prop research and analytics platform engineered to surpass PropFinder and PropGPT. Features advanced AI with quantum-inspired optimization, comprehensive risk management, multi-sportsbook arbitrage detection, enterprise-grade reliability, and now powered by comprehensive SportRadar API integration.**
 
+> 🛠️ **Development Mode**: For optimized development experience with reduced monitoring overhead, see [Lean Mode Documentation](docs/dev/stabilization_lean_mode.md)
+
 ---
 
-## 🎯 **Latest Updates (January 2025)**
+## 🎯 **Latest Updates (August 2025)**
+
+### ✅ **NEW: Stabilization Patch - Enhanced Development Experience**
+
+**Comprehensive system stabilization focused on clean development experience, health endpoint standardization, and lean development mode implementation.**
+
+#### 🏥 **Health Endpoint Standardization**
+
+- **Unified Health Aliases**: `/health`, `/api/v2/health` → `/api/health` with identical envelope format
+- **HEAD Method Support**: All health endpoints support HEAD requests (200 status, no body)
+- **Standardized Responses**: Consistent `{success, data, error, meta}` envelope across all health endpoints
+- **404 Elimination**: Resolved monitoring system errors from missing health endpoint variants
+
+#### 🛠️ **Lean Development Mode**
+
+- **Environment Control**: `APP_DEV_LEAN_MODE=true` for development optimization
+- **Middleware Optimization**: Conditional loading of heavy middleware (Prometheus, PayloadGuard, RateLimit, SecurityHeaders)
+- **Monitoring Control**: Selective disabling of monitoring services to reduce console noise
+- **Status Endpoint**: `/dev/mode` for real-time lean mode status checking
+
+#### 🔌 **WebSocket & API Enhancements**
+
+- **Unified Configuration**: Standardized WebSocket URL derivation from host/port configuration  
+- **CORS Preflight**: Enhanced OPTIONS handling for cross-origin requests
+- **UnifiedDataService**: Added missing `cacheData()` and `getCachedData()` methods to prevent runtime errors
+
+#### 🧪 **Comprehensive Testing**
+
+- **Stabilization Test Matrix**: 10 test methods covering health endpoints, CORS, WebSocket derivation, lean mode validation
+- **Automated Validation**: 6/10 core stabilization features validated with comprehensive test coverage
 
 ### ✅ **NEW: Comprehensive SportRadar Integration**
 

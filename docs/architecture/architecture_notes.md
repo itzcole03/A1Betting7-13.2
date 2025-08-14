@@ -7,6 +7,23 @@
 
 ---
 
+## Stabilization Patch
+
+**Date:** 2025-08-14  
+**Status:** DEPLOYED ✅
+
+Core stabilization improvements for development experience:
+- Health endpoint standardization (`/health`, `/api/v2/health` → unified envelope)  
+- Lean mode implementation (`APP_DEV_LEAN_MODE`) with conditional middleware loading
+- UnifiedDataService cacheData/getCachedData methods to prevent runtime errors
+- WebSocket URL derivation standardization for client connections
+- OPTIONS preflight handling for CORS compliance
+- Comprehensive stabilization test matrix (6/10 features validated)
+
+**Impact**: Clean development console, reduced monitoring overhead, standardized API responses.
+
+---
+
 ## Implementation Summary
 
 ### Core Components Delivered

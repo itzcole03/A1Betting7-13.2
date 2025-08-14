@@ -64,6 +64,14 @@ def create_app() -> FastAPI:
     """
     logger.info("🚀 Creating A1Betting canonical app...")
 
+    # Check lean mode early
+    from backend.config.settings import get_settings
+    settings = get_settings()
+    is_lean_mode = settings.app.dev_lean_mode
+    
+    if is_lean_mode:
+        logger.info("[LeanMode] Reduced middleware profile active")
+
     # Create the FastAPI app
     _app = FastAPI(
         title="A1Betting API",
@@ -90,39 +98,45 @@ def create_app() -> FastAPI:
     # CORS -> Logging -> Metrics -> PayloadGuard -> RateLimit -> SecurityHeaders -> Router
     
     # --- Structured Logging Middleware ---
-    try:
-        from backend.middleware import StructuredLoggingMiddleware
-        _app.add_middleware(StructuredLoggingMiddleware)
-        logger.info("✅ Structured logging middleware added")
-    except ImportError as e:
-        logger.warning(f"⚠️ Could not import structured logging middleware: {e}")
+    # Skip heavy debug middleware in lean mode
+    if not is_lean_mode:
+        try:
+            from backend.middleware import StructuredLoggingMiddleware
+            _app.add_middleware(StructuredLoggingMiddleware)
+            logger.info("✅ Structured logging middleware added")
+        except ImportError as e:
+            logger.warning(f"⚠️ Could not import structured logging middleware: {e}")
+    else:
+        logger.info("[LeanMode] Skipping heavy structured logging middleware")
         
     # --- Prometheus Metrics Middleware ---
-    try:
-        from backend.middleware import (
-            PrometheusMetricsMiddleware, 
-            set_metrics_middleware,
-            PROMETHEUS_AVAILABLE
-        )
-        
-        if PROMETHEUS_AVAILABLE:
-            metrics_middleware = PrometheusMetricsMiddleware(_app)
-            _app.add_middleware(PrometheusMetricsMiddleware)
-            set_metrics_middleware(metrics_middleware)
-            logger.info("✅ Prometheus metrics middleware added")
-        else:
-            logger.info("ℹ️ Prometheus client not available, metrics collection disabled")
-    except ImportError as e:
-        logger.warning(f"⚠️ Could not import metrics middleware: {e}")
+    # Skip metrics decoration in lean mode
+    if not is_lean_mode:
+        try:
+            from backend.middleware import (
+                PrometheusMetricsMiddleware, 
+                set_metrics_middleware,
+                PROMETHEUS_AVAILABLE
+            )
+            
+            if PROMETHEUS_AVAILABLE:
+                metrics_middleware = PrometheusMetricsMiddleware(_app)
+                _app.add_middleware(PrometheusMetricsMiddleware)
+                set_metrics_middleware(metrics_middleware)
+                logger.info("✅ Prometheus metrics middleware added")
+            else:
+                logger.info("ℹ️ Prometheus client not available, metrics collection disabled")
+        except ImportError as e:
+            logger.warning(f"⚠️ Could not import metrics middleware: {e}")
+    else:
+        logger.info("[LeanMode] Skipping metrics middleware")
 
     # --- Payload Guard Middleware (Step 5) ---
     try:
-        from backend.config.settings import get_settings
         from backend.middleware.payload_guard import create_payload_guard_middleware
         from backend.middleware.prometheus_metrics_middleware import get_metrics_middleware
         
-        settings = get_settings()
-        metrics_client = get_metrics_middleware()
+        metrics_client = None if is_lean_mode else get_metrics_middleware()
         
         payload_guard_factory = create_payload_guard_middleware(
             settings=settings.security,
@@ -144,9 +158,16 @@ def create_app() -> FastAPI:
         from backend.middleware.rate_limit import create_rate_limit_middleware
         
         # Configuration from environment or defaults
-        requests_per_minute = int(os.getenv("RATE_LIMIT_REQUESTS_PER_MINUTE", "100"))
-        burst_capacity = int(os.getenv("RATE_LIMIT_BURST_CAPACITY", "200"))
-        enabled = os.getenv("RATE_LIMIT_ENABLED", "true").lower() == "true"
+        # In lean mode, set very high limits to effectively disable rate limiting
+        if is_lean_mode:
+            requests_per_minute = 10000  # Very high limit
+            burst_capacity = 20000  # Very high burst
+            enabled = False  # Completely disable in lean mode
+            logger.info("[LeanMode] Rate limiting disabled")
+        else:
+            requests_per_minute = int(os.getenv("RATE_LIMIT_REQUESTS_PER_MINUTE", "100"))
+            burst_capacity = int(os.getenv("RATE_LIMIT_BURST_CAPACITY", "200"))
+            enabled = os.getenv("RATE_LIMIT_ENABLED", "true").lower() == "true"
         
         rate_limit_middleware = create_rate_limit_middleware(
             requests_per_minute=requests_per_minute,
@@ -269,6 +290,22 @@ def create_app() -> FastAPI:
     async def api_v2_health_alias():
         """Normalized version alias for monitoring systems expecting /api/v2/health"""
         return await api_health()
+
+    @_app.get("/dev/mode")
+    @_app.head("/dev/mode")
+    async def dev_mode_status():
+        """Development mode status endpoint"""
+        logger.info("[API] /dev/mode called")
+        return ok({
+            "lean": is_lean_mode,
+            "mode": "lean" if is_lean_mode else "full",
+            "features_disabled": [
+                "heavy_logging",
+                "metrics_middleware", 
+                "rate_limiting",
+                "high_frequency_background_tasks"
+            ] if is_lean_mode else []
+        })
 
     # --- Performance Stats Endpoint (Stabilization Fix) ---
     @_app.get("/performance/stats")

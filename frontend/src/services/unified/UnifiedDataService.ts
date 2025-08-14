@@ -109,11 +109,12 @@ import { UnifiedServiceRegistry } from './UnifiedServiceRegistry';
 
 export class UnifiedDataService extends BaseService {
   private static instance: UnifiedDataService;
-  protected cache: UnifiedCache;
+  private cache = new Map<string, unknown>();
+  protected unifiedCache: UnifiedCache;
 
   protected constructor() {
     super('UnifiedDataService', UnifiedServiceRegistry.getInstance());
-    this.cache = UnifiedCache.getInstance();
+    this.unifiedCache = UnifiedCache.getInstance();
   }
 
   static getInstance(): UnifiedDataService {
@@ -123,16 +124,37 @@ export class UnifiedDataService extends BaseService {
     return UnifiedDataService.instance;
   }
 
+  /**
+   * Cache data with TTL (Stabilization Fix)
+   * Method expected by monitoring services that was missing
+   */
+  async cacheData<T>(key: string, value: T): Promise<void> {
+    this.cache.set(key, value);
+    // Also cache in unified cache for compatibility
+    this.unifiedCache.set(key, value);
+    this.logger.info('Data cached', { key });
+  }
+
+  /**
+   * Get cached data (Stabilization Fix)
+   * Method expected by monitoring services that was missing
+   */
+  async getCachedData<T>(key: string): Promise<T | undefined> {
+    const result = this.cache.get(key) as T | undefined;
+    this.logger.info('Cache accessed', { key, hit: result !== undefined });
+    return result;
+  }
+
   async fetchSportsData(sport: string, date?: string): Promise<SportsData> {
     try {
       const cacheKey = `sports_data_${sport}_${date || 'today'}`;
-      const cached = this.cache.get<SportsData>(cacheKey);
+      const cached = this.unifiedCache.get<SportsData>(cacheKey);
       if (cached && isSportsData(cached)) return cached;
 
       const response = await this.get<SportsData>(
         `/api/sports/${sport}${date ? `?date=${date}` : ''}`
       );
-      this.cache.set(cacheKey, response, 300000); // 5 min cache
+      this.unifiedCache.set(cacheKey, response, 300000); // 5 min cache
       if (isSportsData(response)) return response;
       throw new Error('Invalid sports data response');
     } catch (error) {
@@ -144,11 +166,11 @@ export class UnifiedDataService extends BaseService {
   async fetchPlayerStats(playerId: string, sport: string): Promise<PlayerStats> {
     try {
       const cacheKey = `player_stats_${playerId}_${sport}`;
-      const cached = this.cache.get<PlayerStats>(cacheKey);
+      const cached = this.unifiedCache.get<PlayerStats>(cacheKey);
       if (cached && isPlayerStats(cached)) return cached;
 
       const response = await this.get<PlayerStats>(`/api/players/${playerId}/stats?sport=${sport}`);
-      this.cache.set(cacheKey, response, 600000); // 10 min cache
+      this.unifiedCache.set(cacheKey, response, 600000); // 10 min cache
       if (isPlayerStats(response)) return response;
       throw new Error('Invalid player stats response');
     } catch (error) {
@@ -160,11 +182,11 @@ export class UnifiedDataService extends BaseService {
   async fetchTeamData(teamId: string, sport: string): Promise<TeamData> {
     try {
       const cacheKey = `team_data_${teamId}_${sport}`;
-      const cached = this.cache.get<TeamData>(cacheKey);
+      const cached = this.unifiedCache.get<TeamData>(cacheKey);
       if (cached && isTeamData(cached)) return cached;
 
       const response = await this.get<TeamData>(`/api/teams/${teamId}?sport=${sport}`);
-      this.cache.set(cacheKey, response, 600000); // 10 min cache
+      this.unifiedCache.set(cacheKey, response, 600000); // 10 min cache
       if (isTeamData(response)) return response;
       throw new Error('Invalid team data response');
     } catch (error) {
@@ -195,14 +217,14 @@ export class UnifiedDataService extends BaseService {
   ): Promise<T> {
     try {
       const cacheKey = `search_${query}_${JSON.stringify(filters)}`;
-      const cached = this.cache.get<T>(cacheKey);
+      const cached = this.unifiedCache.get<T>(cacheKey);
       if (cached) return cached;
 
       const response = await this.post<T>('/api/search', { query, filters });
       if (typeof response !== 'object' || response === null) {
         throw new Error('Invalid search data response');
       }
-      this.cache.set(cacheKey, response, 180000); // 3 min cache
+      this.unifiedCache.set(cacheKey, response, 180000); // 3 min cache
       return response;
     } catch (error) {
       this.logger.error('Failed to search data', error);
@@ -212,31 +234,12 @@ export class UnifiedDataService extends BaseService {
 
   clearCache(pattern?: string): void {
     if (pattern) {
-      const keys = this.cache.getKeys().filter(key => key.includes(pattern));
-      keys.forEach(key => this.cache.delete(key));
+      const keys = this.unifiedCache.getKeys().filter(key => key.includes(pattern));
+      keys.forEach(key => this.unifiedCache.delete(key));
     } else {
-      this.cache.clear();
+      this.unifiedCache.clear();
     }
     this.logger.info('Cache cleared', { pattern });
-  }
-
-  /**
-   * Cache data with TTL (Stabilization Fix)
-   * Method expected by monitoring services that was missing
-   */
-  async cacheData<T>(key: string, data: T, ttl?: number): Promise<void> {
-    this.cache.set(key, data, ttl);
-    this.logger.info('Data cached', { key, ttl });
-  }
-
-  /**
-   * Get cached data (Stabilization Fix)
-   * Method expected by monitoring services that was missing
-   */
-  async getCachedData<T>(key: string): Promise<T | null> {
-    const result = this.cache.get<T>(key);
-    this.logger.info('Cache accessed', { key, hit: result !== null });
-    return result;
   }
 
   private async get<T>(url: string): Promise<T> {

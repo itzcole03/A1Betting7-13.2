@@ -1,3 +1,5 @@
+import { isLeanMode } from '../utils/leanMode';
+
 interface PerformanceMetrics {
   timestamp: Date;
   pageLoadTime: number;
@@ -42,6 +44,8 @@ class LiveDemoPerformanceMonitor {
   private monitoringInterval: NodeJS.Timeout | null = null;
   private performanceObserver: PerformanceObserver | null = null;
   private mutationObserver: MutationObserver | null = null;
+  private lastMemoryLogTime = 0;
+  private readonly MEMORY_LOG_THROTTLE = 30000; // 30 seconds
   
   private readonly PERFORMANCE_TARGETS = {
     pageLoadTime: 3000,     // 3 seconds
@@ -119,8 +123,8 @@ class LiveDemoPerformanceMonitor {
   }
 
   private updateNavigationMetrics(entry: PerformanceNavigationTiming): void {
-    const loadTime = entry.loadEventEnd - entry.navigationStart;
-    const interactiveTime = entry.domInteractive - entry.navigationStart;
+    const loadTime = entry.loadEventEnd - entry.fetchStart;
+    const interactiveTime = entry.domInteractive - entry.fetchStart;
     
     this.recordMetric('pageLoadTime', loadTime);
     this.recordMetric('timeToInteractive', interactiveTime);
@@ -174,11 +178,20 @@ class LiveDemoPerformanceMonitor {
 
   async startMonitoring(intervalMs: number = 30000): Promise<void> {
     if (this.isMonitoring) {
+      // eslint-disable-next-line no-console
       console.warn('Live demo monitoring is already running');
       return;
     }
 
+    // Skip entirely if lean mode is active
+    if (isLeanMode()) {
+      // eslint-disable-next-line no-console
+      console.log('Lean mode active - skipping performance monitoring');
+      return;
+    }
+
     this.isMonitoring = true;
+    // eslint-disable-next-line no-console
     console.log('Starting live demo performance monitoring...');
 
     // Initial metrics collection
@@ -190,6 +203,7 @@ class LiveDemoPerformanceMonitor {
         await this.collectCurrentMetrics();
         await this.analyzePerformanceTrends();
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Error during performance monitoring:', error);
       }
     }, intervalMs);
@@ -245,7 +259,23 @@ class LiveDemoPerformanceMonitor {
 
   private getMemoryUsage(): number {
     if (typeof window !== 'undefined' && 'performance' in window && 'memory' in (window.performance as any)) {
-      return (window.performance as any).memory.usedJSHeapSize;
+      const memoryUsage = (window.performance as any).memory.usedJSHeapSize;
+      
+      // Throttle memory logging to at most once every 30 seconds
+      const now = Date.now();
+      if (now - this.lastMemoryLogTime > this.MEMORY_LOG_THROTTLE) {
+        this.lastMemoryLogTime = now;
+        const memoryInfo = (window.performance as any).memory;
+        // eslint-disable-next-line no-console
+        console.log('[Performance] Memory Usage:', {
+          used: `${(memoryInfo.usedJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
+          total: `${(memoryInfo.totalJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
+          limit: `${(memoryInfo.jsHeapSizeLimit / 1024 / 1024).toFixed(2)} MB`,
+          timestamp: new Date().toLocaleTimeString()
+        });
+      }
+      
+      return memoryUsage;
     }
     return 0;
   }
@@ -291,8 +321,17 @@ class LiveDemoPerformanceMonitor {
   }
 
   private getPageLoadTime(): number {
-    if (typeof window !== 'undefined' && window.performance && window.performance.timing) {
-      return window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
+    if (typeof window !== 'undefined' && window.performance) {
+      try {
+        // Use modern Navigation Timing API
+        const start = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
+        return Math.round(start.duration);
+      } catch (error) {
+        // Fallback to deprecated timing API if available
+        if (window.performance.timing) {
+          return window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
+        }
+      }
     }
     return 0;
   }
@@ -307,8 +346,15 @@ class LiveDemoPerformanceMonitor {
 
   private getLCP(): number {
     if (typeof window !== 'undefined' && window.performance) {
-      const entries = window.performance.getEntriesByType('largest-contentful-paint');
-      return entries.length > 0 ? entries[entries.length - 1].startTime : 0;
+      try {
+        // Check if largest-contentful-paint is supported
+        if ('getEntriesByType' in window.performance) {
+          const entries = window.performance.getEntriesByType('largest-contentful-paint');
+          return entries.length > 0 ? entries[entries.length - 1].startTime : 0;
+        }
+      } catch (error) {
+        // Silently handle unsupported entry type
+      }
     }
     return 0;
   }
