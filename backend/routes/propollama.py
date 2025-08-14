@@ -38,14 +38,19 @@ import time
 import httpx
 from fastapi import APIRouter
 
+# Standardized imports for API contract compliance
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+from typing import Dict, Any
+
 # Register router for all PropOllama endpoints
 router = APIRouter(prefix="/api/propollama", tags=["PropOllama"])
 
 
 # Fast health check endpoint to verify router registration
-@router.get("/ping")
+@router.get("/ping", response_model=StandardAPIResponse[Dict[str, Any]])
 async def propollama_ping():
-    return {"status": "ok", "message": "PropOllama router is active."}
+    return ResponseBuilder.success({"status": "ok", "message": "PropOllama router is active."})
 
 
 import yaml
@@ -427,7 +432,6 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import Body, Depends, HTTPException, Request, status
 from fastapi.exception_handlers import RequestValidationError
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 
 from backend.utils.llm_engine import llm_engine
@@ -437,7 +441,7 @@ from backend.utils.rate_limiter import RateLimiter
 # --- Ollama Model Pull Endpoint ---
 @router.post(
     "/pull_model",
-    response_model=dict,
+    response_model=StandardAPIResponse[Dict[str, Any]],
     summary="Pull an Ollama model by name",
     description="Pull a model from Ollama by name (e.g., 'llama2:7b'). Only alphanumerics, dashes, underscores, slashes, and colon are allowed. Returns output, error, and status.",
     responses={
@@ -582,7 +586,11 @@ async def propollama_pull_model(
                 }
             )
         )
-        return {"success": False, "error": str(e), "request_id": request_id}
+        return {
+            "success": False,
+            "error": f"Model pull failed: {str(e)}",
+            "request_id": request_id,
+        }
 
 
 from backend.models.api_models import BetAnalysisResponse
@@ -635,7 +643,7 @@ def create_error_response(
         resp["fields"] = fields
     if trace:
         resp["trace"] = trace
-    return JSONResponse(status_code=status_code, content=resp)
+    return ResponseBuilder.success(resp)
 
 
 def add_global_error_handlers(app: FastAPI):
@@ -658,19 +666,16 @@ def add_global_error_handlers(app: FastAPI):
     ):
         # If the request is for /api/propollama/final_analysis, return contract-compliant BetAnalysisResponse
         if request.url.path.endswith("/api/propollama/final_analysis"):
-            return JSONResponse(
-                status_code=200,
-                content={
-                    "analysis": "",
-                    "confidence": 0.0,
-                    "recommendation": "",
-                    "key_factors": [],
-                    "processing_time": 0.0,
-                    "cached": False,
-                    "enriched_props": [],
-                    "error": "Validation Error: Invalid request payload.",
-                },
-            )
+            return ResponseBuilder.success({
+                "analysis": "",
+                "confidence": 0.0,
+                "recommendation": "",
+                "key_factors": [],
+                "processing_time": 0.0,
+                "cached": False,
+                "enriched_props": [],
+                "error": "Validation Error: Invalid request payload.",
+            })
         # Otherwise, return the default error response
         return create_error_response(
             error="Validation Error",
@@ -780,12 +785,9 @@ async def propollama_chat(request: Request):
                     }
                 )
             )
-            raise HTTPException(
-                status_code=415,
-                detail={
-                    "error": "Unsupported Media Type",
-                    "message": "Content-Type must be application/json.",
-                },
+            raise BusinessLogicException(
+                message="Content-Type must be application/json",
+                error_code="UNSUPPORTED_MEDIA_TYPE"
             )
 
         # Step 2: Content-Type check
@@ -805,12 +807,9 @@ async def propollama_chat(request: Request):
                     }
                 )
             )
-            raise HTTPException(
-                status_code=415,
-                detail={
-                    "error": "Unsupported Media Type",
-                    "message": "Content-Type must be application/json.",
-                },
+            raise BusinessLogicException(
+                message="Content-Type must be application/json",
+                error_code="UNSUPPORTED_MEDIA_TYPE"
             )
 
         # Step 3: Parse JSON body
@@ -829,8 +828,9 @@ async def propollama_chat(request: Request):
                     }
                 )
             )
-            raise HTTPException(
-                status_code=400, detail={"error": "Malformed JSON", "message": str(e)}
+            raise BusinessLogicException(
+                message=f"Malformed JSON: {str(e)}",
+                error_code="INVALID_REQUEST"
             )
 
         # Step 4: Structure and required field check
@@ -838,12 +838,9 @@ async def propollama_chat(request: Request):
             logger.error(
                 json.dumps({"event": "chat_invalid_json_structure", "body": body})
             )
-            raise HTTPException(
-                status_code=422,
-                detail={
-                    "error": "Invalid JSON structure",
-                    "message": "Request body must be a JSON object.",
-                },
+            raise BusinessLogicException(
+                message="Validation failed",
+                error_code="VALIDATION_ERROR"
             )
         if (
             "message" not in body
@@ -859,12 +856,9 @@ async def propollama_chat(request: Request):
                     }
                 )
             )
-            raise HTTPException(
-                status_code=422,
-                detail={
-                    "error": "Missing or invalid required field",
-                    "message": "'message' field is required in the request body and must be a non-empty string up to 2000 characters.",
-                },
+            raise BusinessLogicException(
+                message="Validation failed",
+                error_code="VALIDATION_ERROR"
             )
 
         # Step 5: Mask sensitive fields in logs
@@ -916,21 +910,13 @@ async def propollama_chat(request: Request):
                 (err for err in ve.errors() if err.get("loc", [])[0] == "context"), None
             )
             if context_error:
-                raise HTTPException(
-                    status_code=422,
-                    detail={
-                        "error": "Invalid context field",
-                        "message": "The 'context' field must be a dictionary (object). If you are passing a string, it should be a JSON object string (e.g., '{\"foo\": 1}').",
-                        "fields": ve.errors(),
-                    },
+                raise BusinessLogicException(
+                    message="Validation failed - context error. If you are passing a string, it should be a JSON object string (e.g., '{\"foo\": 1}').",
+                    error_code="VALIDATION_ERROR"
                 )
-            raise HTTPException(
-                status_code=422,
-                detail={
-                    "error": "Validation Error",
-                    "fields": ve.errors(),
-                    "message": "Invalid request payload. Please check your input and try again.",
-                },
+            raise BusinessLogicException(
+                message="Invalid request payload. Please check your input and try again.",
+                error_code="VALIDATION_ERROR"
             )
 
         # Step 7: Defensive context/model extraction
@@ -969,12 +955,9 @@ async def propollama_chat(request: Request):
                         }
                     )
                 )
-                raise HTTPException(
-                    status_code=503,
-                    detail={
-                        "error": "Model not available",
-                        "message": f"Model '{model}' is not available. Valid options: {available_models}",
-                    },
+                raise BusinessLogicException(
+                    message=f"Model '{model}' is not available. Valid options: {available_models}",
+                    error_code="OPERATION_FAILED"
                 )
 
             # Compose messages for chat
@@ -1005,12 +988,9 @@ async def propollama_chat(request: Request):
                         }
                     )
                 )
-                raise HTTPException(
-                    status_code=504,
-                    detail={
-                        "error": "LLM chat timeout",
-                        "message": "Ollama did not respond within 30 seconds. Please try again or check model health.",
-                    },
+                raise BusinessLogicException(
+                    message="Ollama did not respond within 30 seconds. Please try again or check model health.",
+                    error_code="OPERATION_FAILED"
                 )
             except ResponseError as e:
                 logger.error(
@@ -1022,9 +1002,9 @@ async def propollama_chat(request: Request):
                         }
                     )
                 )
-                raise HTTPException(
-                    status_code=500,
-                    detail={"error": "Ollama model error", "message": str(e)},
+                raise BusinessLogicException(
+                    message=f"Ollama model error: {str(e)}",
+                    error_code="OPERATION_FAILED"
                 )
             except Exception as e:
                 logger.error(
@@ -1036,9 +1016,9 @@ async def propollama_chat(request: Request):
                         }
                     )
                 )
-                raise HTTPException(
-                    status_code=500,
-                    detail={"error": "LLM chat error", "message": str(e)},
+                raise BusinessLogicException(
+                    message=f"LLM chat error: {str(e)}",
+                    error_code="OPERATION_FAILED"
                 )
 
             used_model = model
@@ -1079,29 +1059,25 @@ async def propollama_chat(request: Request):
         )
         print("[PropOllama] Exception in /chat:")
         print(traceback.format_exc())
-        raise HTTPException(
-            status_code=500,
-            detail={
-                "error": "Internal Server Error",
-                "message": str(e),
-                "trace": traceback.format_exc(),
-            },
+        raise BusinessLogicException(
+            message=f"Internal Server Error: {str(e)}",
+            error_code="OPERATION_FAILED"
         )
 
 
-@router.get("/health", response_model=dict)
-async def propollama_health() -> Dict[str, str]:
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
+async def propollama_health():
     """
     Health check for PropOllama API.
     - Returns status and message if API is up.
     - Error codes: None (always 200 if reachable)
     """
-    return {"status": "ok", "message": "PropOllama API is healthy."}
+    return ResponseBuilder.success({"status": "ok", "message": "PropOllama API is healthy."})
 
 
 # --- Ollama Model Listing Endpoint ---
-@router.get("/models", response_model=dict)
-async def propollama_models() -> Dict[str, Any]:
+@router.get("/models", response_model=StandardAPIResponse[Dict[str, Any]])
+async def propollama_models():
     """
     List available Ollama models.
     - Only returns models that are valid for generation and healthy/ready.
@@ -1126,16 +1102,16 @@ async def propollama_models() -> Dict[str, Any]:
             and model_health.get(m, None)
             and getattr(model_health[m], "status", None) == "ready"
         ]
-        return {"models": valid_models}
+        return ResponseBuilder.success({"models": valid_models})
     except Exception as e:
         import traceback
 
-        return {"error": str(e), "trace": traceback.format_exc()}
+        return ResponseBuilder.error("OPERATION_FAILED", f"Failed to retrieve models: {str(e)}")
 
 
 # --- Ollama Model Health Endpoint ---
-@router.get("/model_health", response_model=dict)
-async def propollama_model_health() -> Dict[str, Any]:
+@router.get("/model_health", response_model=StandardAPIResponse[Dict[str, Any]])
+async def propollama_model_health():
     """
     Get health status for all Ollama models.
     - Returns health info for each model (status, last_error, last_check, etc.)
@@ -1180,11 +1156,11 @@ async def propollama_model_health() -> Dict[str, Any]:
                 "error_count": error_count,
                 "success_count": success_count,
             }
-        return {"model_health": health_info}
+        return ResponseBuilder.success({"model_health": health_info})
     except Exception as e:
         import traceback
 
-        return {"error": str(e), "trace": traceback.format_exc()}
+        return ResponseBuilder.error("OPERATION_FAILED", f"Failed to retrieve model health: {str(e)}")
 
 
 # Rate limiting configuration
@@ -1208,14 +1184,9 @@ async def check_rate_limit(request: Request) -> None:
     allowed = await rate_limiter.check_rate_limit(client_ip)
     if not allowed:
         logger.warning(f"Rate limit exceeded for IP: {client_ip}")
-        raise HTTPException(
-            status_code=429,
-            detail={
-                "error": "Rate limit exceeded",
-                "reset_in": await rate_limiter.time_until_reset(client_ip),
-                "limit": RATE_LIMIT_MAX_REQUESTS,
-                "window": RATE_LIMIT_WINDOW,
-            },
+        raise BusinessLogicException(
+            message=f"Rate limit exceeded for IP: {client_ip}",
+            error_code="OPERATION_FAILED"
         )
 
 
@@ -1289,11 +1260,16 @@ async def _analyze_bet_unified_impl(
             if is_cache_valid(cache_key):
                 logger.info("[Cache] Hit for key: %s", cache_key)
                 cached_response = response_cache[cache_key]
-                cached_response["processing_time"] = time.time() - start_time
-                cached_response["cached"] = True
-                logger.info("[TRACE] Returning cached response.")
-                cached_response["error"] = ""
-                return cached_response
+                return BetAnalysisResponse(
+                    analysis=cached_response.get("analysis", ""),
+                    confidence=cached_response.get("confidence", 0.0),
+                    recommendation=cached_response.get("recommendation", ""),
+                    key_factors=cached_response.get("key_factors", []),
+                    processing_time=time.time() - start_time,
+                    cached=True,
+                    enriched_props=cached_response.get("enriched_props", []),
+                    error=""
+                )
             else:
                 logger.info("[Cache] Miss for key: %s", cache_key)
 
@@ -1321,74 +1297,74 @@ async def _analyze_bet_unified_impl(
                 confidence = 0.0
                 recommendation = ""
                 key_factors = []
-            response = {
-                "analysis": analysis,
-                "confidence": confidence,
-                "recommendation": recommendation,
-                "key_factors": key_factors,
-                "processing_time": processing_time,
-                "cached": False,
-                "enriched_props": enriched_props if enriched_props else [],
-                "error": "",
-            }
+            response = BetAnalysisResponse(
+                analysis=analysis,
+                confidence=confidence,
+                recommendation=recommendation,
+                key_factors=key_factors,
+                processing_time=processing_time,
+                cached=False,
+                enriched_props=enriched_props if enriched_props else [],
+                error=""
+            )
             logger.info("[TRACE] _analyze_bet_unified_impl END")
             return response
         except asyncio.TimeoutError:
             logger.error("[Timeout] pre_llm_business_logic enrichment timed out.")
-            return {
-                "analysis": "",
-                "confidence": 0.0,
-                "recommendation": "",
-                "key_factors": [],
-                "processing_time": time.time() - start_time,
-                "cached": False,
-                "enriched_props": [],
-                "error": "Enrichment step timed out.",
-            }
+            return BetAnalysisResponse(
+                analysis="",
+                confidence=0.0,
+                recommendation="",
+                key_factors=[],
+                processing_time=time.time() - start_time,
+                cached=False,
+                enriched_props=[],
+                error="Enrichment step timed out."
+            )
         except ValueError as e:
             logger.error("[Validation Error] %s", e)
             err_msg = str(e)
             if not err_msg or err_msg == "None":
                 err_msg = "Unknown validation error"
             logger.error(f"[DEBUG] Returning error string: {err_msg!r}")
-            return {
-                "analysis": "",
-                "confidence": 0.0,
-                "recommendation": "",
-                "key_factors": [],
-                "processing_time": time.time() - start_time,
-                "cached": False,
-                "enriched_props": [],
-                "error": err_msg,
-            }
+            return BetAnalysisResponse(
+                analysis="",
+                confidence=0.0,
+                recommendation="",
+                key_factors=[],
+                processing_time=time.time() - start_time,
+                cached=False,
+                enriched_props=[],
+                error=err_msg
+            )
         except Exception as e:
             logger.error("[Error] in _analyze_bet_unified_impl inner try: %s", e)
             err_msg = str(e) or "Unknown error."
-            return {
-                "analysis": "",
-                "confidence": 0.0,
-                "recommendation": "",
-                "key_factors": [],
-                "processing_time": time.time() - start_time,
-                "cached": False,
-                "enriched_props": [],
-                "error": err_msg,
-            }
+            return BetAnalysisResponse(
+                analysis="",
+                confidence=0.0,
+                recommendation="",
+                key_factors=[],
+                processing_time=time.time() - start_time,
+                cached=False,
+                enriched_props=[],
+                error=err_msg
+            )
     except Exception as e:
         logger.error(
             f"[Fatal Error] _analyze_bet_unified_impl error: {e}", exc_info=True
         )
         err_msg = str(e) or "Analysis failed."
-        return {
-            "analysis": "",
-            "confidence": 0.0,
-            "recommendation": "",
-            "key_factors": [],
-            "processing_time": time.time() - start_time,
-            "cached": False,
-            "enriched_props": [],
-            "error": err_msg,
-        }
+        return BetAnalysisResponse(
+            analysis="",
+            confidence=0.0,
+            recommendation="",
+            key_factors=[],
+            processing_time=time.time() - start_time,
+            cached=False,
+            enriched_props=[],
+            error=err_msg
+        )
 
 
 # --- Endpoints for Unified Bet Analysis ---

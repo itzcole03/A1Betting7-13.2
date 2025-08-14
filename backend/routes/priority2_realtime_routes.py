@@ -8,8 +8,13 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
+
+# Standardized imports for API contract compliance
+from ..core.exceptions import BusinessLogicException, AuthenticationException
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from typing import Dict, Any
 
 # Use relative imports to avoid module path issues
 try:
@@ -138,7 +143,7 @@ class DataProcessingRequest(BaseModel):
 # =============================================================================
 
 
-@router.get("/status", response_model=DataResponse)
+@router.get("/status", response_model=StandardAPIResponse[Dict[str, Any]])
 @resilient("realtime_status")
 async def get_realtime_status():
     """Get comprehensive real-time system status"""
@@ -171,18 +176,19 @@ async def get_realtime_status():
             last_updated=datetime.now().isoformat(),
         )
 
-        return DataResponse(
-            success=True,
-            message="Real-time system status retrieved successfully",
-            data={"status": status.dict(), "detailed_metrics": performance_metrics},
+        return ResponseBuilder.success(
+            data={"status": status.dict(), "detailed_metrics": performance_metrics}
         )
 
     except Exception as e:
         logger.error(f"Error retrieving real-time status: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Failed to retrieve real-time status: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.get("/health", response_model=APIResponse)
+@router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 @resilient("realtime_health")
 async def realtime_health_check():
     """Comprehensive health check for real-time services"""
@@ -191,24 +197,25 @@ async def realtime_health_check():
         health_status = await integration_service.health_check()
 
         if health_status["status"] == "healthy":
-            return APIResponse(
-                success=True,
-                message=f"All real-time services are healthy ({health_status['status']})",
+            return ResponseBuilder.success(
+                data={"status": "healthy", "message": f"All real-time services are healthy ({health_status['status']})"}
             )
         elif health_status["status"] == "degraded":
-            return APIResponse(
-                success=True,
-                message=f"Real-time services are degraded but operational ({health_status['status']})",
+            return ResponseBuilder.success(
+                data={"status": "degraded", "message": f"Real-time services are degraded but operational ({health_status['status']})"}
             )
         else:
-            raise HTTPException(
-                status_code=503,
-                detail=f"Real-time services are unhealthy: {health_status['status']}",
+            raise BusinessLogicException(
+                message=f"Real-time services are unhealthy: {health_status['status']}",
+                error_code="SERVICE_UNAVAILABLE"
             )
 
     except Exception as e:
         logger.error(f"Real-time health check failed: {e}")
-        raise HTTPException(status_code=503, detail=f"Health check failed: {str(e)}")
+        raise BusinessLogicException(
+            message=f"Health check failed: {str(e)}",
+            error_code="SERVICE_UNAVAILABLE"
+        )
 
 
 # =============================================================================
@@ -216,7 +223,7 @@ async def realtime_health_check():
 # =============================================================================
 
 
-@router.post("/process/game", response_model=DataResponse)
+@router.post("/process/game", response_model=StandardAPIResponse[Dict[str, Any]])
 @resilient("process_game_data")
 async def process_game_data(request: DataProcessingRequest):
     """Submit game data for real-time processing"""
@@ -228,18 +235,19 @@ async def process_game_data(request: DataProcessingRequest):
             request.data, priority=request.priority or 1
         )
 
-        return DataResponse(
-            success=True,
-            message="Game data submitted for processing",
-            data={"job_id": job_id, "data_type": request.data_type},
+        return ResponseBuilder.success(
+            data={"job_id": job_id, "data_type": request.data_type}
         )
 
     except Exception as e:
         logger.error(f"Error processing game data: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Failed to process game data: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.post("/process/prop", response_model=DataResponse)
+@router.post("/process/prop", response_model=StandardAPIResponse[Dict[str, Any]])
 @resilient("process_prop_data")
 async def process_prop_data(request: DataProcessingRequest):
     """Submit prop data for real-time processing"""
@@ -251,15 +259,16 @@ async def process_prop_data(request: DataProcessingRequest):
             request.data, priority=request.priority or 1
         )
 
-        return DataResponse(
-            success=True,
-            message="Prop data submitted for processing",
-            data={"job_id": job_id, "data_type": request.data_type},
+        return ResponseBuilder.success(
+            data={"job_id": job_id, "data_type": request.data_type}
         )
 
     except Exception as e:
         logger.error(f"Error processing prop data: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Failed to process prop data: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
 # =============================================================================
@@ -267,7 +276,7 @@ async def process_prop_data(request: DataProcessingRequest):
 # =============================================================================
 
 
-@router.post("/subscribe/props", response_model=DataResponse)
+@router.post("/subscribe/props", response_model=StandardAPIResponse[Dict[str, Any]])
 @resilient("subscribe_props")
 async def subscribe_to_props(request: PropSubscriptionRequest):
     """Subscribe to real-time prop updates"""
@@ -299,22 +308,23 @@ async def subscribe_to_props(request: PropSubscriptionRequest):
             request.user_id, connection_id, filters
         )
 
-        return DataResponse(
-            success=True,
-            message="Successfully subscribed to prop updates",
+        return ResponseBuilder.success(
             data={
                 "subscription_id": subscription_id,
                 "connection_id": connection_id,
                 "filters": filters,
-            },
+            }
         )
 
     except Exception as e:
         logger.error(f"Error creating prop subscription: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Failed to create prop subscription: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
-@router.delete("/subscribe/props/{subscription_id}", response_model=APIResponse)
+@router.delete("/subscribe/props/{subscription_id}", response_model=StandardAPIResponse[Dict[str, Any]])
 @resilient("unsubscribe_props")
 async def unsubscribe_from_props(subscription_id: str):
     """Unsubscribe from real-time prop updates"""
@@ -323,14 +333,16 @@ async def unsubscribe_from_props(subscription_id: str):
 
         await integration_service.unsubscribe_from_prop_updates(subscription_id)
 
-        return APIResponse(
-            success=True,
-            message=f"Successfully unsubscribed from prop updates: {subscription_id}",
+        return ResponseBuilder.success(
+            data={"subscription_id": subscription_id, "message": f"Successfully unsubscribed from prop updates: {subscription_id}"}
         )
 
     except Exception as e:
         logger.error(f"Error unsubscribing from props: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Failed to unsubscribe from props: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
 # =============================================================================
@@ -338,7 +350,7 @@ async def unsubscribe_from_props(subscription_id: str):
 # =============================================================================
 
 
-@router.get("/pools/status", response_model=DataResponse)
+@router.get("/pools/status", response_model=StandardAPIResponse[Dict[str, Any]])
 @resilient("connection_pools_status")
 async def get_connection_pools_status():
     """Get status of all connection pools"""
@@ -359,15 +371,16 @@ async def get_connection_pools_status():
         if http_pool:
             pool_metrics["http"] = await http_pool.get_metrics()
 
-        return DataResponse(
-            success=True,
-            message="Connection pool status retrieved",
-            data={"pools": pool_metrics},
+        return ResponseBuilder.success(
+            data={"pools": pool_metrics}
         )
 
     except Exception as e:
         logger.error(f"Error getting connection pool status: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
 # =============================================================================
@@ -375,7 +388,7 @@ async def get_connection_pools_status():
 # =============================================================================
 
 
-@router.get("/resilience/metrics", response_model=DataResponse)
+@router.get("/resilience/metrics", response_model=StandardAPIResponse[Dict[str, Any]])
 @resilient("resilience_metrics")
 async def get_resilience_metrics():
     """Get resilience service metrics"""
@@ -384,17 +397,21 @@ async def get_resilience_metrics():
 
         metrics = await resilience_service.get_all_metrics()
 
-        return DataResponse(
-            success=True, message="Resilience metrics retrieved", data=metrics
+        return ResponseBuilder.success(
+            data=metrics
         )
 
     except Exception as e:
         logger.error(f"Error getting resilience metrics: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e
+        )}",
+            error_code="OPERATION_FAILED"
+        )
 
 
 @router.post(
-    "/resilience/circuit-breaker/{service_name}/reset", response_model=APIResponse
+    "/resilience/circuit-breaker/{service_name}/reset", response_model=StandardAPIResponse[Dict[str, Any]]
 )
 async def reset_circuit_breaker(service_name: str):
     """Reset a circuit breaker manually"""
@@ -403,17 +420,21 @@ async def reset_circuit_breaker(service_name: str):
 
         if service_name in resilience_service.circuit_breakers:
             await resilience_service.circuit_breakers[service_name].reset()
-            return APIResponse(
-                success=True, message=f"Circuit breaker '{service_name}' has been reset"
-            )
+            return ResponseBuilder.success(
+            data={"message": f"Circuit breaker '{service_name}' has been reset"}
+        )
         else:
-            raise HTTPException(
-                status_code=404, detail=f"Circuit breaker '{service_name}' not found"
+            raise BusinessLogicException(
+                message=f"Circuit breaker '{service_name}' not found",
+                error_code="RESOURCE_NOT_FOUND"
             )
 
     except Exception as e:
         logger.error(f"Error resetting circuit breaker: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
 # =============================================================================
@@ -472,7 +493,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
             pass
 
 
-@router.post("/broadcast", response_model=APIResponse)
+@router.post("/broadcast", response_model=StandardAPIResponse[Dict[str, Any]])
 @resilient("websocket_broadcast")
 async def broadcast_message(message: Dict[str, Any], channel: str = "general"):
     """Broadcast message to all WebSocket connections"""
@@ -481,13 +502,16 @@ async def broadcast_message(message: Dict[str, Any], channel: str = "general"):
 
         await integration_service.broadcast_websocket_message(message, channel)
 
-        return APIResponse(
-            success=True, message=f"Message broadcasted to channel '{channel}'"
+        return ResponseBuilder.success(
+            data={"message": f"Message broadcasted to channel '{channel}'"}
         )
 
     except Exception as e:
         logger.error(f"Error broadcasting message: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
 # =============================================================================
@@ -495,7 +519,7 @@ async def broadcast_message(message: Dict[str, Any], channel: str = "general"):
 # =============================================================================
 
 
-@router.post("/test/load/{service_name}", response_model=DataResponse)
+@router.post("/test/load/{service_name}", response_model=StandardAPIResponse[Dict[str, Any]])
 @resilient("load_test")
 async def load_test_service(
     service_name: str, requests: int = 100, concurrency: int = 10
@@ -530,9 +554,7 @@ async def load_test_service(
         )
         error_count = len(tasks) - success_count
 
-        return DataResponse(
-            success=True,
-            message=f"Load test completed for {service_name}",
+        return ResponseBuilder.success(
             data={
                 "service": service_name,
                 "total_requests": requests,
@@ -541,12 +563,15 @@ async def load_test_service(
                 "duration_seconds": duration,
                 "requests_per_second": requests / duration if duration > 0 else 0,
                 "success_rate": success_count / requests if requests > 0 else 0,
-            },
+            }
         )
 
     except Exception as e:
         logger.error(f"Error in load test: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
 
 
 # =============================================================================
@@ -554,7 +579,7 @@ async def load_test_service(
 # =============================================================================
 
 
-@router.get("/demo/comprehensive", response_model=DataResponse)
+@router.get("/demo/comprehensive", response_model=StandardAPIResponse[Dict[str, Any]])
 @resilient("comprehensive_demo")
 async def comprehensive_demo():
     """Comprehensive demonstration of all Priority 2 features"""
@@ -589,9 +614,7 @@ async def comprehensive_demo():
             demo_game_data, priority=2
         )
 
-        return DataResponse(
-            success=True,
-            message="Comprehensive Priority 2 demonstration completed successfully",
+        return ResponseBuilder.success(
             data={
                 "demo_timestamp": datetime.now().isoformat(),
                 "features_demonstrated": [
@@ -602,9 +625,12 @@ async def comprehensive_demo():
                     "Circuit Breaker and Resilience Patterns",
                 ],
                 "results": demo_results,
-            },
+            }
         )
 
     except Exception as e:
         logger.error(f"Error in comprehensive demo: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(
+            message=f"Operation failed: {str(e)}",
+            error_code="OPERATION_FAILED"
+        )
