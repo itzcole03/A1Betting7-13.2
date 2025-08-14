@@ -1,0 +1,12 @@
+# Step 6 Security Headers Metrics Sample
+# Showing security_headers_applied_total and csp_violation_reports_total only
+
+# BASELINE (before any requests)
+security_headers_applied_total{header_type="csp"} 0
+security_headers_applied_total{header_type="hsts"} 0
+csp_violation_reports_total{directive="script",violated_directive="script-src"} 0
+
+# AFTER TESTING (3 requests made + 1 CSP violation report sent to /csp/report)  
+security_headers_applied_total{header_type="csp"} 3.0
+security_headers_applied_total{header_type="hsts"} 3.0
+csp_violation_reports_total{directive="script",violated_directive="script-src"} 1.0

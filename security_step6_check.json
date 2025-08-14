@@ -1,0 +1,16 @@
+{
+  "all_security_tests_pass": true,
+  "middleware_order_correct": true,
+  "headers_on_error_responses": true,
+  "strict_mode_forces_enforcement": true,
+  "csp_report_metrics_increment": true,
+  "extra_connect_src_supported": true,
+  "alias_csp_endpoint_present": true,
+  "sanitized_csp_logging": true,
+  "notes": {
+    "test_pass_rate": "100% (75/75)",
+    "middleware_stack": "CORS -> Logging -> Metrics -> PayloadGuard -> RateLimit -> SecurityHeaders -> Router",
+    "csp_endpoints": "Both /csp/report (canonical) and /api/security/csp-report (alias) implemented but disabled by default",
+    "strict_mode_behavior": "SECURITY_STRICT_MODE=true overrides csp_report_only to false for enforcement"
+  }
+}

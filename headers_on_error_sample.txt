@@ -1,0 +1,33 @@
+# Headers on Error Responses Sample
+
+## 1. 404 Response Example
+HTTP/1.1 404 Not Found
+strict-transport-security: max-age=63072000; includeSubDomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: no-referrer
+content-security-policy-report-only: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; connect-src 'self'; upgrade-insecure-requests; report-uri /csp/report
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+cross-origin-embedder-policy: require-corp
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-type: application/json
+
+{"detail":"Not Found"}
+
+## 2. Validation Error Response (422)
+HTTP/1.1 422 Unprocessable Entity
+strict-transport-security: max-age=63072000; includeSubDomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: no-referrer
+content-security-policy-report-only: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; connect-src 'self'; upgrade-insecure-requests; report-uri /csp/report
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+cross-origin-embedder-policy: require-corp
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-type: application/json
+
+{"success":false,"data":null,"error":{"code":"E1000_VALIDATION","message":"Request validation failed","details":{"validation_errors":[{"field":"required_field","message":"Field required","type":"missing","input":null}]}},"meta":{"timestamp":"2025-08-14T20:15:30.123456","severity":"LOW","category":"CLIENT","retryable":false}}
+
+# CSP Header Present: YES - CSP policy applied even to validation errors as configured
