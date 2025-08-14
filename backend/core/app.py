@@ -90,6 +90,30 @@ def create_app() -> FastAPI:
         logger.info("✅ Structured logging middleware added")
     except ImportError as e:
         logger.warning(f"⚠️ Could not import structured logging middleware: {e}")
+        
+    # --- Payload Guard Middleware (Step 5) ---
+    # Order: After logging but BEFORE rate limiting to prevent wasting resources on oversized payloads
+    try:
+        from backend.config.settings import get_settings
+        from backend.middleware.payload_guard import create_payload_guard_middleware
+        from backend.middleware.prometheus_metrics_middleware import get_metrics_middleware
+        
+        settings = get_settings()
+        metrics_client = get_metrics_middleware()
+        
+        payload_guard_factory = create_payload_guard_middleware(
+            settings=settings.security,
+            metrics_client=metrics_client
+        )
+        
+        _app.add_middleware(payload_guard_factory)
+        logger.info(f"✅ Payload guard middleware added: max_size={settings.security.max_json_payload_bytes} bytes, "
+                   f"enforce_json={settings.security.enforce_json_content_type}, "
+                   f"enabled={settings.security.payload_guard_enabled}")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import payload guard middleware: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to configure payload guard: {e}")
 
     # --- Prometheus Metrics Middleware ---
     try:
@@ -108,6 +132,32 @@ def create_app() -> FastAPI:
             logger.info("ℹ️ Prometheus client not available, metrics collection disabled")
     except ImportError as e:
         logger.warning(f"⚠️ Could not import metrics middleware: {e}")
+
+    # --- Rate Limiting Middleware ---
+    try:
+        import os
+        from backend.middleware.rate_limit import create_rate_limit_middleware
+        
+        # Configuration from environment or defaults
+        requests_per_minute = int(os.getenv("RATE_LIMIT_REQUESTS_PER_MINUTE", "100"))
+        burst_capacity = int(os.getenv("RATE_LIMIT_BURST_CAPACITY", "200"))
+        enabled = os.getenv("RATE_LIMIT_ENABLED", "true").lower() == "true"
+        
+        rate_limit_middleware = create_rate_limit_middleware(
+            requests_per_minute=requests_per_minute,
+            burst_capacity=burst_capacity,
+            enabled=enabled
+        )
+        
+        _app.add_middleware(type(rate_limit_middleware), 
+                          requests_per_minute=requests_per_minute,
+                          burst_capacity=burst_capacity,
+                          enabled=enabled)
+        logger.info(f"✅ Rate limiting middleware added: {requests_per_minute}/min, burst={burst_capacity}, enabled={enabled}")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import rate limiting middleware: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to configure rate limiting: {e}")
 
     # --- Centralized Exception Handling ---
     try:
@@ -140,15 +190,41 @@ def create_app() -> FastAPI:
     # --- Core API Routes ---
     @_app.get("/api/health")
     async def api_health():
+        """
+        System health check endpoint with structured error handling
+        
+        Returns:
+            Health status with uptime and system metrics
+            
+        Raises:
+            ApiError: For internal system failures
+        """
         logger.info("[API] /api/health called")
-        return ok({
-            "status": "healthy",
-            "uptime_seconds": int(time.time()),
-            "error_streak": 0,
-            "last_error": None,
-            "last_success": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "healing_attempts": 0,
-        })
+        
+        try:
+            # Simulate potential system health checks
+            current_time = int(time.time())
+            
+            health_data = {
+                "status": "healthy",
+                "uptime_seconds": current_time,
+                "error_streak": 0,
+                "last_error": None,
+                "last_success": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "healing_attempts": 0,
+            }
+            
+            return ok(health_data)
+            
+        except Exception as e:
+            # Convert any unexpected errors to structured errors
+            from backend.errors import ApiError, ErrorCode
+            logger.exception(f"Health check failed: {e}")
+            raise ApiError(
+                ErrorCode.E5000_INTERNAL,
+                "Health check system failure",
+                details={"error": str(e)}
+            )
 
     # --- Metrics Endpoints ---
     @_app.get("/metrics")
@@ -204,34 +280,139 @@ def create_app() -> FastAPI:
 
     @_app.get("/api/props")
     async def api_props():
+        """
+        Fetch sports prop data with external dependency handling
+        
+        Returns:
+            List of prop betting data
+            
+        Raises:
+            ApiError: For dependency failures or data unavailability
+        """
+        from backend.errors import ApiError, ErrorCode, dependency_error
+        
         logger.info("[API] /api/props called")
-        return ok([
-            {
-                "id": "mock-aaron-judge-hr",
-                "player": "Aaron Judge",
-                "stat": "Home Runs",
-                "line": 1.5,
-                "confidence": 85,
-            },
-            {
-                "id": "mock-mike-trout-hits",
-                "player": "Mike Trout",
-                "stat": "Hits",
-                "line": 1.5,
-                "confidence": 78,
-            },
-        ])
+        
+        try:
+            # Simulate external data fetching with potential failure
+            # In real implementation, this would call external APIs
+            # For demonstration, we simulate a dependency check
+            
+            # Simulate external service health check
+            import random
+            if random.random() < 0.1:  # 10% chance of simulated failure
+                raise dependency_error(
+                    "props_data_service",
+                    "Props data service temporarily unavailable"
+                )
+            
+            # Return mock data (in production, this would be real external data)
+            props_data = [
+                {
+                    "id": "mock-aaron-judge-hr",
+                    "player": "Aaron Judge",
+                    "stat": "Home Runs",
+                    "line": 1.5,
+                    "confidence": 85,
+                },
+                {
+                    "id": "mock-mike-trout-hits",
+                    "player": "Mike Trout",
+                    "stat": "Hits",
+                    "line": 1.5,
+                    "confidence": 78,
+                },
+            ]
+            
+            logger.info(f"[API] Successfully fetched {len(props_data)} props")
+            return ok(props_data)
+            
+        except ApiError:
+            # Re-raise structured API errors
+            raise
+        except Exception as e:
+            # Convert unexpected errors to dependency errors
+            logger.exception(f"Unexpected error fetching props: {e}")
+            raise ApiError(
+                ErrorCode.E2000_DEPENDENCY,
+                "Failed to fetch prop data",
+                details={"service": "props_api", "error": str(e)}
+            )
 
     @_app.post("/api/v2/sports/activate")
     async def api_activate(request: Request):
-        body = await request.json()
-        sport = body.get("sport", "Unknown")
-        logger.info(f"[API] /api/v2/sports/activate called for sport: {sport}")
-        return ok({
-            "sport": sport,
-            "activated": True,
-            "version_used": "v2"
-        })
+        """
+        Activate sport for analysis with input validation
+        
+        Args:
+            request: FastAPI request containing sport activation data
+            
+        Returns:
+            Sport activation confirmation
+            
+        Raises:
+            ApiError: For validation errors or business logic failures
+        """
+        from backend.errors import ApiError, ErrorCode, validation_error
+        
+        logger.info("[API] /api/v2/sports/activate called")
+        
+        try:
+            # Validate request has JSON body
+            if request.headers.get("content-type") != "application/json":
+                raise ApiError(
+                    ErrorCode.E1400_UNSUPPORTED_MEDIA_TYPE,
+                    "Content-Type must be application/json"
+                )
+            
+            # Parse JSON body with error handling
+            try:
+                body = await request.json()
+            except Exception as e:
+                raise validation_error(
+                    "Invalid JSON in request body",
+                    field="body"
+                )
+            
+            # Validate required fields
+            if not isinstance(body, dict):
+                raise validation_error("Request body must be a JSON object")
+            
+            sport = body.get("sport")
+            if not sport:
+                raise validation_error("Sport is required", field="sport")
+            
+            if not isinstance(sport, str):
+                raise validation_error("Sport must be a string", field="sport")
+            
+            # Business logic validation
+            valid_sports = ["MLB", "NBA", "NFL", "NHL"]
+            if sport.upper() not in valid_sports:
+                raise ApiError(
+                    ErrorCode.E1000_VALIDATION,
+                    f"Invalid sport '{sport}'. Must be one of: {', '.join(valid_sports)}",
+                    details={"valid_sports": valid_sports, "provided_sport": sport}
+                )
+            
+            # Simulate successful activation
+            logger.info(f"[API] Sport {sport} activated successfully")
+            return ok({
+                "sport": sport.upper(),
+                "activated": True,
+                "version_used": "v2"
+            })
+            
+        except ApiError:
+            # Re-raise structured API errors
+            raise
+        except Exception as e:
+            # Convert unexpected errors to structured errors
+            logger.exception(f"Unexpected error in sport activation: {e}")
+            raise ApiError(
+                ErrorCode.E5000_INTERNAL,
+                "Internal error during sport activation",
+                details={"original_error": str(e)}
+            )
 
     @_app.get("/api/predictions")
     async def api_predictions():

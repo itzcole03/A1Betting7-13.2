@@ -91,6 +91,10 @@ class PrometheusMetricsMiddleware(BaseHTTPMiddleware):
         self.cache_operations_total = mock
         self.ml_inference_duration_seconds = mock
         self.external_api_duration_seconds = mock
+        
+        # Payload guard metrics (Step 5)
+        self.payload_rejected_total = mock
+        self.request_payload_bytes = mock
 
     def _init_http_metrics(self):
         """Initialize HTTP-related metrics"""
@@ -213,6 +217,22 @@ class PrometheusMetricsMiddleware(BaseHTTPMiddleware):
             'External API response duration in seconds',
             ['api_name', 'endpoint'],
             buckets=[0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 30.0],
+            registry=self.registry
+        )
+        
+        # Payload guard metrics (Step 5)
+        self.payload_rejected_total = Counter(
+            'payload_rejected_total',
+            'Total number of payload rejections',
+            ['reason'],  # reason: size, content-type
+            registry=self.registry
+        )
+        
+        # Request payload size histogram
+        self.request_payload_bytes = Histogram(
+            'request_payload_bytes',
+            'Request payload size distribution in bytes',
+            buckets=[1024, 5120, 25600, 102400, 256000, 512000, 1048576],  # 1KB, 5KB, 25KB, 100KB, 250KB, 500KB, 1MB
             registry=self.registry
         )
 
@@ -338,6 +358,14 @@ class PrometheusMetricsMiddleware(BaseHTTPMiddleware):
             api_name=api_name,
             endpoint=endpoint
         ).observe(duration_seconds)
+        
+    def track_payload_rejection(self, reason: str):
+        """Track payload rejection by reason (Step 5)"""
+        self.payload_rejected_total.labels(reason=reason).inc()
+        
+    def track_request_payload_size(self, size_bytes: int):
+        """Track request payload size (Step 5)"""
+        self.request_payload_bytes.observe(size_bytes)
 
     def _normalize_endpoint(self, path: str) -> str:
         """Normalize endpoint path for cleaner metrics"""

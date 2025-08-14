@@ -126,6 +126,12 @@ class SecuritySettings(BaseSettings):
     enable_security_headers: bool = Field(default=True)
     trusted_hosts: List[str] = Field(default_factory=lambda: ["*"])
 
+    # Payload guard settings (Step 5)
+    max_json_payload_bytes: int = Field(default=262144, ge=1024, le=10485760)  # 256KB default, max 10MB
+    enforce_json_content_type: bool = Field(default=True)
+    allow_extra_content_types: str = Field(default="")  # Comma-separated list
+    payload_guard_enabled: bool = Field(default=True)
+
     @validator("secret_key")
     def validate_secret_key(cls, v):
         if len(v) < 32:
