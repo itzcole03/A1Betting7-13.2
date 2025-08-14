@@ -7,6 +7,7 @@ import PasswordChangeForm from './components/auth/PasswordChangeForm';
 import { ErrorBoundary } from './components/core/ErrorBoundary';
 import ServiceWorkerUpdateNotification from './components/core/ServiceWorkerUpdateNotification';
 import { ErrorBoundaryVersion } from './components/ErrorBoundaryVersion';
+import LeanModeBanner from './components/LeanModeBanner';
 import { ReliabilityIntegrationWrapper } from './components/reliability/ReliabilityIntegrationWrapper';
 import { _AppProvider } from './contexts/AppContext';
 import { _AuthProvider, useAuth } from './contexts/AuthContext';
@@ -277,6 +278,7 @@ const _AppContent: React.FC = () => {
 
   return (
     <ErrorBoundary>
+      <LeanModeBanner />
       <ReliabilityIntegrationWrapper
         enableMonitoring={true}
         monitoringLevel='standard'

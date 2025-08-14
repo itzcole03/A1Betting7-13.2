@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../../config/apiConfig';
 
 interface TestResult {
   endpoint: string;
@@ -13,10 +14,10 @@ const DataFetchTest: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
 
   const testEndpoints = [
-    'http://localhost:8000/health',
-    'http://localhost:8000/api/v2/health',
-    'http://localhost:8000/mlb/odds-comparison/?market_type=playerprops&limit=5',
-    'http://localhost:5173/api/health',
+    `${API_BASE_URL}/health`,
+    `${API_BASE_URL}/api/v2/health`,
+    `${API_BASE_URL}/mlb/odds-comparison/?market_type=playerprops&limit=5`,
+    `${API_BASE_URL}/api/health`,
   ];
 
   const runTests = async () => {

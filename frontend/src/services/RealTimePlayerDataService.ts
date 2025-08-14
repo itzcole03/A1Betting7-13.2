@@ -10,6 +10,8 @@
  * - Data quality validation and normalization
  */
 
+import { WS_URL } from '../config/apiConfig';
+
 import { Player } from '../components/player/PlayerDashboardContainer';
 
 interface CacheEntry<T> {
@@ -85,7 +87,7 @@ export class RealTimePlayerDataService {
    */
   private initializeWebSocket(): void {
     try {
-      const wsUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:8000/ws/player-data';
+      const wsUrl = WS_URL + '/ws/player-data';
       this.websocket = new WebSocket(wsUrl);
 
       this.websocket.onopen = () => {

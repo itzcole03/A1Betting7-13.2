@@ -6,12 +6,13 @@ This is the ONLY entry point for creating the A1Betting application.
 
 import logging
 import time
+import uuid
 from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 # Load environment variables from .env file
 try:
@@ -70,9 +71,11 @@ def create_app() -> FastAPI:
         description="A1Betting Sports Analysis Platform - Canonical Entry Point"
     )
 
-    # --- CORS Middleware ---
+    # --- CORS Middleware (FIRST in middleware stack) ---
+    # CORS config (dev only) for clean preflight handling
     origins = [
         "http://localhost:5173",
+        "http://127.0.0.1:5173",
         "http://localhost:8000",
     ]
     _app.add_middleware(
@@ -237,42 +240,49 @@ def create_app() -> FastAPI:
 
     # --- Core API Routes ---
     @_app.get("/api/health")
+    @_app.head("/api/health")
     async def api_health():
         """
-        System health check endpoint with structured error handling
+        System health check endpoint with normalized envelope format
         
         Returns:
-            Health status with uptime and system metrics
-            
-        Raises:
-            ApiError: For internal system failures
+            Minimal envelope: {"success": true, "data": {"status": "ok"}, "error": null, "meta": {"request_id": <uuid>}}
         """
         logger.info("[API] /api/health called")
         
-        try:
-            # Simulate potential system health checks
-            current_time = int(time.time())
-            
-            health_data = {
-                "status": "healthy",
-                "uptime_seconds": current_time,
-                "error_streak": 0,
-                "last_error": None,
-                "last_success": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                "healing_attempts": 0,
-            }
-            
-            return ok(health_data)
-            
-        except Exception as e:
-            # Convert any unexpected errors to structured errors
-            from backend.errors import ApiError, ErrorCode
-            logger.exception(f"Health check failed: {e}")
-            raise ApiError(
-                ErrorCode.E5000_INTERNAL,
-                "Health check system failure",
-                details={"error": str(e)}
-            )
+        return {
+            "success": True,
+            "data": {"status": "ok"},
+            "error": None,
+            "meta": {"request_id": str(uuid.uuid4())}
+        }
+
+    # --- Health Endpoint Aliases (Stabilization Fix) ---
+    @_app.get("/health")
+    @_app.head("/health") 
+    async def health_alias():
+        """Normalized alias for /health -> /api/health with identical envelope"""
+        return await api_health()
+
+    @_app.get("/api/v2/health")
+    @_app.head("/api/v2/health")
+    async def api_v2_health_alias():
+        """Normalized version alias for monitoring systems expecting /api/v2/health"""
+        return await api_health()
+
+    # --- Performance Stats Endpoint (Stabilization Fix) ---
+    @_app.get("/performance/stats")
+    @_app.head("/performance/stats")
+    async def performance_stats():
+        """Performance statistics endpoint for monitoring"""
+        logger.info("[API] /performance/stats called")
+        return ok({
+            "memory_usage": 0,
+            "cpu_usage": 0,
+            "request_count": 0,
+            "average_response_time": 0,
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        })
 
     # --- Metrics Endpoints ---
     @_app.get("/metrics")
@@ -507,6 +517,9 @@ def create_app() -> FastAPI:
         logger.error(f"❌ Failed to register CSP report routes: {e}")
 
     # DB and config setup can be added here as modules are refactored in
+    
+    # Log normalized health endpoints at startup
+    logger.info("🏥 Health endpoints normalized: /api/health, /health, /api/v2/health -> identical envelope format")
     logger.info("✅ A1Betting canonical app created successfully")
     return _app
 

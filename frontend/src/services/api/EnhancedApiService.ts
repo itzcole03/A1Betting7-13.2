@@ -9,6 +9,8 @@
  * - Comprehensive error handling and retry logic;
  */
 
+import { WS_URL, API_BASE_URL } from '../../config/apiConfig';
+
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 // ============================================================================
@@ -158,8 +160,8 @@ class EnhancedApiService {
   private retryDelay: number = 1000;
 
   constructor() {
-    // Get API base URL from environment or use default;
-    this.baseURL = process.env.VITE_API_URL || 'http://localhost:8000';
+    // Get API base URL from unified configuration;
+    this.baseURL = API_BASE_URL;
 
     // Create axios instance with enhanced configuration;
     this.api = axios.create({
@@ -356,7 +358,7 @@ class EnhancedApiService {
     try {
       // Replace with actual WebSocket URL if backend supports it
       // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
-      const _wsUrl = process.env.VITE_WS_URL || 'ws://localhost:8000/ws/updates';
+      const _wsUrl = WS_URL + '/ws/updates';
       const _ws = new WebSocket(wsUrl);
       ws.onmessage = event => {
         try {

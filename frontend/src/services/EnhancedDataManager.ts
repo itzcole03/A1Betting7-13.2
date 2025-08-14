@@ -4,6 +4,7 @@
  */
 
 import axios, { AxiosResponse } from 'axios';
+import { API_BASE_URL } from '../config/apiConfig';
 import {
   CacheInvalidationEvent,
   EnhancedRequestMetrics,
@@ -83,8 +84,8 @@ class EnhancedDataManager {
    * Get the backend base URL for API requests
    */
   private getBackendUrl(): string {
-    // In development, always use the backend port directly
-    return 'http://localhost:8000';
+    // Use unified API configuration
+    return API_BASE_URL;
   }
 
   /**
@@ -1130,9 +1131,7 @@ class EnhancedDataManager {
   }
 
   private getWebSocketUrl(): string {
-    // Centralize WS URL, fallback to env or localhost
-    const envWsUrl = (window as any).VITE_WS_URL || process.env.VITE_WS_URL;
-    if (envWsUrl) return envWsUrl;
+    // Use unified WS_URL from config with client ID
     let clientId = '';
     if (window.localStorage.getItem('clientId')) {
       clientId = window.localStorage.getItem('clientId')!;
@@ -1140,7 +1139,10 @@ class EnhancedDataManager {
       clientId = `client_${Math.random().toString(36).substr(2, 9)}`;
       window.localStorage.setItem('clientId', clientId);
     }
-    return `ws://localhost:8000/ws/${clientId}`;
+    
+    // Use unified configuration - fallback to hardcoded for now to avoid circular imports
+    const baseWsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
+    return `${baseWsUrl.replace('/ws', '')}/ws/${clientId}`;
   }
 
   private initializeWebSocket(): void {

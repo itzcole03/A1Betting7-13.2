@@ -85,7 +85,7 @@ interface RealtimeData {
 
 // @ts-expect-error TS(2300): Duplicate identifier 'useRealtimeData'.
 export function useRealtimeData<T = RealtimeData>({
-  url = 'ws://localhost:8000/ws',
+  url = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws',
   initialData = null,
   onMessage,
   onError,

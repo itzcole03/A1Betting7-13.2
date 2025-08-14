@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
 import { discoverBackend } from '../services/backendDiscovery';
+import { API_BASE_URL } from '../config/apiConfig';
 
-// Change default port to 8000 for all API requests
-import { VITE_API_URL } from '../constants';
-const _BASE_URL = VITE_API_URL || 'http://localhost:8000';
+// Use unified API configuration
+const _BASE_URL = API_BASE_URL;
 
 // Create initial axios instance
 export const _api = axios.create({

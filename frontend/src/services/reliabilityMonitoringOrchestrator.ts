@@ -5,6 +5,7 @@
  */
 
 import { logger } from '../utils/logger';
+import { isLeanMode } from '../utils/leanMode';
 import DataPipelineStabilityMonitor from './dataPipelineStabilityMonitor';
 import LiveDemoPerformanceMonitor, {
   DemoHealthReport,
@@ -68,6 +69,7 @@ interface MonitoringConfiguration {
   };
   autoRecovery: boolean;
   continuousImprovement: boolean;
+  leanMode?: boolean; // Stabilization: disable heavy monitoring in dev
 }
 
 class ReliabilityMonitoringOrchestrator {
@@ -130,6 +132,12 @@ class ReliabilityMonitoringOrchestrator {
    * Start comprehensive monitoring as recommended in Issues Report
    */
   async startMonitoring(): Promise<void> {
+    // Stabilization: Check for lean mode to prevent heavy monitoring in development
+    if (isLeanMode()) {
+      logger.info('Lean mode enabled - skipping heavy monitoring', undefined, 'ReliabilityOrchestrator');
+      return;
+    }
+
     if (this.isActive) {
       logger.warn('Reliability monitoring already active', undefined, 'ReliabilityOrchestrator');
       return;

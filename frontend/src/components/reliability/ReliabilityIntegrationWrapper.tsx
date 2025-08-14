@@ -55,6 +55,15 @@ export const ReliabilityIntegrationWrapper: React.FC<ReliabilityIntegrationWrapp
   useEffect(() => {
     if (!enableMonitoring) return;
 
+    // Stabilization: Check for lean mode
+    const devLeanMode = localStorage.getItem('DEV_LEAN_MODE') === 'true' || 
+                        new URLSearchParams(window.location.search).get('lean') === 'true';
+    
+    if (devLeanMode) {
+      console.log('[ReliabilityIntegration] Lean mode enabled - monitoring disabled');
+      return;
+    }
+
     let monitoringInterval: NodeJS.Timeout;
     let isComponentMounted = true;
 

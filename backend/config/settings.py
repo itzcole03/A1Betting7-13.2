@@ -314,6 +314,12 @@ class AppSettings(BaseSettings):
     enable_ml_features: bool = Field(default=True)
     enable_comprehensive_props: bool = Field(default=True)
     enable_debug_routes: bool = Field(default=True)
+    
+    # Development optimization flags (Stabilization)
+    dev_lean_mode: bool = Field(
+        default=False, 
+        description="Disable heavy monitoring and non-essential features for cleaner development"
+    )
 
     @validator("debug", pre=True)
     def validate_debug(cls, v, values):

@@ -220,6 +220,25 @@ export class UnifiedDataService extends BaseService {
     this.logger.info('Cache cleared', { pattern });
   }
 
+  /**
+   * Cache data with TTL (Stabilization Fix)
+   * Method expected by monitoring services that was missing
+   */
+  async cacheData<T>(key: string, data: T, ttl?: number): Promise<void> {
+    this.cache.set(key, data, ttl);
+    this.logger.info('Data cached', { key, ttl });
+  }
+
+  /**
+   * Get cached data (Stabilization Fix)
+   * Method expected by monitoring services that was missing
+   */
+  async getCachedData<T>(key: string): Promise<T | null> {
+    const result = this.cache.get<T>(key);
+    this.logger.info('Cache accessed', { key, hit: result !== null });
+    return result;
+  }
+
   private async get<T>(url: string): Promise<T> {
     return this.api.get(url).then(response => response.data as T);
   }

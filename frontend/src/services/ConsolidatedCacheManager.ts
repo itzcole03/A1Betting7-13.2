@@ -7,6 +7,7 @@
  */
 
 import { EventEmitter } from 'events';
+import { WS_URL } from '../config/apiConfig';
 
 // Cache Configuration
 export interface CacheConfig {
@@ -519,7 +520,7 @@ export class ConsolidatedCacheManager extends EventEmitter {
 
   // WebSocket Integration for Real-time Cache Invalidation
   private initializeWebSocket(): void {
-    const wsUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:8000/ws/cache';
+    const wsUrl = WS_URL + '/ws/cache';
     
     try {
       this.webSocketConnection = new WebSocket(wsUrl);
