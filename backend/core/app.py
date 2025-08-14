@@ -83,6 +83,32 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    # --- Structured Logging Middleware ---
+    try:
+        from backend.middleware import StructuredLoggingMiddleware
+        _app.add_middleware(StructuredLoggingMiddleware)
+        logger.info("✅ Structured logging middleware added")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import structured logging middleware: {e}")
+
+    # --- Prometheus Metrics Middleware ---
+    try:
+        from backend.middleware import (
+            PrometheusMetricsMiddleware, 
+            set_metrics_middleware,
+            PROMETHEUS_AVAILABLE
+        )
+        
+        if PROMETHEUS_AVAILABLE:
+            metrics_middleware = PrometheusMetricsMiddleware(_app)
+            _app.add_middleware(PrometheusMetricsMiddleware)
+            set_metrics_middleware(metrics_middleware)
+            logger.info("✅ Prometheus metrics middleware added")
+        else:
+            logger.info("ℹ️ Prometheus client not available, metrics collection disabled")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import metrics middleware: {e}")
+
     # --- Centralized Exception Handling ---
     try:
         from backend.exceptions.handlers import register_exception_handlers
@@ -123,6 +149,58 @@ def create_app() -> FastAPI:
             "last_success": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "healing_attempts": 0,
         })
+
+    # --- Metrics Endpoints ---
+    @_app.get("/metrics")
+    async def get_metrics():
+        """Prometheus metrics endpoint"""
+        try:
+            from backend.middleware import get_metrics_middleware, PROMETHEUS_AVAILABLE
+            
+            if not PROMETHEUS_AVAILABLE:
+                return {"error": "Prometheus client not available"}
+            
+            metrics_middleware = get_metrics_middleware()
+            if metrics_middleware:
+                from fastapi import Response
+                metrics_data = metrics_middleware.get_metrics()
+                return Response(
+                    content=metrics_data,
+                    media_type="text/plain; version=0.0.4; charset=utf-8"
+                )
+            else:
+                return {"error": "Metrics middleware not initialized"}
+                
+        except Exception as e:
+            logger.error(f"Error generating metrics: {e}")
+            return {"error": str(e)}
+
+    @_app.get("/api/metrics/summary")
+    async def api_metrics_summary():
+        """Human-readable metrics summary"""
+        try:
+            from backend.middleware import get_metrics_middleware, PROMETHEUS_AVAILABLE
+            
+            if not PROMETHEUS_AVAILABLE:
+                return ok({"message": "Prometheus client not available", "metrics_enabled": False})
+            
+            metrics_middleware = get_metrics_middleware()
+            if metrics_middleware:
+                return ok({
+                    "metrics_enabled": True,
+                    "active_websockets": len(metrics_middleware.active_websockets),
+                    "prometheus_available": True,
+                    "endpoint": "/metrics"
+                })
+            else:
+                return ok({
+                    "metrics_enabled": False, 
+                    "message": "Metrics middleware not initialized"
+                })
+                
+        except Exception as e:
+            logger.error(f"Error getting metrics summary: {e}")
+            return fail(message=str(e))
 
     @_app.get("/api/props")
     async def api_props():

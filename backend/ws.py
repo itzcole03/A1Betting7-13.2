@@ -83,15 +83,34 @@ manager = ConnectionManager()
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
+        # Send connection confirmation using envelope pattern
+        await send_websocket_message(websocket, "connection_established", {"status": "connected"})
+        
         while True:
-            data = await websocket.receive_text()
-            
-            # Always broadcast as envelope pattern
-            await manager.broadcast("PREDICTION_UPDATE", {"payload": data})
+            try:
+                data = await websocket.receive_text()
+                
+                # Parse incoming message and validate envelope
+                try:
+                    message_data = json.loads(data)
+                except json.JSONDecodeError:
+                    await send_websocket_message(websocket, "error", error="Invalid JSON format")
+                    continue
+                
+                # Always broadcast as envelope pattern
+                await manager.broadcast("PREDICTION_UPDATE", {"payload": message_data})
+                
+            except json.JSONDecodeError:
+                await send_websocket_message(websocket, "error", error="Invalid JSON format")
+            except Exception as inner_e:
+                logging.error({"event": "ws_message_error", "error": str(inner_e)})
+                await send_websocket_message(websocket, "error", error="Message processing failed")
             
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         logging.info({"event": "ws_disconnect", "reason": "client disconnected"})
     except Exception as e:  # pylint: disable=broad-exception-caught
-        manager.disconnect(websocket)
         logging.error({"event": "ws_unexpected_error", "error": str(e)})
+    finally:
+        # Ensure connection cleanup
+        manager.disconnect(websocket)

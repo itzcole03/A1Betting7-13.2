@@ -13,10 +13,19 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query
 from ..core.response_models import ResponseBuilder, StandardAPIResponse
 from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.security import HTTPBearer
-import jwt
+
+try:
+    import jwt
+except ImportError:
+    jwt = None
 
 from ..services.realtime_notification_service import (
     notification_service,
+    NotificationType,
+    NotificationPriority,
+    SubscriptionFilter,
+    NotificationMessage
+)
 
 # WebSocket envelope pattern utilities
 
@@ -24,8 +33,8 @@ def create_websocket_envelope(
     message_type: str,
     data: Any = None,
     status: str = "success",
-    error: str = None,
-    timestamp: str = None
+    error: Optional[str] = None,
+    timestamp: Optional[str] = None
 ) -> Dict[str, Any]:
     """Create standardized WebSocket message envelope"""
     from datetime import datetime
@@ -50,17 +59,11 @@ async def send_websocket_message(
     message_type: str,
     data: Any = None,
     status: str = "success",
-    error: str = None
+    error: Optional[str] = None
 ):
     """Send standardized WebSocket message"""
     envelope = create_websocket_envelope(message_type, data, status, error)
     await websocket.send_text(json.dumps(envelope))
-
-    NotificationType,
-    NotificationPriority,
-    SubscriptionFilter,
-    NotificationMessage
-)
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/ws", tags=["WebSocket"])
@@ -72,7 +75,7 @@ class WebSocketAuthManager:
     @staticmethod
     def extract_user_from_token(token: Optional[str]) -> Optional[str]:
         """Extract user ID from JWT token"""
-        if not token:
+        if not token or jwt is None:
             return None
         
         try:
@@ -82,8 +85,8 @@ class WebSocketAuthManager:
             
             # Decode JWT (you should use your actual secret key)
             payload = jwt.decode(token, options={"verify_signature": False})
-            return ResponseBuilder.success(payload.get('user_id')) or payload.get('sub')
-        except:
+            return payload.get('user_id') or payload.get('sub')
+        except Exception:
             return None
 
 @router.websocket("/notifications")
@@ -190,10 +193,10 @@ async def handle_websocket_message(connection_id: str, message: Dict[str, Any]):
     message_type = message.get('type')
     
     if message_type == 'ping':
-        # Respond to ping
+        # Respond to ping using envelope pattern
         connection = notification_service.connections.get(connection_id)
         if connection:
-            await connection.websocket.send_text(json.dumps(create_websocket_envelope("pong")))
+            await send_websocket_message(connection.websocket, "pong")
     
     elif message_type == 'subscribe':
         # Update subscription filters
@@ -204,11 +207,10 @@ async def handle_websocket_message(connection_id: str, message: Dict[str, Any]):
         await remove_subscription_filters(connection_id, message.get('filter_types', []))
     
     elif message_type == 'get_stats':
-        # Send connection statistics
+        # Send connection statistics using envelope pattern
         connection = notification_service.connections.get(connection_id)
         if connection:
             stats = {
-                "type": "stats",
                 "connection_stats": {
                     "connected_at": connection.connected_at.isoformat(),
                     "message_count": connection.message_count,
@@ -217,7 +219,7 @@ async def handle_websocket_message(connection_id: str, message: Dict[str, Any]):
                 },
                 "service_stats": notification_service.get_stats()
             }
-            await connection.websocket.send_text(json.dumps(stats))
+            await send_websocket_message(connection.websocket, "stats", stats)
 
 async def update_subscription_filters(connection_id: str, filter_data: Dict[str, Any]):
     """Update subscription filters for a connection"""
@@ -257,14 +259,11 @@ async def update_subscription_filters(connection_id: str, filter_data: Dict[str,
         # Add to existing filters
         connection.subscription_filters.append(new_filter)
         
-        # Send confirmation
-        await connection.websocket.send_text(json.dumps(create_websocket_envelope("subscription_updated")))
+        # Send confirmation using envelope pattern
+        await send_websocket_message(connection.websocket, "subscription_updated")
         
     except Exception as e:
-        await connection.websocket.send_text(json.dumps({
-            "type": "error",
-            "message": f"Failed to update subscription: {str(e)}"
-        }))
+        await send_websocket_message(connection.websocket, "error", error=f"Failed to update subscription: {str(e)}")
 
 async def remove_subscription_filters(connection_id: str, filter_types: List[str]):
     """Remove specific subscription filters"""
@@ -290,18 +289,14 @@ async def remove_subscription_filters(connection_id: str, filter_types: List[str
         
         removed_count = original_count - len(connection.subscription_filters)
         
-        # Send confirmation
-        await connection.websocket.send_text(json.dumps({
-            "type": "subscription_updated",
+        # Send confirmation using envelope pattern
+        await send_websocket_message(connection.websocket, "subscription_updated", {
             "filter_count": len(connection.subscription_filters),
             "message": f"Removed {removed_count} subscription filters"
-        }))
+        })
         
     except Exception as e:
-        await connection.websocket.send_text(json.dumps({
-            "type": "error",
-            "message": f"Failed to remove subscription: {str(e)}"
-        }))
+        await send_websocket_message(connection.websocket, "error", error=f"Failed to remove subscription: {str(e)}")
 
 @router.websocket("/odds")
 async def websocket_odds_updates(
@@ -329,16 +324,15 @@ async def websocket_odds_updates(
     try:
         connection_id = await notification_service.add_connection(websocket, None, filters)
         
-        # Send initial odds data
-        await websocket.send_text(json.dumps({
-            "type": "odds_subscription_confirmed",
+        # Send initial odds data using envelope pattern
+        await send_websocket_message(websocket, "odds_subscription_confirmed", {
             "filters": {
                 "sport": sport,
                 "sportsbook": sportsbook,
                 "player": player
             },
             "message": "Connected to odds updates"
-        }))
+        })
         
         # Keep connection alive
         while True:
@@ -374,7 +368,7 @@ async def websocket_arbitrage_alerts(
     try:
         connection_id = await notification_service.add_connection(websocket, None, filters)
         
-        await websocket.send_text(json.dumps(create_websocket_envelope("arbitrage_subscription_confirmed")))
+        await send_websocket_message(websocket, "arbitrage_subscription_confirmed", {"status": "connected"})
         
         # Keep connection alive
         while True:
@@ -400,7 +394,7 @@ async def websocket_portfolio_updates(
     # Extract user ID from token
     user_id = WebSocketAuthManager.extract_user_from_token(token)
     if not user_id:
-        await websocket.send_text(json.dumps(create_websocket_envelope("error")))
+        await send_websocket_message(websocket, "error", error="Authentication required")
         await websocket.close()
         return
     
@@ -418,7 +412,7 @@ async def websocket_portfolio_updates(
     try:
         connection_id = await notification_service.add_connection(websocket, user_id, filters)
         
-        await websocket.send_text(json.dumps(create_websocket_envelope("portfolio_subscription_confirmed")))
+        await send_websocket_message(websocket, "portfolio_subscription_confirmed", {"status": "connected"})
         
         # Keep connection alive
         while True:
