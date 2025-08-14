@@ -1,0 +1,18 @@
+HTTP/1.1 200 OK
+date: Thu, 14 Aug 2025 06:08:23 GMT
+server: uvicorn
+content-length: 179
+content-type: application/json
+x-request-id: 5697879a-b50b-4c57-9efc-3986b70249a8
+x-ratelimit-limit: 100
+x-ratelimit-remaining: 199
+x-ratelimit-reset: 1755151763
+strict-transport-security: max-age=63072000; includeSubDomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: no-referrer
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+cross-origin-embedder-policy: require-corp
+permissions-policy: camera=(), microphone=(), geolocation=()
+content-security-policy-report-only: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; connect-src 'self'; upgrade-insecure-requests; report-uri /csp/report

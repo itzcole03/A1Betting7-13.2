@@ -22,8 +22,8 @@ from ..config.settings import get_settings
 # Initialize logger
 logger = logging.getLogger(__name__)
 
-# Initialize router
-router = APIRouter(prefix="/security", tags=["security"])
+# Initialize router with no prefix (routes will be mounted at app level)
+router = APIRouter(tags=["security"])
 
 
 def get_metrics_client():
@@ -68,14 +68,14 @@ class CSPReportPayload(BaseModel):
     csp_report: CSPViolationReport
 
 
-@router.post("/csp-report")
+@router.post("/csp/report")
 async def receive_csp_report(
     request: Request,
     settings = Depends(get_settings),
     metrics_client = Depends(get_metrics_client)
 ) -> JSONResponse:
     """
-    Receive and process CSP violation reports
+    Receive and process CSP violation reports (CANONICAL endpoint)
     
     This endpoint receives CSP violation reports from browsers and:
     1. Validates the report structure
@@ -96,7 +96,7 @@ async def receive_csp_report(
     """
     try:
         # Check if CSP reporting is enabled
-        if not settings.security_settings.csp_report_endpoint_enabled:
+        if not settings.security.csp_report_endpoint_enabled:
             logger.debug("CSP report received but endpoint is disabled")
             raise HTTPException(status_code=404, detail="CSP reporting not enabled")
         
@@ -181,6 +181,25 @@ async def receive_csp_report(
         raise HTTPException(status_code=500, detail="Internal server error processing CSP report")
 
 
+# Compatibility alias - maintains backwards compatibility with /api/security path
+@router.post("/api/security/csp-report")
+async def receive_csp_report_alias(
+    request: Request,
+    settings = Depends(get_settings),
+    metrics_client = Depends(get_metrics_client)
+) -> JSONResponse:
+    """
+    CSP violation report endpoint (COMPATIBILITY ALIAS)
+    
+    This is an alias for the canonical /csp/report endpoint to maintain
+    backwards compatibility. Delegates to the main endpoint handler.
+    """
+    return await receive_csp_report(request, settings, metrics_client)
+
+
+@router.get("/csp/report/stats")
+
+
 def _analyze_violation_patterns(csp_report: CSPViolationReport, logger: logging.Logger) -> None:
     """
     Analyze CSP violation patterns and provide debugging insights
@@ -246,13 +265,13 @@ async def get_csp_stats(
     """
     try:
         # Check if CSP reporting is enabled
-        if not settings.security_settings.csp_report_endpoint_enabled:
+        if not settings.security.csp_report_endpoint_enabled:
             raise HTTPException(status_code=404, detail="CSP reporting not enabled")
         
         stats = {
-            "csp_enabled": settings.security_settings.csp_enabled,
-            "csp_report_only": settings.security_settings.csp_report_only,
-            "csp_report_endpoint_enabled": settings.security_settings.csp_report_endpoint_enabled,
+            "csp_enabled": settings.security.csp_enabled,
+            "csp_report_only": settings.security.csp_report_only,
+            "csp_report_endpoint_enabled": settings.security.csp_report_endpoint_enabled,
             "timestamp": datetime.utcnow().isoformat(),
         }
         
@@ -279,7 +298,7 @@ async def get_csp_stats(
 
 
 # Health check for CSP report endpoint
-@router.get("/csp-report/health")
+@router.get("/csp/report/health")
 async def csp_report_health(settings = Depends(get_settings)) -> Dict[str, str]:
     """
     Health check for CSP report endpoint
@@ -290,7 +309,7 @@ async def csp_report_health(settings = Depends(get_settings)) -> Dict[str, str]:
     Returns:
         Dict with health status
     """
-    status = "healthy" if settings.security_settings.csp_report_endpoint_enabled else "disabled"
+    status = "healthy" if settings.security.csp_report_endpoint_enabled else "disabled"
     return {
         "status": status,
         "endpoint": "csp-report",

@@ -1,0 +1,27 @@
+# HELP security_headers_applied_total Total number of security headers applied
+# TYPE security_headers_applied_total counter
+security_headers_applied_total{header_type="hsts"} 3.0
+security_headers_applied_total{header_type="x-content-type-options"} 3.0
+security_headers_applied_total{header_type="x-frame-options"} 3.0
+security_headers_applied_total{header_type="referrer-policy"} 3.0
+security_headers_applied_total{header_type="coop"} 3.0
+security_headers_applied_total{header_type="corp"} 3.0
+security_headers_applied_total{header_type="coep"} 3.0
+security_headers_applied_total{header_type="permissions-policy"} 3.0
+security_headers_applied_total{header_type="csp"} 3.0
+
+# HELP security_headers_applied_created Total number of security headers applied
+# TYPE security_headers_applied_created gauge
+security_headers_applied_created{header_type="hsts"} 1.7551517001250226e+09
+security_headers_applied_created{header_type="x-content-type-options"} 1.7551517001250226e+09
+security_headers_applied_created{header_type="x-frame-options"} 1.7551517001250226e+09
+security_headers_applied_created{header_type="referrer-policy"} 1.7551517001250226e+09
+security_headers_applied_created{header_type="coop"} 1.7551517001250226e+09
+security_headers_applied_created{header_type="corp"} 1.7551517001250226e+09
+security_headers_applied_created{header_type="coep"} 1.7551517001250226e+09
+security_headers_applied_created{header_type="permissions-policy"} 1.7551517001250226e+09
+security_headers_applied_created{header_type="csp"} 1.7551517001250226e+09
+
+# HELP csp_violation_reports_total Total number of CSP violation reports received
+# TYPE csp_violation_reports_total counter
+# (No violations recorded yet - counter will increment when violations are reported)

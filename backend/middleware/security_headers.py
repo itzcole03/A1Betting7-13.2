@@ -64,8 +64,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # Pre-build static headers for performance
         self._static_headers = self._build_static_headers()
         
-        # Build CSP header once and cache
-        self._csp_header_name, self._csp_header_value = self._build_csp_header()
+        # Don't cache CSP header - build dynamically to respect strict mode settings
+        # self._csp_header_name, self._csp_header_value = self._build_csp_header()
         
         if self.enabled:
             logger.info(f"✅ Security headers middleware enabled: "
@@ -160,9 +160,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         if self.settings.csp_enable_upgrade_insecure:
             directives.append("upgrade-insecure-requests")
         
-        # Add report-uri if CSP reporting enabled
-        if (self.settings.csp_report_endpoint_enabled and 
-            self.settings.csp_report_only):
+        # Add report-uri if CSP reporting endpoint is enabled
+        # (regardless of enforce vs report-only mode)
+        if self.settings.csp_report_endpoint_enabled:
             directives.append("report-uri /csp/report")
         
         header_value = "; ".join(directives)
@@ -173,8 +173,29 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         if not self.enabled:
             return await call_next(request)
         
-        # Process request through application
-        response = await call_next(request)
+        try:
+            # Process request through application
+            response = await call_next(request)
+        except Exception as e:
+            # Create error response with security headers applied
+            from fastapi.responses import JSONResponse
+            error_response = JSONResponse(
+                status_code=500,
+                content={"error": "Internal server error", "detail": str(e)}
+            )
+            
+            # Apply static headers to error response
+            for name, value in self._static_headers.items():
+                if name not in error_response.headers:
+                    error_response.headers[name] = value
+            
+            # Apply CSP header if configured
+            csp_header_name, csp_header_value = self._build_csp_header()
+            if csp_header_name and csp_header_value:
+                if csp_header_name not in error_response.headers:
+                    error_response.headers[csp_header_name] = csp_header_value
+            
+            return error_response
         
         # Apply static headers (avoid overwriting existing ones)
         for name, value in self._static_headers.items():
@@ -182,9 +203,10 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 response.headers[name] = value
         
         # Apply CSP header if configured
-        if self._csp_header_name and self._csp_header_value:
-            if self._csp_header_name not in response.headers:
-                response.headers[self._csp_header_name] = self._csp_header_value
+        csp_header_name, csp_header_value = self._build_csp_header()
+        if csp_header_name and csp_header_value:
+            if csp_header_name not in response.headers:
+                response.headers[csp_header_name] = csp_header_value
         
         # Record metrics for each header type
         if self.metrics_client and hasattr(self.metrics_client, 'security_headers_applied_total'):
@@ -196,7 +218,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 ).inc()
             
             # Track CSP header
-            if self._csp_header_name:
+            csp_header_name, _ = self._build_csp_header()
+            if csp_header_name:
                 self.metrics_client.security_headers_applied_total.labels(
                     header_type='csp'
                 ).inc()
@@ -206,8 +229,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         if logger.isEnabledFor(logging.DEBUG) and self._request_count % 100 == 0:
             request_id = getattr(request.state, 'request_id', 'unknown')
             headers_applied = list(self._static_headers.keys())
-            if self._csp_header_name:
-                headers_applied.append(self._csp_header_name)
+            csp_header_name, _ = self._build_csp_header()
+            if csp_header_name:
+                headers_applied.append(csp_header_name)
             logger.debug(
                 f"Security headers applied",
                 extra={
@@ -285,7 +309,7 @@ def build_csp_header(settings: SecuritySettings) -> str:
         directives.append("upgrade-insecure-requests")
     
     if (settings.csp_report_endpoint_enabled):
-        directives.append("report-uri /api/security/csp-report")
+        directives.append("report-uri /csp/report")
     
     return "; ".join(directives)
 

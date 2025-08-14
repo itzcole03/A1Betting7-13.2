@@ -98,7 +98,22 @@ class RedisSettings(BaseSettings):
 
 
 class SecuritySettings(BaseSettings):
-    """Security configuration"""
+    """
+    Security configuration with comprehensive protection controls.
+    
+    Features:
+    - Environment-driven security header configuration
+    - Content Security Policy with enforce/report-only modes
+    - HTTP Strict Transport Security (HSTS) controls
+    - Cross-origin isolation policies (COOP/COEP/CORP)
+    - Configurable payload validation and limits
+    
+    Special Behaviors:
+    - security_strict_mode: When enabled, overrides individual flags to enforce
+      maximum security baseline (e.g., forces CSP_REPORT_ONLY=False for enforcement)
+    - model_validator: Applies cross-field validation and strict mode overrides
+    - Production-ready defaults with development flexibility
+    """
 
     # API Keys
     api_key: Optional[str] = Field(default=None, description="Internal API key")
@@ -146,6 +161,18 @@ class SecuritySettings(BaseSettings):
     permissions_policy_append: str = Field(default="")  # Additional permissions to append
     security_strict_mode: bool = Field(default=False)  # Force strict settings in production
 
+    @validator("security_strict_mode", pre=True)
+    def validate_security_strict_mode_field(cls, v):
+        """Convert string values to boolean for security_strict_mode field"""
+        if isinstance(v, str):
+            if v.lower() in ('true', '1', 'yes', 'on'):
+                return True
+            elif v.lower() in ('false', '0', 'no', 'off', ''):
+                return False
+            else:
+                raise ValueError(f"Invalid boolean value: {v}")
+        return bool(v) if v is not None else False
+
     @validator("secret_key")
     def validate_secret_key(cls, v):
         if len(v) < 32:
@@ -158,28 +185,27 @@ class SecuritySettings(BaseSettings):
             raise ValueError("X-Frame-Options must be either 'DENY' or 'SAMEORIGIN'")
         return v.upper()
     
-    @model_validator(mode='before')
-    @classmethod
-    def validate_security_strict_mode(cls, values):
+    @model_validator(mode='after')
+    def validate_security_strict_mode(self):
         """Apply security strict mode overrides and validation."""
-        security_strict_mode = values.get("security_strict_mode", False)
-        csp_report_only = values.get("csp_report_only", True)
-        csp_report_endpoint_enabled = values.get("csp_report_endpoint_enabled", True)
-        
-        # Log configuration warnings
         import logging
         logger = logging.getLogger(__name__)
         
-        # If strict mode is enabled, force CSP enforcement
-        if security_strict_mode and csp_report_only:
+        # If strict mode is enabled, force strict security settings
+        if self.security_strict_mode:
             logger.info("SECURITY_STRICT_MODE enabled: forcing CSP_REPORT_ONLY=False for enforcement")
-            values["csp_report_only"] = False
+            # Create a copy with overridden values
+            object.__setattr__(self, 'csp_report_only', False)  # Force CSP enforcement
+            object.__setattr__(self, 'enable_hsts', True)      # Force HSTS in strict mode
+            object.__setattr__(self, 'enable_coep', True)      # Force COEP
+            object.__setattr__(self, 'enable_coop', True)      # Force COOP
+            # Note: Don't force csp_enabled=True - respect explicit disabling
         
         # Warn about misconfiguration: report-only mode with disabled endpoint
-        if values.get("csp_report_only", True) and not csp_report_endpoint_enabled:
+        if self.csp_report_only and not self.csp_report_endpoint_enabled:
             logger.warning("Configuration warning: CSP_REPORT_ONLY=True but CSP_REPORT_ENDPOINT_ENABLED=False - reports will be lost")
         
-        return values
+        return self
 
     class Config:
         env_prefix = "SECURITY_"

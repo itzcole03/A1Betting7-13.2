@@ -83,6 +83,9 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    # --- MIDDLEWARE STACK ORDERING (Architect-Specified) ---
+    # CORS -> Logging -> Metrics -> PayloadGuard -> RateLimit -> SecurityHeaders -> Router
+    
     # --- Structured Logging Middleware ---
     try:
         from backend.middleware import StructuredLoggingMiddleware
@@ -91,8 +94,25 @@ def create_app() -> FastAPI:
     except ImportError as e:
         logger.warning(f"⚠️ Could not import structured logging middleware: {e}")
         
+    # --- Prometheus Metrics Middleware ---
+    try:
+        from backend.middleware import (
+            PrometheusMetricsMiddleware, 
+            set_metrics_middleware,
+            PROMETHEUS_AVAILABLE
+        )
+        
+        if PROMETHEUS_AVAILABLE:
+            metrics_middleware = PrometheusMetricsMiddleware(_app)
+            _app.add_middleware(PrometheusMetricsMiddleware)
+            set_metrics_middleware(metrics_middleware)
+            logger.info("✅ Prometheus metrics middleware added")
+        else:
+            logger.info("ℹ️ Prometheus client not available, metrics collection disabled")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import metrics middleware: {e}")
+
     # --- Payload Guard Middleware (Step 5) ---
-    # Order: After logging but BEFORE rate limiting to prevent wasting resources on oversized payloads
     try:
         from backend.config.settings import get_settings
         from backend.middleware.payload_guard import create_payload_guard_middleware
@@ -115,8 +135,34 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to configure payload guard: {e}")
 
+    # --- Rate Limiting Middleware ---
+    try:
+        import os
+        from backend.middleware.rate_limit import create_rate_limit_middleware
+        
+        # Configuration from environment or defaults
+        requests_per_minute = int(os.getenv("RATE_LIMIT_REQUESTS_PER_MINUTE", "100"))
+        burst_capacity = int(os.getenv("RATE_LIMIT_BURST_CAPACITY", "200"))
+        enabled = os.getenv("RATE_LIMIT_ENABLED", "true").lower() == "true"
+        
+        rate_limit_middleware = create_rate_limit_middleware(
+            requests_per_minute=requests_per_minute,
+            burst_capacity=burst_capacity,
+            enabled=enabled
+        )
+        
+        _app.add_middleware(type(rate_limit_middleware), 
+                          requests_per_minute=requests_per_minute,
+                          burst_capacity=burst_capacity,
+                          enabled=enabled)
+        logger.info(f"✅ Rate limiting middleware added: {requests_per_minute}/min, burst={burst_capacity}, enabled={enabled}")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import rate limiting middleware: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to configure rate limiting: {e}")
+
     # --- Security Headers Middleware (Step 6) ---
-    # Order: After payload guard but before metrics to ensure headers are always applied
+    # Order: LAST in middleware stack to ensure headers applied to all responses (including errors)
     try:
         from backend.middleware.security_headers import create_security_headers_middleware
         from backend.config.settings import get_settings
@@ -160,50 +206,6 @@ def create_app() -> FastAPI:
         logger.warning(f"⚠️ Could not import security headers middleware: {e}")
     except Exception as e:
         logger.error(f"❌ Failed to configure security headers: {e}")
-
-    # --- Prometheus Metrics Middleware ---
-    try:
-        from backend.middleware import (
-            PrometheusMetricsMiddleware, 
-            set_metrics_middleware,
-            PROMETHEUS_AVAILABLE
-        )
-        
-        if PROMETHEUS_AVAILABLE:
-            metrics_middleware = PrometheusMetricsMiddleware(_app)
-            _app.add_middleware(PrometheusMetricsMiddleware)
-            set_metrics_middleware(metrics_middleware)
-            logger.info("✅ Prometheus metrics middleware added")
-        else:
-            logger.info("ℹ️ Prometheus client not available, metrics collection disabled")
-    except ImportError as e:
-        logger.warning(f"⚠️ Could not import metrics middleware: {e}")
-
-    # --- Rate Limiting Middleware ---
-    try:
-        import os
-        from backend.middleware.rate_limit import create_rate_limit_middleware
-        
-        # Configuration from environment or defaults
-        requests_per_minute = int(os.getenv("RATE_LIMIT_REQUESTS_PER_MINUTE", "100"))
-        burst_capacity = int(os.getenv("RATE_LIMIT_BURST_CAPACITY", "200"))
-        enabled = os.getenv("RATE_LIMIT_ENABLED", "true").lower() == "true"
-        
-        rate_limit_middleware = create_rate_limit_middleware(
-            requests_per_minute=requests_per_minute,
-            burst_capacity=burst_capacity,
-            enabled=enabled
-        )
-        
-        _app.add_middleware(type(rate_limit_middleware), 
-                          requests_per_minute=requests_per_minute,
-                          burst_capacity=burst_capacity,
-                          enabled=enabled)
-        logger.info(f"✅ Rate limiting middleware added: {requests_per_minute}/min, burst={burst_capacity}, enabled={enabled}")
-    except ImportError as e:
-        logger.warning(f"⚠️ Could not import rate limiting middleware: {e}")
-    except Exception as e:
-        logger.error(f"❌ Failed to configure rate limiting: {e}")
 
     # --- Centralized Exception Handling ---
     try:
@@ -496,8 +498,9 @@ def create_app() -> FastAPI:
     # Import and mount security routes (Step 6: Security Headers)
     try:
         from backend.routes.csp_report import router as csp_report_router
-        _app.include_router(csp_report_router, prefix="/api")
-        logger.info("✅ CSP report routes included")
+        # Mount CSP routes with canonical /csp/report endpoint + alias for compatibility
+        _app.include_router(csp_report_router)
+        logger.info("✅ CSP report routes included (/csp/report + /api/security/csp-report alias)")
     except ImportError as e:
         logger.warning(f"⚠️ Could not import CSP report routes: {e}")
     except Exception as e:
