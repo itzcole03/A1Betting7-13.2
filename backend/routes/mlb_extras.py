@@ -76,9 +76,9 @@ async def debug_props_generation(game_id: int):
                         if isinstance(props_result, dict)
                         else 0
                     ),
-                }),
+                },
                 "result": props_result,
-            }
+            })
         except Exception as generation_error:
             logger.error(f"❌ DEBUG: Props generation failed: {generation_error}")
             logger.error(f"❌ DEBUG: Error type: {type(generation_error)}")

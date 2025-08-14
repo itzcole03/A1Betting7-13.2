@@ -95,6 +95,10 @@ class PrometheusMetricsMiddleware(BaseHTTPMiddleware):
         # Payload guard metrics (Step 5)
         self.payload_rejected_total = mock
         self.request_payload_bytes = mock
+        
+        # Security headers metrics (Step 6)
+        self.security_headers_applied_total = mock
+        self.csp_violation_reports_total = mock
 
     def _init_http_metrics(self):
         """Initialize HTTP-related metrics"""
@@ -225,6 +229,21 @@ class PrometheusMetricsMiddleware(BaseHTTPMiddleware):
             'payload_rejected_total',
             'Total number of payload rejections',
             ['reason'],  # reason: size, content-type
+            registry=self.registry
+        )
+        
+        # Security headers metrics (Step 6)
+        self.security_headers_applied_total = Counter(
+            'security_headers_applied_total',
+            'Total number of security headers applied',
+            ['header_type'],  # header_type: csp, hsts, x-frame-options, coop, coep, corp, permissions-policy
+            registry=self.registry
+        )
+        
+        self.csp_violation_reports_total = Counter(
+            'csp_violation_reports_total',
+            'Total number of CSP violation reports received',
+            ['directive', 'violated_directive'],  # directive: script-src, style-src, default-src, etc.
             registry=self.registry
         )
         

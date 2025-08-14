@@ -115,6 +115,52 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to configure payload guard: {e}")
 
+    # --- Security Headers Middleware (Step 6) ---
+    # Order: After payload guard but before metrics to ensure headers are always applied
+    try:
+        from backend.middleware.security_headers import create_security_headers_middleware
+        from backend.config.settings import get_settings
+        from backend.middleware.prometheus_metrics_middleware import get_metrics_middleware
+        
+        settings = get_settings()
+        
+        # Only add metrics client if security headers are enabled
+        metrics_client = None
+        if settings.security.security_headers_enabled:
+            try:
+                metrics_client = get_metrics_middleware()
+            except Exception as e:
+                logger.debug(f"Could not get metrics client for security headers: {e}")
+        
+        security_headers_factory = create_security_headers_middleware(
+            settings=settings.security,
+            metrics_client=metrics_client
+        )
+        
+        _app.add_middleware(security_headers_factory)
+        
+        if settings.security.security_headers_enabled:
+            headers_info = []
+            if settings.security.enable_hsts:
+                headers_info.append("HSTS")
+            if settings.security.csp_enabled:
+                mode = "report-only" if settings.security.csp_report_only else "enforce"
+                headers_info.append(f"CSP({mode})")
+            if settings.security.enable_coop:
+                headers_info.append("COOP")
+            if settings.security.enable_coep:
+                headers_info.append("COEP")
+            
+            logger.info(f"✅ Security headers middleware added: [{', '.join(headers_info)}], "
+                       f"x_frame_options={settings.security.x_frame_options}")
+        else:
+            logger.info("ℹ️ Security headers middleware added but disabled in configuration")
+            
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import security headers middleware: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to configure security headers: {e}")
+
     # --- Prometheus Metrics Middleware ---
     try:
         from backend.middleware import (
@@ -446,6 +492,16 @@ def create_app() -> FastAPI:
         logger.info("✅ Auth and users routes included")
     except ImportError as e:
         logger.warning(f"⚠️ Could not import auth/users routes: {e}")
+    
+    # Import and mount security routes (Step 6: Security Headers)
+    try:
+        from backend.routes.csp_report import router as csp_report_router
+        _app.include_router(csp_report_router, prefix="/api")
+        logger.info("✅ CSP report routes included")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import CSP report routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register CSP report routes: {e}")
 
     # DB and config setup can be added here as modules are refactored in
     logger.info("✅ A1Betting canonical app created successfully")

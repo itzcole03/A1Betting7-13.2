@@ -8,7 +8,7 @@ from enum import Enum
 from functools import lru_cache
 from typing import Any, Dict, List, Optional, Set
 
-from pydantic import Field, validator
+from pydantic import Field, validator, model_validator
 from pydantic_settings import BaseSettings
 
 
@@ -131,12 +131,55 @@ class SecuritySettings(BaseSettings):
     enforce_json_content_type: bool = Field(default=True)
     allow_extra_content_types: str = Field(default="")  # Comma-separated list
     payload_guard_enabled: bool = Field(default=True)
+    
+    # Security headers settings (Step 6)
+    security_headers_enabled: bool = Field(default=True)
+    enable_hsts: bool = Field(default=True)
+    enable_coep: bool = Field(default=True)
+    enable_coop: bool = Field(default=True)
+    csp_enabled: bool = Field(default=True)
+    csp_report_only: bool = Field(default=True)
+    csp_report_endpoint_enabled: bool = Field(default=True)
+    csp_extra_connect_src: str = Field(default="")  # Comma-separated additional connect sources
+    csp_enable_upgrade_insecure: bool = Field(default=True)
+    x_frame_options: str = Field(default="DENY")  # DENY or SAMEORIGIN
+    permissions_policy_append: str = Field(default="")  # Additional permissions to append
+    security_strict_mode: bool = Field(default=False)  # Force strict settings in production
 
     @validator("secret_key")
     def validate_secret_key(cls, v):
         if len(v) < 32:
             raise ValueError("Secret key must be at least 32 characters long")
         return v
+    
+    @validator("x_frame_options")
+    def validate_x_frame_options(cls, v):
+        if v.upper() not in ["DENY", "SAMEORIGIN"]:
+            raise ValueError("X-Frame-Options must be either 'DENY' or 'SAMEORIGIN'")
+        return v.upper()
+    
+    @model_validator(mode='before')
+    @classmethod
+    def validate_security_strict_mode(cls, values):
+        """Apply security strict mode overrides and validation."""
+        security_strict_mode = values.get("security_strict_mode", False)
+        csp_report_only = values.get("csp_report_only", True)
+        csp_report_endpoint_enabled = values.get("csp_report_endpoint_enabled", True)
+        
+        # Log configuration warnings
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        # If strict mode is enabled, force CSP enforcement
+        if security_strict_mode and csp_report_only:
+            logger.info("SECURITY_STRICT_MODE enabled: forcing CSP_REPORT_ONLY=False for enforcement")
+            values["csp_report_only"] = False
+        
+        # Warn about misconfiguration: report-only mode with disabled endpoint
+        if values.get("csp_report_only", True) and not csp_report_endpoint_enabled:
+            logger.warning("Configuration warning: CSP_REPORT_ONLY=True but CSP_REPORT_ENDPOINT_ENABLED=False - reports will be lost")
+        
+        return values
 
     class Config:
         env_prefix = "SECURITY_"
