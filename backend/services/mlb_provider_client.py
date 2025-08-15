@@ -21,6 +21,26 @@ from .intelligent_cache_service import intelligent_cache_service
 # Import our new MLB Stats API client for free, official MLB data
 from .mlb_stats_api_client import MLBStatsAPIClient
 
+# Import PR8 tracing for provider operation observability
+try:
+    from ..utils.trace_utils import trace_span, add_span_tag, traced
+except ImportError:
+    # Fallback for when tracing is not available
+    def trace_span(span_name, service_name=None, operation_name=None, tags=None):
+        import contextlib
+        @contextlib.contextmanager
+        def dummy_span():
+            yield f"span-{span_name}"
+        return dummy_span()
+    
+    def add_span_tag(span_id, key, value):
+        pass
+        
+    def traced(span_name=None, service_name=None, operation_name=None):
+        def decorator(func):
+            return func
+        return decorator
+
 logger = logging.getLogger(__name__)
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
@@ -73,92 +93,115 @@ class MLBProviderClient:
         Fetch and normalize MLB player props from TheOdds API using enhanced data pipeline.
         Returns a list of normalized player prop dicts.
         """
-        season_year = time.strftime("%Y")
-        cache_key = f"mlb:player_props:{season_year}"
+        with trace_span("fetch_player_props_theodds", service_name="mlb_provider", operation_name="fetch_props") as span_id:
+            add_span_tag(span_id, "provider", "theodds")
+            add_span_tag(span_id, "sport", "mlb")
+            
+            season_year = time.strftime("%Y")
+            cache_key = f"mlb:player_props:{season_year}"
+            
+            add_span_tag(span_id, "cache_key", cache_key)
 
-        # Try intelligent cache first
-        cached = await self.cache_service.get(cache_key, user_context="mlb_provider")
-        if cached:
-            logger.info(
-                "[MLBProviderClient] Returning cached player props from intelligent cache."
-            )
-            MLBProviderClient.metrics_increment("mlb.player_props.cache_hit")
+            # Try intelligent cache first
+            cached = await self.cache_service.get(cache_key, user_context="mlb_provider")
+            if cached:
+                add_span_tag(span_id, "cache_hit", True)
+                logger.info(
+                    "[MLBProviderClient] Returning cached player props from intelligent cache."
+                )
+                MLBProviderClient.metrics_increment("mlb.player_props.cache_hit")
 
-            # Handle compressed cache data
-            if isinstance(cached, dict) and cached.get("compressed"):
-                from .enhanced_data_pipeline import DataCompressionService
+                # Handle compressed cache data
+                if isinstance(cached, dict) and cached.get("compressed"):
+                    from .enhanced_data_pipeline import DataCompressionService
 
-                compression_service = DataCompressionService()
-                compressed_data = bytes.fromhex(cached["data"])
-                return await compression_service.decompress_json(compressed_data)
-            elif isinstance(cached, dict) and "data" in cached:
-                return cached["data"]
-            else:
-                return cached
+                    compression_service = DataCompressionService()
+                    compressed_data = bytes.fromhex(cached["data"])
+                    return await compression_service.decompress_json(compressed_data)
+                elif isinstance(cached, dict) and "data" in cached:
+                    return cached["data"]
+                else:
+                    return cached
 
-        try:
-            # Fetch events and props in parallel using enhanced pipeline
-            sources = [
-                ("theodds_events", self._fetch_mlb_events, (), {}),
-                ("theodds_markets", self._get_player_prop_markets, (), {}),
-            ]
+            # Cache miss - rebuild data with span tracking
+            add_span_tag(span_id, "cache_hit", False)
+            add_span_tag(span_id, "cache_rebuild", True)
+            
+            try:
+                # Fetch events and props in parallel using enhanced pipeline
+                with trace_span("fetch_parallel_data", service_name="mlb_provider", operation_name="parallel_fetch") as parallel_span:
+                    add_span_tag(parallel_span, "parent_operation", "fetch_player_props_theodds")
+                    
+                    sources = [
+                        ("theodds_events", self._fetch_mlb_events, (), {}),
+                        ("theodds_markets", self._get_player_prop_markets, (), {}),
+                    ]
 
-            results = await self.data_pipeline.fetch_parallel_data(
-                sources, max_failures=1
-            )
-
-            events = results.get("theodds_events", [])
-            if not events:
-                logger.error("No MLB events fetched")
-                return []
-
-            # Fetch player props for all events in parallel with rate limiting
-            all_props = []
-            semaphore = asyncio.Semaphore(5)  # Limit concurrent requests
-
-            async def fetch_event_props_safe(event):
-                async with semaphore:
-                    return await self.data_pipeline.fetch_data_with_resilience(
-                        "theodds_api",
-                        self._fetch_event_player_props_raw,
-                        event,
-                        use_cache=True,
-                        cache_ttl=180,  # 3 minutes for individual events
+                    results = await self.data_pipeline.fetch_parallel_data(
+                        sources, max_failures=1
                     )
+                    add_span_tag(parallel_span, "sources_fetched", len(sources))
 
-            # Process events in batches
-            batch_size = 10
-            for i in range(0, len(events), batch_size):
-                batch = events[i : i + batch_size]
-                tasks = [fetch_event_props_safe(event) for event in batch]
-                batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+                events = results.get("theodds_events", [])
+                if not events:
+                    logger.error("No MLB events fetched")
+                    return []
 
-                for result in batch_results:
-                    if isinstance(result, Exception):
-                        logger.error(f"Error fetching event props: {result}")
-                    elif result:
-                        all_props.extend(result)
+                # Fetch player props for all events in parallel with rate limiting
+                all_props = []
+                semaphore = asyncio.Semaphore(5)  # Limit concurrent requests
 
-            # Cache the complete result with intelligent TTL
-            await self.cache_service.set(
-                cache_key,
-                all_props,
-                ttl_seconds=self.CACHE_TTL,
-                user_context="mlb_provider",
-            )
+                async def fetch_event_props_safe(event):
+                    async with semaphore:
+                        return await self.data_pipeline.fetch_data_with_resilience(
+                            "theodds_api",
+                            self._fetch_event_player_props_raw,
+                            event,
+                            use_cache=True,
+                            cache_ttl=180,  # 3 minutes for individual events
+                        )
 
-            logger.info(
-                f"[MLBProviderClient] Enhanced fetch completed: {len(all_props)} props"
-            )
-            return all_props
+                # Process events in batches
+                with trace_span("process_event_batches", service_name="mlb_provider", operation_name="batch_processing") as batch_span:
+                    add_span_tag(batch_span, "total_events", len(events))
+                    
+                    batch_size = 10
+                    for i in range(0, len(events), batch_size):
+                        batch = events[i : i + batch_size]
+                        tasks = [fetch_event_props_safe(event) for event in batch]
+                        batch_results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        except Exception as e:
-            logger.error(f"Enhanced fetch_player_props_theodds failed: {e}")
-            MLBProviderClient.alert_event("mlb_props_fetch_failed", {"error": str(e)})
+                        for result in batch_results:
+                            if isinstance(result, Exception):
+                                logger.error(f"Error fetching event props: {result}")
+                            elif result:
+                                all_props.extend(result)
+                    
+                    add_span_tag(batch_span, "total_props_fetched", len(all_props))
 
-            # Try to return stale cache data as last resort
-            stale_data = await self.cache_service.get(f"stale:{cache_key}")
-            return stale_data if stale_data else []
+                # Cache the complete result with intelligent TTL
+                await self.cache_service.set(
+                    cache_key,
+                    all_props,
+                    ttl_seconds=self.CACHE_TTL,
+                    user_context="mlb_provider",
+                )
+
+                logger.info(
+                    f"[MLBProviderClient] Enhanced fetch completed: {len(all_props)} props"
+                )
+                add_span_tag(span_id, "operation_success", True)
+                return all_props
+
+            except Exception as e:
+                add_span_tag(span_id, "operation_success", False)
+                add_span_tag(span_id, "error", str(e))
+                logger.error(f"Enhanced fetch_player_props_theodds failed: {e}")
+                MLBProviderClient.alert_event("mlb_props_fetch_failed", {"error": str(e)})
+
+                # Try to return stale cache data as last resort
+                stale_data = await self.cache_service.get(f"stale:{cache_key}")
+                return stale_data if stale_data else []
 
     async def fetch_player_props_mlb_stats(self) -> list:
         """

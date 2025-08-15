@@ -1,3 +1,53 @@
+## [2025-08-15] - PR9 Model Inference Observability & Safe Shadow Rollout
+
+### ML Infrastructure - Model Inference Monitoring & Shadow Testing
+
+Status: COMPLETED ✅ Backend Services + Frontend Components ✅ Comprehensive Testing ✅ Full Documentation
+
+Implemented comprehensive model inference observability system with safe shadow rollout capabilities for ML model monitoring, drift detection, and performance tracking.
+
+#### Core Features
+
+* **Model Registry**: Environment-driven model version management with active/shadow configuration
+* **Inference Service**: Wrapped ML predictions with timing, shadow execution, and audit integration
+* **Audit System**: Ring buffer storage with real-time metrics aggregation and drift detection
+* **REST API**: Complete /api/v2/models/* endpoint suite for inference and observability
+* **Frontend Integration**: React hooks and diagnostic panels for real-time monitoring
+
+#### Backend Implementation
+
+* **ModelRegistry Service**: `A1_ACTIVE_MODEL_VERSION` and `A1_SHADOW_MODEL_VERSION` configuration with model loading and version management
+* **InferenceService**: PredictionResult wrapper with feature hashing, shadow mode execution, and tracing integration using existing PR8 infrastructure
+* **InferenceAuditService**: Thread-safe ring buffer (`A1_INFERENCE_AUDIT_CAP`) with rolling statistics and confidence distribution tracking
+* **API Endpoints**: Four endpoints under /api/v2/models/* for prediction, audit summary/recent, registry info, and health checks
+
+#### Frontend Implementation
+
+* **useInferenceAudit Hook**: Configurable polling (30s dev/60s prod) with state management for audit data, recent entries, and registry information
+* **InferenceAuditPanel Component**: Real-time dashboard with performance metrics, confidence histograms, shadow comparisons, and optional recent inference table
+* **TypeScript Integration**: Full type safety with proper error handling and responsive Tailwind CSS styling
+
+#### Shadow Mode Semantics
+
+* **Deterministic Execution**: Feature hash computation for consistent tracking across requests
+* **Non-Blocking Design**: Shadow failures never impact primary inference results
+* **Drift Detection**: Automatic calculation of prediction differences with rolling averages
+* **Safety Guarantees**: Complete isolation between primary and shadow model execution paths
+
+#### Validation Results
+
+✅ Model registry with environment variable configuration  
+✅ Feature hash determinism and order-insensitivity verified  
+✅ Shadow mode execution with proper error isolation  
+✅ Ring buffer audit storage with capacity limits  
+✅ Frontend polling and real-time dashboard functionality  
+✅ Comprehensive backend and frontend test coverage  
+✅ Complete architecture documentation with extension roadmap  
+
+Production-ready ML inference observability enabling safe model experimentation, drift monitoring, and performance analysis.
+
+---
+
 ## [2025-08-15] - PR8 Cross-Layer Request Correlation & Tracing Hooks
 
 ### Observability Infrastructure - Request Correlation System

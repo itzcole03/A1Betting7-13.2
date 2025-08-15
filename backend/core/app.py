@@ -330,6 +330,31 @@ def create_app() -> FastAPI:
         """Normalized version alias for monitoring systems expecting /api/v2/health"""
         return await api_health()
 
+    # --- PR8 Request Correlation Test Endpoint ---
+    @_app.get("/api/trace/test")
+    async def test_request_correlation(request: Request):
+        """
+        Test endpoint for PR8 request correlation functionality.
+        Validates that request IDs are properly propagated through middleware.
+        """
+        from backend.middleware.request_id_middleware import get_request_id_from_request
+        
+        logger.info("Testing PR8 request correlation")
+        request_id_from_state = get_request_id_from_request(request)
+        
+        return ok({
+            "request_id_from_state": request_id_from_state,
+            "correlation_working": True,
+            "message": "PR8 request correlation test completed",
+            "middleware_status": "working",
+            "features_tested": [
+                "request_id_middleware",
+                "request_state_access", 
+                "response_header_injection",
+                "structured_logging"
+            ]
+        })
+
     @_app.get("/dev/mode")
     @_app.head("/dev/mode")
     async def dev_mode_status():
@@ -472,32 +497,6 @@ def create_app() -> FastAPI:
                 "Failed to fetch prop data",
                 details={"service": "props_api", "error": str(e)}
             )
-
-    # PR8 Test Endpoint - Inline to avoid import issues
-    @_app.get("/api/trace/test")
-    async def test_request_correlation_inline(request: Request):
-        """
-        PR8 Test endpoint for request correlation functionality - inline version
-        """
-        from backend.middleware.request_id_middleware import get_request_id_from_request
-        
-        logger.info("Testing PR8 request correlation - inline endpoint")
-        
-        # Get request ID from different sources
-        request_id_from_state = get_request_id_from_request(request)
-        
-        return ok({
-            "request_id_from_state": request_id_from_state,
-            "correlation_working": True,
-            "message": "PR8 request correlation test completed - inline endpoint",
-            "middleware_status": "working",
-            "features_tested": [
-                "request_id_middleware",
-                "request_state_access", 
-                "response_header_injection",
-                "structured_logging"
-            ]
-        })
 
     @_app.options("/api/v2/sports/activate")
     async def api_activate_preflight():
@@ -668,6 +667,26 @@ def create_app() -> FastAPI:
         logger.warning(f"⚠️ Could not import trace test routes: {e}")
     except Exception as e:
         logger.error(f"❌ Failed to register trace test routes: {e}")
+    
+    # Import and mount model inference routes (PR9: Model Inference Observability)
+    try:
+        from backend.routes.models_inference import router as models_inference_router
+        _app.include_router(models_inference_router, tags=["Model Inference"])
+        logger.info("✅ Model inference routes included (/api/v2/models/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import model inference routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register model inference routes: {e}")
+
+    # Import and mount admin control routes (Admin Control PR: Runtime Shadow Mode Control)
+    try:
+        from backend.routes.admin_control import router as admin_control_router
+        _app.include_router(admin_control_router, tags=["Admin Control"])
+        logger.info("✅ Admin control routes included (/api/v2/models/shadow/* and /api/v2/models/admin/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import admin control routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register admin control routes: {e}")
     
     # Enhanced WebSocket Routes with Room-based Subscriptions
     try:

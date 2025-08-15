@@ -88,13 +88,13 @@ async def pre_llm_business_logic(request):
 
     user = getattr(request, "userId", None)
     session = getattr(request, "sessionId", None)
-    logger.info(f"[DIAG] userId: {user}, sessionId: {session}")
+    logger.info(f"[DIAG] user_id: {user}, session_id: {session}")
     if not user or not isinstance(user, str) or not user.strip():
-        logger.error("[VALIDATION] Missing or invalid userId: %s", user)
-        raise ValueError("Missing or invalid userId.")
+        logger.error("[VALIDATION] Missing or invalid user_id: %s", user)
+        raise ValueError("Missing or invalid user_id.")
     if not session or not isinstance(session, str) or not session.strip():
-        logger.error("[VALIDATION] Missing or invalid sessionId: %s", session)
-        raise ValueError("Missing or invalid sessionId.")
+        logger.error("[VALIDATION] Missing or invalid session_id: %s", session)
+        raise ValueError("Missing or invalid session_id.")
 
     seen = set()
     for idx, prop in enumerate(getattr(request, "selectedProps", [])):
