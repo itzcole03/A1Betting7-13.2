@@ -1,0 +1,370 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "A1Betting Consolidated API",
+    "description": "Consolidated A1Betting Sports Analytics Platform API with unified route structure",
+    "version": "2.0.0",
+    "x-consolidation": {
+      "phase": "5.0",
+      "consolidated_routes": {
+        "prizepicks": "backend/routes/consolidated_prizepicks.py",
+        "ml": "backend/routes/consolidated_ml.py",
+        "admin": "backend/routes/consolidated_admin.py"
+      },
+      "route_reduction": "60%",
+      "legacy_files_deprecated": true,
+      "fallback_strategies": [
+        "Enhanced service v2 → Production ML → Comprehensive service → Simple fallback",
+        "SHAP explanations → Basic ML predictions",
+        "Enterprise security → Basic auth"
+      ]
+    }
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Api Health",
+        "description": "System health check endpoint with normalized envelope format\n\nReturns:\n    Minimal envelope: {\"success\": true, \"data\": {\"status\": \"ok\"}, \"error\": null, \"meta\": {\"request_id\": <uuid>}}",
+        "operationId": "api_health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "summary": "Api Health",
+        "description": "System health check endpoint with normalized envelope format\n\nReturns:\n    Minimal envelope: {\"success\": true, \"data\": {\"status\": \"ok\"}, \"error\": null, \"meta\": {\"request_id\": <uuid>}}",
+        "operationId": "api_health_api_health_head",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Alias",
+        "description": "Normalized alias for /health -> /api/health with identical envelope",
+        "operationId": "health_alias_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "summary": "Health Alias",
+        "description": "Normalized alias for /health -> /api/health with identical envelope",
+        "operationId": "health_alias_health_head",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/health": {
+      "get": {
+        "summary": "Api V2 Health Alias",
+        "description": "Normalized version alias for monitoring systems expecting /api/v2/health",
+        "operationId": "api_v2_health_alias_api_v2_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "summary": "Api V2 Health Alias",
+        "description": "Normalized version alias for monitoring systems expecting /api/v2/health",
+        "operationId": "api_v2_health_alias_api_v2_health_head",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dev/mode": {
+      "get": {
+        "summary": "Dev Mode Status",
+        "description": "Development mode status endpoint",
+        "operationId": "dev_mode_status_dev_mode_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "summary": "Dev Mode Status",
+        "description": "Development mode status endpoint",
+        "operationId": "dev_mode_status_dev_mode_head",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/performance/stats": {
+      "get": {
+        "summary": "Performance Stats",
+        "description": "Performance statistics endpoint for monitoring",
+        "operationId": "performance_stats_performance_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "summary": "Performance Stats",
+        "description": "Performance statistics endpoint for monitoring",
+        "operationId": "performance_stats_performance_stats_head",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "summary": "Get Metrics",
+        "description": "Prometheus metrics endpoint",
+        "operationId": "get_metrics_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/metrics/summary": {
+      "get": {
+        "summary": "Api Metrics Summary",
+        "description": "Human-readable metrics summary",
+        "operationId": "api_metrics_summary_api_metrics_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/props": {
+      "get": {
+        "summary": "Api Props",
+        "description": "Fetch sports prop data with external dependency handling\n\nReturns:\n    List of prop betting data\n    \nRaises:\n    ApiError: For dependency failures or data unavailability",
+        "operationId": "api_props_api_props_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/sports/activate": {
+      "post": {
+        "summary": "Api Activate",
+        "description": "Activate sport for analysis with input validation\n\nArgs:\n    request: FastAPI request containing sport activation data\n    \nReturns:\n    Sport activation confirmation\n    \nRaises:\n    ApiError: For validation errors or business logic failures",
+        "operationId": "api_activate_api_v2_sports_activate_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/predictions": {
+      "get": {
+        "summary": "Api Predictions",
+        "operationId": "api_predictions_api_predictions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics": {
+      "get": {
+        "summary": "Api Analytics",
+        "operationId": "api_analytics_api_analytics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "PrizePicks API",
+      "description": "Unified PrizePicks integration with multi-tier fallback strategy. Consolidates comprehensive, production, and simple APIs into single optimized interface.",
+      "externalDocs": {
+        "description": "PrizePicks Integration Guide",
+        "url": "/docs/prizepicks-integration"
+      }
+    },
+    {
+      "name": "Machine Learning",
+      "description": "Consolidated ML API with SHAP explanations, uncertainty quantification, A/B testing, caching, and performance monitoring.",
+      "externalDocs": {
+        "description": "ML API Documentation",
+        "url": "/docs/ml-api"
+      }
+    },
+    {
+      "name": "Admin & Security",
+      "description": "Unified admin API with authentication, health monitoring, security management, and user administration.",
+      "externalDocs": {
+        "description": "Admin API Guide",
+        "url": "/docs/admin-api"
+      }
+    },
+    {
+      "name": "Health",
+      "description": "System health and monitoring endpoints with normalized envelope format"
+    },
+    {
+      "name": "Core API",
+      "description": "Core application endpoints for props, predictions, and analytics"
+    },
+    {
+      "name": "WebSocket",
+      "description": "Real-time WebSocket connections for live data streaming"
+    },
+    {
+      "name": "Metrics",
+      "description": "Prometheus metrics and performance monitoring"
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Local development server"
+    },
+    {
+      "url": "https://api.a1betting.com",
+      "description": "Production server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    },
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "x-api-contract": {
+    "version": "2.0",
+    "envelope_format": "standardized",
+    "error_codes": "structured",
+    "response_format": {
+      "success": "boolean",
+      "data": "any",
+      "error": "object|null",
+      "meta": "object (optional)"
+    }
+  }
+}

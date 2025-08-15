@@ -573,6 +573,37 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register enhanced ML routes: {e}")
 
+    # --- PHASE 5 CONSOLIDATED ROUTES ---
+    # Consolidated PrizePicks API (replaces 3 legacy route files)
+    try:
+        from backend.routes.consolidated_prizepicks import router as consolidated_prizepicks_router
+        _app.include_router(consolidated_prizepicks_router, prefix="/api/v2/prizepicks", tags=["PrizePicks API"])
+        logger.info("✅ Consolidated PrizePicks routes included (/api/v2/prizepicks/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import consolidated PrizePicks routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register consolidated PrizePicks routes: {e}")
+
+    # Consolidated ML API (replaces enhanced_ml_routes.py and modern_ml_routes.py)
+    try:
+        from backend.routes.consolidated_ml import router as consolidated_ml_router
+        _app.include_router(consolidated_ml_router, prefix="/api/v2/ml", tags=["Machine Learning"])
+        logger.info("✅ Consolidated ML routes included (/api/v2/ml/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import consolidated ML routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register consolidated ML routes: {e}")
+
+    # Consolidated Admin API (replaces admin.py, health.py, security_routes.py, auth.py)
+    try:
+        from backend.routes.consolidated_admin import router as consolidated_admin_router
+        _app.include_router(consolidated_admin_router, prefix="/api/v2/admin", tags=["Admin & Security"])
+        logger.info("✅ Consolidated Admin routes included (/api/v2/admin/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import consolidated Admin routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register consolidated Admin routes: {e}")
+
     # DB and config setup can be added here as modules are refactored in
     
     # Log normalized health endpoints at startup
