@@ -16,13 +16,13 @@ Each task should be completed in order, committed separately, and marked as comp
 ## 🚀 Phase 2: Backend Refinement & Optimization
 
 ### 2.1 — Type Safety & Hints
-- [ ] Add strict type hints to **all** functions in:
-  - [ ] `backend/services/`
-  - [ ] `backend/core/`
-  - [ ] `backend/models/`
-  - [ ] `backend/utils/`
+- [x] Add strict type hints to **all** functions in:
+  - [x] `backend/services/`
+  - [x] `backend/core/`
+  - [x] `backend/models/`
+  - [x] `backend/utils/`
 - [ ] Fix any `Any` types where a concrete type can be used
-- [ ] Add `from __future__ import annotations` to all backend Python files
+- [x] Add `from __future__ import annotations` to all backend Python files
 
 ### 2.2 — Response & Error Consistency
 - [ ] Audit `BusinessLogicException` error codes for duplicates / unclear naming
