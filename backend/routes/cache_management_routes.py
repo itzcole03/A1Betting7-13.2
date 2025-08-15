@@ -13,7 +13,8 @@ from fastapi import APIRouter, HTTPException, Depends, status
 
 from ..core.response_models import StandardAPIResponse, ResponseBuilder
 from ..core.exceptions import AuthenticationException
-from ..services.auth_service import verify_token, get_current_user
+from ..auth.security import TokenData, get_current_user
+from ..services.auth_service import verify_token
 from ..services.redis_cache_service import get_redis_cache
 
 logger = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ router = APIRouter(prefix="/api/cache", tags=["Cache Management"])
 
 @router.get("/stats", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_cache_stats(
-    current_user = Depends(get_current_user)
+    current_user: TokenData = Depends(get_current_user)
 ) -> StandardAPIResponse[Dict[str, Any]]:
     """Get cache statistics and health metrics."""
     try:

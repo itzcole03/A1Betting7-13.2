@@ -21,7 +21,7 @@ Each task should be completed in order, committed separately, and marked as comp
   - [x] `backend/core/`
   - [x] `backend/models/`
   - [x] `backend/utils/`
-- [ ] Fix any `Any` types where a concrete type can be used
+- [x] Fix any `Any` types where a concrete type can be used
 - [x] Add `from __future__ import annotations` to all backend Python files
 
 ### 2.2 — Response & Error Consistency

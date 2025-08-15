@@ -7,7 +7,6 @@ The original complex functionality can be restored after Phase 5 completion.
 from fastapi import APIRouter
 from backend.utils.response_builder import ResponseBuilder
 from backend.models.api_response import StandardAPIResponse
-from typing import Dict, Any
 
 router = APIRouter()
 

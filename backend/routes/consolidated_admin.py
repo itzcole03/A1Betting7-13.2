@@ -30,6 +30,7 @@ from ..core.response_models import ResponseBuilder, StandardAPIResponse
 from ..core.exceptions import BusinessLogicException, AuthenticationException
 
 # Authentication and security
+from backend.auth.schemas import UserResponse
 from backend.auth.security import get_current_admin_user, create_access_token, create_refresh_token, extract_user_from_token, verify_token, security_manager
 from backend.auth.user_service import UserProfile, UserService, User, verify_password
 from backend.database import get_async_session
@@ -324,7 +325,7 @@ async def admin_login(
 
 @router.get("/health/status", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_system_health(
-    current_user: Any = Depends(get_current_admin_user),
+    current_user: UserResponse = Depends(get_current_admin_user),
 ) -> Dict[str, Any]:
     """Get comprehensive system health status"""
     try:
