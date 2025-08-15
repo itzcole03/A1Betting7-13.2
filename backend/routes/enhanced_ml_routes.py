@@ -17,6 +17,7 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
 
 from ..services.enhanced_prediction_integration import enhanced_prediction_integration
+from ..services.redis_cache_service import get_redis_cache
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +84,30 @@ async def predict_single(request: PredictionRequest) -> Dict[str, Any]:
     Enhanced single prediction with SHAP explanations and performance logging
     """
     try:
+        # Check Redis cache first
+        cache_service = await get_redis_cache()
+        
+        # Create cache key from request data
+        cache_key_data = {
+            'event_id': request.event_id,
+            'sport': request.sport,
+            'bet_type': request.bet_type,
+            'features': request.features,
+            'models': request.models,
+            'include_explanations': request.include_explanations
+        }
+        
+        # Try to get from cache
+        cached_result = await cache_service.get_prediction_result(cache_key_data)
+        if cached_result:
+            return {
+                "status": "success",
+                "result": cached_result,
+                "timestamp": time.time(),
+                "cache_hit": True
+            }
+        
+        # Cache miss - execute prediction
         result = await enhanced_prediction_integration.enhanced_predict_single(
             request_id=request.request_id,
             event_id=request.event_id,
@@ -94,10 +119,14 @@ async def predict_single(request: PredictionRequest) -> Dict[str, Any]:
             priority=request.priority
         )
         
+        # Cache the result
+        await cache_service.cache_prediction_result(cache_key_data, result)
+        
         return {
             "status": "success",
             "result": result,
-            "timestamp": time.time()
+            "timestamp": time.time(),
+            "cache_hit": False
         }
         
     except Exception as e:
@@ -111,14 +140,40 @@ async def predict_batch(request: BatchPredictionRequest) -> Dict[str, Any]:
     Enhanced batch predictions with optimization and explanations
     """
     try:
-        # Convert Pydantic models to dictionaries
+        # Check Redis cache first
+        cache_service = await get_redis_cache()
+        
+        # Convert Pydantic models to dictionaries for caching
         prediction_requests = [req.dict() for req in request.requests]
         
+        # Try to get from cache
+        cached_results = await cache_service.get_batch_predictions(prediction_requests)
+        if cached_results:
+            return {
+                "status": "success",
+                "results": cached_results,
+                "total_predictions": len(cached_results),
+                "timestamp": time.time(),
+                "cache_hit": True
+            }
+        
+        # Cache miss - execute batch prediction
         results = await enhanced_prediction_integration.enhanced_predict(
             prediction_requests=prediction_requests,
             include_explanations=request.include_explanations,
             explanation_options=request.explanation_options or {}
         )
+        
+        # Cache the results
+        await cache_service.cache_batch_predictions(prediction_requests, results)
+        
+        return {
+            "status": "success",
+            "results": results,
+            "total_predictions": len(results),
+            "timestamp": time.time(),
+            "cache_hit": False
+        }
         
         return {
             "status": "success",

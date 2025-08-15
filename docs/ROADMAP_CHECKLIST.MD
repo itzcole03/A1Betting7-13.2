@@ -25,9 +25,9 @@ Each task should be completed in order, committed separately, and marked as comp
 - [x] Add `from __future__ import annotations` to all backend Python files
 
 ### 2.2 — Response & Error Consistency
-- [ ] Audit `BusinessLogicException` error codes for duplicates / unclear naming
-- [ ] Consolidate into `backend/constants/error_codes.py`
-- [ ] Add automated test to validate all API error codes are unique
+- [x] Audit `BusinessLogicException` error codes for duplicates / unclear naming
+- [x] Consolidate into `backend/constants/error_codes.py`
+- [x] Add automated test to validate all API error codes are unique
 
 ### 2.3 — Performance & Caching
 - [ ] Review all `@lru_cache` and `cache.set()` calls

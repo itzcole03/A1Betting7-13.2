@@ -20,6 +20,8 @@ from backend.models.api_models import (
     RiskProfilesResponse,
 )
 
+from ..services.redis_cache_service import get_redis_cache
+
 # Temporarily commenting out corrupted data_fetchers
 # from services.data_fetchers import fetch_betting_opportunities_internal
 
@@ -83,6 +85,18 @@ async def get_betting_opportunities(
 ) -> List[BettingOpportunity]:
     """Get betting opportunities with optional sport filtering"""
     try:
+        # Check Redis cache first
+        cache_service = await get_redis_cache()
+        
+        # Create cache filters
+        filters = {"sport": sport, "limit": limit}
+        
+        # Try to get from cache
+        cached_opportunities = await cache_service.get_betting_opportunities(filters)
+        if cached_opportunities:
+            return cached_opportunities
+        
+        # Cache miss - fetch opportunities
         opportunities = await fetch_betting_opportunities_internal()
 
         # Filter by sport if specified
@@ -93,6 +107,11 @@ async def get_betting_opportunities(
 
         # Apply limit
         opportunities = opportunities[:limit]
+        
+        # Cache the results
+        await cache_service.cache_betting_opportunities(opportunities, filters)
+
+        return ResponseBuilder.success(opportunities)
 
         logger.info(f"Returning {len(opportunities)} betting opportunities")
         return ResponseBuilder.success(opportunities)
