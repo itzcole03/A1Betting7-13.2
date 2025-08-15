@@ -4,14 +4,23 @@ Calculation Services
 This module contains business logic calculations for betting analysis.
 """
 
+from __future__ import annotations
+
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
 
 async def calculate_prop_confidence(attributes: Dict[str, Any]) -> float:
-    """Calculate confidence level for a prop bet"""
+    """Calculate confidence level for a prop bet
+    
+    Args:
+        attributes: Dictionary containing player stats and prop details
+        
+    Returns:
+        Confidence score between 0.0 and 1.0
+    """
     try:
         # Extract relevant attributes
         player_avg = attributes.get("player_avg", 0.0)
@@ -45,7 +54,14 @@ async def calculate_prop_confidence(attributes: Dict[str, Any]) -> float:
 
 
 async def calculate_prop_edge(attributes: Dict[str, Any]) -> float:
-    """Calculate edge for a prop bet"""
+    """Calculate edge for a prop bet
+    
+    Args:
+        attributes: Dictionary containing player stats, odds, and line data
+        
+    Returns:
+        Edge value (positive indicates favorable bet)
+    """
     try:
         # Extract relevant attributes
         player_avg = attributes.get("player_avg", 0.0)
@@ -74,7 +90,14 @@ async def calculate_prop_edge(attributes: Dict[str, Any]) -> float:
 
 
 async def calculate_prop_projection(attributes: Dict[str, Any]) -> float:
-    """Calculate projected value for a prop bet"""
+    """Calculate projected value for a prop bet
+    
+    Args:
+        attributes: Dictionary containing player stats and historical data
+        
+    Returns:
+        Projected value for the prop
+    """
     try:
         # Extract relevant attributes
         player_avg = attributes.get("player_avg", 0.0)

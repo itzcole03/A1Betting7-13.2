@@ -10,10 +10,13 @@ This module implements:
 5. Performance monitoring and alerting
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import time
 from contextlib import asynccontextmanager
+from typing import Any, Dict, Optional, Tuple
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -139,8 +142,12 @@ class StructuredFormatter(logging.Formatter):
         return str(log_entry).replace("'", '"')
 
 
-def setup_structured_logging():
-    """Setup structured logging configuration"""
+def setup_structured_logging() -> Tuple[logging.Logger, logging.Logger, logging.Logger]:
+    """Setup structured logging configuration
+    
+    Returns:
+        Tuple of (app_logger, performance_logger, security_logger)
+    """
 
     # Create formatter
     formatter = StructuredFormatter()
@@ -173,8 +180,15 @@ def setup_structured_logging():
 # =============================================================================
 
 
-def setup_tracing(service_name: str = "a1betting-backend"):
-    """Setup OpenTelemetry distributed tracing"""
+def setup_tracing(service_name: str = "a1betting-backend") -> Optional[Any]:
+    """Setup OpenTelemetry distributed tracing
+    
+    Args:
+        service_name: Name of the service for tracing identification
+        
+    Returns:
+        Tracer instance if successful, None if OpenTelemetry not available
+    """
 
     if not TRACING_AVAILABLE:
         logger.warning("OpenTelemetry not available, skipping tracing setup")

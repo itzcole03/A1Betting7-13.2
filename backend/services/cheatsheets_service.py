@@ -3,14 +3,16 @@ Cheatsheets Service - Ranked prop opportunities with edge calculation
 Provides filtered and scored betting opportunities with configurable parameters
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass
-import json
-import os
 import math
+import os
+import json
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
 
 from backend.services.odds_aggregation_service import get_odds_service, CanonicalLine
 from backend.services.unified_data_fetcher import unified_data_fetcher
@@ -75,19 +77,20 @@ class PropOpportunity:
         }
 
 @dataclass
+@dataclass
 class CheatsheetFilters:
     """Filter configuration for cheatsheet opportunities"""
     min_edge: float = 1.0
     min_confidence: float = 60.0
     min_sample_size: int = 10
-    stat_types: List[str] = None
-    books: List[str] = None
-    sides: List[str] = None  # 'over', 'under'
-    sports: List[str] = None
+    stat_types: Optional[List[str]] = None
+    books: Optional[List[str]] = None
+    sides: Optional[List[str]] = None  # 'over', 'under'
+    sports: Optional[List[str]] = None
     search_query: str = ""
     max_results: int = 50
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.stat_types is None:
             self.stat_types = []
         if self.books is None:

@@ -4,8 +4,11 @@ Database Service
 This module provides a unified database service with properly configured models.
 """
 
+from __future__ import annotations
+
 import logging
 from datetime import datetime, timezone
+from typing import Any, Optional, Type, Union
 
 from config_manager import get_database_url
 from sqlalchemy import (
@@ -19,7 +22,7 @@ from sqlalchemy import (
     create_engine,
 )
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import Session, relationship, sessionmaker
 
 from backend.models.match import Match
 
@@ -77,8 +80,12 @@ class Bet(Base):
     match = relationship("Match", back_populates="bets")
 
     @property
-    def profit_loss(self):
-        """Calculate profit/loss for settled bets"""
+    def profit_loss(self) -> float:
+        """Calculate profit/loss for settled bets
+        
+        Returns:
+            Profit/loss amount. Positive for profit, negative for loss, 0 for pending
+        """
         if self.status == "won":
             return self.potential_winnings - self.amount
         elif self.status == "lost":
@@ -88,9 +95,9 @@ class Bet(Base):
 
 
 class DatabaseService:
-    """Database service class"""
+    """Database service class for managing database operations"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.Base = Base
         self.User = User
         self.Match = Match
@@ -98,7 +105,8 @@ class DatabaseService:
         self.engine = engine
         self.SessionLocal = SessionLocal
 
-    def create_tables(self):
+    def create_tables(self) -> None:
+        """Create all database tables"""
         """Create all database tables"""
         try:
             Base.metadata.create_all(bind=engine)
@@ -107,12 +115,16 @@ class DatabaseService:
             logger.error(f"Error creating database tables: {e}")
             raise
 
-    def get_session(self):
-        """Get database session"""
+    def get_session(self) -> sessionmaker:
+        """Get database session
+        
+        Returns:
+            Database session factory
+        """
         return SessionLocal()
 
 
-def create_tables():
+def create_tables() -> None:
     """Create all database tables"""
     try:
         Base.metadata.create_all(bind=engine)
@@ -122,8 +134,12 @@ def create_tables():
         raise
 
 
-def get_db_session():
-    """Get database session"""
+def get_db_session() -> sessionmaker:
+    """Get database session
+    
+    Returns:
+        Database session (caller responsible for closing)
+    """
     db = SessionLocal()
     try:
         return db

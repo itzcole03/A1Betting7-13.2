@@ -1,7 +1,18 @@
+from __future__ import annotations
+
+from typing import Any, Dict, List
+
 # Best-practices mock data generator for MLB odds (for backend development only)
 
 
-def generate_realistic_mock_odds():
+def generate_realistic_mock_odds() -> List[Dict[str, Any]]:
+    """
+    Returns a list of realistic mock odds for MLB games, including all required fields for frontend mapping and prediction.
+    Use ONLY for development/testing. In production, do not fallback to mock data.
+    
+    Returns:
+        List of dictionaries containing mock odds data with all required fields
+    """
     """
     Returns a list of realistic mock odds for MLB games, including all required fields for frontend mapping and prediction.
     Use ONLY for development/testing. In production, do not fallback to mock data.
