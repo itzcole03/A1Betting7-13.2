@@ -4,6 +4,8 @@ Real Transaction Service
 Production-ready transaction management with database integration.
 """
 
+from __future__ import annotations
+
 import logging
 from datetime import datetime, timezone
 from typing import List, Optional

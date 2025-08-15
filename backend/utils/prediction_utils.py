@@ -1,12 +1,14 @@
 """Shared prediction utilities for confidence, uncertainty, feature compatibility, and correlation.
 """
 
-from typing import Dict, List, Tuple
+from __future__ import annotations
+
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
 
-def calculate_confidence(model, X: np.ndarray, model_type: str) -> float:
+def calculate_confidence(model: Any, X: np.ndarray, model_type: str) -> float:
     """Estimate prediction confidence based on model type."""
     try:
         if model_type == "random_forest" and hasattr(model, "estimators_"):

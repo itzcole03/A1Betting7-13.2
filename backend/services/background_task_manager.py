@@ -3,6 +3,8 @@ Background Task Manager for FastAPI
 Implements 2024-2025 best practices for background processing and task queues.
 """
 
+from __future__ import annotations
+
 import asyncio
 import time
 import uuid

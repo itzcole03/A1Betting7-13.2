@@ -2,6 +2,8 @@
 Bet Model - Database model for tracking user bets
 """
 
+from __future__ import annotations
+
 from datetime import datetime, timezone
 
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String

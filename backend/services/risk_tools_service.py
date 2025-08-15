@@ -3,13 +3,15 @@ Risk Tools Service - Kelly Criterion calculations and bankroll management
 Provides mathematical utilities for optimal bet sizing and risk assessment
 """
 
+from __future__ import annotations
+
+import json
 import logging
 import math
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
-import json
 
 logger = logging.getLogger(__name__)
 

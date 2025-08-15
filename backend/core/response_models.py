@@ -3,7 +3,9 @@ Standard API Response Models
 Core response models and builders for consistent API contract compliance
 """
 
-from typing import Any, Dict, Generic, Optional, TypeVar, Union
+from __future__ import annotations
+
+from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 from pydantic import BaseModel, Field
 from fastapi.responses import JSONResponse
 
@@ -160,7 +162,7 @@ class HealthResponse(BaseModel):
 
 class ListResponse(BaseModel, Generic[T]):
     """Response model for list endpoints"""
-    items: list[T] = Field(..., description="List of items")
+    items: List[T] = Field(..., description="List of items")
     total: Optional[int] = Field(None, description="Total item count")
     page: Optional[int] = Field(None, description="Current page number")
     page_size: Optional[int] = Field(None, description="Items per page")

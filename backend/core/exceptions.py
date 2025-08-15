@@ -3,6 +3,8 @@ Business Logic Exception
 Standardized exception handling for business logic violations and operational errors
 """
 
+from __future__ import annotations
+
 from typing import Any, Dict, Optional
 from fastapi import HTTPException
 

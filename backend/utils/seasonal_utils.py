@@ -5,8 +5,12 @@ Centralized logic for determining which sports are in season for any given month
 This ensures consistent seasonal filtering across all backend endpoints.
 """
 
+from __future__ import annotations
 
-def get_in_season_sports(month: int) -> list[str]:
+from typing import Any, Dict, List
+
+
+def get_in_season_sports(month: int) -> List[str]:
     """
     Determine which sports are in season for the given month.
 
@@ -46,16 +50,16 @@ def get_in_season_sports(month: int) -> list[str]:
     return in_season
 
 
-def filter_props_by_season(props: list, month: int) -> list:
+def filter_props_by_season(props: List[Dict[str, Any]], month: int) -> List[Dict[str, Any]]:
     """
     Filter a list of props to only include those from in-season sports.
 
     Args:
-        props (list): List of prop dictionaries
-        month (int): Current month (1-12)
+        props: List of prop dictionaries
+        month: Current month (1-12)
 
     Returns:
-        list: Filtered list containing only in-season props
+        Filtered list containing only in-season props
     """
     in_season_sports = get_in_season_sports(month)
     filtered_props = []
@@ -87,15 +91,15 @@ def is_sport_in_season(sport: str, month: int) -> bool:
     return any(season_sport.upper() in sport_upper for season_sport in in_season_sports)
 
 
-def get_seasonal_summary(month: int) -> dict:
+def get_seasonal_summary(month: int) -> Dict[str, Any]:
     """
     Get a summary of seasonal information for the given month.
 
     Args:
-        month (int): Month number (1-12)
+        month: Month number (1-12)
 
     Returns:
-        dict: Summary containing in-season sports, off-season sports, and month info
+        Summary containing in-season sports, off-season sports, and month info
     """
     all_sports = {
         "MLB",
