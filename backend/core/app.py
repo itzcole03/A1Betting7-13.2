@@ -552,6 +552,26 @@ def create_app() -> FastAPI:
         logger.warning(f"⚠️ Could not import CSP report routes: {e}")
     except Exception as e:
         logger.error(f"❌ Failed to register CSP report routes: {e}")
+    
+    # Enhanced WebSocket Routes with Room-based Subscriptions
+    try:
+        from backend.routes.enhanced_websocket_routes import router as enhanced_ws_router
+        _app.include_router(enhanced_ws_router)
+        logger.info("✅ Enhanced WebSocket routes included (/ws/v2/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import enhanced WebSocket routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register enhanced WebSocket routes: {e}")
+    
+    # Enhanced ML Routes with SHAP Explainability, Batch Optimization, Performance Logging
+    try:
+        from backend.routes.enhanced_ml_routes import router as enhanced_ml_router
+        _app.include_router(enhanced_ml_router)
+        logger.info("✅ Enhanced ML routes included (/api/enhanced-ml/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import enhanced ML routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register enhanced ML routes: {e}")
 
     # DB and config setup can be added here as modules are refactored in
     

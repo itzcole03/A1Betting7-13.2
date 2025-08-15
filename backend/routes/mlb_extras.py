@@ -348,7 +348,7 @@ async def get_mlb_prizepicks_props():
 async def get_action_shots(event_id: str):
     """Get AP Action Shots for a given MLB event."""
     client = MLBProviderClient()
-    return ResponseBuilder.success(await) client.fetch_action_shots_ap(event_id)
+    return ResponseBuilder.success(await client.fetch_action_shots_ap(event_id))
 
 
 @router.get("/country-flag/{country_code}", response_model=Optional[str])
@@ -602,7 +602,7 @@ async def get_live_game_stats(game_id: int):
                     "name": away_team.get("name", ""),
                     "abbreviation": away_team.get("abbreviation", ""),
                     "score": away_score,
-                    "hits": teams_score.get("away", {})).get("hits", 0),
+                    "hits": teams_score.get("away", {}).get("hits", 0),
                     "errors": teams_score.get("away", {}).get("errors", 0),
                 },
                 "home": {
@@ -848,7 +848,7 @@ async def get_past_matchups(game_id: int):
         return ResponseBuilder.success({
             "status": "ok",
             "game_id": game_id,
-            "teams": {"away": away_name, "home": home_name}),
+            "teams": {"away": away_name, "home": home_name},
             "last_5_matchups": past_matchups[:5],
             "head_to_head_record": head_to_head_record,
             "season_stats": {
@@ -946,7 +946,7 @@ async def generate_comprehensive_props(game_id: int):
                 "unique_players": unique_players,
                 "generation_timestamp": datetime.now().isoformat(),
                 "source": "AI_COMPREHENSIVE_GENERATION",
-            }),
+            },
             "message": f"Successfully generated {total_props} comprehensive props for game {game_id}",
         }
 
@@ -1115,7 +1115,7 @@ async def get_ml_performance_analytics():
             "status": "success",
             "timestamp": datetime.now().isoformat(),
             "ml_integration_analytics": analytics,
-            "ml_service_health": {"status": ml_service_status, "details": ml_health}),
+            "ml_service_health": {"status": ml_service_status, "details": ml_health},
             "system_info": {
                 "phase": "Phase 1 - ML Pipeline Integration",
                 "capabilities": [

@@ -130,7 +130,16 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
           REDIS_URL: redis://localhost:6379
+          TESTING: true
+          DEV_LEAN_MODE: true
+          RATE_LIMIT_ENABLED: false
         run: |
+          # Run our comprehensive backend route tests
+          cd ..
+          python -m pytest tests/backend/routes/ -v --tb=short --asyncio-mode=auto --disable-warnings --junitxml=test-results.xml --cov=backend/routes --cov-report=xml --cov-report=html
+          
+          # Also run any existing backend tests
+          cd backend
           pytest --cov=backend --cov-report=xml --cov-report=html
           
       - name: Upload test results
@@ -219,7 +228,7 @@ jobs:
       - name: Run integration tests
         run: |
           cd frontend
-          npm run test:e2e
+          npx playwright test --config=playwright.config.ts
           
       - name: Upload integration test results
         uses: actions/upload-artifact@v4
