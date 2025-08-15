@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { _ThemeProvider, _useTheme } from '../ThemeContext';
 

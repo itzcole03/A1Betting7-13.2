@@ -1,6 +1,6 @@
 /**
- * Glass Card Component - Phase 3.2 Shared UI Components
- * Reusable glass morphism card with consistent styling
+ * Glass Card Component - Phase 3.3 UI/UX Consistency
+ * Reusable glass morphism card using design tokens
  */
 
 import React from 'react';
@@ -11,47 +11,26 @@ const cn = (...classes: (string | undefined | false)[]): string => {
 };
 
 interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'compact' | 'featured' | 'minimal';
-  blur?: 'sm' | 'md' | 'lg' | 'xl';
-  opacity?: 'light' | 'medium' | 'heavy';
-  border?: boolean;
+  variant?: 'default' | 'light' | 'strong' | 'minimal';
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   children: React.ReactNode;
 }
 
 const GlassCard: React.FC<GlassCardProps> = ({
   variant = 'default',
-  blur = 'lg',
-  opacity = 'medium',
-  border = true,
   padding = 'md',
   className,
   children,
   ...props
 }) => {
-  const baseClasses = 'rounded-xl';
+  const baseClasses = 'glass-card';
   
   const variantClasses = {
-    default: 'bg-slate-800/50',
-    compact: 'bg-slate-900/40',
-    featured: 'bg-gradient-to-br from-slate-800/60 to-slate-900/40',
-    minimal: 'bg-slate-800/30'
+    default: '',
+    light: 'glass-card--light',
+    strong: 'glass-card--strong',
+    minimal: 'opacity-80'
   };
-
-  const blurClasses = {
-    sm: 'backdrop-blur-sm',
-    md: 'backdrop-blur-md', 
-    lg: 'backdrop-blur-lg',
-    xl: 'backdrop-blur-xl'
-  };
-
-  const opacityClasses = {
-    light: opacity === 'light' ? variantClasses[variant].replace('/50', '/30').replace('/40', '/25').replace('/60', '/35') : '',
-    medium: variantClasses[variant],
-    heavy: opacity === 'heavy' ? variantClasses[variant].replace('/50', '/70').replace('/40', '/60').replace('/30', '/50') : ''
-  };
-
-  const borderClasses = border ? 'border border-slate-700/50' : '';
 
   const paddingClasses = {
     none: '',
@@ -65,9 +44,7 @@ const GlassCard: React.FC<GlassCardProps> = ({
     <div
       className={cn(
         baseClasses,
-        opacity === 'light' || opacity === 'heavy' ? opacityClasses[opacity] || variantClasses[variant] : variantClasses[variant],
-        blurClasses[blur],
-        borderClasses,
+        variantClasses[variant],
         paddingClasses[padding],
         className
       )}
