@@ -1,13 +1,15 @@
 """
-Modern ML API Endpoints
+Modern ML Routes - LEGACY VERSION (Phase 5 Consolidation)
 
-This module provides FastAPI endpoints for the modern ML capabilities:
-- Enhanced predictions with uncertainty quantification
-- A/B testing controls
-- Model performance monitoring
-- Feature engineering insights
-- Ensemble model management
-- Phase 2: Performance optimization and real-time updates
+⚠️ DEPRECATION NOTICE: This file has been consolidated into consolidated_ml.py
+🔀 This version is kept for reference and will be removed in Phase 6
+
+Please use: backend.routes.consolidated_ml for all new development
+The consolidated version provides the same modern ML functionality plus:
+- Enhanced ML integration with SHAP explanations
+- Unified API surface with better fallback strategies  
+- Improved caching and performance monitoring
+- Consolidated model management
 """
 
 import asyncio
@@ -16,23 +18,28 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Union
 
-import pandas as pd
-import torch
+try:
+    import pandas as pd
+    import torch
+except ImportError as e:
+    logging.warning(f"Optional dependencies not available: {e}")
+
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, validator
 
 # Import modern ML services
-from ..services.modern_ml_integration import (
-    ABTestConfig,
-    ModelType,
-    ModernMLIntegration,
-    PredictionResult,
-    PredictionStrategy,
-)
-
-# Import modern ML service for Phase 2
-from ..services.modern_ml_service import modern_ml_service
+try:
+    from ..services.modern_ml_integration import (
+        ABTestConfig,
+        ModelType,
+        ModernMLIntegration,
+        PredictionResult,
+        PredictionStrategy,
+    )
+    from ..services.modern_ml_service import modern_ml_service
+except ImportError as e:
+    logging.warning(f"Modern ML services not available: {e}")
 
 # Import standardized API components
 from ..core.response_models import ResponseBuilder, StandardAPIResponse
@@ -40,8 +47,8 @@ from ..core.exceptions import BusinessLogicException, AuthenticationException
 
 logger = logging.getLogger(__name__)
 
-# Initialize router
-router = APIRouter(prefix="/api/modern-ml", tags=["Modern ML"])
+# LEGACY ROUTER - Use consolidated_ml.router instead
+router = APIRouter(prefix="/api/modern-ml-legacy", tags=["Modern-ML-Legacy"])
 
 # Global integration service
 integration_service = ModernMLIntegration()

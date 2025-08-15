@@ -1,8 +1,15 @@
 """
-PrizePicks Routes with Intelligent Ensemble System
+PrizePicks Routes - LEGACY VERSION (Phase 5 Consolidation)
 
-This module contains all PrizePicks-specific endpoints for prop betting,
-enhanced with intelligent ensemble predictions for maximum accuracy.
+⚠️ DEPRECATION NOTICE: This file has been consolidated into consolidated_prizepicks.py
+🔀 This version is kept for reference and will be removed in Phase 6
+
+Please use: backend.routes.consolidated_prizepicks for all new development
+The consolidated version provides:
+- All functionality from prizepicks.py, prizepicks_router.py, and prizepicks_simple.py
+- Better fallback strategies
+- Improved error handling
+- Unified API surface
 """
 
 import logging
@@ -26,7 +33,8 @@ from backend.services.enhanced_prizepicks_service_v2 import (
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/prizepicks", tags=["PrizePicks"])
+# LEGACY ROUTER - Use consolidated_prizepicks.router instead
+router = APIRouter(prefix="/api/v1/prizepicks-legacy", tags=["PrizePicks-Legacy"])
 
 # Cache for PrizePicks data
 prizepicks_cache = TTLCache(maxsize=100, ttl=300)

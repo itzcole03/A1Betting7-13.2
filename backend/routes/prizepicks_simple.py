@@ -1,6 +1,15 @@
 """
-Minimal Working PrizePicks API - Phase 1 Fix
-Simple, fast endpoint that doesn't hang to get frontend working immediately
+PrizePicks Simple Routes - LEGACY VERSION (Phase 5 Consolidation)
+
+⚠️ DEPRECATION NOTICE: This file has been consolidated into consolidated_prizepicks.py
+🔀 This version is kept for reference and will be removed in Phase 6
+
+Please use: backend.routes.consolidated_prizepicks for all new development
+The consolidated version provides the same simple fallback functionality plus:
+- Enhanced production ML integration
+- Better service orchestration  
+- Unified API surface
+- Comprehensive error handling
 """
 
 import logging
@@ -15,7 +24,8 @@ from ..core.exceptions import BusinessLogicException, AuthenticationException
 
 logger = logging.getLogger(__name__)
 
-# router = APIRouter(prefix="/api/prizepicks", tags=["PrizePicks-Simple"])
+# LEGACY ROUTER - Use consolidated_prizepicks.router instead  
+# router = APIRouter(prefix="/api/prizepicks-simple", tags=["PrizePicks-Simple-Legacy"])
 
 
 # @router.get("/props", response_model=StandardAPIResponse[Dict[str, Any]])

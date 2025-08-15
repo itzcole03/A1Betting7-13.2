@@ -1,11 +1,15 @@
 """
-Enhanced ML API Routes
+Enhanced ML Routes - LEGACY VERSION (Phase 5 Consolidation)
 
-This module provides API endpoints for the enhanced ML capabilities:
-- SHAP explainability
-- Batch prediction optimization  
-- Performance monitoring and logging
-- Model management and health checks
+⚠️ DEPRECATION NOTICE: This file has been consolidated into consolidated_ml.py
+🔀 This version is kept for reference and will be removed in Phase 6
+
+Please use: backend.routes.consolidated_ml for all new development
+The consolidated version provides the same enhanced ML functionality plus:
+- Modern ML integration with uncertainty quantification
+- Unified API surface with better fallback strategies
+- A/B testing capabilities
+- Improved performance monitoring
 """
 
 import asyncio
@@ -16,12 +20,16 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
 
-from ..services.enhanced_prediction_integration import enhanced_prediction_integration
-from ..services.redis_cache_service import get_redis_cache
+try:
+    from ..services.enhanced_prediction_integration import enhanced_prediction_integration
+    from ..services.redis_cache_service import get_redis_cache
+except ImportError as e:
+    logging.warning(f"Enhanced ML services not available: {e}")
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/enhanced-ml", tags=["enhanced-ml"])
+# LEGACY ROUTER - Use consolidated_ml.router instead
+router = APIRouter(prefix="/api/enhanced-ml-legacy", tags=["Enhanced-ML-Legacy"])
 
 
 # Request/Response Models

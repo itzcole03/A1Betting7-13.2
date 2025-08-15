@@ -1,3 +1,17 @@
+"""
+PrizePicks Router - LEGACY VERSION (Phase 5 Consolidation)
+
+⚠️ DEPRECATION NOTICE: This file has been consolidated into consolidated_prizepicks.py
+🔀 This version is kept for reference and will be removed in Phase 6
+
+Please use: backend.routes.consolidated_prizepicks for all new development
+The consolidated version provides the same production ML functionality plus:
+- Better service fallback strategies
+- Enhanced error handling
+- Unified API surface
+- Improved caching and performance
+"""
+
 import logging
 from typing import Any, Dict, List
 
@@ -8,7 +22,8 @@ from ..core.response_models import ResponseBuilder, StandardAPIResponse
 from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.responses import JSONResponse
 
-router = APIRouter()
+# LEGACY ROUTER - Use consolidated_prizepicks.router instead
+router = APIRouter(prefix="/api/prizepicks-router-legacy", tags=["PrizePicks-Router-Legacy"])
 logger = logging.getLogger(__name__)
 
 # Import the required services from production_fix.py
