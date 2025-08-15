@@ -355,7 +355,7 @@ async def get_action_shots(event_id: str):
 async def get_country_flag(country_code: str):
     """Get country flag image URL by country code."""
     client = MLBProviderClient()
-    return ResponseBuilder.success(await) client.fetch_country_flag(country_code)
+    return ResponseBuilder.success(await client.fetch_country_flag(country_code))
 
 
 @router.get("/odds-comparison/", response_model=List[Dict[str, Any]])

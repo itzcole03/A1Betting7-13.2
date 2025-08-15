@@ -176,9 +176,9 @@ async def fetch_injury_status(
     # Placeholder: Replace with real API integration (e.g., SportsDataIO, Sportradar, etc.)
     if http_client is None:
         async with httpx.AsyncClient() as client:
-            return ResponseBuilder.success(await) fetch_injury_status(
+            return ResponseBuilder.success(await fetch_injury_status(
                 player, http_client=client, api_key=api_key, sport=sport
-            )
+            ))
     # Example: resp = await http_client.get(f"https://api.sportsdata.io/v3/nba/injuries/json/PlayerInjuries/{player}?key={api_key}")
     # resp.raise_for_status()
     # data = resp.json()
@@ -418,7 +418,7 @@ async def post_llm_business_logic(llm_response, props, entry_amt, user, session)
                 "recommendation": None,
                 "confidence_score": None,
                 "key_factors": [],
-                "raw": str(llm_response)),
+                "raw": str(llm_response),
                 "warnings": [f"Exception: {str(e)}"],
                 "user": user,
                 "session": session,
