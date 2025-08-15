@@ -240,7 +240,13 @@ jobs:
 
       - name: Install dependencies
         working-directory: frontend
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Cache Jest cache
+        uses: actions/cache@v3
+        with:
+          path: frontend/.jest-cache
+          key: jest-cache-${{ hashFiles('frontend/package-lock.json') }}
 
       - name: Run type checking
         working-directory: frontend
@@ -254,9 +260,11 @@ jobs:
         working-directory: frontend
         run: npm audit --audit-level moderate
 
-      - name: Run unit tests
+      - name: Run unit and component tests (Phase 4.2)
         working-directory: frontend
         run: npm run test:ci
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
 
       - name: Build application
         working-directory: frontend
