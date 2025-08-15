@@ -1,0 +1,279 @@
+/**
+ * Design Tokens - Phase 3.3 UI/UX Consistency
+ * Centralized design system tokens for consistent theming across A1Betting
+ */
+
+/* ===== COLOR TOKENS ===== */
+:root {
+  /* === Primary Palette === */
+  --color-primary: #06ffa5;
+  --color-primary-rgb: 6, 255, 165;
+  --color-primary-hover: #05e693;
+  --color-primary-focus: rgba(6, 255, 165, 0.2);
+
+  --color-secondary: #00ff88;
+  --color-secondary-rgb: 0, 255, 136;
+  --color-secondary-hover: #00e676;
+  --color-secondary-focus: rgba(0, 255, 136, 0.2);
+
+  --color-accent: #00d4ff;
+  --color-accent-rgb: 0, 212, 255;
+  --color-accent-hover: #00b8e6;
+  --color-accent-focus: rgba(0, 212, 255, 0.2);
+
+  /* === Cyber Theme === */
+  --color-cyber-primary: #06ffa5;
+  --color-cyber-secondary: #00ff88;
+  --color-cyber-accent: #00d4ff;
+  --color-cyber-purple: #7c3aed;
+  --color-cyber-dark: #0f172a;
+  --color-cyber-darker: #020617;
+
+  /* === Quantum Theme === */
+  --color-quantum-primary: #8338ec;
+  --color-quantum-secondary: #3a86ff;
+  --color-quantum-accent: #ff006e;
+  --color-quantum-glow: rgba(131, 56, 236, 0.5);
+  --color-quantum-blue: #0ea5e9;
+
+  /* === Semantic Colors === */
+  --color-success: #06ffa5;
+  --color-success-rgb: 6, 255, 165;
+  --color-warning: #ffbe0b;
+  --color-warning-rgb: 255, 190, 11;
+  --color-error: #ff006e;
+  --color-error-rgb: 255, 0, 110;
+  --color-info: #00d4ff;
+  --color-info-rgb: 0, 212, 255;
+
+  /* === Neutral Colors === */
+  --color-white: #ffffff;
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+  --color-black: #000000;
+
+  /* === Background Colors === */
+  --bg-primary: #020617;
+  --bg-secondary: #0f172a;
+  --bg-tertiary: #1e293b;
+  --bg-glass: rgba(255, 255, 255, 0.02);
+  --bg-glass-light: rgba(255, 255, 255, 0.05);
+  --bg-glass-strong: rgba(255, 255, 255, 0.1);
+
+  /* === Border Colors === */
+  --border-primary: rgba(255, 255, 255, 0.05);
+  --border-secondary: rgba(255, 255, 255, 0.1);
+  --border-accent: rgba(6, 255, 165, 0.3);
+  --border-focus: rgba(0, 212, 255, 0.5);
+}
+
+/* ===== SPACING TOKENS ===== */
+:root {
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 1rem;       /* 16px */
+  --spacing-lg: 1.5rem;     /* 24px */
+  --spacing-xl: 2rem;       /* 32px */
+  --spacing-2xl: 3rem;      /* 48px */
+  --spacing-3xl: 4rem;      /* 64px */
+}
+
+/* ===== TYPOGRAPHY TOKENS ===== */
+:root {
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-display: 'Orbitron', 'Inter', sans-serif;
+  --font-gaming: 'Rajdhani', 'Inter', sans-serif;
+
+  --font-size-xs: 0.75rem;     /* 12px */
+  --font-size-sm: 0.875rem;    /* 14px */
+  --font-size-base: 1rem;      /* 16px */
+  --font-size-lg: 1.125rem;    /* 18px */
+  --font-size-xl: 1.25rem;     /* 20px */
+  --font-size-2xl: 1.5rem;     /* 24px */
+  --font-size-3xl: 1.875rem;   /* 30px */
+  --font-size-4xl: 2.25rem;    /* 36px */
+
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+}
+
+/* ===== BORDER RADIUS TOKENS ===== */
+:root {
+  --radius-none: 0;
+  --radius-sm: 0.25rem;     /* 4px */
+  --radius-md: 0.5rem;      /* 8px */
+  --radius-lg: 0.75rem;     /* 12px */
+  --radius-xl: 1rem;        /* 16px */
+  --radius-2xl: 1.5rem;     /* 24px */
+  --radius-full: 9999px;
+}
+
+/* ===== SHADOW TOKENS ===== */
+:root {
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-cyber: 0 0 20px rgba(6, 255, 165, 0.3);
+  --shadow-quantum: 0 0 20px rgba(131, 56, 236, 0.3);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.37);
+}
+
+/* ===== ANIMATION TOKENS ===== */
+:root {
+  --duration-fast: 0.15s;
+  --duration-normal: 0.3s;
+  --duration-slow: 0.5s;
+  
+  --easing-ease: ease;
+  --easing-ease-in: ease-in;
+  --easing-ease-out: ease-out;
+  --easing-ease-in-out: ease-in-out;
+  --easing-cyber: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== Z-INDEX TOKENS ===== */
+:root {
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+}
+
+/* ===== UTILITY CLASSES USING DESIGN TOKENS ===== */
+
+/* Glass Card Variants */
+.glass-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-xl);
+}
+
+.glass-card--light {
+  background: var(--bg-glass-light);
+  border-color: var(--border-secondary);
+}
+
+.glass-card--strong {
+  background: var(--bg-glass-strong);
+  border-color: var(--border-accent);
+}
+
+/* Button Variants */
+.btn {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-lg);
+  transition: all var(--duration-normal) var(--easing-cyber);
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  color: var(--color-black);
+  border: 1px solid var(--color-primary);
+}
+
+.btn--primary:hover {
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-cyber);
+}
+
+.btn--secondary {
+  background: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.btn--secondary:hover {
+  background: var(--color-primary-focus);
+}
+
+/* Status Colors */
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-error { color: var(--color-error); }
+.text-info { color: var(--color-info); }
+
+.bg-success { background-color: rgba(var(--color-success-rgb), 0.1); }
+.bg-warning { background-color: rgba(var(--color-warning-rgb), 0.1); }
+.bg-error { background-color: rgba(var(--color-error-rgb), 0.1); }
+.bg-info { background-color: rgba(var(--color-info-rgb), 0.1); }
+
+/* Cyber Theme Classes */
+.cyber-glow {
+  box-shadow: var(--shadow-cyber);
+  animation: cyber-pulse 2s ease-in-out infinite alternate;
+}
+
+.quantum-glow {
+  box-shadow: var(--shadow-quantum);
+  animation: quantum-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes cyber-pulse {
+  from { box-shadow: 0 0 10px rgba(6, 255, 165, 0.3); }
+  to { box-shadow: 0 0 30px rgba(6, 255, 165, 0.6); }
+}
+
+@keyframes quantum-pulse {
+  from { box-shadow: 0 0 10px rgba(131, 56, 236, 0.3); }
+  to { box-shadow: 0 0 30px rgba(131, 56, 236, 0.6); }
+}
+
+/* Additional Animation Keyframes */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-in {
+  from { 
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Animation Utility Classes */
+.animate-fade-in {
+  animation: fade-in var(--duration-fast) var(--easing-cyber);
+}
+
+.animate-modal-in {
+  animation: modal-in var(--duration-normal) var(--easing-cyber);
+}
+
+.animate-slide-up {
+  animation: slide-up var(--duration-normal) var(--easing-cyber);
+}
