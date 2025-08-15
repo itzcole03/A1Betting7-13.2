@@ -1,8 +1,8 @@
 /// <reference types="node" />
-/// <reference types="react" />
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App'; // Change to import the correct App component
+import { bootstrapApp } from './bootstrap/bootstrapApp';
 import { logger } from './utils/logger';
 import './utils/tracing';
 import './utils/consoleErrorSuppression'; // Initialize console error filtering
@@ -18,124 +18,76 @@ import './styles/global-cyber-theme.css';
 import './styles/prototype-override.css';
 import './styles/quantum-styles.css';
 
-logger.info(
-  '🚀 A1Betting Platform Loading - Production Mode',
-  {
-    environment: import.meta.env.MODE, // Vite environment
-    timestamp: new Date().toISOString(),
-    userAgent: navigator.userAgent,
-  },
-  'Bootstrap'
-);
+/**
+ * Main application entry point with idempotent bootstrap
+ */
+async function start() {
+  try {
+    // Initialize application with idempotent bootstrap
+    const bootstrapResult = await bootstrapApp();
+    
+    if (bootstrapResult.alreadyBootstrapped) {
+      logger.debug('Application already bootstrapped, proceeding to render', bootstrapResult, 'Main');
+    }
 
-// Handle production error reporting;
-window.addEventListener('error', event => {
-  // Suppress known Vite development issues in production;
-  if (event.error?.message?.includes("Cannot read properties of undefined (reading 'frame')")) {
-    logger.warn('Vite error overlay issue suppressed', event.error, 'Bootstrap');
-    event.preventDefault();
-    return;
-  }
+    // Find root element and render React app
+    const rootElement = document.getElementById('root');
+    if (!rootElement) throw new Error('Failed to find the root element');
 
-  // Suppress WebSocket connection errors that don't impact core functionality
-  if (
-    event.error?.message?.includes('WebSocket closed without opened') ||
-    event.error?.message?.includes('WebSocket connection failed') ||
-    event.error?.message?.includes('Connection refused')
-  ) {
-    logger.warn('WebSocket connectivity issue (non-critical)', event.error, 'Bootstrap');
-    event.preventDefault();
-    return;
-  }
-
-  // Suppress fetch errors from API services (expected in development)
-  if (
-    event.error?.message?.includes('Failed to fetch') ||
-    event.error?.message?.includes('TypeError: fetch') ||
-    event.error?.message?.includes('API_UNAVAILABLE')
-  ) {
-    logger.debug('API connectivity issue (non-critical)', event.error, 'Bootstrap');
-    event.preventDefault();
-    return;
-  }
-
-  // Log all other errors for production monitoring;
-  logger.error(
-    'Global error caught',
-    {
-      message: event.error?.message,
-      filename: event.filename,
-      lineno: event.lineno,
-      colno: event.colno,
-      stack: event.error?.stack,
-    },
-    'Global'
-  );
-});
-
-// Handle unhandled promise rejections;
-window.addEventListener('unhandledrejection', event => {
-  // Suppress known Vite WebSocket errors;
-  if (
-    event.reason?.message?.includes('WebSocket closed without opened') ||
-    event.reason?.message?.includes('WebSocket connection') ||
-    (event.reason instanceof Error && event.reason.message.includes('WebSocket'))
-  ) {
-    logger.warn('Vite WebSocket error suppressed', { message: event.reason?.message }, 'Bootstrap');
-    event.preventDefault();
-    return;
-  }
-
-  // Suppress fetch errors from API services (expected in development)
-  if (
-    event.reason?.message?.includes('Failed to fetch') ||
-    event.reason?.message?.includes('TypeError: fetch') ||
-    event.reason?.message?.includes('API_UNAVAILABLE') ||
-    (event.reason instanceof TypeError && event.reason.message.includes('fetch'))
-  ) {
-    logger.debug(
-      'API connectivity issue (non-critical)',
-      { message: event.reason?.message },
-      'Bootstrap'
+    const root = createRoot(rootElement);
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
     );
-    event.preventDefault();
-    return;
+    
+  } catch (error) {
+    logger.error(
+      'Application startup failed',
+      {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+      'Main'
+    );
+    
+    // Show fallback error UI
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+      rootElement.innerHTML = `
+        <div style="
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background: #1a1a1a;
+          color: #fff;
+          font-family: system-ui;
+          flex-direction: column;
+        ">
+          <h1 style="color: #ef4444; margin-bottom: 1rem;">Application Startup Failed</h1>
+          <p style="margin-bottom: 2rem; opacity: 0.8;">Please refresh the page or contact support.</p>
+          <button 
+            onclick="window.location.reload()" 
+            style="
+              background: #3b82f6;
+              color: white;
+              border: none;
+              padding: 12px 24px;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 16px;
+            "
+          >
+            Retry
+          </button>
+        </div>
+      `;
+    }
+    
+    throw error;
   }
+}
 
-  // Properly serialize the error reason;
-  const errorDetails = {
-    // Removed underscore
-    reasonType: typeof event.reason,
-    reasonString: String(event.reason),
-    message: event.reason?.message || 'No message',
-    stack: event.reason?.stack || 'No stack trace',
-    name: event.reason?.name || 'Unknown error',
-    code: event.reason?.code,
-    cause: event.reason?.cause,
-  };
-
-  // Try to extract more details if it's an Error object;
-  if (event.reason instanceof Error) {
-    errorDetails.message = event.reason.message;
-    errorDetails.stack = event.reason.stack || 'No stack trace';
-    errorDetails.name = event.reason.name;
-  }
-
-  logger.error('Unhandled promise rejection detected', errorDetails, 'Global');
-
-  // Also log to console for immediate debugging;
-  // console statement removed
-
-  // Prevent the default browser handling to avoid "Uncaught (in promise)" errors;
-  event.preventDefault();
-});
-
-const rootElement = document.getElementById('root'); // Removed underscore
-if (!rootElement) throw new Error('Failed to find the root element');
-
-const root = createRoot(rootElement); // Removed underscore
-root.render(
-  <React.StrictMode>
-    <App /> {/* Render the correct App component */}
-  </React.StrictMode>
-);
+// Start the application
+start();

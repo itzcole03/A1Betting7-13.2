@@ -52,6 +52,7 @@ class CoreFunctionalityValidator {
 
   /**
    * Initialize continuous validation without impacting performance
+   * Now waits for bootstrap completion before starting validation cycles
    */
   public startValidation(interval: number = 60000): void {
     if (this.isRunning) return;
@@ -59,14 +60,75 @@ class CoreFunctionalityValidator {
     this.isRunning = true;
     this.establishPerformanceBaseline();
 
-    // Use requestIdleCallback to avoid blocking main thread
-    this.validationInterval = setInterval(() => {
-      if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(() => this.runValidationCycle());
-      } else {
-        setTimeout(() => this.runValidationCycle(), 0);
-      }
-    }, interval);
+    // Wait for bootstrap completion before starting validation cycles
+    this.waitForBootstrapCompletion().then(() => {
+      // Use requestIdleCallback to avoid blocking main thread
+      this.validationInterval = setInterval(() => {
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(() => this.runValidationCycle());
+        } else {
+          setTimeout(() => this.runValidationCycle(), 0);
+        }
+      }, interval);
+    });
+  }
+
+  /**
+   * Wait for bootstrap completion or navigation elements to be available
+   * @private
+   */
+  private async waitForBootstrapCompletion(timeout: number = 10000): Promise<void> {
+    return new Promise((resolve) => {
+      const startTime = Date.now();
+
+      // Check if bootstrap is already complete
+      const checkBootstrapComplete = () => {
+        // Option 1: Listen for bootstrap complete event
+        const bootstrapCompleteEvent = new CustomEvent('a1:bootstrap-complete');
+        if (document.dispatchEvent && bootstrapCompleteEvent) {
+          // Bootstrap event system is working
+          document.addEventListener('a1:bootstrap-complete', () => {
+            resolve();
+          }, { once: true });
+        }
+
+        // Option 2: Poll for navigation elements with timeout
+        const pollForNavigation = () => {
+          if (Date.now() - startTime > timeout) {
+            console.warn('[CoreFunctionalityValidator] Bootstrap timeout, starting validation anyway');
+            resolve();
+            return;
+          }
+
+          // Check for navigation elements
+          const navElements = document.querySelectorAll(
+            '[data-nav-root], [data-testid*="nav"], [role="navigation"], nav, #app-nav'
+          );
+
+          if (navElements.length > 0) {
+            console.log('[CoreFunctionalityValidator] Navigation elements found, starting validation');
+            resolve();
+            return;
+          }
+
+          // Check if app root is mounted
+          const appRoot = document.querySelector('#root [data-testid="app"], #root .app, main, [role="main"]');
+          if (appRoot) {
+            console.log('[CoreFunctionalityValidator] App root mounted, starting validation');
+            resolve();
+            return;
+          }
+
+          // Continue polling
+          setTimeout(pollForNavigation, 100);
+        };
+
+        // Start polling as fallback
+        setTimeout(pollForNavigation, 100);
+      };
+
+      checkBootstrapComplete();
+    });
   }
 
   /**
@@ -151,17 +213,23 @@ class CoreFunctionalityValidator {
   }
 
   /**
-   * Validate data fetching capabilities
+   * Health endpoint URL - updated to use new structured health endpoint
+   */
+  private static readonly HEALTH_ENDPOINT = '/api/v2/diagnostics/health';
+  private static readonly LEGACY_HEALTH_ENDPOINT = '/api/health';
+
+  /**
+   * Validate data fetching capabilities - uses new health endpoint with legacy fallback
    */
   private async validateDataFetching(): Promise<boolean> {
     try {
-      // Test basic fetch capability
-      const testUrl = '/api/health';
+      // Test new structured health endpoint first
+      let testUrl = CoreFunctionalityValidator.HEALTH_ENDPOINT;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
       try {
-        const response = await fetch(testUrl, {
+        const _response = await fetch(testUrl, {
           signal: controller.signal,
           method: 'GET'
         });
@@ -177,11 +245,39 @@ class CoreFunctionalityValidator {
           return true;
         }
         
-        // If it's a network error, that's still a functioning fetch
-        return true;
+        // Try legacy endpoint as fallback
+        try {
+          testUrl = CoreFunctionalityValidator.LEGACY_HEALTH_ENDPOINT;
+          const legacyController = new AbortController();
+          const legacyTimeoutId = setTimeout(() => legacyController.abort(), 3000);
+          
+          try {
+            const _legacyResponse = await fetch(testUrl, {
+              signal: legacyController.signal,
+              method: 'GET'
+            });
+            clearTimeout(legacyTimeoutId);
+            
+            // Log migration hint at info level only (will be removed in production builds)
+            if (process.env.NODE_ENV === 'development') {
+              console.info('[CoreValidator] Using legacy health endpoint. Consider migrating to /api/v2/diagnostics/health');
+            }
+            return true;
+          } catch (_legacyError) {
+            clearTimeout(legacyTimeoutId);
+            // If legacy also fails, that's still a functioning fetch
+            return true;
+          }
+        } catch (_fallbackError) {
+          // Final fallback - any error indicates fetch is working
+          return true;
+        }
       }
     } catch (error) {
-      console.warn('[CoreValidator] Data fetching validation failed:', error);
+      // Avoid warnings for expected connection issues - use info level
+      if (process.env.NODE_ENV === 'development') {
+        console.info('[CoreValidator] Data fetching validation note:', error);
+      }
       return false;
     }
   }

@@ -7,6 +7,7 @@
 
 import * as React from 'react';
 import { logger } from './logger';
+import { initWebVitals, getNavigationTiming } from '../perf/performanceMetrics';
 
 interface PerformanceMetrics {
   componentName: string;
@@ -154,66 +155,32 @@ class PerformanceMonitor {
    * Track Core Web Vitals
    */
   trackWebVitals(): void {
-    // Largest Contentful Paint (LCP)
-    if ('PerformanceObserver' in window) {
-      try {
-        const lcpObserver = new PerformanceObserver(list => {
-          const entries = list.getEntries();
-          const lastEntry = entries[entries.length - 1];
-          logger.info(
-            `📊 LCP: ${lastEntry.startTime.toFixed(2)}ms`,
-            {
-              metric: 'LCP',
-              value: lastEntry.startTime,
-            },
-            'WebVitals'
-          );
-        });
-        lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
-
-        // First Input Delay (FID)
-        const fidObserver = new PerformanceObserver(list => {
-          const entries = list.getEntries();
-          entries.forEach(entry => {
-            const fidEntry = entry as any; // FID entries have processingStart
-            if (fidEntry.processingStart) {
-              logger.info(
-                `📊 FID: ${fidEntry.processingStart - entry.startTime}ms`,
-                {
-                  metric: 'FID',
-                  value: fidEntry.processingStart - entry.startTime,
-                },
-                'WebVitals'
-              );
-            }
-          });
-        });
-        fidObserver.observe({ entryTypes: ['first-input'] });
-      } catch (error) {
-        logger.warn('Failed to set up web vitals tracking', error, 'Performance');
-      }
-    }
-
-    // Track navigation timing
-    if (window.performance && window.performance.timing) {
-      const timing = window.performance.timing;
-      const navigationStart = timing.navigationStart;
-
-      window.addEventListener('load', () => {
-        const loadComplete = timing.loadEventEnd;
-        const domInteractive = timing.domInteractive;
-        const domComplete = timing.domComplete;
-
+    // Initialize unified web vitals (idempotent)
+    initWebVitals({
+      onMetric: metric => {
+        // Map to logger categories
         logger.info(
-          '📊 Navigation Timing',
-          {
-            totalLoadTime: loadComplete - navigationStart,
-            domInteractive: domInteractive - navigationStart,
-            domComplete: domComplete - navigationStart,
-          },
+          `📊 ${metric.name}: ${metric.value.toFixed(2)}${metric.name === 'CLS' ? '' : 'ms'}`,
+          { metric: metric.name, value: metric.value, rating: metric.rating },
           'WebVitals'
         );
-      });
+      },
+      includeNavigationMetrics: true,
+    });
+
+    // Extra navigation timing diagnostics (one-off) using normalized helper
+    const nav = getNavigationTiming();
+    if (nav) {
+      logger.debug(
+        '📊 Navigation Timing (normalized)',
+        {
+          totalLoadTime: nav.totalLoadTime,
+          domContentLoaded: nav.domContentLoaded,
+          type: nav.type,
+          source: nav.source,
+        },
+        'WebVitals'
+      );
     }
   }
 }

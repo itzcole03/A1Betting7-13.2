@@ -10,6 +10,8 @@
  */
 
 import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from 'web-vitals';
+import { initWebVitals } from '../perf/performanceMetrics';
+import { logger } from '../utils/logger';
 
 interface WebVitalsMetrics {
   lcp: number | null;
@@ -119,24 +121,70 @@ class WebVitalsService {
       });
 
       if (!response.ok) {
-        console.warn('Failed to send Web Vitals data to analytics');
+        logger.warn('Failed to send Web Vitals data to analytics', { status: response.status }, 'WebVitals');
+      } else {
+        logger.debug('Sent Web Vitals metric', { name: entry.name, value: entry.value }, 'WebVitals');
       }
     } catch (error) {
-      console.warn('Error sending Web Vitals data:', error);
+      logger.warn('Error sending Web Vitals data', { error }, 'WebVitals');
     }
   }
 
   public init(): void {
     if (typeof window === 'undefined') return;
+    // Use unified initialization (idempotent). If already initialized elsewhere, we only
+    // attach custom metrics. Otherwise we route metrics through our logMetric method.
+    const firstInit = initWebVitals({
+      onMetric: (m) => {
+        // Map unified metric to our structure where applicable
+        // Only log known core metrics into internal storage
+        if (['LCP', 'CLS', 'INP', 'TTFB', 'FCP'].includes(m.name)) {
+          const rating = ((): 'good' | 'needs-improvement' | 'poor' => {
+            if (m.rating === 'good' || m.rating === 'needs-improvement' || m.rating === 'poor') return m.rating;
+            // Fallback classification based on value thresholds similar to getRating
+            switch (m.name) {
+              case 'LCP':
+                return m.value <= 2500 ? 'good' : m.value <= 4000 ? 'needs-improvement' : 'poor';
+              case 'CLS':
+                return m.value <= 0.1 ? 'good' : m.value <= 0.25 ? 'needs-improvement' : 'poor';
+              case 'INP':
+                return m.value <= 200 ? 'good' : m.value <= 500 ? 'needs-improvement' : 'poor';
+              case 'TTFB':
+                return m.value <= 800 ? 'good' : m.value <= 1800 ? 'needs-improvement' : 'poor';
+              case 'FCP':
+                return m.value <= 1800 ? 'good' : m.value <= 3000 ? 'needs-improvement' : 'poor';
+              default:
+                return 'good';
+            }
+          })();
+          const minimalMetric: Metric = {
+            name: m.name as Metric['name'],
+            value: m.value,
+            rating,
+            delta: m.delta || 0,
+            id: m.id || m.name,
+            // Provide required but unused fields with safe defaults
+            entries: [],
+            navigationType: 'navigate',
+          };
+          this.logMetric(minimalMetric);
+        }
+      },
+      includeNavigationMetrics: false,
+    });
 
-    // Track all Core Web Vitals
-    onLCP((metric) => this.logMetric(metric));
-    onCLS(this.logMetric.bind(this));
-    onINP(this.logMetric.bind(this)); // New in 2024, replaces FID
-    onTTFB(this.logMetric.bind(this));
-    onFCP(this.logMetric.bind(this));
+    // If this was not the first init, we skip directly registering listeners to avoid duplicates
+    if (firstInit) {
+      // We already registered via initWebVitals through the callback provided above
+    } else {
+      // Fallback: ensure metrics still flow if unified init occurred before service creation
+      onLCP((metric) => this.logMetric(metric));
+      onCLS(this.logMetric.bind(this));
+      onINP(this.logMetric.bind(this));
+      onTTFB(this.logMetric.bind(this));
+      onFCP(this.logMetric.bind(this));
+    }
 
-    // Track additional performance metrics
     this.trackCustomMetrics();
   }
 
@@ -174,13 +222,19 @@ class WebVitalsService {
 
     // Track memory usage if available
     if ('memory' in performance) {
-      const memoryInfo = (performance as any).memory;
-      // eslint-disable-next-line no-console
-      console.log('[Performance] Memory Usage:', {
-        used: `${(memoryInfo.usedJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
-        total: `${(memoryInfo.totalJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
-        limit: `${(memoryInfo.jsHeapSizeLimit / 1024 / 1024).toFixed(2)} MB`,
-      });
+      const perfWithMemory = performance as Performance & { memory?: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number } };
+      if (perfWithMemory.memory) {
+        const { usedJSHeapSize, totalJSHeapSize, jsHeapSizeLimit } = perfWithMemory.memory;
+        logger.debug(
+          'Memory Usage',
+          {
+            usedMB: +(usedJSHeapSize / 1024 / 1024).toFixed(2),
+            totalMB: +(totalJSHeapSize / 1024 / 1024).toFixed(2),
+            limitMB: +(jsHeapSizeLimit / 1024 / 1024).toFixed(2),
+          },
+          'WebVitals'
+        );
+      }
     }
   }
 
@@ -192,11 +246,11 @@ class WebVitalsService {
    * Track custom metrics for additional insights
    */
   public trackCustomMetric(name: string, value: number, attributes?: Record<string, string>): void {
-    console.log(`[WebVitals] Custom metric ${name}:`, value, attributes);
+  logger.info(`Custom metric ${name}`, { value, attributes }, 'WebVitals');
 
     // Store custom metric for later reporting
     if (attributes) {
-      console.log(`[WebVitals] Custom metric attributes:`, attributes);
+  logger.debug(`Custom metric attributes`, attributes, 'WebVitals');
     }
   }
 

@@ -242,38 +242,56 @@ def create_app() -> FastAPI:
     # --- WebSocket Routes ---
     ws_router = APIRouter()
 
+    # Legacy WebSocket endpoint (maintain compatibility)
     @ws_router.websocket("/ws/{client_id}")
     async def websocket_endpoint(websocket: WebSocket, client_id: str):
-        logger.info(f"[WS] Client {client_id} attempting connection...")
+        logger.info(f"[WS] Legacy client {client_id} attempting connection...")
         await websocket.accept()
-        logger.info(f"[WS] Client {client_id} connected.")
+        logger.info(f"[WS] Legacy client {client_id} connected.")
         try:
             while True:
                 data = await websocket.receive_text()
                 logger.info(f"[WS] Received from {client_id}: {data}")
                 await websocket.send_text(f"Echo: {data}")
         except WebSocketDisconnect:
-            logger.info(f"[WS] Client {client_id} disconnected.")
+            logger.info(f"[WS] Legacy client {client_id} disconnected.")
         except Exception as e:
-            logger.error(f"[WS] Error for {client_id}: {e}")
+            logger.error(f"[WS] Legacy error for {client_id}: {e}")
 
     _app.include_router(ws_router)
+    
+    # --- Canonical WebSocket Client Route ---
+    try:
+        from backend.routes.ws_client import router as ws_client_router
+        _app.include_router(ws_client_router)
+        logger.info("✅ Canonical WebSocket client route included (/ws/client)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import canonical WebSocket client route: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register canonical WebSocket client route: {e}")
 
     # --- Core API Routes ---
     @_app.get("/api/health")
     @_app.head("/api/health")
     async def api_health():
         """
-        System health check endpoint with normalized envelope format
+        System health check endpoint with normalized envelope format (LEGACY - DEPRECATED)
+        
+        This endpoint is deprecated. Use /api/v2/diagnostics/health for structured health information.
         
         Returns:
-            Minimal envelope: {"success": true, "data": {"status": "ok"}, "error": null, "meta": {"request_id": <uuid>}}
+            Minimal envelope with deprecation notice: {"success": true, "data": {"status": "ok", "deprecated": true}, "error": null}
         """
-        logger.info("[API] /api/health called")
+        logger.info("[API] /api/health called (DEPRECATED)")
         
         return {
             "success": True,
-            "data": {"status": "ok"},
+            "data": {
+                "status": "ok",
+                "deprecated": True,
+                "forward": "/api/v2/diagnostics/health",
+                "message": "This endpoint is deprecated. Use /api/v2/diagnostics/health for structured health information."
+            },
             "error": None,
             "meta": {"request_id": str(uuid.uuid4())}
         }
@@ -434,6 +452,17 @@ def create_app() -> FastAPI:
                 details={"service": "props_api", "error": str(e)}
             )
 
+    @_app.options("/api/v2/sports/activate")
+    async def api_activate_preflight():
+        """
+        Handle CORS preflight for sports activation endpoint
+        
+        Returns:
+            Empty response with proper CORS headers (handled by CORSMiddleware)
+        """
+        logger.debug("[API] OPTIONS /api/v2/sports/activate preflight handled")
+        return Response(status_code=200)
+
     @_app.post("/api/v2/sports/activate")
     async def api_activate(request: Request):
         """
@@ -542,6 +571,26 @@ def create_app() -> FastAPI:
     except ImportError as e:
         logger.warning(f"⚠️ Could not import auth/users routes: {e}")
     
+    # Import and mount diagnostics router (includes new structured health endpoint)
+    try:
+        from backend.routes.diagnostics import router as diagnostics_router
+        _app.include_router(diagnostics_router, prefix="/api/v2/diagnostics", tags=["Diagnostics"])
+        logger.info("✅ Diagnostics routes included (/api/v2/diagnostics/health, /api/v2/diagnostics/system)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import diagnostics routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register diagnostics routes: {e}")
+    
+    # Import and mount meta cache router (PR6: Cache Stats & Observability)
+    try:
+        from backend.routes.meta_cache import router as meta_cache_router
+        _app.include_router(meta_cache_router, prefix="/api/v2/meta", tags=["Cache Observability"])
+        logger.info("✅ Meta cache routes included (/api/v2/meta/cache-stats, /api/v2/meta/cache-health)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import meta cache routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register meta cache routes: {e}")
+    
     # Import and mount security routes (Step 6: Security Headers)
     try:
         from backend.routes.csp_report import router as csp_report_router
@@ -617,3 +666,4 @@ app = create_app()
 
 # Legacy compatibility
 core_app = app
+# Reload trigger

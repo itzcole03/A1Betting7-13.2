@@ -12,6 +12,7 @@ import {
   PasswordChangeRequest,
   User,
 } from '../services/authService';
+import { logger } from '../utils/logger';
 
 /**
  * AuthContextType
@@ -60,6 +61,12 @@ function useAuthState(): AuthContextType {
   const [requiresPasswordChange, setRequiresPasswordChange] = useState(false);
 
   useEffect(() => {
+    // Skip auth restoration if bootstrap already handled it
+    const globalState = window as typeof window & { __A1_AUTH_RESTORED?: boolean };
+    if (typeof window !== 'undefined' && globalState.__A1_AUTH_RESTORED) {
+      return;
+    }
+
     const _initializeAuth = () => {
       if (authService.isAuthenticated()) {
         const _storedUser = authService.getUser();
@@ -68,12 +75,21 @@ function useAuthState(): AuthContextType {
           setIsAdmin(authService.isAdmin());
           setIsAuthenticated(true);
           setRequiresPasswordChange(authService.requiresPasswordChange());
-          // Structured logging for audit
-          console.log(
-            '🔐 [AUTH] Restored authentication for:',
-            _storedUser.email,
-            'Role:',
-            _storedUser.role
+          
+          // Mark as restored to prevent duplicate logs
+          if (typeof window !== 'undefined') {
+            globalState.__A1_AUTH_RESTORED = true;
+          }
+          
+          // Structured logging for audit (only if not already restored by bootstrap)
+          logger.info(
+            '🔐 Authentication restored',
+            {
+              email: _storedUser.email,
+              role: _storedUser.role,
+              userId: _storedUser.id,
+            },
+            'Auth'
           );
         }
       }
@@ -168,10 +184,12 @@ function useAuthState(): AuthContextType {
  * @param {object} props - React children.
  * @returns {JSX.Element} The provider component.
  */
-export const _AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const contextValue = useAuthState();
   return <_AuthContext.Provider value={contextValue}>{children}</_AuthContext.Provider>;
 };
+
+export const _AuthProvider = AuthProvider;
 
 /**
  * useAuth

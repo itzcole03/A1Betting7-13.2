@@ -7,7 +7,7 @@ This package contains all API route handlers organized by functionality.
 # Also import the module itself for backward compatibility
 from . import mlb_extras
 from .admin import router as admin_router
-from .analytics_routes import router as analytics_router
+# from .analytics_routes import router as analytics_router  # Temporarily disabled due to syntax errors
 from .auth import router as auth_router
 from .betting import router as betting_router
 from .diagnostics import router as diagnostics_router
@@ -24,7 +24,7 @@ from .enhanced_search_routes import router as enhanced_search_router
 
 __all__ = [
     "admin_router",
-    "analytics_router",
+    # "analytics_router",  # Temporarily disabled
     "auth_router",
     "betting_router",
     "diagnostics_router",

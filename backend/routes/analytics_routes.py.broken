@@ -1,5 +1,7 @@
 """Advanced Analytics API Routes
-Exposes model performance tracking and ensemble analytics capabilities.
+Exposes model perform    except Exception as e:
+        logger.error(f"Analytics health check failed: {e}")
+        raise BusinessLogicException("Analytics service health check failed") tracking and ensemble analytics capabilities.
 Part of Phase 3 Week 3: Advanced Analytics implementation.
 """
 
@@ -50,13 +52,12 @@ async def analytics_health():
             "components": {
                 "performance_tracker": "ready" if tracker_ready else "not_ready",
                 "ensemble_manager": "ready" if ensemble_ready else "not_ready",
-            }),
+            },
             "timestamp": datetime.utcnow().isoformat(),
-        }
+        })
     except Exception as e:
         logger.error(f"Analytics health check failed: {e}")
-        raise BusinessLogicException("Analytics service health check failed"
-        ")
+        raise BusinessLogicException("Analytics service health check failed")
 
 
 @router.get("/performance/models", response_model=StandardAPIResponse[Dict[str, Any]])
@@ -89,15 +90,14 @@ async def get_all_models_performance(
                         else None
                     ),
                     "timestamp": snapshot.timestamp.isoformat(),
-                })
+                }
                 for snapshot in snapshots
             ],
             "timestamp": datetime.utcnow().isoformat(),
-        }
+        })
     except Exception as e:
         logger.error(f"Failed to get models performance: {e}")
-        raise BusinessLogicException("Failed to retrieve model performance data"
-        ")
+        raise BusinessLogicException("Failed to retrieve model performance data")
 
 
 @router.get("/performance/models/{model_name}/{sport}", response_model=StandardAPIResponse[Dict[str, Any]])
