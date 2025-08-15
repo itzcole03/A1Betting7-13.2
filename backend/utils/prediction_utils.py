@@ -3,9 +3,16 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Protocol, Tuple
 
 import numpy as np
+
+
+class MLModel(Protocol):
+    """Protocol for machine learning models with predict method"""
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """Predict method for ML models"""
+        ...
 
 
 def calculate_confidence(model: Any, X: np.ndarray, model_type: str) -> float:

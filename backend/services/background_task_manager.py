@@ -55,7 +55,7 @@ class TaskResult:
 
     task_id: str
     status: TaskStatus
-    result: Any = None
+    result: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
     execution_time: float = 0.0
     started_at: Optional[datetime] = None
@@ -91,7 +91,7 @@ class BackgroundTask:
     scheduled_at: Optional[datetime] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
-    result: Any = None
+    result: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
     retry_count: int = 0
     execution_time: float = 0.0
