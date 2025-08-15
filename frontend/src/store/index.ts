@@ -1,263 +1,253 @@
 /**
  * CONSOLIDATED STORE INDEX
- * Central export point for all Zustand stores
+ * Central export point for all Zustand stores with performance optimizations
  */
 
 import { create } from 'zustand';
-import { persist, subscribeWithSelector } from 'zustand/middleware';
+import { persist, subscribeWithSelector, devtools } from 'zustand/middleware';
 
-// ===== TYPES =====
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  preferences: Record<string, any>;
-}
-
-export interface Bet {
-  id: string;
-  type: string;
-  amount: number;
-  odds: number;
-  status: 'pending' | 'won' | 'lost';
-  sport: string;
-  market: string;
-  timestamp: Date;
-}
-
-export interface Prediction {
-  id: string;
-  sport: string;
-  market: string;
-  prediction: any;
-  confidence: number;
-  timestamp: Date;
-}
+// Import centralized types
+import type { 
+  AppState, 
+  BettingState, 
+  PredictionState,
+  User,
+  Bet,
+  Prediction
+} from './types';
 
 // ===== MAIN APP STORE =====
 
-interface AppState {
-  // User state
-  user: User | null;
-  isAuthenticated: boolean;
-  setUser: (user: User | null) => void;
-  logout: () => void;
-
-  // UI state
-  theme: 'light' | 'dark' | 'cyber';
-  sidebarOpen: boolean;
-  loading: boolean;
-  setTheme: (theme: 'light' | 'dark' | 'cyber') => void;
-  setSidebarOpen: (open: boolean) => void;
-  setLoading: (loading: boolean) => void;
-
-  // Notifications
-  notifications: Array<{
-    id: string;
-    type: 'info' | 'success' | 'warning' | 'error';
-    message: string;
-    timestamp: Date;
-  }>;
-  addNotification: (notification: Omit<AppState['notifications'][0], 'id' | 'timestamp'>) => void;
-  removeNotification: (id: string) => void;
-  clearNotifications: () => void;
-}
-
 const useAppStore = create<AppState>()(
-  persist(
-    subscribeWithSelector((_set, _get) => ({
-      // Initial state
-      user: null,
-      isAuthenticated: false,
-      theme: 'cyber',
-      sidebarOpen: true,
-      loading: false,
-      notifications: [],
+  devtools(
+    persist(
+      subscribeWithSelector((_set, _get) => ({
+        // Initial state
+        user: null,
+        isAuthenticated: false,
+        theme: 'cyber',
+        sidebarOpen: true,
+        loading: false,
+        notifications: [],
 
-      // User actions
-      setUser: (user) => _set({ user, isAuthenticated: !!user }),
-      logout: () => _set({ user: null, isAuthenticated: false }),
+        // User actions
+        setUser: (user: User | null) => _set({ user, isAuthenticated: !!user }, false, 'setUser'),
+        logout: () => _set({ user: null, isAuthenticated: false }, false, 'logout'),
 
-      // UI actions
-      setTheme: (theme) => _set({ theme }),
-      setSidebarOpen: (sidebarOpen) => _set({ sidebarOpen }),
-      setLoading: (loading) => _set({ loading }),
+        // UI actions
+        setTheme: (theme) => _set({ theme }, false, 'setTheme'),
+        setSidebarOpen: (sidebarOpen) => _set({ sidebarOpen }, false, 'setSidebarOpen'),
+        setLoading: (loading) => _set({ loading }, false, 'setLoading'),
 
-      // Notification actions
-      addNotification: (notification) => _set((state) => ({
-        notifications: [
-          ...state.notifications,
-          {
-            ...notification,
-            id: Date.now().toString(),
-            timestamp: new Date(),
-          },
-        ],
+        // Notification actions
+        addNotification: (notification) => _set((state) => ({
+          notifications: [
+            ...state.notifications,
+            {
+              ...notification,
+              id: Date.now().toString(),
+              timestamp: new Date(),
+            },
+          ],
+        }), false, 'addNotification'),
+        removeNotification: (id) => _set((state) => ({
+          notifications: state.notifications.filter(n => n.id !== id),
+        }), false, 'removeNotification'),
+        clearNotifications: () => _set({ notifications: [] }, false, 'clearNotifications'),
       })),
-      removeNotification: (id) => _set((state) => ({
-        notifications: state.notifications.filter(n => n.id !== id),
-      })),
-      clearNotifications: () => _set({ notifications: [] }),
-    })),
+      {
+        name: 'app-store',
+        partialize: (state) => ({
+          user: state.user,
+          isAuthenticated: state.isAuthenticated,
+          theme: state.theme,
+          sidebarOpen: state.sidebarOpen,
+        }),
+      }
+    ),
     {
-      name: 'app-store',
-      partialize: (state) => ({
-        user: state.user,
-        isAuthenticated: state.isAuthenticated,
-        theme: state.theme,
-        sidebarOpen: state.sidebarOpen,
-      }),
+      name: 'AppStore'
     }
   )
 );
 
 // ===== BETTING STORE =====
 
-interface BettingState {
-  bets: Bet[];
-  activeBets: Bet[];
-  betHistory: Bet[];
-  totalStaked: number;
-  totalWon: number;
-  winRate: number;
-  
-  addBet: (bet: Omit<Bet, 'id' | 'timestamp'>) => void;
-  updateBet: (id: string, updates: Partial<Bet>) => void;
-  removeBet: (id: string) => void;
-  clearHistory: () => void;
-  calculateStats: () => void;
-}
-
 const useBettingStore = create<BettingState>()(
-  persist(
-    (set, get) => ({
-      bets: [],
-      activeBets: [],
-      betHistory: [],
-      totalStaked: 0,
-      totalWon: 0,
-      winRate: 0,
+  devtools(
+    persist(
+      (set, get) => ({
+        bets: [],
+        activeBets: [],
+        betHistory: [],
+        totalStaked: 0,
+        totalWon: 0,
+        winRate: 0,
 
-      addBet: (betData) => {
-        const bet: Bet = {
-          ...betData,
-          id: Date.now().toString(),
-          timestamp: new Date(),
-        };
-        set((state) => ({
-          bets: [...state.bets, bet],
-          activeBets: bet.status === 'pending' ? [...state.activeBets, bet] : state.activeBets,
-          betHistory: bet.status !== 'pending' ? [...state.betHistory, bet] : state.betHistory,
-        }));
-        get().calculateStats();
-      },
-
-      updateBet: (id, updates) => {
-        set((state) => {
-          const updatedBets = state.bets.map(bet => 
-            bet.id === id ? { ...bet, ...updates } : bet
-          );
-          return {
-            bets: updatedBets,
-            activeBets: updatedBets.filter(bet => bet.status === 'pending'),
-            betHistory: updatedBets.filter(bet => bet.status !== 'pending'),
+        addBet: (betData) => {
+          const bet: Bet = {
+            ...betData,
+            id: Date.now().toString(),
+            timestamp: new Date(),
           };
-        });
-        get().calculateStats();
-      },
+          set((state) => ({
+            bets: [...state.bets, bet],
+            activeBets: bet.status === 'pending' ? [...state.activeBets, bet] : state.activeBets,
+            betHistory: bet.status !== 'pending' ? [...state.betHistory, bet] : state.betHistory,
+          }), false, 'addBet');
+          get().calculateStats();
+        },
 
-      removeBet: (id) => {
-        set((state) => ({
-          bets: state.bets.filter(bet => bet.id !== id),
-          activeBets: state.activeBets.filter(bet => bet.id !== id),
-          betHistory: state.betHistory.filter(bet => bet.id !== id),
-        }));
-        get().calculateStats();
-      },
+        updateBet: (id, updates) => {
+          set((state) => {
+            const updatedBets = state.bets.map(bet => 
+              bet.id === id ? { ...bet, ...updates } : bet
+            );
+            return {
+              bets: updatedBets,
+              activeBets: updatedBets.filter(bet => bet.status === 'pending'),
+              betHistory: updatedBets.filter(bet => bet.status !== 'pending'),
+            };
+          }, false, 'updateBet');
+          get().calculateStats();
+        },
 
-      clearHistory: () => set({ betHistory: [] }),
+        removeBet: (id) => {
+          set((state) => ({
+            bets: state.bets.filter(bet => bet.id !== id),
+            activeBets: state.activeBets.filter(bet => bet.id !== id),
+            betHistory: state.betHistory.filter(bet => bet.id !== id),
+          }), false, 'removeBet');
+          get().calculateStats();
+        },
 
-      calculateStats: () => {
-        const { bets } = get();
-        const completedBets = bets.filter(bet => bet.status !== 'pending');
-        const wonBets = completedBets.filter(bet => bet.status === 'won');
-        
-        const totalStaked = completedBets.reduce((sum, bet) => sum + bet.amount, 0);
-        const totalWon = wonBets.reduce((sum, bet) => sum + (bet.amount * Math.abs(bet.odds / 100)), 0);
-        const winRate = completedBets.length > 0 ? (wonBets.length / completedBets.length) * 100 : 0;
+        clearHistory: () => set({ betHistory: [] }, false, 'clearHistory'),
 
-        set({ totalStaked, totalWon, winRate });
-      },
-    }),
+        calculateStats: () => {
+          const { bets } = get();
+          const completedBets = bets.filter(bet => bet.status !== 'pending');
+          const wonBets = completedBets.filter(bet => bet.status === 'won');
+          
+          const totalStaked = completedBets.reduce((sum, bet) => sum + bet.amount, 0);
+          const totalWon = wonBets.reduce((sum, bet) => sum + (bet.amount * Math.abs(bet.odds / 100)), 0);
+          const winRate = completedBets.length > 0 ? (wonBets.length / completedBets.length) * 100 : 0;
+
+          set({ totalStaked, totalWon, winRate }, false, 'calculateStats');
+        },
+      }),
+      {
+        name: 'betting-store',
+      }
+    ),
     {
-      name: 'betting-store',
+      name: 'BettingStore'
     }
   )
 );
 
 // ===== PREDICTION STORE =====
 
-interface PredictionState {
-  predictions: Prediction[];
-  favorites: string[];
-  filters: {
-    sport: string;
-    confidence: number;
-    dateRange: [Date, Date] | null;
-  };
-  
-  addPrediction: (prediction: Omit<Prediction, 'id' | 'timestamp'>) => void;
-  removePrediction: (id: string) => void;
-  toggleFavorite: (id: string) => void;
-  setFilters: (filters: Partial<PredictionState['filters']>) => void;
-  clearPredictions: () => void;
-}
-
 const usePredictionStore = create<PredictionState>()(
-  persist(
-    (set) => ({
-      predictions: [],
-      favorites: [],
-      filters: {
-        sport: 'All',
-        confidence: 0,
-        dateRange: null,
-      },
+  devtools(
+    persist(
+      (set) => ({
+        predictions: [],
+        favorites: [],
+        filters: {
+          sport: 'All',
+          confidence: 0,
+          dateRange: null,
+        },
 
-      addPrediction: (predictionData) => {
-        const prediction: Prediction = {
-          ...predictionData,
-          id: Date.now().toString(),
-          timestamp: new Date(),
-        };
-        set((state) => ({
-          predictions: [...state.predictions, prediction],
-        }));
-      },
+        addPrediction: (predictionData) => {
+          const prediction: Prediction = {
+            ...predictionData,
+            id: Date.now().toString(),
+            timestamp: new Date(),
+          };
+          set((state) => ({
+            predictions: [...state.predictions, prediction],
+          }), false, 'addPrediction');
+        },
 
-      removePrediction: (id) => set((state) => ({
-        predictions: state.predictions.filter(p => p.id !== id),
-        favorites: state.favorites.filter(f => f !== id),
-      })),
+        removePrediction: (id) => set((state) => ({
+          predictions: state.predictions.filter(p => p.id !== id),
+          favorites: state.favorites.filter(f => f !== id),
+        }), false, 'removePrediction'),
 
-      toggleFavorite: (id) => set((state) => ({
-        favorites: state.favorites.includes(id)
-          ? state.favorites.filter(f => f !== id)
-          : [...state.favorites, id],
-      })),
+        toggleFavorite: (id) => set((state) => ({
+          favorites: state.favorites.includes(id)
+            ? state.favorites.filter(f => f !== id)
+            : [...state.favorites, id],
+        }), false, 'toggleFavorite'),
 
-      setFilters: (newFilters) => set((state) => ({
-        filters: { ...state.filters, ...newFilters },
-      })),
+        setFilters: (newFilters) => set((state) => ({
+          filters: { ...state.filters, ...newFilters },
+        }), false, 'setFilters'),
 
-      clearPredictions: () => set({ predictions: [], favorites: [] }),
-    }),
+        clearPredictions: () => set({ predictions: [], favorites: [] }, false, 'clearPredictions'),
+      }),
+      {
+        name: 'prediction-store',
+      }
+    ),
     {
-      name: 'prediction-store',
+      name: 'PredictionStore'
     }
   )
 );
+
+// ===== SELECTOR FUNCTIONS FOR COMPONENTS =====
+
+// App Store Selectors (These are selector functions, not hooks)
+const appSelectors = {
+  isLoggedIn: (state: AppState) => state.isAuthenticated,
+  user: (state: AppState) => state.user,
+  theme: (state: AppState) => state.theme,
+  notifications: (state: AppState) => state.notifications,
+  unreadCount: (state: AppState) => state.notifications.length,
+  loading: (state: AppState) => state.loading,
+  sidebarOpen: (state: AppState) => state.sidebarOpen,
+};
+
+// Betting Store Selectors  
+const bettingSelectors = {
+  activeBets: (state: BettingState) => state.activeBets,
+  betHistory: (state: BettingState) => state.betHistory,
+  totalProfit: (state: BettingState) => state.totalWon - state.totalStaked,
+  winRate: (state: BettingState) => state.winRate,
+  activeBetCount: (state: BettingState) => state.activeBets.length,
+  recentBets: (state: BettingState) => state.betHistory.slice(-5).reverse(),
+};
+
+// Prediction Store Selectors
+const predictionSelectors = {
+  allPredictions: (state: PredictionState) => state.predictions,
+  favorites: (state: PredictionState) => state.favorites,
+  filters: (state: PredictionState) => state.filters,
+  filteredPredictions: (state: PredictionState) => {
+    const { predictions, filters } = state;
+    return predictions.filter(prediction => {
+      if (filters.sport !== 'All' && prediction.sport !== filters.sport) return false;
+      if (prediction.confidence < filters.confidence) return false;
+      if (filters.dateRange) {
+        const predDate = new Date(prediction.timestamp);
+        const [start, end] = filters.dateRange;
+        if (predDate < start || predDate > end) return false;
+      }
+      return true;
+    });
+  },
+  highConfidencePredictions: (state: PredictionState) => 
+    state.predictions.filter(p => p.confidence >= 80),
+  favoritePredictions: (state: PredictionState) => 
+    state.predictions.filter(p => state.favorites.includes(p.id)),
+  predictionStats: (state: PredictionState) => ({
+    total: state.predictions.length,
+    highConfidence: state.predictions.filter(p => p.confidence >= 80).length,
+    favorites: state.favorites.length,
+  }),
+};
 
 // ===== EXPORTS =====
 
@@ -266,6 +256,13 @@ export {
   useAppStore,
   useBettingStore,
   usePredictionStore,
+};
+
+// Export selectors for optimized access
+export {
+  appSelectors,
+  bettingSelectors,
+  predictionSelectors,
 };
 
 // Export types
@@ -280,4 +277,9 @@ export default {
   useAppStore,
   useBettingStore,
   usePredictionStore,
+  selectors: {
+    app: appSelectors,
+    betting: bettingSelectors,
+    prediction: predictionSelectors,
+  },
 };

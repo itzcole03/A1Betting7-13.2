@@ -30,11 +30,11 @@ Each task should be completed in order, committed separately, and marked as comp
 - [x] Add automated test to validate all API error codes are unique
 
 ### 2.3 — Performance & Caching
-- [ ] Review all `@lru_cache` and `cache.set()` calls
-- [ ] Implement Redis caching for:
-  - [ ] Frequently accessed read-only endpoints
-  - [ ] Model prediction results with TTL
-- [ ] Add cache invalidation logic on relevant data updates
+- [x] Review all `@lru_cache` and `cache.set()` calls
+- [x] Implement Redis caching for:
+  - [x] Frequently accessed read-only endpoints
+  - [x] Model prediction results with TTL
+- [x] Add cache invalidation logic on relevant data updates
 
 ---
 
