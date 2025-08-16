@@ -820,6 +820,26 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register system capabilities routes: {e}")
 
+    # --- Security Enhancement Routes (Epic 5) ---
+    try:
+        from backend.routes.security_head_endpoints import router as head_endpoints_router
+        _app.include_router(head_endpoints_router, tags=["Security", "HEAD Endpoints"])
+        logger.info("✅ Security HEAD endpoints included (/api/* HEAD endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import security HEAD endpoints: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register security HEAD endpoints: {e}")
+
+    # --- ML Model Registry (Epic 6) ---
+    try:
+        from backend.routes.model_registry_simple import router as model_registry_router
+        _app.include_router(model_registry_router, tags=["ML Model Registry"])
+        logger.info("✅ ML Model Registry routes included (/api/models/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import ML Model Registry routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register ML Model Registry routes: {e}")
+
     # --- Enterprise Model Registry Routes (NEW) ---
     try:
         from backend.routes.enterprise_model_registry_routes import enterprise_router

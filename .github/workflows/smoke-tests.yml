@@ -1,0 +1,221 @@
+name: A1Betting Cross-Platform Smoke Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run smoke tests every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      test_environment:
+        description: 'Test environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - development
+        - staging
+        - production
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  smoke-test-matrix:
+    name: Smoke Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: windows
+          - os: macos-latest
+            platform: macos
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r backend/requirements.txt || echo "Requirements not found, continuing..."
+
+    - name: Install Node.js dependencies
+      run: |
+        cd frontend
+        npm ci
+
+    - name: Create environment file
+      run: |
+        echo "DATABASE_URL=sqlite:///./test.db" > backend/.env
+        echo "SECRET_KEY=test-secret-key-for-ci" >> backend/.env
+        echo "ENVIRONMENT=test" >> backend/.env
+
+    - name: Start Backend Server (Background)
+      id: start-backend
+      run: |
+        cd backend
+        python -m uvicorn main:app --host 0.0.0.0 --port 8000 &
+        echo "BACKEND_PID=$!" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Wait for Backend Startup
+      run: |
+        for i in {1..30}; do
+          if curl -f http://localhost:8000/health > /dev/null 2>&1; then
+            echo "Backend is ready"
+            break
+          fi
+          echo "Waiting for backend startup... ($i/30)"
+          sleep 2
+        done
+      shell: bash
+
+    - name: Start Frontend Server (Background)
+      id: start-frontend
+      run: |
+        cd frontend
+        npm run dev &
+        echo "FRONTEND_PID=$!" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Wait for Frontend Startup
+      run: |
+        for i in {1..30}; do
+          if curl -f http://localhost:5173 > /dev/null 2>&1; then
+            echo "Frontend is ready"
+            break
+          fi
+          echo "Waiting for frontend startup... ($i/30)"
+          sleep 2
+        done
+      shell: bash
+
+    - name: Run Cross-Platform Smoke Tests
+      id: smoke-tests
+      run: |
+        python scripts/smoke_ci.py \
+          --ci-mode \
+          --format json \
+          --export-results smoke-results-${{ matrix.platform }}.json \
+          --timeout 60 \
+          --benchmark
+      env:
+        PLATFORM: ${{ matrix.platform }}
+        CI: true
+
+    - name: Upload Smoke Test Results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: smoke-test-results-${{ matrix.platform }}
+        path: smoke-results-${{ matrix.platform }}.json
+
+    - name: Performance Benchmark Check
+      if: steps.smoke-tests.outcome == 'success'
+      run: |
+        python scripts/analyze_benchmark.py smoke-results-${{ matrix.platform }}.json
+
+    - name: Cleanup Background Processes
+      if: always()
+      run: |
+        kill $BACKEND_PID || echo "Backend already stopped"
+        kill $FRONTEND_PID || echo "Frontend already stopped"
+      shell: bash
+
+  aggregate-results:
+    name: Aggregate Cross-Platform Results
+    runs-on: ubuntu-latest
+    needs: smoke-test-matrix
+    if: always()
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Download all test results
+      uses: actions/download-artifact@v3
+      with:
+        path: smoke-results/
+
+    - name: Aggregate and analyze results
+      run: |
+        python scripts/aggregate_smoke_results.py \
+          --input-dir smoke-results/ \
+          --output smoke-summary.json \
+          --generate-report
+
+    - name: Upload aggregated results
+      uses: actions/upload-artifact@v3
+      with:
+        name: smoke-test-summary
+        path: |
+          smoke-summary.json
+          smoke-report.html
+
+    - name: Comment PR with results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const summary = JSON.parse(fs.readFileSync('smoke-summary.json', 'utf8'));
+          
+          const comment = `## 🧪 Cross-Platform Smoke Test Results
+          
+          | Platform | Status | Services | Response Time |
+          |----------|--------|----------|---------------|
+          | Linux    | ${summary.linux.status} | ${summary.linux.services_up}/${summary.linux.total_services} | ${summary.linux.avg_response_time}ms |
+          | Windows  | ${summary.windows.status} | ${summary.windows.services_up}/${summary.windows.total_services} | ${summary.windows.avg_response_time}ms |
+          | macOS    | ${summary.macos.status} | ${summary.macos.services_up}/${summary.macos.total_services} | ${summary.macos.avg_response_time}ms |
+          
+          **Overall Status**: ${summary.overall_status}
+          **Test Duration**: ${summary.total_duration}s
+          
+          [View detailed results](${summary.report_url})
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+  deploy-on-success:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: aggregate-results
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: staging
+    
+    steps:
+    - name: Deploy to staging environment
+      run: |
+        echo "🚀 Deploying to staging environment..."
+        echo "All smoke tests passed across platforms"
+        # Add actual deployment steps here

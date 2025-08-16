@@ -7,7 +7,7 @@
 
 export interface BackoffOptions {
   baseDelaysMs?: number[];      // Base delay sequence [1000, 2000, 4000, 8000, 12000]
-  capDelayMs?: number;          // Maximum delay cap (12000ms = 12s)  
+  capDelayMs?: number;          // Maximum delay cap (60000ms = 60s per AC)  
   jitterRatio?: number;         // Jitter as ratio of delay (0.2 = ±20%)
   seed?: number;                // Seed for deterministic jitter (testing)
   maxAttempts?: number;         // Maximum attempts before giving up
@@ -22,10 +22,10 @@ export class BackoffStrategy {
   private rng: () => number;
 
   constructor(options: BackoffOptions = {}) {
-    this.baseDelays = options.baseDelaysMs || [1000, 2000, 4000, 8000, 12000];
-    this.capDelay = options.capDelayMs || 12000;
+    this.baseDelays = options.baseDelaysMs || [1000, 2000, 4000, 8000, 16000, 32000, 60000];
+    this.capDelay = options.capDelayMs || 60000; // 60s max per acceptance criteria
     this.jitterRatio = Math.max(0, Math.min(1, options.jitterRatio || 0.2)); // Clamp 0-1
-    this.maxAttempts = options.maxAttempts || 8;
+    this.maxAttempts = options.maxAttempts || 12; // Allow more attempts with longer delays
 
     // Initialize RNG (seedable for testing)
     if (options.seed !== undefined) {
@@ -165,14 +165,14 @@ export class BackoffStrategy {
   }
 
   /**
-   * Create the default production strategy
+   * Create the default production strategy with 60s max delay
    */
   public static createProductionStrategy(): BackoffStrategy {
     return new BackoffStrategy({
-      baseDelaysMs: [1000, 2000, 4000, 8000, 12000],
-      capDelayMs: 12000,
-      jitterRatio: 0.2,
-      maxAttempts: 8
+      baseDelaysMs: [1000, 2000, 4000, 8000, 16000, 32000, 60000],
+      capDelayMs: 60000, // 60s max per acceptance criteria
+      jitterRatio: 0.3, // Higher jitter for better distribution
+      maxAttempts: 12
     });
   }
 }

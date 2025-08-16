@@ -82,13 +82,24 @@ export class WebSocketManager {
   private backoffStrategy: BackoffStrategy;
   private reconnectTimeout: NodeJS.Timeout | null = null;
   private heartbeatTimeout: NodeJS.Timeout | null = null;
+  private heartbeatInterval: NodeJS.Timeout | null = null;
   private connectionTimeout: NodeJS.Timeout | null = null;
   private logger: Logger;
+  
+  // Heartbeat configuration
+  private readonly heartbeatIntervalMs = 30000; // 30s per acceptance criteria
+  private readonly heartbeatTimeoutMs = 10000; // 10s timeout for heartbeat response
+  private lastPingTime = 0;
+  private consecutiveFailures = 0;
+  private isInLocalSimulation = false;
   
   // Event listeners
   private stateChangeListeners: StateChangeListener[] = [];
   private messageListeners: MessageListener[] = [];
   private errorListeners: ErrorListener[] = [];
+  
+  // Local simulation event listeners
+  private localSimulationListeners: ((active: boolean) => void)[] = [];
   
   // Logging with duplicate suppression
   private lastLoggedTransition: string | null = null;
