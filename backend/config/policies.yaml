@@ -1,0 +1,324 @@
+# A1Betting Security Policies Configuration
+# This file defines role-based access control policies using declarative YAML configuration
+
+# Global security settings
+security:
+  default_deny: true  # Deny access by default unless explicitly allowed
+  require_authentication: true  # Require valid JWT tokens for protected routes
+  session_timeout_minutes: 60  # Session timeout in minutes
+  max_failed_attempts: 5  # Maximum failed authentication attempts before lockout
+
+# Role definitions with hierarchical inheritance
+roles:
+  # Base role with minimal permissions
+  guest:
+    description: "Unauthenticated users with read-only access to public content"
+    permissions:
+      - "public:read"
+    max_requests_per_minute: 10
+    
+  # Standard user role
+  user:
+    description: "Authenticated users with basic betting and analytics access"
+    inherits: ["guest"]
+    permissions:
+      - "user:profile:read"
+      - "user:profile:update"
+      - "betting:props:read"
+      - "betting:analysis:read"
+      - "sports:data:read"
+    max_requests_per_minute: 60
+    
+  # Premium user with enhanced features
+  premium:
+    description: "Premium subscribers with advanced analytics and ML features"
+    inherits: ["user"]
+    permissions:
+      - "ml:predictions:read"
+      - "analytics:advanced:read" 
+      - "betting:strategies:read"
+      - "data:historical:read"
+    max_requests_per_minute: 120
+    
+  # Moderator with content management rights
+  moderator:
+    description: "Community moderators with content management capabilities"
+    inherits: ["premium"]
+    permissions:
+      - "content:moderate"
+      - "users:view"
+      - "reports:view"
+    max_requests_per_minute: 200
+    
+  # Administrator with full system access
+  admin:
+    description: "System administrators with full platform access"
+    inherits: ["moderator"]
+    permissions:
+      - "admin:system:read"
+      - "admin:system:write"
+      - "admin:users:read"
+      - "admin:users:write"
+      - "admin:settings:read"
+      - "admin:settings:write"
+      - "admin:security:read"
+      - "admin:security:write"
+      - "admin:analytics:read"
+    max_requests_per_minute: 500
+    
+  # Service account for internal API calls
+  service:
+    description: "Internal service accounts for system-to-system communication"
+    permissions:
+      - "service:internal:read"
+      - "service:internal:write"
+      - "service:data:sync"
+      - "service:cache:manage"
+    max_requests_per_minute: 1000
+    requires_service_key: true
+
+# Route-specific policies
+routes:
+  # Public routes (no authentication required)
+  public_routes:
+    paths:
+      - "/api/health"
+      - "/api/v2/diagnostics/health"
+      - "/metrics"
+      - "/docs"
+      - "/redoc"
+      - "/openapi.json"
+    authentication: false
+    roles: ["guest", "user", "premium", "moderator", "admin", "service"]
+    
+  # Authentication routes
+  auth_routes:
+    paths:
+      - "/api/auth/login"
+      - "/api/auth/register"
+      - "/api/auth/forgot-password"
+    authentication: false
+    roles: ["guest"]
+    rate_limit:
+      requests_per_minute: 5
+      burst_capacity: 10
+      
+  # User profile management
+  user_profile_routes:
+    paths:
+      - "/api/users/profile"
+      - "/api/users/settings"
+    authentication: true
+    roles: ["user", "premium", "moderator", "admin"]
+    permissions:
+      - "user:profile:read"
+    methods:
+      GET:
+        permissions: ["user:profile:read"]
+      PUT:
+        permissions: ["user:profile:update"]
+      PATCH:
+        permissions: ["user:profile:update"]
+        
+  # Sports data and betting props
+  betting_routes:
+    paths:
+      - "/api/v2/sports/*"
+      - "/api/props"
+      - "/api/predictions"
+      - "/mlb/*"
+      - "/api/betting/*"
+    authentication: true
+    roles: ["user", "premium", "moderator", "admin"]
+    permissions:
+      - "betting:props:read"
+    rate_limit:
+      requests_per_minute: 100
+      
+  # Advanced ML and analytics
+  ml_routes:
+    paths:
+      - "/api/v2/ml/*"
+      - "/api/enhanced-ml/*"
+      - "/api/modern-ml/*"
+    authentication: true
+    roles: ["premium", "moderator", "admin"]
+    permissions:
+      - "ml:predictions:read"
+    rate_limit:
+      requests_per_minute: 50
+      
+  # Administrative routes
+  admin_routes:
+    paths:
+      - "/api/v2/admin/*"
+      - "/api/admin/*"
+    authentication: true
+    roles: ["admin"]
+    permissions:
+      - "admin:system:read"
+    methods:
+      GET:
+        permissions: ["admin:system:read"]
+      POST:
+        permissions: ["admin:system:write"]
+      PUT:
+        permissions: ["admin:system:write"]
+      PATCH:
+        permissions: ["admin:system:write"]
+      DELETE:
+        permissions: ["admin:system:write"]
+    rate_limit:
+      requests_per_minute: 200
+      
+  # User management (admin only)
+  user_management_routes:
+    paths:
+      - "/api/admin/users/*"
+      - "/api/v2/admin/users/*"
+    authentication: true
+    roles: ["admin"]
+    permissions:
+      - "admin:users:read"
+    methods:
+      GET:
+        permissions: ["admin:users:read"]
+      POST:
+        permissions: ["admin:users:write"]
+      PUT:
+        permissions: ["admin:users:write"]
+      PATCH:
+        permissions: ["admin:users:write"]
+      DELETE:
+        permissions: ["admin:users:write"]
+    audit: true  # Log all operations
+    
+  # Security and monitoring routes
+  security_routes:
+    paths:
+      - "/api/security/*"
+      - "/api/audit/*"
+      - "/csp/report"
+    authentication: true
+    roles: ["admin"]
+    permissions:
+      - "admin:security:read"
+    audit: true
+    
+  # Service-to-service routes
+  service_routes:
+    paths:
+      - "/api/internal/*"
+      - "/api/service/*"
+    authentication: true
+    roles: ["service", "admin"]
+    permissions:
+      - "service:internal:read"
+    require_service_key: true
+
+# IP-based access control
+ip_access:
+  # Allow all IPs by default (can be restricted per environment)
+  default_policy: "allow"
+  
+  # Whitelist for admin routes (can be configured per environment)
+  admin_whitelist:
+    - "127.0.0.1/32"
+    - "::1/128"
+    # Add office/VPN IPs in production
+    
+  # Rate limiting per IP
+  rate_limiting:
+    default_requests_per_minute: 60
+    burst_capacity: 120
+    
+    # Stricter limits for sensitive routes
+    sensitive_routes:
+      "/api/auth/*": 10
+      "/api/admin/*": 30
+      "/api/security/*": 20
+
+# Security headers policy
+security_headers:
+  content_security_policy:
+    enabled: true
+    directives:
+      default-src: "'self'"
+      script-src: "'self' 'unsafe-inline'"
+      style-src: "'self' 'unsafe-inline'"
+      img-src: "'self' data: https:"
+      connect-src: "'self' wss: ws:"
+      frame-ancestors: "'none'"
+      
+  cross_origin_policies:
+    cross_origin_opener_policy: "same-origin"
+    cross_origin_embedder_policy: "require-corp"
+    
+  other_headers:
+    x_frame_options: "DENY"
+    x_content_type_options: "nosniff"
+    referrer_policy: "strict-origin-when-cross-origin"
+    strict_transport_security:
+      max_age: 31536000
+      include_subdomains: true
+
+# Session management
+sessions:
+  # Session timeout policies by role
+  timeout_minutes:
+    guest: 30
+    user: 60
+    premium: 120
+    moderator: 240
+    admin: 480  # 8 hours
+    service: 1440  # 24 hours
+    
+  # Concurrent session limits
+  max_concurrent_sessions:
+    user: 3
+    premium: 5
+    moderator: 10
+    admin: 10
+    service: 50
+
+# Audit logging configuration
+audit:
+  # Events to audit
+  events:
+    - "authentication:login"
+    - "authentication:logout"
+    - "authentication:failed"
+    - "authorization:denied"
+    - "admin:user:create"
+    - "admin:user:update"
+    - "admin:user:delete"
+    - "admin:settings:change"
+    - "security:policy:change"
+    
+  # Sensitive routes that require full audit trails
+  sensitive_routes:
+    - "/api/admin/*"
+    - "/api/security/*"
+    - "/api/audit/*"
+    
+  # Data retention
+  retention_days: 365
+
+# Emergency security controls
+emergency:
+  # Enable circuit breaker for security incidents
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 10
+    timeout_seconds: 300
+    
+  # Rate limiting during incidents
+  incident_rate_limits:
+    requests_per_minute: 10
+    burst_capacity: 20
+    
+  # Emergency admin access
+  emergency_admin:
+    enabled: true
+    requires_mfa: true
+    session_timeout_minutes: 15

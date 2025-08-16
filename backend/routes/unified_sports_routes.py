@@ -22,6 +22,16 @@ logger = get_logger("unified_sports_routes")
 router = APIRouter(prefix="/sports", tags=["Unified Sports"])
 
 
+@router.head("/", status_code=204)
+async def sports_list_readiness_check():
+    """
+    Sports list endpoint readiness check for monitoring
+    
+    Returns 204 No Content when sports service is ready to list available sports.
+    """
+    return None
+
+
 @router.get("/", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_available_sports():
     """Get list of all available sports"""
@@ -30,7 +40,17 @@ async def get_available_sports():
         return ResponseBuilder.success({"status": "ok", "sports": sports, "count": len(sports)})
     except Exception as e:
         logger.error(f"Error getting available sports: {e}")
-        raise BusinessLogicException("f"Failed to get sports: {str(e")}")
+        raise BusinessLogicException(f"Failed to get sports: {str(e)}")
+
+
+@router.head("/health", status_code=204)
+async def sports_health_readiness_check():
+    """
+    Sports health endpoint readiness check for monitoring
+    
+    Returns 204 No Content when sports health service is ready.
+    """
+    return None
 
 
 @router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
@@ -41,8 +61,7 @@ async def get_all_sports_health():
         return ResponseBuilder.success(health_status)
     except Exception as e:
         logger.error(f"Error getting sports health: {e}")
-        raise BusinessLogicException("f"Failed to get health status: {str(e")}"
-        )
+        raise BusinessLogicException(f"Failed to get health status: {str(e)}")
 
 
 @router.get("/odds/unified", response_model=StandardAPIResponse[Dict[str, Any]])

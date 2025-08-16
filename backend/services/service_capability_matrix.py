@@ -484,7 +484,7 @@ class ServiceCapabilityRegistry:
                     "response_time_ms": response_time_ms
                 }
             )
-            self._logger.info(f"Service {service_name} status: {old_status.value} → {status.value}", context)
+            self._logger.info(f"Service {service_name} status: {old_status.value} -> {status.value}", context)
         
         return True
     

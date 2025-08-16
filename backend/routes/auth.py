@@ -2,10 +2,11 @@
 Authentication routes for A1Betting Backend API
 
 Provides endpoints for user authentication, JWT token management, and
-session handling with proper security controls.
+session handling with proper security controls. Includes HEAD method
+support for readiness checks.
 """
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel
 from typing import Optional
@@ -37,6 +38,33 @@ async def login_readiness_check():
     # Simple readiness check - verify essential components are available
     # In a full implementation, this might check database connectivity,
     # JWT key availability, etc.
+    return None
+
+@router.head("/auth/logout", status_code=204)
+async def logout_readiness_check():
+    """
+    Logout endpoint readiness check for monitoring
+    
+    Returns 204 No Content when logout service is ready.
+    """
+    return None
+
+@router.head("/auth/me", status_code=204)
+async def user_info_readiness_check():
+    """
+    User info endpoint readiness check for monitoring
+    
+    Returns 204 No Content when user info service is ready.
+    """
+    return None
+
+@router.head("/auth/refresh", status_code=204)
+async def token_refresh_readiness_check():
+    """
+    Token refresh endpoint readiness check for monitoring
+    
+    Returns 204 No Content when token refresh service is ready.
+    """
     return None
 
 @router.post("/auth/login", response_model=TokenResponse)
@@ -84,3 +112,25 @@ async def get_current_user():
         "email": "dev@a1betting.com",
         "role": "admin"
     }
+
+@router.post("/auth/refresh", response_model=TokenResponse)
+async def refresh_token(refresh_token: str):
+    """
+    Refresh access token using refresh token
+    
+    TODO: Implement proper token refresh with rotation
+    """
+    if not refresh_token:
+        raise HTTPException(status_code=400, detail="Refresh token required")
+    
+    # Mock implementation
+    if refresh_token.startswith("refresh_"):
+        new_access_token = refresh_token.replace("refresh_", "new_access_")
+        new_refresh_token = f"refresh_{new_access_token}_rotated"
+        
+        return TokenResponse(
+            access_token=new_access_token,
+            refresh_token=new_refresh_token
+        )
+    
+    raise HTTPException(status_code=401, detail="Invalid refresh token")

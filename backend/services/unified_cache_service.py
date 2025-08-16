@@ -56,8 +56,13 @@ class UnifiedCacheService:
     def __init__(self):
         self._cache_service = intelligent_cache_service
         
-        # Register service capability if available
-        asyncio.create_task(self._register_capability())
+        # Register service capability if available and event loop is running
+        try:
+            loop = asyncio.get_running_loop()
+            asyncio.create_task(self._register_capability())
+        except RuntimeError:
+            # No event loop running, skip capability registration
+            pass
     
     async def _register_capability(self):
         """Register service capability with the matrix system"""
