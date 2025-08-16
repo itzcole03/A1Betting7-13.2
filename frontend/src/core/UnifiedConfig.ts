@@ -6,7 +6,7 @@
 
 // Browser-compatible event emitter implementation
 class SimpleEventEmitter {
-  private listeners: { [event: string]: Function[] } = {};
+  private listeners: { [event: string]: ((...args: unknown[]) => void)[] } = {};
 
   emit(event: string, data?: unknown): void {
     const _eventListeners = this.listeners[event];
@@ -15,14 +15,14 @@ class SimpleEventEmitter {
     }
   }
 
-  on(event: string, listener: Function): void {
+  on(event: string, listener: (...args: unknown[]) => void): void {
     if (!this.listeners[event]) {
       this.listeners[event] = [];
     }
     this.listeners[event].push(listener);
   }
 
-  off(event: string, listener: Function): void {
+  off(event: string, listener: (...args: unknown[]) => void): void {
     const _eventListeners = this.listeners[event];
     if (_eventListeners) {
       const _index = _eventListeners.indexOf(listener);
@@ -34,7 +34,58 @@ class SimpleEventEmitter {
 }
 
 export type ConfigLeaf = string | number | boolean | null;
-export type ConfigValue = ConfigLeaf | ConfigLeaf[] | { [key: string]: ConfigValue } | undefined;
+export type ConfigValue = 
+  | ConfigLeaf 
+  | ConfigLeaf[] 
+  | { [key: string]: ConfigValue } 
+  | RealtimeConfig
+  | undefined;
+
+// Realtime configuration interfaces
+export interface RealtimeConfig {
+  websocket: {
+    enabled: boolean;
+    autoReconnect: boolean;
+    maxReconnectAttempts: number;
+    reconnectInterval: number;
+    heartbeatInterval: number;
+    connectionTimeout: number;
+    endpoints: {
+      primary: string;
+      fallback?: string;
+    };
+    authentication: {
+      enabled: boolean;
+      tokenRefreshThreshold: number; // minutes before expiry
+    };
+  };
+  sse: {
+    enabled: boolean;
+    endpoint: string;
+    reconnectInterval: number;
+    maxReconnectAttempts: number;
+    activationThreshold: number; // consecutive WebSocket failures before SSE activation
+    stabilityThreshold: number; // milliseconds of stability before deactivating SSE
+  };
+  fallback: {
+    enablePolling: boolean;
+    pollingInterval: number;
+    maxPollingAttempts: number;
+  };
+  monitoring: {
+    enabled: boolean;
+    metricsInterval: number;
+    healthCheckInterval: number;
+    performanceTracking: boolean;
+  };
+  ui: {
+    showConnectionStatus: boolean;
+    showRealtimeIndicators: boolean;
+    notificationDuration: number; // milliseconds
+    connectionRetryMessage: string;
+    disconnectionMessage: string;
+  };
+}
 
 /**
  * UnifiedConfig
@@ -55,7 +106,55 @@ export class UnifiedConfig {
 
   private constructor() {
     this.eventBus = new SimpleEventEmitter();
-    // Optionally initialize defaultConfig here
+    
+    // Initialize default realtime configuration
+    this.defaultConfig = {
+      ...this.defaultConfig,
+      realtime: {
+        websocket: {
+          enabled: true,
+          autoReconnect: true,
+          maxReconnectAttempts: 5,
+          reconnectInterval: 5000, // 5 seconds
+          heartbeatInterval: 30000, // 30 seconds
+          connectionTimeout: 10000, // 10 seconds
+          endpoints: {
+            primary: '/ws/client',
+            fallback: '/ws/legacy'
+          },
+          authentication: {
+            enabled: true,
+            tokenRefreshThreshold: 5 // 5 minutes before expiry
+          }
+        },
+        sse: {
+          enabled: true,
+          endpoint: '/api/sse/realtime',
+          reconnectInterval: 10000, // 10 seconds
+          maxReconnectAttempts: 3,
+          activationThreshold: 3, // 3 consecutive WebSocket failures
+          stabilityThreshold: 120000 // 2 minutes of stability
+        },
+        fallback: {
+          enablePolling: true,
+          pollingInterval: 30000, // 30 seconds
+          maxPollingAttempts: 10
+        },
+        monitoring: {
+          enabled: true,
+          metricsInterval: 60000, // 1 minute
+          healthCheckInterval: 30000, // 30 seconds
+          performanceTracking: process.env.NODE_ENV === 'development'
+        },
+        ui: {
+          showConnectionStatus: true,
+          showRealtimeIndicators: true,
+          notificationDuration: 5000, // 5 seconds
+          connectionRetryMessage: 'Attempting to reconnect...',
+          disconnectionMessage: 'Connection lost. Retrying...'
+        }
+      } as RealtimeConfig
+    };
   }
 
   /**
@@ -127,6 +226,63 @@ export class UnifiedConfig {
   private saveToStorage(): void {
     // Optionally implement persistent storage
     // localStorage.setItem('a1betting_config', JSON.stringify(this.config));
+  }
+
+  /**
+   * Get realtime configuration with type safety
+   */
+  public getRealtimeConfig(): RealtimeConfig {
+    return this.get<RealtimeConfig>('realtime');
+  }
+
+  /**
+   * Update specific realtime configuration section
+   */
+  public updateRealtimeConfig(section: keyof RealtimeConfig, updates: Partial<RealtimeConfig[keyof RealtimeConfig]>): void {
+    const currentRealtime = this.getRealtimeConfig();
+    const updatedRealtime = {
+      ...currentRealtime,
+      [section]: {
+        ...currentRealtime[section],
+        ...updates
+      }
+    };
+    this.set('realtime', updatedRealtime);
+  }
+
+  /**
+   * Enable/disable WebSocket with configuration update
+   */
+  public toggleWebSocket(enabled: boolean): void {
+    this.updateRealtimeConfig('websocket', { enabled });
+  }
+
+  /**
+   * Enable/disable SSE fallback
+   */
+  public toggleSSE(enabled: boolean): void {
+    this.updateRealtimeConfig('sse', { enabled });
+  }
+
+  /**
+   * Update WebSocket reconnection settings
+   */
+  public configureWebSocketReconnect(maxAttempts: number, interval: number): void {
+    this.updateRealtimeConfig('websocket', {
+      maxReconnectAttempts: maxAttempts,
+      reconnectInterval: interval
+    });
+  }
+
+  /**
+   * Configure realtime monitoring settings
+   */
+  public configureMonitoring(enabled: boolean, metricsInterval?: number): void {
+    const updates: Partial<RealtimeConfig['monitoring']> = { enabled };
+    if (metricsInterval !== undefined) {
+      updates.metricsInterval = metricsInterval;
+    }
+    this.updateRealtimeConfig('monitoring', updates);
   }
 }
 

@@ -14,6 +14,14 @@ interface CoreFunctionValidationResult {
   executionTime: number;
   error?: string;
   warning?: string;
+  // Enhanced error classification
+  errorType?: 'structural_missing' | 'data_pending' | 'functionality_broken' | 'performance_issue';
+  errorDetails?: {
+    missingElements?: string[];
+    emptyElements?: string[];
+    brokenFunctionality?: string[];
+    performanceMetrics?: { expected: number; actual: number };
+  };
 }
 
 interface ValidatorEvent {
@@ -28,6 +36,9 @@ interface ValidatorEvent {
     warning?: string;
     functionName?: string;
     performanceImpact?: boolean;
+    // Enhanced error classification fields
+    errorType?: 'structural_missing' | 'data_pending' | 'functionality_broken' | 'performance_issue';
+    errorDetails?: Record<string, unknown>;
   };
 }
 
@@ -73,6 +84,16 @@ class CoreFunctionalityValidator {
   // Performance tracking for observability
   private responseTimes: number[] = [];
   private maxResponseTimes = 50; // Keep last 50 response times for averaging
+  
+  // Aggregated error tracking for enhanced logging
+  private aggregatedErrors: Map<string, {
+    count: number;
+    errorType: 'structural_missing' | 'data_pending' | 'functionality_broken' | 'performance_issue';
+    lastSeen: Date;
+    details: Record<string, unknown>;
+  }> = new Map();
+  private errorAggregationInterval = 30000; // 30 seconds
+  private lastErrorReport = Date.now();
 
   /**
    * Emit validator event for observability
@@ -401,6 +422,9 @@ class CoreFunctionalityValidator {
         
         // Emit individual function validation events
         if (!result.isValid) {
+          // Track aggregated errors for enhanced logging
+          this.trackAggregatedError(result);
+          
           this.emitValidatorEvent({
             event_type: 'validator.cycle.fail',
             phase: functionName,
@@ -408,7 +432,9 @@ class CoreFunctionalityValidator {
             duration_ms: result.executionTime,
             details: {
               error: result.error,
-              functionName: result.functionName
+              functionName: result.functionName,
+              errorType: result.errorType,
+              errorDetails: result.errorDetails
             }
           });
         } else if (result.warning) {
@@ -424,6 +450,9 @@ class CoreFunctionalityValidator {
           });
         }
       }
+
+      // Process aggregated error reporting
+      this.processAggregatedErrors();
 
       // Assess performance impact
       const performanceImpact = this.assessPerformanceImpact();
@@ -741,7 +770,7 @@ class CoreFunctionalityValidator {
   }
 
   /**
-   * Run validation with timeout protection
+   * Run validation with timeout and enhanced error classification
    */
   private async runValidationWithTimeout(
     functionName: string,
@@ -758,21 +787,101 @@ class CoreFunctionalityValidator {
       const isValid = await Promise.race([validator(), timeoutPromise]);
       const executionTime = performance.now() - startTime;
 
-      return {
+      const result: CoreFunctionValidationResult = {
         isValid,
         functionName,
         executionTime,
         warning: executionTime > 1000 ? `Slow execution: ${executionTime}ms` : undefined
       };
+
+      // Add performance issue classification for slow operations
+      if (executionTime > 1000) {
+        result.errorType = 'performance_issue';
+        result.errorDetails = {
+          performanceMetrics: { expected: 500, actual: Math.round(executionTime) }
+        };
+      }
+
+      return result;
     } catch (error) {
       const executionTime = performance.now() - startTime;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      // Enhanced error classification
+      const errorAnalysis = this.classifyValidationError(functionName, errorMessage, error);
+      
       return {
         isValid: false,
         functionName,
         executionTime,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: errorMessage,
+        errorType: errorAnalysis.type,
+        errorDetails: errorAnalysis.details
       };
     }
+  }
+
+  /**
+   * Classify validation errors for better debugging and aggregated reporting
+   */
+  private classifyValidationError(
+    functionName: string, 
+    errorMessage: string, 
+    _originalError: unknown
+  ): { type: 'structural_missing' | 'data_pending' | 'functionality_broken' | 'performance_issue', details: Record<string, unknown> } {
+
+    // Check for missing structural elements
+    if (errorMessage.includes('not found') || errorMessage.includes('No navigation elements') || 
+        errorMessage.includes('No elements found') || errorMessage.includes('elements found but')) {
+      
+      // Try to determine what specific elements are missing
+      const missingElements: string[] = [];
+      if (functionName === 'navigation') {
+        const navSelectors = '[data-testid*="nav"], [role="navigation"], nav';
+        const foundElements = document.querySelectorAll(navSelectors);
+        if (foundElements.length === 0) {
+          missingElements.push('navigation elements');
+        }
+      } else if (functionName === 'predictions') {
+        const predictionSelectors = '[data-testid*="prediction"], [data-component*="prediction"]';
+        const foundElements = document.querySelectorAll(predictionSelectors);
+        if (foundElements.length === 0) {
+          missingElements.push('prediction components');
+        }
+      }
+
+      return {
+        type: 'structural_missing',
+        details: { missingElements }
+      };
+    }
+
+    // Check for data pending situations (elements exist but no content)
+    if (errorMessage.includes('no content visible') || errorMessage.includes('content visible') || 
+        errorMessage.includes('empty') || errorMessage.includes('data not loaded')) {
+      
+      const emptyElements: string[] = [];
+      // Additional logic to identify empty elements can be added here
+      
+      return {
+        type: 'data_pending',
+        details: { emptyElements }
+      };
+    }
+
+    // Check for performance issues
+    if (errorMessage.includes('timeout') || errorMessage.includes('Slow execution')) {
+      return {
+        type: 'performance_issue',
+        details: { performanceMetrics: { issue: 'timeout_or_slow_execution' } }
+      };
+    }
+
+    // Default to functionality broken for other errors
+    return {
+      type: 'functionality_broken',
+      details: { brokenFunctionality: [errorMessage] }
+    };
   }
 
   /**
@@ -934,6 +1043,102 @@ class CoreFunctionalityValidator {
       },
       recommendations: ['Fix core validation system', 'Check for system-level issues']
     };
+  }
+
+  /**
+   * Track aggregated errors for enhanced logging and debugging
+   */
+  private trackAggregatedError(result: CoreFunctionValidationResult): void {
+    if (!result.errorType || !result.error) return;
+
+    const errorKey = `${result.functionName}:${result.errorType}`;
+    const existingError = this.aggregatedErrors.get(errorKey);
+
+    if (existingError) {
+      existingError.count++;
+      existingError.lastSeen = new Date();
+      existingError.details = { ...existingError.details, ...result.errorDetails };
+    } else {
+      this.aggregatedErrors.set(errorKey, {
+        count: 1,
+        errorType: result.errorType,
+        lastSeen: new Date(),
+        details: result.errorDetails || {}
+      });
+    }
+  }
+
+  /**
+   * Process and report aggregated errors periodically to avoid spam
+   */
+  private processAggregatedErrors(): void {
+    const now = Date.now();
+    if (now - this.lastErrorReport < this.errorAggregationInterval) {
+      return; // Not time to report yet
+    }
+
+    if (this.aggregatedErrors.size === 0) {
+      this.lastErrorReport = now;
+      return; // No errors to report
+    }
+
+    // Categorize errors by type for structured reporting
+    const errorSummary: Record<string, { functions: string[]; count: number; details: Record<string, unknown>[] }> = {
+      structural_missing: { functions: [], count: 0, details: [] },
+      data_pending: { functions: [], count: 0, details: [] },
+      functionality_broken: { functions: [], count: 0, details: [] },
+      performance_issue: { functions: [], count: 0, details: [] }
+    };
+
+    for (const [errorKey, errorInfo] of this.aggregatedErrors.entries()) {
+      const [functionName] = errorKey.split(':');
+      const category = errorSummary[errorInfo.errorType];
+      
+      if (category) {
+        category.functions.push(functionName);
+        category.count += errorInfo.count;
+        category.details.push(errorInfo.details);
+      }
+    }
+
+    // Log aggregated summary (only in development to avoid production noise)
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.group('[CoreValidator] Aggregated Error Summary (Last 30s)');
+      
+      for (const [errorType, summary] of Object.entries(errorSummary)) {
+        if (summary.count > 0) {
+          // eslint-disable-next-line no-console
+          console.warn(`${errorType.toUpperCase()}:`, {
+            affectedFunctions: summary.functions,
+            totalOccurrences: summary.count,
+            uniqueFunctions: [...new Set(summary.functions)].length,
+            sampleDetails: summary.details[0] // Show first example
+          });
+        }
+      }
+      
+      // eslint-disable-next-line no-console
+      console.groupEnd();
+    }
+
+    // Emit aggregated error event for external monitoring
+    this.emitValidatorEvent({
+      event_type: 'validator.performance',
+      phase: 'aggregated_errors',
+      status: 'warn',
+      duration_ms: this.errorAggregationInterval,
+      timestamp: now,
+      details: {
+        warning: `Aggregated errors: ${this.aggregatedErrors.size} unique errors`,
+        functionName: 'aggregated_error_reporter',
+        performanceImpact: this.aggregatedErrors.size > 5 // Consider high error count as performance impact
+      }
+    });
+
+    // Clear aggregated errors after reporting
+    this.aggregatedErrors.clear();
+    this.lastErrorReport = now;
   }
 }
 

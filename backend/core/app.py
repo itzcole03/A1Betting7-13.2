@@ -276,33 +276,42 @@ def create_app() -> FastAPI:
     # Legacy WebSocket endpoint (DEPRECATED - moved to avoid path collision)
     @ws_router.websocket("/ws/legacy/{client_id}")
     async def websocket_endpoint_legacy(websocket: WebSocket, client_id: str):
-        logger.info(f"[WS] DEPRECATED: Legacy client {client_id} attempting connection on /ws/legacy/")
-        await websocket.accept()
-        logger.info(f"[WS] Legacy client {client_id} connected.")
+        from backend.middleware.websocket_logging_middleware import track_websocket_connection, log_websocket_error
         
-        # Publish observability event for legacy connection tracking
-        try:
-            from backend.services.observability.event_bus import get_event_bus
-            event_bus = get_event_bus()
-            event_bus.publish("legacy.usage", {
-                "connection_type": "ws.legacy.connect",
-                "client_id": client_id,
-                "endpoint": "/ws/legacy/{client_id}",
-                "deprecation_notice": "Use /ws/client with query parameters instead",
-                "migration_guide": "Replace /ws/{client_id} with /ws/client?client_id={client_id}"
-            })
-        except Exception as e:
-            logger.warning(f"Failed to publish legacy connection event: {e}")
-            
-        try:
-            while True:
-                data = await websocket.receive_text()
-                logger.info(f"[WS] Received from legacy {client_id}: {data}")
-                await websocket.send_text(f"Echo: {data}")
-        except WebSocketDisconnect:
-            logger.info(f"[WS] Legacy client {client_id} disconnected.")
-        except Exception as e:
-            logger.error(f"[WS] Legacy error for {client_id}: {e}")
+        async with track_websocket_connection(websocket, None) as conn_info:
+            try:
+                logger.info(f"[WS] DEPRECATED: Legacy client {client_id} attempting connection on /ws/legacy/")
+                await websocket.accept()
+                logger.info(f"[WS] Legacy client {client_id} connected.")
+                
+                # Publish observability event for legacy connection tracking
+                try:
+                    from backend.services.observability.event_bus import get_event_bus
+                    event_bus = get_event_bus()
+                    event_bus.publish("legacy.usage", {
+                        "connection_type": "ws.legacy.connect",
+                        "client_id": client_id,
+                        "endpoint": "/ws/legacy/{client_id}",
+                        "connection_id": conn_info.connection_id,
+                        "deprecation_notice": "Use /ws/client with query parameters instead",
+                        "migration_guide": "Replace /ws/{client_id} with /ws/client?client_id={client_id}"
+                    })
+                except Exception as e:
+                    logger.warning(f"Failed to publish legacy connection event: {e}")
+                    
+                try:
+                    while True:
+                        data = await websocket.receive_text()
+                        logger.info(f"[WS] Received from legacy {client_id}: {data}")
+                        await websocket.send_text(f"Echo: {data}")
+                except WebSocketDisconnect:
+                    logger.info(f"[WS] Legacy client {client_id} disconnected.")
+                except Exception as e:
+                    log_websocket_error(conn_info.connection_id, e, "legacy_message_handling")
+                    logger.error(f"[WS] Legacy error for {client_id}: {e}")
+            except Exception as e:
+                log_websocket_error(conn_info.connection_id, e, "legacy_connection")
+                logger.error(f"[WS] Legacy connection error for {client_id}: {e}")
 
     _app.include_router(ws_router)
     
@@ -758,6 +767,26 @@ def create_app() -> FastAPI:
         logger.warning(f"⚠️ Could not import enhanced WebSocket routes: {e}")
     except Exception as e:
         logger.error(f"❌ Failed to register enhanced WebSocket routes: {e}")
+    
+    # WebSocket Logging Routes (NEW)
+    try:
+        from backend.routes.websocket_logging_routes import router as ws_logging_router
+        _app.include_router(ws_logging_router, tags=["WebSocket Logging"])
+        logger.info("✅ WebSocket logging routes included (/api/websocket/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import WebSocket logging routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register WebSocket logging routes: {e}")
+    
+    # Version & Compatibility Routes (NEW)
+    try:
+        from backend.routes.version_routes import router as version_router
+        _app.include_router(version_router, tags=["Version & Compatibility"])
+        logger.info("✅ Version routes included (/api/version/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import version routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register version routes: {e}")
     
     # WebVitals Pipeline Routes (NEW)
     try:

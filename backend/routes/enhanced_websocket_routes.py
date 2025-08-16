@@ -14,6 +14,14 @@ from backend.services.enhanced_websocket_service import (
     MessageType
 )
 from backend.utils.enhanced_logging import get_logger
+from backend.middleware.websocket_logging_middleware import (
+    track_websocket_connection,
+    log_websocket_authentication,
+    log_websocket_subscription,
+    log_websocket_error,
+    get_websocket_stats,
+    get_active_websocket_connections
+)
 
 logger = get_logger("enhanced_websocket_routes")
 router = APIRouter(prefix="/ws/v2", tags=["Enhanced WebSocket"])
@@ -60,7 +68,14 @@ async def websocket_connect(
         "timestamp": "2025-08-14T12:00:00Z"
     }
     """
-    await enhanced_websocket_service.handle_connection(websocket, token)
+    async with track_websocket_connection(websocket, token) as conn_info:
+        try:
+            # Handle connection with logging
+            await enhanced_websocket_service.handle_connection(websocket, token)
+            
+        except Exception as e:
+            log_websocket_error(conn_info.connection_id, e, "main_connection")
+            raise
 
 
 @router.websocket("/odds")
@@ -74,14 +89,25 @@ async def websocket_odds_only(
     Dedicated WebSocket endpoint for odds updates only
     Automatically subscribes to odds_updates with optional filters
     """
-    try:
-        # Connect with authentication
-        await enhanced_websocket_service.handle_connection(websocket, token)
-        
-    except WebSocketDisconnect:
-        pass
-    except Exception as e:
-        logger.error(f"Error in odds-only WebSocket: {e}")
+    async with track_websocket_connection(websocket, token) as conn_info:
+        try:
+            # Log subscription for odds updates
+            filters = {}
+            if sport:
+                filters['sport'] = sport
+            if sportsbook:
+                filters['sportsbook'] = sportsbook
+            
+            log_websocket_subscription(conn_info.connection_id, "subscribe", "odds_updates", filters)
+            
+            # Connect with authentication
+            await enhanced_websocket_service.handle_connection(websocket, token)
+            
+        except WebSocketDisconnect:
+            pass
+        except Exception as e:
+            log_websocket_error(conn_info.connection_id, e, "odds_connection")
+            logger.error(f"Error in odds-only WebSocket: {e}")
 
 
 @router.websocket("/arbitrage")
@@ -95,13 +121,24 @@ async def websocket_arbitrage_only(
     Dedicated WebSocket endpoint for arbitrage opportunities only
     High-priority alerts for profitable arbitrage opportunities
     """
-    try:
-        await enhanced_websocket_service.handle_connection(websocket, token)
-        
-    except WebSocketDisconnect:
-        pass
-    except Exception as e:
-        logger.error(f"Error in arbitrage-only WebSocket: {e}")
+    async with track_websocket_connection(websocket, token) as conn_info:
+        try:
+            # Log subscription for arbitrage updates
+            filters = {}
+            if min_profit is not None:
+                filters['min_profit'] = min_profit
+            if sport:
+                filters['sport'] = sport
+            
+            log_websocket_subscription(conn_info.connection_id, "subscribe", "arbitrage", filters)
+            
+            await enhanced_websocket_service.handle_connection(websocket, token)
+            
+        except WebSocketDisconnect:
+            pass
+        except Exception as e:
+            log_websocket_error(conn_info.connection_id, e, "arbitrage_connection")
+            logger.error(f"Error in arbitrage-only WebSocket: {e}")
 
 
 @router.websocket("/sport/{sport_name}")
@@ -124,13 +161,24 @@ async def websocket_sport_specific(
         await websocket.close(code=4000, reason=f"Invalid sport: {sport_name}")
         return
     
-    try:
-        await enhanced_websocket_service.handle_connection(websocket, token)
-        
-    except WebSocketDisconnect:
-        pass
-    except Exception as e:
-        logger.error(f"Error in {sport_name} WebSocket: {e}")
+    async with track_websocket_connection(websocket, token) as conn_info:
+        try:
+            # Log subscription for sport-specific updates
+            filters = {'sport': sport_upper}
+            if game_id:
+                filters['game_id'] = game_id
+            if player:
+                filters['player'] = player
+            
+            log_websocket_subscription(conn_info.connection_id, "subscribe", sport_upper.lower(), filters)
+            
+            await enhanced_websocket_service.handle_connection(websocket, token)
+            
+        except WebSocketDisconnect:
+            pass
+        except Exception as e:
+            log_websocket_error(conn_info.connection_id, e, f"{sport_name}_connection")
+            logger.error(f"Error in {sport_name} WebSocket: {e}")
 
 
 @router.websocket("/portfolio")
@@ -146,19 +194,24 @@ async def websocket_portfolio_only(
         await websocket.close(code=4001, reason="Authentication required for portfolio updates")
         return
     
-    try:
-        await enhanced_websocket_service.handle_connection(websocket, token)
-        
-    except WebSocketDisconnect:
-        pass
-    except Exception as e:
-        logger.error(f"Error in portfolio WebSocket: {e}")
+    async with track_websocket_connection(websocket, token) as conn_info:
+        try:
+            # Log subscription for portfolio updates
+            log_websocket_subscription(conn_info.connection_id, "subscribe", "portfolio", {})
+            
+            await enhanced_websocket_service.handle_connection(websocket, token)
+            
+        except WebSocketDisconnect:
+            pass
+        except Exception as e:
+            log_websocket_error(conn_info.connection_id, e, "portfolio_connection")
+            logger.error(f"Error in portfolio WebSocket: {e}")
 
 
 # HTTP endpoints for WebSocket management and testing
 @router.get("/status")
 async def get_websocket_status():
-    """Get WebSocket service status"""
+    """Get WebSocket service status with logging statistics"""
     if not enhanced_websocket_service.is_initialized:
         return {
             "status": "not_initialized",
@@ -167,6 +220,7 @@ async def get_websocket_status():
         }
     
     cm = enhanced_websocket_service.connection_manager
+    logging_stats = get_websocket_stats()
     
     return {
         "status": "active" if enhanced_websocket_service.is_initialized else "inactive",
@@ -176,7 +230,8 @@ async def get_websocket_status():
             1 for conn in cm.connections.values() if conn.authenticated
         ),
         "subscription_types": [sub.value for sub in SubscriptionType],
-        "heartbeat_enabled": True
+        "heartbeat_enabled": True,
+        "logging_stats": logging_stats
     }
 
 
@@ -245,7 +300,7 @@ async def get_active_rooms():
 
 @router.get("/connections")
 async def get_active_connections():
-    """Get information about active WebSocket connections"""
+    """Get information about active WebSocket connections with detailed logging info"""
     if not enhanced_websocket_service.is_initialized:
         return {"error": "WebSocket service not initialized"}
     
@@ -263,10 +318,41 @@ async def get_active_connections():
             "subscriptions": list(connection.subscriptions)
         })
     
+    # Get detailed logging info for active connections
+    detailed_logging_info = get_active_websocket_connections()
+    
     return {
         "total_connections": len(connections_info),
         "authenticated_connections": sum(
             1 for conn in connections_info if conn["authenticated"]
         ),
-        "connections": connections_info
+        "connections": connections_info,
+        "detailed_logging_info": detailed_logging_info
+    }
+
+
+@router.get("/logging/stats")
+async def get_websocket_logging_stats():
+    """Get detailed WebSocket logging statistics"""
+    return {
+        "logging_stats": get_websocket_stats(),
+        "active_connections": get_active_websocket_connections()
+    }
+
+
+@router.get("/logging/connections/{connection_id}")
+async def get_websocket_connection_details(connection_id: str):
+    """Get detailed information about a specific WebSocket connection"""
+    active_connections = get_active_websocket_connections()
+    
+    for conn in active_connections:
+        if conn["connection_id"] == connection_id:
+            return {
+                "connection_found": True,
+                "connection_info": conn
+            }
+    
+    return {
+        "connection_found": False,
+        "error": f"Connection {connection_id} not found in active connections"
     }
