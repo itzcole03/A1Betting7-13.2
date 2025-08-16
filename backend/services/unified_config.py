@@ -461,8 +461,14 @@ class UnifiedConfigManager:
 
     def get_config_summary(self) -> Dict[str, Any]:
         """Get configuration summary for debugging"""
+        # Handle environment safely in case it's not an enum
+        try:
+            env_value = self._config.environment.value if hasattr(self._config.environment, 'value') else str(self._config.environment)
+        except Exception:
+            env_value = str(self._config.environment)
+            
         return {
-            "environment": self._config.environment.value,
+            "environment": env_value,
             "debug": self._config.debug,
             "api_host": self._config.api.host,
             "api_port": self._config.api.port,

@@ -12,6 +12,7 @@ Replaces:
 Uses intelligent_cache_service.py as the primary implementation.
 """
 
+import asyncio
 import logging
 from typing import Any, Dict, List, Optional
 
@@ -21,6 +22,19 @@ from .intelligent_cache_service import (
     CachePattern,
     IntelligentCacheService,
 )
+
+# Import capability registration - used for conditional capability system integration
+try:
+    from backend.services.service_capability_matrix import (
+        register_service_capability,
+        ServiceCategory,
+        ServiceStatus,
+        DegradedPolicy,
+        update_service_status_quick
+    )
+    CAPABILITY_SYSTEM_AVAILABLE = True
+except ImportError:
+    CAPABILITY_SYSTEM_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +55,49 @@ class UnifiedCacheService:
 
     def __init__(self):
         self._cache_service = intelligent_cache_service
+        
+        # Register service capability if available
+        asyncio.create_task(self._register_capability())
+    
+    async def _register_capability(self):
+        """Register service capability with the matrix system"""
+        if CAPABILITY_SYSTEM_AVAILABLE:
+            try:
+                # Import locally to avoid type checker issues
+                from backend.services.service_capability_matrix import (
+                    register_service_capability,
+                    ServiceCategory,
+                    DegradedPolicy
+                )
+                
+                await register_service_capability(
+                    name="unified_cache_service",
+                    version="1.0.0", 
+                    category=ServiceCategory.UTILITY,
+                    description="Unified cache service with intelligent caching and performance optimization",
+                    required=False,  # Cache service can degrade gracefully
+                    degraded_policy=DegradedPolicy.GRACEFUL,
+                    health_check_interval=60,
+                    dependencies=None
+                )
+                logger.info("✅ UnifiedCacheService registered with capability matrix")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to register with capability matrix: {e}")
+
+    def _update_service_status(self, operation: str, is_healthy: bool = True):
+        """Update service status in the capability matrix"""
+        if CAPABILITY_SYSTEM_AVAILABLE:
+            try:
+                from backend.services.service_capability_matrix import (
+                    ServiceStatus,
+                    update_service_status_quick
+                )
+                
+                status = ServiceStatus.UP if is_healthy else ServiceStatus.DEGRADED
+                asyncio.create_task(update_service_status_quick("unified_cache_service", status))
+            except Exception as e:
+                # Don't fail the main operation if status update fails
+                logger.debug(f"Cache status update failed: {e}")
 
     async def initialize(self):
         """Initialize the cache service"""

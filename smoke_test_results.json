@@ -1,0 +1,220 @@
+{
+  "overall_success": true,
+  "success_rate": 100.0,
+  "total_tests": 7,
+  "passed_tests": 7,
+  "failed_tests": 0,
+  "duration_seconds": 2.82,
+  "test_results": [
+    {
+      "test_name": "API Health Check",
+      "success": true,
+      "duration_ms": 592.78,
+      "details": {
+        "status_code": 200,
+        "response_data": {
+          "success": true,
+          "data": {
+            "status": "ok",
+            "deprecated": true,
+            "forward": "/api/v2/diagnostics/health",
+            "message": "This endpoint is deprecated. Use /api/v2/diagnostics/health for structured health information."
+          },
+          "error": null,
+          "meta": {
+            "request_id": "ec79f0de-61ba-4b3f-9b5a-76d26d76f68f"
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "test_name": "Capabilities Endpoint - Full",
+      "success": true,
+      "duration_ms": 449.74,
+      "details": {
+        "services_count": 11,
+        "global_status": "UP",
+        "matrix_version": "1.0.0",
+        "response_size_bytes": 6980
+      },
+      "error": null
+    },
+    {
+      "test_name": "Capabilities Endpoint - Summary",
+      "success": true,
+      "duration_ms": 460.87,
+      "details": {
+        "total_services": 11,
+        "overall_health": 100.0,
+        "status_breakdown": {
+          "UP": 11
+        },
+        "global_status": "UP"
+      },
+      "error": null
+    },
+    {
+      "test_name": "Capabilities Endpoint - Minimal",
+      "success": true,
+      "duration_ms": 436.06,
+      "details": {
+        "response_data": {
+          "global_status": "UP",
+          "summary": {
+            "total_services": 11,
+            "status_breakdown": {
+              "UP": 11
+            },
+            "category_breakdown": {
+              "core": 5,
+              "data": 2,
+              "ml": 1,
+              "external": 2,
+              "utility": 1
+            },
+            "overall_health": 100.0,
+            "critical_services_down": 0,
+            "required_services": 5,
+            "optional_services": 6
+          },
+          "service_count": 11,
+          "response_time_ms": 0.5
+        },
+        "response_size_bytes": 292
+      },
+      "error": null
+    },
+    {
+      "test_name": "Individual Service Status",
+      "success": true,
+      "duration_ms": 437.3,
+      "details": {
+        "service_name": "unified_config",
+        "service_data": {
+          "service_name": "unified_config",
+          "capability": {
+            "name": "unified_config",
+            "version": "1.0.0",
+            "category": "core",
+            "description": "Centralized configuration management",
+            "required": true,
+            "degraded_policy": "fail_fast",
+            "status": "UP",
+            "last_check": "2025-08-16T03:12:56.100301",
+            "last_success": "2025-08-16T03:12:56.100301",
+            "last_failure": null,
+            "failure_count": 0,
+            "recovery_count": 1,
+            "health_check": {
+              "enabled": true,
+              "interval_seconds": 300,
+              "timeout_seconds": 10,
+              "failure_threshold": 3,
+              "recovery_threshold": 2
+            },
+            "dependencies": [],
+            "metadata": {},
+            "average_response_time_ms": 0.0,
+            "total_requests": 1,
+            "success_requests": 1,
+            "failed_requests": 0
+          },
+          "timestamp": 1755314032.0015628
+        }
+      },
+      "error": null
+    },
+    {
+      "test_name": "Event Schema Validation",
+      "success": true,
+      "duration_ms": 0.02,
+      "details": {
+        "total_events_tested": 3,
+        "valid_events": 3,
+        "event_validation_results": [
+          {
+            "event": {
+              "schema_version": "validator.event.v1",
+              "event_type": "service.status_changed",
+              "timestamp": "2025-08-15T22:13:52.004452",
+              "data": {
+                "service_name": "test_service",
+                "old_status": "UP",
+                "new_status": "DEGRADED"
+              }
+            },
+            "valid": true,
+            "has_all_fields": true,
+            "valid_schema": true,
+            "valid_type": true
+          },
+          {
+            "event": {
+              "schema_version": "validator.event.v1",
+              "event_type": "system.health_check",
+              "timestamp": "2025-08-15T22:13:52.004458",
+              "data": {
+                "overall_health": 85.5,
+                "critical_services": 0
+              }
+            },
+            "valid": true,
+            "has_all_fields": true,
+            "valid_schema": true,
+            "valid_type": true
+          },
+          {
+            "event": {
+              "schema_version": "validator.event.v1",
+              "event_type": "websocket.connection",
+              "timestamp": "2025-08-15T22:13:52.004459",
+              "data": {
+                "client_id": "smoke_test",
+                "action": "connected"
+              }
+            },
+            "valid": true,
+            "has_all_fields": true,
+            "valid_schema": true,
+            "valid_type": true
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "test_name": "Service Registry Integration",
+      "success": true,
+      "duration_ms": 435.76,
+      "details": {
+        "total_registered_services": 11,
+        "expected_services": [
+          "unified_data_fetcher",
+          "unified_cache_service"
+        ],
+        "found_services": [
+          "unified_data_fetcher",
+          "unified_cache_service"
+        ],
+        "missing_services": [],
+        "all_registered_services": [
+          "unified_config",
+          "unified_logging",
+          "unified_cache",
+          "database",
+          "websocket_service",
+          "mlb_data_provider",
+          "modern_ml_service",
+          "prizepicks_adapter",
+          "baseball_savant_client",
+          "unified_cache_service",
+          "unified_data_fetcher"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "failed_test_details": [],
+  "timestamp": "2025-08-15T22:13:52.440689"
+}

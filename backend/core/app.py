@@ -106,6 +106,16 @@ def create_app() -> FastAPI:
         logger.warning(f"⚠️ Could not import request ID middleware: {e}")
     except Exception as e:
         logger.error(f"❌ Failed to configure request ID middleware: {e}")
+        
+    # --- Distributed Trace Correlation Middleware (NEW) ---
+    try:
+        from backend.middleware.distributed_trace_middleware import DistributedTraceMiddleware
+        _app.add_middleware(DistributedTraceMiddleware)
+        logger.info("✅ Distributed trace correlation middleware added")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import distributed trace middleware: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to configure distributed trace middleware: {e}")
     
     # --- Structured Logging Middleware ---
     # Skip heavy debug middleware in lean mode
@@ -528,11 +538,27 @@ def create_app() -> FastAPI:
         """
         Handle CORS preflight for sports activation endpoint
         
+        This endpoint explicitly handles OPTIONS preflight requests for the sports activation endpoint.
+        The actual CORS headers are added by the CORSMiddleware configured above.
+        
         Returns:
             Empty response with proper CORS headers (handled by CORSMiddleware)
         """
+        from backend.middleware.request_id_middleware import get_request_id_from_request
+        from fastapi import Request, Response
+        
         logger.debug("[API] OPTIONS /api/v2/sports/activate preflight handled")
-        return Response(status_code=200)
+        
+        # Return response with explicit CORS headers (middleware will also add its headers)
+        response = Response(status_code=200)
+        
+        # Add explicit preflight headers for this specific endpoint
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With, Accept, Origin"
+        response.headers["Access-Control-Max-Age"] = "86400"  # Cache preflight for 24 hours
+        
+        return response
 
     @_app.post("/api/v2/sports/activate")
     async def api_activate(request: Request):
@@ -733,6 +759,16 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register enhanced WebSocket routes: {e}")
     
+    # WebVitals Pipeline Routes (NEW)
+    try:
+        from backend.services.webvitals_pipeline import router as webvitals_router
+        _app.include_router(webvitals_router)
+        logger.info("✅ WebVitals pipeline routes included (/api/metrics/v1/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import WebVitals pipeline routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register WebVitals pipeline routes: {e}")
+    
     # Enhanced ML Routes with SHAP Explainability, Batch Optimization, Performance Logging
     try:
         from backend.routes.enhanced_ml_routes import router as enhanced_ml_router
@@ -774,7 +810,61 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register consolidated Admin routes: {e}")
 
+    # System Capabilities Matrix API (Service Registry & Health Tracking)
+    try:
+        from backend.routes.system_capabilities import router as system_capabilities_router
+        _app.include_router(system_capabilities_router, tags=["System Capabilities"])
+        logger.info("✅ System capabilities routes included (/api/system/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import system capabilities routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register system capabilities routes: {e}")
+
     # DB and config setup can be added here as modules are refactored in
+    
+    # --- Bootstrap Validation & Sanity Check (NEW) ---
+    # Validate configuration and endpoints at startup
+    try:
+        from backend.services.bootstrap_validator import validate_app_bootstrap
+        # Note: This is async but we can't await here, so we'll schedule it
+        # The validation will happen after app creation
+        def schedule_bootstrap_validation():
+            import asyncio
+            try:
+                # Create new event loop if none exists
+                try:
+                    loop = asyncio.get_event_loop()
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                
+                # Run validation
+                summary = loop.run_until_complete(validate_app_bootstrap(_app))
+                
+                # Additional logging for critical issues
+                if summary.critical_issues > 0:
+                    logger.critical(f"🔥 CRITICAL: {summary.critical_issues} critical issues found during bootstrap validation!")
+                elif summary.errors > 0:
+                    logger.error(f"❌ {summary.errors} errors found during bootstrap validation")
+                elif summary.warnings > 0:
+                    logger.warning(f"⚠️ {summary.warnings} warnings found during bootstrap validation")
+                else:
+                    logger.info("✅ Bootstrap validation completed successfully")
+                
+            except Exception as e:
+                logger.error(f"❌ Bootstrap validation failed: {e}")
+        
+        # Schedule validation to run after app creation
+        import threading
+        validation_thread = threading.Thread(target=schedule_bootstrap_validation, daemon=True)
+        validation_thread.start()
+        
+        logger.info("🔍 Bootstrap validation scheduled")
+        
+    except ImportError as e:
+        logger.warning(f"⚠️ Bootstrap validator not available: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to schedule bootstrap validation: {e}")
     
     # Log normalized health endpoints at startup
     logger.info("🏥 Health endpoints normalized: /api/health, /health, /api/v2/health -> identical envelope format")

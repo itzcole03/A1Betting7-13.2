@@ -31,7 +31,8 @@ async def websocket_client_endpoint_enhanced(
     websocket: WebSocket,
     client_id: str = Query(..., description="Client UUID for connection identification"),
     version: int = Query(1, description="WebSocket protocol version"),
-    role: str = Query("frontend", description="Client role (frontend, admin, etc.)")
+    role: str = Query("frontend", description="Client role (frontend, admin, etc.)"),
+    correlationId: Optional[str] = Query(None, description="Correlation ID for request tracking")
 ):
     """
     Enhanced WebSocket client endpoint with PR11 envelope system integration.
@@ -42,51 +43,75 @@ async def websocket_client_endpoint_enhanced(
     - Connection registry for broadcasting
     - Observability event publishing
     - Backward compatibility with legacy messages
+    - UUID correlation ID system integration
     
-    URL Pattern: /ws/client?client_id=<uuid>&version=1&role=frontend
+    URL Pattern: /ws/client?client_id=<uuid>&version=1&role=frontend&correlationId=<uuid>
     
     Handshake Flow:
-    1. Client connects with query params
+    1. Client connects with query params (including optional correlationId)
     2. Server validates version and params  
-    3. Server sends enveloped hello message
-    4. Connection registered for broadcasting
-    5. Heartbeat ping/pong cycle begins with envelopes
+    3. Server creates or uses existing correlation context
+    4. Server sends enveloped hello message with correlation ID
+    5. Connection registered for broadcasting with correlation tracking
+    6. Heartbeat ping/pong cycle begins with envelopes
     
     Args:
         websocket: WebSocket connection
         client_id: Unique client identifier
         version: Protocol version (currently only 1 supported)
         role: Client role for access control
+        correlationId: Optional correlation ID for request tracking
     """
-    request_id = str(uuid.uuid4())
+    from backend.services.correlation_service import async_correlation_context, CorrelationScope
+    
+    # Extract or generate correlation ID
+    correlation_id = correlationId or str(uuid.uuid4())
     connection_id = f"{client_id}_{uuid.uuid4().hex[:8]}"
     
-    # Log connection attempt with observability event
-    logger.info(
-        "Enhanced WebSocket connection attempt",
-        extra={
-            "client_id": client_id,
-            "connection_id": connection_id,
-            "version": version,
-            "role": role,
-            "request_id": request_id,
-            "remote_addr": websocket.client.host if websocket.client else "unknown"
-        }
-    )
+    # Use correlation_id as request_id for backward compatibility
+    request_id = correlation_id
     
-    # Publish connection attempt to event bus
-    event_bus = get_event_bus()
-    event_bus.publish(
-        event_type="ws.message.out",
-        data={
-            "type": "connection_attempt",
+    # Create WebSocket correlation context
+    async with async_correlation_context(
+        scope=CorrelationScope.WEBSOCKET,
+        correlation_id=correlation_id,
+        source="websocket",
+        trace_data={
             "client_id": client_id,
             "connection_id": connection_id,
             "version": version,
             "role": role
-        },
-        request_id=request_id
-    )
+        }
+    ) as correlation_context:
+        
+        # Log connection attempt with correlation tracking
+        logger.info(
+            "Enhanced WebSocket connection attempt",
+            extra={
+                "client_id": client_id,
+                "connection_id": connection_id,
+                "version": version,
+                "role": role,
+                "correlation_id": correlation_id,
+                "request_id": request_id,
+                "remote_addr": websocket.client.host if websocket.client else "unknown"
+            }
+        )
+        
+        # Publish connection attempt to event bus
+        event_bus = get_event_bus()
+        event_bus.publish(
+            event_type="ws.message.out",
+            data={
+                "type": "connection_attempt",
+                "client_id": client_id,
+                "connection_id": connection_id,
+                "version": version,
+                "role": role,
+                "correlation_id": correlation_id
+            },
+            request_id=request_id
+        )
     
     # Version validation
     if version != 1:

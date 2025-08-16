@@ -30,6 +30,19 @@ from backend.models.api_models import (
 )
 from backend.services.unified_error_handler import unified_error_handler
 
+# Import capability registration - used for conditional capability system integration
+try:
+    from backend.services.service_capability_matrix import (
+        register_service_capability,
+        ServiceCategory,
+        ServiceStatus,
+        DegradedPolicy,
+        update_service_status_quick
+    )
+    CAPABILITY_SYSTEM_AVAILABLE = True
+except ImportError:
+    CAPABILITY_SYSTEM_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
 
 
@@ -292,6 +305,67 @@ class UnifiedDataFetcher:
 
         # Initialize ensemble system if available
         self._initialize_ensemble_system()
+        
+        # Register service capability if available
+        asyncio.create_task(self._register_capability())
+    
+    async def _register_capability(self):
+        """Register service capability with the matrix system"""
+        if CAPABILITY_SYSTEM_AVAILABLE:
+            try:
+                # Import locally to avoid type checker issues
+                from backend.services.service_capability_matrix import (
+                    register_service_capability,
+                    ServiceCategory,
+                    DegradedPolicy
+                )
+                
+                await register_service_capability(
+                    name="unified_data_fetcher",
+                    version="1.0.0", 
+                    category=ServiceCategory.DATA,
+                    description="Unified data fetching service with ensemble integration",
+                    required=True,
+                    degraded_policy=DegradedPolicy.FALLBACK,
+                    health_check_interval=60,
+                    dependencies=None
+                )
+                logger.info("✅ UnifiedDataFetcher registered with capability matrix")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to register with capability matrix: {e}")
+
+    def _update_service_status(self, status_name: str, is_healthy: bool = True):
+        """Update service status in the capability matrix"""
+        if CAPABILITY_SYSTEM_AVAILABLE:
+            try:
+                from backend.services.service_capability_matrix import (
+                    ServiceStatus,
+                    update_service_status_quick
+                )
+                
+                status = ServiceStatus.UP if is_healthy else ServiceStatus.DEGRADED
+                # Note: update_service_status_quick is async but we're not awaiting 
+                # to avoid blocking the main operation flow
+                asyncio.create_task(update_service_status_quick("unified_data_fetcher", status))
+            except Exception as e:
+                # Don't fail the main operation if status update fails
+                logger.debug(f"Status update failed: {e}")
+
+    def _health_check(self) -> bool:
+        """Health check for the unified data fetcher service"""
+        try:
+            # Check if we can create an HTTP client
+            if self._client is None:
+                self._client = httpx.AsyncClient(
+                    timeout=httpx.Timeout(self.config.timeout),
+                    limits=httpx.Limits(max_keepalive_connections=10, max_connections=20),
+                )
+            
+            # Basic connectivity check - we have a client and config
+            return self._client is not None and self.config is not None
+        except Exception as e:
+            logger.warning(f"Health check failed: {e}")
+            return False
 
     def _initialize_ensemble_system(self):
         """Initialize intelligent ensemble system with fallback"""
@@ -361,12 +435,18 @@ class UnifiedDataFetcher:
             if self.config.enable_caching:
                 self._cache[cache_key] = (props, time.time())
 
+            # Update service status - successful operation
+            self._update_service_status("data_fetch", True)
+
             logger.info(
                 f"✅ Successfully fetched {len(props)} props from in-season sports"
             )
             return props
 
         except Exception as e:
+            # Update service status - operation failed
+            self._update_service_status("data_fetch", False)
+            
             logger.error(f"❌ Error fetching PrizePicks props: {e}")
             self.error_handler.handle_error(e, "fetch_current_prizepicks_props")
             return []
