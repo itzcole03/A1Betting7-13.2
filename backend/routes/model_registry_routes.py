@@ -1,14 +1,44 @@
 """
-ML Model Registry Routes - Complete CRUD operations for model management
-Provides model lifecycle management with metadata, versioning, and evaluation uploads
+Model Registry API Routes - Enterprise ML Model Management
+Provides REST endpoints for model registry operations, feature flags, and validation
+Updated with performance monitoring, validation harness, and feature flag integration
 """
 
-import json
+import asyncio
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 import logging
-import uuid
-from datetime import datetime
-from typing import Dict, List, Optional, Any
-from io import BytesIO
+
+from fastapi import APIRouter, HTTPException, Query, Path, Depends, Form, File, UploadFile
+from pydantic import BaseModel, Field
+
+try:
+    from backend.services.model_registry_service import (
+        get_model_registry_service,
+        ModelMetadata,
+        ModelStatus,
+        ModelType,
+        ModelPerformanceMetrics
+    )
+    from backend.services.model_validation_harness import get_validation_harness
+    MODEL_REGISTRY_AVAILABLE = True
+except ImportError:
+    MODEL_REGISTRY_AVAILABLE = False
+    # Create fallback classes
+    class ModelStatus:
+        DEVELOPMENT = "development"
+        CANARY = "canary"
+        STABLE = "stable"
+        DEPRECATED = "deprecated"
+    
+    class ModelType:
+        TRANSFORMER = "transformer"
+
+try:
+    from backend.feature_flags import FeatureFlags, UserContext
+    FEATURE_FLAGS_AVAILABLE = True
+except ImportError:
+    FEATURE_FLAGS_AVAILABLE = False
 
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form, Query
 

@@ -21,6 +21,12 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "type-check": "tsc --noEmit",
+    "load-test": "pwsh scripts/run-load-tests.ps1",
+    "load-test:quick": "pwsh scripts/run-load-tests.ps1 -Quick",
+    "load-test:sports": "pwsh scripts/run-load-tests.ps1 -Scenario sports_activation",
+    "load-test:inference": "pwsh scripts/run-load-tests.ps1 -Scenario inference_throughput",
+    "load-test:cache": "pwsh scripts/run-load-tests.ps1 -Scenario cache_performance",
+    "load-test:pagination": "pwsh scripts/run-load-tests.ps1 -Scenario pagination_stress",
     "preview": "vite preview"
   },
   "keywords": [

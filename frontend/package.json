@@ -44,6 +44,7 @@
     "docker:build": "docker build -f ../Dockerfile.frontend.optimized -t a1betting-frontend .",
     "docker:run": "docker run -p 80:80 a1betting-frontend",
     "validate": "npm run type-check && npm run lint && npm run test:ci",
+    "audit:virtualization": "node ../scripts/audit-virtualization.cjs ./src",
     "prepare": "npx husky install || true",
     "postinstall": "echo 'Skipping type-check during install'"
   },
@@ -113,6 +114,7 @@
     "jest-transform-stub": "^2.0.0",
     "msw": "^2.10.4",
     "tailwindcss": "^4.1.11",
+    "tsx": "^4.20.4",
     "typescript": "^5.9.2",
     "vite": "^7.1.2",
     "vite-plugin-html": "^3.2.2",

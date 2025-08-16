@@ -820,6 +820,34 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register system capabilities routes: {e}")
 
+    # --- Enterprise Model Registry Routes (NEW) ---
+    try:
+        from backend.routes.enterprise_model_registry_routes import enterprise_router
+        _app.include_router(enterprise_router, tags=["Enterprise Model Registry"])
+        logger.info("✅ Enterprise model registry routes included (/api/models/enterprise/* endpoints)")
+        
+        # Initialize model registry service and validation harness
+        try:
+            from backend.services.model_registry_service import get_model_registry_service
+            from backend.services.model_validation_harness import get_validation_harness
+            from backend.services.model_selection_service import get_model_selection_service
+            
+            # Initialize services (this will set up Redis connections, etc.)
+            registry = get_model_registry_service()
+            harness = get_validation_harness()
+            selection = get_model_selection_service()
+            
+            logger.info("✅ Enterprise model registry services initialized")
+        except ImportError as e:
+            logger.warning(f"⚠️ Enterprise model registry services not available: {e}")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize enterprise model registry services: {e}")
+            
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import enterprise model registry routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register enterprise model registry routes: {e}")
+
     # DB and config setup can be added here as modules are refactored in
     
     # --- Bootstrap Validation & Sanity Check (NEW) ---
