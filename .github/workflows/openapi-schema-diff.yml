@@ -1,0 +1,313 @@
+# OpenAPI Schema Diff Generator for Pull Requests
+# Automatically generates and comments OpenAPI schema differences on PRs
+
+name: 📄 OpenAPI Schema Diff
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'backend/**/*.py'
+      - 'backend/routes/**'
+      - 'backend/models/**'
+      - 'requirements*.txt'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "20"
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  generate-schema-diff:
+    name: 🔄 Generate OpenAPI Schema Diff
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_USER: test_user
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install openapi-spec-validator openapi-diff swagger-codegen-cli
+
+      - name: Generate current branch schema
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379/0
+        run: |
+          cd backend
+          python -c "
+          import json
+          import asyncio
+          from main import app
+          from fastapi.openapi.utils import get_openapi
+
+          def get_openapi_schema():
+              return get_openapi(
+                  title=app.title,
+                  version=app.version,
+                  description=app.description,
+                  routes=app.routes,
+              )
+
+          schema = get_openapi_schema()
+          with open('../current_schema.json', 'w') as f:
+              json.dump(schema, f, indent=2, sort_keys=True)
+          
+          print(f'Generated schema with {len(schema.get(\"paths\", {}))} endpoints')
+          "
+
+      - name: Get base branch schema
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379/0
+        run: |
+          # Get base branch
+          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          echo "Comparing against base branch: $BASE_BRANCH"
+          
+          # Checkout base branch
+          git checkout origin/$BASE_BRANCH
+          
+          # Install dependencies for base branch
+          pip install -r backend/requirements.txt
+          
+          # Generate base schema
+          cd backend
+          python -c "
+          import json
+          import asyncio
+          from main import app
+          from fastapi.openapi.utils import get_openapi
+
+          def get_openapi_schema():
+              return get_openapi(
+                  title=app.title,
+                  version=app.version,
+                  description=app.description,
+                  routes=app.routes,
+              )
+
+          schema = get_openapi_schema()
+          with open('../base_schema.json', 'w') as f:
+              json.dump(schema, f, indent=2, sort_keys=True)
+          
+          print(f'Generated base schema with {len(schema.get(\"paths\", {}))} endpoints')
+          "
+          
+          # Return to PR branch
+          git checkout -
+
+      - name: Generate schema diff report
+        run: |
+          python .github/scripts/openapi_diff.py \
+            --base base_schema.json \
+            --current current_schema.json \
+            --output schema_diff_report.md \
+            --format markdown
+
+      - name: Validate schemas
+        run: |
+          # Validate both schemas
+          python -c "
+          import json
+          from openapi_spec_validator import validate_spec
+          
+          # Validate base schema
+          try:
+              with open('base_schema.json', 'r') as f:
+                  base_schema = json.load(f)
+              validate_spec(base_schema)
+              print('✅ Base schema is valid')
+          except Exception as e:
+              print(f'❌ Base schema validation failed: {e}')
+              
+          # Validate current schema
+          try:
+              with open('current_schema.json', 'r') as f:
+                  current_schema = json.load(f)
+              validate_spec(current_schema)
+              print('✅ Current schema is valid')
+          except Exception as e:
+              print(f'❌ Current schema validation failed: {e}')
+              exit(1)
+          "
+
+      - name: Upload schemas as artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: openapi-schemas
+          path: |
+            base_schema.json
+            current_schema.json
+            schema_diff_report.md
+
+      - name: Check for breaking changes
+        id: breaking-changes
+        run: |
+          # Check if there are breaking changes
+          BREAKING_CHANGES=$(python .github/scripts/check_breaking_changes.py base_schema.json current_schema.json)
+          echo "breaking_changes=$BREAKING_CHANGES" >> $GITHUB_OUTPUT
+          
+          if [ "$BREAKING_CHANGES" = "true" ]; then
+            echo "⚠️ Breaking changes detected in OpenAPI schema"
+            exit 1
+          else
+            echo "✅ No breaking changes detected"
+          fi
+
+      - name: Comment PR with schema diff
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            try {
+              const diffReport = fs.readFileSync('schema_diff_report.md', 'utf8');
+              const breakingChanges = '${{ steps.breaking-changes.outputs.breaking_changes }}' === 'true';
+              
+              const header = breakingChanges 
+                ? '🚨 **Breaking Changes Detected in OpenAPI Schema** 🚨'
+                : '📄 **OpenAPI Schema Diff Report**';
+              
+              const body = `${header}
+
+            This PR introduces the following changes to the API schema:
+
+            ${diffReport}
+
+            ---
+
+            <details>
+            <summary>📊 Schema Statistics</summary>
+
+            **Base Branch:**
+            - Generated at: ${new Date().toISOString()}
+            - Branch: ${{ github.event.pull_request.base.ref }}
+            - Commit: ${{ github.event.pull_request.base.sha }}
+
+            **Current Branch:**
+            - Generated at: ${new Date().toISOString()}
+            - Branch: ${{ github.event.pull_request.head.ref }}
+            - Commit: ${{ github.event.pull_request.head.sha }}
+
+            </details>
+
+            ${breakingChanges ? '\n⚠️ **This PR contains breaking changes that may affect API consumers.**' : ''}
+            `;
+
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+              
+              if (breakingChanges) {
+                await github.rest.issues.addLabels({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  labels: ['breaking-change', 'api-change']
+                });
+              }
+              
+            } catch (error) {
+              console.error('Error reading diff report:', error);
+              
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '❌ **Error generating OpenAPI schema diff**\n\nPlease check the workflow logs for details.'
+              });
+            }
+
+  security-impact-analysis:
+    name: 🔒 Security Impact Analysis
+    runs-on: ubuntu-latest
+    needs: generate-schema-diff
+    if: always() && needs.generate-schema-diff.result == 'success'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download schema artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: openapi-schemas
+
+      - name: Analyze security implications
+        run: |
+          python .github/scripts/security_impact_analysis.py \
+            --base base_schema.json \
+            --current current_schema.json \
+            --output security_impact.md
+
+      - name: Upload security analysis
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-analysis
+          path: security_impact.md
+
+      - name: Comment security impact
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            try {
+              const securityImpact = fs.readFileSync('security_impact.md', 'utf8');
+              
+              if (securityImpact.trim()) {
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: `🔒 **Security Impact Analysis**\n\n${securityImpact}`
+                });
+              }
+            } catch (error) {
+              console.log('No security impact analysis generated');
+            }

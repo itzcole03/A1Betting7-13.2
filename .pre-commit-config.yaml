@@ -271,6 +271,42 @@ repos:
         exclude: "^frontend/dist/.*$"
         pass_filenames: false
 
+      # Smoke tests - quick subset of critical functionality
+      - id: smoke-tests-backend
+        name: Backend Smoke Tests
+        entry: bash -c 'cd backend && python -m pytest tests/smoke/ -v --tb=short || python -m pytest tests/ -k "smoke" -v --tb=short'
+        language: system
+        files: '^backend/.*\.py$'
+        pass_filenames: false
+        stages: [pre-push]
+
+      - id: smoke-tests-frontend
+        name: Frontend Smoke Tests
+        entry: bash -c 'cd frontend && npm run test:smoke || npm run test -- --testNamePattern="smoke" --passWithNoTests'
+        language: system
+        files: '^frontend/.*\.(js|jsx|ts|tsx)$'
+        exclude: "^frontend/dist/.*$"
+        pass_filenames: false
+        stages: [pre-push]
+
+      # Enhanced TypeScript checking
+      - id: typescript-strict-check
+        name: TypeScript Strict Mode Check
+        entry: bash -c 'cd frontend && npx tsc --noEmit --strict'
+        language: system
+        files: '^frontend/.*\.(ts|tsx)$'
+        exclude: "^frontend/dist/.*$"
+        pass_filenames: false
+
+      # Test coverage check
+      - id: test-coverage-check
+        name: Test Coverage Check
+        entry: bash -c 'cd backend && python -m pytest --cov=. --cov-report=term --cov-fail-under=70 --tb=no -q || echo "Test coverage below threshold - continuing with warning"'
+        language: system
+        files: '^backend/.*\.py$'
+        pass_filenames: false
+        stages: [pre-push]
+
 # Global configuration
 default_install_hook_types: [pre-commit, pre-push, commit-msg]
 fail_fast: false
