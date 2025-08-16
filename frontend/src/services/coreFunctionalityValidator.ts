@@ -6,12 +6,39 @@
  * features remain accessible and performant.
  */
 
+import { _eventBus } from '../core/EventBus';
+
 interface CoreFunctionValidationResult {
   isValid: boolean;
   functionName: string;
   executionTime: number;
   error?: string;
   warning?: string;
+}
+
+interface ValidatorEvent {
+  event_type: 'validator.cycle' | 'validator.cycle.fail' | 'validator.bootstrap' | 'validator.performance';
+  phase: string;
+  status: 'pass' | 'fail' | 'warn' | 'timeout';
+  attempt?: number;
+  duration_ms: number;
+  timestamp: number;
+  details?: {
+    error?: string;
+    warning?: string;
+    functionName?: string;
+    performanceImpact?: boolean;
+  };
+}
+
+interface HealthSnapshot {
+  status: 'healthy' | 'degraded' | 'failed';
+  lastSuccessTs: number;
+  lastAttemptTs: number;
+  consecutiveFailures: number;
+  totalCycles: number;
+  avgResponseTime: number;
+  validationResults: CoreFunctionValidationResult[];
 }
 
 interface CoreFunctionalityReport {
@@ -31,6 +58,102 @@ class CoreFunctionalityValidator {
   private validationInterval: NodeJS.Timeout | null = null;
   private isRunning = false;
   private performanceBaseline: PerformanceEntry[] = [];
+  
+  // Health snapshot tracking
+  private healthSnapshot: HealthSnapshot = {
+    status: 'healthy',
+    lastSuccessTs: 0,
+    lastAttemptTs: 0,
+    consecutiveFailures: 0,
+    totalCycles: 0,
+    avgResponseTime: 0,
+    validationResults: []
+  };
+  
+  // Performance tracking for observability
+  private responseTimes: number[] = [];
+  private maxResponseTimes = 50; // Keep last 50 response times for averaging
+
+  /**
+   * Emit validator event for observability
+   */
+  private emitValidatorEvent(eventData: Partial<ValidatorEvent>): void {
+    try {
+      const event: ValidatorEvent = {
+        event_type: 'validator.cycle',
+        phase: 'unknown',
+        status: 'pass',
+        duration_ms: 0,
+        timestamp: Date.now(),
+        ...eventData
+      };
+
+      _eventBus.emit('validator.event', event);
+      
+      // Also emit specific event type for targeted listeners
+      _eventBus.emit(event.event_type, event);
+      
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.debug('[CoreValidator] Event emitted:', event.event_type, event);
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('[CoreValidator] Failed to emit event:', error);
+      }
+    }
+  }
+
+  /**
+   * Update health snapshot and expose to window for QA
+   */
+  private updateHealthSnapshot(
+    validationResults: CoreFunctionValidationResult[], 
+    overallStatus: 'PASSING' | 'WARNING' | 'FAILING',
+    cycleTime: number
+  ): void {
+    const now = Date.now();
+    const isSuccess = overallStatus === 'PASSING';
+    
+    this.healthSnapshot.lastAttemptTs = now;
+    this.healthSnapshot.totalCycles++;
+    this.healthSnapshot.validationResults = validationResults;
+    
+    if (isSuccess) {
+      this.healthSnapshot.lastSuccessTs = now;
+      this.healthSnapshot.consecutiveFailures = 0;
+      this.healthSnapshot.status = 'healthy';
+    } else {
+      this.healthSnapshot.consecutiveFailures++;
+      
+      // Implement hysteresis: require 3 consecutive failures before marking as failed
+      if (this.healthSnapshot.consecutiveFailures >= 3) {
+        this.healthSnapshot.status = 'failed';
+      } else if (this.healthSnapshot.consecutiveFailures >= 1 && overallStatus === 'FAILING') {
+        this.healthSnapshot.status = 'degraded';
+      }
+    }
+    
+    // Update average response time
+    this.responseTimes.push(cycleTime);
+    if (this.responseTimes.length > this.maxResponseTimes) {
+      this.responseTimes.shift();
+    }
+    this.healthSnapshot.avgResponseTime = this.responseTimes.reduce((a, b) => a + b, 0) / this.responseTimes.length;
+    
+    // Expose to window for automated QA harnesses
+    (window as typeof window & { __A1_VALIDATOR?: unknown }).__A1_VALIDATOR = {
+      status: this.healthSnapshot.status,
+      lastSuccessTs: this.healthSnapshot.lastSuccessTs,
+      lastAttemptTs: this.healthSnapshot.lastAttemptTs,
+      consecutiveFailures: this.healthSnapshot.consecutiveFailures,
+      totalCycles: this.healthSnapshot.totalCycles,
+      avgResponseTime: this.healthSnapshot.avgResponseTime,
+      // Include the full snapshot for advanced debugging
+      fullSnapshot: this.healthSnapshot
+    };
+  }
 
   /**
    * Core application functions that must remain unimpacted
@@ -100,6 +223,16 @@ class CoreFunctionalityValidator {
       // Success handler
       const onBootstrapComplete = (reason: string) => {
         cleanup();
+        
+        // Emit bootstrap complete event
+        this.emitValidatorEvent({
+          event_type: 'validator.bootstrap',
+          phase: 'complete',
+          status: 'pass',
+          duration_ms: Date.now() - startTime,
+          details: { functionName: reason }
+        });
+        
         if (process.env.NODE_ENV === 'development') {
           // eslint-disable-next-line no-console
           console.log(`[CoreFunctionalityValidator] ${reason}, starting validation`);
@@ -110,6 +243,15 @@ class CoreFunctionalityValidator {
       // Timeout handler
       const onTimeout = () => {
         cleanup();
+        
+        // Emit bootstrap timeout event (not necessarily a failure)
+        this.emitValidatorEvent({
+          event_type: 'validator.bootstrap',
+          phase: 'timeout',
+          status: 'warn',
+          duration_ms: timeout
+        });
+        
         if (process.env.NODE_ENV === 'development') {
           // eslint-disable-next-line no-console
           console.info('[CoreFunctionalityValidator] Bootstrap detection timeout, starting validation (this is normal)');
@@ -240,14 +382,47 @@ class CoreFunctionalityValidator {
    * Run a complete validation cycle
    */
   public async runValidationCycle(): Promise<CoreFunctionalityReport> {
-    const _startTime = performance.now();
+    const startTime = performance.now();
     const validationResults: CoreFunctionValidationResult[] = [];
+    
+    // Emit cycle start event
+    this.emitValidatorEvent({
+      event_type: 'validator.cycle',
+      phase: 'start',
+      status: 'pass',
+      duration_ms: 0
+    });
     
     try {
       // Validate each core function with timeout protection
       for (const [functionName, validator] of Object.entries(this.coreFunctions)) {
         const result = await this.runValidationWithTimeout(functionName, validator, 5000);
         validationResults.push(result);
+        
+        // Emit individual function validation events
+        if (!result.isValid) {
+          this.emitValidatorEvent({
+            event_type: 'validator.cycle.fail',
+            phase: functionName,
+            status: 'fail',
+            duration_ms: result.executionTime,
+            details: {
+              error: result.error,
+              functionName: result.functionName
+            }
+          });
+        } else if (result.warning) {
+          this.emitValidatorEvent({
+            event_type: 'validator.cycle',
+            phase: functionName,
+            status: 'warn',
+            duration_ms: result.executionTime,
+            details: {
+              warning: result.warning,
+              functionName: result.functionName
+            }
+          });
+        }
       }
 
       // Assess performance impact
@@ -259,6 +434,7 @@ class CoreFunctionalityValidator {
       // Determine overall status
       const overallStatus = this.determineOverallStatus(validationResults, performanceImpact);
 
+      const cycleTime = performance.now() - startTime;
       const report: CoreFunctionalityReport = {
         timestamp: new Date(),
         overallStatus,
@@ -266,6 +442,20 @@ class CoreFunctionalityValidator {
         performanceImpact,
         recommendations
       };
+
+      // Update health snapshot and expose to window
+      this.updateHealthSnapshot(validationResults, overallStatus, cycleTime);
+
+      // Emit cycle complete event
+      this.emitValidatorEvent({
+        event_type: 'validator.cycle',
+        phase: 'complete',
+        status: overallStatus === 'PASSING' ? 'pass' : (overallStatus === 'WARNING' ? 'warn' : 'fail'),
+        duration_ms: cycleTime,
+        details: {
+          performanceImpact: performanceImpact.criticalPathBlocked
+        }
+      });
 
       // Log results in development mode only
       if (process.env.NODE_ENV === 'development') {
@@ -275,9 +465,26 @@ class CoreFunctionalityValidator {
       return report;
 
     } catch (error) {
+      const cycleTime = performance.now() - startTime;
+      
+      // Emit error event
+      this.emitValidatorEvent({
+        event_type: 'validator.cycle.fail',
+        phase: 'validation_cycle',
+        status: 'fail',
+        duration_ms: cycleTime,
+        details: {
+          error: error instanceof Error ? error.message : 'Unknown validation error'
+        }
+      });
+
+      // Update health snapshot with error
+      const errorReport = this.generateErrorReport(error);
+      this.updateHealthSnapshot(errorReport.validationResults, 'FAILING', cycleTime);
+
       // eslint-disable-next-line no-console
       console.warn('[CoreFunctionalityValidator] Validation cycle error:', error);
-      return this.generateErrorReport(error);
+      return errorReport;
     }
   }
 

@@ -25,6 +25,20 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     refresh_token: Optional[str] = None
 
+@router.head("/auth/login", status_code=204)
+async def login_readiness_check():
+    """
+    Auth endpoint readiness check for monitoring
+    
+    Returns 204 No Content when auth service is ready to handle login requests.
+    This endpoint allows monitoring systems to check auth availability without
+    mutating state or requiring valid credentials.
+    """
+    # Simple readiness check - verify essential components are available
+    # In a full implementation, this might check database connectivity,
+    # JWT key availability, etc.
+    return None
+
 @router.post("/auth/login", response_model=TokenResponse)
 async def login(request: LoginRequest):
     """
