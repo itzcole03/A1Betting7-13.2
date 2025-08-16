@@ -10,6 +10,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { WebSocketManager } from './WebSocketManager';
 import { WSState, WSMessage } from './ConnectionState';
 import { BackoffStrategy } from './BackoffStrategy';
+import { buildWebSocketUrl } from './buildWebSocketUrl';
 
 export interface WebSocketConnectionHook {
   // Connection state
@@ -22,6 +23,7 @@ export interface WebSocketConnectionHook {
   connect: () => void;
   disconnect: () => void;
   reconnect: () => void;
+  forceReconnect: () => void; // Alias for reconnect for consistency with requirements
   
   // Messaging
   send: (message: WSMessage) => boolean;
@@ -33,6 +35,8 @@ export interface WebSocketConnectionHook {
   fallbackReason: string | null;
   recentAttempts: number;
   nextRetryEta: Date | null;
+  attemptCount: number; // Current attempt count for UI display
+  lastError: Error | null; // Last connection error
   
   // Event handling
   onMessage: (callback: (message: WSMessage) => void) => () => void;
@@ -46,41 +50,20 @@ let managerInstance: WebSocketManager | null = null;
  */
 function getManager(): WebSocketManager {
   if (!managerInstance) {
-    // Generate consistent client ID across page reloads
-    let clientId = '';
-    try {
-      clientId = localStorage.getItem('ws_client_id') || '';
-    } catch {
-      // LocalStorage might not be available
-    }
+    // Generate consistent client ID using buildWebSocketUrl utility
+    const wsUrl = buildWebSocketUrl({
+      baseUrl: import.meta.env.VITE_WS_URL,
+      version: 1,
+      role: 'frontend'
+    });
     
-    if (!clientId) {
-      clientId = `client_${Math.random().toString(36).substr(2, 9)}`;
-      try {
-        localStorage.setItem('ws_client_id', clientId);
-      } catch {
-        // Ignore if localStorage is not available
-      }
-    }
-    
-    // Determine WebSocket URL
-    const wsUrl = (() => {
-      if (import.meta.env.VITE_WS_URL) {
-        return import.meta.env.VITE_WS_URL;
-      }
-      
-      // Development default
-      if (import.meta.env.DEV) {
-        return 'ws://localhost:8000';
-      }
-      
-      // Production: use current host with wss
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      return `${protocol}//${window.location.host}`;
-    })();
+    // Extract client ID from the built URL for manager initialization
+    const urlObj = new URL(wsUrl);
+    const clientId = urlObj.searchParams.get('client_id') || 'unknown';
+    const baseUrl = `${urlObj.protocol}//${urlObj.host}`;
     
     // Create manager with production-ready configuration
-    managerInstance = new WebSocketManager(wsUrl, clientId, {
+    managerInstance = new WebSocketManager(baseUrl, clientId, {
       connectionTimeoutMs: 10000,      // 10 second connection timeout
       enableHeartbeat: true,           // Enable heartbeat by default
       version: 1,                      // Protocol version
@@ -178,6 +161,8 @@ export function useWebSocketConnection(): WebSocketConnectionHook {
   const fallbackReason = state.fallback_reason;
   const recentAttempts = state.recent_attempts.length;
   const nextRetryEta = state.current_attempt?.next_retry_eta || null;
+  const attemptCount = managerRef.current.getState().stats?.total_attempts || 0;
+  const lastError = state.recent_attempts[0] ? new Error(state.recent_attempts[0].close_reason || 'Connection failed') : null;
   
   return {
     // State
@@ -190,6 +175,7 @@ export function useWebSocketConnection(): WebSocketConnectionHook {
     connect,
     disconnect,
     reconnect,
+    forceReconnect: reconnect, // Alias for reconnect
     
     // Messaging
     send,
@@ -201,6 +187,8 @@ export function useWebSocketConnection(): WebSocketConnectionHook {
     fallbackReason,
     recentAttempts,
     nextRetryEta,
+    attemptCount,
+    lastError,
     
     // Events
     onMessage,

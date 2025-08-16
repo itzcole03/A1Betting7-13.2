@@ -1,4 +1,5 @@
 import { getEnvVar } from '../utils/getEnvVar';
+import { buildWebSocketUrl } from '../websocket/buildWebSocketUrl';
 /**
  * Enhanced Service Client for Peak Functionality
  * Integrates with all new backend services: ML predictions, real-time data, user auth, bankroll management
@@ -407,7 +408,17 @@ class EnhancedServiceClient {
   connectWebSocket(clientId: string): Promise<WebSocket> {
     return new Promise((resolve, reject) => {
       try {
-        const wsURL = this.baseURL.replace('http', 'ws') + `/api/v1/ws/${clientId}`;
+        // DEPRECATED: Direct WebSocket usage here is deprecated
+        console.warn('[EnhancedServiceClient] Direct WebSocket connection is deprecated. Use useWebSocketConnection hook instead.');
+        
+        // Use canonical WebSocket URL format
+        const wsURL = buildWebSocketUrl({
+          baseUrl: this.baseURL.replace('http', 'ws').replace('https', 'wss'),
+          clientId: clientId,
+          version: 1,
+          role: 'frontend'
+        });
+        
         this.wsConnection = new WebSocket(wsURL);
 
         this.wsConnection.onopen = () => {
@@ -415,7 +426,7 @@ class EnhancedServiceClient {
           resolve(this.wsConnection!);
         };
 
-        this.wsConnection.onerror = error => {
+        this.wsConnection.onerror = _error => {
           console.warn(
             '[EnhancedServiceClient] WebSocket connection issue (application continues in local mode)'
           );

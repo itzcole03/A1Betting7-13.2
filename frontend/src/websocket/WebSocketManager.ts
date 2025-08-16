@@ -11,6 +11,7 @@
  */
 
 import { BackoffStrategy } from './BackoffStrategy';
+import { buildWebSocketUrl } from './buildWebSocketUrl';
 import { 
   WSState, 
   WSConnectionPhase, 
@@ -295,11 +296,12 @@ export class WebSocketManager {
   }
 
   private buildWebSocketUrl(): string {
-    const url = new URL('/ws/client', this.baseUrl);
-    url.searchParams.set('client_id', this.clientId);
-    url.searchParams.set('version', String(this.options.version || 1));
-    url.searchParams.set('role', this.options.role || 'frontend');
-    return url.toString();
+    return buildWebSocketUrl({
+      baseUrl: this.baseUrl,
+      clientId: this.clientId,
+      version: this.options.version || 1,
+      role: this.options.role || 'frontend'
+    });
   }
 
   private initializeStats(): WSConnectionStats {

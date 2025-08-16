@@ -9,6 +9,7 @@ Object.defineProperty(global, 'import', {
         PROD: process.env.NODE_ENV === 'production',
         MODE: process.env.NODE_ENV || 'test',
         VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://localhost:8000',
+        VITE_WS_URL: process.env.VITE_WS_URL || 'ws://localhost:8000',
       },
       url: 'http://localhost:3000',
       resolve: (path) => new URL(path, 'http://localhost:3000').href,

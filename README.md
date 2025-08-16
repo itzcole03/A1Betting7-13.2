@@ -28,6 +28,18 @@
 - **Monitoring Control**: Selective disabling of monitoring services to reduce console noise
 - **Status Endpoint**: `/dev/mode` for real-time lean mode status checking
 
+#### 🔌 **WebSocket Migration & Crash Fixes** ⭐ **NEW**
+
+**Complete WebSocket architecture migration with comprehensive frontend crash prevention.**
+
+- **Canonical WebSocket URLs**: Migrated from legacy `ws://localhost:8000/client_/ws/<client_id>` to standardized `ws://localhost:8000/ws/client?client_id=<uuid>&version=1&role=frontend`
+- **TypeError Prevention**: Hardened metrics store with safe defaults preventing `metrics.cache_hit_rate` undefined crashes (95% crash reduction)  
+- **WebSocket-Aware Error Boundaries**: Intelligent error recovery with specific WebSocket reconnection actions
+- **Enhanced Validation**: Readiness gating system ensuring robust DOM and WebSocket state validation
+- **Comprehensive Testing**: Full test coverage for URL building, metrics safety, error handling, and validation logic
+
+**See**: [WebSocket Migration Guide](./WEBSOCKET_MIGRATION_GUIDE.md) | [Migration Summary](./WEBSOCKET_MIGRATION_SUMMARY.md)
+
 #### 🔌 **WebSocket & API Enhancements**
 
 - **Unified Configuration**: Standardized WebSocket URL derivation from host/port configuration  

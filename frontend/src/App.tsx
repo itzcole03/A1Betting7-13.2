@@ -9,6 +9,7 @@ import ServiceWorkerUpdateNotification from './components/core/ServiceWorkerUpda
 import { ErrorBoundaryVersion } from './components/ErrorBoundaryVersion';
 import LeanModeBanner from './components/LeanModeBanner';
 import { ReliabilityIntegrationWrapper } from './components/reliability/ReliabilityIntegrationWrapper';
+import { WebSocketDiagnosticsPanel } from './components/WebSocketDiagnosticsPanel';
 import { _AppProvider } from './contexts/AppContext';
 import { _AuthProvider, useAuth } from './contexts/AuthContext';
 import { _ThemeProvider } from './contexts/ThemeContext';
@@ -292,6 +293,11 @@ const _AppContent: React.FC = () => {
         <UpdateModal />
         <LazyUserFriendlyApp />
       </ReliabilityIntegrationWrapper>
+      
+      {/* WebSocket Diagnostics Panel - Development Only */}
+      {process.env.NODE_ENV === 'development' && (
+        <WebSocketDiagnosticsPanel forceVisible={false} />
+      )}
     </ErrorBoundary>
   );
 };

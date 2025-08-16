@@ -196,7 +196,7 @@ class CoreFunctionalityValidator {
 
   /**
    * Initialize continuous validation without impacting performance
-   * Now waits for bootstrap completion before starting validation cycles
+   * Now waits for bootstrap completion AND readiness gating before starting validation cycles
    */
   public startValidation(interval: number = 60000): void {
     if (this.isRunning) return;
@@ -204,8 +204,10 @@ class CoreFunctionalityValidator {
     this.isRunning = true;
     this.establishPerformanceBaseline();
 
-    // Wait for bootstrap completion before starting validation cycles
+    // Enhanced readiness gating: wait for bootstrap AND readiness conditions
     this.waitForBootstrapCompletion().then(() => {
+      return this.waitForReadinessGating();
+    }).then(() => {
       // Use requestIdleCallback to avoid blocking main thread
       this.validationInterval = setInterval(() => {
         if ('requestIdleCallback' in window) {
@@ -214,6 +216,21 @@ class CoreFunctionalityValidator {
           setTimeout(() => this.runValidationCycle(), 0);
         }
       }, interval);
+    }).catch((error) => {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('[CoreValidator] Failed to initialize validation:', error);
+      }
+      // Continue anyway after a delay to handle edge cases
+      setTimeout(() => {
+        this.validationInterval = setInterval(() => {
+          if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(() => this.runValidationCycle());
+          } else {
+            setTimeout(() => this.runValidationCycle(), 0);
+          }
+        }, interval);
+      }, 5000);
     });
   }
 
@@ -389,6 +406,164 @@ class CoreFunctionalityValidator {
   }
 
   /**
+   * Enhanced readiness gating: wait for root layout AND WebSocket state resolution
+   * Only proceed with validation after:
+   * (a) Root layout is mounted with meaningful content
+   * (b) Either WebSocket connection is open OR fallback acknowledged OR 3s grace period passes
+   * @private
+   */
+  private async waitForReadinessGating(timeout: number = 5000): Promise<void> {
+    return new Promise((resolve) => {
+      const startTime = Date.now();
+      let rootLayoutReady = false;
+      let connectionStateResolved = false;
+      
+      // Check if root layout is mounted and has meaningful content
+      const checkRootLayout = (): boolean => {
+        const appRoot = document.querySelector('#root');
+        if (!appRoot) return false;
+        
+        // Look for meaningful content beyond just the root div
+        const meaningfulContent = appRoot.querySelectorAll(
+          'nav, header, main, [role="main"], [data-testid], .app, [class*="app"]'
+        );
+        
+        if (meaningfulContent.length === 0) return false;
+        
+        // Check that at least one element has visible content
+        const hasVisibleContent = Array.from(meaningfulContent).some(el => {
+          const rect = el.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0;
+        });
+        
+        return hasVisibleContent;
+      };
+      
+      // Check WebSocket connection state or fallback acknowledgment
+      const checkConnectionState = (): boolean => {
+        try {
+          // Try to access WebSocket manager if available
+          // Using dynamic import to avoid circular dependencies
+          const wsManagerElement = document.querySelector('[data-ws-connected="true"]');
+          const wsFallbackElement = document.querySelector('[data-ws-fallback="acknowledged"]');
+          
+          if (wsManagerElement || wsFallbackElement) {
+            return true;
+          }
+          
+          // Check if the global WebSocket state is available
+          const globalWsState = (window as typeof window & { __WS_STATE__?: { connected?: boolean; fallbackAcknowledged?: boolean } }).__WS_STATE__;
+          if (globalWsState && (globalWsState.connected || globalWsState.fallbackAcknowledged)) {
+            return true;
+          }
+          
+          // Grace period check: if we've been waiting 3+ seconds, proceed anyway
+          const elapsed = Date.now() - startTime;
+          if (elapsed >= 3000) {
+            if (process.env.NODE_ENV === 'development') {
+              // eslint-disable-next-line no-console
+              console.log('[CoreValidator] Readiness grace period exceeded (3s), proceeding with validation');
+            }
+            return true;
+          }
+          
+          return false;
+        } catch {
+          // If we can't check WebSocket state, use grace period
+          const elapsed = Date.now() - startTime;
+          return elapsed >= 3000;
+        }
+      };
+      
+      // Success handler
+      const onReadinessComplete = (reason: string) => {
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.log(`[CoreValidator] Readiness gating complete: ${reason}`);
+        }
+        
+        this.emitValidatorEvent({
+          event_type: 'validator.bootstrap',
+          phase: 'readiness-complete',
+          status: 'pass',
+          duration_ms: Date.now() - startTime,
+          details: { functionName: reason }
+        });
+        
+        resolve();
+      };
+      
+      // Timeout handler
+      const onTimeout = () => {
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.warn('[CoreValidator] Readiness gating timeout, proceeding anyway');
+        }
+        
+        this.emitValidatorEvent({
+          event_type: 'validator.bootstrap',
+          phase: 'readiness-timeout',
+          status: 'warn',
+          duration_ms: timeout
+        });
+        
+        resolve();
+      };
+      
+      // Check initial state
+      rootLayoutReady = checkRootLayout();
+      connectionStateResolved = checkConnectionState();
+      
+      if (rootLayoutReady && connectionStateResolved) {
+        onReadinessComplete('Root layout and connection state both ready');
+        return;
+      }
+      
+      // Set up timeout
+      const timeoutId = setTimeout(onTimeout, timeout);
+      
+      // Set up polling for readiness conditions
+      const pollInterval = 200; // Check every 200ms
+      const poll = () => {
+        try {
+          if (!rootLayoutReady) {
+            rootLayoutReady = checkRootLayout();
+          }
+          
+          if (!connectionStateResolved) {
+            connectionStateResolved = checkConnectionState();
+          }
+          
+          if (rootLayoutReady && connectionStateResolved) {
+            clearTimeout(timeoutId);
+            onReadinessComplete('Both readiness conditions satisfied');
+            return;
+          }
+          
+          // Continue polling if not ready
+          const elapsed = Date.now() - startTime;
+          if (elapsed < timeout) {
+            setTimeout(poll, pollInterval);
+          }
+        } catch (error) {
+          if (process.env.NODE_ENV === 'development') {
+            // eslint-disable-next-line no-console
+            console.warn('[CoreValidator] Readiness polling error:', error);
+          }
+          // Continue polling despite errors
+          const elapsed = Date.now() - startTime;
+          if (elapsed < timeout) {
+            setTimeout(poll, pollInterval * 2); // Slower polling on errors
+          }
+        }
+      };
+      
+      // Start polling
+      setTimeout(poll, pollInterval);
+    });
+  }
+
+  /**
    * Stop validation and cleanup
    */
   public stopValidation(): void {
@@ -518,17 +693,59 @@ class CoreFunctionalityValidator {
   }
 
   /**
-   * Validate navigation functionality
+   * Validate navigation functionality with enhanced readiness gating
+   * Now integrates with the readiness gating system for better reliability
    */
   private async validateNavigation(): Promise<boolean> {
     try {
-      // Check if React Router is functional
-      const _currentPath = window.location.pathname;
+      // The readiness gating should have already ensured basic DOM readiness,
+      // but let's do a quick sanity check
+      if (document.readyState !== 'complete') {
+        await this.waitForDOMReadiness();
+      }
       
-      // Validate that navigation components can be accessed
-      const navElements = document.querySelectorAll('[data-testid*="nav"], [role="navigation"], nav');
+      // Check if React Router is functional
+      const currentPath = window.location.pathname;
+      
+      // Enhanced navigation element detection with broader selectors
+      const navElements = await this.waitForNavigationElements();
+      
       if (navElements.length === 0) {
-        throw new Error('No navigation elements found');
+        // Be more lenient during initial startup - check if we have any meaningful app structure
+        const appStructure = document.querySelectorAll(
+          '#root > *, main, [role="main"], .app, [class*="app"], [data-testid]'
+        );
+        
+        if (appStructure.length === 0) {
+          // No app structure at all - this is a real problem
+          if (process.env.NODE_ENV === 'development') {
+            // eslint-disable-next-line no-console
+            console.warn('[CoreValidator] No navigation elements AND no app structure found');
+          }
+          return false;
+        } else {
+          // App structure exists but no navigation - this might be okay for some routes
+          if (process.env.NODE_ENV === 'development') {
+            // eslint-disable-next-line no-console
+            console.info('[CoreValidator] App structure found but no navigation elements - may be route-specific');
+          }
+          // Return true but add a warning flag
+          return true;
+        }
+      }
+
+      // Verify that at least one navigation element is actually visible
+      const visibleNavElements = Array.from(navElements).filter(el => {
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0 && window.getComputedStyle(el).display !== 'none';
+      });
+      
+      if (visibleNavElements.length === 0) {
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.warn('[CoreValidator] Navigation elements found but none are visible');
+        }
+        return false;
       }
 
       // Check if router context is available
@@ -536,7 +753,19 @@ class CoreFunctionalityValidator {
         throw new Error('Browser history API not available');
       }
 
-      return true;
+      // Additional check: see if the current route makes sense
+      if (currentPath && !currentPath.includes('undefined') && !currentPath.includes('null')) {
+        // Route looks reasonable
+        return true;
+      } else {
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.warn(`[CoreValidator] Current path looks suspicious: ${currentPath}`);
+        }
+        // Still return true unless it's completely broken
+        return currentPath !== null && currentPath !== undefined;
+      }
+
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
@@ -544,6 +773,110 @@ class CoreFunctionalityValidator {
       }
       return false;
     }
+  }
+  
+  /**
+   * Wait for DOM readiness and potential layout mounting
+   */
+  private async waitForDOMReadiness(): Promise<void> {
+    return new Promise((resolve) => {
+      if (document.readyState === 'complete') {
+        // Additional delay to allow for React hydration/mounting
+        setTimeout(resolve, 100);
+        return;
+      }
+      
+      const onReady = () => {
+        document.removeEventListener('readystatechange', onReady);
+        // Additional delay to allow for React hydration/mounting
+        setTimeout(resolve, 100);
+      };
+      
+      document.addEventListener('readystatechange', onReady);
+    });
+  }
+  
+  /**
+   * Wait for navigation elements with enhanced retry logic and broader detection
+   */
+  private async waitForNavigationElements(): Promise<NodeListOf<Element>> {
+    const maxAttempts = 3; // Reduced from 5 since readiness gating should handle most delays
+    const retryDelay = 200; // Reduced from 250ms
+    
+    // Enhanced selectors that are more likely to find navigation elements
+    const primarySelectors = [
+      '[data-testid*="nav"]',
+      '[role="navigation"]', 
+      'nav',
+      '.navigation',
+      '[class*="nav-"]',
+      '[id*="nav"]'
+    ].join(', ');
+    
+    const secondarySelectors = [
+      'header',
+      '.header', 
+      '[class*="sidebar"]',
+      '[class*="menu"]',
+      '[class*="top-bar"]',
+      '[class*="nav"]'
+    ].join(', ');
+    
+    const fallbackSelectors = [
+      'a[href^="/"]', // Internal links
+      'button[data-route]',
+      '[class*="link"]',
+      '.btn, button' // Any interactive elements
+    ].join(', ');
+    
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      // Try primary selectors first
+      let navElements = document.querySelectorAll(primarySelectors);
+      
+      if (navElements.length > 0) {
+        return navElements;
+      }
+      
+      // Try secondary selectors
+      navElements = document.querySelectorAll(secondarySelectors);
+      
+      if (navElements.length > 0) {
+        return navElements;
+      }
+      
+      // On final attempt, try fallback selectors
+      if (attempt === maxAttempts) {
+        navElements = document.querySelectorAll(fallbackSelectors);
+        
+        if (navElements.length > 0) {
+          // Filter out elements that are clearly not navigation
+          const filteredElements = Array.from(navElements).filter(el => {
+            const rect = el.getBoundingClientRect();
+            // Must be visible and reasonably sized
+            return rect.width > 10 && rect.height > 10;
+          });
+          
+          if (filteredElements.length > 0) {
+            // Create a proper NodeListOf-like object from the filtered array
+            const nodeListLike = Object.assign(filteredElements, {
+              item: (index: number) => filteredElements[index] || null,
+              forEach: (callback: (value: Element, key: number, parent: NodeListOf<Element>) => void) => {
+                filteredElements.forEach((el, index) => callback(el, index, nodeListLike as NodeListOf<Element>));
+              }
+            });
+            return nodeListLike as unknown as NodeListOf<Element>;
+          }
+        }
+      }
+      
+      // Wait before next attempt (except for last attempt)
+      if (attempt < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      }
+    }
+    
+    // Return empty NodeList if nothing found
+    return document.querySelectorAll('.__no_navigation_found__');
   }
 
   /**

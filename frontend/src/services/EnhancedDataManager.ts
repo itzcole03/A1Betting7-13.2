@@ -13,6 +13,7 @@ import {
 } from '../types/DataValidation';
 import { dataValidator } from './EnhancedDataValidator';
 import { enhancedLogger } from './EnhancedLogger';
+import { buildWebSocketUrl } from '../websocket/buildWebSocketUrl';
 
 interface FeaturedProp extends ValidatedSportsProp {
   // Backward compatibility - ValidatedSportsProp now provides all the fields
@@ -1131,18 +1132,16 @@ class EnhancedDataManager {
   }
 
   private getWebSocketUrl(): string {
-    // Use unified WS_URL from config with client ID
-    let clientId = '';
-    if (window.localStorage.getItem('clientId')) {
-      clientId = window.localStorage.getItem('clientId')!;
-    } else {
-      clientId = `client_${Math.random().toString(36).substr(2, 9)}`;
-      window.localStorage.setItem('clientId', clientId);
-    }
+    // DEPRECATED: This method will be removed in future versions.
+    // Use the new WebSocket connection hook (useWebSocketConnection) instead.
+    console.warn('[EnhancedDataManager] WebSocket functionality is deprecated. Migrate to useWebSocketConnection hook.');
     
-    // Use unified configuration - fallback to hardcoded for now to avoid circular imports
-    const baseWsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
-    return `${baseWsUrl.replace('/ws', '')}/ws/${clientId}`;
+    // Use centralized buildWebSocketUrl to ensure canonical format
+    return buildWebSocketUrl({
+      baseUrl: import.meta.env.VITE_WS_URL || 'ws://localhost:8000',
+      version: 1,
+      role: 'frontend'
+    });
   }
 
   private initializeWebSocket(): void {
