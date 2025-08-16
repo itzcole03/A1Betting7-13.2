@@ -80,11 +80,11 @@ async def health_check(
                 "successful_requests": MODEL_STATE["successful_requests"],
                 "propollama_requests": MODEL_STATE["propollama_requests"],
                 "propollama_successes": MODEL_STATE["propollama_successes"],
-            }),
+            },
             "prizepicks_scraper_health": scraper_health_data,  # Include scraper health data
-        }
+        })
     except Exception as e:
-        raise BusinessLogicException("f"Health check failed: {str(e")}")
+        raise BusinessLogicException(f"Health check failed: {str(e)}")
 
 
 @router.get("/model/{model_name}/health", response_model=StandardAPIResponse[Dict[str, Any]])
@@ -110,8 +110,7 @@ async def model_health_check(
             "last_check": None,
         })
     except Exception as e:
-        raise BusinessLogicException("f"Model health check failed: {str(e")}"
-        )
+        raise BusinessLogicException(f"Model health check failed: {str(e)}")
 
 
 @router.get("/queue/status", response_model=StandardAPIResponse[Dict[str, Any]])

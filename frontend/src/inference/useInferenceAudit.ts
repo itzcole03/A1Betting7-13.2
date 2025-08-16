@@ -21,6 +21,48 @@ export interface AuditEntry {
   shadow_diff?: number;
   shadow_latency_ms?: number;
   status: string;
+  schema_version?: string; // PR10: Schema versioning
+}
+
+export interface DriftWindow {
+  mean_abs_diff: number;
+  pct_large_diff: number;
+  std_dev_primary: number;
+  sample_count: number;
+}
+
+export interface DriftMetrics {
+  mean_abs_diff: number;
+  pct_large_diff: number;
+  windows: {
+    w50?: DriftWindow;
+    w200?: DriftWindow;
+    wall?: DriftWindow;
+  };
+  status: 'NORMAL' | 'WATCH' | 'DRIFTING';
+  thresholds: {
+    warn: number;
+    alert: number;
+  };
+  earliest_detected_ts?: number;
+}
+
+export interface ReadinessMetrics {
+  score: number;
+  recommendation: 'PROMOTE' | 'MONITOR' | 'HOLD';
+  reasoning: string;
+  latency_penalty_applied: boolean;
+}
+
+export interface CalibrationMetrics {
+  count: number;
+  mae: number;
+  buckets: {
+    lt_0_25: number;
+    lt_0_5: number;
+    lt_0_75: number;
+    gte_0_75: number;
+  };
 }
 
 export interface AuditSummary {
@@ -34,6 +76,18 @@ export interface AuditSummary {
   shadow_model?: string;
   success_rate: number;
   error_count: number;
+  // PR10: Enhanced metrics
+  drift?: DriftMetrics;
+  readiness?: ReadinessMetrics;
+  calibration?: CalibrationMetrics;
+}
+
+export interface DriftStatus {
+  drift_status: 'NORMAL' | 'WATCH' | 'DRIFTING' | 'UNKNOWN' | 'UNAVAILABLE';
+  earliest_detected_ts?: number;
+  last_update_ts: number;
+  sample_count: number;
+  alert_active: boolean;
 }
 
 export interface ModelRegistryInfo {
@@ -48,6 +102,7 @@ export interface InferenceAuditState {
   summary: AuditSummary | null;
   recentEntries: AuditEntry[];
   registryInfo: ModelRegistryInfo | null;
+  driftStatus: DriftStatus | null; // PR10: Drift status
   
   // State management
   loading: boolean;
@@ -58,6 +113,7 @@ export interface InferenceAuditState {
   refresh: () => Promise<void>;
   togglePolling: () => void;
   isPolling: boolean;
+  recordOutcome: (featureHash: string, outcomeValue: number) => Promise<void>; // PR10: Outcome recording
 }
 
 // Configuration
@@ -70,6 +126,8 @@ const API_ENDPOINTS = {
   summary: '/api/v2/models/audit/summary',
   recent: '/api/v2/models/audit/recent',
   registry: '/api/v2/models/registry',
+  driftStatus: '/api/v2/models/audit/status', // PR10: Drift status endpoint
+  outcomes: '/api/v2/models/outcomes', // PR10: Outcomes endpoint
 } as const;
 
 /**
@@ -93,6 +151,7 @@ export function useInferenceAudit(options?: {
   const [summary, setSummary] = useState<AuditSummary | null>(null);
   const [recentEntries, setRecentEntries] = useState<AuditEntry[]>([]);
   const [registryInfo, setRegistryInfo] = useState<ModelRegistryInfo | null>(null);
+  const [driftStatus, setDriftStatus] = useState<DriftStatus | null>(null); // PR10: Drift status
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);
@@ -140,16 +199,18 @@ export function useInferenceAudit(options?: {
     setError(null);
 
     try {
-      // Fetch all data in parallel
-      const [summaryData, recentData, registryData] = await Promise.all([
+      // Fetch all data in parallel (PR10: includes drift status)
+      const [summaryData, recentData, registryData, driftData] = await Promise.all([
         fetchData<AuditSummary>(API_ENDPOINTS.summary, { signal }),
         fetchData<AuditEntry[]>(`${API_ENDPOINTS.recent}?limit=${maxRecentEntries}`, { signal }),
         fetchData<ModelRegistryInfo>(API_ENDPOINTS.registry, { signal }),
+        fetchData<DriftStatus>(API_ENDPOINTS.driftStatus, { signal }).catch(() => null), // Graceful fallback for drift status
       ]);
 
       setSummary(summaryData);
       setRecentEntries(recentData);
       setRegistryInfo(registryData);
+      setDriftStatus(driftData); // PR10: Set drift status
       setLastUpdated(Date.now());
       setError(null);
 
@@ -217,11 +278,30 @@ export function useInferenceAudit(options?: {
     };
   }, []);
 
+  /**
+   * Record an observed outcome for calibration analysis (PR10)
+   */
+  const recordOutcome = useCallback(async (featureHash: string, outcomeValue: number) => {
+    try {
+      await fetchData(API_ENDPOINTS.outcomes, {
+        method: 'POST',
+        body: JSON.stringify({
+          feature_hash: featureHash,
+          outcome_value: outcomeValue,
+        }),
+      });
+    } catch {
+      // Don't throw error - outcome recording should be non-blocking
+      // Error handling can be enhanced with proper logging service if needed
+    }
+  }, [fetchData]);
+
   return {
     // Data
     summary,
     recentEntries,
     registryInfo,
+    driftStatus, // PR10: Include drift status
     
     // State
     loading,
@@ -232,6 +312,7 @@ export function useInferenceAudit(options?: {
     refresh,
     togglePolling,
     isPolling,
+    recordOutcome, // PR10: Include outcome recording
   };
 }
 

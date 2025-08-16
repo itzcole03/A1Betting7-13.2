@@ -74,60 +74,154 @@ class CoreFunctionalityValidator {
   }
 
   /**
-   * Wait for bootstrap completion or navigation elements to be available
+   * Wait for bootstrap completion using MutationObserver + adaptive backoff
    * @private
    */
   private async waitForBootstrapCompletion(timeout: number = 10000): Promise<void> {
     return new Promise((resolve) => {
       const startTime = Date.now();
+      let observer: MutationObserver | null = null;
+      let pollInterval: NodeJS.Timeout | null = null;
+      let pollCount = 0;
+      const maxPollCount = 5; // Limit aggressive polling
 
-      // Check if bootstrap is already complete
-      const checkBootstrapComplete = () => {
-        // Option 1: Listen for bootstrap complete event
-        const bootstrapCompleteEvent = new CustomEvent('a1:bootstrap-complete');
-        if (document.dispatchEvent && bootstrapCompleteEvent) {
-          // Bootstrap event system is working
-          document.addEventListener('a1:bootstrap-complete', () => {
-            resolve();
-          }, { once: true });
+      // Clean up function
+      const cleanup = () => {
+        if (observer) {
+          observer.disconnect();
+          observer = null;
         }
-
-        // Option 2: Poll for navigation elements with timeout
-        const pollForNavigation = () => {
-          if (Date.now() - startTime > timeout) {
-            console.warn('[CoreFunctionalityValidator] Bootstrap timeout, starting validation anyway');
-            resolve();
-            return;
-          }
-
-          // Check for navigation elements
-          const navElements = document.querySelectorAll(
-            '[data-nav-root], [data-testid*="nav"], [role="navigation"], nav, #app-nav'
-          );
-
-          if (navElements.length > 0) {
-            console.log('[CoreFunctionalityValidator] Navigation elements found, starting validation');
-            resolve();
-            return;
-          }
-
-          // Check if app root is mounted
-          const appRoot = document.querySelector('#root [data-testid="app"], #root .app, main, [role="main"]');
-          if (appRoot) {
-            console.log('[CoreFunctionalityValidator] App root mounted, starting validation');
-            resolve();
-            return;
-          }
-
-          // Continue polling
-          setTimeout(pollForNavigation, 100);
-        };
-
-        // Start polling as fallback
-        setTimeout(pollForNavigation, 100);
+        if (pollInterval) {
+          clearTimeout(pollInterval);
+          pollInterval = null;
+        }
       };
 
-      checkBootstrapComplete();
+      // Success handler
+      const onBootstrapComplete = (reason: string) => {
+        cleanup();
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.log(`[CoreFunctionalityValidator] ${reason}, starting validation`);
+        }
+        resolve();
+      };
+
+      // Timeout handler
+      const onTimeout = () => {
+        cleanup();
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.info('[CoreFunctionalityValidator] Bootstrap detection timeout, starting validation (this is normal)');
+        }
+        resolve();
+      };
+
+      // Check if already complete
+      const isBootstrapComplete = (): string | null => {
+        // Check for navigation elements
+        const navElements = document.querySelectorAll(
+          '[data-nav-root], [data-testid*="nav"], [role="navigation"], nav, #app-nav'
+        );
+        if (navElements.length > 0) {
+          return 'Navigation elements found';
+        }
+
+        // Check if app root is mounted with content
+        const appRoot = document.querySelector('#root [data-testid="app"], #root .app, main, [role="main"]');
+        if (appRoot && appRoot.children.length > 0) {
+          return 'App root mounted with content';
+        }
+
+        // Check for React elements
+        const reactElements = document.querySelectorAll('[data-reactroot], [data-testid]');
+        if (reactElements.length > 3) { // More than just basic elements
+          return 'React components rendered';
+        }
+
+        return null;
+      };
+
+      // Check immediate completion
+      const immediateCheck = isBootstrapComplete();
+      if (immediateCheck) {
+        onBootstrapComplete(immediateCheck);
+        return;
+      }
+
+      // Set up timeout
+      const timeoutId = setTimeout(onTimeout, timeout);
+
+      // Option 1: Listen for custom bootstrap event
+      const handleBootstrapEvent = () => {
+        clearTimeout(timeoutId);
+        onBootstrapComplete('Bootstrap event received');
+      };
+      document.addEventListener('a1:bootstrap-complete', handleBootstrapEvent, { once: true });
+
+      // Option 2: MutationObserver for DOM changes (event-driven, efficient)
+      try {
+        observer = new MutationObserver((mutations) => {
+          // Only check after significant DOM changes
+          const significantChange = mutations.some(mutation => 
+            mutation.addedNodes.length > 0 || 
+            (mutation.type === 'attributes' && mutation.attributeName === 'data-testid')
+          );
+
+          if (significantChange) {
+            const reason = isBootstrapComplete();
+            if (reason) {
+              clearTimeout(timeoutId);
+              document.removeEventListener('a1:bootstrap-complete', handleBootstrapEvent);
+              onBootstrapComplete(reason);
+            }
+          }
+        });
+
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['data-testid', 'data-nav-root', 'role']
+        });
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.warn('[CoreFunctionalityValidator] MutationObserver setup failed:', error);
+        }
+      }
+
+      // Option 3: Adaptive backoff polling (fallback, less aggressive)
+      const adaptivePoll = () => {
+        if (Date.now() - startTime > timeout) {
+          clearTimeout(timeoutId);
+          document.removeEventListener('a1:bootstrap-complete', handleBootstrapEvent);
+          onTimeout();
+          return;
+        }
+
+        pollCount++;
+        const reason = isBootstrapComplete();
+        if (reason) {
+          clearTimeout(timeoutId);
+          document.removeEventListener('a1:bootstrap-complete', handleBootstrapEvent);
+          onBootstrapComplete(reason);
+          return;
+        }
+
+        // Adaptive backoff: start at 250ms, increase exponentially, cap at 2000ms
+        let nextInterval = Math.min(250 * Math.pow(1.5, pollCount), 2000);
+        
+        // Stop aggressive polling after maxPollCount attempts
+        if (pollCount >= maxPollCount) {
+          nextInterval = 2000; // Switch to 2-second intervals
+        }
+
+        pollInterval = setTimeout(adaptivePoll, nextInterval);
+      };
+
+      // Start adaptive polling as fallback (less aggressive than before)
+      setTimeout(adaptivePoll, 250); // Start with 250ms delay instead of 100ms
     });
   }
 
@@ -146,7 +240,7 @@ class CoreFunctionalityValidator {
    * Run a complete validation cycle
    */
   public async runValidationCycle(): Promise<CoreFunctionalityReport> {
-    const startTime = performance.now();
+    const _startTime = performance.now();
     const validationResults: CoreFunctionValidationResult[] = [];
     
     try {
@@ -181,6 +275,7 @@ class CoreFunctionalityValidator {
       return report;
 
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.warn('[CoreFunctionalityValidator] Validation cycle error:', error);
       return this.generateErrorReport(error);
     }
@@ -192,7 +287,7 @@ class CoreFunctionalityValidator {
   private async validateNavigation(): Promise<boolean> {
     try {
       // Check if React Router is functional
-      const currentPath = window.location.pathname;
+      const _currentPath = window.location.pathname;
       
       // Validate that navigation components can be accessed
       const navElements = document.querySelectorAll('[data-testid*="nav"], [role="navigation"], nav');
@@ -207,7 +302,10 @@ class CoreFunctionalityValidator {
 
       return true;
     } catch (error) {
-      console.warn('[CoreValidator] Navigation validation failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('[CoreValidator] Navigation validation failed:', error);
+      }
       return false;
     }
   }
@@ -260,15 +358,16 @@ class CoreFunctionalityValidator {
             
             // Log migration hint at info level only (will be removed in production builds)
             if (process.env.NODE_ENV === 'development') {
+              // eslint-disable-next-line no-console
               console.info('[CoreValidator] Using legacy health endpoint. Consider migrating to /api/v2/diagnostics/health');
             }
             return true;
-          } catch (_legacyError) {
+          } catch {
             clearTimeout(legacyTimeoutId);
             // If legacy also fails, that's still a functioning fetch
             return true;
           }
-        } catch (_fallbackError) {
+        } catch {
           // Final fallback - any error indicates fetch is working
           return true;
         }
@@ -276,6 +375,7 @@ class CoreFunctionalityValidator {
     } catch (error) {
       // Avoid warnings for expected connection issues - use info level
       if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
         console.info('[CoreValidator] Data fetching validation note:', error);
       }
       return false;
@@ -310,13 +410,17 @@ class CoreFunctionalityValidator {
 
       // Check if React event system is working
       const reactElements = document.querySelectorAll('[data-reactroot], [data-testid]');
-      if (reactElements.length === 0) {
+      if (reactElements.length === 0 && process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
         console.warn('[CoreValidator] No React elements detected');
       }
 
       return true;
     } catch (error) {
-      console.warn('[CoreValidator] User interactions validation failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('[CoreValidator] User interactions validation failed:', error);
+      }
       return false;
     }
   }
@@ -336,7 +440,8 @@ class CoreFunctionalityValidator {
           el.textContent && el.textContent.trim().length > 0
         );
         
-        if (!hasContent) {
+        if (!hasContent && process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
           console.warn('[CoreValidator] Prediction elements found but no content visible');
         }
       }
@@ -349,7 +454,10 @@ class CoreFunctionalityValidator {
 
       return true;
     } catch (error) {
-      console.warn('[CoreValidator] Predictions validation failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('[CoreValidator] Predictions validation failed:', error);
+      }
       return false;
     }
   }
@@ -384,7 +492,10 @@ class CoreFunctionalityValidator {
 
       return true;
     } catch (error) {
-      console.warn('[CoreValidator] Betting calculations validation failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('[CoreValidator] Betting calculations validation failed:', error);
+      }
       return false;
     }
   }
@@ -407,13 +518,17 @@ class CoreFunctionalityValidator {
       document.body.removeChild(testDiv);
 
       // Flag if rendering is taking too long (more than 16ms for 60fps)
-      if (renderTime > 16) {
+      if (renderTime > 16 && process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
         console.warn(`[CoreValidator] Slow rendering detected: ${renderTime}ms`);
       }
 
       return renderTime < 100; // Fail if rendering takes more than 100ms
     } catch (error) {
-      console.warn('[CoreValidator] Rendering validation failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('[CoreValidator] Rendering validation failed:', error);
+      }
       return false;
     }
   }
@@ -484,12 +599,22 @@ class CoreFunctionalityValidator {
 
       // Check memory usage if available
       if ('memory' in performance) {
-        const memory = (performance as any).memory;
-        impact.memoryUsage = memory.usedJSHeapSize;
-        impact.jsHeapSize = memory.totalJSHeapSize;
+        // Define memory interface to avoid any type
+        interface PerformanceMemory {
+          usedJSHeapSize: number;
+          totalJSHeapSize: number;
+        }
+        const memory = (performance as Performance & { memory?: PerformanceMemory }).memory;
+        if (memory) {
+          impact.memoryUsage = memory.usedJSHeapSize;
+          impact.jsHeapSize = memory.totalJSHeapSize;
+        }
       }
     } catch (error) {
-      console.warn('[CoreValidator] Performance impact assessment failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('[CoreValidator] Performance impact assessment failed:', error);
+      }
     }
 
     return impact;
@@ -563,6 +688,7 @@ class CoreFunctionalityValidator {
       'FAILING': '❌'
     };
 
+    /* eslint-disable no-console */
     console.groupCollapsed(`${statusEmoji[report.overallStatus]} Core Functionality Validation: ${report.overallStatus}`);
     
     console.table(report.validationResults.map(r => ({
@@ -577,6 +703,7 @@ class CoreFunctionalityValidator {
     }
 
     console.groupEnd();
+    /* eslint-enable no-console */
   }
 
   /**

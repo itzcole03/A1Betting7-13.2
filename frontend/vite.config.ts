@@ -75,6 +75,8 @@ export default defineConfig(({ mode, command }) => {
         overlay: false,
         clientPort: parseInt(env.VITE_PORT || '5173', 10),
         port: 24878,
+        // Explicitly set HMR host to prevent stale port references (fixes ws://localhost:8174 errors)
+        host: 'localhost',
       },
       strictPort: false,
       watch: {

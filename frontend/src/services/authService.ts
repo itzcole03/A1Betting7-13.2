@@ -1,7 +1,7 @@
 // frontend/src/services/AuthService.ts
 import axios from 'axios';
 
-const _API_URL = 'http://localhost:8000/auth';
+const _API_URL = 'http://localhost:8000/api/auth';
 
 export interface User {
   id: string;

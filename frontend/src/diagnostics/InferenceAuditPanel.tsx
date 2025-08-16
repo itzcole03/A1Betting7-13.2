@@ -31,6 +31,28 @@ const getShadowDiffColor = (diff: number): string => {
   return 'text-red-600';
 };
 
+// PR10: Color coding for drift status
+const getDriftStatusColor = (status: string): string => {
+  switch (status) {
+    case 'NORMAL': return 'bg-green-100 text-green-800 border-green-200';
+    case 'WATCH': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'DRIFTING': return 'bg-red-100 text-red-800 border-red-200';
+    case 'UNKNOWN': return 'bg-gray-100 text-gray-600 border-gray-200';
+    case 'UNAVAILABLE': return 'bg-gray-100 text-gray-400 border-gray-200';
+    default: return 'bg-gray-100 text-gray-600 border-gray-200';
+  }
+};
+
+// PR10: Color coding for readiness recommendations
+const getReadinessColor = (recommendation: string): string => {
+  switch (recommendation) {
+    case 'PROMOTE': return 'text-green-600';
+    case 'MONITOR': return 'text-yellow-600';
+    case 'HOLD': return 'text-red-600';
+    default: return 'text-gray-600';
+  }
+};
+
 interface InferenceAuditPanelProps {
   className?: string;
   showRecentTable?: boolean;
@@ -46,6 +68,7 @@ export const InferenceAuditPanel: React.FC<InferenceAuditPanelProps> = ({
     summary, 
     recentEntries, 
     registryInfo, 
+    driftStatus, // PR10: Include drift status
     loading, 
     error, 
     lastUpdated,
@@ -120,7 +143,7 @@ export const InferenceAuditPanel: React.FC<InferenceAuditPanelProps> = ({
       )}
 
       {/* Model information */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Active Model</h3>
           <div className="space-y-2">
@@ -154,6 +177,48 @@ export const InferenceAuditPanel: React.FC<InferenceAuditPanelProps> = ({
             </div>
           ) : (
             <div className="text-gray-500">Shadow mode not enabled</div>
+          )}
+        </div>
+
+        {/* PR10: Drift Status and Readiness */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Drift Status</h3>
+          {driftStatus ? (
+            <div className="space-y-3">
+              <div>
+                <span className="font-medium">Status:</span>{' '}
+                <span className={`px-2 py-1 rounded text-xs font-medium border ${getDriftStatusColor(driftStatus.drift_status)}`}>
+                  {driftStatus.drift_status}
+                </span>
+              </div>
+              {driftStatus.alert_active && (
+                <div className="flex items-center space-x-2 text-red-600 text-sm">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <span>Alert Active</span>
+                </div>
+              )}
+              <div className="text-sm text-gray-500">
+                Samples: {driftStatus.sample_count}
+              </div>
+              {summary?.readiness && (
+                <div className="pt-2 border-t">
+                  <div>
+                    <span className="font-medium text-sm">Readiness:</span>{' '}
+                    <span className={`font-medium ${getReadinessColor(summary.readiness.recommendation)}`}>
+                      {summary.readiness.recommendation}
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    Score: {formatNumber(summary.readiness.score * 100)}%
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {summary.readiness.reasoning}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-gray-500">Drift monitoring unavailable</div>
           )}
         </div>
       </div>

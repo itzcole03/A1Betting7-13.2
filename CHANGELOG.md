@@ -1,3 +1,41 @@
+# A1Betting7-13.2 Changelog
+
+## [2025-08-15] - PR10 Drift Monitoring & Calibration Baseline
+
+### Added
+
+* **PR10: Drift Monitoring & Calibration Baseline**
+  * **DriftMonitor Service**: Rolling window analysis (w50, w200, wall) with comprehensive drift metrics computation
+  * **Drift Status Classification**: NORMAL/WATCH/DRIFTING status with configurable thresholds (`A1_DRIFT_WARN`, `A1_DRIFT_ALERT`)
+  * **Shadow Promotion Readiness**: Automated scoring with PROMOTE/MONITOR/HOLD recommendations and latency penalty factors
+  * **Calibration System**: Outcome ingestion via `/api/v2/models/outcomes` with MAE tracking and distribution buckets
+  * **Schema Versioning**: v1.1 audit entries with backward compatibility for existing v1.0 entries
+  * **Enhanced API Endpoints**: Extended `/api/v2/models/audit/summary` and new `/api/v2/models/audit/status` endpoint
+  * **Frontend Integration**: Drift status visualization, readiness gauge, and outcome recording in InferenceAuditPanel
+  * **Comprehensive Testing**: 20+ test cases covering drift classification, readiness calculation, and calibration metrics
+  * **Documentation**: Complete `docs/ml/model_drift_and_calibration.md` with architecture, configuration, and troubleshooting
+
+#### PR10 Drift Detection Features
+
+* **Multi-Window Analysis**: Statistical analysis across 50, 200, and full buffer windows
+* **Threshold Configuration**: Environment-driven drift sensitivity (`A1_DRIFT_WARN=0.08`, `A1_DRIFT_ALERT=0.15`)
+* **Incremental Aggregation**: O(1) performance with circular buffer optimization
+* **Status Tracking**: Timestamp tracking for drift state transitions with alert activation
+
+#### PR10 Readiness Scoring Algorithm
+
+* **Base Score Calculation**: `1 - clamp(mean_abs_diff / A1_DRIFT_ALERT, 0..1)`
+* **Latency Penalty**: 20% reduction for shadow models >25% slower than primary
+* **Recommendation Logic**: Automated PROMOTE/MONITOR/HOLD decisions based on drift and latency
+* **Contextual Reasoning**: Human-readable explanations for each recommendation
+
+#### PR10 Calibration Pipeline
+
+* **Outcome Ingestion**: POST endpoint for recording observed outcomes matched by feature hash
+* **Error Calculation**: Mean Absolute Error (MAE) computation for matched prediction-outcome pairs
+* **Distribution Analysis**: Quartile-based outcome distribution tracking (lt_0_25, lt_0_5, lt_0_75, gte_0_75)
+* **Synthetic Support**: Placeholder calibration system ready for real ground-truth integration
+
 ## [2025-08-15] - PR9 Model Inference Observability & Safe Shadow Rollout
 
 ### ML Infrastructure - Model Inference Monitoring & Shadow Testing

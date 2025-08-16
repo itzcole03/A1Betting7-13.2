@@ -263,16 +263,31 @@ def create_app() -> FastAPI:
     # --- WebSocket Routes ---
     ws_router = APIRouter()
 
-    # Legacy WebSocket endpoint (maintain compatibility)
-    @ws_router.websocket("/ws/{client_id}")
-    async def websocket_endpoint(websocket: WebSocket, client_id: str):
-        logger.info(f"[WS] Legacy client {client_id} attempting connection...")
+    # Legacy WebSocket endpoint (DEPRECATED - moved to avoid path collision)
+    @ws_router.websocket("/ws/legacy/{client_id}")
+    async def websocket_endpoint_legacy(websocket: WebSocket, client_id: str):
+        logger.info(f"[WS] DEPRECATED: Legacy client {client_id} attempting connection on /ws/legacy/")
         await websocket.accept()
         logger.info(f"[WS] Legacy client {client_id} connected.")
+        
+        # Publish observability event for legacy connection tracking
+        try:
+            from backend.services.observability.event_bus import get_event_bus
+            event_bus = get_event_bus()
+            event_bus.publish("legacy.usage", {
+                "connection_type": "ws.legacy.connect",
+                "client_id": client_id,
+                "endpoint": "/ws/legacy/{client_id}",
+                "deprecation_notice": "Use /ws/client with query parameters instead",
+                "migration_guide": "Replace /ws/{client_id} with /ws/client?client_id={client_id}"
+            })
+        except Exception as e:
+            logger.warning(f"Failed to publish legacy connection event: {e}")
+            
         try:
             while True:
                 data = await websocket.receive_text()
-                logger.info(f"[WS] Received from {client_id}: {data}")
+                logger.info(f"[WS] Received from legacy {client_id}: {data}")
                 await websocket.send_text(f"Echo: {data}")
         except WebSocketDisconnect:
             logger.info(f"[WS] Legacy client {client_id} disconnected.")
@@ -281,15 +296,25 @@ def create_app() -> FastAPI:
 
     _app.include_router(ws_router)
     
-    # --- Canonical WebSocket Client Route ---
+    # --- Canonical WebSocket Client Route (DISABLED in favor of PR11 enhanced route) ---
+    # try:
+    #     from backend.routes.ws_client import router as ws_client_router
+    #     _app.include_router(ws_client_router)
+    #     logger.info("✅ Canonical WebSocket client route included (/ws/client)")
+    # except ImportError as e:
+    #     logger.warning(f"⚠️ Could not import canonical WebSocket client route: {e}")
+    # except Exception as e:
+    #     logger.error(f"❌ Failed to register canonical WebSocket client route: {e}")
+
+    # --- PR11 Enhanced WebSocket Client Route ---
     try:
-        from backend.routes.ws_client import router as ws_client_router
-        _app.include_router(ws_client_router)
-        logger.info("✅ Canonical WebSocket client route included (/ws/client)")
+        from backend.routes.ws_client_enhanced import router as ws_client_enhanced_router
+        _app.include_router(ws_client_enhanced_router)
+        logger.info("✅ PR11 Enhanced WebSocket client route included (/ws/client)")
     except ImportError as e:
-        logger.warning(f"⚠️ Could not import canonical WebSocket client route: {e}")
+        logger.warning(f"⚠️ Could not import PR11 enhanced WebSocket client route: {e}")
     except Exception as e:
-        logger.error(f"❌ Failed to register canonical WebSocket client route: {e}")
+        logger.error(f"❌ Failed to register PR11 enhanced WebSocket client route: {e}")
 
     # --- Core API Routes ---
     @_app.get("/api/health")
@@ -608,12 +633,12 @@ def create_app() -> FastAPI:
 
     # Import and mount versioned routers
     try:
-        from backend.auth.routes import router as auth_router
+        from backend.routes.auth import router as auth_router
         from backend.users.routes import router as users_router
 
-        _app.include_router(auth_router)
+        _app.include_router(auth_router, prefix="/api")
         _app.include_router(users_router)
-        logger.info("✅ Auth and users routes included")
+        logger.info("✅ Auth and users routes included (auth with /api prefix)")
     except ImportError as e:
         logger.warning(f"⚠️ Could not import auth/users routes: {e}")
     
@@ -677,6 +702,16 @@ def create_app() -> FastAPI:
         logger.warning(f"⚠️ Could not import model inference routes: {e}")
     except Exception as e:
         logger.error(f"❌ Failed to register model inference routes: {e}")
+
+    # Import and mount observability events routes (PR11: WebSocket Correlation & Observability Event Bus)
+    try:
+        from backend.routes.observability_events import router as observability_events_router
+        _app.include_router(observability_events_router, tags=["Observability Events"])
+        logger.info("✅ Observability events routes included (/api/v2/observability/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import observability events routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register observability events routes: {e}")
 
     # Import and mount admin control routes (Admin Control PR: Runtime Shadow Mode Control)
     try:

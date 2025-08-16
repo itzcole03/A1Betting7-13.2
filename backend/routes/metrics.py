@@ -1,6 +1,6 @@
 """Performance metrics endpoints."""
 
-from typing import Dict
+from typing import Dict, Any
 
 from fastapi import APIRouter
 

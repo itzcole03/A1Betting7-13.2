@@ -1,12 +1,54 @@
 /**
- * WebSocket Type Guards and Message Validation
+ * WebSocket Envelope Types for PR11 Implementation
  * 
- * Provides comprehensive type safety for WebSocket envelope patterns
- * matching the backend envelope structure: {type, status, data, timestamp, error}
+ * Provides TypeScript interfaces for standardized WebSocket message envelopes,
+ * enabling request correlation, trace propagation, and structured messaging
+ * between frontend and backend WebSocket connections.
  */
 
-// Base WebSocket Envelope Pattern (matches backend implementation)
-export interface WebSocketEnvelope<T = unknown> {
+/**
+ * WebSocket Message Envelope Structure (Version 1)
+ * 
+ * All WebSocket messages follow this standardized envelope format for
+ * consistency, correlation tracking, and observability.
+ */
+export interface WSEnvelope<T = any> {
+  /** Envelope format version (currently always 1) */
+  envelope_version: 1;
+  
+  /** Message type identifier (e.g., "hello", "ping", "drift.status") */
+  type: string;
+  
+  /** ISO timestamp when message was created */
+  timestamp: string;
+  
+  /** Request ID for correlation tracking across HTTP/WS boundaries */
+  request_id?: string;
+  
+  /** Distributed tracing metadata */
+  trace?: {
+    /** Current span ID */
+    span?: string;
+    /** Parent span ID */
+    parent_span?: string;
+  };
+  
+  /** Message payload (type-safe generic) */
+  payload: T;
+  
+  /** Optional metadata for debugging/monitoring */
+  meta?: {
+    /** Whether this is a debug/development message */
+    debug?: boolean;
+    /** Legacy compatibility flag */
+    legacy_compatibility?: boolean;
+    /** Additional arbitrary metadata */
+    [key: string]: any;
+  };
+}
+
+// Legacy envelope structure (maintained for backward compatibility)
+export interface LegacyWebSocketEnvelope<T = unknown> {
   type: string;
   status: 'success' | 'error' | 'info';
   timestamp: string;
@@ -71,7 +113,24 @@ export type WebSocketMessageData =
   | ErrorMessage;
 
 // Type guards for envelope validation
-export function isWebSocketEnvelope(data: unknown): data is WebSocketEnvelope {
+export function isWSEnvelope(data: unknown): data is WSEnvelope {
+  if (!data || typeof data !== 'object' || data === null) {
+    return false;
+  }
+
+  const envelope = data as Record<string, unknown>;
+
+  return (
+    typeof envelope.envelope_version === 'number' &&
+    envelope.envelope_version === 1 &&
+    typeof envelope.type === 'string' &&
+    typeof envelope.timestamp === 'string' &&
+    envelope.payload !== undefined
+  );
+}
+
+// Legacy type guard for backward compatibility
+export function isLegacyWebSocketEnvelope(data: unknown): data is LegacyWebSocketEnvelope {
   if (!data || typeof data !== 'object' || data === null) {
     return false;
   }
@@ -86,8 +145,8 @@ export function isWebSocketEnvelope(data: unknown): data is WebSocketEnvelope {
   );
 }
 
-export function isValidWebSocketMessage(data: unknown): data is WebSocketEnvelope {
-  if (!isWebSocketEnvelope(data)) {
+export function isValidWebSocketMessage(data: unknown): data is WSEnvelope {
+  if (!isWSEnvelope(data)) {
     return false;
   }
 

@@ -1,8 +1,9 @@
 """
-PR9: Inference Audit Service
+PR9/PR10: Inference Audit Service
 
 Provides in-memory audit storage with ring buffer, aggregation capabilities,
-and thread-safe access for inference observability. Enhanced with file persistence.
+thread-safe access for inference observability, drift monitoring, and calibration.
+Enhanced with file persistence, schema versioning, and comprehensive drift metrics.
 """
 
 import asyncio
@@ -14,6 +15,14 @@ from typing import Dict, Any, List, Optional, Deque
 from threading import Lock
 
 from backend.utils.log_context import get_contextual_logger
+
+# Import drift monitor for comprehensive drift analysis
+try:
+    from backend.services.inference_drift import get_drift_monitor
+    DRIFT_MONITOR_AVAILABLE = True
+except ImportError:
+    DRIFT_MONITOR_AVAILABLE = False
+    get_drift_monitor = None
 
 # Import file audit store for persistence
 try:
@@ -29,7 +38,7 @@ logger = get_contextual_logger(__name__)
 
 @dataclass
 class InferenceAuditEntry:
-    """Single inference audit entry with all captured metadata."""
+    """Single inference audit entry with all captured metadata and schema versioning."""
     request_id: str
     timestamp: float
     model_version: str
@@ -42,11 +51,12 @@ class InferenceAuditEntry:
     shadow_diff: Optional[float] = None
     shadow_latency_ms: Optional[float] = None
     status: str = "success"  # success|error
+    schema_version: str = "1.1"  # Schema versioning for audit entries
     
 
 @dataclass
 class InferenceAuditSummary:
-    """Aggregated audit summary with drift and calibration metrics."""
+    """Aggregated audit summary with drift, calibration, and readiness metrics."""
     rolling_count: int
     avg_latency_ms: float
     shadow_avg_diff: Optional[float]
@@ -57,6 +67,10 @@ class InferenceAuditSummary:
     shadow_model: Optional[str]
     success_rate: float
     error_count: int
+    # PR10: Enhanced drift, readiness, and calibration metrics
+    drift: Optional[Dict[str, Any]] = None
+    readiness: Optional[Dict[str, Any]] = None
+    calibration: Optional[Dict[str, Any]] = None
 
 
 class InferenceAuditService:
@@ -70,6 +84,15 @@ class InferenceAuditService:
     def __init__(self):
         self._initialize_configuration()
         self._initialize_storage()
+        
+        # Initialize drift monitor for enhanced analysis
+        self.drift_monitor = None
+        if DRIFT_MONITOR_AVAILABLE and get_drift_monitor:
+            try:
+                self.drift_monitor = get_drift_monitor()
+                logger.info("Drift monitor integrated with audit service")
+            except Exception as e:
+                logger.warning(f"Failed to initialize drift monitor: {e}")
         
         # Initialize file audit store if available
         self.file_store = None
@@ -114,11 +137,14 @@ class InferenceAuditService:
 
     def record_inference(self, inference_result) -> None:
         """
-        Record an inference result in the audit buffer and file store.
+        Record an inference result in the audit buffer, file store, and drift monitor.
         
         Args:
             inference_result: PredictionResult or compatible object with inference data
         """
+        # Determine schema version (default to 1.0 for backward compatibility)
+        schema_version = getattr(inference_result, 'schema_version', '1.0')
+        
         entry = InferenceAuditEntry(
             request_id=inference_result.request_id,
             timestamp=time.time(),
@@ -131,13 +157,26 @@ class InferenceAuditService:
             shadow_prediction=inference_result.shadow_prediction,
             shadow_diff=inference_result.shadow_diff,
             shadow_latency_ms=inference_result.shadow_latency_ms,
-            status=inference_result.status
+            status=inference_result.status,
+            schema_version=schema_version
         )
 
         with self._lock:
             self.audit_buffer.append(entry)
             # Clear cached summary when new data arrives
             self._cached_summary = None
+
+        # Record to drift monitor if available (outside lock to avoid blocking)
+        if self.drift_monitor and inference_result.status == "success":
+            try:
+                self.drift_monitor.record_inference(
+                    primary_pred=inference_result.prediction,
+                    shadow_pred=inference_result.shadow_prediction,
+                    primary_latency=inference_result.latency_ms,
+                    shadow_latency=inference_result.shadow_latency_ms
+                )
+            except Exception as e:
+                logger.warning(f"Failed to record inference to drift monitor: {e}")
 
         # Record to file store if available (outside lock to avoid blocking)
         if self.file_store:
@@ -156,7 +195,8 @@ class InferenceAuditService:
                 "model_version": entry.model_version,
                 "prediction": entry.prediction,
                 "latency_ms": entry.latency_ms,
-                "buffer_size": len(self.audit_buffer)
+                "buffer_size": len(self.audit_buffer),
+                "schema_version": entry.schema_version
             }
         )
 
@@ -176,7 +216,7 @@ class InferenceAuditService:
         # Convert to dictionaries for JSON serialization
         result = []
         for entry in reversed(recent_entries):  # Most recent first
-            result.append({
+            entry_dict = {
                 "request_id": entry.request_id,
                 "timestamp": entry.timestamp,
                 "model_version": entry.model_version,
@@ -189,7 +229,13 @@ class InferenceAuditService:
                 "shadow_diff": entry.shadow_diff,
                 "shadow_latency_ms": entry.shadow_latency_ms,
                 "status": entry.status
-            })
+            }
+            
+            # Include schema_version for v1.1+ entries, default to 1.0 for backward compatibility
+            schema_version = getattr(entry, 'schema_version', '1.0')
+            entry_dict["schema_version"] = schema_version
+            
+            result.append(entry_dict)
 
         logger.debug(
             f"Retrieved {len(result)} recent inferences",
@@ -256,6 +302,64 @@ class InferenceAuditService:
         shadow_models = [e.shadow_version for e in entries if e.shadow_version is not None]
         shadow_model = shadow_models[-1] if shadow_models else None
 
+        # Enhanced drift, readiness, and calibration metrics (PR10)
+        drift_metrics = None
+        readiness_metrics = None
+        calibration_metrics = None
+        
+        if self.drift_monitor:
+            try:
+                # Get comprehensive drift analysis
+                drift_analysis = self.drift_monitor.get_drift_metrics()
+                
+                # Extract wall metrics safely
+                wall_window = drift_analysis.windows.get("wall")
+                wall_mean_abs_diff = wall_window.mean_abs_diff if wall_window else (shadow_avg_diff or 0.0)
+                wall_pct_large_diff = wall_window.pct_large_diff if wall_window else 0.0
+                
+                drift_metrics = {
+                    "mean_abs_diff": wall_mean_abs_diff,
+                    "pct_large_diff": wall_pct_large_diff,
+                    "windows": {
+                        name: {
+                            "mean_abs_diff": window.mean_abs_diff,
+                            "pct_large_diff": window.pct_large_diff,
+                            "std_dev_primary": window.std_dev_primary,
+                            "sample_count": window.sample_count
+                        } for name, window in drift_analysis.windows.items()
+                    },
+                    "status": drift_analysis.status.value,
+                    "thresholds": drift_analysis.thresholds,
+                    "earliest_detected_ts": drift_analysis.earliest_detected_ts
+                }
+                
+                # Get readiness assessment
+                readiness_assessment = self.drift_monitor.get_readiness_score()
+                readiness_metrics = {
+                    "score": readiness_assessment.score,
+                    "recommendation": readiness_assessment.recommendation.value,
+                    "reasoning": readiness_assessment.reasoning,
+                    "latency_penalty_applied": readiness_assessment.latency_penalty_applied
+                }
+                
+                # Get calibration metrics
+                recent_entries_for_calibration = [
+                    {
+                        "feature_hash": e.feature_hash,
+                        "prediction": e.prediction
+                    } for e in successful_entries[-200:]  # Last 200 for calibration
+                ]
+                
+                calibration_analysis = self.drift_monitor.get_calibration_metrics(recent_entries_for_calibration)
+                calibration_metrics = {
+                    "count": calibration_analysis.count,
+                    "mae": calibration_analysis.mae,
+                    "buckets": calibration_analysis.buckets
+                }
+                
+            except Exception as e:
+                logger.warning(f"Failed to compute enhanced metrics: {e}")
+
         summary = InferenceAuditSummary(
             rolling_count=rolling_count,
             avg_latency_ms=avg_latency_ms,
@@ -266,7 +370,10 @@ class InferenceAuditService:
             active_model=active_model,
             shadow_model=shadow_model,
             success_rate=success_rate,
-            error_count=error_count
+            error_count=error_count,
+            drift=drift_metrics,
+            readiness=readiness_metrics,
+            calibration=calibration_metrics
         )
 
         # Cache the summary
@@ -317,6 +424,56 @@ class InferenceAuditService:
                 bins["0.8-1.0"] += 1
 
         return bins
+
+    def record_outcome(self, feature_hash: str, outcome_value: float) -> None:
+        """
+        Record an observed outcome for calibration analysis.
+        
+        Args:
+            feature_hash: Hash of the input features
+            outcome_value: Observed outcome value
+        """
+        if self.drift_monitor:
+            try:
+                self.drift_monitor.record_outcome(feature_hash, outcome_value)
+                logger.debug(
+                    "Outcome recorded for calibration",
+                    extra={"feature_hash": feature_hash[:8], "outcome_value": outcome_value}
+                )
+            except Exception as e:
+                logger.warning(f"Failed to record outcome: {e}")
+        else:
+            logger.warning("Cannot record outcome: drift monitor not available")
+
+    def get_drift_status(self) -> Dict[str, Any]:
+        """
+        Get current drift status information for alerts and monitoring.
+        
+        Returns:
+            Dictionary with drift status, timing, and alert information
+        """
+        if self.drift_monitor:
+            try:
+                return self.drift_monitor.get_status_info()
+            except Exception as e:
+                logger.warning(f"Failed to get drift status: {e}")
+                return {
+                    "drift_status": "UNKNOWN",
+                    "earliest_detected_ts": None,
+                    "last_update_ts": time.time(),
+                    "sample_count": 0,
+                    "alert_active": False,
+                    "error": str(e)
+                }
+        else:
+            return {
+                "drift_status": "UNAVAILABLE",
+                "earliest_detected_ts": None,
+                "last_update_ts": time.time(),
+                "sample_count": 0,
+                "alert_active": False,
+                "error": "Drift monitor not available"
+            }
 
     def get_buffer_status(self) -> Dict[str, Any]:
         """

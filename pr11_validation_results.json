@@ -1,0 +1,65 @@
+{
+  "overall_status": "FAIL",
+  "summary": {
+    "total_tests": 9,
+    "passed": 4,
+    "failed": 2,
+    "warnings": 3
+  },
+  "test_results": {
+    "API_EVENTS": {
+      "status": "PASS",
+      "details": "Endpoint accessible, returned 180 bytes",
+      "data": null,
+      "timestamp": 1755308593.2097878
+    },
+    "API_STATS": {
+      "status": "PASS",
+      "details": "Endpoint accessible, returned 503 bytes",
+      "data": null,
+      "timestamp": 1755308593.2360308
+    },
+    "API_HEALTH": {
+      "status": "PASS",
+      "details": "Endpoint accessible, returned 298 bytes",
+      "data": null,
+      "timestamp": 1755308593.2516959
+    },
+    "LEGACY_WS_CONNECTION": {
+      "status": "FAIL",
+      "details": "BaseEventLoop.create_connection() got an unexpected keyword argument 'timeout'",
+      "data": null,
+      "timestamp": 1755308593.3311234
+    },
+    "ENHANCED_WS_CONNECTION": {
+      "status": "FAIL",
+      "details": "BaseEventLoop.create_connection() got an unexpected keyword argument 'timeout'",
+      "data": null,
+      "timestamp": 1755308593.3314383
+    },
+    "ROUTING_SEPARATION": {
+      "status": "WARN",
+      "details": "HTTP Error: 404",
+      "data": null,
+      "timestamp": 1755308593.3349268
+    },
+    "LEGACY_EVENT_TRACKING": {
+      "status": "WARN",
+      "details": "No legacy usage events found",
+      "data": null,
+      "timestamp": 1755308593.361883
+    },
+    "WS_EVENT_TRACKING": {
+      "status": "WARN",
+      "details": "No WebSocket events found",
+      "data": null,
+      "timestamp": 1755308593.3619463
+    },
+    "EVENT_COLLECTION": {
+      "status": "PASS",
+      "details": "Observability collected 0 total events",
+      "data": null,
+      "timestamp": 1755308593.3619738
+    }
+  }
+}

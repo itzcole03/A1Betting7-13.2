@@ -77,6 +77,31 @@ class AuditSummary(BaseModel):
     shadow_model: Optional[str]
     success_rate: float
     error_count: int
+    # PR10: Enhanced metrics
+    drift: Optional[Dict[str, Any]] = None
+    readiness: Optional[Dict[str, Any]] = None
+    calibration: Optional[Dict[str, Any]] = None
+
+
+class OutcomeRequest(BaseModel):
+    """Request model for recording observed outcomes."""
+    feature_hash: str = Field(..., description="Hash of the input features")
+    outcome_value: float = Field(..., description="Observed outcome value")
+
+
+class OutcomeResponse(BaseModel):
+    """Response model for outcome recording."""
+    success: bool = Field(..., description="Whether outcome was recorded successfully")
+    message: str = Field(..., description="Status message")
+
+
+class DriftStatusResponse(BaseModel):
+    """Response model for drift status information."""
+    drift_status: str = Field(..., description="Current drift status: NORMAL, WATCH, or DRIFTING")
+    earliest_detected_ts: Optional[float] = Field(None, description="Timestamp when current status was first detected")
+    last_update_ts: float = Field(..., description="Last update timestamp")
+    sample_count: int = Field(..., description="Number of samples in analysis")
+    alert_active: bool = Field(..., description="Whether drift alert is currently active")
 
 
 class ModelRegistryResponse(BaseModel):
@@ -230,7 +255,10 @@ async def get_audit_summary(request: Request):
             active_model=summary.active_model,
             shadow_model=summary.shadow_model,
             success_rate=summary.success_rate,
-            error_count=summary.error_count
+            error_count=summary.error_count,
+            drift=summary.drift,
+            readiness=summary.readiness,
+            calibration=summary.calibration
         )
         
         logger.info(
@@ -248,6 +276,100 @@ async def get_audit_summary(request: Request):
     except Exception as e:
         logger.error(f"Failed to retrieve audit summary: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to retrieve audit summary: {str(e)}")
+
+
+@router.post(
+    "/api/v2/models/outcomes",
+    response_model=OutcomeResponse,
+    summary="Record Observed Outcome",
+    description="Record an observed outcome value for calibration analysis"
+)
+@rate_limited(requests_per_minute=60, burst_limit=10)
+async def record_outcome(request: Request, outcome_request: OutcomeRequest):
+    """
+    Record an observed outcome for calibration analysis.
+    
+    This endpoint allows recording of actual outcome values that can be matched
+    with previous predictions for calibration and accuracy assessment.
+    """
+    try:
+        audit_service = get_inference_audit()
+        
+        logger.info(
+            "Recording outcome for calibration",
+            extra={
+                "feature_hash": outcome_request.feature_hash[:8],
+                "outcome_value": outcome_request.outcome_value
+            }
+        )
+        
+        # Record outcome in audit service
+        audit_service.record_outcome(
+            feature_hash=outcome_request.feature_hash,
+            outcome_value=outcome_request.outcome_value
+        )
+        
+        response = OutcomeResponse(
+            success=True,
+            message="Outcome recorded successfully for calibration analysis"
+        )
+        
+        logger.info(
+            "Outcome recorded successfully",
+            extra={"feature_hash": outcome_request.feature_hash[:8]}
+        )
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Failed to record outcome: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to record outcome: {str(e)}")
+
+
+@router.get(
+    "/api/v2/models/audit/status",
+    response_model=DriftStatusResponse,
+    summary="Get Drift Status",
+    description="Get current drift status and alert information"
+)
+@rate_limited(requests_per_minute=120, burst_limit=15)
+async def get_drift_status(request: Request):
+    """
+    Get current drift status and alert information.
+    
+    Returns the current drift status classification, timing information,
+    and whether any drift alerts are currently active.
+    """
+    try:
+        audit_service = get_inference_audit()
+        
+        logger.debug("Retrieving drift status")
+        
+        # Get drift status information
+        status_info = audit_service.get_drift_status()
+        
+        response = DriftStatusResponse(
+            drift_status=status_info["drift_status"],
+            earliest_detected_ts=status_info["earliest_detected_ts"],
+            last_update_ts=status_info["last_update_ts"],
+            sample_count=status_info["sample_count"],
+            alert_active=status_info["alert_active"]
+        )
+        
+        logger.info(
+            "Drift status retrieved",
+            extra={
+                "drift_status": status_info["drift_status"],
+                "alert_active": status_info["alert_active"],
+                "sample_count": status_info["sample_count"]
+            }
+        )
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Failed to retrieve drift status: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve drift status: {str(e)}")
 
 
 @router.get(

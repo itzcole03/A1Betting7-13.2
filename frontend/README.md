@@ -51,7 +51,7 @@ npm install
 
 ```bash
 npm run dev
-# Starts dev server on http://localhost:8174
+# Starts dev server on http://localhost:5173
 ```
 
 ### Building
@@ -153,7 +153,7 @@ Create `.env.development` for development settings:
 
 ```env
 VITE_BACKEND_URL=http://localhost:8000
-VITE_PORT=8174
+VITE_PORT=5173
 ```
 
 ### Vite Configuration
@@ -201,7 +201,7 @@ Custom Tailwind setup with:
 
 ### ✅ Working Features
 
-- **Dev Server**: Running smoothly on port 8174
+- **Dev Server**: Running smoothly on port 5173
 - **Hot Reload**: Instant updates during development
 - **TypeScript**: No compilation errors
 - **CSS Imports**: All style files loading correctly
@@ -212,7 +212,7 @@ Custom Tailwind setup with:
 
 ### 🔧 Recent Fixes (January 2025)
 
-- **Fixed Dev Server Port**: Corrected proxy configuration for port 8174
+- **Fixed Dev Server Port**: Corrected proxy configuration for port 5173
 - **Resolved TypeScript Errors**: Fixed all compilation and type issues
 - **Created Missing CSS Files**: Added all required style imports
 - **Fixed Store Imports**: Corrected state management imports
@@ -347,6 +347,20 @@ npm install  # Clean reinstall
 # Ensure all CSS files exist in src/styles/
 # Check for import errors in main.tsx
 ```
+
+**HMR WebSocket Errors (Port Mismatch)**
+
+If you see errors like "WebSocket connection to 'ws://localhost:8174/_hmr' failed":
+
+1. **Clear Browser Cache**: Hard refresh (Ctrl+Shift+R) or clear browser cache
+2. **Close All Tabs**: Close all tabs with the application and reopen  
+3. **Restart Dev Server**: Stop (`Ctrl+C`) and restart (`npm run dev`)
+4. **Check Port Configuration**: Ensure consistent port usage:
+   - Package.json: `--port 5173`
+   - .env file: `VITE_PORT=5173`
+   - Browser URL: `http://localhost:5173`
+
+The HMR system uses port 5173 for the client and port 24878 for the WebSocket server.
 
 ### Getting Help
 

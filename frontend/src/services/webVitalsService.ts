@@ -41,6 +41,9 @@ class WebVitalsService {
 
   private entries: PerformanceEntry[] = [];
   private lcpLogged: boolean = false;
+  
+  // Idempotency guard for custom metrics
+  private emittedCustomMetrics: Set<string> = new Set();
 
   private getRating(name: string, value: number): 'good' | 'needs-improvement' | 'poor' {
     const thresholds = {
@@ -243,19 +246,44 @@ class WebVitalsService {
   }
 
   /**
-   * Track custom metrics for additional insights
+   * Track custom metrics for additional insights with idempotency protection
    */
   public trackCustomMetric(name: string, value: number, attributes?: Record<string, string>): void {
-  logger.info(`Custom metric ${name}`, { value, attributes }, 'WebVitals');
+    // Idempotency guard: prevent duplicate emissions of the same custom metric
+    const metricKey = attributes ? `${name}:${JSON.stringify(attributes)}` : name;
+    
+    if (this.emittedCustomMetrics.has(metricKey)) {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log(`[WebVitals] Skipping duplicate custom metric: ${name}`, { attributes });
+      }
+      return;
+    }
+    
+    // Mark as emitted to prevent duplicates
+    this.emittedCustomMetrics.add(metricKey);
+    
+    logger.info(`Custom metric ${name}`, { value, attributes }, 'WebVitals');
 
     // Store custom metric for later reporting
     if (attributes) {
-  logger.debug(`Custom metric attributes`, attributes, 'WebVitals');
+      logger.debug(`Custom metric attributes`, attributes, 'WebVitals');
     }
   }
 
   public getEntries(): PerformanceEntry[] {
     return [...this.entries];
+  }
+
+  /**
+   * Clear custom metrics idempotency guard (for testing or manual reset)
+   */
+  public clearCustomMetricsHistory(): void {
+    this.emittedCustomMetrics.clear();
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('[WebVitals] Custom metrics history cleared - duplicates will be allowed again');
+    }
   }
 
   public getPerformanceScore(): number {
