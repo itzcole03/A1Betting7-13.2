@@ -39,9 +39,15 @@ export interface CacheMetrics {
   staleness_score: number;
 }
 
+interface ExplanationCacheEntry {
+  data: unknown;
+  timestamp: number;
+  ttl: number;
+}
+
 class PredictionCacheService {
   private cache: Map<string, CachedPrediction[]> = new Map();
-  private aiExplanationCache: Map<string, unknown> = new Map();
+  private aiExplanationCache: Map<string, ExplanationCacheEntry> = new Map();
   private accuracyHistory: Map<string, number[]> = new Map();
   private cacheMetrics: CacheMetrics = {
     total_predictions: 0,
@@ -62,11 +68,11 @@ class PredictionCacheService {
    * Store a new prediction and compare with previous ones
    */
   storePrediction(prediction: CachedPrediction): PredictionComparison {
-    const _key = this.generateKey(prediction.player_name, prediction.stat_type, prediction.line);
-    const _history = this.cache.get(key) || [];
+    const key = this.generateKey(prediction.player_name, prediction.stat_type, prediction.line);
+    const history = this.cache.get(key) || [];
 
     // Get the most recent prediction for comparison
-    const _previous = history.length > 0 ? history[history.length - 1] : undefined;
+    const previous = history.length > 0 ? history[history.length - 1] : undefined;
 
     // Add timestamp if not present
     prediction.timestamp = prediction.timestamp || new Date().toISOString();
@@ -100,15 +106,15 @@ class PredictionCacheService {
     stat_type: string,
     line: number
   ): CachedPrediction | null {
-    const _key = this.generateKey(player_name, stat_type, line);
-    const _history = this.cache.get(key);
+    const key = this.generateKey(player_name, stat_type, line);
+    const history = this.cache.get(key);
 
     if (!history || history.length === 0) {
       return null;
     }
 
-    const _latest = history[history.length - 1];
-    const _age = Date.now() - new Date(latest.timestamp).getTime();
+    const latest = history[history.length - 1];
+    const age = Date.now() - new Date(latest.timestamp).getTime();
 
     // Return null if too old
     if (age > this.MAX_CACHE_AGE) {
@@ -126,15 +132,15 @@ class PredictionCacheService {
     stat_type: string,
     line: number
   ): PredictionComparison | null {
-    const _key = this.generateKey(player_name, stat_type, line);
-    const _history = this.cache.get(key);
+    const key = this.generateKey(player_name, stat_type, line);
+    const history = this.cache.get(key);
 
     if (!history || history.length === 0) {
       return null;
     }
 
-    const _current = history[history.length - 1];
-    const _previous = history.length > 1 ? history[history.length - 2] : undefined;
+    const current = history[history.length - 1];
+    const previous = history.length > 1 ? history[history.length - 2] : undefined;
 
     return this.createComparison(current, previous, key);
   }
@@ -143,7 +149,7 @@ class PredictionCacheService {
    * Store AI explanation with TTL
    */
   storeAiExplanation(propId: string, explanation: unknown): void {
-    const _entry = {
+    const entry = {
       data: explanation,
       timestamp: Date.now(),
       ttl: this.AI_EXPLANATION_TTL,
@@ -155,13 +161,13 @@ class PredictionCacheService {
    * Get AI explanation if still fresh
    */
   getAiExplanation(propId: string): unknown | null {
-    const _entry = this.aiExplanationCache.get(propId);
+    const entry = this.aiExplanationCache.get(propId);
 
     if (!entry) {
       return null;
     }
 
-    const _age = Date.now() - entry.timestamp;
+    const age = Date.now() - entry.timestamp;
     if (age > entry.ttl) {
       this.aiExplanationCache.delete(propId);
       return null;

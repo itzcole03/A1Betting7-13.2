@@ -14,8 +14,9 @@ import {
   XCircle,
 } from 'lucide-react';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { fetchHealthData, fetchPerformanceStats } from '../../utils/robustApi';
+import { useMetricsActions, useCacheHitRate } from '../../metrics/metricsStore';
 import StatusIndicator from './StatusIndicator';
 
 interface PerformanceMetrics {
@@ -123,7 +124,11 @@ const PerformanceMonitoringDashboard: React.FC = () => {
   const [isUsingMockData, setIsUsingMockData] = useState(false);
   const [isCloudEnvironment, setIsCloudEnvironment] = useState(false);
 
-  const fetchData = async () => {
+  // Use normalized metrics store for safe access
+  const { updateFromRaw } = useMetricsActions();
+  const cacheMetrics = useCacheHitRate();
+
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -161,6 +166,12 @@ const PerformanceMonitoringDashboard: React.FC = () => {
       setHealth(healthData);
       setMetrics(perfData);
 
+      // Update metrics store with health and performance data
+      updateFromRaw({
+        ...healthData,
+        ...perfData,
+      }, 'performance-dashboard');
+
       // Check if we're using mock data
       setIsUsingMockData(
         isCloud ||
@@ -170,6 +181,7 @@ const PerformanceMonitoringDashboard: React.FC = () => {
               perfData.system_info?.caching_strategy?.includes('Cloud Demo')))
       );
     } catch (err) {
+      /* eslint-disable-next-line no-console */
       console.error('Failed to fetch performance data:', err);
       setError('Using demo data - API may be unavailable');
       // Provide fallback data
@@ -179,7 +191,7 @@ const PerformanceMonitoringDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [updateFromRaw]); // Add dependencies for useCallback
 
   useEffect(() => {
     fetchData();
@@ -187,7 +199,7 @@ const PerformanceMonitoringDashboard: React.FC = () => {
     // Auto-refresh every 30 seconds
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [updateFromRaw, fetchData]); // Add fetchData to dependencies
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -317,9 +329,11 @@ const PerformanceMonitoringDashboard: React.FC = () => {
               <h4 className='font-semibold text-white'>Cache Performance</h4>
             </div>
             <p className='text-lg font-bold text-blue-400'>
-              {health.performance.cache_hit_rate.toFixed(1)}%
+              {cacheMetrics.formatted}
             </p>
-            <p className='text-gray-400 text-sm'>Type: {health.performance.cache_type}</p>
+            <p className='text-gray-400 text-sm'>
+              Type: {health?.performance?.cache_type || 'memory'}
+            </p>
           </div>
 
           <div className='bg-gray-800 p-4 rounded-lg border border-gray-600'>

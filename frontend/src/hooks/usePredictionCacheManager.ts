@@ -288,9 +288,9 @@ export const _usePredictionCacheManager = (options: CacheManagerOptions = {}) =>
     const _metrics = cacheState.metrics;
 
     // Combine accuracy, hit rate, and freshness
-    const _accuracyScore = metrics.overall_accuracy || 0;
-    const _hitRateScore = metrics.cache_hit_rate || 0;
-    const _freshnessScore = 100 - (metrics.staleness_score || 0);
+    const accuracyScore = metrics.overall_accuracy || 0;
+    const hitRateScore = metrics.cache_hit_rate || 0;
+    const freshnessScore = 100 - (metrics.staleness_score || 0);
 
     return accuracyScore * 0.4 + hitRateScore * 0.3 + freshnessScore * 0.3;
   }, [cacheState.metrics]);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useCacheHitRate, useMetricsActions } from '../../metrics/metricsStore';
 import {
   Brain,
   Activity,
@@ -127,6 +128,10 @@ export const AdvancedAIDashboard: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  
+  // Use metrics store for safe cache hit rate access
+  const cacheMetrics = useCacheHitRate();
+  const { updateFromRaw } = useMetricsActions();
   
   // Multi-Sport Integration State
   const [multiSportData, setMultiSportData] = useState<MultiSportData[]>([]);
@@ -840,7 +845,7 @@ export const AdvancedAIDashboard: React.FC = () => {
                         <p className="text-xs text-slate-400">Queue Size</p>
                       </div>
                       <div className="text-center p-3 bg-slate-700/50 rounded-lg">
-                        <p className="text-2xl font-bold text-orange-400">{(inferenceMetrics.cache_hit_rate * 100).toFixed(0)}%</p>
+                        <p className="text-2xl font-bold text-orange-400">{cacheMetrics.percentage}</p>
                         <p className="text-xs text-slate-400">Cache Hit</p>
                       </div>
                     </div>
@@ -1216,7 +1221,7 @@ export const AdvancedAIDashboard: React.FC = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-400">Cache Hit Rate:</span>
-                        <span className="text-blue-400 font-medium">{(inferenceMetrics.cache_hit_rate * 100).toFixed(1)}%</span>
+                        <span className="text-blue-400 font-medium">{cacheMetrics.formatted}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-400">Active Models:</span>
