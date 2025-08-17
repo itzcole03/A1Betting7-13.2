@@ -1,6 +1,7 @@
 """Diagnostics endpoints for system health and circuit breaker status."""
 
 from typing import Dict, Any
+from datetime import datetime, timezone
 from fastapi import APIRouter, Response
 
 # Contract compliance imports
@@ -13,6 +14,9 @@ from backend.services.health_service import health_service, HealthStatusResponse
 # New comprehensive health system
 from backend.services.health.health_collector import get_health_collector, map_statuses_to_overall
 from backend.services.health.health_models import HealthResponse
+
+# Reliability monitoring system
+from backend.services.reliability.reliability_orchestrator import get_reliability_orchestrator
 
 # Unified logging
 try:
@@ -124,6 +128,85 @@ async def get_comprehensive_health(response: Response):
                 environment="unknown"
             )
         )
+
+
+@router.get("/reliability")
+async def get_reliability_report(response: Response, include_traces: bool = False):
+    """
+    Comprehensive reliability monitoring endpoint.
+    
+    Provides aggregated diagnostic report including:
+    - Health snapshot from existing health collectors
+    - Performance metrics from unified metrics collector  
+    - Edge engine statistics (stub implementation)
+    - Data ingestion pipeline metrics (stub implementation)
+    - WebSocket connection statistics
+    - Model registry status and counts
+    - Anomaly analysis with severity classification
+    - Overall status derivation based on health and anomalies
+    
+    Query Parameters:
+        include_traces: Whether to include trace information (default: false)
+    
+    Returns:
+        JSON reliability report (not wrapped in Pydantic model)
+    """
+    # Set response headers for reliability monitoring
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["X-Reliability-Version"] = "v1"
+    
+    try:
+        # Get reliability orchestrator and generate report
+        reliability_orchestrator = get_reliability_orchestrator()
+        report = await reliability_orchestrator.generate_report(include_traces=include_traces)
+        
+        # Log structured reliability event
+        logger.info(
+            "Reliability report requested",
+            extra={
+                "overall_status": report.get("overall_status"),
+                "anomaly_count": len(report.get("anomalies", [])),
+                "active_edges": report.get("edge_engine", {}).get("active_edges", 0),
+                "cpu_percent": report.get("performance", {}).get("cpu_percent", 0),
+                "p95_request_latency_ms": report.get("performance", {}).get("p95_request_latency_ms", 0)
+            }
+        )
+        
+        # Return raw JSON (not wrapped in StandardAPIResponse)
+        return report
+        
+    except Exception as e:
+        logger.error(f"Reliability report generation failed: {e}")
+        
+        # Return minimal error report
+        error_report = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "overall_status": "down",
+            "health_version": "v2",
+            "services": [],
+            "performance": {},
+            "cache": {},
+            "infrastructure": {},
+            "metrics": {},
+            "edge_engine": {},
+            "ingestion": {},
+            "websocket": {},
+            "model_registry": {},
+            "anomalies": [
+                {
+                    "code": "RELIABILITY_REPORT_FAILED",
+                    "severity": "critical", 
+                    "description": "Failed to generate reliability report",
+                    "recommendation": "Check system logs and service availability"
+                }
+            ],
+            "notes": [f"Report generation failed: {str(e)[:100]}"],
+            "include_traces": include_traces,
+            "error": True
+        }
+        
+        response.status_code = 500
+        return error_report
 
 
 @router.get("/health/legacy", response_model=HealthStatusResponse)

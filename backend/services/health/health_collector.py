@@ -9,7 +9,7 @@ import platform
 import sys
 import time
 from datetime import datetime, timezone
-from typing import Dict, List, Literal, Optional
+from typing import Dict, List, Literal, Optional, Any
 
 try:
     import psutil
@@ -455,6 +455,52 @@ class HealthCollector:
         
         return stats
     
+    async def collect_health_raw(self) -> Dict[str, Any]:
+        """
+        Collect comprehensive health information and return as raw dictionary.
+        
+        This method returns the underlying dict data before Pydantic model construction
+        to avoid double object creation for reliability orchestrator integration.
+        
+        Returns:
+            Raw dictionary with health data
+        """
+        # Reuse the logic from collect_health but return dict instead of HealthResponse
+        health_response = await self.collect_health()
+        
+        return {
+            "timestamp": health_response.timestamp.isoformat(),
+            "version": health_response.version,
+            "services": [
+                {
+                    "name": service.name,
+                    "status": service.status,
+                    "latency_ms": service.latency_ms,
+                    "details": service.details
+                }
+                for service in health_response.services
+            ],
+            "performance": {
+                "cpu_percent": health_response.performance.cpu_percent,
+                "rss_mb": health_response.performance.rss_mb,
+                "event_loop_lag_ms": health_response.performance.event_loop_lag_ms,
+                "avg_request_latency_ms": health_response.performance.avg_request_latency_ms,
+                "p95_request_latency_ms": health_response.performance.p95_request_latency_ms
+            },
+            "cache": {
+                "hit_rate": health_response.cache.hit_rate,
+                "hits": health_response.cache.hits,
+                "misses": health_response.cache.misses,
+                "evictions": health_response.cache.evictions
+            },
+            "infrastructure": {
+                "uptime_sec": health_response.infrastructure.uptime_sec,
+                "python_version": health_response.infrastructure.python_version,
+                "build_commit": health_response.infrastructure.build_commit,
+                "environment": health_response.infrastructure.environment
+            }
+        }
+
     async def collect_health(self) -> HealthResponse:
         """
         Collect comprehensive health information from all monitored services.
