@@ -869,6 +869,16 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register ML Model Registry routes: {e}")
 
+    # --- Data Ingestion Routes (NEW) ---
+    try:
+        from backend.ingestion.routes import router as ingestion_router
+        _app.include_router(ingestion_router, tags=["Data Ingestion"])
+        logger.info("✅ Data ingestion routes included (/api/v1/ingestion/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import data ingestion routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register data ingestion routes: {e}")
+
     # --- Enterprise Model Registry Routes (NEW) ---
     try:
         from backend.routes.enterprise_model_registry_routes import enterprise_router

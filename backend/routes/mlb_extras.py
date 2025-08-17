@@ -6,6 +6,9 @@ Includes HEAD method support for readiness checks.
 
 from fastapi import APIRouter
 
+# Metrics instrumentation
+from backend.services.metrics.instrumentation import instrument_route
+
 router = APIRouter()
 
 @router.head("/status", status_code=204)
@@ -39,6 +42,7 @@ async def todays_games_readiness_check():
     return None
 
 @router.get("/todays-games")
+@instrument_route
 async def get_todays_games():
     """Get today's MLB games (mock implementation for readiness)."""
     return {
@@ -62,6 +66,7 @@ async def props_readiness_check():
 @router.get("/props")
 async def get_mlb_props():
     """Get MLB props (mock implementation for readiness)."""
+    # TODO: Add @instrument_route decorator when implementing full functionality
     return {
         "success": True,
         "data": {

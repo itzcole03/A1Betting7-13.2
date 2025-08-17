@@ -14,12 +14,16 @@ from backend.services.comprehensive_prizepicks_service import (
 )  # Import scraper service
 from backend.utils.llm_engine import MODEL_STATE, llm_engine
 
+# Metrics instrumentation
+from backend.services.metrics.instrumentation import instrument_route
+
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
 # Simple version endpoint for frontend health/version checks
 @router.get("/version", response_model=StandardAPIResponse[Dict[str, Any]])
+@instrument_route
 async def version():
     return ResponseBuilder.success({"version": "1.0.0", "status": "ok"})
 
@@ -41,6 +45,7 @@ class HealthResponse(BaseModel):
 
 
 @router.get("/status", response_model=HealthResponse)
+@instrument_route
 async def health_check(
     current_user: Any = Depends(get_current_admin_user),
 ) -> Dict[str, Any]:
@@ -88,6 +93,7 @@ async def health_check(
 
 
 @router.get("/model/{model_name}/health", response_model=StandardAPIResponse[Dict[str, Any]])
+@instrument_route
 async def model_health_check(
     model_name: str, current_user: Any = Depends(get_current_admin_user)
 ) -> Dict[str, Any]:

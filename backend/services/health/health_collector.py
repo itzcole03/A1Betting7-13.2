@@ -374,9 +374,10 @@ class HealthCollector:
         return PerformanceStats(
             cpu_percent=round(cpu_percent, 1),
             rss_mb=round(rss_mb, 1),
-            event_loop_lag_ms=metrics_snapshot["event_loop_lag_ms"],
-            avg_request_latency_ms=metrics_snapshot["avg_latency_ms"],
-            p95_request_latency_ms=metrics_snapshot["p95_latency_ms"]
+            event_loop_lag_ms=metrics_snapshot.get("event_loop", {}).get("avg_lag_ms", 0.0),
+            avg_request_latency_ms=metrics_snapshot.get("avg_latency_ms", 0.0),
+            p95_request_latency_ms=metrics_snapshot.get("p95_latency_ms", 0.0)
+            # TODO: Add p99_request_latency_ms to PerformanceStats model when safe to extend
         )
     
     def get_cache_stats(self) -> CacheStats:
@@ -387,7 +388,20 @@ class HealthCollector:
             CacheStats with hit rate and operation counts
         """
         try:
-            # Try to get Redis cache stats if available
+            # First try to get enhanced cache stats from metrics collector
+            metrics_snapshot = self._metrics_collector.snapshot()
+            cache_metrics = metrics_snapshot.get("cache", {})
+            
+            if cache_metrics and (cache_metrics.get("hits", 0) > 0 or cache_metrics.get("misses", 0) > 0):
+                # Use metrics collector data if available
+                return CacheStats(
+                    hit_rate=cache_metrics.get("hit_rate", 0.0),
+                    hits=cache_metrics.get("hits", 0),
+                    misses=cache_metrics.get("misses", 0),
+                    evictions=cache_metrics.get("evictions", 0)
+                )
+            
+            # Fallback to cache service stats if metrics collector has no data
             from ..unified_cache_service import get_cache_service
             cache_service = get_cache_service()
             
@@ -405,7 +419,7 @@ class HealthCollector:
             )
             
         except Exception:
-            # Fallback when cache service not available
+            # Final fallback when neither metrics nor cache service available
             return CacheStats(
                 hit_rate=0.0,
                 hits=0,

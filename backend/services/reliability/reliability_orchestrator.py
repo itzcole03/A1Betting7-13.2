@@ -144,6 +144,18 @@ class ReliabilityOrchestrator:
                 "cache": health_data.get("cache", {}),
                 "infrastructure": health_data.get("infrastructure", {}),
                 "metrics": metrics_data,
+                "metrics_extended": {  # Extended metrics from enhanced collector
+                    "error_rate": metrics_data.get("error_rate", 0.0),
+                    "event_loop": metrics_data.get("event_loop", {}),
+                    "websocket": metrics_data.get("websocket", {}),
+                    "histogram": metrics_data.get("histogram", {}),
+                    "percentiles": {
+                        "p50": metrics_data.get("p50_latency_ms", 0.0),
+                        "p90": metrics_data.get("p90_latency_ms", 0.0),
+                        "p95": metrics_data.get("p95_latency_ms", 0.0),
+                        "p99": metrics_data.get("p99_latency_ms", 0.0)
+                    }
+                },
                 "edge_engine": edge_stats,
                 "ingestion": ingestion_stats,
                 "websocket": websocket_stats,

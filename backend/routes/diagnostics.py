@@ -18,6 +18,9 @@ from backend.services.health.health_models import HealthResponse
 # Reliability monitoring system
 from backend.services.reliability.reliability_orchestrator import get_reliability_orchestrator
 
+# Metrics instrumentation
+from backend.services.metrics.instrumentation import instrument_route
+
 # Unified logging
 try:
     from backend.services.unified_logging import get_logger
@@ -30,6 +33,7 @@ router = APIRouter()
 
 
 @router.get("/circuit-breaker/ollama", response_model=StandardAPIResponse[Dict[str, Any]])
+@instrument_route
 async def get_ollama_circuit_breaker_status():
     """Get the status of the Ollama circuit breaker."""
     if hasattr(llm_engine.client, "circuit_breaker"):
@@ -38,6 +42,7 @@ async def get_ollama_circuit_breaker_status():
 
 
 @router.get("/system", response_model=StandardAPIResponse[Dict[str, Any]])
+@instrument_route
 async def get_system_diagnostics():
     """Get overall system diagnostics."""
     return ResponseBuilder.success({
