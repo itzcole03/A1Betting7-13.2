@@ -839,6 +839,16 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register consolidated Admin routes: {e}")
 
+    # Risk Management and Personalization API (Risk Management Engine, User Personalization, Alerting Foundation)
+    try:
+        from backend.routes.risk_personalization import router as risk_personalization_router
+        _app.include_router(risk_personalization_router, tags=["Risk Management", "Personalization", "Alerting"])
+        logger.info("✅ Risk Management & Personalization routes included (/api/risk-personalization/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import Risk Management & Personalization routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register Risk Management & Personalization routes: {e}")
+
     # System Capabilities Matrix API (Service Registry & Health Tracking)
     try:
         from backend.routes.system_capabilities import router as system_capabilities_router

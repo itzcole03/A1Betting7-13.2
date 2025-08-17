@@ -8,7 +8,7 @@ Supports environment variables, file-based config, and runtime overrides.
 import json
 import logging
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, field
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type, TypeVar, Union
@@ -202,6 +202,41 @@ class PerformanceConfig:
 
 
 @dataclass
+class CorrelationConfig:
+    """Correlation analysis configuration"""
+
+    # Minimum samples required for correlation calculation
+    min_samples: int = 8
+    
+    # Correlation threshold for clustering
+    threshold_cluster: float = 0.4
+    
+    # Correlation adjustment factor for parlay calculations
+    adjustment_factor: float = 0.5
+    
+    # Enable correlation-adjusted probability calculations
+    allow_correlation_adjustment: bool = True
+
+
+@dataclass
+class TicketingConfig:
+    """Parlay ticketing configuration"""
+
+    # Ticket constraints
+    max_legs: int = 6
+    min_legs: int = 2
+    
+    # Maximum average correlation allowed within a ticket
+    max_avg_correlation: float = 0.6
+    
+    # Base payout multiplier (placeholder for more sophisticated payout schema)
+    parlay_base_multiplier: float = 3.0
+    
+    # LLM integration
+    llm_prefetch_on_ticket: bool = False
+
+
+@dataclass
 class SecurityConfig:
     """Security configuration"""
 
@@ -218,6 +253,42 @@ class SecurityConfig:
 
     # Security headers
     enable_security_headers: bool = True
+
+
+@dataclass
+class RiskManagementConfig:
+    """Risk management and exposure configuration"""
+    
+    # Bankroll Management
+    risk_min_stake: float = 1.0
+    risk_max_stake_pct_bankroll: float = 0.05  # 5% max stake per bet
+    
+    # Exposure Limits (as percentage of bankroll)
+    exposure_max_player_pct: float = 0.15  # 15% max exposure per player
+    exposure_max_prop_type_pct: float = 0.25  # 25% max exposure per prop type
+    exposure_max_cluster_pct: float = 0.20  # 20% max exposure per correlation cluster  
+    exposure_max_daily_stake: float = 0.3  # 30% max daily aggregate exposure
+    
+    # Risk Analysis Thresholds
+    risk_max_correlated_edges: int = 5  # Max edges in same correlation cluster
+    risk_max_edges_per_player: int = 3  # Max edges per player
+    risk_max_edges_per_prop_type: int = 5  # Max edges per prop type
+    risk_max_legs_per_cluster: int = 3  # Max legs per cluster in single ticket
+    risk_low_ev_threshold: float = 0.02  # 2% EV threshold for "low EV" classification
+    risk_min_combined_probability: float = 0.01  # 1% minimum combined probability
+    
+    # Alert System
+    alert_evaluation_interval_seconds: int = 60  # Alert evaluation interval
+    alert_cooldown_min_sec: int = 300  # 5 minutes between same alert
+    alert_max_batch: int = 50  # Max alerts per batch
+    bankroll_drawdown_threshold: float = 0.7  # Alert when bankroll drops to 70%
+    
+    # Personalization
+    interest_decay_rate: float = 0.1  # Daily decay rate for interest signals
+    edge_recommendation_limit: int = 50  # Max edges returned in recommendations
+    
+    # LLM Integration
+    llm_explain_stake: bool = False  # Enable LLM stake explanations
 
 
 @dataclass
@@ -238,7 +309,10 @@ class ApplicationConfig:
     external_apis: ExternalAPIConfig = field(default_factory=ExternalAPIConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
     performance: PerformanceConfig = field(default_factory=PerformanceConfig)
+    correlation: CorrelationConfig = field(default_factory=CorrelationConfig)
+    ticketing: TicketingConfig = field(default_factory=TicketingConfig)
     security: SecurityConfig = field(default_factory=SecurityConfig)
+    risk: RiskManagementConfig = field(default_factory=RiskManagementConfig)
 
 
 class UnifiedConfigManager:
@@ -467,6 +541,18 @@ class UnifiedConfigManager:
         """Get security configuration"""
         return self._config.security
 
+    def get_correlation_config(self) -> CorrelationConfig:
+        """Get correlation configuration"""
+        return self._config.correlation
+
+    def get_ticketing_config(self) -> TicketingConfig:
+        """Get ticketing configuration"""
+        return self._config.ticketing
+
+    def get_risk_config(self) -> RiskManagementConfig:
+        """Get risk management configuration"""
+        return self._config.risk
+
     def set_runtime_override(self, path: str, value: Any):
         """Set runtime configuration override"""
         self._runtime_overrides[path] = value
@@ -475,6 +561,32 @@ class UnifiedConfigManager:
     def get_config_value(self, path: str, default: Any = None) -> Any:
         """Get configuration value by path"""
         try:
+            # Handle direct risk config keys
+            risk_config_keys = {
+                "RISK_MIN_STAKE": "risk.risk_min_stake",
+                "RISK_MAX_STAKE_PCT_BANKROLL": "risk.risk_max_stake_pct_bankroll",
+                "EXPOSURE_MAX_PLAYER_PCT": "risk.exposure_max_player_pct",
+                "EXPOSURE_MAX_PROP_TYPE_PCT": "risk.exposure_max_prop_type_pct",
+                "EXPOSURE_MAX_CLUSTER_PCT": "risk.exposure_max_cluster_pct",
+                "EXPOSURE_MAX_DAILY_STAKE": "risk.exposure_max_daily_stake",
+                "RISK_MAX_CORRELATED_EDGES": "risk.risk_max_correlated_edges",
+                "RISK_MAX_EDGES_PER_PLAYER": "risk.risk_max_edges_per_player",
+                "RISK_MAX_EDGES_PER_PROP_TYPE": "risk.risk_max_edges_per_prop_type",
+                "RISK_MAX_LEGS_PER_CLUSTER": "risk.risk_max_legs_per_cluster",
+                "RISK_LOW_EV_THRESHOLD": "risk.risk_low_ev_threshold",
+                "RISK_MIN_COMBINED_PROBABILITY": "risk.risk_min_combined_probability",
+                "ALERT_COOLDOWN_MIN_SEC": "risk.alert_cooldown_min_sec",
+                "ALERT_MAX_BATCH": "risk.alert_max_batch",
+                "BANKROLL_DRAWDOWN_THRESHOLD": "risk.bankroll_drawdown_threshold",
+                "INTEREST_DECAY_RATE": "risk.interest_decay_rate",
+                "EDGE_RECOMMENDATION_LIMIT": "risk.edge_recommendation_limit",
+                "LLM_EXPLAIN_STAKE": "risk.llm_explain_stake",
+            }
+            
+            # Map direct keys to config paths
+            if path in risk_config_keys:
+                path = risk_config_keys[path]
+            
             path_parts = path.split(".")
             current = self._config
 
@@ -580,6 +692,21 @@ def get_ml_config() -> MLConfig:
     return unified_config.get_ml_config()
 
 
+def get_correlation_config() -> CorrelationConfig:
+    """Get correlation configuration"""
+    return unified_config.get_correlation_config()
+
+
+def get_ticketing_config() -> TicketingConfig:
+    """Get ticketing configuration"""
+    return unified_config.get_ticketing_config()
+
+
+def get_risk_management_config() -> RiskManagementConfig:
+    """Get risk management configuration"""
+    return unified_config.get_risk_config()
+
+
 def is_development() -> bool:
     """Check if in development mode"""
     return unified_config.is_development()
@@ -601,6 +728,8 @@ __all__ = [
     "ExternalAPIConfig",
     "LoggingConfig",
     "PerformanceConfig",
+    "CorrelationConfig",
+    "TicketingConfig",
     "SecurityConfig",
     "Environment",
     "unified_config",
@@ -609,6 +738,9 @@ __all__ = [
     "get_cache_config",
     "get_api_config",
     "get_ml_config",
+    "get_correlation_config",
+    "get_ticketing_config",
+    "get_risk_management_config",
     "is_development",
     "is_production",
 ]

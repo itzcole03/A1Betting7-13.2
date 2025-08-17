@@ -1042,6 +1042,45 @@ How can I help you make smarter betting decisions today?
             suggestions = self._generate_contextual_suggestions(
                 message, context, "prop_analysis"
             )
+            
+            # --- PERSONALIZATION INTEGRATION ---
+            # Record user interest signal for this prop analysis
+            try:
+                from backend.services.personalization.interest_model import InterestModelService
+                from backend.models.risk_personalization import InterestSignalType
+                
+                # Extract user ID from context if available
+                user_id = context.get('user_id') or context.get('session', {}).get('user_id')
+                
+                if user_id:
+                    interest_service = InterestModelService()
+                    
+                    # Record interest signal (synchronous method)
+                    interest_service.record_signal(
+                        user_id=str(user_id),
+                        signal_type=InterestSignalType.EXPLANATION_REQUEST,
+                        context={
+                            'prop_analysis': True,
+                            'prop_details': prop_details,
+                            'message': message,
+                            'confidence': confidence,
+                            'analysis_type': 'prop_analysis'
+                        }
+                    )
+                    
+                    logger.debug(
+                        "Recorded prop analysis interest signal",
+                        extra={
+                            "user_id": user_id,
+                            "prop_details": prop_details,
+                            "analysis_confidence": confidence
+                        }
+                    )
+                    
+            except (ImportError, Exception) as e:
+                # Personalization not available or error occurred - continue without failing
+                logger.debug(f"Personalization integration unavailable in prop analysis: {e}")
+            # --- END PERSONALIZATION INTEGRATION ---
 
             return {
                 "content": ai_response,

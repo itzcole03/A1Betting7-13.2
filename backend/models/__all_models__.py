@@ -13,4 +13,27 @@ from .modeling import (
     DistributionFamily,
     EdgeStatus,
 )
+from .correlation_ticketing import (
+    HistoricalPropOutcome,
+    PropCorrelationStat,
+    CorrelationCluster,
+    Ticket,
+    TicketLeg,
+    TicketStatus,
+)
 from .user import User
+from .risk_personalization import (
+    BankrollProfile,
+    ExposureSnapshot,
+    Watchlist,
+    WatchlistItem,
+    AlertRule,
+    AlertDelivered,
+    UserInterestSignal,
+    RecommendedStake,
+    BankrollStrategy,
+    AlertRuleType,
+    DeliveryChannel,
+    AlertStatus,
+    InterestSignalType,
+)
