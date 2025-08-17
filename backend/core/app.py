@@ -849,6 +849,16 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register Risk Management & Personalization routes: {e}")
 
+    # Provider Resilience API (Circuit Breaker, SLA Metrics, Reliability Monitoring)
+    try:
+        from backend.routes.provider_resilience_routes import router as provider_resilience_router
+        _app.include_router(provider_resilience_router, prefix="/api/provider-resilience", tags=["Provider Resilience", "Circuit Breaker"])
+        logger.info("✅ Provider Resilience routes included (/api/provider-resilience/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import Provider Resilience routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register Provider Resilience routes: {e}")
+
     # System Capabilities Matrix API (Service Registry & Health Tracking)
     try:
         from backend.routes.system_capabilities import router as system_capabilities_router

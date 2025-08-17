@@ -73,6 +73,30 @@ ANOMALY_RULES = [
         description="No active edges while ingestion is running",
         predicate=lambda snapshot: _check_no_active_edges(snapshot),
         recommendation="Restart edge engine or check edge creation pipeline"
+    ),
+    
+    AnomalyRule(
+        code="PROVIDER_OUTAGE",
+        severity="critical",
+        description="One or more data providers are experiencing outages",
+        predicate=lambda snapshot: _check_provider_outage(snapshot),
+        recommendation="Check provider connectivity and consider failover strategies"
+    ),
+    
+    AnomalyRule(
+        code="PROVIDER_DEGRADED",
+        severity="warning",
+        description="Data providers showing degraded performance",
+        predicate=lambda snapshot: _check_provider_degradation(snapshot),
+        recommendation="Monitor provider performance and check SLA compliance"
+    ),
+    
+    AnomalyRule(
+        code="HIGH_PROVIDER_LATENCY",
+        severity="warning",
+        description="Provider response latency exceeds SLA thresholds",
+        predicate=lambda snapshot: _check_high_provider_latency(snapshot),
+        recommendation="Review provider endpoints and network connectivity"
     )
 ]
 
@@ -127,6 +151,88 @@ def _check_no_active_edges(snapshot: Dict[str, Any]) -> bool:
         except (ValueError, TypeError) as e:
             logger.warning(f"Failed to parse timestamps for edge anomaly check: {e}")
             return False
+    
+    return False
+
+
+def _check_provider_outage(snapshot: Dict[str, Any]) -> bool:
+    """Check if any providers are in outage state (circuit open)"""
+    providers = snapshot.get("providers", {})
+    if not providers:
+        return False
+    
+    for provider_id, provider_data in providers.items():
+        health_summary = provider_data.get("health_summary", {})
+        if health_summary.get("health_status") == "outage":
+            return True
+        
+        # Also check circuit breaker state
+        circuit_info = health_summary.get("circuit_breaker", {})
+        if circuit_info.get("state") == "open":
+            return True
+    
+    return False
+
+
+def _check_provider_degradation(snapshot: Dict[str, Any]) -> bool:
+    """Check if providers are showing degraded performance"""
+    providers = snapshot.get("providers", {})
+    if not providers:
+        return False
+    
+    degraded_count = 0
+    total_count = 0
+    
+    for provider_id, provider_data in providers.items():
+        total_count += 1
+        health_summary = provider_data.get("health_summary", {})
+        
+        # Check for degraded status
+        if health_summary.get("health_status") == "degraded":
+            degraded_count += 1
+            continue
+            
+        # Check SLA metrics
+        sla_metrics = health_summary.get("sla_metrics", {})
+        success_percentage = sla_metrics.get("success_percentage", 100)
+        p95_latency = sla_metrics.get("p95_latency_ms", 0)
+        
+        # Consider degraded if success rate < 95% or p95 latency > 2000ms
+        if success_percentage < 95.0 or p95_latency > 2000:
+            degraded_count += 1
+    
+    # Flag as degraded if more than 30% of providers are degraded
+    if total_count > 0:
+        degradation_percentage = degraded_count / total_count
+        return degradation_percentage > 0.3
+    
+    return False
+
+
+def _check_high_provider_latency(snapshot: Dict[str, Any]) -> bool:
+    """Check if provider latencies exceed SLA thresholds"""
+    providers = snapshot.get("providers", {})
+    if not providers:
+        return False
+    
+    high_latency_count = 0
+    total_count = 0
+    
+    for provider_id, provider_data in providers.items():
+        total_count += 1
+        health_summary = provider_data.get("health_summary", {})
+        sla_metrics = health_summary.get("sla_metrics", {})
+        
+        p95_latency = sla_metrics.get("p95_latency_ms", 0)
+        
+        # Consider high latency if p95 > 3000ms (3 seconds)
+        if p95_latency > 3000:
+            high_latency_count += 1
+    
+    # Flag if more than 50% of providers have high latency
+    if total_count > 0:
+        high_latency_percentage = high_latency_count / total_count
+        return high_latency_percentage > 0.5
     
     return False
 
@@ -224,6 +330,63 @@ def _extract_anomaly_context(snapshot: Dict[str, Any], anomaly_code: str) -> Dic
                 "last_edge_created_ts": snapshot.get("edge_engine", {}).get("last_edge_created_ts"),
                 "last_ingest_ts": snapshot.get("ingestion", {}).get("last_ingest_ts"),
                 "edges_per_min_rate": snapshot.get("edge_engine", {}).get("edges_per_min_rate", 0)
+            }
+        
+        elif anomaly_code == "PROVIDER_OUTAGE":
+            providers = snapshot.get("providers", {})
+            outage_providers = []
+            for provider_id, provider_data in providers.items():
+                health_summary = provider_data.get("health_summary", {})
+                if health_summary.get("health_status") == "outage":
+                    outage_providers.append({
+                        "provider_id": provider_id,
+                        "circuit_state": health_summary.get("circuit_breaker", {}).get("state"),
+                        "consecutive_failures": health_summary.get("circuit_breaker", {}).get("consecutive_failures", 0)
+                    })
+            context = {
+                "outage_providers": outage_providers,
+                "total_providers": len(providers),
+                "affected_count": len(outage_providers)
+            }
+        
+        elif anomaly_code == "PROVIDER_DEGRADED":
+            providers = snapshot.get("providers", {})
+            degraded_providers = []
+            for provider_id, provider_data in providers.items():
+                health_summary = provider_data.get("health_summary", {})
+                sla_metrics = health_summary.get("sla_metrics", {})
+                if (health_summary.get("health_status") == "degraded" or 
+                    sla_metrics.get("success_percentage", 100) < 95.0 or
+                    sla_metrics.get("p95_latency_ms", 0) > 2000):
+                    degraded_providers.append({
+                        "provider_id": provider_id,
+                        "success_percentage": sla_metrics.get("success_percentage", 100),
+                        "p95_latency_ms": sla_metrics.get("p95_latency_ms", 0)
+                    })
+            context = {
+                "degraded_providers": degraded_providers,
+                "total_providers": len(providers),
+                "degraded_count": len(degraded_providers),
+                "degradation_percentage": len(degraded_providers) / len(providers) * 100 if providers else 0
+            }
+            
+        elif anomaly_code == "HIGH_PROVIDER_LATENCY":
+            providers = snapshot.get("providers", {})
+            high_latency_providers = []
+            for provider_id, provider_data in providers.items():
+                health_summary = provider_data.get("health_summary", {})
+                sla_metrics = health_summary.get("sla_metrics", {})
+                p95_latency = sla_metrics.get("p95_latency_ms", 0)
+                if p95_latency > 3000:
+                    high_latency_providers.append({
+                        "provider_id": provider_id,
+                        "p95_latency_ms": p95_latency
+                    })
+            context = {
+                "high_latency_providers": high_latency_providers,
+                "total_providers": len(providers),
+                "high_latency_count": len(high_latency_providers),
+                "max_latency_ms": max([p["p95_latency_ms"] for p in high_latency_providers]) if high_latency_providers else 0
             }
             
     except Exception as e:
