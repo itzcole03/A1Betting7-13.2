@@ -202,6 +202,29 @@ class PerformanceConfig:
 
 
 @dataclass
+class StreamingConfig:
+    """Real-time market data streaming configuration"""
+    
+    # Polling facade settings
+    poll_interval_sec: int = 20
+    jitter_sec: int = 5
+    event_buffer: int = 1000
+    
+    # Provider management
+    provider_default_enabled: bool = True
+    provider_health_check_interval_sec: int = 300  # 5 minutes
+    provider_timeout_sec: int = 30
+    
+    # Delta detection settings
+    valuation_recompute_debounce_sec: int = 10
+    optimization_live_refresh_min_changed_edges: int = 1
+    
+    # Portfolio rationale settings
+    portfolio_rationale_cache_ttl_sec: int = 3600  # 1 hour
+    llm_portfolio_rationale_enabled: bool = True
+
+
+@dataclass
 class CorrelationConfig:
     """Correlation analysis configuration"""
 
@@ -234,6 +257,117 @@ class TicketingConfig:
     
     # LLM integration
     llm_prefetch_on_ticket: bool = False
+
+
+@dataclass
+class OptimizationConfig:
+    """Portfolio optimization configuration"""
+    
+    # Optimization engine settings
+    enabled: bool = True
+    default_objective: str = "max_ev"  # "max_ev", "max_ev_var_ratio", "target_probability"
+    
+    # Beam search parameters
+    default_beam_width: int = 100
+    max_beam_width: int = 1000
+    default_max_iterations: int = 1000
+    max_iterations_limit: int = 10000
+    
+    # Portfolio constraints
+    max_total_stake: float = 10000.0
+    min_edge_threshold: float = 0.02
+    max_correlation_threshold: float = 0.7
+    max_props_per_portfolio: int = 50
+    
+    # Correlation method preferences
+    default_correlation_method: str = "factor"  # "pairwise", "factor", "copula"
+    enable_factor_model: bool = True
+    enable_copula_modeling: bool = True
+    
+    # Performance settings
+    enable_parallel_processing: bool = True
+    max_worker_threads: int = 4
+    computation_timeout_sec: int = 300  # 5 minutes
+    
+    # Caching
+    cache_optimization_results: bool = True
+    optimization_cache_ttl_sec: int = 3600  # 1 hour
+    
+    # Task scheduling
+    enable_background_optimization: bool = True
+    default_task_priority: str = "medium"  # "low", "medium", "high"
+    max_concurrent_optimizations: int = 3
+
+
+@dataclass
+class MonteCarloConfig:
+    """Monte Carlo simulation configuration"""
+    
+    # Simulation parameters
+    default_min_simulations: int = 10000
+    default_max_simulations: int = 100000
+    max_simulations_limit: int = 1000000
+    default_confidence_level: float = 0.95
+    
+    # Convergence criteria
+    convergence_tolerance: float = 0.001
+    convergence_window: int = 1000
+    adaptive_stopping_enabled: bool = True
+    
+    # Performance optimization
+    enable_factor_acceleration: bool = True
+    batch_size: int = 1000
+    enable_parallel_sampling: bool = True
+    
+    # Correlation modeling
+    default_correlation_method: str = "factor"  # "pairwise", "factor", "copula"
+    correlation_lookback_days: int = 30
+    min_correlation_observations: int = 20
+    
+    # Caching
+    cache_simulation_results: bool = True
+    simulation_cache_ttl_sec: int = 1800  # 30 minutes
+    
+    # Statistical validation
+    enable_statistical_tests: bool = True
+    ks_test_threshold: float = 0.05
+    confidence_interval_method: str = "percentile"  # "percentile", "bootstrap"
+
+
+@dataclass
+class PortfolioCorrelationConfig:
+    """Advanced correlation modeling configuration"""
+    
+    # Data requirements
+    min_observations: int = 20
+    max_lookback_days: int = 365
+    default_lookback_days: int = 30
+    
+    # Correlation matrix computation
+    enable_psd_enforcement: bool = True  # Positive Semi-Definite enforcement
+    shrinkage_enabled: bool = True
+    shrinkage_intensity: float = 0.1
+    
+    # Factor model settings
+    auto_select_factors: bool = True
+    max_factors: int = 10
+    min_factor_variance_explained: float = 0.8
+    factor_rotation: str = "varimax"  # "varimax", "promax", "none"
+    
+    # Copula modeling
+    copula_type: str = "gaussian"  # "gaussian", "t", "clayton", "gumbel"
+    copula_fit_method: str = "mle"  # "mle", "ifm", "cmle"
+    
+    # Validation and diagnostics
+    enable_correlation_diagnostics: bool = True
+    eigenvalue_tolerance: float = 1e-8
+    condition_number_threshold: float = 1e12
+    
+    # Caching
+    cache_correlation_matrices: bool = True
+    correlation_cache_ttl_sec: int = 7200  # 2 hours
+    cache_factor_models: bool = True
+    factor_model_cache_ttl_sec: int = 14400  # 4 hours
 
 
 @dataclass
@@ -309,10 +443,16 @@ class ApplicationConfig:
     external_apis: ExternalAPIConfig = field(default_factory=ExternalAPIConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
     performance: PerformanceConfig = field(default_factory=PerformanceConfig)
+    streaming: StreamingConfig = field(default_factory=StreamingConfig)
     correlation: CorrelationConfig = field(default_factory=CorrelationConfig)
     ticketing: TicketingConfig = field(default_factory=TicketingConfig)
     security: SecurityConfig = field(default_factory=SecurityConfig)
     risk: RiskManagementConfig = field(default_factory=RiskManagementConfig)
+    
+    # New portfolio optimization configurations
+    optimization: OptimizationConfig = field(default_factory=OptimizationConfig)
+    monte_carlo: MonteCarloConfig = field(default_factory=MonteCarloConfig)
+    portfolio_correlation: PortfolioCorrelationConfig = field(default_factory=PortfolioCorrelationConfig)
 
 
 class UnifiedConfigManager:
@@ -424,6 +564,49 @@ class UnifiedConfigManager:
             # Environment
             "ENVIRONMENT": ("environment", str),
             "DEBUG": ("debug", bool),
+            
+            # Portfolio optimization settings
+            "OPTIMIZATION_ENABLED": ("optimization.enabled", bool),
+            "OPTIMIZATION_DEFAULT_OBJECTIVE": ("optimization.default_objective", str),
+            "OPTIMIZATION_BEAM_WIDTH": ("optimization.default_beam_width", int),
+            "OPTIMIZATION_MAX_ITERATIONS": ("optimization.default_max_iterations", int),
+            "OPTIMIZATION_MAX_TOTAL_STAKE": ("optimization.max_total_stake", float),
+            "OPTIMIZATION_MIN_EDGE_THRESHOLD": ("optimization.min_edge_threshold", float),
+            "OPTIMIZATION_MAX_CORRELATION_THRESHOLD": ("optimization.max_correlation_threshold", float),
+            "OPTIMIZATION_CORRELATION_METHOD": ("optimization.default_correlation_method", str),
+            "OPTIMIZATION_ENABLE_FACTOR_MODEL": ("optimization.enable_factor_model", bool),
+            "OPTIMIZATION_MAX_WORKER_THREADS": ("optimization.max_worker_threads", int),
+            "OPTIMIZATION_TIMEOUT_SEC": ("optimization.computation_timeout_sec", int),
+            
+            # Monte Carlo settings
+            "MONTE_CARLO_MIN_SIMULATIONS": ("monte_carlo.default_min_simulations", int),
+            "MONTE_CARLO_MAX_SIMULATIONS": ("monte_carlo.default_max_simulations", int),
+            "MONTE_CARLO_CONFIDENCE_LEVEL": ("monte_carlo.default_confidence_level", float),
+            "MONTE_CARLO_CONVERGENCE_TOLERANCE": ("monte_carlo.convergence_tolerance", float),
+            "MONTE_CARLO_ENABLE_FACTOR_ACCELERATION": ("monte_carlo.enable_factor_acceleration", bool),
+            "MONTE_CARLO_BATCH_SIZE": ("monte_carlo.batch_size", int),
+            "MONTE_CARLO_CORRELATION_METHOD": ("monte_carlo.default_correlation_method", str),
+            "MONTE_CARLO_LOOKBACK_DAYS": ("monte_carlo.correlation_lookback_days", int),
+            
+            # Portfolio correlation settings
+            "PORTFOLIO_CORRELATION_MIN_OBSERVATIONS": ("portfolio_correlation.min_observations", int),
+            "PORTFOLIO_CORRELATION_LOOKBACK_DAYS": ("portfolio_correlation.default_lookback_days", int),
+            "PORTFOLIO_CORRELATION_ENABLE_PSD": ("portfolio_correlation.enable_psd_enforcement", bool),
+            "PORTFOLIO_CORRELATION_SHRINKAGE_ENABLED": ("portfolio_correlation.shrinkage_enabled", bool),
+            "PORTFOLIO_CORRELATION_MAX_FACTORS": ("portfolio_correlation.max_factors", int),
+            "PORTFOLIO_CORRELATION_COPULA_TYPE": ("portfolio_correlation.copula_type", str),
+            
+            # Streaming settings
+            "STREAM_POLL_INTERVAL_SEC": ("streaming.poll_interval_sec", int),
+            "STREAM_JITTER_SEC": ("streaming.jitter_sec", int),
+            "STREAM_EVENT_BUFFER": ("streaming.event_buffer", int),
+            "PROVIDER_DEFAULT_ENABLED": ("streaming.provider_default_enabled", bool),
+            "PROVIDER_HEALTH_CHECK_INTERVAL_SEC": ("streaming.provider_health_check_interval_sec", int),
+            "PROVIDER_TIMEOUT_SEC": ("streaming.provider_timeout_sec", int),
+            "VALUATION_RECOMPUTE_DEBOUNCE_SEC": ("streaming.valuation_recompute_debounce_sec", int),
+            "OPTIMIZATION_LIVE_REFRESH_MIN_CHANGED_EDGES": ("streaming.optimization_live_refresh_min_changed_edges", int),
+            "PORTFOLIO_RATIONALE_CACHE_TTL_SEC": ("streaming.portfolio_rationale_cache_ttl_sec", int),
+            "LLM_PORTFOLIO_RATIONALE_ENABLED": ("streaming.llm_portfolio_rationale_enabled", bool),
         }
 
         for env_var, (config_path, config_type) in env_mappings.items():
@@ -540,6 +723,10 @@ class UnifiedConfigManager:
     def get_security_config(self) -> SecurityConfig:
         """Get security configuration"""
         return self._config.security
+
+    def get_streaming_config(self) -> StreamingConfig:
+        """Get streaming configuration"""
+        return self._config.streaming
 
     def get_correlation_config(self) -> CorrelationConfig:
         """Get correlation configuration"""
@@ -707,6 +894,11 @@ def get_risk_management_config() -> RiskManagementConfig:
     return unified_config.get_risk_config()
 
 
+def get_streaming_config() -> StreamingConfig:
+    """Get streaming configuration"""
+    return unified_config.get_streaming_config()
+
+
 def is_development() -> bool:
     """Check if in development mode"""
     return unified_config.is_development()
@@ -728,6 +920,7 @@ __all__ = [
     "ExternalAPIConfig",
     "LoggingConfig",
     "PerformanceConfig",
+    "StreamingConfig",
     "CorrelationConfig",
     "TicketingConfig",
     "SecurityConfig",
@@ -741,6 +934,7 @@ __all__ = [
     "get_correlation_config",
     "get_ticketing_config",
     "get_risk_management_config",
+    "get_streaming_config",
     "is_development",
     "is_production",
 ]

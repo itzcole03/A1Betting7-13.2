@@ -1,0 +1,158 @@
+{
+  "validation_summary": {
+    "timestamp": "2025-08-17T12:10:02.185676",
+    "total_tests": 3,
+    "total_operations": 927,
+    "successful_operations": 927,
+    "failed_operations": 0,
+    "overall_success_rate": 100.0,
+    "overall_avg_latency_ms": 50.360358008794144
+  },
+  "exit_criteria_validation": {
+    "streaming_cycle_stable": true,
+    "no_re_entrancy_errors": true,
+    "mean_recompute_latency_maintained": true,
+    "all_criteria_met": true
+  },
+  "operational_risk_features": {
+    "exponential_backoff": {
+      "implemented": true,
+      "providers_tracked": 2,
+      "sample_backoffs": {
+        "test_provider_1": 1.0,
+        "test_provider_2": 4.0
+      }
+    },
+    "provider_state_tracking": {
+      "implemented": true,
+      "providers": {
+        "test_provider_1": {
+          "consecutive_failures": 0,
+          "avg_latency_ms": 0.0,
+          "success_rate_5m": 100.0,
+          "last_success": 1755450582.100216
+        },
+        "test_provider_2": {
+          "consecutive_failures": 2,
+          "avg_latency_ms": 150.0,
+          "success_rate_5m": 85.0,
+          "last_success": 1755450282.1002164
+        }
+      }
+    },
+    "recompute_debounce": {
+      "implemented": true,
+      "debounce_threshold_sec": 5.0,
+      "props_tracked": 5
+    },
+    "micro_batching": {
+      "implemented": true,
+      "batch_window_ms": 250,
+      "active_batches": 1
+    },
+    "event_bus_reliability": {
+      "implemented": true,
+      "dead_letter_events": 0,
+      "event_failure_counts": {}
+    },
+    "normalized_logging": {
+      "implemented": true,
+      "schema_fields": [
+        "category",
+        "action",
+        "duration_ms",
+        "result",
+        "identifiers"
+      ]
+    }
+  },
+  "test_results": [
+    {
+      "test_name": "synthetic_burst_100eps_5s",
+      "timestamp": "2025-08-17T12:09:47.113320",
+      "duration_sec": 5.013017177581787,
+      "total_operations": 211,
+      "successful_operations": 211,
+      "failed_operations": 0,
+      "avg_latency_ms": 50.352866833026596,
+      "max_latency_ms": 50.61817169189453,
+      "min_latency_ms": 50.04167556762695,
+      "re_entrancy_errors": 0,
+      "system_stable": true,
+      "exit_criteria_met": true,
+      "details": [
+        "Backoff calculated: test_provider_1 \u2192 1.00s",
+        "Recompute allowed: prop_1",
+        "Handler executed: handler_0",
+        "Backoff calculated: test_provider_1 \u2192 1.00s",
+        "Recompute allowed: prop_5",
+        "Handler executed: handler_1",
+        "Backoff calculated: test_provider_1 \u2192 1.00s",
+        "Recompute allowed: prop_9",
+        "Handler executed: handler_2",
+        "Backoff calculated: test_provider_1 \u2192 1.00s"
+      ]
+    },
+    {
+      "test_name": "synthetic_burst_500eps_10s",
+      "timestamp": "2025-08-17T12:09:57.140996",
+      "duration_sec": 10.026307821273804,
+      "total_operations": 456,
+      "successful_operations": 456,
+      "failed_operations": 0,
+      "avg_latency_ms": 50.36230403256704,
+      "max_latency_ms": 50.75335502624512,
+      "min_latency_ms": 50.04167556762695,
+      "re_entrancy_errors": 0,
+      "system_stable": true,
+      "exit_criteria_met": true,
+      "details": [
+        "Backoff calculated: test_provider_1 \u2192 1.00s",
+        "Handler executed: handler_0",
+        "Backoff calculated: test_provider_1 \u2192 1.00s",
+        "Handler executed: handler_1",
+        "Backoff calculated: test_provider_1 \u2192 1.00s",
+        "Handler executed: handler_2",
+        "Backoff calculated: test_provider_1 \u2192 1.00s",
+        "Handler executed: handler_0",
+        "Backoff calculated: test_provider_1 \u2192 1.00s",
+        "Handler executed: handler_1"
+      ]
+    },
+    {
+      "test_name": "synthetic_burst_1000eps_5s",
+      "timestamp": "2025-08-17T12:10:02.184317",
+      "duration_sec": 5.042144060134888,
+      "total_operations": 260,
+      "successful_operations": 260,
+      "failed_operations": 0,
+      "avg_latency_ms": 50.3659031607888,
+      "max_latency_ms": 50.75335502624512,
+      "min_latency_ms": 50.031423568725586,
+      "re_entrancy_errors": 0,
+      "system_stable": true,
+      "exit_criteria_met": true,
+      "details": [
+        "Backoff calculated: test_provider_1 \u2192 1.00s",
+        "Micro-batch processed: prop_2",
+        "Handler executed: handler_0",
+        "Backoff calculated: test_provider_1 \u2192 1.00s",
+        "Micro-batch processed: prop_1",
+        "Handler executed: handler_1",
+        "Backoff calculated: test_provider_1 \u2192 1.00s",
+        "Micro-batch processed: prop_0",
+        "Handler executed: handler_2",
+        "Backoff calculated: test_provider_1 \u2192 1.00s"
+      ]
+    }
+  ],
+  "system_health": {
+    "re_entrancy_violations": 0,
+    "dead_letter_queue_size": 0,
+    "active_handlers": [],
+    "provider_health_summary": {
+      "test_provider_1": true,
+      "test_provider_2": false
+    }
+  }
+}

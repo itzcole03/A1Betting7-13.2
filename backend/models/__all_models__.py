@@ -21,6 +21,18 @@ from .correlation_ticketing import (
     TicketLeg,
     TicketStatus,
 )
+from .portfolio_optimization import (
+    CorrelationFactorModel,
+    CorrelationCacheEntry,
+    MonteCarloRun,
+    OptimizationRun,
+    OptimizationArtifact,
+    CorrelationMethod,
+    CacheEntryType,
+    OptimizationObjective,
+    OptimizationStatus,
+    ArtifactType,
+)
 from .user import User
 from .risk_personalization import (
     BankrollProfile,

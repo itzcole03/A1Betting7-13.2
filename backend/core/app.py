@@ -859,6 +859,16 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register system capabilities routes: {e}")
 
+    # Real-Time Market Streaming API (Multi-provider ingestion, LLM rationales)
+    try:
+        from backend.routes.streaming.streaming_api import router as streaming_router
+        _app.include_router(streaming_router, tags=["Market Streaming", "Real-Time Data"])
+        logger.info("✅ Real-time market streaming routes included (/streaming/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import streaming routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register streaming routes: {e}")
+
     # --- Security Enhancement Routes (Epic 5) ---
     try:
         from backend.routes.security_head_endpoints import router as head_endpoints_router
