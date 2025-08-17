@@ -140,11 +140,53 @@ class IngestionStatsProvider:
             ingest_latency_ms = random.uniform(5000, 8000)  # Very high latency
             recent_failures = random.randint(1, 3)
         
+        # Add sport-specific ingestion counts
+        sport_counts = await self._get_sport_counts()
+        
         return {
             "last_ingest_ts": last_ingest_ts,
             "ingest_latency_ms": round(ingest_latency_ms, 1),
-            "recent_failures": recent_failures
+            "recent_failures": recent_failures,
+            "sport_counts": sport_counts  # Added sport dimension tracking
         }
+    
+    async def _get_sport_counts(self) -> Dict[str, int]:
+        """
+        Get sport-specific ingestion counts for reliability monitoring.
+        
+        Returns:
+            Dictionary mapping sport names to ingestion record counts
+        """
+        try:
+            # TODO: Replace with actual database query
+            # Query provider states, market events, etc. by sport
+            # Example actual implementation:
+            # from backend.services.providers.provider_registry import provider_registry
+            # sport_stats = await provider_registry.get_sport_processing_counts()
+            
+            # For now, return realistic stub data showing NBA as primary sport
+            import random
+            
+            # Seed for consistency during the same reliability check
+            random.seed(int(time.time() / 300))  # Changes every 5 minutes
+            
+            # NBA should dominate since it's the current primary sport
+            nba_count = random.randint(150, 300)
+            
+            # Show some other sports with smaller counts to demonstrate multi-sport capability
+            sport_counts = {
+                "NBA": nba_count,
+                "MLB": random.randint(0, 20),  # Minimal activity
+                "NFL": random.randint(0, 5),   # Very minimal
+                "unknown": random.randint(0, 3)  # Legacy records without sport
+            }
+            
+            # Filter out zero counts for cleaner reporting
+            return {sport: count for sport, count in sport_counts.items() if count > 0}
+            
+        except Exception as e:
+            logger.error(f"Failed to get sport counts: {e}")
+            return {"NBA": 0}  # Return safe default
     
     async def health_check(self) -> bool:
         """

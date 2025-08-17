@@ -426,6 +426,76 @@ class RiskManagementConfig:
 
 
 @dataclass
+class SportsConfig:
+    """Multi-sport configuration"""
+    
+    # Supported sports and their enablement status
+    sports_enabled: Dict[str, bool] = field(default_factory=lambda: {
+        "NBA": True,  # Currently supported
+        "NFL": False,  # Future implementation
+        "MLB": False,  # Future implementation
+        "NHL": False,  # Future implementation
+        "NCAA_BB": False,  # Future implementation
+        "NCAA_FB": False,  # Future implementation
+    })
+    
+    # Default sport for legacy functionality
+    default_sport: str = "NBA"
+    
+    # Per-sport polling intervals (seconds)
+    polling_intervals: Dict[str, int] = field(default_factory=lambda: {
+        "NBA": 20,   # Fast polling for active NBA season
+        "NFL": 30,   # Slower for weekly games
+        "MLB": 15,   # Frequent for daily games
+        "NHL": 25,   # Medium polling
+        "NCAA_BB": 30,  # Tournament dependent
+        "NCAA_FB": 60,  # Weekly games
+    })
+    
+    # Per-sport provider configurations
+    provider_configs: Dict[str, Dict[str, Any]] = field(default_factory=lambda: {
+        "NBA": {
+            "enabled_providers": ["stub", "draftkings", "fanduel"],
+            "priority_provider": "stub",
+            "timeout_sec": 30,
+            "max_retries": 3,
+        },
+        "NFL": {
+            "enabled_providers": ["stub"],
+            "priority_provider": "stub", 
+            "timeout_sec": 45,
+            "max_retries": 2,
+        },
+        "MLB": {
+            "enabled_providers": ["stub"],
+            "priority_provider": "stub",
+            "timeout_sec": 30,
+            "max_retries": 3,
+        }
+    })
+    
+    # Sport-specific data retention policies
+    data_retention_days: Dict[str, int] = field(default_factory=lambda: {
+        "NBA": 180,  # Full season + playoffs
+        "NFL": 365,  # Longer retention for weekly data
+        "MLB": 180,  # Baseball season
+        "NHL": 180,  # Hockey season
+        "NCAA_BB": 90,  # Tournament season
+        "NCAA_FB": 120, # College football season
+    })
+    
+    # Sport-specific ingestion limits
+    ingestion_limits: Dict[str, int] = field(default_factory=lambda: {
+        "NBA": 500,   # High prop volume
+        "NFL": 1000,  # Many prop types
+        "MLB": 400,   # Moderate volume
+        "NHL": 300,   # Moderate volume  
+        "NCAA_BB": 200,  # Tournament focus
+        "NCAA_FB": 250,  # Weekend focus
+    })
+
+
+@dataclass
 class ApplicationConfig:
     """Main application configuration"""
 
@@ -448,6 +518,7 @@ class ApplicationConfig:
     ticketing: TicketingConfig = field(default_factory=TicketingConfig)
     security: SecurityConfig = field(default_factory=SecurityConfig)
     risk: RiskManagementConfig = field(default_factory=RiskManagementConfig)
+    sports: SportsConfig = field(default_factory=SportsConfig)
     
     # New portfolio optimization configurations
     optimization: OptimizationConfig = field(default_factory=OptimizationConfig)
@@ -607,6 +678,17 @@ class UnifiedConfigManager:
             "OPTIMIZATION_LIVE_REFRESH_MIN_CHANGED_EDGES": ("streaming.optimization_live_refresh_min_changed_edges", int),
             "PORTFOLIO_RATIONALE_CACHE_TTL_SEC": ("streaming.portfolio_rationale_cache_ttl_sec", int),
             "LLM_PORTFOLIO_RATIONALE_ENABLED": ("streaming.llm_portfolio_rationale_enabled", bool),
+            
+            # Sports settings
+            "SPORTS_DEFAULT": ("sports.default_sport", str),
+            "SPORTS_NBA_ENABLED": ("sports.sports_enabled.NBA", bool),
+            "SPORTS_NFL_ENABLED": ("sports.sports_enabled.NFL", bool),
+            "SPORTS_MLB_ENABLED": ("sports.sports_enabled.MLB", bool),
+            "SPORTS_NHL_ENABLED": ("sports.sports_enabled.NHL", bool),
+            "SPORTS_NBA_POLL_INTERVAL": ("sports.polling_intervals.NBA", int),
+            "SPORTS_NFL_POLL_INTERVAL": ("sports.polling_intervals.NFL", int),
+            "SPORTS_MLB_POLL_INTERVAL": ("sports.polling_intervals.MLB", int),
+            "SPORTS_NHL_POLL_INTERVAL": ("sports.polling_intervals.NHL", int),
         }
 
         for env_var, (config_path, config_type) in env_mappings.items():

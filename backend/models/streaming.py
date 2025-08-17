@@ -121,7 +121,8 @@ class ProviderStateSchema:
         self.table_name = "provider_states"
         self.columns = {
             "id": "Integer, primary_key=True, index=True",
-            "provider_name": "String(100), nullable=False, unique=True, index=True",
+            "provider_name": "String(100), nullable=False, index=True",
+            "sport": "String(20), nullable=False, default='NBA', index=True",
             "status": "Enum(ProviderStatus), nullable=False, default=INACTIVE",
             "is_enabled": "Boolean, nullable=False, default=True",
             "poll_interval_seconds": "Integer, nullable=False, default=60",
@@ -142,6 +143,12 @@ class ProviderStateSchema:
             "created_at": "DateTime(timezone=True), server_default=func.now(), nullable=False",
             "updated_at": "DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False"
         }
+        # Add sport-aware indexes and unique constraint for provider+sport combination
+        self.indexes = [
+            "Index('ix_provider_states_sport_provider', 'sport', 'provider_name')",
+            "Index('ix_provider_states_sport_status', 'sport', 'status')",
+            "UniqueConstraint('provider_name', 'sport', name='uq_provider_sport')"
+        ]
     
     def to_dict_schema(self):
         """Schema for dictionary conversion"""
@@ -221,6 +228,7 @@ class MarketEventSchema:
             "id": "Integer, primary_key=True, index=True",
             "event_id": "String(100), nullable=False, unique=True, index=True",
             "event_type": "String(50), nullable=False, index=True",
+            "sport": "String(20), nullable=False, default='NBA', index=True",
             "provider_name": "String(100), nullable=False, index=True",
             "prop_id": "String(100), nullable=False, index=True",
             "previous_data": "JSON, nullable=True",
@@ -239,9 +247,12 @@ class MarketEventSchema:
             "created_at": "DateTime(timezone=True), server_default=func.now(), nullable=False"
         }
         self.indexes = [
+            "Index('ix_market_events_sport_provider', 'sport', 'provider_name')",
+            "Index('ix_market_events_sport_prop', 'sport', 'prop_id')",
             "Index('ix_market_events_provider_prop', 'provider_name', 'prop_id')",
             "Index('ix_market_events_timestamp', 'event_timestamp')",
-            "Index('ix_market_events_player_market', 'player_name', 'market_type')"
+            "Index('ix_market_events_player_market', 'player_name', 'market_type')",
+            "Index('ix_market_events_sport_timestamp', 'sport', 'event_timestamp')"
         ]
 
 
@@ -250,9 +261,10 @@ class MarketEventSchema:
 class MockProviderState:
     """Mock provider state for development"""
     
-    def __init__(self, provider_name: str):
-        self.id = hash(provider_name) % 10000
+    def __init__(self, provider_name: str, sport: str = "NBA"):
+        self.id = hash(f"{provider_name}_{sport}") % 10000
         self.provider_name = provider_name
+        self.sport = sport
         self.status = ProviderStatus.INACTIVE
         self.is_enabled = True
         self.poll_interval_seconds = 60
@@ -278,6 +290,7 @@ class MockProviderState:
         return {
             "id": self.id,
             "provider_name": self.provider_name,
+            "sport": self.sport,
             "status": self.status.value if self.status else None,
             "is_enabled": self.is_enabled,
             "poll_interval_seconds": self.poll_interval_seconds,

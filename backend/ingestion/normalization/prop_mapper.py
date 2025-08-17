@@ -21,13 +21,14 @@ class PropMappingError(Exception):
     pass
 
 
-def map_raw_to_normalized(raw_prop: RawExternalPropDTO, taxonomy_service: TaxonomyService) -> NormalizedPropDTO:
+def map_raw_to_normalized(raw_prop: RawExternalPropDTO, taxonomy_service: TaxonomyService, sport: str = "NBA") -> NormalizedPropDTO:
     """
     Map raw external prop data to normalized DTO.
     
     Args:
         raw_prop: Raw prop data from external provider
         taxonomy_service: Service for taxonomy normalization
+        sport: Sport context for normalization (default: NBA)
         
     Returns:
         Normalized prop DTO ready for persistence
@@ -37,10 +38,10 @@ def map_raw_to_normalized(raw_prop: RawExternalPropDTO, taxonomy_service: Taxono
     """
     try:
         # Normalize prop category using taxonomy service
-        prop_type = derive_prop_type(raw_prop.prop_category, taxonomy_service)
+        prop_type = derive_prop_type(raw_prop.prop_category, taxonomy_service, sport)
         
         # Normalize team code
-        team_abbreviation = taxonomy_service.normalize_team_code(raw_prop.team_code)
+        team_abbreviation = taxonomy_service.normalize_team_code(raw_prop.team_code, sport)
         
         # Create standardized payout schema
         payout_schema = _create_payout_schema(raw_prop)
@@ -66,7 +67,7 @@ def map_raw_to_normalized(raw_prop: RawExternalPropDTO, taxonomy_service: Taxono
             external_ids=external_ids,
             timestamp=timestamp,
             position=raw_prop.additional_data.get("position"),
-            sport="NBA",
+            sport=sport,  # Use passed sport parameter
             player_id=None,  # Will be set during persistence
             line_hash=""     # Will be computed below
         )
@@ -89,13 +90,14 @@ def map_raw_to_normalized(raw_prop: RawExternalPropDTO, taxonomy_service: Taxono
         raise PropMappingError(f"Unexpected error mapping prop {raw_prop.provider_prop_id}: {e}") from e
 
 
-def derive_prop_type(raw_category: str, taxonomy_service: TaxonomyService) -> PropTypeEnum:
+def derive_prop_type(raw_category: str, taxonomy_service: TaxonomyService, sport: str = "NBA") -> PropTypeEnum:
     """
     Derive canonical prop type from raw category.
     
     Args:
         raw_category: Raw prop category string
         taxonomy_service: Service for taxonomy lookups
+        sport: Sport context for normalization (default: NBA)
         
     Returns:
         Canonical prop type enum
@@ -104,7 +106,7 @@ def derive_prop_type(raw_category: str, taxonomy_service: TaxonomyService) -> Pr
         PropMappingError: If prop type cannot be derived
     """
     try:
-        return taxonomy_service.normalize_prop_category(raw_category)
+        return taxonomy_service.normalize_prop_category(raw_category, sport)
     except TaxonomyError as e:
         raise PropMappingError(f"Cannot derive prop type from category '{raw_category}': {e}") from e
 

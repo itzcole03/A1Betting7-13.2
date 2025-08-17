@@ -179,7 +179,7 @@ class NBAIngestionPipeline:
         try:
             # Normalize the raw prop
             try:
-                normalized_prop = map_raw_to_normalized(raw_prop, self.taxonomy)
+                normalized_prop = map_raw_to_normalized(raw_prop, self.taxonomy, sport="NBA")
                 logger.debug(f"Normalized prop {item_index}: {normalized_prop.player_name} {normalized_prop.prop_type.value}")
             except PropMappingError as e:
                 raise Exception(f"Normalization failed: {e}")

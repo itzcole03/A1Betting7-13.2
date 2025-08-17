@@ -23,6 +23,7 @@ class DeltaContext:
     prop_id: str
     event_type: str  # "PROP_ADDED", "PROP_UPDATED", "PROP_REMOVED"
     timestamp: datetime
+    sport: str = "NBA"  # Add sport dimension with default for backward compatibility
     previous_data: Optional[Dict[str, Any]] = None
     current_data: Optional[Dict[str, Any]] = None
     metadata: Optional[Dict[str, Any]] = None
@@ -30,6 +31,10 @@ class DeltaContext:
     def __post_init__(self):
         if not self.event_id:
             self.event_id = str(uuid.uuid4())
+        
+        # Ensure sport is always set (backward compatibility)
+        if not hasattr(self, 'sport') or not self.sport:
+            self.sport = "NBA"
 
 
 @dataclass
@@ -47,10 +52,11 @@ class ProcessingResult:
 class BaseDeltaHandler(ABC):
     """Base class for all delta handlers"""
     
-    def __init__(self, name: str, dependencies: Optional[List[str]] = None):
+    def __init__(self, name: str, dependencies: Optional[List[str]] = None, supported_sports: Optional[List[str]] = None):
         self.name = name
         self.logger = get_logger(f"delta_handler.{name}")
         self.dependencies = dependencies or []
+        self.supported_sports = supported_sports or ["NBA"]  # Default to NBA for backward compatibility
         
         # Handler state
         self.is_processing = False
@@ -58,9 +64,17 @@ class BaseDeltaHandler(ABC):
         self.processing_count = 0
         self.error_count = 0
         
+        # Sport-aware processing counts
+        self.sport_processing_counts: Dict[str, int] = {}
+        self.sport_error_counts: Dict[str, int] = {}
+        
         # Dependency tracking
         self.dependency_handlers: Dict[str, 'BaseDeltaHandler'] = {}
         self.waiting_for_dependencies: Set[str] = set()
+    
+    def supports_sport(self, sport: str) -> bool:
+        """Check if handler supports the given sport"""
+        return sport in self.supported_sports
         
     @abstractmethod
     async def can_process(self, context: DeltaContext) -> bool:
@@ -75,13 +89,18 @@ class BaseDeltaHandler(ABC):
     async def handle_delta(self, context: DeltaContext) -> Optional[ProcessingResult]:
         """Main entry point for delta handling with dependency management"""
         
+        # Check sport support first
+        if not self.supports_sport(context.sport):
+            self.logger.debug(f"Handler {self.name} does not support sport {context.sport}")
+            return None
+        
         # Check if we should process this delta
         if not await self.can_process(context):
             return None
             
         # Check dependencies
         if not await self._check_dependencies(context):
-            self.logger.debug(f"Dependencies not ready for {context.prop_id}")
+            self.logger.debug(f"Dependencies not ready for {context.prop_id} ({context.sport})")
             return None
             
         # Prevent concurrent processing of same handler
@@ -93,7 +112,7 @@ class BaseDeltaHandler(ABC):
         start_time = datetime.utcnow()
         
         try:
-            self.logger.debug(f"Processing delta {context.event_type} for {context.prop_id}")
+            self.logger.debug(f"Processing delta {context.event_type} for {context.prop_id} ({context.sport})")
             
             result = await self.process_delta(context)
             
@@ -101,11 +120,16 @@ class BaseDeltaHandler(ABC):
             self.processing_count += 1
             self.last_processed = datetime.utcnow()
             
+            # Update sport-specific counts
+            if context.sport not in self.sport_processing_counts:
+                self.sport_processing_counts[context.sport] = 0
+            self.sport_processing_counts[context.sport] += 1
+            
             processing_time = int((self.last_processed - start_time).total_seconds() * 1000)
             result.processing_time_ms = processing_time
             
             self.logger.info(
-                f"Processed delta {context.event_id} in {processing_time}ms, "
+                f"Processed delta {context.event_id} ({context.sport}) in {processing_time}ms, "
                 f"affected {len(result.affected_entities)} entities"
             )
             
@@ -117,7 +141,13 @@ class BaseDeltaHandler(ABC):
             
         except Exception as e:
             self.error_count += 1
-            self.logger.error(f"Error processing delta {context.event_id}: {e}")
+            
+            # Update sport-specific error counts
+            if context.sport not in self.sport_error_counts:
+                self.sport_error_counts[context.sport] = 0
+            self.sport_error_counts[context.sport] += 1
+            
+            self.logger.error(f"Error processing delta {context.event_id} ({context.sport}): {e}")
             
             return ProcessingResult(
                 success=False,
@@ -172,9 +202,12 @@ class BaseDeltaHandler(ABC):
         return {
             "name": self.name,
             "is_processing": self.is_processing,
+            "supported_sports": self.supported_sports,
             "last_processed": self.last_processed.isoformat() if self.last_processed else None,
             "processing_count": self.processing_count,
             "error_count": self.error_count,
+            "sport_processing_counts": self.sport_processing_counts,
+            "sport_error_counts": self.sport_error_counts,
             "dependencies": self.dependencies,
             "registered_dependencies": list(self.dependency_handlers.keys())
         }
