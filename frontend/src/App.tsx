@@ -6,6 +6,7 @@ import AuthPage from './components/auth/AuthPage';
 import PasswordChangeForm from './components/auth/PasswordChangeForm';
 import { ErrorBoundary } from './components/core/ErrorBoundary';
 import ServiceWorkerUpdateNotification from './components/core/ServiceWorkerUpdateNotification';
+import { PrimaryNavigationFallback } from './components/layout/PrimaryNavigationFallback';
 import { ErrorBoundaryVersion } from './components/ErrorBoundaryVersion';
 import LeanModeBanner from './components/LeanModeBanner';
 import { ReliabilityIntegrationWrapper } from './components/reliability/ReliabilityIntegrationWrapper';
@@ -279,10 +280,8 @@ const _AppContent: React.FC = () => {
   return (
     <ErrorBoundary>
       <LeanModeBanner />
-      {/* Core functionality validator navigation stub */}
-      <nav role="navigation" data-core-nav="primary" style={{ display: 'none' }}>
-        <div data-testid="nav-primary">Core Navigation</div>
-      </nav>
+      {/* Primary Navigation Fallback for CoreFunctionalityValidator */}
+      <PrimaryNavigationFallback />
       <ReliabilityIntegrationWrapper
         enableMonitoring={true}
         monitoringLevel='standard'

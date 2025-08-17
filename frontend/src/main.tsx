@@ -18,6 +18,11 @@ import './styles/global-cyber-theme.css';
 import './styles/prototype-override.css';
 import './styles/quantum-styles.css';
 
+// Development-only WebSocket URL verification
+if (import.meta.env.DEV) {
+  import('./websocket/devVerify');
+}
+
 /**
  * Main application entry point with idempotent bootstrap
  */

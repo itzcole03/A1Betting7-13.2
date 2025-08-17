@@ -42,7 +42,17 @@ export type { HealthAlert, InjuryReport, InjuryTrend, PlayerInjury } from './inj
 
 // Export enhanced data manager and debug manager (strict typing)
 export { debugEnhancedDataManager } from './DebugEnhancedDataManager';
-export { enhancedDataManager } from './EnhancedDataManager';
+
+/**
+ * @deprecated Use WebSocketManager hooks + normalized services.
+ * EnhancedDataManager realtime portion is disabled; only caching/fetch pathways remain.
+ * 
+ * MIGRATION PATH:
+ * - For WebSocket connections: Use frontend/src/websocket/WebSocketManager.ts
+ * - For data fetching: Use frontend/src/services/unified/FeaturedPropsService.ts
+ * - This export maintained for backward compatibility only
+ */
+export { enhancedDataManager } from './DeprecatedEnhancedDataManager';
 // export type { FeaturedProp as EnhancedFeaturedProp } from './EnhancedDataManager';
 export {
   clearPropsCache,

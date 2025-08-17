@@ -3,8 +3,9 @@
  * Provides unified state management for Phase 3 architecture features
  */
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useMemo, useRef, useEffect, ReactNode } from 'react';
 import { unifiedApiService, type HealthData, type AnalyticsData, type PredictionResponse } from '../services/unifiedApiService';
+import { useMetricsStore } from '../metrics/metricsStore';
 
 // State interface
 interface Phase3State {
@@ -168,6 +169,7 @@ const Phase3Context = createContext<{
 // Provider component
 export const Phase3Provider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(phase3Reducer, initialState);
+  const { updateFromRaw } = useMetricsStore();
 
   // Helper function for API calls with error handling
   const apiCall = async <T,>(
@@ -199,21 +201,31 @@ export const Phase3Provider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Actions
   const actions = {
     loadHealth: async () => {
-      await apiCall(
+      const healthData = await apiCall(
         () => unifiedApiService.getHealth(),
         'health',
         'health',
         (data) => ({ type: 'SET_HEALTH', payload: data })
       );
+      
+      // Update metrics store with health data
+      if (healthData) {
+        updateFromRaw(healthData);
+      }
     },
 
     loadAnalytics: async () => {
-      await apiCall(
+      const analyticsData = await apiCall(
         () => unifiedApiService.getAnalytics(),
         'analytics',
         'analytics',
         (data) => ({ type: 'SET_ANALYTICS', payload: data })
       );
+      
+      // Update metrics store with analytics data
+      if (analyticsData) {
+        updateFromRaw(analyticsData);
+      }
     },
 
     loadPredictions: async () => {

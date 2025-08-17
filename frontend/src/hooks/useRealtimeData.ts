@@ -9,6 +9,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useMetricsStore } from '../metrics/metricsStore';
 // @ts-expect-error TS(2305): Module '"../services/ApiService"' has no exported ... Remove this comment to see the full error message
 import { apiService } from '../services/ApiService';
 
@@ -99,6 +100,7 @@ export function useRealtimeData<T = RealtimeData>({
   const [data, setData] = useState<T | null>(initialData);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const { updateFromRaw } = useMetricsStore();
 
   const _wsRef = useRef<WebSocket | null>(null);
   const _reconnectCountRef = useRef(0);
@@ -259,6 +261,11 @@ export function useRealtimeData<T = RealtimeData>({
               responseTime: message.data.response_time,
               lastUpdated: new Date().toISOString(),
             }));
+            
+            // Update metrics store with performance data
+            if (message.data && typeof message.data === 'object') {
+              updateFromRaw(message.data);
+            }
             break;
 
           case 'alert':

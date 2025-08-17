@@ -5,6 +5,7 @@
 
 import { create } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
+import { useMetricsStore } from '../metrics/metricsStore';
 
 // Types
 export interface WebSocketMessage {
@@ -309,6 +310,17 @@ class WebSocketConnectionManager {
         this.store.setState((state: WebSocketState) => ({
           latest_analytics: data
         }));
+        
+        // Update metrics store with real-time analytics data
+        try {
+          const metricsStore = useMetricsStore.getState();
+          if (data && typeof data === 'object') {
+            metricsStore.updateFromRaw(data);
+          }
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.warn('Failed to update metrics store from WebSocket analytics:', error);
+        }
         break;
 
       case 'arbitrage_alert':

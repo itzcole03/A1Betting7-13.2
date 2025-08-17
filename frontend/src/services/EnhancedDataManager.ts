@@ -13,6 +13,10 @@ import {
 } from '../types/DataValidation';
 import { dataValidator } from './EnhancedDataValidator';
 import { enhancedLogger } from './EnhancedLogger';
+import { 
+  getCanonicalWebSocketUrl, 
+  shouldDisableInternalWebSocket 
+} from './EnhancedDataManagerRealtimeShim';
 
 interface FeaturedProp extends ValidatedSportsProp {
   // Backward compatibility - ValidatedSportsProp now provides all the fields
@@ -1131,21 +1135,26 @@ class EnhancedDataManager {
   }
 
   private getWebSocketUrl(): string {
-    // Use unified WS_URL from config with client ID
-    let clientId = '';
-    if (window.localStorage.getItem('clientId')) {
-      clientId = window.localStorage.getItem('clientId')!;
-    } else {
-      clientId = `client_${Math.random().toString(36).substr(2, 9)}`;
-      window.localStorage.setItem('clientId', clientId);
+    // DISABLED: Legacy WebSocket path construction replaced with canonical URL builder
+    const canonicalUrl = getCanonicalWebSocketUrl();
+    
+    // SAFETY CHECK: Ensure we never return legacy path format
+    if (canonicalUrl.includes('client_/ws')) {
+      throw new Error(`CRITICAL: Legacy WebSocket path detected: ${canonicalUrl}`);
     }
     
-    // Use unified configuration - fallback to hardcoded for now to avoid circular imports
-    const baseWsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
-    return `${baseWsUrl.replace('/ws', '')}/ws/${clientId}`;
+    return canonicalUrl;
   }
 
   private initializeWebSocket(): void {
+    // DISABLED: Internal WebSocket initialization disabled to prevent legacy path usage
+    if (shouldDisableInternalWebSocket()) {
+      // eslint-disable-next-line no-console
+      console.info('[EnhancedDataManager] Internal realtime disabled (use WebSocketManager).');
+      return;
+    }
+
+    // Legacy code path (should not be reached due to shim)
     try {
       const wsUrl = this.getWebSocketUrl();
       this.websocket = new WebSocket(wsUrl);

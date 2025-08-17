@@ -8,35 +8,17 @@ import {
   CheckCircle,
   XCircle,
   RefreshCw,
-  BarChart3,
-  PieChart,
-  LineChart,
-  Settings,
-  Download,
-  Upload,
   Clock,
   Zap,
   Shield,
   Globe,
-  Users,
-  Server,
-  HardDrive,
-  Cpu,
   Gauge,
   Target,
   Layers,
   Database,
-  Network,
-  Eye,
-  Filter,
   Play,
   Pause,
-  RotateCcw,
-  Maximize2,
-  GitBranch,
-  Code2,
   Sparkles,
-  Trophy,
   FlaskConical,
   Rocket
 } from 'lucide-react';
@@ -124,32 +106,46 @@ interface RealTimePrediction {
 }
 
 export const AdvancedAIDashboard: React.FC = () => {
-  const [selectedSport, setSelectedSport] = useState<string>('all');
+  const [_selectedSport, _setSelectedSport] = useState<string>('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   
   // Use metrics store for safe cache hit rate access
   const cacheMetrics = useCacheHitRate();
-  const { updateFromRaw } = useMetricsActions();
+  const { updateFromRaw: _updateFromRaw } = useMetricsActions();
   
   // Multi-Sport Integration State
   const [multiSportData, setMultiSportData] = useState<MultiSportData[]>([]);
-  const [sportFeatures, setSportFeatures] = useState<SportSpecificFeature[]>([]);
+  const [_sportFeatures, setSportFeatures] = useState<SportSpecificFeature[]>([]);
   const [ensembleModels, setEnsembleModels] = useState<EnsembleModel[]>([]);
-  const [modelRegistry, setModelRegistry] = useState<ModelRegistryEntry[]>([]);
+  const [_modelRegistry, setModelRegistry] = useState<ModelRegistryEntry[]>([]);
   const [inferenceMetrics, setInferenceMetrics] = useState<InferenceMetrics | null>(null);
   const [realtimePredictions, setRealtimePredictions] = useState<RealTimePrediction[]>([]);
   
   // UI State
   const [activeTab, setActiveTab] = useState('overview');
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
+  const [_refreshInterval, _setRefreshInterval] = useState(30000); // 30 seconds
   
-  // Model Performance Monitoring State
-  const [monitoringOverview, setMonitoringOverview] = useState<any>(null);
-  const [monitoredModels, setMonitoredModels] = useState<any[]>([]);
-  const [modelHealthStatuses, setModelHealthStatuses] = useState<any[]>([]);
+  // Model Performance Monitoring State with proper types
+  interface MonitoringOverview {
+    total_models: number;
+    active_predictions: number;
+    system_health: string;
+    [key: string]: any;
+  }
+  
+  interface ModelHealth {
+    model_id: string;
+    status: string;
+    health_score: number;
+    [key: string]: any;
+  }
+
+  const [_monitoringOverview, setMonitoringOverview] = useState<MonitoringOverview | null>(null);
+  const [_monitoredModels, setMonitoredModels] = useState<ModelHealth[]>([]);
+  const [_modelHealthStatuses, setModelHealthStatuses] = useState<ModelHealth[]>([]);
 
   // Fetch multi-sport integration data
   const fetchMultiSportData = useCallback(async () => {
@@ -370,14 +366,32 @@ export const AdvancedAIDashboard: React.FC = () => {
         const data = await response.json();
         setMonitoringOverview(data);
         // Update inference metrics with monitoring data
-        setInferenceMetrics(prevMetrics => ({
-          ...prevMetrics,
-          total_requests: data.total_predictions || prevMetrics?.total_requests || 0,
-          active_models: data.active_models || prevMetrics?.active_models || 0
-        }));
+        setInferenceMetrics(prevMetrics => {
+          const base: InferenceMetrics = prevMetrics || {
+            total_requests: 0,
+            active_models: 0,
+            avg_latency_ms: 0,
+            success_rate: 0,
+            error_rate: 0,
+            queue_size: 0,
+            cache_hit_rate: 0,
+            throughput_per_second: 0
+          };
+          return {
+            total_requests: data.total_predictions || base.total_requests,
+            active_models: data.active_models || base.active_models,
+            avg_latency_ms: base.avg_latency_ms,
+            success_rate: base.success_rate,
+            error_rate: base.error_rate,
+            queue_size: base.queue_size,
+            cache_hit_rate: base.cache_hit_rate,
+            throughput_per_second: base.throughput_per_second
+          };
+        });
       }
-    } catch (err) {
-      console.error('Failed to fetch monitoring overview:', err);
+    } catch {
+      // Silent error handling - errors will be shown in UI components
+      setError('Failed to fetch monitoring overview');
     }
   }, []);
 
@@ -601,10 +615,10 @@ export const AdvancedAIDashboard: React.FC = () => {
 
   useEffect(() => {
     if (autoRefresh) {
-      const interval = setInterval(fetchAllData, refreshInterval);
+      const interval = setInterval(fetchAllData, 30000); // 30 seconds
       return () => clearInterval(interval);
     }
-  }, [autoRefresh, refreshInterval, fetchAllData]);
+  }, [autoRefresh, fetchAllData]);
 
   // Get status icon
   const getStatusIcon = (status: string) => {
@@ -662,6 +676,49 @@ export const AdvancedAIDashboard: React.FC = () => {
   };
 
   const systemHealth = calculateSystemHealth();
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="flex items-center justify-center h-96">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-400"></div>
+              <p className="text-white text-lg">Loading AI Dashboard...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="flex items-center justify-center h-96">
+            <div className="bg-red-900/20 border border-red-700 rounded-lg p-6 max-w-md">
+              <h2 className="text-red-400 text-xl font-bold mb-2">Error Loading Dashboard</h2>
+              <p className="text-red-300 mb-4">{error}</p>
+              <button
+                onClick={() => {
+                  setError(null);
+                  setLoading(true);
+                  // Re-trigger data fetching
+                  fetchMultiSportData();
+                }}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">

@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { unifiedApiService, type PredictionRequest, type PredictionResponse, type HealthData, type AnalyticsData } from '../services/unifiedApiService';
+import { useMetricsStore } from '../metrics/metricsStore';
 
 // Generic API hook with loading states and error handling
 export function useApiState<T>(initialData: T | null = null) {
@@ -34,10 +35,15 @@ export function useApiState<T>(initialData: T | null = null) {
 // Health check hook
 export function useHealthCheck(interval: number = 30000) {
   const { data: health, loading, error, execute } = useApiState<HealthData>();
+  const { updateFromRaw } = useMetricsStore();
 
-  const checkHealth = useCallback(() => {
-    return execute(() => unifiedApiService.getHealth());
-  }, [execute]);
+  const checkHealth = useCallback(async () => {
+    const healthData = await execute(() => unifiedApiService.getHealth());
+    if (healthData) {
+      updateFromRaw(healthData);
+    }
+    return healthData;
+  }, [execute, updateFromRaw]);
 
   useEffect(() => {
     checkHealth();
@@ -57,10 +63,15 @@ export function useHealthCheck(interval: number = 30000) {
 // Analytics hook
 export function useAnalytics(refreshInterval: number = 60000) {
   const { data: analytics, loading, error, execute } = useApiState<AnalyticsData>();
+  const { updateFromRaw } = useMetricsStore();
 
-  const loadAnalytics = useCallback(() => {
-    return execute(() => unifiedApiService.getAnalytics());
-  }, [execute]);
+  const loadAnalytics = useCallback(async () => {
+    const analyticsData = await execute(() => unifiedApiService.getAnalytics());
+    if (analyticsData) {
+      updateFromRaw(analyticsData);
+    }
+    return analyticsData;
+  }, [execute, updateFromRaw]);
 
   useEffect(() => {
     loadAnalytics();
@@ -344,9 +355,22 @@ export function useDomainStatus() {
 export function usePerformanceMetrics() {
   const { health } = useHealthCheck();
   const { analytics } = useAnalytics();
+  const { updateFromRaw } = useMetricsStore();
 
   const performanceMetrics = useMemo(() => {
     if (!health || !analytics) return null;
+
+    // Combine data and update metrics store
+    const combinedData = {
+      ...health,
+      ...analytics,
+      // Merge infrastructure and performance data
+      infrastructure: health.infrastructure,
+      system_performance: analytics.system_performance,
+      model_performance: analytics.model_performance
+    };
+    
+    updateFromRaw(combinedData);
 
     return {
       system: {
@@ -371,7 +395,7 @@ export function usePerformanceMetrics() {
         total_predictions_requested: analytics.user_metrics.total_predictions_requested
       }
     };
-  }, [health, analytics]);
+  }, [health, analytics, updateFromRaw]);
 
   return performanceMetrics;
 }

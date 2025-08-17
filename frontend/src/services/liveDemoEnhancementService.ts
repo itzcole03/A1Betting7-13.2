@@ -355,7 +355,12 @@ class LiveDemoEnhancementService {
    */
   private preloadDemoData(): void {
     try {
-      // Preload key demo images and assets
+      // Only preload if in browser and assets exist
+      if (typeof window === 'undefined') {
+        return;
+      }
+
+      // Preload key demo images and assets with proper attributes
       const demoAssets = [
         '/assets/demo-preview.jpg',
         '/assets/money-maker-preview.jpg',
@@ -363,13 +368,27 @@ class LiveDemoEnhancementService {
       ];
 
       demoAssets.forEach(asset => {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'image';
-        link.href = asset;
-        document.head.appendChild(link);
+        // Check if asset exists before preloading
+        const img = new Image();
+        img.onload = () => {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'image';
+          link.fetchPriority = 'low'; // These are not critical
+          link.href = asset;
+          document.head.appendChild(link);
+        };
+        img.onerror = () => {
+          // Asset doesn't exist, skip preloading
+          if (import.meta.env?.DEV) {
+            /* eslint-disable-next-line no-console */
+            console.debug(`[LiveDemo] Skipping preload for missing asset: ${asset}`);
+          }
+        };
+        img.src = asset;
       });
     } catch (error) {
+      /* eslint-disable-next-line no-console */
       console.warn('[LiveDemo] Asset preloading failed:', error);
     }
   }

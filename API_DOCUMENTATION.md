@@ -578,9 +578,21 @@ Returns mock/test analytics summary:
 
 ### WebSocket Integration
 
-- **WS URL:** `ws://localhost:8000/ws/client_` (set via `.env.local`)
+- **Canonical WS Base URL (.env):**
+  ```
+  VITE_WS_URL=ws://localhost:8000
+  ```
+- **Canonical Connection Pattern:** `/ws/client?client_id=<id>&version=1&role=frontend`
 - Connection logic includes error handling, up to 5 reconnect attempts, and lifecycle logging.
-- See `frontend/src/services/EnhancedDataManager.ts` for implementation.
+- Use `buildWebSocketUrl()` from `frontend/src/websocket/buildWebSocketUrl.ts` for all URL construction.
+- **DEPRECATED:** Legacy path `/ws/client_<id>` causes 403 errors and must not be used.
+
+**Correct Usage:**
+```typescript
+import { buildWebSocketUrl } from '@/websocket/buildWebSocketUrl';
+const wsUrl = buildWebSocketUrl({ clientId: 'my-client-id' });
+// Returns: ws://localhost:8000/ws/client?client_id=my-client-id&version=1&role=frontend
+```
 
 ---
 
@@ -588,10 +600,12 @@ Returns mock/test analytics summary:
 
 **Frontend `.env.local`**
 
-```
+```env
 VITE_BACKEND_URL=http://localhost:8000
-VITE_WS_URL=ws://localhost:8000/ws/client_
+VITE_WS_URL=ws://localhost:8000
 ```
+
+**Note:** VITE_WS_URL should NOT include the path - the canonical path `/ws/client` with query parameters is automatically appended by `buildWebSocketUrl()`.
 
 ---
 

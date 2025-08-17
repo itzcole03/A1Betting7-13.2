@@ -889,6 +889,14 @@ class PerformanceOptimizationService {
       link.rel = 'preload';
       link.href = url;
       link.as = type;
+      
+      // Add fetchPriority for better loading optimization
+      if (type === 'image') {
+        link.fetchPriority = 'low'; // Images are typically not critical for initial render
+      } else if (type === 'font') {
+        link.fetchPriority = 'high'; // Fonts are critical for avoiding layout shift
+      }
+      
       link.onload = () => resolve();
       link.onerror = () => reject(new Error(`Failed to preload ${url}`));
       document.head.appendChild(link);
