@@ -23,6 +23,15 @@ class PayoutType(str, Enum):
     STANDARD = "standard"
     FLEX = "flex"
     BOOST = "boost"
+    MULTIPLIER = "multiplier"  # For PrizePicks-style multiplier payouts
+
+
+class PayoutVariant(str, Enum):
+    """Payout structure variants for different provider types."""
+    STANDARD_ODDS = "standard_odds"      # Traditional over/under odds
+    MULTIPLIER = "multiplier"            # PrizePicks-style multipliers
+    DECIMAL_ODDS = "decimal_odds"        # European decimal odds
+    MONEYLINE = "moneyline"              # American moneyline format
 
 
 class PropTypeEnum(str, Enum):
@@ -76,11 +85,60 @@ class RawExternalPropDTO(BaseModel):
 
 
 class PayoutSchema(BaseModel):
-    """Payout structure for normalized props."""
-    type: PayoutType
-    over: Optional[float] = None
-    under: Optional[float] = None
-    boost_multiplier: Optional[float] = None
+    """
+    Canonical payout structure for normalized props.
+    
+    This schema provides a standardized representation of payout information
+    across all providers, eliminating branching logic in downstream processing.
+    """
+    type: PayoutType = Field(..., description="Type of payout structure")
+    variant_code: PayoutVariant = Field(..., description="Payout structure variant")
+    
+    # Canonical multiplier representation (normalized from provider formats)
+    over_multiplier: Optional[float] = Field(None, ge=0, description="Over bet payout multiplier")
+    under_multiplier: Optional[float] = Field(None, ge=0, description="Under bet payout multiplier")
+    
+    # Legacy fields for backward compatibility
+    over: Optional[float] = Field(None, description="Legacy over bet odds (deprecated)")
+    under: Optional[float] = Field(None, description="Legacy under bet odds (deprecated)")
+    
+    # Additional payout modifiers
+    boost_multiplier: Optional[float] = Field(None, ge=1, description="Promotional boost multiplier")
+    
+    # Provider-specific metadata (for debugging/traceability)
+    provider_format: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Original provider format")
+    
+    @validator('over_multiplier', 'under_multiplier')
+    def validate_multipliers(cls, v):
+        """Ensure multipliers are reasonable values (typically 1.0 to 50.0)."""
+        if v is not None and (v < 0.1 or v > 100.0):
+            raise ValueError(f"Multiplier {v} outside reasonable range [0.1, 100.0]")
+        return v
+    
+    @property
+    def is_canonical_format(self) -> bool:
+        """Check if schema uses canonical multiplier format."""
+        return self.over_multiplier is not None or self.under_multiplier is not None
+    
+    @property
+    def effective_over_multiplier(self) -> Optional[float]:
+        """Get effective over multiplier including boost."""
+        if self.over_multiplier is None:
+            return None
+        base = self.over_multiplier
+        if self.boost_multiplier:
+            base *= self.boost_multiplier
+        return base
+    
+    @property
+    def effective_under_multiplier(self) -> Optional[float]:
+        """Get effective under multiplier including boost."""
+        if self.under_multiplier is None:
+            return None
+        base = self.under_multiplier
+        if self.boost_multiplier:
+            base *= self.boost_multiplier
+        return base
     
     class Config:
         extra = "forbid"

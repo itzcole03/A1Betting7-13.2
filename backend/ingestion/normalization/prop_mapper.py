@@ -12,6 +12,7 @@ from typing import Dict, Any, Optional
 
 from ..models.dto import RawExternalPropDTO, NormalizedPropDTO, PayoutSchema, PayoutType, PropTypeEnum
 from .taxonomy_service import TaxonomyService, TaxonomyError
+from .payout_normalizer import normalize_payout, PayoutNormalizationError
 
 logger = logging.getLogger(__name__)
 
@@ -37,14 +38,14 @@ def map_raw_to_normalized(raw_prop: RawExternalPropDTO, taxonomy_service: Taxono
         PropMappingError: If mapping fails due to data issues
     """
     try:
-        # Normalize prop category using taxonomy service
-        prop_type = derive_prop_type(raw_prop.prop_category, taxonomy_service, sport)
+        # Normalize prop category using taxonomy service with provider context
+        prop_type = derive_prop_type(raw_prop.prop_category, taxonomy_service, sport, raw_prop.provider_name)
         
         # Normalize team code
         team_abbreviation = taxonomy_service.normalize_team_code(raw_prop.team_code, sport)
         
-        # Create standardized payout schema
-        payout_schema = _create_payout_schema(raw_prop)
+        # Create standardized payout schema using normalization
+        payout_schema = normalize_payout(raw_prop)
         
         # Parse timestamp
         timestamp = datetime.fromisoformat(raw_prop.updated_ts.replace('Z', '+00:00'))
@@ -84,20 +85,23 @@ def map_raw_to_normalized(raw_prop: RawExternalPropDTO, taxonomy_service: Taxono
         
     except TaxonomyError as e:
         raise PropMappingError(f"Taxonomy mapping failed for prop {raw_prop.provider_prop_id}: {e}") from e
+    except PayoutNormalizationError as e:
+        raise PropMappingError(f"Payout normalization failed for prop {raw_prop.provider_prop_id}: {e}") from e
     except ValueError as e:
         raise PropMappingError(f"Data validation failed for prop {raw_prop.provider_prop_id}: {e}") from e
     except Exception as e:
         raise PropMappingError(f"Unexpected error mapping prop {raw_prop.provider_prop_id}: {e}") from e
 
 
-def derive_prop_type(raw_category: str, taxonomy_service: TaxonomyService, sport: str = "NBA") -> PropTypeEnum:
+def derive_prop_type(raw_category: str, taxonomy_service: TaxonomyService, sport: str = "NBA", provider: Optional[str] = None) -> PropTypeEnum:
     """
-    Derive canonical prop type from raw category.
+    Derive canonical prop type from raw category using provider-specific mappings.
     
     Args:
         raw_category: Raw prop category string
         taxonomy_service: Service for taxonomy lookups
         sport: Sport context for normalization (default: NBA)
+        provider: Provider name for provider-specific translation (optional)
         
     Returns:
         Canonical prop type enum
@@ -106,19 +110,22 @@ def derive_prop_type(raw_category: str, taxonomy_service: TaxonomyService, sport
         PropMappingError: If prop type cannot be derived
     """
     try:
-        return taxonomy_service.normalize_prop_category(raw_category, sport)
+        return taxonomy_service.normalize_prop_category(raw_category, sport, provider)
     except TaxonomyError as e:
         raise PropMappingError(f"Cannot derive prop type from category '{raw_category}': {e}") from e
 
 
 def compute_line_hash(prop_type: PropTypeEnum, offered_line: float, payout_schema: PayoutSchema) -> str:
     """
-    Compute stable hash for line change detection.
+    Compute stable hash for line change detection using canonical representation.
     
     The hash includes all factors that constitute a "line change":
     - Prop type 
     - Offered line value
-    - Payout schema details
+    - Canonical payout schema (normalized multipliers)
+    
+    This ensures consistent hashing across providers and triggers 
+    proper edge/valuation recomputation when payouts change.
     
     Args:
         prop_type: Canonical prop type
@@ -133,9 +140,12 @@ def compute_line_hash(prop_type: PropTypeEnum, offered_line: float, payout_schem
         prop_type.value,
         f"{offered_line:.1f}",  # Standardize precision
         payout_schema.type.value,
-        f"{payout_schema.over:.2f}" if payout_schema.over else "None",
-        f"{payout_schema.under:.2f}" if payout_schema.under else "None",
-        f"{payout_schema.boost_multiplier:.2f}" if payout_schema.boost_multiplier else "None"
+        payout_schema.variant_code.value,
+        
+        # Use canonical multipliers for consistent hashing
+        f"{payout_schema.over_multiplier:.3f}" if payout_schema.over_multiplier else "None",
+        f"{payout_schema.under_multiplier:.3f}" if payout_schema.under_multiplier else "None",
+        f"{payout_schema.boost_multiplier:.3f}" if payout_schema.boost_multiplier else "None"
     ]
     
     # Join with consistent separator
@@ -144,26 +154,9 @@ def compute_line_hash(prop_type: PropTypeEnum, offered_line: float, payout_schem
     # Compute SHA-256 hash
     hash_bytes = hashlib.sha256(hash_input.encode('utf-8')).hexdigest()
     
-    logger.debug(f"Computed line hash for {prop_type.value} {offered_line}: {hash_bytes[:8]}...")
+    logger.debug(f"Computed line hash for {prop_type.value} {offered_line} "
+                f"(variant: {payout_schema.variant_code.value}): {hash_bytes[:8]}...")
     return hash_bytes
-
-
-def _create_payout_schema(raw_prop: RawExternalPropDTO) -> PayoutSchema:
-    """
-    Create standardized payout schema from raw prop data.
-    
-    Args:
-        raw_prop: Raw prop data
-        
-    Returns:
-        Standardized payout schema
-    """
-    return PayoutSchema(
-        type=raw_prop.payout_type,
-        over=raw_prop.over_odds,
-        under=raw_prop.under_odds,
-        boost_multiplier=None  # Not supported in stub data
-    )
 
 
 def _normalize_player_name(raw_name: str) -> str:

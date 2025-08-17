@@ -34,12 +34,14 @@ class TaxonomyService:
     def __init__(self):
         """Initialize the taxonomy service with default mappings."""
         self._prop_mapping_cache: Dict[str, PropTypeEnum] = {}
+        self._provider_prop_mappings: Dict[str, Dict[str, PropTypeEnum]] = {}
         self._team_mapping_cache: Dict[str, str] = {}
         self._last_reload_ts: Optional[datetime] = None
         self._lock = Lock()
         
         # Load initial mappings
         self._load_default_mappings()
+        self._load_provider_specific_mappings()
     
     def _load_default_mappings(self):
         """Load default taxonomy mappings."""
@@ -155,13 +157,95 @@ class TaxonomyService:
             logger.info(f"Loaded {len(self._prop_mapping_cache)} prop mappings and "
                        f"{len(self._team_mapping_cache)} team mappings")
     
-    def normalize_prop_category(self, raw_category: str, sport: str = "NBA") -> PropTypeEnum:
+    def _load_provider_specific_mappings(self):
+        """Load provider-specific prop category translation tables."""
+        with self._lock:
+            # Provider-specific prop category mappings
+            self._provider_prop_mappings = {
+                # DraftKings prop category mappings
+                "draftkings": {
+                    "Player Points": PropTypeEnum.POINTS,
+                    "Player Assists": PropTypeEnum.ASSISTS,
+                    "Player Rebounds": PropTypeEnum.REBOUNDS,
+                    "Player Pts+Rebs+Asts": PropTypeEnum.PRA,
+                    "Player 3-Pointers Made": PropTypeEnum.THREE_POINTERS_MADE,
+                    "Player Steals": PropTypeEnum.STEALS,
+                    "Player Blocks": PropTypeEnum.BLOCKS,
+                    "Player Turnovers": PropTypeEnum.TURNOVERS,
+                },
+                
+                # FanDuel prop category mappings
+                "fanduel": {
+                    "Points": PropTypeEnum.POINTS,
+                    "Assists": PropTypeEnum.ASSISTS,
+                    "Rebounds": PropTypeEnum.REBOUNDS,
+                    "Pts+Rebs+Asts": PropTypeEnum.PRA,
+                    "Made Threes": PropTypeEnum.THREE_POINTERS_MADE,
+                    "Steals": PropTypeEnum.STEALS,
+                    "Blocks": PropTypeEnum.BLOCKS,
+                    "Turnovers": PropTypeEnum.TURNOVERS,
+                },
+                
+                # PrizePicks prop category mappings
+                "prizepicks": {
+                    "PTS": PropTypeEnum.POINTS,
+                    "AST": PropTypeEnum.ASSISTS,
+                    "REB": PropTypeEnum.REBOUNDS,
+                    "PRA": PropTypeEnum.PRA,
+                    "3PM": PropTypeEnum.THREE_POINTERS_MADE,
+                    "STL": PropTypeEnum.STEALS,
+                    "BLK": PropTypeEnum.BLOCKS,
+                    "TO": PropTypeEnum.TURNOVERS,
+                    "Fantasy Pts": PropTypeEnum.PRA,  # Often used as proxy
+                },
+                
+                # Underdog prop category mappings
+                "underdog": {
+                    "Points": PropTypeEnum.POINTS,
+                    "Assists": PropTypeEnum.ASSISTS,
+                    "Rebounds": PropTypeEnum.REBOUNDS,
+                    "Pts+Rebs+Asts": PropTypeEnum.PRA,
+                    "3-Pointers": PropTypeEnum.THREE_POINTERS_MADE,
+                    "Steals": PropTypeEnum.STEALS,
+                    "Blocks": PropTypeEnum.BLOCKS,
+                    "Turnovers": PropTypeEnum.TURNOVERS,
+                },
+                
+                # Bet365 prop category mappings
+                "bet365": {
+                    "Player Points": PropTypeEnum.POINTS,
+                    "Player Assists": PropTypeEnum.ASSISTS,
+                    "Player Rebounds": PropTypeEnum.REBOUNDS,
+                    "Player Points + Rebounds + Assists": PropTypeEnum.PRA,
+                    "Player 3 Point Field Goals": PropTypeEnum.THREE_POINTERS_MADE,
+                    "Player Steals": PropTypeEnum.STEALS,
+                    "Player Blocked Shots": PropTypeEnum.BLOCKS,
+                    "Player Turnovers": PropTypeEnum.TURNOVERS,
+                },
+                
+                # TheOdds API standardized mappings
+                "theodds": {
+                    "player_points": PropTypeEnum.POINTS,
+                    "player_assists": PropTypeEnum.ASSISTS,
+                    "player_rebounds": PropTypeEnum.REBOUNDS,
+                    "player_threes": PropTypeEnum.THREE_POINTERS_MADE,
+                    "player_steals": PropTypeEnum.STEALS,
+                    "player_blocks": PropTypeEnum.BLOCKS,
+                    "player_turnovers": PropTypeEnum.TURNOVERS,
+                },
+            }
+            
+            logger.info(f"Loaded provider-specific mappings for "
+                       f"{len(self._provider_prop_mappings)} providers")
+    
+    def normalize_prop_category(self, raw_category: str, sport: str = "NBA", provider: Optional[str] = None) -> PropTypeEnum:
         """
-        Normalize external prop category to canonical enum.
+        Normalize external prop category to canonical enum using provider-specific translations.
         
         Args:
             raw_category: Raw prop category from external provider
             sport: Sport context for sport-specific normalization (default: NBA for backward compatibility)
+            provider: Provider name for provider-specific translation (optional)
             
         Returns:
             Canonical PropTypeEnum value
@@ -170,6 +254,25 @@ class TaxonomyService:
             TaxonomyError: If mapping is not found
         """
         with self._lock:
+            # First try provider-specific mappings if provider is specified
+            if provider:
+                provider_lower = provider.lower()
+                if provider_lower in self._provider_prop_mappings:
+                    provider_mappings = self._provider_prop_mappings[provider_lower]
+                    
+                    # Try exact match in provider mappings
+                    if raw_category in provider_mappings:
+                        logger.debug(f"Found provider-specific mapping: {provider}:{raw_category} -> {provider_mappings[raw_category].value}")
+                        return provider_mappings[raw_category]
+                    
+                    # Try case-insensitive match in provider mappings
+                    lower_category = raw_category.lower()
+                    for key, value in provider_mappings.items():
+                        if key.lower() == lower_category:
+                            logger.debug(f"Found provider-specific mapping (case-insensitive): {provider}:{raw_category} -> {value.value}")
+                            return value
+            
+            # Fallback to global mappings
             # Try exact match first
             if raw_category in self._prop_mapping_cache:
                 return self._prop_mapping_cache[raw_category]
@@ -208,7 +311,8 @@ class TaxonomyService:
                     pass
             
             # No mapping found
-            raise TaxonomyError(f"Unknown prop category for {sport}: '{raw_category}'")
+            provider_info = f" (provider: {provider})" if provider else ""
+            raise TaxonomyError(f"Unknown prop category for {sport}: '{raw_category}'{provider_info}")
     
     def normalize_team_code(self, raw_team: str, sport: str = "NBA") -> str:
         """
@@ -329,22 +433,36 @@ class TaxonomyService:
         """Get count of team mappings."""
         return len(self._team_mapping_cache)
     
-    def validate_prop_category(self, raw_category: str, sport: str = "NBA") -> bool:
+    def validate_prop_category(self, raw_category: str, sport: str = "NBA", provider: Optional[str] = None) -> bool:
         """
         Check if prop category can be normalized.
         
         Args:
             raw_category: Raw prop category to validate
             sport: Sport context (default: NBA for backward compatibility)
+            provider: Provider name for provider-specific validation (optional)
             
         Returns:
             True if category can be normalized, False otherwise
         """
         try:
-            self.normalize_prop_category(raw_category, sport)
+            self.normalize_prop_category(raw_category, sport, provider)
             return True
         except TaxonomyError:
             return False
+    
+    def get_supported_providers(self) -> Set[str]:
+        """Get all supported providers with specific prop mappings."""
+        with self._lock:
+            return set(self._provider_prop_mappings.keys())
+    
+    def get_provider_prop_categories(self, provider: str) -> Set[str]:
+        """Get all prop categories supported by a specific provider."""
+        with self._lock:
+            provider_lower = provider.lower()
+            if provider_lower in self._provider_prop_mappings:
+                return set(self._provider_prop_mappings[provider_lower].keys())
+            return set()
     
     def validate_team_code(self, raw_team: str, sport: str = "NBA") -> bool:
         """
