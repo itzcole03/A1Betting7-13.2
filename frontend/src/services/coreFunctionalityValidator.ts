@@ -7,6 +7,37 @@
  */
 
 import { _eventBus } from '../core/EventBus';
+import { onNavReady, isNavReady } from '../navigation/navReadySignal';
+
+interface CoreValidatorConfig {
+  navMaxAttempts: number;
+  navIntervalMs: number;
+  navTimeoutMs: number;
+  enableDev: boolean;
+}
+
+// Configuration with environment variable overrides
+const getConfig = (): CoreValidatorConfig => {
+  const isDev = process.env.NODE_ENV === 'development';
+  
+  return {
+    navMaxAttempts: parseInt(import.meta.env.VITE_VALIDATOR_NAV_MAX_ATTEMPTS) || 12,
+    navIntervalMs: parseInt(import.meta.env.VITE_VALIDATOR_NAV_INTERVAL_MS) || 250,
+    navTimeoutMs: parseInt(import.meta.env.VITE_VALIDATOR_NAV_TIMEOUT_MS) || 5000,
+    enableDev: isDev
+  };
+};
+
+// Log configuration in development
+const config = getConfig();
+if (config.enableDev) {
+  // eslint-disable-next-line no-console
+  console.log('[NavDiag][Config] Navigation validator config:', {
+    maxAttempts: config.navMaxAttempts,
+    intervalMs: config.navIntervalMs,
+    timeoutMs: config.navTimeoutMs
+  });
+}
 
 interface CoreFunctionValidationResult {
   isValid: boolean;
@@ -65,7 +96,14 @@ interface CoreFunctionalityReport {
   recommendations: string[];
 }
 
-class CoreFunctionalityValidator {
+export class CoreFunctionalityValidator {
+  // Navigation validation state machine
+  private navValidationState: 'idle' | 'waitingForDom' | 'success' | 'degraded_timeout' = 'idle';
+  private navValidationAttempts = 0;
+  private navReadyUnsubscribe?: () => void;
+  private navValidationTimeout: NodeJS.Timeout | null = null;
+  
+  // Legacy properties
   private validationInterval: NodeJS.Timeout | null = null;
   private isRunning = false;
   private performanceBaseline: PerformanceEntry[] = [];
@@ -428,6 +466,7 @@ class CoreFunctionalityValidator {
       this.validationInterval = null;
     }
     this.isRunning = false;
+    this.cleanupNavValidation();
   }
 
   /**
@@ -549,83 +588,96 @@ class CoreFunctionalityValidator {
   }
 
   /**
-   * Validate navigation functionality
+   * Validate navigation functionality with state machine and navReady integration
    */
   private async validateNavigation(): Promise<boolean> {
-    if (process.env.NODE_ENV === 'development') {
+    // Quick exit if already successful
+    if (this.navValidationState === 'success') {
+      return true;
+    }
+
+    // Quick exit if already degraded
+    if (this.navValidationState === 'degraded_timeout') {
+      return false;
+    }
+
+    // Initialize state machine
+    if (this.navValidationState === 'idle') {
+      this.navValidationState = 'waitingForDom';
+      this.navValidationAttempts = 0;
+      
+      // Subscribe to nav ready signal for short-circuit success
+      this.navReadyUnsubscribe = onNavReady(() => {
+        this.navValidationState = 'success';
+        if (config.enableDev) {
+          // eslint-disable-next-line no-console
+          console.log('[NavDiag] Navigation ready via signal');
+        }
+      });
+    }
+
+    // Check if nav ready signal already fired
+    if (isNavReady()) {
+      this.navValidationState = 'success';
+      if (config.enableDev) {
+        // eslint-disable-next-line no-console
+        console.log('[NavDiag] Navigation already ready');
+      }
+      return true;
+    }
+
+    // Increment attempts
+    this.navValidationAttempts++;
+
+    // Log single diagnostic on first attempt
+    if (this.navValidationAttempts === 1 && config.enableDev) {
       // eslint-disable-next-line no-console
       console.log('[NavDiag] Starting navigation validation...');
     }
+
+    // Check for navigation elements with hardened selectors
+    const navSelectors = '[data-testid="primary-nav"], [role="navigation"], nav';
+    const navElements = document.querySelectorAll(navSelectors);
     
-    try {
-      // Check if React Router is functional
-      const _currentPath = window.location.pathname;
-      
-      if (process.env.NODE_ENV === 'development') {
+    if (navElements.length > 0) {
+      this.navValidationState = 'success';
+      if (config.enableDev) {
         // eslint-disable-next-line no-console
-        console.log('[NavDiag] Current path:', _currentPath);
+        console.log('[NavDiag] Navigation validation successful - found elements:', navElements.length);
       }
-      
-      // Validate that navigation components can be accessed
-      const navSelectors = '[data-testid*="nav"], [role="navigation"], nav';
-      const navElements = document.querySelectorAll(navSelectors);
-      
-      if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
-        console.log('[NavDiag] Navigation element search:', {
-          selectors: navSelectors,
-          foundElements: navElements.length,
-          elements: Array.from(navElements).map(el => ({
-            tagName: el.tagName,
-            id: el.id,
-            className: el.className,
-            testId: el.getAttribute('data-testid'),
-            role: el.getAttribute('role')
-          }))
-        });
-      }
-      
-      if (navElements.length === 0) {
-        if (process.env.NODE_ENV === 'development') {
-          // Check for any router provider or navigation context
-          const routerElements = document.querySelectorAll('[data-react-router], [data-router]');
-          const anyNavLike = document.querySelectorAll('header, aside, .nav, .navigation, .sidebar, .menu');
-          
-          // eslint-disable-next-line no-console
-          console.log('[NavDiag] Navigation troubleshooting:', {
-            routerElements: routerElements.length,
-            anyNavLikeElements: anyNavLike.length,
-            bodyContent: document.body.innerHTML.length,
-            hasReactRoot: !!document.querySelector('[data-reactroot]'),
-            hasAppRoot: !!document.querySelector('#root'),
-            timestamp: Date.now()
-          });
-        }
-        throw new Error('No navigation elements found');
-      }
-
-      // Check if router context is available
-      if (typeof window.history?.pushState !== 'function') {
-        if (process.env.NODE_ENV === 'development') {
-          // eslint-disable-next-line no-console
-          console.error('[NavDiag] Browser history API not available');
-        }
-        throw new Error('Browser history API not available');
-      }
-
-      if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
-        console.log('[NavDiag] Navigation validation passed');
-      }
-
+      this.cleanupNavValidation();
       return true;
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
+    }
+
+    // Check if max attempts reached
+    if (this.navValidationAttempts >= config.navMaxAttempts) {
+      this.navValidationState = 'degraded_timeout';
+      if (config.enableDev) {
         // eslint-disable-next-line no-console
-        console.warn('[NavDiag] Navigation validation failed:', error);
+        console.warn('[NavDiag] Navigation validation degraded - no nav elements found after', this.navValidationAttempts, 'attempts');
       }
+      this.cleanupNavValidation();
       return false;
     }
+
+    // Continue polling (will be called again by the main validation cycle)
+    return false;
+  }
+
+  /**
+   * Clean up navigation validation resources
+   */
+  private cleanupNavValidation(): void {
+    if (this.navReadyUnsubscribe) {
+      this.navReadyUnsubscribe();
+      this.navReadyUnsubscribe = undefined;
+    }
+    if (this.navValidationTimeout) {
+      clearTimeout(this.navValidationTimeout);
+      this.navValidationTimeout = null;
+    }
+    this.navValidationState = 'idle';
+    this.navValidationAttempts = 0;
   }
 
   /**

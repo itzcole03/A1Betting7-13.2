@@ -3,6 +3,9 @@
  * Prevents JSON parsing errors when APIs return HTML
  */
 
+import { ensureHealthShape } from './ensureHealthShape';
+import { ensureMetricsShape } from './ensureMetricsShape';
+
 interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -222,8 +225,9 @@ export const fetchHealthData = async () => {
 
   // If no backend URL configured (cloud environment), use mock data immediately
   if (!robustApi) {
+    // eslint-disable-next-line no-console
     console.info('Running in cloud environment - using mock health data');
-    return mockHealthData;
+    return ensureHealthShape(mockHealthData, { usedMock: true });
   }
 
   try {
@@ -232,9 +236,9 @@ export const fetchHealthData = async () => {
     if (result1.success) {
       // Defensive: result1.data may be undefined or nested
       if (result1.data && typeof result1.data === 'object' && 'data' in result1.data) {
-        return (result1.data as any).data || result1.data || mockHealthData;
+        return ensureHealthShape((result1.data as Record<string, unknown>).data || result1.data);
       }
-      return result1.data || mockHealthData;
+      return ensureHealthShape(result1.data);
     }
 
     const result2 = await robustApi.get('/api/health', {
@@ -242,13 +246,14 @@ export const fetchHealthData = async () => {
       timeout: 3000,
     });
     if (result2.success) {
-      return result2.data || mockHealthData;
+      return ensureHealthShape(result2.data);
     }
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.warn('Health API calls failed, using mock data:', error);
   }
 
-  return mockHealthData;
+  return ensureHealthShape(mockHealthData, { usedMock: true });
 };
 
 // Performance stats with mock data
@@ -300,13 +305,21 @@ export const fetchPerformanceStats = async () => {
     });
 
     if (result.success) {
-      return result.data;
+      // Apply metrics normalization to prevent total_requests errors
+      const rawData = result.data && typeof result.data === 'object' && 'data' in result.data 
+        ? (result.data as { data: unknown }).data 
+        : result.data;
+      const normalizedMetrics = ensureMetricsShape(rawData);
+      return { data: normalizedMetrics };
     }
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.warn('Performance stats API failed, using mock data:', error);
   }
 
-  return { data: mockStats };
+  // Apply normalization to mock data as well
+  const normalizedMockStats = ensureMetricsShape(mockStats);
+  return { data: normalizedMockStats };
 };
 
 export default robustApi;

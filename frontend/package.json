@@ -24,6 +24,8 @@
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit",
     "type-check:watch": "tsc --noEmit --watch",
+    "check:legacy-ws": "powershell -Command \"Get-ChildItem src -Recurse -Include *.ts,*.tsx,*.js,*.jsx | Select-String -Pattern 'client_/ws' | Measure-Object | Select-Object -ExpandProperty Count\"",
+    "ci:ensure-no-legacy-ws": "powershell -Command \"$count = Get-ChildItem src -Recurse -Include *.ts,*.tsx,*.js,*.jsx | Where-Object { $_.FullName -notmatch 'test' -and $_.FullName -notmatch 'websocketBuilder' } | Select-String -Pattern 'client_/ws' | Measure-Object | Select-Object -ExpandProperty Count; if ($count -gt 0) { Write-Host 'Legacy WS path found in src (excluding tests/builder)'; Get-ChildItem src -Recurse -Include *.ts,*.tsx,*.js,*.jsx | Where-Object { $_.FullName -notmatch 'test' -and $_.FullName -notmatch 'websocketBuilder' } | Select-String -Pattern 'client_/ws'; exit 1 } else { Write-Host 'No legacy WS paths found in production code' }\"",
     "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,md}'",
     "format:check": "prettier --check 'src/**/*.{ts,tsx,js,jsx,json,css,md}'",
     "clean": "rm -rf dist node_modules/.vite",

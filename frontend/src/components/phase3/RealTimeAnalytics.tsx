@@ -18,6 +18,7 @@ import {
   ArrowTrendingDownIcon
 } from '@heroicons/react/24/outline';
 import { usePhase3Analytics, usePhase3Health, usePhase3Performance } from '../../contexts/Phase3Context';
+import { getCacheHitRate } from '../../utils/healthAccessors';
 
 interface MetricCard {
   title: string;
@@ -29,7 +30,7 @@ interface MetricCard {
   description?: string;
 }
 
-export const RealTimeAnalytics: React.FC = () => {
+const RealTimeAnalytics: React.FC = () => {
   const { analytics, loading: analyticsLoading } = usePhase3Analytics();
   const { health, loading: healthLoading } = usePhase3Health();
   const { performance, consolidationStats, systemMetrics, modelMetrics, userMetrics } = usePhase3Performance();
@@ -104,7 +105,7 @@ export const RealTimeAnalytics: React.FC = () => {
       },
       {
         title: 'Cache Hit Rate',
-        value: `${health.infrastructure.cache.hit_rate_percent.toFixed(1)}%`,
+        value: `${getCacheHitRate(health).toFixed(1)}%`,
         change: '+15%',
         changeType: 'positive',
         icon: CpuChipIcon,

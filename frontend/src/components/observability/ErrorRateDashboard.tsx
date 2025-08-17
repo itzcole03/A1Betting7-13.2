@@ -4,6 +4,7 @@ import {
   BarChart, Bar
 } from 'recharts';
 import { AlertTriangle, CheckCircle, XCircle, Activity, Wifi, WifiOff } from 'lucide-react';
+import { buildWebSocketUrl } from '../../utils/websocketBuilder';
 
 interface ErrorMetric {
   timestamp: number;
@@ -72,7 +73,11 @@ export const ErrorRateDashboard: React.FC<DashboardProps> = ({
 
   // WebSocket connection for real-time metrics
   useEffect(() => {
-    const ws = new WebSocket(`ws://localhost:8000/ws/metrics`);
+    // Use canonical WebSocket URL builder with specific path for metrics
+    const wsUrl = buildWebSocketUrl({ baseUrl: 'ws://localhost:8000', clientId: 'metrics-dashboard' });
+    // Override path for metrics endpoint (this is a special case)
+    const metricsUrl = wsUrl.replace('/ws/client', '/ws/metrics');
+    const ws = new WebSocket(metricsUrl);
     
     ws.onopen = () => {
       setIsConnected(true);

@@ -29,6 +29,7 @@ import {
   HelpCircle,
   Database,
 } from 'lucide-react';
+import { signalNavReady } from '../../navigation/navReadySignal';
 
 interface NavigationItem {
   id: string;
@@ -57,7 +58,12 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
   const location = useLocation();
   const [activeCategory, setActiveCategory] = useState<string>('main');
   const [searchQuery, setSearchQuery] = useState('');
-  const [notifications, setNotifications] = useState(3);
+  const [notifications] = useState(3);
+  
+  // Signal navigation readiness on mount
+  useEffect(() => {
+    signalNavReady();
+  }, []);
 
   const navigationItems: NavigationItem[] = [
     // Main Features
@@ -340,6 +346,7 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
+          // eslint-disable-next-line no-console
           console.log('Navigation toggle clicked, isOpen:', isOpen);
           onToggle();
         }}
@@ -393,6 +400,8 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
             exit={{ x: -400, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed left-0 top-0 h-full w-80 bg-slate-900/95 backdrop-blur-lg border-r border-slate-700 shadow-2xl z-[9998] flex flex-col"
+            role="navigation"
+            data-testid="primary-nav"
           >
             {/* Header */}
             <div className="p-6 border-b border-slate-700">

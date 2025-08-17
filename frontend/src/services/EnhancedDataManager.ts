@@ -12,7 +12,8 @@ import {
   ValidatedSportsProp,
 } from '../types/DataValidation';
 import { dataValidator } from './EnhancedDataValidator';
-import { enhancedLogger } from './EnhancedLogger';
+import { enhancedLogger } from '../utils/enhancedLogger';
+import { buildWebSocketUrl, getOrPersistClientId } from '../utils/websocketBuilder';
 import { safeObjectKeys } from '../utils/objectGuards';
 
 interface FeaturedProp extends ValidatedSportsProp {
@@ -1132,18 +1133,11 @@ class EnhancedDataManager {
   }
 
   private getWebSocketUrl(): string {
-    // Use unified WS_URL from config with client ID
-    let clientId = '';
-    if (window.localStorage.getItem('clientId')) {
-      clientId = window.localStorage.getItem('clientId')!;
-    } else {
-      clientId = `client_${Math.random().toString(36).substr(2, 9)}`;
-      window.localStorage.setItem('clientId', clientId);
-    }
-    
-    // Use unified configuration - fallback to hardcoded for now to avoid circular imports
-    const baseWsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
-    return `${baseWsUrl.replace('/ws', '')}/ws/${clientId}`;
+    // Use canonical builder - single source of truth
+    return buildWebSocketUrl({
+      role: 'frontend',
+      version: 1
+    });
   }
 
   private initializeWebSocket(): void {

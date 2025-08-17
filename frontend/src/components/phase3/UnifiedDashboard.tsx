@@ -16,6 +16,7 @@ import {
   Flame as FireIcon
 } from 'lucide-react';
 import { unifiedApiService, type HealthData, type AnalyticsData, type PredictionResponse } from '../../services/unifiedApiService';
+import { getCacheHitRate } from '../../utils/healthAccessors';
 
 interface SystemMetric {
   label: string;
@@ -83,7 +84,7 @@ export const UnifiedDashboard: React.FC = () => {
       },
       {
         label: 'Cache Hit Rate',
-        value: `${healthData.infrastructure.cache.hit_rate_percent.toFixed(1)}%`,
+        value: `${getCacheHitRate(healthData).toFixed(1)}%`,
         change: '+25%',
         icon: SparklesIcon,
         color: 'text-emerald-600'

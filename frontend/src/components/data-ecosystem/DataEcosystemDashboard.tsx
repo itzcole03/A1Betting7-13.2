@@ -78,6 +78,8 @@ interface SystemAlert {
   resolved: boolean;
 }
 
+import { safeIterateCacheMetrics, getCacheHitRate } from '../../utils/healthAccessors';
+
 const DataEcosystemDashboard: React.FC = () => {
   const [dataSources, setDataSources] = useState<DataSource[]>([]);
   const [validationMetrics, setValidationMetrics] = useState<ValidationMetrics[]>([]);
@@ -322,7 +324,7 @@ const DataEcosystemDashboard: React.FC = () => {
 
   const totalCacheRequests = cacheMetrics.reduce((sum, metric) => sum + metric.total_requests, 0);
   const averageCacheHitRate = cacheMetrics.length > 0 
-    ? cacheMetrics.reduce((sum, metric) => sum + metric.hit_rate, 0) / cacheMetrics.length 
+    ? (safeIterateCacheMetrics(cacheMetrics, (metric) => metric.hit_rate) as number[]).reduce((sum, rate) => sum + rate, 0) / cacheMetrics.length 
     : 0;
 
   const healthySources = dataSources.filter(source => source.status === 'healthy').length;
@@ -619,13 +621,13 @@ const DataEcosystemDashboard: React.FC = () => {
                         {metric.cache_type.replace('_', ' ')} Cache
                       </h3>
                       <Badge className={
-                        metric.hit_rate > 0.9 
+                        getCacheHitRate(metric) > 90 
                           ? 'bg-green-100 text-green-800'
-                          : metric.hit_rate > 0.8 
+                          : getCacheHitRate(metric) > 80 
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-red-100 text-red-800'
                       }>
-                        {Math.round(metric.hit_rate * 100)}% hit rate
+                        {Math.round(getCacheHitRate(metric))}% hit rate
                       </Badge>
                     </div>
                     
@@ -637,7 +639,7 @@ const DataEcosystemDashboard: React.FC = () => {
                       <div>
                         <div className="text-gray-600">Hit Rate</div>
                         <div className="font-medium text-green-600">
-                          {Math.round(metric.hit_rate * 100)}%
+                          {Math.round(getCacheHitRate(metric))}%
                         </div>
                       </div>
                       <div>
@@ -659,9 +661,9 @@ const DataEcosystemDashboard: React.FC = () => {
                     <div className="mt-4">
                       <div className="flex justify-between text-sm mb-1">
                         <span>Cache Efficiency</span>
-                        <span>{Math.round(metric.hit_rate * 100)}%</span>
+                        <span>{Math.round(getCacheHitRate(metric))}%</span>
                       </div>
-                      <Progress value={metric.hit_rate * 100} className="h-2" />
+                      <Progress value={getCacheHitRate(metric)} className="h-2" />
                     </div>
                   </div>
                 ))}

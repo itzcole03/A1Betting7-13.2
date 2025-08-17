@@ -13,10 +13,17 @@ import {
   WifiOff,
   XCircle,
 } from 'lucide-react';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { fetchHealthData, fetchPerformanceStats } from '../../utils/robustApi';
+
+// TEMPORARY: Runtime error diagnostics (remove after fix confirmed)  
+// import { guardObject, wrapKeys, wrapEntries } from '../../debug/objectGuardDiagnostics';
+import { SystemHealth } from '../../utils/ensureHealthShape';
+import { getCacheHitRate, getCacheType, debugHealthStructure } from '../../utils/healthAccessors';
+import { getTotalRequests, getCacheHits, getCacheMisses, getCacheErrors } from '../../utils/metricsAccessors';
 import StatusIndicator from './StatusIndicator';
+
+// NOTE: Direct raw access to health.performance.cache_hit_rate must remain guarded via ensureHealthShape; see ensureHealthShape.ts
 
 interface PerformanceMetrics {
   api_performance: {
@@ -42,20 +49,6 @@ interface PerformanceMetrics {
     caching_strategy: string;
     monitoring: string;
   };
-}
-
-interface SystemHealth {
-  status: string;
-  services: {
-    api: string;
-    cache: string;
-    database: string;
-  };
-  performance: {
-    cache_hit_rate: number;
-    cache_type: string;
-  };
-  uptime_seconds: number;
 }
 
 // Mock data functions for fallback
@@ -118,6 +111,25 @@ const getMockHealth = (): SystemHealth => ({
 const PerformanceMonitoringDashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<PerformanceMetrics | null>(null);
   const [health, setHealth] = useState<SystemHealth | null>(null);
+  
+  // Development diagnostics - log health.performance keys on first mount
+  const hasLoggedHealthKeys = useRef(false);
+  
+  useEffect(() => {
+    if (health?.performance && !hasLoggedHealthKeys.current && process.env.NODE_ENV === 'development') {
+      // PERMANENT FIX: Safe object access pattern prevents race conditions
+      const safePerformance = health.performance ?? {};
+      try {
+        // eslint-disable-next-line no-console
+        console.log('Health performance keys:', Object.keys(safePerformance));
+        debugHealthStructure(health, 'PerformanceMonitoringDashboard');
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('[CRITICAL] Object.keys error despite safe pattern:', error);
+      }
+      hasLoggedHealthKeys.current = true;
+    }
+  }, [health]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUsingMockData, setIsUsingMockData] = useState(false);
@@ -161,6 +173,18 @@ const PerformanceMonitoringDashboard: React.FC = () => {
       setHealth(healthData);
       setMetrics(perfData);
 
+      // Add single dev-only diagnostic after metrics loaded
+      if (process.env.NODE_ENV === 'development' && perfData) {
+        // eslint-disable-next-line no-console
+        console.log('[MetricsDiag]', {
+          total: getTotalRequests(perfData),
+          hits: getCacheHits(perfData),
+          misses: getCacheMisses(perfData),
+          errors: getCacheErrors(perfData),
+          mappedLegacy: (perfData as { originFlags?: { mappedLegacy?: boolean } }).originFlags?.mappedLegacy
+        });
+      }
+
       // Check if we're using mock data
       setIsUsingMockData(
         isCloud ||
@@ -170,6 +194,7 @@ const PerformanceMonitoringDashboard: React.FC = () => {
               perfData.system_info?.caching_strategy?.includes('Cloud Demo')))
       );
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Failed to fetch performance data:', err);
       setError('Using demo data - API may be unavailable');
       // Provide fallback data
@@ -317,9 +342,9 @@ const PerformanceMonitoringDashboard: React.FC = () => {
               <h4 className='font-semibold text-white'>Cache Performance</h4>
             </div>
             <p className='text-lg font-bold text-blue-400'>
-              {health.performance.cache_hit_rate.toFixed(1)}%
+              {getCacheHitRate(health).toFixed(1)}%
             </p>
-            <p className='text-gray-400 text-sm'>Type: {health.performance.cache_type}</p>
+            <p className='text-gray-400 text-sm'>Type: {getCacheType(health)}</p>
           </div>
 
           <div className='bg-gray-800 p-4 rounded-lg border border-gray-600'>
@@ -328,9 +353,10 @@ const PerformanceMonitoringDashboard: React.FC = () => {
               <h4 className='font-semibold text-white'>Services</h4>
             </div>
             <div className='space-y-1'>
-              {Object.entries(health.services).map(([service, status]) => (
+              {/* PERMANENT FIX: Safe object access pattern */}
+              {Object.entries(health.services ?? {}).map(([service, status]) => (
                 <div key={service} className='flex items-center space-x-2'>
-                  <span className={getStatusColor(status)}>{getStatusIcon(status)}</span>
+                  <span className={getStatusColor(String(status))}>{getStatusIcon(String(status))}</span>
                   <span className='text-gray-300 text-sm capitalize'>{service}</span>
                 </div>
               ))}
@@ -361,7 +387,8 @@ const PerformanceMonitoringDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {Object.entries(metrics.api_performance).map(([endpoint, stats]) => (
+                    {/* PERMANENT FIX: Safe object access pattern */}
+                    {Object.entries(metrics.api_performance ?? {}).map(([endpoint, stats]) => (
                       <tr key={endpoint} className='border-t border-gray-600'>
                         <td className='px-4 py-3 text-gray-300 font-mono'>{endpoint}</td>
                         <td className='px-4 py-3 text-right text-gray-300'>
@@ -391,26 +418,23 @@ const PerformanceMonitoringDashboard: React.FC = () => {
               <div className='bg-gray-800 p-4 rounded-lg border border-gray-600'>
                 <p className='text-gray-400 text-sm'>Hit Rate</p>
                 <p className='text-xl font-bold text-green-400'>
-                  {typeof metrics.cache_performance.hit_rate === 'number'
-                    ? metrics.cache_performance.hit_rate.toFixed(1)
-                    : 'N/A'}
-                  %
+                  {getCacheHitRate(metrics).toFixed(1)}%
                 </p>
               </div>
               <div className='bg-gray-800 p-4 rounded-lg border border-gray-600'>
                 <p className='text-gray-400 text-sm'>Total Requests</p>
                 <p className='text-xl font-bold text-blue-400'>
-                  {metrics.cache_performance.total_requests}
+                  {getTotalRequests(metrics)}
                 </p>
               </div>
               <div className='bg-gray-800 p-4 rounded-lg border border-gray-600'>
                 <p className='text-gray-400 text-sm'>Cache Hits</p>
-                <p className='text-xl font-bold text-green-400'>{metrics.cache_performance.hits}</p>
+                <p className='text-xl font-bold text-green-400'>{getCacheHits(metrics)}</p>
               </div>
               <div className='bg-gray-800 p-4 rounded-lg border border-gray-600'>
                 <p className='text-gray-400 text-sm'>Cache Misses</p>
                 <p className='text-xl font-bold text-yellow-400'>
-                  {metrics.cache_performance.misses}
+                  {getCacheMisses(metrics)}
                 </p>
               </div>
             </div>
