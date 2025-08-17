@@ -1,6 +1,9 @@
 /**
  * Comprehensive tests for ensureHealthShape utility
  * Focus: Preventing cache_hit_rate runtime errors and ensuring type safety
+ * 
+ * @deprecated This tests a deprecated function. New code should use validateHealthResponse.
+ * These tests remain to ensure backward compatibility during transition.
  */
 
 import { ensureHealthShape, SystemHealth } from '../ensureHealthShape';

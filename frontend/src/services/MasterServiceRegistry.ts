@@ -35,6 +35,7 @@ import { _lineupService } from './lineupService';
 // import { NotificationService } from './notificationService';
 // import { PerformanceTrackingService } from './PerformanceTrackingService';
 import { SecurityService } from './unified/SecurityService';
+import { DiagnosticsService } from './diagnostics/DiagnosticsService';
 
 /**
  * Health status for a registered service.
@@ -164,6 +165,7 @@ class MasterServiceRegistry {
       { name: 'logger', service: UnifiedLogger.getInstance() },
       { name: 'websocket', service: UnifiedWebSocketService.getInstance() },
       { name: 'security', service: SecurityService.getInstance() },
+      { name: 'diagnostics', service: DiagnosticsService.getInstance() },
     ];
 
     for (const { name, service } of _unifiedServices) {
@@ -447,6 +449,10 @@ class MasterServiceRegistry {
     return this.getService<SecurityService>('security')!;
   }
 
+  get diagnostics(): DiagnosticsService {
+    return this.getService<DiagnosticsService>('diagnostics')!;
+  }
+
   // Service orchestration methods
   async executeAcrossServices(
     methodName: string,
@@ -629,6 +635,9 @@ export const _services = {
   },
   get security() {
     return _masterServiceRegistry.security;
+  },
+  get diagnostics() {
+    return _masterServiceRegistry.diagnostics;
   },
 };
 
