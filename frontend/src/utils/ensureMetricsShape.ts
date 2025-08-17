@@ -22,6 +22,11 @@ export interface MetricsShape {
     hit_rate: number;
     errors: number;
   };
+  system_info: {
+    optimization_level: string;
+    caching_strategy: string;
+    monitoring: string;
+  };
   timestamps?: {
     updated_at?: string;
   };
@@ -60,6 +65,19 @@ const coerceToNumber = (value: unknown, fallback: number = 0): number => {
     if (!isNaN(parsed)) {
       return parsed;
     }
+  }
+  return fallback;
+};
+
+/**
+ * Safely coerce value to string with fallback
+ */
+const coerceToString = (value: unknown, fallback: string = ''): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
   }
   return fallback;
 };
@@ -131,14 +149,52 @@ export function ensureMetricsShape(raw: unknown): MetricsShape {
     ? rawObj.api as Record<string, unknown>
     : {};
 
+  // Check for legacy system_info structure
+  const legacySystemObj = rawObj.system_info && typeof rawObj.system_info === 'object'
+    ? rawObj.system_info as Record<string, unknown>
+    : {};
+
+  // Check for canonical system_info structure  
+  const canonicalSystemObj = rawObj.system && typeof rawObj.system === 'object'
+    ? rawObj.system as Record<string, unknown>
+    : {};
+
   const hasLegacyCache = Object.keys(legacyCacheObj).length > 0;
   const hasLegacyApi = Object.keys(legacyApiObj).length > 0;
   const hasCanonicalCache = Object.keys(canonicalCacheObj).length > 0;
   const hasCanonicalApi = Object.keys(canonicalApiObj).length > 0;
 
-  if (hasLegacyCache || hasLegacyApi) {
+  const hasLegacySystem = Object.keys(legacySystemObj).length > 0;
+  const _hasCanonicalSystem = Object.keys(canonicalSystemObj).length > 0;
+
+  if (hasLegacyCache || hasLegacyApi || hasLegacySystem) {
     originFlags.mappedLegacy = true;
   }
+
+  // Build system_info metrics (canonical first, then legacy fallback)
+  const systemMetrics = {
+    optimization_level: canonicalSystemObj.optimization_level !== undefined
+      ? coerceToString(canonicalSystemObj.optimization_level, 'Basic')
+      : coerceToString(
+          legacySystemObj.optimization_level || 
+          legacySystemObj.optimizationLevel || 
+          legacySystemObj.opt_level, 
+          'Basic'
+        ),
+    caching_strategy: canonicalSystemObj.caching_strategy !== undefined
+      ? coerceToString(canonicalSystemObj.caching_strategy, 'Memory')
+      : coerceToString(
+          legacySystemObj.caching_strategy || 
+          legacySystemObj.cachingStrategy,
+          'Memory'
+        ),
+    monitoring: canonicalSystemObj.monitoring !== undefined
+      ? coerceToString(canonicalSystemObj.monitoring, 'Standard')
+      : coerceToString(
+          legacySystemObj.monitoring,
+          'Standard'
+        )
+  };
 
   // Build cache metrics (canonical first, then legacy fallback with multiple field name patterns)
   const cacheMetrics = {
@@ -211,6 +267,7 @@ export function ensureMetricsShape(raw: unknown): MetricsShape {
   const normalized: MetricsShape = {
     api: apiMetrics,
     cache: cacheMetrics,
+    system_info: systemMetrics,
     timestamps: {
       updated_at: rawObj.updated_at ? String(rawObj.updated_at) : new Date().toISOString(),
     },

@@ -21,6 +21,7 @@ import { fetchHealthData, fetchPerformanceStats } from '../../utils/robustApi';
 import { SystemHealth } from '../../utils/ensureHealthShape';
 import { getCacheHitRate, getCacheType, debugHealthStructure } from '../../utils/healthAccessors';
 import { getTotalRequests, getCacheHits, getCacheMisses, getCacheErrors } from '../../utils/metricsAccessors';
+import { getOptimizationLevel } from '../../utils/modelMetricsAccessors';
 import StatusIndicator from './StatusIndicator';
 
 // NOTE: Direct raw access to health.performance.cache_hit_rate must remain guarded via ensureHealthShape; see ensureHealthShape.ts
@@ -178,6 +179,7 @@ const PerformanceMonitoringDashboard: React.FC = () => {
         // eslint-disable-next-line no-console
         console.log('[MetricsDiag]', {
           total: getTotalRequests(perfData),
+          optLevel: getOptimizationLevel(perfData),
           hits: getCacheHits(perfData),
           misses: getCacheMisses(perfData),
           errors: getCacheErrors(perfData),
@@ -451,7 +453,7 @@ const PerformanceMonitoringDashboard: React.FC = () => {
                 <div>
                   <p className='text-gray-400 text-sm'>Optimization Level</p>
                   <p className='text-white font-semibold'>
-                    {metrics.system_info.optimization_level}
+                    {getOptimizationLevel(metrics)}
                   </p>
                 </div>
                 <div>
