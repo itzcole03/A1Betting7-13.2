@@ -26,22 +26,73 @@ export class GlobalErrorBoundary extends React.Component<
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     // Generate or extract correlation ID (if available)
-    const correlationId = (error as any).correlationId || crypto.randomUUID();
+    const correlationId = (error as Error & { correlationId?: string }).correlationId || crypto.randomUUID();
     this.setState({ correlationId });
+
+    // ENHANCED LOGGING: Full error details with [RuntimeErrorTrace] tag (development only)
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.group('[RuntimeErrorTrace] Full Error Details');
+      // eslint-disable-next-line no-console
+      console.log('[RuntimeErrorTrace] Raw error object:', error);
+      // eslint-disable-next-line no-console
+      console.log('[RuntimeErrorTrace] Error message:', error.message);
+      // eslint-disable-next-line no-console
+      console.log('[RuntimeErrorTrace] Error stack:', error.stack);
+      // eslint-disable-next-line no-console
+      console.log('[RuntimeErrorTrace] Component stack:', info.componentStack);
+      // eslint-disable-next-line no-console
+      console.log('[RuntimeErrorTrace] Error digest:', info.digest);
+      // eslint-disable-next-line no-console
+      console.log('[RuntimeErrorTrace] Correlation ID:', correlationId);
+      // eslint-disable-next-line no-console
+      console.log('[RuntimeErrorTrace] Timestamp:', new Date().toISOString());
+      // eslint-disable-next-line no-console
+      console.log('[RuntimeErrorTrace] URL:', window.location.href);
+      // eslint-disable-next-line no-console
+      console.log('[RuntimeErrorTrace] User Agent:', navigator.userAgent);
+      
+      // Log error constructor and prototype information
+      // eslint-disable-next-line no-console
+      console.log('[RuntimeErrorTrace] Error constructor:', error.constructor.name);
+      // eslint-disable-next-line no-console
+      console.log('[RuntimeErrorTrace] Error prototype:', Object.getPrototypeOf(error));
+      
+      // Log any additional error properties
+      const errorProps = Object.getOwnPropertyNames(error);
+      if (errorProps.length > 0) {
+        // eslint-disable-next-line no-console
+        console.log('[RuntimeErrorTrace] Error properties:', errorProps);
+        errorProps.forEach(prop => {
+          if (prop !== 'stack' && prop !== 'message' && prop !== 'name') {
+            // eslint-disable-next-line no-console
+            console.log(`[RuntimeErrorTrace] ${prop}:`, (error as unknown as Record<string, unknown>)[prop]);
+          }
+        });
+      }
+      // eslint-disable-next-line no-console
+      console.groupEnd();
+    }
+
     // Record error in global error store
     if (typeof window !== 'undefined') {
       // Use dynamic import for Zustand store (for class component)
-      import('../stores/errorStore').then(({ addError }) => {
-        addError({
-          id: correlationId,
-          message: error.message,
-          category: 'unknown',
-          details: info,
-          correlationId,
-          statusCode: undefined,
-        });
+      import('../stores/errorStore').then((store) => {
+        if ('addError' in store && typeof store.addError === 'function') {
+          store.addError({
+            id: correlationId,
+            message: error.message,
+            category: 'unknown',
+            details: info,
+            correlationId,
+            statusCode: undefined,
+          });
+        }
       }).catch((importError) => {
-        console.warn('Failed to import error store:', importError);
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.warn('Failed to import error store:', importError);
+        }
       });
     }
     // Auto-report error to backend

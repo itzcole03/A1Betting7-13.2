@@ -6,6 +6,7 @@ import { bootstrapApp } from './bootstrap/bootstrapApp';
 import { logger } from './utils/logger';
 import './utils/tracing';
 import './utils/consoleErrorSuppression'; // Initialize console error filtering
+import './runtimeDebug'; // Global runtime error listeners (development only)
 
 // Import Builder.io registry to register components
 import '../builder-registry';

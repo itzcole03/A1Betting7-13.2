@@ -295,11 +295,55 @@ export class WebSocketManager {
   }
 
   private buildWebSocketUrl(): string {
-    const url = new URL('/ws/client', this.baseUrl);
-    url.searchParams.set('client_id', this.clientId);
-    url.searchParams.set('version', String(this.options.version || 1));
-    url.searchParams.set('role', this.options.role || 'frontend');
-    return url.toString();
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('[WSBuildDiag] Building WebSocket URL with options:', {
+        baseUrl: this.baseUrl,
+        clientId: this.clientId,
+        version: this.options.version,
+        role: this.options.role
+      });
+    }
+    
+    try {
+      const url = new URL('/ws/client', this.baseUrl);
+      url.searchParams.set('client_id', this.clientId);
+      url.searchParams.set('version', String(this.options.version || 1));
+      url.searchParams.set('role', this.options.role || 'frontend');
+      
+      const result = url.toString();
+      
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('[WSBuildDiag] Built WebSocket URL successfully:', result);
+      }
+      
+      return result;
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.error('[WSBuildDiag] Error building WebSocket URL:', error, {
+          baseUrl: this.baseUrl,
+          clientId: this.clientId,
+          options: this.options
+        });
+      }
+      
+      // Fallback to manual URL building
+      const params = new URLSearchParams();
+      params.set('client_id', this.clientId);
+      params.set('version', String(this.options.version || 1));
+      params.set('role', this.options.role || 'frontend');
+      
+      const fallbackUrl = `${this.baseUrl}/ws/client?${params.toString()}`;
+      
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('[WSBuildDiag] Using fallback URL:', fallbackUrl);
+      }
+      
+      return fallbackUrl;
+    }
   }
 
   private initializeStats(): WSConnectionStats {

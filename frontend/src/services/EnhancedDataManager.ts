@@ -13,6 +13,7 @@ import {
 } from '../types/DataValidation';
 import { dataValidator } from './EnhancedDataValidator';
 import { enhancedLogger } from './EnhancedLogger';
+import { safeObjectKeys } from '../utils/objectGuards';
 
 interface FeaturedProp extends ValidatedSportsProp {
   // Backward compatibility - ValidatedSportsProp now provides all the fields
@@ -354,7 +355,7 @@ class EnhancedDataManager {
       }
 
       console.log(
-        `[DataManager] Batch predictions completed: ${Object.keys(results).length} results`
+        `[DataManager] Batch predictions completed: ${safeObjectKeys(results).length} results`
       );
     } catch (error: any) {
       console.error('[DataManager] Batch predictions request failed:', error);
@@ -839,7 +840,7 @@ class EnhancedDataManager {
 
         let response: AxiosResponse<T>;
 
-        if (params && Object.keys(params).length > 0) {
+        if (params && safeObjectKeys(params).length > 0) {
           response = await axios.get(endpoint, { params, ...config });
         } else {
           response = await axios.get(endpoint, config);
@@ -888,7 +889,7 @@ class EnhancedDataManager {
   }
 
   private generateCacheKey(endpoint: string, params?: Record<string, any>): string {
-    const paramsStr = params ? JSON.stringify(params, Object.keys(params).sort()) : '';
+    const paramsStr = params ? JSON.stringify(params, safeObjectKeys(params).sort()) : '';
     return `${endpoint}${paramsStr}`;
   }
 

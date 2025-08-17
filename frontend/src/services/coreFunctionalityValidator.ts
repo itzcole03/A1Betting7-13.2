@@ -282,26 +282,57 @@ class CoreFunctionalityValidator {
 
       // Check if already complete
       const isBootstrapComplete = (): string | null => {
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.log('[NavDiag] Checking bootstrap completion...');
+        }
+        
         // Check for navigation elements
         const navElements = document.querySelectorAll(
           '[data-nav-root], [data-testid*="nav"], [role="navigation"], nav, #app-nav'
         );
+        
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.log('[NavDiag] Navigation elements found:', navElements.length);
+        }
+        
         if (navElements.length > 0) {
           return 'Navigation elements found';
         }
 
         // Check if app root is mounted with content
         const appRoot = document.querySelector('#root [data-testid="app"], #root .app, main, [role="main"]');
+        
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.log('[NavDiag] App root check:', {
+            found: !!appRoot,
+            hasChildren: appRoot ? appRoot.children.length : 0
+          });
+        }
+        
         if (appRoot && appRoot.children.length > 0) {
           return 'App root mounted with content';
         }
 
         // Check for React elements
         const reactElements = document.querySelectorAll('[data-reactroot], [data-testid]');
+        
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.log('[NavDiag] React elements found:', reactElements.length);
+        }
+        
         if (reactElements.length > 3) { // More than just basic elements
           return 'React components rendered';
         }
 
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.log('[NavDiag] Bootstrap not complete yet');
+        }
+        
         return null;
       };
 
@@ -521,26 +552,77 @@ class CoreFunctionalityValidator {
    * Validate navigation functionality
    */
   private async validateNavigation(): Promise<boolean> {
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('[NavDiag] Starting navigation validation...');
+    }
+    
     try {
       // Check if React Router is functional
       const _currentPath = window.location.pathname;
       
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('[NavDiag] Current path:', _currentPath);
+      }
+      
       // Validate that navigation components can be accessed
-      const navElements = document.querySelectorAll('[data-testid*="nav"], [role="navigation"], nav');
+      const navSelectors = '[data-testid*="nav"], [role="navigation"], nav';
+      const navElements = document.querySelectorAll(navSelectors);
+      
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('[NavDiag] Navigation element search:', {
+          selectors: navSelectors,
+          foundElements: navElements.length,
+          elements: Array.from(navElements).map(el => ({
+            tagName: el.tagName,
+            id: el.id,
+            className: el.className,
+            testId: el.getAttribute('data-testid'),
+            role: el.getAttribute('role')
+          }))
+        });
+      }
+      
       if (navElements.length === 0) {
+        if (process.env.NODE_ENV === 'development') {
+          // Check for any router provider or navigation context
+          const routerElements = document.querySelectorAll('[data-react-router], [data-router]');
+          const anyNavLike = document.querySelectorAll('header, aside, .nav, .navigation, .sidebar, .menu');
+          
+          // eslint-disable-next-line no-console
+          console.log('[NavDiag] Navigation troubleshooting:', {
+            routerElements: routerElements.length,
+            anyNavLikeElements: anyNavLike.length,
+            bodyContent: document.body.innerHTML.length,
+            hasReactRoot: !!document.querySelector('[data-reactroot]'),
+            hasAppRoot: !!document.querySelector('#root'),
+            timestamp: Date.now()
+          });
+        }
         throw new Error('No navigation elements found');
       }
 
       // Check if router context is available
       if (typeof window.history?.pushState !== 'function') {
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.error('[NavDiag] Browser history API not available');
+        }
         throw new Error('Browser history API not available');
+      }
+
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('[NavDiag] Navigation validation passed');
       }
 
       return true;
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
-        console.warn('[CoreValidator] Navigation validation failed:', error);
+        console.warn('[NavDiag] Navigation validation failed:', error);
       }
       return false;
     }
