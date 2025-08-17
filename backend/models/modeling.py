@@ -208,18 +208,25 @@ class Edge(Base):
 
 
 class Explanation(Base):
-    """Explanations table (scaffold for future LLM integration)"""
+    """Explanations table for LLM-generated edge explanations"""
     __tablename__ = "explanations"
     __table_args__ = (
         Index("idx_explanation_edge", "edge_id"),
         Index("idx_explanation_model", "model_version_id"),
         Index("idx_explanation_created", "created_at"),
+        Index("idx_explanation_model_prompt", "edge_id", "model_version_id", "prompt_version"),
     )
 
     id = Column(Integer, primary_key=True, index=True)
     edge_id = Column(Integer, ForeignKey("edges.id"), nullable=False)
     model_version_id = Column(Integer, ForeignKey("model_versions.id"), nullable=False)
-    content = Column(Text, nullable=False)  # Placeholder for explanations
+    content = Column(Text, nullable=False)
+    
+    # LLM metadata columns
+    prompt_version = Column(String(20), nullable=True, default="v1")
+    provider = Column(String(50), nullable=True, default="local_stub")  
+    tokens_used = Column(Integer, nullable=True, default=0)
+    
     created_at = Column(
         DateTime(timezone=True), 
         nullable=False, 

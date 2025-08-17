@@ -118,6 +118,32 @@ class MLConfig:
 
 
 @dataclass
+class LLMConfig:
+    """LLM (Large Language Model) configuration"""
+    
+    # Provider settings
+    provider: str = "local_stub"  # "openai" | "local_stub" 
+    max_tokens: int = 512
+    temperature: float = 0.2
+    timeout_sec: int = 25
+    prompt_template_version: str = "v1"
+    
+    # Rate limiting
+    rate_limit_per_min: int = 60
+    
+    # Caching
+    cache_ttl_sec: int = 3600  # 1 hour
+    allow_batch_prefetch: bool = True
+    
+    # Logging and debugging
+    log_prompt_debug: bool = False  # Enable truncated prompt logging
+    
+    # OpenAI specific settings
+    openai_model: str = "gpt-3.5-turbo"
+    openai_organization: Optional[str] = None
+
+
+@dataclass
 class ExternalAPIConfig:
     """External API configuration"""
 
@@ -208,6 +234,7 @@ class ApplicationConfig:
     cache: CacheConfig = field(default_factory=CacheConfig)
     api: APIConfig = field(default_factory=APIConfig)
     ml: MLConfig = field(default_factory=MLConfig)
+    llm: LLMConfig = field(default_factory=LLMConfig)
     external_apis: ExternalAPIConfig = field(default_factory=ExternalAPIConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
     performance: PerformanceConfig = field(default_factory=PerformanceConfig)
@@ -298,6 +325,16 @@ class UnifiedConfigManager:
             "JWT_SECRET": ("api.jwt_secret", str),
             # Cache
             "REDIS_URL": ("cache.redis_url", str),
+            # LLM
+            "LLM_PROVIDER": ("llm.provider", str),
+            "LLM_MAX_TOKENS": ("llm.max_tokens", int),
+            "LLM_TEMPERATURE": ("llm.temperature", float),
+            "LLM_TIMEOUT_SEC": ("llm.timeout_sec", int),
+            "LLM_PROMPT_TEMPLATE_VERSION": ("llm.prompt_template_version", str),
+            "LLM_RATE_LIMIT_PER_MIN": ("llm.rate_limit_per_min", int),
+            "LLM_CACHE_TTL_SEC": ("llm.cache_ttl_sec", int),
+            "LLM_ALLOW_BATCH_PREFETCH": ("llm.allow_batch_prefetch", bool),
+            "LLM_LOG_PROMPT_DEBUG": ("llm.log_prompt_debug", bool),
             "CACHE_ENABLED": ("cache.enabled", bool),
             "CACHE_DEFAULT_TTL": ("cache.default_ttl", int),
             # ML
@@ -409,6 +446,10 @@ class UnifiedConfigManager:
     def get_ml_config(self) -> MLConfig:
         """Get ML configuration"""
         return self._config.ml
+
+    def get_llm_config(self) -> LLMConfig:
+        """Get LLM configuration"""
+        return self._config.llm
 
     def get_external_apis_config(self) -> ExternalAPIConfig:
         """Get external APIs configuration"""

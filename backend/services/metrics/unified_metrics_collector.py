@@ -1,7 +1,34 @@
 """
 Unified Metrics Collector - Production-grade metrics aggregation service
 Provides centralized collection and reporting of application performance metrics with sliding windows,
-percentile computation, event loop lag sampling, and comprehensive instrumentation.
+percentile computation, event lo    def record_cache_eviction(self) -> None:
+        """Record cache eviction."""
+        with self._data_lock:
+            self._cache_evictions += 1
+    
+    def record_custom(self, metric_name: str, value: float = 1.0) -> None:
+        """
+        Record custom metric for LLM and other services
+        
+        Args:
+            metric_name: Name of the metric (e.g., "explanation_requests_total")
+            value: Metric value (default 1.0 for counters)
+        """
+        if not hasattr(self, '_custom_metrics'):
+            self._custom_metrics: Dict[str, float] = {}
+        
+        with self._data_lock:
+            self._custom_metrics[metric_name] = self._custom_metrics.get(metric_name, 0.0) + value
+        
+        logger.debug(f"Custom metric recorded: {metric_name}={value}")
+    
+    def get_custom_metrics(self) -> Dict[str, float]:
+        """Get all custom metrics"""
+        if not hasattr(self, '_custom_metrics'):
+            self._custom_metrics: Dict[str, float] = {}
+        
+        with self._data_lock:
+            return dict(self._custom_metrics)ag sampling, and comprehensive instrumentation.
 """
 
 import asyncio
