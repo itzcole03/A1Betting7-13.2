@@ -1,0 +1,159 @@
+{
+  "timestamp": 1755460814.0338967,
+  "node_count": 8,
+  "edge_count": 3,
+  "integrity_issues_count": 2,
+  "nodes": {
+    "prop": {
+      "101": {
+        "status": "active",
+        "last_updated": 1755460814.0322177,
+        "dependents": [
+          [
+            "edge",
+            201
+          ]
+        ],
+        "dependencies": []
+      },
+      "102": {
+        "status": "active",
+        "last_updated": 1755460814.0322342,
+        "dependents": [
+          [
+            "edge",
+            202
+          ]
+        ],
+        "dependencies": []
+      },
+      "103": {
+        "status": "retired",
+        "last_updated": 1755460814.032859,
+        "dependents": [
+          [
+            "edge",
+            203
+          ]
+        ],
+        "dependencies": []
+      }
+    },
+    "edge": {
+      "201": {
+        "status": "active",
+        "last_updated": 1755460814.0322464,
+        "dependents": [
+          [
+            "ticket",
+            301
+          ]
+        ],
+        "dependencies": [
+          [
+            "prop",
+            101
+          ]
+        ]
+      },
+      "202": {
+        "status": "active",
+        "last_updated": 1755460814.0322514,
+        "dependents": [
+          [
+            "ticket",
+            301
+          ]
+        ],
+        "dependencies": [
+          [
+            "prop",
+            102
+          ]
+        ]
+      },
+      "203": {
+        "status": "retired",
+        "last_updated": 1755460814.0329862,
+        "dependents": [
+          [
+            "ticket",
+            302
+          ]
+        ],
+        "dependencies": [
+          [
+            "prop",
+            103
+          ]
+        ]
+      }
+    },
+    "ticket": {
+      "301": {
+        "status": "active",
+        "last_updated": 1755460814.0322614,
+        "dependents": [],
+        "dependencies": [
+          [
+            "edge",
+            201
+          ],
+          [
+            "edge",
+            202
+          ]
+        ]
+      },
+      "302": {
+        "status": "retired",
+        "last_updated": 1755460814.0333328,
+        "dependents": [],
+        "dependencies": [
+          [
+            "edge",
+            203
+          ]
+        ]
+      }
+    }
+  },
+  "integrity_issues": [
+    {
+      "issue_type": "dangling_edge",
+      "entity_type": "edge",
+      "entity_id": 203,
+      "description": "Edge 203 has no active prop dependency",
+      "severity": "critical",
+      "detected_at": 1755460814.0328777,
+      "remediation_action": "auto_retire",
+      "remediation_applied_at": 1755460814.0329869,
+      "remediation_details": {
+        "old_status": "active",
+        "new_status": "retired",
+        "action": "auto_retirement"
+      }
+    },
+    {
+      "issue_type": "orphaned_ticket",
+      "entity_type": "ticket",
+      "entity_id": 302,
+      "description": "Ticket 302 references only retired edges",
+      "severity": "high",
+      "detected_at": 1755460814.0332158,
+      "remediation_action": "auto_retire",
+      "remediation_applied_at": 1755460814.0333333,
+      "remediation_details": {
+        "old_status": "active",
+        "new_status": "retired",
+        "action": "auto_retirement"
+      }
+    }
+  ],
+  "metadata": {
+    "updates_processed": 9,
+    "verification_runs": 1,
+    "remediations_applied": 2,
+    "snapshot_interval": 300
+  }
+}

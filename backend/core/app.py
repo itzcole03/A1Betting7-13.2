@@ -849,6 +849,16 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register Risk Management & Personalization routes: {e}")
 
+    # Dependencies Health API (Dependency Index Health Monitoring and Integrity Verification)
+    try:
+        from backend.routes.dependencies import router as dependencies_router
+        _app.include_router(dependencies_router, prefix="/api", tags=["Dependencies"])
+        logger.info("✅ Dependencies Health routes included (/api/dependencies/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import Dependencies Health routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register Dependencies Health routes: {e}")
+
     # Provider Resilience API (Circuit Breaker, SLA Metrics, Reliability Monitoring)
     try:
         from backend.routes.provider_resilience_routes import router as provider_resilience_router
