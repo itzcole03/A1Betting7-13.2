@@ -35,23 +35,24 @@ export async function detectSportsApiVersion(): Promise<'v2' | 'v1' | 'none'> {
     });
     if (v2resp.ok) {
       // Successful preflight indicates v2 is available and CORS is properly configured
-      // eslint-disable-next-line no-console
       console.debug('[SportsService] v2 API detected via OPTIONS preflight');
       return 'v2';
     } else if (v2resp.status === 405) {
-      // 405 can indicate endpoint exists but OPTIONS not explicitly handled  
-      // eslint-disable-next-line no-console
+      // 405 can indicate endpoint exists but OPTIONS not explicitly handled
       console.debug('[SportsService] v2 API detected via 405 (method not allowed for OPTIONS)');
       return 'v2';
     }
   } catch (error) {
-    // Handle network errors gracefully
-    if (error instanceof Error && (error.message.includes('Failed to fetch') || error.name === 'TypeError')) {
-      // eslint-disable-next-line no-console
+    // Handle network errors gracefully - backend unavailable is normal in dev
+    if (error instanceof Error && (
+      error.message.includes('Failed to fetch') ||
+      error.name === 'TypeError' ||
+      error.message.includes('NetworkError') ||
+      error.message.includes('fetch')
+    )) {
       console.warn('[SportsService] Backend unavailable, falling back to demo mode');
       return 'none';
     }
-    // eslint-disable-next-line no-console
     console.debug('[SportsService] v2 OPTIONS check failed:', error);
   }
   // Try v1 endpoint

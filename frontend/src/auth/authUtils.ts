@@ -1,49 +1,15 @@
-import { createContext, useContext } from 'react';
-import api from '../api';
+// DISABLED - This file was conflicting with the main auth system in services/authService.ts
+// Redirecting to the correct auth system to prevent import errors
 
-export interface AuthContextValue {
-  user: unknown;
-  token: string | null;
-  loading: boolean;
-  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (userData: Record<string, unknown>) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
-  isAuthenticated: boolean;
-}
+export { useAuth, _AuthContext } from '../contexts/AuthContext';
 
-export const _AuthContext = createContext<AuthContextValue | undefined>(undefined);
-
-export function useAuth() {
-  const context = useContext(_AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
-
-// Backend login function
+// Stub functions to prevent import errors
 export async function login(username: string, password: string) {
-  try {
-    const resp = await api.post('/token', new URLSearchParams({ username, password }));
-    if (resp.status === 200 && resp.data.access_token) {
-      localStorage.setItem('auth_token', resp.data.access_token);
-      return { success: true };
-    }
-    return { success: false, error: resp.data.detail || 'Login failed' };
-  } catch (err: any) {
-    return { success: false, error: err?.response?.data?.detail || 'Login error' };
-  }
+  console.warn('Deprecated auth utils - use AuthContext instead');
+  return { success: false, error: 'Use AuthContext instead' };
 }
 
-// Backend registration function
 export async function register(userData: Record<string, unknown>) {
-  try {
-    const resp = await api.post('/register', userData);
-    if (resp.status === 200 && resp.data.message === 'User registered successfully') {
-      return { success: true };
-    }
-    return { success: false, error: resp.data.detail || 'Registration failed' };
-  } catch (err: any) {
-    return { success: false, error: err?.response?.data?.detail || 'Registration error' };
-  }
+  console.warn('Deprecated auth utils - use AuthContext instead');
+  return { success: false, error: 'Use AuthContext instead' };
 }

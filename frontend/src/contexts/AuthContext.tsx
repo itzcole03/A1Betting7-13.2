@@ -8,7 +8,7 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import {
   AuthResponse,
-  _authService as authService,
+  authService,
   PasswordChangeRequest,
   User,
 } from '../services/authService';

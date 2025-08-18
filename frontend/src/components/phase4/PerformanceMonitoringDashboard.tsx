@@ -196,10 +196,19 @@ const PerformanceMonitoringDashboard: React.FC = () => {
               perfData.system_info?.caching_strategy?.includes('Cloud Demo')))
       );
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('Failed to fetch performance data:', err);
-      setError('Using demo data - API may be unavailable');
-      // Provide fallback data
+      // Handle errors gracefully - network issues are expected in some environments
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+        // Don't log fetch errors as errors - they're expected when backend is unavailable
+        console.info('Backend unavailable, using demo data');
+        setError(null); // Don't show error to user - this is expected behavior
+      } else {
+        console.warn('Performance data fetch issue:', err);
+        setError('Using demo data - API temporarily unavailable');
+      }
+
+      // Always provide fallback data
       setMetrics(getMockMetrics());
       setHealth(getMockHealth());
       setIsUsingMockData(true);

@@ -96,41 +96,17 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       isNew: true,
     },
 
-    // Research Tools
+    // Research Tools - Unified Dashboard
     {
-      id: 'player-research',
-      name: 'Player Research',
-      href: '/player',
+      id: 'research-dashboard',
+      name: 'Research Dashboard',
+      href: '/research',
       icon: Search,
-      description: 'Deep player analytics and projections',
-      category: 'research',
-    },
-    {
-      id: 'prop-scanner',
-      name: 'Prop Scanner',
-      href: '/prop-scanner',
-      icon: Eye,
-      badge: 'BETA',
-      description: 'Real-time prop opportunity scanning',
+      badge: 'NEW',
+      description: 'Unified research platform - Player analytics, prop scanning, matchups & injuries',
       category: 'research',
       isNew: true,
-    },
-    {
-      id: 'matchup-analyzer',
-      name: 'Matchup Analyzer',
-      href: '/matchup-analyzer',
-      icon: Target,
-      description: 'Advanced matchup breakdowns',
-      category: 'research',
-    },
-    {
-      id: 'injury-tracker',
-      name: 'Injury Tracker',
-      href: '/injury-tracker',
-      icon: Shield,
-      badge: 2,
-      description: 'Live injury reports and impact analysis',
-      category: 'research',
+      isHot: true,
     },
 
     // Tools
@@ -266,26 +242,7 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       category: 'main',
       isNew: true,
     },
-    {
-      id: 'advanced-player-dashboard',
-      name: 'Advanced Player Dashboard',
-      href: '/advanced-player',
-      icon: User,
-      badge: 'HOT',
-      description: 'Enhanced dashboard with customizable trend ranges',
-      category: 'research',
-      isHot: true,
-    },
-    {
-      id: 'real-time-lookup',
-      name: 'Player Lookup',
-      href: '/player-lookup',
-      icon: Search,
-      badge: 'NEW',
-      description: 'Sub-second player search with comprehensive data',
-      category: 'research',
-      isNew: true,
-    },
+
     {
       id: 'matchup-analysis',
       name: 'Matchup Analysis',

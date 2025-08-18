@@ -107,15 +107,32 @@ export class RobustApiClient {
           };
         }
       } catch (error) {
-        console.warn(`API attempt ${attempt + 1} failed for ${url}:`, error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+        // Reduce console noise for expected network errors
+        if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch')) {
+          // Only log on last attempt to reduce noise
+          if (attempt === retries) {
+            console.warn(`API unavailable after ${retries + 1} attempts for ${url} - using fallback data`);
+          }
+        } else {
+          // Log other errors normally
+          console.warn(`API attempt ${attempt + 1} failed for ${url}:`, error);
+        }
 
         if (attempt === retries) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
           if (errorMessage.includes('abort')) {
             return {
               success: false,
               error: 'Request timeout - API not responding',
+              data: fallbackData,
+            };
+          }
+
+          if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch')) {
+            return {
+              success: false,
+              error: 'Backend unavailable - using demo data',
               data: fallbackData,
             };
           }
@@ -127,8 +144,9 @@ export class RobustApiClient {
           };
         }
 
-        // Wait before retry
-        await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+        // Wait before retry (shorter delay for network errors)
+        const delay = errorMessage.includes('Failed to fetch') ? 500 : 1000 * (attempt + 1);
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
 
@@ -160,31 +178,43 @@ export class RobustApiClient {
 const getBackendUrl = () => {
   // Check if we're in a cloud environment (like fly.dev, vercel, netlify, etc.)
   const hostname = window.location.hostname;
+  const port = window.location.port;
+
+  // For development on non-standard ports (like 48752), use proxy through current origin
+  const isNonStandardPort = port && port !== '80' && port !== '443' && port !== '5173' && port !== '5174';
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+  // If on localhost with non-standard port, try proxy through current origin first
+  if (isLocalhost && isNonStandardPort) {
+    // Use relative URLs which will proxy through the current server
+    return '';
+  }
+
   const isCloudEnv =
     hostname.includes('.fly.dev') ||
     hostname.includes('.vercel.app') ||
     hostname.includes('.netlify.app') ||
     hostname.includes('.herokuapp.com') ||
-    !hostname.includes('localhost');
+    hostname.includes('.builder.io') ||
+    (!isLocalhost && !hostname.includes('192.168.') && !hostname.includes('10.') && !hostname.includes('172.'));
 
   if (isCloudEnv) {
-    // In cloud environments, don't try to fetch from localhost
-    // Use relative URLs or disable API calls entirely
+    // In cloud environments, use relative URLs for proxy or disable API calls
     return null; // This will trigger mock data mode
   }
 
-  // Only try localhost in local development
-  // Avoid import.meta.env in test environment (Jest)
-  if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') {
+  // For standard localhost development, try direct connection
+  if (isLocalhost && (port === '5173' || port === '5174' || !port)) {
     return 'http://localhost:8000';
   }
 
+  // Default to relative URLs for proxy
   return '';
 };
 
-// Global instance with null check
+// Global instance - handle null vs empty string properly
 const backendUrl = getBackendUrl();
-export const robustApi = backendUrl ? new RobustApiClient(backendUrl) : null;
+export const robustApi = backendUrl !== null ? new RobustApiClient(backendUrl || '') : null;
 
 // Convenience functions with fallback data
 export const fetchWithFallback = async <T>(
@@ -231,26 +261,37 @@ export const fetchHealthData = async () => {
   }
 
   try {
-    // Try both health endpoints
-    const result1 = await robustApi.get('/health', { fallbackData: mockHealthData, timeout: 3000 });
+    // Try health endpoints starting with v2
+    const result1 = await robustApi.get('/api/v2/diagnostics/health', {
+      fallbackData: mockHealthData,
+      timeout: 2000,
+      retries: 1
+    });
     if (result1.success) {
-      // Defensive: result1.data may be undefined or nested
-      if (result1.data && typeof result1.data === 'object' && 'data' in result1.data) {
-        return ensureHealthShape((result1.data as Record<string, unknown>).data || result1.data);
-      }
+      // V2 endpoint returns structured data
       return ensureHealthShape(result1.data);
     }
 
+    // Fallback to legacy health endpoint
     const result2 = await robustApi.get('/api/health', {
       fallbackData: mockHealthData,
-      timeout: 3000,
+      timeout: 2000,
+      retries: 1
     });
     if (result2.success) {
+      // Legacy endpoint has nested data structure
+      if (result2.data && typeof result2.data === 'object' && 'data' in result2.data) {
+        return ensureHealthShape((result2.data as Record<string, unknown>).data || result2.data);
+      }
       return ensureHealthShape(result2.data);
     }
+
+    // If both fail, don't log error - just fall through to mock data
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.warn('Health API calls failed, using mock data:', error);
+    // Reduce noise - only log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.info('Health API unavailable, using mock data');
+    }
   }
 
   return ensureHealthShape(mockHealthData, { usedMock: true });
@@ -299,22 +340,35 @@ export const fetchPerformanceStats = async () => {
   }
 
   try {
-    const result = await robustApi.get('/performance/stats', {
+    // Try multiple performance endpoints
+    let result = await robustApi.get('/api/performance-metrics', {
       fallbackData: { data: mockStats },
-      timeout: 3000,
+      timeout: 2000,
+      retries: 1
     });
+
+    // If first endpoint fails, try alternative
+    if (!result.success) {
+      result = await robustApi.get('/api/v1/performance-stats', {
+        fallbackData: { data: mockStats },
+        timeout: 2000,
+        retries: 1
+      });
+    }
 
     if (result.success) {
       // Apply metrics normalization to prevent total_requests errors
-      const rawData = result.data && typeof result.data === 'object' && 'data' in result.data 
-        ? (result.data as { data: unknown }).data 
+      const rawData = result.data && typeof result.data === 'object' && 'data' in result.data
+        ? (result.data as { data: unknown }).data
         : result.data;
       const normalizedMetrics = ensureMetricsShape(rawData);
       return { data: normalizedMetrics };
     }
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.warn('Performance stats API failed, using mock data:', error);
+    // Reduce noise - only log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.info('Performance stats API unavailable, using mock data');
+    }
   }
 
   // Apply normalization to mock data as well

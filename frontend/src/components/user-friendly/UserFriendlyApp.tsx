@@ -67,6 +67,11 @@ const UnifiedAIPredictionsDashboard = React.lazy(
   () => import('../ai/UnifiedAIPredictionsDashboard')
 );
 
+// NEW: Unified Research Dashboard - Consolidates all research tools
+const UnifiedResearchDashboard = React.lazy(
+  () => import('../research/UnifiedResearchDashboard')
+);
+
 // Phase 3 Components
 const Phase3Page = React.lazy(() => import('../../pages/Phase3Page'));
 
@@ -144,18 +149,22 @@ const UserFriendlyApp: React.FC = memo(() => {
               <Route path='/mobile-research' element={<MobilePropResearch />} />
               <Route path='/money-maker' element={<UltimateMoneyMaker />} />
 
-              {/* Player Research Routes */}
-              <Route path='/player/:playerId?' element={<EnhancedPlayerDashboard />} />
+              {/* Unified Research Dashboard - Consolidates all research tools */}
+              <Route path='/research' element={<UnifiedResearchDashboard />} />
+
+              {/* Legacy Research Routes - Redirect to unified dashboard */}
+              <Route path='/player/:playerId?' element={<UnifiedResearchDashboard />} />
+              <Route path='/prop-scanner' element={<UnifiedResearchDashboard />} />
+              <Route path='/matchup-analyzer' element={<UnifiedResearchDashboard />} />
+              <Route path='/injury-tracker' element={<UnifiedResearchDashboard />} />
+              <Route path='/advanced-player' element={<UnifiedResearchDashboard />} />
+              <Route path='/player-lookup' element={<UnifiedResearchDashboard />} />
+
+              {/* Other Research Tools */}
               <Route path='/unified-player' element={<UnifiedPlayerDashboard />} />
               <Route path='/unified-search' element={<UnifiedSearchInterface />} />
               <Route path='/charts' element={<InteractiveChartsHub />} />
               <Route path='/ai-predictions' element={<UnifiedAIPredictionsDashboard />} />
-              <Route
-                path='/prop-scanner'
-                element={isMobile ? <MobilePropResearch /> : <PropFinderKillerDashboard />}
-              />
-              <Route path='/matchup-analyzer' element={<EnhancedPlayerDashboard />} />
-              <Route path='/injury-tracker' element={<EnhancedPlayerDashboard />} />
 
               {/* Tools Routes */}
               <Route path='/arbitrage' element={<ArbitrageOpportunities />} />
@@ -179,8 +188,6 @@ const UserFriendlyApp: React.FC = memo(() => {
               <Route path='/phase3/*' element={<Phase3Page />} />
 
               {/* Roadmap Phase 4 Routes */}
-              <Route path='/advanced-player' element={<AdvancedPlayerDashboard />} />
-              <Route path='/player-lookup' element={<RealTimePlayerLookup />} />
               <Route path='/matchup-analysis' element={<MatchupAnalysisTools />} />
 
               {/* Legacy Routes */}

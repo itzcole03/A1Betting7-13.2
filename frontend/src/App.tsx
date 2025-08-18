@@ -69,7 +69,7 @@ function App() {
         console.error('[APP] Service worker registration failed:', error);
       });
 
-    // Check API version compatibility
+    // Check API version compatibility (non-blocking)
     checkApiVersionCompatibility()
       .then(version => {
         console.log(`[APP] API version compatibility check: ${version}`);
@@ -78,10 +78,9 @@ function App() {
         }
       })
       .catch(err => {
-        // Log error but don't throw to avoid unhandled promise rejections
-        console.error('[APP] API version compatibility error:', err);
-        console.log('[APP] Continuing in demo mode due to API compatibility issues');
-        // Don't throw - let the app continue in demo mode
+        // Silently handle compatibility check errors - this is expected when backend is unavailable
+        console.warn('[APP] API version compatibility check failed, continuing in demo mode');
+        // Don't log the full error to reduce console noise
       });
 
     // Initialize core functionality validation (non-blocking)
