@@ -97,6 +97,31 @@ ANOMALY_RULES = [
         description="Provider response latency exceeds SLA thresholds",
         predicate=lambda snapshot: _check_high_provider_latency(snapshot),
         recommendation="Review provider endpoints and network connectivity"
+    ),
+    
+    # New anomaly rules for extended reliability monitoring
+    AnomalyRule(
+        code="STALLED_VALUATION_PIPE",
+        severity="critical",
+        description="High event volume but low recomputation rate indicates stalled valuation pipeline",
+        predicate=lambda snapshot: _check_stalled_valuation_pipeline(snapshot),
+        recommendation="Check valuation service health, restart pipeline components, review recomputation queue"
+    ),
+    
+    AnomalyRule(
+        code="EXCESSIVE_RATIONALE_FAILURE",
+        severity="warning",
+        description="Rationale generation service showing high failure rates",
+        predicate=lambda snapshot: _check_excessive_rationale_failures(snapshot),
+        recommendation="Review LLM service availability, check token limits, investigate rationale pipeline errors"
+    ),
+    
+    AnomalyRule(
+        code="CORRELATION_PSD_DEGRADATION",
+        severity="warning", 
+        description="Correlation PSD (Power Spectral Density) analysis showing performance degradation",
+        predicate=lambda snapshot: _check_correlation_psd_degradation(snapshot),
+        recommendation="Review correlation analysis pipeline, check data quality, investigate statistical model drift"
     )
 ]
 
@@ -233,6 +258,76 @@ def _check_high_provider_latency(snapshot: Dict[str, Any]) -> bool:
     if total_count > 0:
         high_latency_percentage = high_latency_count / total_count
         return high_latency_percentage > 0.5
+    
+    return False
+
+
+# New anomaly check functions for extended reliability monitoring
+def _check_stalled_valuation_pipeline(snapshot: Dict[str, Any]) -> bool:
+    """Check if valuation pipeline is stalled (high events but low recomputes)"""
+    streaming_stats = snapshot.get("streaming", {})
+    
+    events_per_min = streaming_stats.get("events_per_min", 0)
+    recompute_backlog = streaming_stats.get("recompute_backlog", 0)
+    
+    # Detect stalled pipeline: high event rate but growing backlog
+    # High events (>100/min) but backlog growing (>1000) indicates processing issues
+    if events_per_min > 100 and recompute_backlog > 1000:
+        return True
+    
+    # Alternative check: very low recompute rate compared to event rate
+    # If events are flowing but almost no recomputing happening
+    if events_per_min > 50 and recompute_backlog > events_per_min * 10:
+        return True
+    
+    return False
+
+
+def _check_excessive_rationale_failures(snapshot: Dict[str, Any]) -> bool:
+    """Check if rationale generation is showing high failure rates"""
+    rationale_stats = snapshot.get("rationale", {})
+    
+    total_requests = rationale_stats.get("requests", 0)
+    cache_hit_rate = rationale_stats.get("cache_hit_rate", 1.0)
+    
+    # Check for low cache hit rate with sufficient traffic (indicating errors)
+    if total_requests > 10 and cache_hit_rate < 0.3:
+        return True
+    
+    # Check average token usage - very low might indicate failed generations
+    token_samples = rationale_stats.get("avg_tokens", 0)
+    if total_requests > 5 and token_samples < 50:
+        return True
+    
+    # Check if we have rationale-specific error indicators
+    if "generation_errors" in rationale_stats:
+        error_rate = rationale_stats.get("generation_errors", 0) / max(1, total_requests)
+        if error_rate > 0.2:  # 20% error rate
+            return True
+    
+    return False
+
+
+def _check_correlation_psd_degradation(snapshot: Dict[str, Any]) -> bool:
+    """Check if correlation PSD analysis is degrading"""
+    optimization_stats = snapshot.get("optimization", {})
+    
+    partial_refresh_count = optimization_stats.get("partial_refresh_count", 0)
+    avg_refresh_latency_ms = optimization_stats.get("avg_refresh_latency_ms", 0)
+    
+    # Check for excessive partial refreshes (may indicate correlation issues)
+    if partial_refresh_count > 50:
+        return True
+    
+    # Check for high refresh latency (may indicate computation struggles)
+    if avg_refresh_latency_ms > 5000:  # 5 seconds
+        return True
+    
+    # Check optimization metrics for degradation indicators
+    if "cache_efficiency" in optimization_stats:
+        cache_efficiency = optimization_stats.get("cache_efficiency", "excellent")
+        if cache_efficiency in ["needs_improvement", "poor"]:
+            return True
     
     return False
 

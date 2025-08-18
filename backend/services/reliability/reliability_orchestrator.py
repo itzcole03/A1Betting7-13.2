@@ -24,6 +24,10 @@ from backend.services.metrics.unified_metrics_collector import get_metrics_colle
 from .edge_stats_provider import get_edge_stats_provider
 from .ingestion_stats_provider import get_ingestion_stats_provider
 from .websocket_stats_provider import get_websocket_stats_provider
+from .streaming_stats_provider import StreamingStatsProvider
+from .optimization_stats_provider import OptimizationStatsProvider
+from .rationale_stats_provider import RationaleStatsProvider
+from .metrics_window_aggregator import metrics_window_aggregator, add_reliability_metrics
 from .anomaly_analyzer import analyze_anomalies
 
 
@@ -42,6 +46,11 @@ class ReliabilityOrchestrator:
         self._edge_stats_provider = get_edge_stats_provider()
         self._ingestion_stats_provider = get_ingestion_stats_provider()
         self._websocket_stats_provider = get_websocket_stats_provider()
+        
+        # New reliability extension providers
+        self._streaming_stats_provider = StreamingStatsProvider()
+        self._optimization_stats_provider = OptimizationStatsProvider()
+        self._rationale_stats_provider = RationaleStatsProvider()
         
         # Report generation tracking
         self._last_report_time = 0
@@ -86,7 +95,10 @@ class ReliabilityOrchestrator:
                 'edge_engine': self._collect_edge_stats(),
                 'ingestion': self._collect_ingestion_stats(),
                 'websocket': self._collect_websocket_stats(),
-                'model_registry': self._collect_model_registry_stats()
+                'model_registry': self._collect_model_registry_stats(),
+                'streaming': self._collect_streaming_stats(),
+                'optimization': self._collect_optimization_stats(),
+                'rationale': self._collect_rationale_stats()
             }
             
             # Execute all data collection tasks with timeout
@@ -100,7 +112,7 @@ class ReliabilityOrchestrator:
                 )
                 
                 # Unpack results
-                health_data, metrics_data, edge_stats, ingestion_stats, websocket_stats, model_registry_stats = results
+                health_data, metrics_data, edge_stats, ingestion_stats, websocket_stats, model_registry_stats, streaming_stats, optimization_stats, rationale_stats = results
                 
             except asyncio.TimeoutError:
                 logger.warning("Data collection timeout - using partial data")
@@ -111,6 +123,9 @@ class ReliabilityOrchestrator:
                 ingestion_stats = {"last_ingest_ts": None, "ingest_latency_ms": None, "recent_failures": 0}
                 websocket_stats = {"active_connections": 0, "last_broadcast_ts": None, "connection_rate": 0.0}
                 model_registry_stats = {"total_models": 0, "active_models": 0, "default_model": None}
+                streaming_stats = {"events_per_min": 0, "recompute_backlog": 0, "provider_health": "unknown"}
+                optimization_stats = {"partial_refresh_count": 0, "avg_refresh_latency_ms": 0}
+                rationale_stats = {"requests": 0, "cache_hit_rate": 0.0, "avg_tokens": 0}
             
             # Create comprehensive snapshot for anomaly analysis
             snapshot = {
@@ -122,8 +137,21 @@ class ReliabilityOrchestrator:
                 "edge_engine": edge_stats,
                 "ingestion": ingestion_stats,
                 "websocket": websocket_stats,
-                "model_registry": model_registry_stats
+                "model_registry": model_registry_stats,
+                "streaming": streaming_stats,
+                "optimization": optimization_stats,
+                "rationale": rationale_stats
             }
+            
+            # Add metrics to window aggregator for trend analysis
+            add_reliability_metrics({
+                "events_per_min": streaming_stats.get("events_per_min", 0),
+                "recompute_backlog": streaming_stats.get("recompute_backlog", 0),
+                "partial_refresh_count": optimization_stats.get("partial_refresh_count", 0),
+                "avg_refresh_latency_ms": optimization_stats.get("avg_refresh_latency_ms", 0),
+                "rationale_requests": rationale_stats.get("requests", 0),
+                "rationale_cache_hit_rate": rationale_stats.get("cache_hit_rate", 0.0)
+            })
             
             # Analyze anomalies based on collected data
             anomalies = analyze_anomalies(snapshot)
@@ -160,6 +188,9 @@ class ReliabilityOrchestrator:
                 "ingestion": ingestion_stats,
                 "websocket": websocket_stats,
                 "model_registry": model_registry_stats,
+                "streaming": streaming_stats,
+                "optimization": optimization_stats,
+                "rationale": rationale_stats,
                 "anomalies": anomalies,
                 "notes": notes,
                 "generation_time_ms": round((time.time() - start_time) * 1000, 2),
@@ -354,6 +385,30 @@ class ReliabilityOrchestrator:
         except Exception as e:
             logger.error(f"Failed to collect model registry stats: {e}")
             return {"total_models": 0, "active_models": 0, "default_model": None, "error": str(e)[:50]}
+    
+    async def _collect_streaming_stats(self) -> Dict[str, Any]:
+        """Collect streaming system statistics."""
+        try:
+            return await self._streaming_stats_provider.get_streaming_stats()
+        except Exception as e:
+            logger.error(f"Failed to collect streaming stats: {e}")
+            return {"events_per_min": 0, "recompute_backlog": 0, "provider_health": "unknown", "error": str(e)[:50]}
+    
+    async def _collect_optimization_stats(self) -> Dict[str, Any]:
+        """Collect optimization system statistics."""
+        try:
+            return await self._optimization_stats_provider.get_optimization_stats()
+        except Exception as e:
+            logger.error(f"Failed to collect optimization stats: {e}")
+            return {"partial_refresh_count": 0, "avg_refresh_latency_ms": 0, "error": str(e)[:50]}
+    
+    async def _collect_rationale_stats(self) -> Dict[str, Any]:
+        """Collect rationale system statistics."""
+        try:
+            return await self._rationale_stats_provider.get_rationale_stats()
+        except Exception as e:
+            logger.error(f"Failed to collect rationale stats: {e}")
+            return {"requests": 0, "cache_hit_rate": 0.0, "avg_tokens": 0, "error": str(e)[:50]}
     
     async def _get_fallback_health_data(self) -> Dict[str, Any]:
         """Get fallback health data when health collector fails."""
