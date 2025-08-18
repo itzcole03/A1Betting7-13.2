@@ -957,6 +957,32 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register enterprise model registry routes: {e}")
 
+    # --- Model Integrity Phase Routes (NEW) ---
+    try:
+        from backend.routes.model_integrity_routes import router as model_integrity_router
+        _app.include_router(model_integrity_router, prefix="/api", tags=["Model Integrity"])
+        logger.info("✅ Model Integrity Phase routes included (/api/model-integrity/* endpoints)")
+        
+        # Initialize Model Integrity services
+        try:
+            from backend.services.recompute_scheduler import recompute_scheduler
+            from backend.services.calibration_harness import calibration_harness
+            from backend.services.edge_persistence_model import edge_persistence_model
+            from backend.services.metrics_export import metrics_collector
+            
+            logger.info("✅ Model Integrity Phase services initialized")
+            logger.info("🎯 Core value loop infrastructure ready")
+            
+        except ImportError as e:
+            logger.warning(f"⚠️ Model Integrity services not available: {e}")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize Model Integrity services: {e}")
+            
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import Model Integrity routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register Model Integrity routes: {e}")
+
     # DB and config setup can be added here as modules are refactored in
     
     # --- Bootstrap Validation & Sanity Check (NEW) ---
