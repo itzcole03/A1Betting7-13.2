@@ -1,0 +1,338 @@
+name: Statistical Verification Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - '*.py'
+  schedule:
+    # Run daily at 6 AM UTC to catch drift over time
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: 'Random seed for deterministic testing'
+        required: false
+        default: '42'
+      sample_size:
+        description: 'Monte Carlo sample size'
+        required: false
+        default: '50000'
+      strict_mode:
+        description: 'Enable strict statistical validation'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  statistical-verification:
+    name: Statistical Accuracy & Stability Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.9, 3.10, 3.11]
+        test-profile: [standard, strict]
+        include:
+          - test-profile: standard
+            ks-threshold: "0.05"
+            ci-regression-threshold: "0.05"
+            sample-size: "10000"
+          - test-profile: strict
+            ks-threshold: "0.01"
+            ci-regression-threshold: "0.02"
+            sample-size: "50000"
+    
+    env:
+      PYTEST_STATISTICAL_SEED: ${{ github.event.inputs.seed || '42' }}
+      STATISTICAL_SAMPLE_SIZE: ${{ matrix.sample-size }}
+      STATISTICAL_TOLERANCE: ${{ matrix.ks-threshold }}
+      CI_REGRESSION_THRESHOLD: ${{ matrix.ci-regression-threshold }}
+      STATISTICAL_STRICT_MODE: ${{ github.event.inputs.strict_mode || 'true' }}
+      PYTHONPATH: ${{ github.workspace }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        # Need history for drift detection
+        fetch-depth: 100
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+    
+    - name: Cache statistical test data
+      uses: actions/cache@v3
+      with:
+        path: |
+          tests/statistical/baseline_data/
+          statistical_test_results/
+        key: statistical-data-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('tests/statistical/**/*.py') }}
+        restore-keys: |
+          statistical-data-${{ runner.os }}-${{ matrix.python-version }}-
+          statistical-data-${{ runner.os }}-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install numpy scipy pytest pytest-json-report pytest-xdist
+        # Install backend dependencies if requirements.txt exists
+        if [ -f backend/requirements.txt ]; then
+          pip install -r backend/requirements.txt
+        fi
+        # Install additional statistical dependencies
+        pip install matplotlib seaborn pandas scikit-learn statsmodels
+    
+    - name: Verify statistical dependencies
+      run: |
+        python -c "import numpy; print(f'NumPy: {numpy.__version__}')"
+        python -c "import scipy; print(f'SciPy: {scipy.__version__}')"
+        python -c "import pytest; print(f'Pytest: {pytest.__version__}')"
+    
+    - name: Create baseline data directory
+      run: |
+        mkdir -p tests/statistical/baseline_data
+        mkdir -p statistical_test_results
+    
+    - name: Run statistical verification suite
+      id: statistical-tests
+      continue-on-error: true
+      run: |
+        cd tests/statistical
+        python ci_runner.py --workspace ${{ github.workspace }}
+        echo "Exit code: $?"
+    
+    - name: Parse test results
+      id: parse-results
+      run: |
+        if [ -f "statistical_test_results/complete_ci_results.json" ]; then
+          # Extract key metrics from results
+          PASSED=$(python -c "
+          import json
+          with open('statistical_test_results/complete_ci_results.json') as f:
+              data = json.load(f)
+              print(data.get('success', False))
+          ")
+          
+          TOTAL_TESTS=$(python -c "
+          import json
+          with open('statistical_test_results/complete_ci_results.json') as f:
+              data = json.load(f)
+              summary = data.get('pytest_summary', {})
+              print(summary.get('total', 0))
+          ")
+          
+          FAILED_TESTS=$(python -c "
+          import json
+          with open('statistical_test_results/complete_ci_results.json') as f:
+              data = json.load(f)
+              summary = data.get('pytest_summary', {})
+              print(summary.get('failed', 0))
+          ")
+          
+          echo "statistical_tests_passed=${PASSED,,}" >> $GITHUB_OUTPUT
+          echo "total_tests=${TOTAL_TESTS}" >> $GITHUB_OUTPUT
+          echo "failed_tests=${FAILED_TESTS}" >> $GITHUB_OUTPUT
+          echo "should_fail_build=$([ "$PASSED" = "False" ] && echo true || echo false)" >> $GITHUB_OUTPUT
+        else
+          echo "statistical_tests_passed=false" >> $GITHUB_OUTPUT
+          echo "should_fail_build=true" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Upload statistical test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: statistical-results-${{ matrix.python-version }}-${{ matrix.test-profile }}
+        path: |
+          statistical_test_results/
+          tests/statistical/*.log
+        retention-days: 30
+    
+    - name: Generate statistical test report
+      if: always()
+      run: |
+        if [ -f "statistical_test_results/ci_statistical_report.md" ]; then
+          echo "## Statistical Verification Report - Python ${{ matrix.python-version }} (${{ matrix.test-profile }})" >> $GITHUB_STEP_SUMMARY
+          cat statistical_test_results/ci_statistical_report.md >> $GITHUB_STEP_SUMMARY
+        fi
+    
+    - name: Comment PR with results
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          
+          let comment = `## 📊 Statistical Verification Results\n\n`;
+          comment += `**Python Version:** ${{ matrix.python-version }}\n`;
+          comment += `**Test Profile:** ${{ matrix.test-profile }}\n`;
+          comment += `**Status:** ${{ steps.parse-results.outputs.statistical_tests_passed == 'true' && '✅ PASSED' || '❌ FAILED' }}\n`;
+          comment += `**Tests:** ${{ steps.parse-results.outputs.total_tests }} total, ${{ steps.parse-results.outputs.failed_tests }} failed\n\n`;
+          
+          if (fs.existsSync('statistical_test_results/ci_statistical_report.md')) {
+            const report = fs.readFileSync('statistical_test_results/ci_statistical_report.md', 'utf8');
+            comment += '### Detailed Report\n\n';
+            comment += report;
+          }
+          
+          comment += '\n\n---\n*Generated by Statistical Verification Suite*';
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+    
+    - name: Fail job if statistical tests failed
+      if: steps.parse-results.outputs.should_fail_build == 'true'
+      run: |
+        echo "❌ Statistical verification failed - failing build"
+        echo "This indicates potential issues with:"
+        echo "  - Monte Carlo convergence"
+        echo "  - Statistical distribution drift"
+        echo "  - Correlation matrix stability"
+        echo "  - Confidence interval quality"
+        echo ""
+        echo "Please review the statistical test results and address any issues."
+        exit 1
+    
+    - name: Set build status
+      run: |
+        if [ "${{ steps.parse-results.outputs.statistical_tests_passed }}" = "true" ]; then
+          echo "✅ Statistical verification passed"
+        else
+          echo "❌ Statistical verification failed"
+        fi
+
+  aggregate-results:
+    name: Aggregate Statistical Results
+    runs-on: ubuntu-latest
+    needs: statistical-verification
+    if: always()
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+    
+    - name: Aggregate results
+      run: |
+        echo "# 📊 Statistical Verification Summary" > statistical_summary.md
+        echo "" >> statistical_summary.md
+        echo "| Python Version | Profile | Status | Tests | Failed |" >> statistical_summary.md
+        echo "|---------------|---------|--------|-------|--------|" >> statistical_summary.md
+        
+        for dir in statistical-results-*; do
+          if [ -d "$dir" ]; then
+            python_version=$(echo $dir | cut -d'-' -f3)
+            profile=$(echo $dir | cut -d'-' -f4)
+            
+            if [ -f "$dir/complete_ci_results.json" ]; then
+              status=$(python3 -c "
+              import json
+              with open('$dir/complete_ci_results.json') as f:
+                  data = json.load(f)
+                  print('✅ PASS' if data.get('success') else '❌ FAIL')
+              ")
+              
+              total=$(python3 -c "
+              import json
+              with open('$dir/complete_ci_results.json') as f:
+                  data = json.load(f)
+                  print(data.get('pytest_summary', {}).get('total', 0))
+              ")
+              
+              failed=$(python3 -c "
+              import json
+              with open('$dir/complete_ci_results.json') as f:
+                  data = json.load(f)
+                  print(data.get('pytest_summary', {}).get('failed', 0))
+              ")
+            else
+              status="❓ UNKNOWN"
+              total="N/A"
+              failed="N/A"
+            fi
+            
+            echo "| $python_version | $profile | $status | $total | $failed |" >> statistical_summary.md
+          fi
+        done
+        
+        echo "" >> statistical_summary.md
+        echo "**Generated:** $(date -u)" >> statistical_summary.md
+    
+    - name: Upload aggregated summary
+      uses: actions/upload-artifact@v3
+      with:
+        name: statistical-verification-summary
+        path: statistical_summary.md
+        retention-days: 90
+    
+    - name: Add summary to step output
+      run: |
+        echo "## Statistical Verification Summary" >> $GITHUB_STEP_SUMMARY
+        cat statistical_summary.md >> $GITHUB_STEP_SUMMARY
+
+  # Alert on repeated failures (drift detection)
+  alert-on-drift:
+    name: Statistical Drift Alert
+    runs-on: ubuntu-latest
+    needs: statistical-verification
+    if: failure() && (github.event_name == 'schedule' || github.event_name == 'push')
+    
+    steps:
+    - name: Check for repeated failures
+      uses: actions/github-script@v6
+      with:
+        script: |
+          // Get recent workflow runs
+          const { data: runs } = await github.rest.actions.listWorkflowRuns({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: 'statistical-verification.yml',
+            per_page: 10
+          });
+          
+          // Count recent failures
+          const recentFailures = runs.workflow_runs
+            .filter(run => run.conclusion === 'failure')
+            .length;
+          
+          if (recentFailures >= 3) {
+            // Create issue for persistent statistical drift
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Statistical Drift Alert - Repeated Verification Failures',
+              body: `## Statistical Drift Detected
+              
+              The statistical verification suite has failed ${recentFailures} times recently, indicating potential statistical drift in the system.
+              
+              **Possible Causes:**
+              - Model parameters have shifted over time
+              - Data distribution changes
+              - Correlation structure evolution
+              - Numerical stability issues
+              
+              **Required Actions:**
+              1. Review recent changes to statistical models
+              2. Validate data pipeline integrity
+              3. Check correlation matrix conditioning
+              4. Update statistical baselines if needed
+              
+              **Workflow:** [Statistical Verification](${{ github.server_url }}/${{ github.repository }}/actions/workflows/statistical-verification.yml)
+              `,
+              labels: ['bug', 'statistical-drift', 'priority-high']
+            });
+          }

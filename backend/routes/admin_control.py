@@ -14,16 +14,12 @@ from backend.utils.log_context import get_contextual_logger
 from backend.utils.trace_utils import trace_span, add_span_tag, add_span_log
 from backend.services.model_registry import get_model_registry
 
-# Import security middleware for admin endpoints
-try:
-    from backend.services.security_middleware import secure_endpoint
-    SECURITY_AVAILABLE = True
-except ImportError:
-    SECURITY_AVAILABLE = False
-    def secure_endpoint(requests_per_minute=None, burst_limit=None, require_api_key=True):
-        def decorator(func):
-            return func
-        return decorator
+# Import security for admin endpoints
+from backend.services.security.security_integration import (
+    secure_admin_endpoint,
+    secure_task_trigger_endpoint,
+    secure_factor_rebuild_endpoint
+)
 
 logger = get_contextual_logger(__name__)
 router = APIRouter()
@@ -396,7 +392,7 @@ def get_runtime_shadow_controller() -> RuntimeShadowController:
     summary="Enable Shadow Mode",
     description="Enable shadow mode with specified model version (runtime override)"
 )
-@secure_endpoint(requests_per_minute=20, burst_limit=3, require_api_key=True)
+@secure_admin_endpoint(cost=2.0)
 async def enable_shadow_mode(request: Request, shadow_request: ShadowModeRequest):
     """
     Enable shadow mode with specified model version.
@@ -454,7 +450,7 @@ async def enable_shadow_mode(request: Request, shadow_request: ShadowModeRequest
     summary="Disable Shadow Mode",
     description="Disable shadow mode (runtime override)"
 )
-@secure_endpoint(requests_per_minute=20, burst_limit=3, require_api_key=True)
+@secure_admin_endpoint(cost=2.0)
 async def disable_shadow_mode(request: Request, shadow_request: ShadowModeRequest):
     """
     Disable shadow mode via runtime override.
@@ -497,7 +493,7 @@ async def disable_shadow_mode(request: Request, shadow_request: ShadowModeReques
     summary="Clear Runtime Override",
     description="Clear runtime override and revert to environment configuration"
 )
-@secure_endpoint(requests_per_minute=20, burst_limit=3, require_api_key=True)
+@secure_admin_endpoint(cost=1.0)
 async def clear_shadow_override(request: Request, shadow_request: ShadowModeRequest):
     """
     Clear runtime shadow mode override.
@@ -541,7 +537,7 @@ async def clear_shadow_override(request: Request, shadow_request: ShadowModeRequ
     summary="Get Admin Control Status",
     description="Get comprehensive admin control status and available models"
 )
-@secure_endpoint(requests_per_minute=60, burst_limit=10, require_api_key=True)
+@secure_admin_endpoint(cost=0.5)
 async def get_admin_status(request: Request):
     """
     Get comprehensive admin control status.

@@ -2,12 +2,12 @@
 Streaming API Routes
 
 REST API endpoints for managing real-time market streaming,
-providers, and portfolio rationales.
+providers, and portfolio rationales with security enhancements.
 """
 
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from backend.services.streaming.market_streamer import market_streamer
@@ -24,6 +24,12 @@ from backend.models.streaming import (
     RationaleType
 )
 from backend.services.unified_logging import get_logger
+
+# Security imports
+from backend.services.security.rate_limiter import rate_limit, get_client_ip, estimate_rationale_tokens
+from backend.services.security.rbac import require_permission, Permission
+from backend.services.security.data_redaction import get_redaction_service, RedactionLevel
+from backend.services.security.security_integration import secure_rationale_endpoint
 
 logger = get_logger("streaming_api")
 
@@ -68,7 +74,8 @@ class ApiResponse:
 
 # Provider Management Endpoints
 @router.get("/providers", summary="List all providers")
-async def list_providers() -> Dict[str, Any]:
+@require_permission(Permission.READ)
+async def list_providers(request: Request) -> Dict[str, Any]:
     """
     Get list of all registered providers with their status
     """
@@ -118,7 +125,8 @@ async def list_providers() -> Dict[str, Any]:
 
 
 @router.get("/providers/{provider_name}", summary="Get provider details")
-async def get_provider(provider_name: str) -> Dict[str, Any]:
+@require_permission(Permission.READ)
+async def get_provider(provider_name: str, request: Request) -> Dict[str, Any]:
     """
     Get detailed information about a specific provider
     """
@@ -159,7 +167,8 @@ async def get_provider(provider_name: str) -> Dict[str, Any]:
 
 
 @router.post("/control", summary="Control streaming operations")
-async def control_streaming(control_request: StreamingControlRequest) -> Dict[str, Any]:
+@require_permission(Permission.TRIGGER_TASKS)
+async def control_streaming(control_request: StreamingControlRequest, request: Request) -> Dict[str, Any]:
     """
     Control streaming operations (start/stop/pause/resume)
     """
@@ -202,30 +211,38 @@ async def control_streaming(control_request: StreamingControlRequest) -> Dict[st
 
 
 @router.post("/rationale/generate", summary="Generate portfolio rationale")
-async def generate_rationale(request: RationaleGenerationRequest) -> Dict[str, Any]:
+@secure_rationale_endpoint(cost=1.0)
+async def generate_rationale(request_data: RationaleGenerationRequest, request: Request) -> Dict[str, Any]:
     """
-    Generate LLM-driven portfolio rationale
+    Generate LLM-driven portfolio rationale with integrated security
     """
     try:
         # Map string to enum
-        rationale_type = ServiceRationaleType(request.rationale_type)
+        rationale_type = ServiceRationaleType(request_data.rationale_type)
         
         # Generate rationale using the service
         rationale_request = RationaleRequest(
             rationale_type=rationale_type,
-            portfolio_data=request.portfolio_data,
-            context=request.context_data or {},
-            user_preferences=request.user_preferences or {}
+            portfolio_data=request_data.portfolio_data,
+            context=request_data.context_data or {},
+            user_preferences=request_data.user_preferences or {}
         )
-        rationale = await portfolio_rationale_service.generate_rationale(rationale_request)
         
-        return ApiResponse.success(
-            data=rationale,
-            message="Portfolio rationale generated successfully"
-        )
+        # Get client IP for user identification
+        client_ip = get_client_ip(request)
+        
+        rationale = await portfolio_rationale_service.generate_rationale(rationale_request, user_id=client_ip)
+        
+        if rationale:
+            return ApiResponse.success(
+                data=rationale.to_dict(),
+                message="Portfolio rationale generated successfully"
+            )
+        else:
+            raise HTTPException(status_code=429, detail="Rate limit exceeded or generation failed")
         
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid rationale type: {request.rationale_type}")
+        raise HTTPException(status_code=400, detail=f"Invalid rationale type: {request_data.rationale_type}")
     except HTTPException:
         raise
     except Exception as e:
@@ -234,7 +251,8 @@ async def generate_rationale(request: RationaleGenerationRequest) -> Dict[str, A
 
 
 @router.get("/status", summary="Get streaming system status")
-async def get_system_status() -> Dict[str, Any]:
+@require_permission(Permission.VIEW_SYSTEM_METRICS)
+async def get_system_status(request: Request) -> Dict[str, Any]:
     """
     Get comprehensive status of the streaming system
     """

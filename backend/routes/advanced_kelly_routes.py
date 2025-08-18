@@ -7,13 +7,18 @@ Part of Phase 4.3: Elite Betting Operations and Automation
 
 from datetime import datetime
 from typing import Optional, List, Dict, Any, Union
-from fastapi import APIRouter, Query, HTTPException, Body
+from fastapi import APIRouter, Query, HTTPException, Body, Request
 
 # Contract compliance imports
 from ..core.response_models import ResponseBuilder, StandardAPIResponse
 from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, Field
 import logging
+
+# Security imports
+from backend.services.security.rate_limiter import rate_limit, get_client_ip
+from backend.services.security.rbac import require_permission, Permission
+from backend.services.security.data_redaction import get_redaction_service, RedactionLevel
 
 from ..services.advanced_kelly_engine import (
     get_kelly_engine,
@@ -135,8 +140,11 @@ def _convert_kelly_result(result: KellyResult) -> KellyResultResponse:
     ))
 
 @router.post("/calculate", response_model=KellyResultResponse)
+@rate_limit("optimization", cost=1.0, extract_identifier=lambda *args: get_client_ip(args[1]) if len(args) > 1 else "default")
+@require_permission(Permission.RUN_OPTIMIZATION)
 async def calculate_kelly_bet_size(
     opportunity: BettingOpportunityRequest,
+    request: Request,
     variant: str = Query("adaptive", description="Kelly variant (classic, fractional, adaptive)")
 ):
     """
@@ -152,7 +160,7 @@ async def calculate_kelly_bet_size(
         try:
             kelly_variant = KellyVariant(variant.lower())
         except ValueError:
-            raise BusinessLogicException("f"Invalid Kelly variant: {variant}")
+            raise BusinessLogicException(f"Invalid Kelly variant: {variant}")
         
         # Calculate optimal bet size
         result = await engine.calculate_optimal_bet_size(betting_opp, kelly_variant)
@@ -163,10 +171,10 @@ async def calculate_kelly_bet_size(
         return ResponseBuilder.success(_convert_kelly_result(result))
         
     except ValueError as e:
-        raise BusinessLogicException("str(e"))
+        raise BusinessLogicException(str(e))
     except Exception as e:
         logger.error(f"Error calculating Kelly bet size: {e}")
-        raise BusinessLogicException("f"Failed to calculate bet size: {str(e")}")
+        raise BusinessLogicException(f"Failed to calculate bet size: {str(e)}")
 
 @router.post("/portfolio-optimization", response_model=Dict[str, KellyResultResponse])
 async def optimize_portfolio(
