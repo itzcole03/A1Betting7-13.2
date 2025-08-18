@@ -17,6 +17,7 @@ import {
   Star,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
   Settings,
   RefreshCw,
   AlertCircle,
@@ -395,6 +396,16 @@ const PropFinderKillerDashboard: React.FC = () => {
                 </div>
               </div>
               
+              {/* PropFinder-style Research Link */}
+              <a
+                href="/research-propfinder"
+                className="flex items-center space-x-2 bg-purple-500/20 px-3 py-1 rounded-full hover:bg-purple-500/30 transition-all group"
+                title="Try PropFinder-style research interface"
+              >
+                <Target className="w-4 h-4 text-purple-400 group-hover:text-purple-300" />
+                <span className="text-xs text-purple-400 group-hover:text-purple-300 font-medium">PropFinder Style</span>
+              </a>
+
               {/* Live Indicator */}
               <div className="flex items-center space-x-2 bg-green-500/20 px-3 py-1 rounded-full">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -960,6 +971,30 @@ const PropFinderKillerDashboard: React.FC = () => {
       {/* Performance Monitoring Section - Phase 4 */}
       <div className="mt-8">
         <PerformanceMonitoringDashboard />
+      </div>
+
+      {/* PropFinder-style Research Dashboard Promotion */}
+      <div className="mt-8 px-6">
+        <div className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-purple-500/10 border border-purple-500/20 rounded-xl p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                <Target className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-1">Try PropFinder-Style Research</h3>
+                <p className="text-gray-400 text-sm">Experience the familiar game and category selection interface that you know and love</p>
+              </div>
+            </div>
+            <a
+              href="/research-propfinder"
+              className="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-3 rounded-lg text-white font-medium hover:shadow-lg hover:shadow-purple-500/25 transition-all"
+            >
+              <span>Try It Now</span>
+              <ChevronRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
       </div>
 
       {/* Community Engagement Section */}

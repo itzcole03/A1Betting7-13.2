@@ -18,7 +18,7 @@ import { UnifiedWebSocketService } from './unified/UnifiedWebSocketService';
 
 // Import specific feature services
 import { PlayerDataService } from './data/PlayerDataService';
-import { _injuryService } from './injuryService';
+import { injuryService } from './injuryService';
 import { _lineupService } from './lineupService';
 
 // Import prototype services (temporarily commented out for debugging)
@@ -184,7 +184,7 @@ class MasterServiceRegistry {
 
   private async initializeFeatureServices(): Promise<void> {
     const _featureServices = [
-      { name: 'injuries', service: _injuryService },
+      { name: 'injuries', service: injuryService },
       { name: 'lineups', service: _lineupService },
       { name: 'playerData', service: PlayerDataService.getInstance() },
     ];
@@ -421,8 +421,8 @@ class MasterServiceRegistry {
     return this.getService<UnifiedPredictionService>('predictions')!;
   }
 
-  get injuries(): typeof _injuryService {
-    return this.getService<typeof _injuryService>('injuries')!;
+  get injuries(): typeof injuryService {
+    return this.getService<typeof injuryService>('injuries')!;
   }
 
   get lineups(): typeof _lineupService {

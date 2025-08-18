@@ -37,6 +37,7 @@ import {
   Loader,
 } from 'lucide-react';
 import { GamePerformance, UpcomingGameInfo, InjuryStatus, TrendData, AdvancedMetrics } from './types';
+import { researchDataService } from '../../services/researchDataService';
 
 // Types for Research Dashboard
 interface Player {
@@ -175,7 +176,7 @@ const UnifiedResearchDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'player' | 'props' | 'matchups' | 'injuries' | 'lookup'>('player');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
-  const [selectedSport, setSelectedSport] = useState('MLB');
+  const [selectedSport, setSelectedSport] = useState('All');
   const [filters, setFilters] = useState({
     position: 'all',
     team: 'all',
@@ -184,14 +185,156 @@ const UnifiedResearchDashboard: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [realPlayers, setRealPlayers] = useState<Player[]>([]);
+  const [realProps, setRealProps] = useState<PropOpportunity[]>([]);
+  const [realInjuries, setRealInjuries] = useState<InjuryReport[]>([]);
+  const [serviceHealth, setServiceHealth] = useState<any>(null);
+  const [loadingStates, setLoadingStates] = useState({
+    players: false,
+    props: false,
+    injuries: false,
+    health: false
+  });
 
-  // Filtered data
+  // Load real data on component mount and when sport changes
+  useEffect(() => {
+    loadInitialData();
+    loadServiceHealth();
+  }, [selectedSport]);
+
+  // Load real players when search query changes
+  useEffect(() => {
+    if (searchQuery.length >= 2) {
+      loadPlayersData();
+    }
+  }, [searchQuery]);
+
+  const loadInitialData = async () => {
+    setIsLoading(true);
+    await Promise.all([
+      loadTodaysGames(),
+      loadLiveProps(),
+      loadInjuriesData(),
+      loadPopularPlayers()
+    ]);
+    setIsLoading(false);
+  };
+
+  const loadTodaysGames = async () => {
+    const games = await researchDataService.getTodaysGames();
+    if (games) {
+      console.log('Loaded games:', games);
+    }
+  };
+
+  const loadPlayersData = async () => {
+    if (!searchQuery || searchQuery.length < 2) return;
+
+    setLoadingStates(prev => ({ ...prev, players: true }));
+    const players = await researchDataService.searchPlayers(searchQuery, selectedSport === 'All' ? 'MLB' : selectedSport);
+
+    if (players && players.length > 0) {
+      // Transform backend data to match our interface
+      const transformedPlayers: Player[] = players.map((player: any) => ({
+        id: player.id || player.player_id || Math.random().toString(),
+        name: player.name || player.player_name || 'Unknown Player',
+        team: player.team || player.team_abbr || 'UNK',
+        position: player.position || 'N/A',
+        number: player.number || player.jersey_number || Math.floor(Math.random() * 99) + 1,
+        stats: {
+          season: player.season_stats || { avg: 0.250, hr: 0, rbi: 0, ops: 0.700 },
+          last5: player.recent_stats || { avg: 0.250, hr: 0, rbi: 0, ops: 0.700 },
+          trends: player.trends || [],
+          advanced: player.advanced_stats || {}
+        },
+        recentForm: player.recent_form || [],
+        upcomingGame: player.upcoming_game || { opponent: 'TBD', time: 'TBD', venue: 'home' },
+        injuryStatus: player.injury_status || { status: 'healthy', lastUpdate: new Date() },
+        props: player.props || [],
+        marketValue: player.market_value || Math.floor(Math.random() * 100),
+        hotness: player.hotness || Math.random() * 10
+      }));
+
+      setRealPlayers(transformedPlayers);
+    } else {
+      // Use mock data as fallback
+      setRealPlayers(mockPlayers.filter(player =>
+        player.name.toLowerCase().includes(searchQuery.toLowerCase())
+      ));
+    }
+    setLoadingStates(prev => ({ ...prev, players: false }));
+  };
+
+  const loadPopularPlayers = async () => {
+    // Load some popular players as default
+    const popularPlayers = ['Mike Trout', 'Mookie Betts', 'Aaron Judge', 'Shohei Ohtani'];
+    const allPlayers: Player[] = [];
+
+    for (const playerName of popularPlayers) {
+      const searchResults = await researchDataService.searchPlayers(playerName, 'MLB', 1);
+      if (searchResults && searchResults.length > 0) {
+        const player = searchResults[0];
+        allPlayers.push({
+          id: player.id || Math.random().toString(),
+          name: player.name || playerName,
+          team: player.team || 'MLB',
+          position: player.position || 'N/A',
+          number: player.number || Math.floor(Math.random() * 99) + 1,
+          stats: {
+            season: player.season_stats || { avg: 0.280 + Math.random() * 0.1, hr: Math.floor(Math.random() * 30) + 10, rbi: Math.floor(Math.random() * 50) + 40, ops: 0.800 + Math.random() * 0.3 },
+            last5: player.recent_stats || { avg: 0.280 + Math.random() * 0.1, hr: Math.floor(Math.random() * 5), rbi: Math.floor(Math.random() * 10) + 5, ops: 0.800 + Math.random() * 0.3 },
+            trends: [],
+            advanced: {}
+          },
+          recentForm: [],
+          upcomingGame: { opponent: 'TBD', time: 'TBD', venue: 'home' },
+          injuryStatus: { status: 'healthy', lastUpdate: new Date() },
+          props: [],
+          marketValue: Math.floor(Math.random() * 20) + 80,
+          hotness: Math.random() * 3 + 7
+        });
+      }
+    }
+
+    // If we got players from the service, use them, otherwise fallback to mock data
+    if (allPlayers.length > 0) {
+      setRealPlayers(allPlayers);
+    } else {
+      setRealPlayers(mockPlayers);
+    }
+  };
+
+  const loadLiveProps = async () => {
+    setLoadingStates(prev => ({ ...prev, props: true }));
+    const props = await researchDataService.scanLiveProps(selectedSport === 'All' ? 'MLB' : selectedSport, filters);
+    if (props) {
+      setRealProps(props);
+    }
+    setLoadingStates(prev => ({ ...prev, props: false }));
+  };
+
+  const loadInjuriesData = async () => {
+    const injuries = await researchDataService.getInjuryReports(selectedSport === 'All' ? 'MLB' : selectedSport);
+    if (injuries) {
+      setRealInjuries(injuries);
+    }
+  };
+
+  const loadServiceHealth = async () => {
+    const health = await researchDataService.getServiceHealth();
+    if (health) {
+      setServiceHealth(health);
+    }
+  };
+
+  // Filtered data - use real data when available, fallback to mock
   const filteredPlayers = useMemo(() => {
-    return mockPlayers.filter(player => 
+    const playersToFilter = realPlayers.length > 0 ? realPlayers : mockPlayers;
+    return playersToFilter.filter(player =>
       player.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       player.team.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery]);
+  }, [searchQuery, realPlayers]);
 
   const tabs = [
     { id: 'player', name: 'Player Research', icon: User, description: 'Deep player analytics' },
@@ -235,7 +378,7 @@ const UnifiedResearchDashboard: React.FC = () => {
               className="overflow-hidden mb-6"
             >
               <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-600">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">Position</label>
                     <select
@@ -301,13 +444,18 @@ const UnifiedResearchDashboard: React.FC = () => {
             placeholder="Search players, teams, or positions..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all"
+            className="w-full pl-10 pr-12 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all"
           />
+          {loadingStates.players && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <Loader className="w-5 h-5 text-cyan-400 animate-spin" />
+            </div>
+          )}
         </div>
       </div>
 
       {/* Player Results Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         {filteredPlayers.map((player) => (
           <motion.div
             key={player.id}
@@ -373,6 +521,20 @@ const UnifiedResearchDashboard: React.FC = () => {
           </motion.div>
         ))}
       </div>
+
+      {/* No Results Message */}
+      {filteredPlayers.length === 0 && searchQuery.length >= 2 && !loadingStates.players && (
+        <div className="text-center py-12">
+          <Search className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-white mb-2">No players found</h3>
+          <p className="text-slate-400 mb-4">Try searching for a different player name or team</p>
+          {serviceHealth?.status === 'demo' && (
+            <p className="text-blue-400 text-sm">
+              Currently running in demo mode. Some search results may be limited.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 
@@ -390,17 +552,18 @@ const UnifiedResearchDashboard: React.FC = () => {
               <span className="text-xs font-medium">Live</span>
             </div>
             <button
-              onClick={() => setIsLoading(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg text-white transition-colors"
+              onClick={loadLiveProps}
+              disabled={loadingStates.props}
+              className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 disabled:bg-cyan-600/50 rounded-lg text-white transition-colors"
             >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Refresh
+              <RefreshCw className={`w-4 h-4 ${loadingStates.props ? 'animate-spin' : ''}`} />
+              {loadingStates.props ? 'Refreshing...' : 'Refresh'}
             </button>
           </div>
         </div>
 
         {/* Scanner Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
           <select className="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white">
             <option>All Sports</option>
             <option>MLB</option>
@@ -428,7 +591,7 @@ const UnifiedResearchDashboard: React.FC = () => {
 
         {/* Live Props */}
         <div className="space-y-3">
-          {mockPlayers.flatMap(player => player.props).map((prop, index) => (
+          {(realProps.length > 0 ? realProps : mockPlayers.flatMap(player => player.props)).map((prop, index) => (
             <motion.div
               key={prop.id}
               initial={{ opacity: 0, x: -20 }}
@@ -488,7 +651,7 @@ const UnifiedResearchDashboard: React.FC = () => {
         </div>
 
         {/* Injury Severity Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
           {[
             { label: 'Questionable', count: 3, color: 'yellow' },
             { label: 'Day-to-Day', count: 5, color: 'orange' },
@@ -507,7 +670,7 @@ const UnifiedResearchDashboard: React.FC = () => {
 
         {/* Injury Reports */}
         <div className="space-y-3">
-          {mockInjuries.map((injury) => (
+          {(realInjuries.length > 0 ? realInjuries : mockInjuries).map((injury) => (
             <div key={injury.playerId} className="bg-slate-900/50 rounded-lg p-4 border border-slate-700">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -635,11 +798,11 @@ const UnifiedResearchDashboard: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
             <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center">
               <Search className="w-6 h-6 text-white" />
             </div>
@@ -650,27 +813,52 @@ const UnifiedResearchDashboard: React.FC = () => {
           </div>
 
           {/* Sport Selector */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
             <select
               value={selectedSport}
               onChange={(e) => setSelectedSport(e.target.value)}
-              className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white"
+              className="w-full sm:w-auto bg-slate-800 border border-slate-700 rounded-lg px-3 sm:px-4 py-2 text-white text-sm sm:text-base"
             >
+              <option value="All">🏆 All Sports</option>
               <option value="MLB">⚾ MLB</option>
               <option value="NBA">🏀 NBA</option>
               <option value="NFL">🏈 NFL</option>
               <option value="NHL">🏒 NHL</option>
             </select>
-            <div className="flex items-center gap-2 text-green-400">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-sm font-medium">Live Data</span>
+            <div className="flex items-center gap-4">
+              <div className={`flex items-center gap-2 ${
+                serviceHealth?.status === 'healthy' ? 'text-green-400' :
+                serviceHealth?.status === 'demo' ? 'text-blue-400' : 'text-yellow-400'
+              }`}>
+                <div className={`w-2 h-2 rounded-full ${
+                  serviceHealth?.status === 'healthy' ? 'bg-green-400 animate-pulse' :
+                  serviceHealth?.status === 'demo' ? 'bg-blue-400' : 'bg-yellow-400'
+                }`} />
+                <span className="text-sm font-medium">
+                  {serviceHealth?.status === 'healthy' ? 'Live Data' :
+                   serviceHealth?.status === 'demo' ? 'Demo Mode' : 'Limited Data'}
+                </span>
+              </div>
+              {serviceHealth && (
+                <div className="text-xs text-slate-400">
+                  {serviceHealth.status === 'demo' ? (
+                    'Using demo data for development'
+                  ) : (
+                    <>
+                      API: {serviceHealth.services?.api ? '✓' : '✗'} |
+                      MLB: {serviceHealth.services?.mlbData ? '✓' : '✗'} |
+                      ML: {serviceHealth.services?.mlPredictions ? '✓' : '✗'}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="mb-8">
-          <div className="flex flex-wrap gap-2">
+        <div className="mb-6 lg:mb-8">
+          <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -679,7 +867,7 @@ const UnifiedResearchDashboard: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-3 px-6 py-3 rounded-xl font-medium transition-all ${
+                  className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-2 sm:py-3 rounded-xl font-medium transition-all text-sm sm:text-base ${
                     isActive
                       ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg'
                       : 'bg-slate-800/50 text-slate-300 hover:text-white hover:bg-slate-700'
@@ -724,14 +912,14 @@ const UnifiedResearchDashboard: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4"
               onClick={() => setSelectedPlayer(null)}
             >
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-slate-800 rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-slate-700"
+                className="bg-slate-800 rounded-2xl p-4 sm:p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-slate-700"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-start justify-between mb-6">

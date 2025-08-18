@@ -72,6 +72,11 @@ const UnifiedResearchDashboard = React.lazy(
   () => import('../research/UnifiedResearchDashboard')
 );
 
+// NEW: PropFinder-style Research Dashboard
+const PropFinderStyleResearchDashboard = React.lazy(
+  () => import('../research/PropFinderStyleResearchDashboard')
+);
+
 // Phase 3 Components
 const Phase3Page = React.lazy(() => import('../../pages/Phase3Page'));
 
@@ -151,6 +156,9 @@ const UserFriendlyApp: React.FC = memo(() => {
 
               {/* Unified Research Dashboard - Consolidates all research tools */}
               <Route path='/research' element={<UnifiedResearchDashboard />} />
+
+              {/* PropFinder-style Research Dashboard */}
+              <Route path='/research-propfinder' element={<PropFinderStyleResearchDashboard />} />
 
               {/* Legacy Research Routes - Redirect to unified dashboard */}
               <Route path='/player/:playerId?' element={<UnifiedResearchDashboard />} />

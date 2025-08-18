@@ -108,6 +108,16 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       isNew: true,
       isHot: true,
     },
+    {
+      id: 'research-propfinder',
+      name: 'PropFinder Style',
+      href: '/research-propfinder',
+      icon: Target,
+      badge: 'BETA',
+      description: 'PropFinder-style research interface with game & category selection',
+      category: 'research',
+      isNew: true,
+    },
 
     // Tools
     {
