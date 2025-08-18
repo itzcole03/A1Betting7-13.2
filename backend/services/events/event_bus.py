@@ -16,6 +16,27 @@ import fnmatch
 from backend.services.unified_logging import get_logger
 
 
+@dataclass 
+class DeadLetterEntry:
+    """Entry in the dead letter queue"""
+    event_type: str
+    payload: Any
+    subscriber_id: str  # Identifier for the failed subscriber
+    error_message: str
+    attempt_count: int
+    first_failure_time: datetime
+    last_failure_time: datetime
+    
+    
+@dataclass
+class SubscriberFailureStats:
+    """Failure statistics per subscriber"""
+    failure_count: int = 0
+    last_failure: Optional[datetime] = None
+    consecutive_failures: int = 0
+    threshold_exceeded: bool = False
+
+
 @dataclass
 class EventMetrics:
     """Event bus metrics tracking"""
@@ -26,6 +47,10 @@ class EventMetrics:
     failed_deliveries: int = 0
     last_event_timestamp: Optional[datetime] = None
     
+    # Dead letter metrics
+    dead_letter_entries: int = 0
+    subscriber_failures: Dict[str, int] = field(default_factory=dict)
+    
     # Recent event history for debugging
     recent_events: Deque[Dict[str, Any]] = field(default_factory=lambda: deque(maxlen=100))
 
@@ -33,7 +58,7 @@ class EventMetrics:
 class EventBus:
     """In-process event bus with pub/sub capabilities"""
     
-    def __init__(self, name: str = "global"):
+    def __init__(self, name: str = "global", dead_letter_max_size: int = 200, failure_threshold: int = 5):
         self.name = name
         self.logger = get_logger(f"event_bus.{name}")
         
@@ -42,6 +67,14 @@ class EventBus:
         
         # Wildcard subscriptions: pattern -> list of (callback, weak_ref_enabled)
         self._wildcard_subscribers: Dict[str, List[tuple]] = defaultdict(list)
+        
+        # Dead letter queue with bounded size
+        self.dead_letter_queue: Deque[DeadLetterEntry] = deque(maxlen=dead_letter_max_size)
+        self.dead_letter_max_size = dead_letter_max_size
+        
+        # Subscriber failure tracking
+        self.subscriber_failures: Dict[str, SubscriberFailureStats] = defaultdict(SubscriberFailureStats)
+        self.failure_threshold = failure_threshold
         
         # Metrics
         self.metrics = EventMetrics()
@@ -191,11 +224,13 @@ class EventBus:
     def _deliver_to_subscribers(
         self, event_type: str, payload: Any, subscribers: List[tuple]
     ) -> int:
-        """Deliver event to list of subscribers"""
+        """Deliver event to list of subscribers with dead-letter support"""
         delivered = 0
         failed_subscribers = []
         
         for callback_or_ref, is_weak_ref in subscribers:
+            subscriber_id = self._get_subscriber_id(callback_or_ref, is_weak_ref)
+            
             try:
                 if is_weak_ref:
                     # Weak reference - get the actual callback
@@ -217,20 +252,131 @@ class EventBus:
                     
                 delivered += 1
                 
+                # Reset failure stats on successful delivery
+                if subscriber_id in self.subscriber_failures:
+                    self.subscriber_failures[subscriber_id].consecutive_failures = 0
+                
             except Exception as e:
-                self.logger.error(f"Error delivering event {event_type} to subscriber: {e}")
+                error_msg = str(e)
                 self.metrics.failed_deliveries += 1
+                
+                # Update failure statistics
+                failure_stats = self.subscriber_failures[subscriber_id]
+                failure_stats.failure_count += 1
+                failure_stats.consecutive_failures += 1
+                failure_stats.last_failure = datetime.utcnow()
+                
+                # Check if threshold exceeded
+                if failure_stats.consecutive_failures >= self.failure_threshold:
+                    if not failure_stats.threshold_exceeded:
+                        failure_stats.threshold_exceeded = True
+                        self.logger.warning(
+                            f"Subscriber {subscriber_id} exceeded failure threshold "
+                            f"({failure_stats.consecutive_failures}/{self.failure_threshold})"
+                        )
+                
+                # Add to dead letter queue
+                self._add_to_dead_letter_queue(event_type, payload, subscriber_id, error_msg, failure_stats)
+                
+                # Log error with exponential suppression
+                if self._should_log_error(failure_stats.failure_count):
+                    self.logger.error(f"Error delivering event {event_type} to subscriber {subscriber_id}: {e}")
+                
                 failed_subscribers.append((callback_or_ref, is_weak_ref))
                 
-        # Clean up failed subscribers
+        # Clean up failed subscribers if they've exceeded threshold
         if failed_subscribers:
             for failed_callback, is_weak in failed_subscribers:
-                try:
-                    subscribers.remove((failed_callback, is_weak))
-                except ValueError:
-                    pass  # Already removed
+                subscriber_id = self._get_subscriber_id(failed_callback, is_weak)
+                if self.subscriber_failures[subscriber_id].threshold_exceeded:
+                    try:
+                        subscribers.remove((failed_callback, is_weak))
+                        self.logger.info(f"Removed failing subscriber {subscriber_id} from subscription")
+                    except ValueError:
+                        pass  # Already removed
                     
         return delivered
+        
+    def _get_subscriber_id(self, callback_or_ref, is_weak_ref: bool) -> str:
+        """Generate a unique identifier for a subscriber"""
+        if is_weak_ref and hasattr(callback_or_ref, '__self__'):
+            # Weak reference - try to get from the referenced object
+            ref_obj = callback_or_ref()
+            if ref_obj:
+                return f"{ref_obj.__class__.__name__}.{ref_obj.__name__}"
+        
+        if hasattr(callback_or_ref, '__name__'):
+            return f"{callback_or_ref.__class__.__name__}.{callback_or_ref.__name__}"
+        elif hasattr(callback_or_ref, '__class__'):
+            return f"{callback_or_ref.__class__.__name__}.{id(callback_or_ref)}"
+        else:
+            return f"unknown_subscriber.{id(callback_or_ref)}"
+    
+    def _add_to_dead_letter_queue(
+        self, event_type: str, payload: Any, subscriber_id: str, error_msg: str, failure_stats: SubscriberFailureStats
+    ):
+        """Add failed event to dead letter queue"""
+        now = datetime.utcnow()
+        
+        # Check if we already have an entry for this subscriber and event type
+        existing_entry = None
+        for entry in self.dead_letter_queue:
+            if entry.event_type == event_type and entry.subscriber_id == subscriber_id:
+                existing_entry = entry
+                break
+        
+        if existing_entry:
+            # Update existing entry
+            existing_entry.attempt_count += 1
+            existing_entry.last_failure_time = now
+            existing_entry.error_message = error_msg  # Update with latest error
+        else:
+            # Create new entry
+            entry = DeadLetterEntry(
+                event_type=event_type,
+                payload=payload,
+                subscriber_id=subscriber_id,
+                error_message=error_msg,
+                attempt_count=1,
+                first_failure_time=now,
+                last_failure_time=now
+            )
+            self.dead_letter_queue.append(entry)
+            self.metrics.dead_letter_entries += 1
+            
+        # Update metrics
+        self.metrics.subscriber_failures[subscriber_id] = failure_stats.failure_count
+    
+    def _should_log_error(self, failure_count: int) -> bool:
+        """Implement exponential suppression: log every 1st, 5th, 25th occurrence"""
+        if failure_count <= 1:
+            return True
+        elif failure_count == 5:
+            return True
+        elif failure_count == 25:
+            return True
+        elif failure_count % 100 == 0:  # Log every 100th after 25
+            return True
+        return False
+        
+    def get_dead_letter_entries(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+        """Get dead letter entries for diagnostics"""
+        entries = list(self.dead_letter_queue)
+        if limit:
+            entries = entries[-limit:]  # Get most recent N entries
+            
+        return [
+            {
+                "event_type": entry.event_type,
+                "subscriber_id": entry.subscriber_id,
+                "error_message": entry.error_message,
+                "attempt_count": entry.attempt_count,
+                "first_failure_time": entry.first_failure_time.isoformat(),
+                "last_failure_time": entry.last_failure_time.isoformat(),
+                "payload_type": type(entry.payload).__name__ if entry.payload else "None"
+            }
+            for entry in entries
+        ]
         
     def _cleanup_subscriber(self, event_type: str, dead_ref: weakref.ref, is_wildcard: bool = False) -> None:
         """Clean up dead weak references"""
@@ -294,7 +440,7 @@ class EventBus:
         return self.metrics
         
     def get_status(self) -> Dict[str, Any]:
-        """Get comprehensive event bus status"""
+        """Get comprehensive event bus status including dead letter diagnostics"""
         return {
             "name": self.name,
             "metrics": {
@@ -303,11 +449,19 @@ class EventBus:
                 "subscribers_count": self.metrics.subscribers_count,
                 "event_types_count": self.metrics.event_types_count,
                 "failed_deliveries": self.metrics.failed_deliveries,
+                "dead_letter_entries": self.metrics.dead_letter_entries,
+                "subscriber_failures": dict(self.metrics.subscriber_failures),
                 "last_event_timestamp": self.metrics.last_event_timestamp.isoformat() if self.metrics.last_event_timestamp else None
             },
             "subscriptions": {
                 "direct": {event_type: len(subs) for event_type, subs in self._subscribers.items()},
                 "wildcard": {pattern: len(subs) for pattern, subs in self._wildcard_subscribers.items()}
+            },
+            "dead_letter": {
+                "queue_size": len(self.dead_letter_queue),
+                "max_size": self.dead_letter_max_size,
+                "failure_threshold": self.failure_threshold,
+                "recent_entries": self.get_dead_letter_entries(limit=10)
             },
             "recent_events": list(self.metrics.recent_events)
         }

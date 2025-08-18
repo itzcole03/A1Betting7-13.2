@@ -348,12 +348,13 @@ class NegativeBinomialModel(BaseStatModel):
 
 
 # Model factory for creating instances
-def create_baseline_model(model_type: str) -> BaseStatModel:
+def create_baseline_model(model_type: str, sport: str = "NBA") -> BaseStatModel:
     """
-    Create a baseline model instance by type.
+    Create a baseline model instance by type and sport.
     
     Args:
         model_type: Type of model to create
+        sport: Sport context ("NBA", "MLB")
         
     Returns:
         BaseStatModel: Model instance
@@ -362,7 +363,18 @@ def create_baseline_model(model_type: str) -> BaseStatModel:
         ValueError: If model type is not supported
     """
     model_type = model_type.upper()
+    sport = sport.upper()
     
+    # For MLB, try MLB-specific models first
+    if sport == "MLB":
+        try:
+            from .mlb_models import create_mlb_model
+            return create_mlb_model(model_type)
+        except (ImportError, ValueError):
+            # Fallback to general models with MLB-aware parameters
+            pass
+    
+    # General models for NBA and fallback for MLB
     if model_type == "POISSON":
         return PoissonLikeModel()
     elif model_type == "NORMAL":
@@ -373,9 +385,9 @@ def create_baseline_model(model_type: str) -> BaseStatModel:
         raise ValueError(f"Unsupported model type: {model_type}")
 
 
-# Recommended models for different prop types
+# Recommended models for different prop types (multi-sport)
 PROP_TYPE_MODEL_MAPPING = {
-    # Counting stats -> Poisson
+    # NBA Counting stats -> Poisson
     "ASSISTS": "POISSON",
     "REBOUNDS": "POISSON", 
     "STEALS": "POISSON",
@@ -383,7 +395,7 @@ PROP_TYPE_MODEL_MAPPING = {
     "TURNOVERS": "POISSON",
     "THREE_POINTERS_MADE": "POISSON",
     
-    # Continuous stats -> Normal
+    # NBA Continuous stats -> Normal
     "POINTS": "NORMAL",
     "MINUTES": "NORMAL",
     "FIELD_GOALS_MADE": "NORMAL",
@@ -392,3 +404,32 @@ PROP_TYPE_MODEL_MAPPING = {
     # Potentially overdispersed -> Negative Binomial (experimental)
     # Can be enabled later for specific use cases
 }
+
+
+# MLB-aware prop type model mappings
+def get_model_for_prop_type(prop_type: str, sport: str = "NBA") -> BaseStatModel:
+    """
+    Get the appropriate model for a given prop type and sport.
+    
+    Args:
+        prop_type: The prop type to get a model for
+        sport: Sport context ("NBA", "MLB")
+        
+    Returns:
+        BaseStatModel: Appropriate model instance
+    """
+    sport = sport.upper()
+    prop_type = prop_type.upper()
+    
+    if sport == "MLB":
+        # Use MLB-specific mappings
+        try:
+            from .mlb_models import MLB_PROP_TYPE_MODEL_MAPPING, get_mlb_model_for_prop_type
+            return get_mlb_model_for_prop_type(prop_type)
+        except ImportError:
+            # Fallback to NBA mappings if MLB models not available
+            pass
+    
+    # NBA or fallback mappings
+    model_type = PROP_TYPE_MODEL_MAPPING.get(prop_type, "NORMAL")
+    return create_baseline_model(model_type, sport)

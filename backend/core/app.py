@@ -869,6 +869,16 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register Provider Resilience routes: {e}")
 
+    # Comprehensive Resilience Testing API (Chaos Engineering, Circuit Breaker Testing, Memory Monitoring)
+    try:
+        from backend.routes.resilience_routes import router as resilience_router
+        _app.include_router(resilience_router, tags=["Resilience Testing", "Chaos Engineering"])
+        logger.info("✅ Comprehensive Resilience Testing routes included (/api/resilience/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import Comprehensive Resilience Testing routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register Comprehensive Resilience Testing routes: {e}")
+
     # System Capabilities Matrix API (Service Registry & Health Tracking)
     try:
         from backend.routes.system_capabilities import router as system_capabilities_router
@@ -992,6 +1002,80 @@ def create_app() -> FastAPI:
         logger.warning(f"⚠️ Bootstrap validator not available: {e}")
     except Exception as e:
         logger.error(f"❌ Failed to schedule bootstrap validation: {e}")
+    
+    # --- Lifespan Event Manager (NEW) ---
+    # Initialize and cleanup services during app lifecycle
+    from contextlib import asynccontextmanager
+    
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI):
+        """Application lifespan manager - startup and shutdown"""
+        startup_tasks = []
+        
+        # Startup phase
+        logger.info("🚀 Starting A1Betting application lifecycle...")
+        
+        try:
+            # Initialize market data providers
+            try:
+                from backend.services.provider_initialization import initialize_providers
+                
+                logger.info("🎯 Initializing market data providers...")
+                provider_summary = await initialize_providers()
+                
+                logger.info(
+                    f"✅ Market data providers initialized: {provider_summary['total_registered']} providers"
+                )
+                
+                if provider_summary["failed_registrations"]:
+                    logger.warning(
+                        f"⚠️ Failed provider registrations: {provider_summary['failed_registrations']}"
+                    )
+                
+                # Log provider breakdown by sport
+                for sport, registrations in provider_summary["provider_breakdown"].items():
+                    healthy_count = sum(1 for r in registrations if r["healthy"])
+                    logger.info(
+                        f"   {sport}: {len(registrations)} providers, {healthy_count} healthy"
+                    )
+                
+                startup_tasks.append("market_data_providers")
+                
+            except Exception as e:
+                logger.warning(f"⚠️ Market data provider initialization failed: {e}")
+            
+            # Complete startup
+            logger.info(f"🎉 Application startup completed! Services: {', '.join(startup_tasks)}")
+            
+        except Exception as e:
+            logger.error(f"❌ Application startup failed: {e}")
+            raise
+        
+        # App is running
+        yield
+        
+        # Shutdown phase
+        logger.info("🔄 Shutting down A1Betting application...")
+        shutdown_tasks = []
+        
+        try:
+            # Shutdown market data providers
+            try:
+                from backend.services.provider_initialization import shutdown_providers
+                
+                await shutdown_providers()
+                shutdown_tasks.append("market_data_providers")
+                logger.info("✅ Market data providers shutdown completed")
+            except Exception as e:
+                logger.warning(f"Error shutting down market data providers: {e}")
+            
+            logger.info(f"✅ Application shutdown completed! Services: {', '.join(shutdown_tasks)}")
+            
+        except Exception as e:
+            logger.error(f"❌ Application shutdown failed: {e}")
+    
+    # Apply lifespan to the app
+    _app.router.lifespan_context = lifespan
     
     # Log normalized health endpoints at startup
     logger.info("🏥 Health endpoints normalized: /api/health, /health, /api/v2/health -> identical envelope format")

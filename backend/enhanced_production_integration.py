@@ -412,6 +412,34 @@ class EnhancedProductionApp:
             except Exception as e:
                 self.logger.warning(f"⚠️ Sports services initialization failed: {e}")
 
+            # Initialize Market Data Providers
+            try:
+                from .services.provider_initialization import initialize_providers
+                
+                self.logger.info("🎯 Initializing market data providers...")
+                provider_summary = await initialize_providers()
+                
+                self.logger.info(
+                    f"✅ Market data providers initialized: {provider_summary['total_registered']} providers"
+                )
+                
+                if provider_summary["failed_registrations"]:
+                    self.logger.warning(
+                        f"⚠️ Failed provider registrations: {provider_summary['failed_registrations']}"
+                    )
+                
+                # Log provider breakdown by sport
+                for sport, registrations in provider_summary["provider_breakdown"].items():
+                    healthy_count = sum(1 for r in registrations if r["healthy"])
+                    self.logger.info(
+                        f"   {sport}: {len(registrations)} providers, {healthy_count} healthy"
+                    )
+                
+                startup_tasks.append("market_data_providers")
+                
+            except Exception as e:
+                self.logger.warning(f"⚠️ Market data provider initialization failed: {e}")
+
             # Phase 4: Phase 2 Performance Services
             self.logger.info("Phase 4: Initializing Phase 2 performance services...")
 
@@ -524,6 +552,16 @@ class EnhancedProductionApp:
                     self.logger.warning(
                         "Error shutting down enhanced services: %s", str(e)
                     )
+
+                # Shutdown market data providers
+                try:
+                    from .services.provider_initialization import shutdown_providers
+                    
+                    await shutdown_providers()
+                    shutdown_tasks.append("market_data_providers")
+                    self.logger.info("✅ Market data providers shutdown completed")
+                except Exception as e:
+                    self.logger.warning(f"Error shutting down market data providers: {e}")
 
                 # Shutdown Phase 2 performance services
                 try:

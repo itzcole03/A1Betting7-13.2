@@ -426,6 +426,168 @@ class RiskManagementConfig:
 
 
 @dataclass
+class LiveDataConfig:
+    """Live data feature flags and configuration for Section 4 components"""
+    
+    # Master live data toggle
+    live_data_enabled: bool = True
+    
+    # Component-specific feature flags
+    real_time_data_service_enabled: bool = True
+    injury_lineup_monitor_enabled: bool = True
+    weather_integration_enabled: bool = True
+    line_movement_tracker_enabled: bool = True
+    live_event_processor_enabled: bool = True
+    
+    # Real-time MLB data service settings
+    real_time_data: Dict[str, Any] = field(default_factory=lambda: {
+        # Polling configuration
+        "poll_interval_seconds": 30,
+        "max_concurrent_requests": 5,
+        "request_timeout_seconds": 10,
+        "retry_attempts": 3,
+        "retry_delay_seconds": 2,
+        
+        # Rate limiting and safety caps
+        "max_api_calls_per_minute": 100,
+        "daily_api_call_limit": 10000,
+        "api_quota_buffer_percent": 0.2,  # 20% buffer
+        
+        # Data freshness requirements
+        "max_data_age_seconds": 300,  # 5 minutes
+        "force_refresh_threshold_seconds": 600,  # 10 minutes
+        "stale_data_warning_seconds": 180,  # 3 minutes
+        
+        # Service health monitoring
+        "health_check_interval_seconds": 60,
+        "failure_threshold_count": 3,
+        "recovery_check_interval_seconds": 30,
+    })
+    
+    # Injury and lineup monitoring settings
+    injury_lineup_monitor: Dict[str, Any] = field(default_factory=lambda: {
+        # Monitoring frequency
+        "check_interval_seconds": 300,  # 5 minutes
+        "injury_severity_check_minutes": 15,
+        "lineup_change_polling_minutes": 10,
+        
+        # Impact assessment thresholds
+        "high_impact_player_threshold": 0.15,  # 15% prop impact
+        "moderate_impact_threshold": 0.08,     # 8% prop impact
+        "low_impact_threshold": 0.03,          # 3% prop impact
+        
+        # Automated response settings
+        "auto_disable_affected_props": True,
+        "auto_adjust_valuations": True,
+        "send_alerts_enabled": True,
+        "max_alerts_per_hour": 10,
+        
+        # Data retention
+        "injury_history_days": 30,
+        "lineup_history_days": 14,
+    })
+    
+    # Weather integration settings
+    weather_integration: Dict[str, Any] = field(default_factory=lambda: {
+        # Weather data polling
+        "update_interval_minutes": 30,
+        "forecast_horizon_hours": 24,
+        "historical_data_days": 7,
+        
+        # Weather impact thresholds
+        "wind_speed_threshold_mph": 15,
+        "temperature_impact_threshold_f": 10,
+        "precipitation_probability_threshold": 0.3,  # 30%
+        "humidity_impact_threshold": 0.2,  # 20% change
+        
+        # Ballpark-specific adjustments
+        "enable_ballpark_factors": True,
+        "wind_direction_impact_enabled": True,
+        "altitude_adjustments_enabled": True,
+        
+        # Safety limits
+        "max_weather_adjustment_percent": 0.25,  # 25% max adjustment
+        "weather_data_staleness_minutes": 60,
+        "fallback_to_historical_enabled": True,
+    })
+    
+    # Line movement tracking settings
+    line_movement_tracker: Dict[str, Any] = field(default_factory=lambda: {
+        # Movement detection sensitivity
+        "significant_movement_threshold": 0.05,  # 5% change
+        "steam_detection_threshold": 0.10,       # 10% rapid change
+        "reverse_line_movement_threshold": 0.03,  # 3% against public
+        
+        # Tracking frequency
+        "polling_interval_seconds": 60,
+        "high_frequency_mode_seconds": 15,  # During significant events
+        "sportsbook_sync_interval_minutes": 5,
+        
+        # Alert configuration
+        "steam_alert_enabled": True,
+        "reverse_line_alert_enabled": True,
+        "market_suspension_alert_enabled": True,
+        "max_movement_alerts_per_hour": 20,
+        
+        # Data management
+        "movement_history_hours": 48,
+        "detailed_tracking_window_hours": 6,
+        "aggregate_older_data_enabled": True,
+    })
+    
+    # Live event processing settings
+    live_event_processor: Dict[str, Any] = field(default_factory=lambda: {
+        # Event processing configuration
+        "process_in_game_events": True,
+        "process_pre_game_events": True,
+        "process_post_game_events": True,
+        "event_processing_delay_seconds": 5,
+        
+        # Settlement and opportunity detection
+        "auto_settle_completed_props": True,
+        "opportunity_detection_enabled": True,
+        "arbitrage_detection_enabled": True,
+        "middle_opportunity_detection": True,
+        
+        # Processing limits
+        "max_events_per_minute": 100,
+        "event_queue_size": 1000,
+        "processing_timeout_seconds": 30,
+        "batch_processing_size": 10,
+        
+        # Live prop management
+        "auto_void_conflicting_props": True,
+        "update_live_odds_enabled": True,
+        "suspend_props_on_injury": True,
+        "resume_props_delay_minutes": 5,
+    })
+    
+    # Global live data safety settings
+    safety_controls: Dict[str, Any] = field(default_factory=lambda: {
+        # Circuit breaker settings
+        "enable_circuit_breaker": True,
+        "failure_threshold": 5,
+        "recovery_timeout_seconds": 300,  # 5 minutes
+        "half_open_test_requests": 3,
+        
+        # Resource limits
+        "max_memory_usage_mb": 512,
+        "max_cpu_usage_percent": 80,
+        "max_concurrent_operations": 10,
+        
+        # Emergency controls
+        "emergency_shutdown_enabled": True,
+        "auto_fallback_to_static_data": True,
+        "manual_override_enabled": True,
+        
+        # Monitoring and alerting
+        "performance_monitoring_enabled": True,
+        "alert_on_degraded_performance": True,
+        "log_all_live_data_operations": True,
+    })
+
+
+@dataclass
 class SportsConfig:
     """Multi-sport configuration"""
     
@@ -433,7 +595,7 @@ class SportsConfig:
     sports_enabled: Dict[str, bool] = field(default_factory=lambda: {
         "NBA": True,  # Currently supported
         "NFL": False,  # Future implementation
-        "MLB": False,  # Future implementation
+        "MLB": True,  # MLB enablement - Phase 1
         "NHL": False,  # Future implementation
         "NCAA_BB": False,  # Future implementation
         "NCAA_FB": False,  # Future implementation
@@ -446,7 +608,7 @@ class SportsConfig:
     polling_intervals: Dict[str, int] = field(default_factory=lambda: {
         "NBA": 20,   # Fast polling for active NBA season
         "NFL": 30,   # Slower for weekly games
-        "MLB": 15,   # Frequent for daily games
+        "MLB": 25,   # MLB specific polling interval
         "NHL": 25,   # Medium polling
         "NCAA_BB": 30,  # Tournament dependent
         "NCAA_FB": 60,  # Weekly games
@@ -519,8 +681,9 @@ class ApplicationConfig:
     security: SecurityConfig = field(default_factory=SecurityConfig)
     risk: RiskManagementConfig = field(default_factory=RiskManagementConfig)
     sports: SportsConfig = field(default_factory=SportsConfig)
+    live_data: LiveDataConfig = field(default_factory=LiveDataConfig)  # NEW
     
-    # New portfolio optimization configurations
+    # Portfolio optimization configurations
     optimization: OptimizationConfig = field(default_factory=OptimizationConfig)
     monte_carlo: MonteCarloConfig = field(default_factory=MonteCarloConfig)
     portfolio_correlation: PortfolioCorrelationConfig = field(default_factory=PortfolioCorrelationConfig)
@@ -689,6 +852,58 @@ class UnifiedConfigManager:
             "SPORTS_NFL_POLL_INTERVAL": ("sports.polling_intervals.NFL", int),
             "SPORTS_MLB_POLL_INTERVAL": ("sports.polling_intervals.MLB", int),
             "SPORTS_NHL_POLL_INTERVAL": ("sports.polling_intervals.NHL", int),
+            
+            # Live data feature flags and settings
+            "LIVE_DATA_ENABLED": ("live_data.live_data_enabled", bool),
+            "REAL_TIME_DATA_SERVICE_ENABLED": ("live_data.real_time_data_service_enabled", bool),
+            "INJURY_LINEUP_MONITOR_ENABLED": ("live_data.injury_lineup_monitor_enabled", bool),
+            "WEATHER_INTEGRATION_ENABLED": ("live_data.weather_integration_enabled", bool),
+            "LINE_MOVEMENT_TRACKER_ENABLED": ("live_data.line_movement_tracker_enabled", bool),
+            "LIVE_EVENT_PROCESSOR_ENABLED": ("live_data.live_event_processor_enabled", bool),
+            
+            # Real-time data service settings
+            "REAL_TIME_POLL_INTERVAL": ("live_data.real_time_data.poll_interval_seconds", int),
+            "REAL_TIME_MAX_CONCURRENT": ("live_data.real_time_data.max_concurrent_requests", int),
+            "REAL_TIME_REQUEST_TIMEOUT": ("live_data.real_time_data.request_timeout_seconds", int),
+            "REAL_TIME_MAX_API_CALLS": ("live_data.real_time_data.max_api_calls_per_minute", int),
+            "REAL_TIME_DAILY_LIMIT": ("live_data.real_time_data.daily_api_call_limit", int),
+            "REAL_TIME_MAX_DATA_AGE": ("live_data.real_time_data.max_data_age_seconds", int),
+            
+            # Injury/lineup monitor settings
+            "INJURY_CHECK_INTERVAL": ("live_data.injury_lineup_monitor.check_interval_seconds", int),
+            "INJURY_HIGH_IMPACT_THRESHOLD": ("live_data.injury_lineup_monitor.high_impact_player_threshold", float),
+            "INJURY_AUTO_DISABLE_PROPS": ("live_data.injury_lineup_monitor.auto_disable_affected_props", bool),
+            "INJURY_AUTO_ADJUST_VALUATIONS": ("live_data.injury_lineup_monitor.auto_adjust_valuations", bool),
+            "INJURY_MAX_ALERTS_PER_HOUR": ("live_data.injury_lineup_monitor.max_alerts_per_hour", int),
+            
+            # Weather integration settings
+            "WEATHER_UPDATE_INTERVAL": ("live_data.weather_integration.update_interval_minutes", int),
+            "WEATHER_WIND_THRESHOLD": ("live_data.weather_integration.wind_speed_threshold_mph", int),
+            "WEATHER_TEMP_THRESHOLD": ("live_data.weather_integration.temperature_impact_threshold_f", int),
+            "WEATHER_PRECIP_THRESHOLD": ("live_data.weather_integration.precipitation_probability_threshold", float),
+            "WEATHER_MAX_ADJUSTMENT": ("live_data.weather_integration.max_weather_adjustment_percent", float),
+            "WEATHER_ENABLE_BALLPARK_FACTORS": ("live_data.weather_integration.enable_ballpark_factors", bool),
+            
+            # Line movement tracker settings
+            "LINE_MOVEMENT_THRESHOLD": ("live_data.line_movement_tracker.significant_movement_threshold", float),
+            "LINE_STEAM_THRESHOLD": ("live_data.line_movement_tracker.steam_detection_threshold", float),
+            "LINE_POLLING_INTERVAL": ("live_data.line_movement_tracker.polling_interval_seconds", int),
+            "LINE_STEAM_ALERTS": ("live_data.line_movement_tracker.steam_alert_enabled", bool),
+            "LINE_MAX_ALERTS_PER_HOUR": ("live_data.line_movement_tracker.max_movement_alerts_per_hour", int),
+            
+            # Live event processor settings
+            "LIVE_PROCESS_IN_GAME": ("live_data.live_event_processor.process_in_game_events", bool),
+            "LIVE_AUTO_SETTLE": ("live_data.live_event_processor.auto_settle_completed_props", bool),
+            "LIVE_OPPORTUNITY_DETECTION": ("live_data.live_event_processor.opportunity_detection_enabled", bool),
+            "LIVE_MAX_EVENTS_PER_MIN": ("live_data.live_event_processor.max_events_per_minute", int),
+            "LIVE_EVENT_QUEUE_SIZE": ("live_data.live_event_processor.event_queue_size", int),
+            
+            # Safety controls
+            "LIVE_DATA_CIRCUIT_BREAKER": ("live_data.safety_controls.enable_circuit_breaker", bool),
+            "LIVE_DATA_FAILURE_THRESHOLD": ("live_data.safety_controls.failure_threshold", int),
+            "LIVE_DATA_MAX_MEMORY_MB": ("live_data.safety_controls.max_memory_usage_mb", int),
+            "LIVE_DATA_MAX_CPU_PERCENT": ("live_data.safety_controls.max_cpu_usage_percent", int),
+            "LIVE_DATA_EMERGENCY_SHUTDOWN": ("live_data.safety_controls.emergency_shutdown_enabled", bool),
         }
 
         for env_var, (config_path, config_type) in env_mappings.items():
@@ -821,6 +1036,10 @@ class UnifiedConfigManager:
     def get_risk_config(self) -> RiskManagementConfig:
         """Get risk management configuration"""
         return self._config.risk
+
+    def get_live_data_config(self) -> LiveDataConfig:
+        """Get live data configuration"""
+        return self._config.live_data
 
     def set_runtime_override(self, path: str, value: Any):
         """Set runtime configuration override"""
@@ -981,6 +1200,11 @@ def get_streaming_config() -> StreamingConfig:
     return unified_config.get_streaming_config()
 
 
+def get_live_data_config() -> LiveDataConfig:
+    """Get live data configuration"""
+    return unified_config.get_live_data_config()
+
+
 def is_development() -> bool:
     """Check if in development mode"""
     return unified_config.is_development()
@@ -1006,6 +1230,7 @@ __all__ = [
     "CorrelationConfig",
     "TicketingConfig",
     "SecurityConfig",
+    "LiveDataConfig",  # NEW
     "Environment",
     "unified_config",
     "get_config",
@@ -1017,6 +1242,7 @@ __all__ = [
     "get_ticketing_config",
     "get_risk_management_config",
     "get_streaming_config",
+    "get_live_data_config",  # NEW
     "is_development",
     "is_production",
 ]

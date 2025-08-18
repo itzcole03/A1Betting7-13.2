@@ -1,13 +1,14 @@
 """
-Market Streamer - Polling facade for real-time market data streaming
+Market Streamer - Sport-aware polling facade for real-time market data streaming
 
 Provides pseudo-streaming by polling providers at intervals with jitter,
-detecting changes, and emitting normalized delta events.
+detecting changes, and emitting normalized delta events with sport isolation.
 """
 
 import asyncio
 import hashlib
 import random
+import time
 from collections import deque
 from datetime import datetime
 from dataclasses import dataclass
@@ -21,6 +22,12 @@ from backend.services.providers import (
 )
 from backend.services.unified_logging import get_logger
 from backend.services.unified_config import unified_config
+from backend.config.sport_settings import sport_config_manager
+from backend.services.streaming.event_models import (
+    StreamingMarketEvent,
+    StreamingEventTypes,
+    create_market_event
+)
 
 
 class MarketEventType(Enum):
@@ -69,7 +76,7 @@ class MarketEvent:
 
 
 class MarketStreamer:
-    """Market data streaming facade using polling with jitter"""
+    """Market data streaming facade using polling with jitter and sport awareness"""
     
     def __init__(self):
         self.logger = get_logger("market_streamer")
@@ -77,33 +84,38 @@ class MarketStreamer:
         self._stop_event = asyncio.Event()
         self._task: Optional[asyncio.Task] = None
         
-        # Configuration
-        self.poll_interval = unified_config.get_config_value("streaming.poll_interval_sec", 20)
+        # Configuration - now sport-aware
+        self.default_poll_interval = unified_config.get_config_value("streaming.poll_interval_sec", 20)
         self.jitter_sec = unified_config.get_config_value("streaming.jitter_sec", 5)
         self.event_buffer_size = unified_config.get_config_value("streaming.event_buffer", 1000)
         
-        # Event buffer (circular)
-        self.event_buffer: Deque[MarketEvent] = deque(maxlen=self.event_buffer_size)
+        # Event buffer (circular) - now includes all sports
+        self.event_buffer: Deque[StreamingMarketEvent] = deque(maxlen=self.event_buffer_size)
         
-        # Provider state tracking
-        self._provider_snapshots: Dict[str, Dict[str, Any]] = {}
-        self._provider_last_fetch: Dict[str, datetime] = {}
+        # Provider state tracking - now per (provider, sport) combination  
+        self._provider_snapshots: Dict[str, Dict[str, Any]] = {}  # {provider_sport_key: snapshot}
+        self._provider_last_fetch: Dict[str, datetime] = {}  # {provider_sport_key: timestamp}
         
-        # Statistics
-        self.stats = {
+        # Statistics - now sport-aware
+        self.stats: Dict[str, Any] = {
             "cycles_completed": 0,
             "events_emitted": 0,
             "errors_encountered": 0,
             "last_cycle_duration_ms": 0,
-            "providers_processed": 0
+            "providers_processed": 0,
+            "sports_processed": {}  # per-sport stats
         }
+        
+    def _get_provider_sport_key(self, provider_name: str, sport: str) -> str:
+        """Generate unique key for provider-sport combination"""
+        return f"{provider_name}:{sport}"
         
     def _generate_line_hash(self, prop: ExternalPropRecord) -> str:
         """Generate hash for prop line to detect changes"""
-        hash_data = f"{prop.provider_prop_id}:{prop.line_value}:{prop.odds_value}:{prop.status}"
+        hash_data = f"{prop.provider_prop_id}:{prop.line_value}:{prop.odds_value}:{prop.status}:{prop.sport}"
         return hashlib.md5(hash_data.encode()).hexdigest()[:16]
         
-    def _compare_props(self, old_prop: Dict[str, Any], new_prop: ExternalPropRecord) -> Optional[MarketEvent]:
+    def _compare_props(self, old_prop: Dict[str, Any], new_prop: ExternalPropRecord) -> Optional[StreamingMarketEvent]:
         """Compare old and new prop, return event if changed"""
         new_hash = self._generate_line_hash(new_prop)
         old_hash = old_prop.get("line_hash")
@@ -113,18 +125,18 @@ class MarketStreamer:
             
         # Determine event type
         if old_prop.get("status") == "active" and new_prop.status == "inactive":
-            event_type = MarketEventType.MARKET_PROP_INACTIVE
+            event_type = StreamingEventTypes.MARKET_PROP_INACTIVE
         else:
-            event_type = MarketEventType.MARKET_LINE_CHANGE
+            event_type = StreamingEventTypes.MARKET_LINE_CHANGE
             
-        return MarketEvent(
+        return create_market_event(
             event_type=event_type,
             provider=old_prop["provider"],
             prop_id=new_prop.provider_prop_id,
+            sport=new_prop.sport or "NBA",  # Default to NBA if None
             previous_line=old_prop.get("line_value"),
             new_line=new_prop.line_value,
             line_hash=new_hash,
-            timestamp=datetime.utcnow(),
             player_name=new_prop.player_name,
             team_code=new_prop.team_code,
             market_type=new_prop.market_type,
@@ -133,22 +145,29 @@ class MarketStreamer:
             odds_value=new_prop.odds_value
         )
         
-    def _process_provider_data(self, provider_name: str, props: List[ExternalPropRecord]) -> List[MarketEvent]:
-        """Process provider data and generate events"""
+    def _process_provider_data(self, provider_name: str, sport: str, props: List[ExternalPropRecord]) -> List[StreamingMarketEvent]:
+        """Process provider data and generate events for specific sport"""
         events = []
         current_snapshot = {}
+        provider_sport_key = self._get_provider_sport_key(provider_name, sport)
         
         # Get previous snapshot for comparison
-        previous_snapshot = self._provider_snapshots.get(provider_name, {})
+        previous_snapshot = self._provider_snapshots.get(provider_sport_key, {})
         
         # Process each prop
         for prop in props:
+            # Ensure prop has correct sport
+            if prop.sport != sport:
+                self.logger.warning(f"Prop sport mismatch: expected {sport}, got {prop.sport}")
+                continue
+                
             prop_key = prop.provider_prop_id
             line_hash = self._generate_line_hash(prop)
             
             # Store current prop data
             current_snapshot[prop_key] = {
                 "provider": provider_name,
+                "sport": sport,
                 "line_value": prop.line_value,
                 "odds_value": prop.odds_value,
                 "status": prop.status,
@@ -163,14 +182,14 @@ class MarketStreamer:
                     events.append(event)
             else:
                 # New prop
-                event = MarketEvent(
-                    event_type=MarketEventType.MARKET_PROP_CREATED,
+                event = create_market_event(
+                    event_type=StreamingEventTypes.MARKET_PROP_CREATED,
                     provider=provider_name,
                     prop_id=prop.provider_prop_id,
+                    sport=prop.sport or "NBA",  # Default to NBA if None
                     previous_line=None,
                     new_line=prop.line_value,
                     line_hash=line_hash,
-                    timestamp=datetime.utcnow(),
                     player_name=prop.player_name,
                     team_code=prop.team_code,
                     market_type=prop.market_type,
@@ -181,91 +200,138 @@ class MarketStreamer:
                 events.append(event)
                 
         # Update snapshot
-        self._provider_snapshots[provider_name] = current_snapshot
+        self._provider_snapshots[provider_sport_key] = current_snapshot
         
         return events
         
-    async def _fetch_from_provider(self, provider_name: str) -> List[MarketEvent]:
-        """Fetch data from a single provider and generate events"""
+    async def _fetch_from_provider(self, provider_name: str, sport: str) -> List[StreamingMarketEvent]:
+        """Fetch data from a single provider for specific sport and generate events"""
         try:
-            provider = provider_registry.get_provider(provider_name)
+            provider = provider_registry.get_provider(provider_name, sport)
             if not provider:
-                self.logger.warning(f"Provider {provider_name} not found")
+                self.logger.warning(f"Provider {provider_name} not found for sport {sport}")
                 return []
                 
-            last_fetch = self._provider_last_fetch.get(provider_name)
+            # Check if provider supports this sport
+            if not provider.supports_sport(sport):
+                self.logger.debug(f"Provider {provider_name} does not support sport {sport}")
+                return []
+                
+            provider_sport_key = self._get_provider_sport_key(provider_name, sport)
+            last_fetch = self._provider_last_fetch.get(provider_sport_key)
             
             # Use incremental if available and we have a last fetch time
             if provider.supports_incremental and last_fetch:
-                props = await provider.fetch_incremental(last_fetch)
+                props = await provider.fetch_incremental(sport, last_fetch)
             else:
                 # Full snapshot
-                props = await provider.fetch_snapshot()
+                props = await provider.fetch_snapshot(sport)
                 
             # Update last fetch time
-            self._provider_last_fetch[provider_name] = datetime.utcnow()
+            self._provider_last_fetch[provider_sport_key] = datetime.utcnow()
             
             # Process and generate events
-            events = self._process_provider_data(provider_name, props)
+            events = self._process_provider_data(provider_name, sport, props)
             
-            self.logger.debug(f"Provider {provider_name}: {len(props)} props, {len(events)} events")
+            self.logger.debug(f"Provider {provider_name} ({sport}): {len(props)} props, {len(events)} events")
             return events
             
         except ProviderError as e:
-            self.logger.error(f"Provider error for {provider_name}: {str(e)}")
+            self.logger.error(f"Provider error for {provider_name} ({sport}): {str(e)}")
             self.stats["errors_encountered"] += 1
             return []
         except Exception as e:
-            self.logger.error(f"Unexpected error fetching from {provider_name}: {str(e)}")
+            self.logger.error(f"Unexpected error fetching from {provider_name} ({sport}): {str(e)}")
             self.stats["errors_encountered"] += 1
             return []
             
     async def _streaming_cycle(self) -> None:
-        """Execute one streaming cycle"""
+        """Execute one streaming cycle across all enabled sports and providers"""
         cycle_start = datetime.utcnow()
+        all_events = []
         
-        # Get active providers
-        active_providers = provider_registry.get_active_providers()
-        if not active_providers:
-            self.logger.debug("No active providers available")
+        # Get enabled sports from configuration
+        enabled_sports = sport_config_manager.get_enabled_sports()
+        
+        if not enabled_sports:
+            self.logger.warning("No sports enabled for streaming")
             return
             
-        self.logger.debug(f"Starting cycle with {len(active_providers)} providers")
-        
-        # Fetch from all providers concurrently
-        tasks = [
-            self._fetch_from_provider(name) 
-            for name in active_providers.keys()
-        ]
-        
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-        
-        # Collect all events
-        all_events = []
-        providers_processed = 0
-        
-        for provider_name, result in zip(active_providers.keys(), results):
-            if isinstance(result, Exception):
-                self.logger.error(f"Provider {provider_name} task failed: {str(result)}")
-                self.stats["errors_encountered"] += 1
-            elif isinstance(result, list):  # Type check for list of MarketEvent
-                all_events.extend(result)
-                providers_processed += 1
+        # Process each sport
+        for sport in enabled_sports:
+            sport_events = []
+            
+            # Get sport-specific poll interval
+            sport_interval = sport_config_manager.get_polling_interval(sport)
+            sport_providers = sport_config_manager.get_enabled_providers(sport)
+            
+            if not sport_providers:
+                self.logger.debug(f"No providers configured for sport {sport}")
+                continue
+            
+            # Check if enough time has passed for this sport
+            sport_last_poll_attr = f'_last_poll_{sport}'
+            sport_last_poll = getattr(self, sport_last_poll_attr, 0)
+            current_time = time.time()
+            
+            if current_time - sport_last_poll < sport_interval:
+                self.logger.debug(f"Skipping {sport} - not enough time elapsed")
+                continue
                 
+            # Update last poll time for this sport
+            setattr(self, sport_last_poll_attr, current_time)
+            
+            # Fetch from all providers for this sport concurrently
+            provider_tasks = [
+                self._fetch_from_provider(provider_name, sport)
+                for provider_name in sport_providers
+            ]
+            
+            if provider_tasks:
+                provider_results = await asyncio.gather(*provider_tasks, return_exceptions=True)
+                
+                for i, result in enumerate(provider_results):
+                    provider_name = sport_providers[i]
+                    if isinstance(result, Exception):
+                        self.logger.error(f"Provider {provider_name} ({sport}) failed: {str(result)}")
+                        self.stats["errors_encountered"] += 1
+                    elif isinstance(result, list):  # Ensure it's a list before extending
+                        sport_events.extend(result)
+                        
+            # Update sport statistics
+            if sport not in self.stats["sports_processed"]:
+                self.stats["sports_processed"][sport] = {
+                    "cycles": 0,
+                    "events": 0,
+                    "providers": 0,
+                    "last_poll": 0
+                }
+                
+            self.stats["sports_processed"][sport]["cycles"] += 1
+            self.stats["sports_processed"][sport]["events"] += len(sport_events)
+            self.stats["sports_processed"][sport]["providers"] = len(sport_providers)
+            self.stats["sports_processed"][sport]["last_poll"] = current_time
+            
+            all_events.extend(sport_events)
+            self.logger.debug(f"Sport {sport}: {len(sport_events)} events from {len(sport_providers)} providers")
+        
         # Add events to buffer and emit
         for event in all_events:
             self.event_buffer.append(event)
             await self._emit_event(event)
             
-        # Update stats
+        # Update global statistics
         cycle_duration = (datetime.utcnow() - cycle_start).total_seconds() * 1000
         self.stats["cycles_completed"] += 1
         self.stats["events_emitted"] += len(all_events)
         self.stats["last_cycle_duration_ms"] = int(cycle_duration)
-        self.stats["providers_processed"] = providers_processed
+        self.stats["providers_processed"] = sum(
+            len(sport_config_manager.get_enabled_providers(sport))
+            for sport in enabled_sports
+        )
         
         self.logger.info(
-            f"Cycle complete: {providers_processed} providers, "
+            f"Cycle complete: {len(enabled_sports)} sports, "
             f"{len(all_events)} events, {cycle_duration:.1f}ms"
         )
         
@@ -304,7 +370,7 @@ class MarketStreamer:
                 await self._streaming_cycle()
                 
                 # Calculate sleep time with jitter
-                base_interval = self.poll_interval
+                base_interval = self.default_poll_interval
                 jitter = random.uniform(-self.jitter_sec, self.jitter_sec)
                 sleep_time = max(1, base_interval + jitter)  # Minimum 1 second
                 
@@ -380,7 +446,7 @@ class MarketStreamer:
             "provider_names": list(active_providers.keys()),
             "event_buffer_size": len(self.event_buffer),
             "configuration": {
-                "poll_interval_sec": self.poll_interval,
+                "poll_interval_sec": self.default_poll_interval,
                 "jitter_sec": self.jitter_sec,
                 "buffer_size": self.event_buffer_size
             },
