@@ -39,21 +39,20 @@ Uncomment when SQLAlchemy is available in the environment.
 from datetime import datetime, timezone
 from enum import Enum
 
-# TODO: Uncomment when SQLAlchemy is available
-# from sqlalchemy import (
-#     Boolean,
-#     Column,
-#     DateTime,
-#     Enum as SQLEnum,
-#     Float,
-#     Index,
-#     Integer,
-#     JSON,
-#     String,
-#     Text,
-# )
-# from sqlalchemy.sql import func
-# from backend.models.base import Base
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Enum as SQLEnum,
+    Float,
+    Index,
+    Integer,
+    JSON,
+    String,
+    Text,
+)
+from sqlalchemy.sql import func
+from backend.models.base import Base
 
 
 class ProviderStatus(Enum):
@@ -73,45 +72,102 @@ class RationaleType(Enum):
     PERFORMANCE_REVIEW = "performance_review"
 
 
-# TODO: Uncomment when SQLAlchemy is available
-# class ProviderState(Base):
-#     """Tracks the state of market data providers"""
+class ProviderState(Base):
+    """Tracks the state of market data providers"""
     
-#     __tablename__ = "provider_states"
+    __tablename__ = "provider_states"
     
-#     id = Column(Integer, primary_key=True, index=True)
-#     provider_name = Column(String(100), nullable=False, unique=True, index=True)
-#     status = Column(SQLEnum(ProviderStatus), nullable=False, default=ProviderStatus.INACTIVE)
+    id = Column(Integer, primary_key=True, index=True)
+    provider_name = Column(String(100), nullable=False, index=True)
+    sport = Column(String(20), nullable=False, default='NBA', index=True)
+    status = Column(SQLEnum(ProviderStatus), nullable=False, default=ProviderStatus.INACTIVE)
     
-#     # Provider configuration
-#     is_enabled = Column(Boolean, nullable=False, default=True)
-#     poll_interval_seconds = Column(Integer, nullable=False, default=60)
-#     timeout_seconds = Column(Integer, nullable=False, default=30)
-#     max_retries = Column(Integer, nullable=False, default=3)
+    # Provider configuration
+    is_enabled = Column(Boolean, nullable=False, default=True)
+    poll_interval_seconds = Column(Integer, nullable=False, default=60)
+    timeout_seconds = Column(Integer, nullable=False, default=30)
+    max_retries = Column(Integer, nullable=False, default=3)
     
-#     # State tracking
-#     last_fetch_attempt = Column(DateTime(timezone=True), nullable=True)
-#     last_successful_fetch = Column(DateTime(timezone=True), nullable=True)
-#     last_error = Column(Text, nullable=True)
-#     consecutive_errors = Column(Integer, nullable=False, default=0)
+    # State tracking
+    last_fetch_attempt = Column(DateTime(timezone=True), nullable=True)
+    last_successful_fetch = Column(DateTime(timezone=True), nullable=True)
+    last_error = Column(Text, nullable=True)
+    consecutive_errors = Column(Integer, nullable=False, default=0)
     
-#     # Performance metrics
-#     total_requests = Column(Integer, nullable=False, default=0)
-#     successful_requests = Column(Integer, nullable=False, default=0)
-#     failed_requests = Column(Integer, nullable=False, default=0)
-#     average_response_time_ms = Column(Float, nullable=True)
+    # Performance metrics
+    total_requests = Column(Integer, nullable=False, default=0)
+    successful_requests = Column(Integer, nullable=False, default=0)
+    failed_requests = Column(Integer, nullable=False, default=0)
+    average_response_time_ms = Column(Float, nullable=True)
     
-#     # Data metrics
-#     total_props_fetched = Column(Integer, nullable=False, default=0)
-#     unique_props_seen = Column(Integer, nullable=False, default=0)
-#     last_prop_count = Column(Integer, nullable=True)
+    # Data metrics
+    total_props_fetched = Column(Integer, nullable=False, default=0)
+    unique_props_seen = Column(Integer, nullable=False, default=0)
+    last_prop_count = Column(Integer, nullable=True)
     
-#     # Provider capabilities (JSON field)
-#     capabilities = Column(JSON, nullable=True)
+    # Provider capabilities (JSON field)
+    capabilities = Column(JSON, nullable=True)
     
-#     # Metadata
-#     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-#     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    # Metadata
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    
+    # Indexes for performance
+    __table_args__ = (
+        Index('ix_provider_states_sport_provider', 'sport', 'provider_name'),
+        Index('ix_provider_states_sport_status', 'sport', 'status'),
+    )
+
+
+class PortfolioRationale(Base):
+    """Portfolio rationale storage for caching and analysis"""
+    
+    __tablename__ = "portfolio_rationales"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    request_id = Column(String(100), nullable=False, unique=True, index=True)
+    rationale_type = Column(SQLEnum(RationaleType), nullable=False, index=True)
+    
+    # Content hashing for deduplication
+    portfolio_data_hash = Column(String(64), nullable=False, index=True)
+    
+    # Core data
+    portfolio_data = Column(JSON, nullable=False)
+    context_data = Column(JSON, nullable=True)
+    user_preferences = Column(JSON, nullable=True)
+    
+    # Generated content
+    narrative = Column(Text, nullable=False)
+    key_points = Column(JSON, nullable=False)
+    confidence = Column(Float, nullable=False)
+    
+    # Performance metrics
+    generation_time_ms = Column(Integer, nullable=False)
+    model_info = Column(JSON, nullable=False)
+    prompt_tokens = Column(Integer, nullable=True)
+    completion_tokens = Column(Integer, nullable=True)
+    total_cost = Column(Float, nullable=True)
+    
+    # Quality metrics
+    user_rating = Column(Integer, nullable=True)  # 1-5 rating
+    user_feedback = Column(Text, nullable=True)
+    is_flagged = Column(Boolean, nullable=False, default=False)
+    
+    # Cache management
+    cache_hits = Column(Integer, nullable=False, default=1)
+    last_accessed = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+    
+    # Metadata
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    
+    # Indexes for performance
+    __table_args__ = (
+        Index('ix_rationale_type_hash', 'rationale_type', 'portfolio_data_hash'),
+        Index('ix_rationale_expires_at', 'expires_at'),
+        Index('ix_rationale_created_at', 'created_at'),
+    )
 
 
 class ProviderStateSchema:
