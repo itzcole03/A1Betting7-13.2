@@ -10,8 +10,27 @@ import {
 } from 'lucide-react';
 import PropFinderKillerDashboard from '../modern/PropFinderKillerDashboard';
 
-const UnifiedResearchDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'propfinder' | 'player' | 'props' | 'matchups' | 'injuries' | 'lookup'>('propfinder');
+// Types for the dashboard
+interface Player {
+  id: string;
+  name: string;
+  team: string;
+  position: string;
+  salary?: number;
+  projectedPoints?: number;
+}
+
+interface InjuryReport {
+  playerId: string;
+  playerName: string;
+  team: string;
+  injury: string;
+  severity: 'minor' | 'moderate' | 'major';
+  status: 'questionable' | 'doubtful' | 'out';
+  lastUpdate: Date;
+  expectedReturn?: Date;
+  impact: number; // 1-10 scale
+}
 
 // Mock data
 const mockPlayers: Player[] = [
@@ -20,58 +39,60 @@ const mockPlayers: Player[] = [
     name: 'Mike Trout',
     team: 'LAA',
     position: 'OF',
-    number: 27,
-    stats: {
-      season: { avg: 0.283, hr: 15, rbi: 44, ops: 0.875 },
-      last5: { avg: 0.350, hr: 3, rbi: 8, ops: 1.100 },
-      trends: [],
-      advanced: {}
-    },
-    recentForm: [],
-    upcomingGame: { opponent: 'HOU', time: '7:05 PM', venue: 'home' },
-    injuryStatus: { status: 'healthy', lastUpdate: new Date() },
-    props: [
-      { id: '1', type: 'hits', market: 'Over 1.5', line: 1.5, odds: -110, confidence: 78, value: 12, sportsbook: 'DraftKings', lastUpdate: new Date(), trend: 'up' },
-      { id: '2', type: 'rbis', market: 'Over 0.5', line: 0.5, odds: +125, confidence: 65, value: 8, sportsbook: 'FanDuel', lastUpdate: new Date(), trend: 'stable' }
-    ],
-    marketValue: 95,
-    hotness: 8.7
+    salary: 12000,
+    projectedPoints: 18.5
   },
   {
     id: '2',
     name: 'Mookie Betts',
     team: 'LAD',
     position: 'OF',
-    number: 50,
-    stats: {
-      season: { avg: 0.292, hr: 18, rbi: 52, ops: 0.912 },
-      last5: { avg: 0.278, hr: 1, rbi: 3, ops: 0.820 },
-      trends: [],
-      advanced: {}
-    },
-    recentForm: [],
-    upcomingGame: { opponent: 'SD', time: '10:10 PM', venue: 'away' },
-    injuryStatus: { status: 'healthy', lastUpdate: new Date() },
-    props: [
-      { id: '3', type: 'hits', market: 'Over 1.5', line: 1.5, odds: -115, confidence: 82, value: 15, sportsbook: 'BetMGM', lastUpdate: new Date(), trend: 'up' },
-      { id: '4', type: 'runs', market: 'Over 0.5', line: 0.5, odds: -105, confidence: 71, value: 10, sportsbook: 'Caesars', lastUpdate: new Date(), trend: 'down' }
-    ],
-    marketValue: 92,
-    hotness: 7.9
+    salary: 12200,
+    projectedPoints: 19.2
+  },
+  {
+    id: '3',
+    name: 'Freddie Freeman',
+    team: 'ATL',
+    position: '1B',
+    salary: 10800,
+    projectedPoints: 16.8
   }
 ];
 
 const mockInjuries: InjuryReport[] = [
   {
-    playerId: '3',
+    playerId: '1',
     playerName: 'Fernando Tatis Jr.',
     team: 'SD',
     injury: 'Shoulder Inflammation',
-    severity: 'questionable',
-    status: 'day-to-day',
+    severity: 'minor',
+    status: 'questionable',
     lastUpdate: new Date(),
-    expectedReturn: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-    impact: 6
+    expectedReturn: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    impact: 5
+  },
+  {
+    playerId: '2',
+    playerName: 'Ronald Acuña Jr.',
+    team: 'ATL',
+    injury: 'Knee Contusion',
+    severity: 'moderate',
+    status: 'doubtful',
+    lastUpdate: new Date(),
+    expectedReturn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    impact: 7
+  },
+  {
+    playerId: '3',
+    playerName: 'Gerrit Cole',
+    team: 'NYY',
+    injury: 'Hamstring Strain',
+    severity: 'major',
+    status: 'out',
+    lastUpdate: new Date(),
+    expectedReturn: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000),
+    impact: 9
   },
   {
     playerId: '4',
@@ -103,52 +124,54 @@ const UnifiedResearchDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl flex items-center justify-center">
-              <Search className="w-6 h-6 text-white" />
-            </div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
             <div>
-              <h1 className="text-3xl font-bold text-white">Research Dashboard</h1>
-              <p className="text-slate-400">Choose your preferred research interface</p>
+              <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">
+                Research Dashboard
+              </h1>
+              <p className="text-slate-400 text-sm sm:text-base">
+                Comprehensive sports analysis & betting intelligence
+              </p>
             </div>
-          </div>
-
-          {/* Interface Style Notice */}
-          <div className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-purple-500/10 border border-purple-500/20 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <Target className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white">PropFinder-Style Interface Available!</h3>
-                <p className="text-slate-300 text-sm">Experience the familiar game and category selection interface that you know and love</p>
-              </div>
+            <div className="flex items-center gap-2 text-slate-400">
+              <Settings className="w-4 h-4" />
+              <span className="text-xs sm:text-sm">Advanced Mode</span>
             </div>
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="mb-6 lg:mb-8">
-          <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+        {/* Tab Navigation */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-wrap gap-2 sm:gap-4 bg-slate-800/50 p-2 sm:p-3 rounded-xl border border-slate-700/50">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
-              
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as 'propfinder' | 'player' | 'props' | 'matchups' | 'injuries' | 'lookup')}
-                  className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-2 sm:py-3 rounded-xl font-medium transition-all text-sm sm:text-base ${
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-medium text-xs sm:text-sm transition-all relative ${
                     isActive
-                      ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg'
-                      : 'bg-slate-800/50 text-slate-300 hover:text-white hover:bg-slate-700'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span>{tab.name}</span>
+                  <Icon className="w-4 h-4" />
+                  <div className="hidden sm:block">
+                    <span>{tab.name}</span>
+                    {tab.description && (
+                      <div className="text-xs opacity-75 mt-0.5">
+                        {tab.description}
+                      </div>
+                    )}
+                  </div>
+                  <span className="sm:hidden">{tab.name.split(' ')[0]}</span>
                   {tab.badge && (
-                    <span className={`px-2 py-1 text-xs font-bold rounded-full ${
-                      isActive ? 'bg-white/20 text-white' : 'bg-cyan-500 text-white'
+                    <span className={`absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-bold rounded-full ${
+                      tab.badge === 'NEW' ? 'bg-green-500 text-white' :
+                      tab.badge === 'BETA' ? 'bg-yellow-500 text-black' :
+                      tab.badge === 'UPDATED' ? 'bg-blue-500 text-white' :
+                      'bg-red-500 text-white'
                     }`}>
                       {tab.badge}
                     </span>
@@ -159,7 +182,7 @@ const UnifiedResearchDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Tab Content */}
+        {/* Content Area */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -167,19 +190,77 @@ const UnifiedResearchDashboard: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
+            className="min-h-[60vh]"
           >
             {activeTab === 'propfinder' && (
-              <div>
-                <PropFinderKillerDashboard />
+              <PropFinderKillerDashboard />
+            )}
+            
+            {activeTab === 'player' && (
+              <div className="text-center text-white bg-slate-800/30 rounded-xl p-8 border border-slate-700/50">
+                <User className="w-16 h-16 mx-auto mb-4 text-slate-400" />
+                <h3 className="text-xl font-semibold mb-2">Player Research Tool</h3>
+                <p className="text-slate-400 mb-6">Advanced player analytics and performance tracking</p>
+                <button
+                  onClick={() => setActiveTab('propfinder')}
+                  className="flex items-center gap-2 mx-auto px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-purple-500/25 transition-all"
+                >
+                  <Target className="w-4 h-4" />
+                  <span>Try PropFinder Style</span>
+                </button>
               </div>
             )}
-            {activeTab !== 'propfinder' && (
-              <div className="text-center py-12">
-                <div className="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Settings className="w-12 h-12 text-slate-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">Interface Coming Soon</h3>
-                <p className="text-slate-400 mb-4">This research interface is being developed. Try the PropFinder-style interface for now!</p>
+
+            {activeTab === 'props' && (
+              <div className="text-center text-white bg-slate-800/30 rounded-xl p-8 border border-slate-700/50">
+                <Eye className="w-16 h-16 mx-auto mb-4 text-slate-400" />
+                <h3 className="text-xl font-semibold mb-2">Prop Scanner</h3>
+                <p className="text-slate-400 mb-6">Real-time prop betting opportunities</p>
+                <button
+                  onClick={() => setActiveTab('propfinder')}
+                  className="flex items-center gap-2 mx-auto px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-purple-500/25 transition-all"
+                >
+                  <Target className="w-4 h-4" />
+                  <span>Try PropFinder Style</span>
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'matchups' && (
+              <div className="text-center text-white bg-slate-800/30 rounded-xl p-8 border border-slate-700/50">
+                <Target className="w-16 h-16 mx-auto mb-4 text-slate-400" />
+                <h3 className="text-xl font-semibold mb-2">Matchup Analyzer</h3>
+                <p className="text-slate-400 mb-6">Advanced matchup breakdowns and predictions</p>
+                <button
+                  onClick={() => setActiveTab('propfinder')}
+                  className="flex items-center gap-2 mx-auto px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-purple-500/25 transition-all"
+                >
+                  <Target className="w-4 h-4" />
+                  <span>Try PropFinder Style</span>
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'injuries' && (
+              <div className="text-center text-white bg-slate-800/30 rounded-xl p-8 border border-slate-700/50">
+                <Shield className="w-16 h-16 mx-auto mb-4 text-slate-400" />
+                <h3 className="text-xl font-semibold mb-2">Injury Tracker</h3>
+                <p className="text-slate-400 mb-6">Live injury reports and impact analysis</p>
+                <button
+                  onClick={() => setActiveTab('propfinder')}
+                  className="flex items-center gap-2 mx-auto px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-purple-500/25 transition-all"
+                >
+                  <Target className="w-4 h-4" />
+                  <span>Try PropFinder Style</span>
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'lookup' && (
+              <div className="text-center text-white bg-slate-800/30 rounded-xl p-8 border border-slate-700/50">
+                <Search className="w-16 h-16 mx-auto mb-4 text-slate-400" />
+                <h3 className="text-xl font-semibold mb-2">Player Lookup</h3>
+                <p className="text-slate-400 mb-6">Sub-second player search and analysis</p>
                 <button
                   onClick={() => setActiveTab('propfinder')}
                   className="flex items-center gap-2 mx-auto px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-purple-500/25 transition-all"
