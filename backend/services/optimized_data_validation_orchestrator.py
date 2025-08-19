@@ -32,10 +32,10 @@ from typing import Any, AsyncGenerator, Dict, List, Optional, Set, Tuple, Union
 # Modern async and caching libraries
 try:
     import aiohttp
-    import aioredis
-
+    import redis.asyncio as redis  # Use redis-py instead of aioredis
     ASYNC_LIBS_AVAILABLE = True
 except ImportError:
+    redis = None
     ASYNC_LIBS_AVAILABLE = False
 
 # Monitoring and metrics
@@ -321,9 +321,9 @@ class OptimizedDataValidationOrchestrator:
             )
 
         # Initialize Redis connection
-        if self.config.enable_redis_cache and ASYNC_LIBS_AVAILABLE:
+        if self.config.enable_redis_cache and ASYNC_LIBS_AVAILABLE and redis is not None:
             try:
-                self.redis_client = await aioredis.from_url(
+                self.redis_client = await redis.from_url(
                     self.config.redis_url,
                     encoding="utf-8",
                     decode_responses=True,

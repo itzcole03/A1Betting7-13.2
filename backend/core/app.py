@@ -62,24 +62,30 @@ def create_app() -> FastAPI:
     Canonical app factory - THE ONLY way to create the A1Betting application.
     All production integrations are consolidated here.
     """
+    print("🚀 PRINT DEBUG: create_app() function called!")
     logger.info("🚀 Creating A1Betting canonical app...")
 
     # Check lean mode early
+    print("🔍 PRINT DEBUG: Checking lean mode...")
     from backend.config.settings import get_settings
     settings = get_settings()
     is_lean_mode = settings.app.dev_lean_mode
+    print(f"🔍 PRINT DEBUG: Lean mode is {is_lean_mode}")
     
     if is_lean_mode:
         logger.info("[LeanMode] Reduced middleware profile active")
 
     # Create the FastAPI app
+    print("🔍 PRINT DEBUG: Creating FastAPI app...")
     _app = FastAPI(
         title="A1Betting API",
         version="1.0.0",
         description="A1Betting Sports Analysis Platform - Canonical Entry Point"
     )
+    print("✅ PRINT DEBUG: FastAPI app created successfully!")
 
     # --- CORS Middleware (FIRST in middleware stack) ---
+    print("🔍 PRINT DEBUG: Adding CORS middleware...")
     # CORS config (dev only) for clean preflight handling
     origins = [
         "http://localhost:5173",
@@ -93,6 +99,7 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    print("✅ PRINT DEBUG: CORS middleware added!")
 
     # --- MIDDLEWARE STACK ORDERING (Architect-Specified) ---
     # CORS -> RequestID -> Logging -> Metrics -> PayloadGuard -> RateLimit -> SecurityHeaders -> Router
@@ -667,15 +674,24 @@ def create_app() -> FastAPI:
         })
 
     # Import and mount versioned routers
+    print("🔍 PRINT DEBUG: Starting route registrations section - this is the first route group!")
+    logger.info("🔍 DEBUG: Starting route registrations")
     try:
+        print("🔍 PRINT DEBUG: About to import auth/users routes")
         from backend.routes.auth import router as auth_router
         from backend.users.routes import router as users_router
 
+        print("🔍 PRINT DEBUG: Auth/users routes imported, registering...")
         _app.include_router(auth_router, prefix="/api")
         _app.include_router(users_router)
+        print("✅ PRINT DEBUG: Auth/users routes registered successfully!")
         logger.info("✅ Auth and users routes included (auth with /api prefix)")
     except ImportError as e:
+        print(f"❌ PRINT DEBUG: ImportError in auth/users routes: {e}")
         logger.warning(f"⚠️ Could not import auth/users routes: {e}")
+    except Exception as e:
+        print(f"❌ PRINT DEBUG: Exception in auth/users routes: {e}")
+        logger.error(f"❌ Failed to register auth/users routes: {e}")
     
     # Import and mount diagnostics router (includes new structured health endpoint)
     try:
@@ -738,15 +754,39 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register model inference routes: {e}")
 
+    print("🔍 PRINT DEBUG: About to register observability events routes")
     # Import and mount observability events routes (PR11: WebSocket Correlation & Observability Event Bus)
     try:
         from backend.routes.observability_events import router as observability_events_router
         _app.include_router(observability_events_router, tags=["Observability Events"])
         logger.info("✅ Observability events routes included (/api/v2/observability/* endpoints)")
+        print("✅ PRINT DEBUG: Observability events routes registered successfully")
     except ImportError as e:
         logger.warning(f"⚠️ Could not import observability events routes: {e}")
+        print(f"❌ PRINT DEBUG: ImportError in observability events: {e}")
     except Exception as e:
         logger.error(f"❌ Failed to register observability events routes: {e}")
+        print(f"❌ PRINT DEBUG: Exception in observability events: {e}")
+    
+    print("🔍 PRINT DEBUG: After observability events, moving to PropFinder...")
+
+    # Import and mount PropFinder routes (PropFinder Dashboard Integration)
+    print("🔍 PRINT DEBUG: About to register PropFinder routes - this should ALWAYS appear!")
+    logger.info("🔍 DEBUG: About to register PropFinder routes")
+    try:
+        print("🔍 PRINT DEBUG: Starting PropFinder import...")
+        from backend.routes.propfinder_routes import router as propfinder_router
+        print("🔍 PRINT DEBUG: PropFinder router imported successfully!")
+        logger.info("🔍 DEBUG: PropFinder router imported successfully")
+        _app.include_router(propfinder_router, tags=["PropFinder"])
+        print("✅ PRINT DEBUG: PropFinder routes registered successfully!")
+        logger.info("✅ PropFinder routes included (/api/propfinder/* endpoints)")
+    except ImportError as e:
+        print(f"❌ PRINT DEBUG: ImportError in PropFinder: {e}")
+        logger.warning(f"⚠️ Could not import PropFinder routes: {e}")
+    except Exception as e:
+        print(f"❌ PRINT DEBUG: Exception in PropFinder: {e}")
+        logger.error(f"❌ Failed to register PropFinder routes: {e}")
 
     # Import and mount admin control routes (Admin Control PR: Runtime Shadow Mode Control)
     try:
@@ -1114,4 +1154,4 @@ app = create_app()
 
 # Legacy compatibility
 core_app = app
-# Reload trigger
+# Reload trigger 2

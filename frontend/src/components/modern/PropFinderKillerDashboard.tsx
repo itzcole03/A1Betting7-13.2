@@ -3,15 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart,
   ChevronDown,
-  Search,
   User,
-  Calendar,
   Download,
   Filter,
   RefreshCw,
   Settings,
-  Star,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react';
+import PropFinderDataService from '../../services/PropFinderDataService';
 
 // Types matching PropFinder interface exactly
 interface PropFinderPlayer {
@@ -51,15 +51,16 @@ interface Game {
   awayTeam: string;
   time: string;
   date: string;
+  status?: string;
   selected: boolean;
   locked?: boolean;
 }
 
 const PropFinderKillerDashboard: React.FC = () => {
   const [betType, setBetType] = useState<'OVER' | 'UNDER'>('OVER');
-  const [searchPlayer, setSearchPlayer] = useState('Search Player');
+  const [searchPlayer, _setSearchPlayer] = useState('Search Player');
   const [showAllLines, setShowAllLines] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [_currentPage, _setCurrentPage] = useState(1);
   const [showPlayerDropdown, setShowPlayerDropdown] = useState(false);
   const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
   const [showGamesDropdown, setShowGamesDropdown] = useState(false);
@@ -69,6 +70,251 @@ const PropFinderKillerDashboard: React.FC = () => {
   // This should check if the current user has admin privileges
   const isAdminUser = true; // TODO: Replace with actual auth check like: useAuth().user?.isAdmin
   const [favorites, setFavorites] = useState<string[]>([]);
+  
+  // Real data loading states
+  const [isLoadingGames, setIsLoadingGames] = useState(false);
+  const [isLoadingProps, setIsLoadingProps] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [realPlayers, setRealPlayers] = useState<PropFinderPlayer[]>([]);
+  
+  // Games state
+  const [games, setGames] = useState<Game[]>([]);
+  
+  // Props caching to avoid reloading same game data
+  const [propsCache, setPropsCache] = useState<Map<string, PropFinderPlayer[]>>(new Map());
+  const [cacheTimestamps, setCacheTimestamps] = useState<Map<string, number>>(new Map());
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+  
+  // PropFinder Data Service instance
+  const propFinderService = PropFinderDataService.getInstance();
+  
+  // Real data loading functions
+  const loadTodaysGames = React.useCallback(async () => {
+    setIsLoadingGames(true);
+    setError(null);
+    try {
+      const realGames = await propFinderService.getTodaysGames(true);
+      
+      // Transform real games to PropFinder format
+      const transformedGames: Game[] = realGames.map((game, index) => ({
+        id: game.id.toString(),
+        homeTeam: game.home_team,
+        awayTeam: game.away_team,
+        time: new Date(game.game_time).toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit', 
+          hour12: true 
+        }),
+        date: new Date(game.game_date).toLocaleDateString('en-US', { 
+          month: 'numeric', 
+          day: 'numeric' 
+        }),
+        status: game.status || 'Unknown',
+        selected: false, // Will be set below based on most recent upcoming
+        locked: !isAdminUser && index !== 0
+      }));
+
+      // Find the most recent upcoming game (not finished)
+      let selectedGameIndex = 0;
+      
+      // Filter to non-finished games first
+      const activeGames = transformedGames.filter((game) => {
+        const isFinished = game.status?.toLowerCase() === 'final' || 
+                          game.status?.toLowerCase() === 'completed' ||
+                          game.status?.toLowerCase() === 'game over';
+        return !isFinished;
+      });
+      
+      if (activeGames.length > 0) {
+        // Find the game closest to current time that's not finished
+        selectedGameIndex = transformedGames.findIndex(game => 
+          activeGames[0].id === game.id
+        );
+      }
+      
+      // Set the selected game
+      if (transformedGames[selectedGameIndex]) {
+        transformedGames[selectedGameIndex].selected = true;
+      }
+      
+      setGames(transformedGames);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load games');
+    } finally {
+      setIsLoadingGames(false);
+    }
+  }, [propFinderService, isAdminUser]);
+
+  const loadPropsForSelectedGames = React.useCallback(async () => {
+    setIsLoadingProps(true);
+    setError(null);
+    
+    try {
+      const selectedGames = games.filter(game => game.selected && !game.locked);
+      if (selectedGames.length === 0) {
+        setRealPlayers([]);
+        setIsLoadingProps(false);
+        return;
+      }
+
+      let allProps: PropFinderPlayer[] = [];
+      const currentTime = Date.now();
+      
+      for (const game of selectedGames) {
+        // Check if we have cached data that's still fresh
+        const cacheKey = `${game.id}_${betType}`;
+        const cachedProps = propsCache.get(cacheKey);
+        const cacheTime = cacheTimestamps.get(cacheKey);
+        const isCacheValid = cachedProps && cacheTime && (currentTime - cacheTime) < CACHE_DURATION;
+
+        if (isCacheValid) {
+          // Using cached props for performance
+          allProps = [...allProps, ...cachedProps];
+          continue;
+        }
+
+        try {
+          // Loading fresh props
+          const gameProps = await propFinderService.getGameProps(parseInt(game.id));
+          
+          if (gameProps.length > 0) {
+            // Transform API props to dashboard format
+            const transformedProps = gameProps.map(prop => ({
+              id: prop.id,
+              name: prop.player_name,
+              team: prop.team,
+              position: prop.category || 'N/A',
+              number: 0, // Will be populated if available
+              imageUrl: prop.player_id ? 
+                `https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto/w_180,h_180/v1/people/${prop.player_id}/headshot/67/current` :
+                undefined,
+              pfRating: prop.pf_rating || prop.confidence || 50,
+              prop: prop.prop_type ? `${betType.toLowerCase()} ${prop.line || 0.5} ${prop.prop_type}` : `${betType.toLowerCase()} hits`,
+              l10Avg: prop.l10_avg || 0,
+              l5Avg: prop.l5_avg || 0,
+              odds: prop.over_odds > 0 ? `+${prop.over_odds}` : prop.over_odds?.toString() || '+100',
+              streak: 0, // Will be calculated from stats
+              matchup: `vs ${game.homeTeam === prop.team ? game.awayTeam : game.homeTeam}`,
+              percentages: {
+                '2024': Math.round(prop.confidence || 50),
+                '2025': Math.round((prop.confidence || 50) * 0.9),
+                'h2h': Math.round((prop.confidence || 50) * 0.8),
+                'l5': Math.round((prop.l5_avg || 0) * 100),
+                'last': Math.round((prop.confidence || 50) * 0.7),
+                'l4': Math.round((prop.confidence || 50) * 0.75),
+              },
+              isFavorite: favorites.includes(prop.id),
+            }));
+            
+            allProps = [...allProps, ...transformedProps];
+            
+            // Cache the transformed props
+            const cacheKey = `${game.id}_${betType}`;
+            setPropsCache(prev => new Map(prev).set(cacheKey, transformedProps));
+            setCacheTimestamps(prev => new Map(prev).set(cacheKey, currentTime));
+          } else {
+            // Fallback: try enhanced props with comprehensive statistics
+            const enhancedPlayers = await propFinderService.getEnhancedGameProps(
+              parseInt(game.id), 
+              'hits' // This can be made dynamic based on selected prop type
+            );
+            
+            if (enhancedPlayers.length > 0) {
+              // Transform enhanced players to PropFinder format
+              const transformedProps = enhancedPlayers.map(player => ({
+                id: player.id,
+                name: player.name,
+                team: player.team,
+                position: player.position,
+                number: player.jersey_number,
+                imageUrl: player.image_url,
+                pfRating: player.pf_rating,
+                prop: `${betType.toLowerCase()} ${player.prop}`,
+                l10Avg: player.l10_avg,
+                l5Avg: player.l5_avg,
+                odds: player.odds,
+                streak: player.streak,
+                matchup: player.matchup || `vs ${game.homeTeam === player.team ? game.awayTeam : game.homeTeam}`,
+                percentages: player.percentages,
+                isFavorite: favorites.includes(player.id),
+              }));
+              
+              allProps = [...allProps, ...transformedProps];
+            }
+          }
+        } catch (gameError) {
+          // Continue with other games instead of failing completely
+          if (process.env.NODE_ENV === 'development') {
+            // eslint-disable-next-line no-console
+            console.error(`Failed to load props for game ${game.id}:`, gameError);
+          }
+        }
+      }
+
+      setRealPlayers(allProps);
+      
+      // If no props were loaded, show a helpful message
+      if (allProps.length === 0 && selectedGames.length > 0) {
+        setError('No props available for selected games. Props may not be generated for completed games.');
+      }
+      
+    } catch (err) {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.error('Error loading props:', err);
+      }
+      setError(err instanceof Error ? err.message : 'Failed to load props');
+    } finally {
+      setIsLoadingProps(false);
+    }
+  }, [games, propFinderService, betType, favorites, propsCache, cacheTimestamps, CACHE_DURATION]);
+
+  // Load games on component mount
+  useEffect(() => {
+    loadTodaysGames();
+  }, [loadTodaysGames]);
+
+  // Load initial props when games are first loaded
+  const [hasInitialLoad, setHasInitialLoad] = useState(false);
+  useEffect(() => {
+    if (!hasInitialLoad && games.length > 0) {
+      const hasSelectedGames = games.some(g => g.selected);
+      if (hasSelectedGames) {
+        loadPropsForSelectedGames();
+        setHasInitialLoad(true);
+      }
+    }
+  }, [games, hasInitialLoad, loadPropsForSelectedGames]);
+
+  // Enhanced player stats loading
+  const loadPlayerStats = React.useCallback(async (playerId: string, statType: string = 'hits') => {
+    try {
+      const stats = await propFinderService.getPlayerComprehensiveStats(playerId, statType);
+      return stats;
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.error(`Failed to load stats for player ${playerId}:`, error);
+      }
+      return null;
+    }
+  }, [propFinderService]);
+
+  // Enhanced analysis with real player stats
+  const _enhancePlayerWithStats = React.useCallback(async (player: PropFinderPlayer, statType: string = 'hits') => {
+    const stats = await loadPlayerStats(player.id, statType);
+    if (stats) {
+      return {
+        ...player,
+        l10Avg: stats.statistics.l10_avg,
+        l5Avg: stats.statistics.l5_avg,
+        percentages: stats.statistics.percentages,
+        pfRating: stats.statistics.pf_rating,
+        streak: stats.statistics.streak,
+      };
+    }
+    return player;
+  }, [loadPlayerStats]);
 
   // PropFinder Core Analysis Functions
   const calculatePFRating = (player: PropFinderPlayer): number => {
@@ -188,27 +434,17 @@ const PropFinderKillerDashboard: React.FC = () => {
     { id: 'earnedRuns', name: 'Earned Runs', selected: true },
   ]);
 
-  const [games, setGames] = useState<Game[]>([
-    { id: '1', homeTeam: 'CHC', awayTeam: 'MIL', time: '1:20 PM', date: '8/18', selected: true },
-    { id: '2', homeTeam: 'MIA', awayTeam: 'STL', time: 'TBD', date: '8/18', selected: false, locked: !isAdminUser },
-    { id: '3', homeTeam: 'DET', awayTeam: 'HOU', time: 'TBD', date: '8/18', selected: false, locked: !isAdminUser },
-    { id: '4', homeTeam: 'PIT', awayTeam: 'TOR', time: 'TBD', date: '8/18', selected: false, locked: !isAdminUser },
-    { id: '5', homeTeam: 'PHI', awayTeam: 'SEA', time: 'TBD', date: '8/18', selected: false, locked: !isAdminUser },
-    { id: '6', homeTeam: 'BOS', awayTeam: 'BAL', time: 'TBD', date: '8/18', selected: false, locked: !isAdminUser },
-    { id: '7', homeTeam: 'ATL', awayTeam: 'CWS', time: 'TBD', date: '8/18', selected: false, locked: !isAdminUser },
-  ]);
-  
-  // Update games when admin status changes
+  // Update games admin status when admin status changes (real data will override this)
   useEffect(() => {
     setGames(prevGames => 
       prevGames.map(game => ({
         ...game,
-        locked: !isAdminUser && game.id !== '1' // Keep first game always unlocked
+        locked: !isAdminUser && prevGames.indexOf(game) !== 0 // Keep first game always unlocked
       }))
     );
   }, [isAdminUser]);
 
-  const mockPlayers: PropFinderPlayer[] = [
+  const mockPlayers: PropFinderPlayer[] = useMemo(() => [
     {
       id: '1',
       name: 'Nico Hoerner',
@@ -281,11 +517,13 @@ const PropFinderKillerDashboard: React.FC = () => {
       },
       isFavorite: true,
     },
-  ];
+  ], []);
 
   // Calculate PF Ratings and apply filtering
   const processedPlayers = useMemo(() => {
-    let players = mockPlayers.map(player => ({
+    // Use real players if available, otherwise fall back to mock data
+    const sourceData = realPlayers.length > 0 ? realPlayers : mockPlayers;
+    let players = sourceData.map(player => ({
       ...player,
       pfRating: calculatePFRating(player)
     }));
@@ -315,7 +553,7 @@ const PropFinderKillerDashboard: React.FC = () => {
     players.sort((a, b) => b.pfRating - a.pfRating);
 
     return players;
-  }, [mockPlayers, categories, games, betType]);
+  }, [realPlayers, mockPlayers, categories, games]);
 
   // Update filtered players when processing changes
   useEffect(() => {
@@ -324,6 +562,26 @@ const PropFinderKillerDashboard: React.FC = () => {
 
   const selectedCategoriesCount = categories.filter(c => c.selected).length;
   const selectedGamesCount = games.filter(g => g.selected).length;
+
+  // Performance optimizations for large lists
+  const [visibleRows, setVisibleRows] = useState(50); // Start with 50 rows
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  
+  // Virtual scrolling - only show more rows when needed
+  const _loadMoreRows = React.useCallback(() => {
+    if (!isLoadingMore && visibleRows < filteredPlayers.length) {
+      setIsLoadingMore(true);
+      setTimeout(() => {
+        setVisibleRows(prev => Math.min(prev + 25, filteredPlayers.length));
+        setIsLoadingMore(false);
+      }, 100);
+    }
+  }, [isLoadingMore, visibleRows, filteredPlayers.length]);
+
+  // Memoize displayed players for performance
+  const _displayedPlayers = React.useMemo(() => {
+    return filteredPlayers.slice(0, visibleRows);
+  }, [filteredPlayers, visibleRows]);
 
   // Circular Progress Component for PF Rating
   const CircularProgress: React.FC<{ value: number; size?: number }> = ({ value, size = 50 }) => {
@@ -411,15 +669,46 @@ const PropFinderKillerDashboard: React.FC = () => {
     setCategories(prev => prev.map(cat => ({ ...cat, selected: !allSelected })));
   };
 
+  // Debounced game selection to prevent rapid API calls
+  const [selectedGameIds, setSelectedGameIds] = useState<Set<string>>(new Set());
+  const [gameSelectionTimeout, setGameSelectionTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  const debouncedGameSelection = React.useCallback((updatedGames: Game[]) => {
+    // Clear existing timeout
+    if (gameSelectionTimeout) {
+      clearTimeout(gameSelectionTimeout);
+    }
+
+    // Set new timeout for delayed prop loading
+    const timeout = setTimeout(() => {
+      const newSelectedIds = new Set(updatedGames.filter(g => g.selected).map(g => g.id));
+      if (!areSetsEqual(selectedGameIds, newSelectedIds)) {
+        setSelectedGameIds(newSelectedIds);
+        if (newSelectedIds.size > 0) {
+          loadPropsForSelectedGames();
+        }
+      }
+    }, 300); // 300ms debounce
+
+    setGameSelectionTimeout(timeout);
+  }, [gameSelectionTimeout, selectedGameIds, loadPropsForSelectedGames]);
+
+  // Helper function to compare Sets
+  const areSetsEqual = (set1: Set<string>, set2: Set<string>) => {
+    return set1.size === set2.size && [...set1].every(x => set2.has(x));
+  };
+
   const toggleGame = (gameId: string) => {
-    setGames(prev => prev.map(game => 
+    const updatedGames = games.map(game => 
       game.id === gameId ? { ...game, selected: !game.selected } : game
-    ));
+    );
+    setGames(updatedGames);
+    debouncedGameSelection(updatedGames);
   };
 
   const toggleFavorite = (playerId: string) => {
-    setFavorites(prev => 
-      prev.includes(playerId) 
+    setFavorites(prev =>
+      prev.includes(playerId)
         ? prev.filter(fav => fav !== playerId)
         : [...prev, playerId]
     );
@@ -429,7 +718,16 @@ const PropFinderKillerDashboard: React.FC = () => {
     setBetType(prev => prev === 'OVER' ? 'UNDER' : 'OVER');
   };
 
-  const getRecommendationBadge = (recommendation: string, confidence: number) => {
+  // Cleanup timeouts on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (gameSelectionTimeout) {
+        clearTimeout(gameSelectionTimeout);
+      }
+    };
+  }, [gameSelectionTimeout]);
+
+  const _getRecommendationBadge = (recommendation: string, confidence: number) => {
     const colors = {
       STRONG: 'bg-green-500/20 text-green-400 border-green-500/50',
       LEAN: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50',
@@ -598,15 +896,22 @@ const PropFinderKillerDashboard: React.FC = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <label className="flex items-center gap-2 cursor-pointer hover:bg-slate-700 p-2 rounded">
-                        <input
-                          type="checkbox"
-                          checked={games.every(g => g.selected)}
-                          onChange={() => setGames(prev => prev.map(g => ({ ...g, selected: true })))}
-                          className="w-4 h-4 text-purple-600 bg-slate-700 border-slate-600 rounded focus:ring-purple-500"
-                        />
-                        <span className="text-white font-medium">Select All</span>
-                      </label>
+                      {isLoadingGames ? (
+                        <div className="flex items-center gap-2 p-4 text-slate-400">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Loading games...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <label className="flex items-center gap-2 cursor-pointer hover:bg-slate-700 p-2 rounded">
+                            <input
+                              type="checkbox"
+                              checked={games.every(g => g.selected)}
+                              onChange={() => setGames(prev => prev.map(g => ({ ...g, selected: true })))}
+                              className="w-4 h-4 text-purple-600 bg-slate-700 border-slate-600 rounded focus:ring-purple-500"
+                            />
+                            <span className="text-white font-medium">Select All</span>
+                          </label>
                       
                       {games.map((game) => (
                         <div key={game.id}>
@@ -647,6 +952,8 @@ const PropFinderKillerDashboard: React.FC = () => {
                           )}
                         </div>
                       ))}
+                        </>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -746,9 +1053,19 @@ const PropFinderKillerDashboard: React.FC = () => {
           </button>
         </div>
         <div className="flex items-center gap-4">
-          <button className="flex items-center gap-2 text-slate-400 hover:text-white text-sm">
-            <RefreshCw className="w-4 h-4" />
-            Refresh
+          <button 
+            onClick={() => {
+              setError(null);
+              loadTodaysGames();
+              if (games.length > 0) {
+                loadPropsForSelectedGames();
+              }
+            }}
+            disabled={isLoadingGames || isLoadingProps}
+            className="flex items-center gap-2 text-slate-400 hover:text-white text-sm disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${(isLoadingGames || isLoadingProps) ? 'animate-spin' : ''}`} />
+            Refresh {(isLoadingGames || isLoadingProps) ? 'Loading...' : ''}
           </button>
         </div>
       </div>
@@ -937,9 +1254,41 @@ const PropFinderKillerDashboard: React.FC = () => {
         </table>
       </div>
 
+      {/* Loading State */}
+      {isLoadingProps && (
+        <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-10">
+          <div className="bg-slate-800 rounded-lg p-6 flex items-center gap-3 border border-slate-600">
+            <Loader2 className="w-5 h-5 animate-spin text-blue-400" />
+            <span className="text-white">Loading player props...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-10">
+          <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-6 max-w-md">
+            <div className="flex items-center gap-3 mb-3">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+              <span className="text-red-400 font-medium">Error Loading Data</span>
+            </div>
+            <p className="text-slate-300 text-sm mb-4">{error}</p>
+            <button
+              onClick={() => {
+                setError(null);
+                loadTodaysGames();
+              }}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
       <div className="bg-slate-800/80 border-t border-slate-600 p-4 flex items-center justify-between text-sm text-slate-300">
-        <div>Total Rows: {mockPlayers.length}</div>
+        <div>Total Rows: {filteredPlayers.length}</div>
         <div className="flex items-center gap-4">
           <span>Showing 1-{mockPlayers.length} of {mockPlayers.length} results</span>
         </div>
