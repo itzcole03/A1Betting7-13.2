@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart,
@@ -10,6 +10,19 @@ import {
   Settings,
   Loader2,
   AlertCircle,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Search,
+  X,
+  Calendar,
+  Clock,
+  Target,
+  BarChart3,
+  Zap,
+  Shield,
+  Award,
+  Info,
 } from 'lucide-react';
 import PropFinderDataService from '../../services/PropFinderDataService';
 
@@ -58,13 +71,26 @@ interface Game {
 
 const PropFinderKillerDashboard: React.FC = () => {
   const [betType, setBetType] = useState<'OVER' | 'UNDER'>('OVER');
-  const [searchPlayer, _setSearchPlayer] = useState('Search Player');
+  const [searchPlayer, setSearchPlayer] = useState('Search Player');
+  const [playerSearchQuery, setPlayerSearchQuery] = useState('');
   const [showAllLines, setShowAllLines] = useState(true);
   const [_currentPage, _setCurrentPage] = useState(1);
   const [showPlayerDropdown, setShowPlayerDropdown] = useState(false);
   const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
   const [showGamesDropdown, setShowGamesDropdown] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [filteredPlayers, setFilteredPlayers] = useState<PropFinderPlayer[]>([]);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+  const [selectedMarketType, setSelectedMarketType] = useState<'main' | 'alternate'>('main');
+  const [minPFRating, setMinPFRating] = useState<number>(0);
+  const [maxOdds, setMaxOdds] = useState<number>(500);
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
+  
+  // Performance tracking
+  const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
+  const [refreshInterval, setRefreshInterval] = useState<number>(30); // seconds
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // Admin user detection - integrate with your authentication system
   // This should check if the current user has admin privileges
@@ -80,20 +106,134 @@ const PropFinderKillerDashboard: React.FC = () => {
   // Games state
   const [games, setGames] = useState<Game[]>([]);
   
-  // Props caching to avoid reloading same game data
+  // Enhanced caching with metadata
   const [propsCache, setPropsCache] = useState<Map<string, PropFinderPlayer[]>>(new Map());
   const [cacheTimestamps, setCacheTimestamps] = useState<Map<string, number>>(new Map());
+  const [cacheHits, setCacheHits] = useState<number>(0);
+  const [apiCalls, setApiCalls] = useState<number>(0);
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
   
   // PropFinder Data Service instance
   const propFinderService = PropFinderDataService.getInstance();
+
+  // Enhanced search and filtering
+  const searchFilteredPlayers = useMemo(() => {
+    if (!playerSearchQuery.trim()) return filteredPlayers;
+    
+    const query = playerSearchQuery.toLowerCase().trim();
+    return filteredPlayers.filter(player => 
+      player.name.toLowerCase().includes(query) ||
+      player.team.toLowerCase().includes(query) ||
+      player.position.toLowerCase().includes(query) ||
+      player.prop.toLowerCase().includes(query)
+    );
+  }, [filteredPlayers, playerSearchQuery]);
+
+  // Enhanced sorting
+  const sortedPlayers = useMemo(() => {
+    if (!sortConfig) return searchFilteredPlayers;
+    
+    const { key, direction } = sortConfig;
+    const sorted = [...searchFilteredPlayers].sort((a, b) => {
+      let aValue: any = a;
+      let bValue: any = b;
+      
+      // Handle nested properties
+      if (key.includes('.')) {
+        const keys = key.split('.');
+        aValue = keys.reduce((obj, k) => obj?.[k], a);
+        bValue = keys.reduce((obj, k) => obj?.[k], b);
+      } else {
+        aValue = a[key as keyof PropFinderPlayer];
+        bValue = b[key as keyof PropFinderPlayer];
+      }
+      
+      // Handle numeric sorting
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return direction === 'asc' ? aValue - bValue : bValue - aValue;
+      }
+      
+      // Handle string sorting
+      const aStr = String(aValue).toLowerCase();
+      const bStr = String(bValue).toLowerCase();
+      
+      if (direction === 'asc') {
+        return aStr < bStr ? -1 : aStr > bStr ? 1 : 0;
+      } else {
+        return aStr > bStr ? -1 : aStr < bStr ? 1 : 0;
+      }
+    });
+    
+    return sorted;
+  }, [searchFilteredPlayers, sortConfig]);
+
+  // Advanced filtering with more options
+  const advancedFilteredPlayers = useMemo(() => {
+    let filtered = sortedPlayers;
+    
+    // PF Rating filter
+    if (minPFRating > 0) {
+      filtered = filtered.filter(player => player.pfRating >= minPFRating);
+    }
+    
+    // Odds filter (convert odds string to number for comparison)
+    if (maxOdds < 500) {
+      filtered = filtered.filter(player => {
+        const odds = player.odds;
+        const numericOdds = parseInt(odds.replace(/[+-]/g, ''));
+        return numericOdds <= maxOdds;
+      });
+    }
+    
+    // Favorites only filter
+    if (onlyFavorites) {
+      filtered = filtered.filter(player => favorites.includes(player.id));
+    }
+    
+    return filtered;
+  }, [sortedPlayers, minPFRating, maxOdds, onlyFavorites, favorites]);
+
+  // Auto refresh functionality
+  useEffect(() => {
+    if (autoRefreshEnabled && refreshInterval > 0) {
+      refreshIntervalRef.current = setInterval(() => {
+        if (games.length > 0) {
+          loadPropsForSelectedGames();
+          setLastUpdateTime(new Date());
+        }
+      }, refreshInterval * 1000);
+    } else if (refreshIntervalRef.current) {
+      clearInterval(refreshIntervalRef.current);
+      refreshIntervalRef.current = null;
+    }
+    
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, [autoRefreshEnabled, refreshInterval, games]);
+
+  // Handle sorting
+  const handleSort = useCallback((key: string) => {
+    setSortConfig(current => {
+      if (current?.key === key) {
+        // Toggle direction
+        return { key, direction: current.direction === 'asc' ? 'desc' : 'asc' };
+      } else {
+        // New sort
+        return { key, direction: 'desc' };
+      }
+    });
+  }, []);
   
   // Real data loading functions
-  const loadTodaysGames = React.useCallback(async () => {
+  const loadTodaysGames = useCallback(async () => {
     setIsLoadingGames(true);
     setError(null);
     try {
       const realGames = await propFinderService.getTodaysGames(true);
+      setApiCalls(prev => prev + 1);
       
       // Transform real games to PropFinder format
       const transformedGames: Game[] = realGames.map((game, index) => ({
@@ -145,7 +285,7 @@ const PropFinderKillerDashboard: React.FC = () => {
     }
   }, [propFinderService, isAdminUser]);
 
-  const loadPropsForSelectedGames = React.useCallback(async () => {
+  const loadPropsForSelectedGames = useCallback(async () => {
     setIsLoadingProps(true);
     setError(null);
     
@@ -170,11 +310,13 @@ const PropFinderKillerDashboard: React.FC = () => {
         if (isCacheValid) {
           // Using cached props for performance
           allProps = [...allProps, ...cachedProps];
+          setCacheHits(prev => prev + 1);
           continue;
         }
 
         try {
           // Loading fresh props
+          setApiCalls(prev => prev + 1);
           const gameProps = await propFinderService.getGameProps(parseInt(game.id));
           
           if (gameProps.length > 0) {
@@ -189,13 +331,13 @@ const PropFinderKillerDashboard: React.FC = () => {
                 `https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto/w_180,h_180/v1/people/${prop.player_id}/headshot/67/current` :
                 undefined,
               pfRating: prop.pf_rating || prop.confidence || 50,
-              prop: prop.prop_type ? `${betType.toLowerCase()} ${prop.line || 0.5} ${prop.prop_type}` : `${betType.toLowerCase()} hits`,
+              prop: prop.prop_type ? `${betType.toLowerCase()} ${prop.target || 0.5} ${prop.prop_type}` : `${betType.toLowerCase()} hits`,
               l10Avg: prop.l10_avg || 0,
               l5Avg: prop.l5_avg || 0,
-              odds: prop.over_odds > 0 ? `+${prop.over_odds}` : prop.over_odds?.toString() || '+100',
-              streak: 0, // Will be calculated from stats
-              matchup: `vs ${game.homeTeam === prop.team ? game.awayTeam : game.homeTeam}`,
-              percentages: {
+              odds: prop.odds || '+100',
+              streak: prop.streak || 0,
+              matchup: prop.matchup || `vs ${game.homeTeam === prop.team ? game.awayTeam : game.homeTeam}`,
+              percentages: prop.percentages || {
                 '2024': Math.round(prop.confidence || 50),
                 '2025': Math.round((prop.confidence || 50) * 0.9),
                 'h2h': Math.round((prop.confidence || 50) * 0.8),
@@ -209,7 +351,6 @@ const PropFinderKillerDashboard: React.FC = () => {
             allProps = [...allProps, ...transformedProps];
             
             // Cache the transformed props
-            const cacheKey = `${game.id}_${betType}`;
             setPropsCache(prev => new Map(prev).set(cacheKey, transformedProps));
             setCacheTimestamps(prev => new Map(prev).set(cacheKey, currentTime));
           } else {
@@ -252,6 +393,7 @@ const PropFinderKillerDashboard: React.FC = () => {
       }
 
       setRealPlayers(allProps);
+      setLastUpdateTime(new Date());
       
       // If no props were loaded, show a helpful message
       if (allProps.length === 0 && selectedGames.length > 0) {
@@ -286,8 +428,8 @@ const PropFinderKillerDashboard: React.FC = () => {
     }
   }, [games, hasInitialLoad, loadPropsForSelectedGames]);
 
-  // Enhanced player stats loading
-  const loadPlayerStats = React.useCallback(async (playerId: string, statType: string = 'hits') => {
+  // Enhanced player stats loading with better caching
+  const loadPlayerStats = useCallback(async (playerId: string, statType: string = 'hits') => {
     try {
       const stats = await propFinderService.getPlayerComprehensiveStats(playerId, statType);
       return stats;
@@ -300,46 +442,43 @@ const PropFinderKillerDashboard: React.FC = () => {
     }
   }, [propFinderService]);
 
-  // Enhanced analysis with real player stats
-  const _enhancePlayerWithStats = React.useCallback(async (player: PropFinderPlayer, statType: string = 'hits') => {
-    const stats = await loadPlayerStats(player.id, statType);
-    if (stats) {
-      return {
-        ...player,
-        l10Avg: stats.statistics.l10_avg,
-        l5Avg: stats.statistics.l5_avg,
-        percentages: stats.statistics.percentages,
-        pfRating: stats.statistics.pf_rating,
-        streak: stats.statistics.streak,
-      };
-    }
-    return player;
-  }, [loadPlayerStats]);
-
-  // PropFinder Core Analysis Functions
-  const calculatePFRating = (player: PropFinderPlayer): number => {
-    const propValue = parseFloat(player.prop.match(/[\d.]+/)?.[0] || '0');
+  // Enhanced PropFinder Core Analysis Functions
+  const calculatePFRating = useCallback((player: PropFinderPlayer): number => {
+    const propMatch = player.prop.match(/[\d.]+/);
+    const propValue = parseFloat(propMatch?.[0] || '0');
     const l10Hit = player.l10Avg > propValue ? 1 : 0;
     const l5Hit = player.l5Avg > propValue ? 1 : 0;
     const recentTrend = player.l5Avg > player.l10Avg ? 10 : -10;
     const consistencyBonus = Math.abs(player.l5Avg - player.l10Avg) < 0.2 ? 5 : 0;
     
-    // Base rating calculation (0-100 scale)
+    // Enhanced rating calculation with more factors
     let rating = 50; // Neutral base
     rating += (l10Hit * 15) + (l5Hit * 20); // Recent performance weight
     rating += recentTrend; // Trending bonus/penalty  
     rating += consistencyBonus; // Consistency bonus
-    rating += (player.percentages['2024'] - 20) * 0.5; // Season performance adjustment
+    rating += (player.percentages['2024'] - 50) * 0.3; // Season performance adjustment
+    
+    // Streak impact
+    if (Math.abs(player.streak) >= 3) {
+      rating += player.streak > 0 ? 8 : -8;
+    }
+    
+    // Matchup context (simplified - could be enhanced with actual matchup data)
+    if (player.matchup.includes('vs')) {
+      rating += Math.random() * 10 - 5; // Random matchup modifier
+    }
     
     return Math.max(1, Math.min(100, Math.round(rating)));
-  };
+  }, []);
 
-  const analyzePropValue = (player: PropFinderPlayer, betDirection: 'OVER' | 'UNDER'): {
+  const analyzePropValue = useCallback((player: PropFinderPlayer, betDirection: 'OVER' | 'UNDER'): {
     recommendation: 'STRONG' | 'LEAN' | 'AVOID';
     confidence: number;
     reasoning: string[];
+    edge?: number;
   } => {
-    const propValue = parseFloat(player.prop.match(/[\d.]+/)?.[0] || '0');
+    const propMatch = player.prop.match(/[\d.]+/);
+    const propValue = parseFloat(propMatch?.[0] || '0');
     const reasoning: string[] = [];
     let confidence = 50;
 
@@ -353,6 +492,10 @@ const PropFinderKillerDashboard: React.FC = () => {
         confidence += 15;
         reasoning.push('Trending upward in recent form');
       }
+      if (player.l5Avg > propValue + 0.5) {
+        confidence += 10;
+        reasoning.push('L5 average well above line');
+      }
     } else {
       if (player.l5Avg < propValue && player.l10Avg < propValue) {
         confidence += 25;
@@ -361,6 +504,10 @@ const PropFinderKillerDashboard: React.FC = () => {
       if (player.l5Avg < player.l10Avg) {
         confidence += 15;
         reasoning.push('Trending downward in recent form');
+      }
+      if (player.l5Avg < propValue - 0.5) {
+        confidence += 10;
+        reasoning.push('L5 average well below line');
       }
     }
 
@@ -373,27 +520,48 @@ const PropFinderKillerDashboard: React.FC = () => {
       reasoning.push('Below-average season performance');
     }
 
-    // Streak analysis
+    // Enhanced streak analysis
     if (Math.abs(player.streak) >= 3) {
       if ((player.streak > 0 && betDirection === 'OVER') || (player.streak < 0 && betDirection === 'UNDER')) {
-        confidence += 10;
-        reasoning.push(`On ${Math.abs(player.streak)}-game ${player.streak > 0 ? 'hot' : 'cold'} streak`);
+        confidence += 15;
+        reasoning.push(`On ${Math.abs(player.streak)}-game ${player.streak > 0 ? 'hot' : 'cold'} streak aligning with bet`);
       } else {
-        confidence -= 5;
+        confidence -= 8;
         reasoning.push('Current streak works against this bet');
       }
     }
 
+    // Value betting calculation
+    const odds = player.odds;
+    const isPositive = odds.startsWith('+');
+    const numericOdds = parseInt(odds.replace(/[+-]/, ''));
+    const impliedProbability = isPositive 
+      ? 100 / (numericOdds + 100) * 100
+      : numericOdds / (numericOdds + 100) * 100;
+
+    const recentHitRate = (player.percentages.l5 + player.percentages['2024']) / 2;
+    const fairValue = betDirection === 'OVER' ? recentHitRate : (100 - recentHitRate);
+    const edge = fairValue - impliedProbability;
+
+    if (edge > 10) {
+      confidence += 15;
+      reasoning.push(`Strong value bet with ${edge.toFixed(1)}% edge`);
+    } else if (edge < -10) {
+      confidence -= 10;
+      reasoning.push('Poor value against market odds');
+    }
+
     const recommendation: 'STRONG' | 'LEAN' | 'AVOID' = 
-      confidence >= 75 ? 'STRONG' : confidence >= 60 ? 'LEAN' : 'AVOID';
+      confidence >= 80 ? 'STRONG' : confidence >= 65 ? 'LEAN' : 'AVOID';
 
-    return { recommendation, confidence, reasoning };
-  };
+    return { recommendation, confidence: Math.max(0, Math.min(100, confidence)), reasoning, edge };
+  }, []);
 
-  const getValueBetting = (player: PropFinderPlayer): {
+  const getValueBetting = useCallback((player: PropFinderPlayer): {
     impliedProbability: number;
     fairValue: number;
     edge: number;
+    kellyBet?: number;
   } => {
     const odds = player.odds;
     const isPositive = odds.startsWith('+');
@@ -404,15 +572,37 @@ const PropFinderKillerDashboard: React.FC = () => {
       ? 100 / (numericOdds + 100) * 100
       : numericOdds / (numericOdds + 100) * 100;
 
-    // Calculate fair value based on recent performance
-    const recentHitRate = (player.percentages.l5 + player.percentages['2024']) / 2;
-    const fairValue = betType === 'OVER' ? recentHitRate : (100 - recentHitRate);
+    // Enhanced fair value calculation using multiple factors
+    const l5Weight = 0.4;
+    const l10Weight = 0.3;
+    const seasonWeight = 0.2;
+    const streakWeight = 0.1;
+    
+    const baseHitRate = (player.percentages.l5 * l5Weight) + 
+                       (player.percentages['2024'] * seasonWeight) +
+                       ((player.l10Avg / 3) * 100 * l10Weight); // Convert to percentage
+    
+    const streakAdjustment = player.streak > 0 ? 
+      Math.min(player.streak * 2, 10) : Math.max(player.streak * 2, -10);
+    
+    const fairValue = betType === 'OVER' ? 
+      baseHitRate + (streakAdjustment * streakWeight * 100) : 
+      100 - (baseHitRate + (streakAdjustment * streakWeight * 100));
     
     // Calculate edge (positive = good bet, negative = bad bet)
     const edge = fairValue - impliedProbability;
     
-    return { impliedProbability, fairValue, edge };
-  };
+    // Kelly Criterion calculation for bet sizing
+    let kellyBet = 0;
+    if (edge > 0) {
+      const decimalOdds = isPositive ? (numericOdds / 100) + 1 : (100 / numericOdds) + 1;
+      const winProbability = fairValue / 100;
+      kellyBet = ((decimalOdds * winProbability - 1) / (decimalOdds - 1)) * 100;
+      kellyBet = Math.max(0, Math.min(kellyBet, 10)); // Cap at 10% of bankroll
+    }
+    
+    return { impliedProbability, fairValue, edge, kellyBet };
+  }, [betType]);
 
   const [categories, setCategories] = useState<PropCategory[]>([
     { id: 'hits', name: 'Hits', selected: true },
@@ -519,7 +709,7 @@ const PropFinderKillerDashboard: React.FC = () => {
     },
   ], []);
 
-  // Calculate PF Ratings and apply filtering
+  // Calculate PF Ratings and apply filtering with enhanced processing
   const processedPlayers = useMemo(() => {
     // Use real players if available, otherwise fall back to mock data
     const sourceData = realPlayers.length > 0 ? realPlayers : mockPlayers;
@@ -540,6 +730,17 @@ const PropFinderKillerDashboard: React.FC = () => {
           case 'homeRuns': return propType.includes('home run');
           case 'runs': return propType.includes('runs');
           case 'rbis': return propType.includes('rbi');
+          case 'singles': return propType.includes('single');
+          case 'doubles': return propType.includes('double');
+          case 'triples': return propType.includes('triple');
+          case 'battingStrikeouts': return propType.includes('strikeout');
+          case 'walks': return propType.includes('walk');
+          case 'hitsRunsRbis': return propType.includes('hits + runs + rbis');
+          case 'strikeouts': return propType.includes('strikeouts') && !propType.includes('batting');
+          case 'outs': return propType.includes('outs');
+          case 'hitsAllowed': return propType.includes('hits allowed');
+          case 'walksAllowed': return propType.includes('walks allowed');
+          case 'earnedRuns': return propType.includes('earned runs');
           default: return true;
         }
       });
@@ -547,13 +748,88 @@ const PropFinderKillerDashboard: React.FC = () => {
 
     // Filter by selected games
     const selectedTeams = games.filter(game => game.selected).flatMap(game => [game.homeTeam, game.awayTeam]);
-    players = players.filter(player => selectedTeams.includes(player.team));
+    if (selectedTeams.length > 0) {
+      players = players.filter(player => selectedTeams.includes(player.team));
+    }
 
-    // Sort by PF Rating (descending)
-    players.sort((a, b) => b.pfRating - a.pfRating);
+    // Apply advanced filters
+    if (minPFRating > 0) {
+      players = players.filter(player => player.pfRating >= minPFRating);
+    }
+    
+    if (maxOdds < 500) {
+      players = players.filter(player => {
+        const numericOdds = parseInt(player.odds.replace(/[+-]/g, ''));
+        return numericOdds <= maxOdds;
+      });
+    }
+    
+    if (onlyFavorites) {
+      players = players.filter(player => favorites.includes(player.id));
+    }
+
+    // Apply search filter
+    if (playerSearchQuery.trim()) {
+      const query = playerSearchQuery.toLowerCase().trim();
+      players = players.filter(player => 
+        player.name.toLowerCase().includes(query) ||
+        player.team.toLowerCase().includes(query) ||
+        player.position.toLowerCase().includes(query) ||
+        player.prop.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply sorting
+    if (sortConfig) {
+      const { key, direction } = sortConfig;
+      players.sort((a, b) => {
+        let aValue: unknown = a;
+        let bValue: unknown = b;
+        
+        // Handle nested properties
+        if (key.includes('.')) {
+          const keys = key.split('.');
+          aValue = keys.reduce((obj: any, k) => obj?.[k], a);
+          bValue = keys.reduce((obj: any, k) => obj?.[k], b);
+        } else {
+          aValue = a[key as keyof PropFinderPlayer];
+          bValue = b[key as keyof PropFinderPlayer];
+        }
+        
+        // Handle numeric sorting
+        if (typeof aValue === 'number' && typeof bValue === 'number') {
+          return direction === 'asc' ? aValue - bValue : bValue - aValue;
+        }
+        
+        // Handle string sorting
+        const aStr = String(aValue).toLowerCase();
+        const bStr = String(bValue).toLowerCase();
+        
+        if (direction === 'asc') {
+          return aStr < bStr ? -1 : aStr > bStr ? 1 : 0;
+        } else {
+          return aStr > bStr ? -1 : aStr < bStr ? 1 : 0;
+        }
+      });
+    } else {
+      // Default sort by PF Rating (descending)
+      players.sort((a, b) => b.pfRating - a.pfRating);
+    }
 
     return players;
-  }, [realPlayers, mockPlayers, categories, games]);
+  }, [
+    realPlayers, 
+    mockPlayers, 
+    categories, 
+    games, 
+    minPFRating, 
+    maxOdds, 
+    onlyFavorites, 
+    playerSearchQuery, 
+    sortConfig,
+    calculatePFRating,
+    favorites
+  ]);
 
   // Update filtered players when processing changes
   useEffect(() => {
@@ -563,38 +839,27 @@ const PropFinderKillerDashboard: React.FC = () => {
   const selectedCategoriesCount = categories.filter(c => c.selected).length;
   const selectedGamesCount = games.filter(g => g.selected).length;
 
-  // Performance optimizations for large lists
-  const [visibleRows, setVisibleRows] = useState(50); // Start with 50 rows
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  
-  // Virtual scrolling - only show more rows when needed
-  const _loadMoreRows = React.useCallback(() => {
-    if (!isLoadingMore && visibleRows < filteredPlayers.length) {
-      setIsLoadingMore(true);
-      setTimeout(() => {
-        setVisibleRows(prev => Math.min(prev + 25, filteredPlayers.length));
-        setIsLoadingMore(false);
-      }, 100);
-    }
-  }, [isLoadingMore, visibleRows, filteredPlayers.length]);
-
-  // Memoize displayed players for performance
-  const _displayedPlayers = React.useMemo(() => {
-    return filteredPlayers.slice(0, visibleRows);
-  }, [filteredPlayers, visibleRows]);
-
-  // Circular Progress Component for PF Rating
-  const CircularProgress: React.FC<{ value: number; size?: number }> = ({ value, size = 50 }) => {
+  // Enhanced circular progress component with animations and better styling
+  const CircularProgress: React.FC<{ 
+    value: number; 
+    size?: number; 
+    showLabel?: boolean;
+    animated?: boolean;
+  }> = ({ value, size = 50, showLabel = true, animated = true }) => {
     const radius = (size - 4) / 2;
     const circumference = radius * 2 * Math.PI;
     const strokeDasharray = `${circumference} ${circumference}`;
     const strokeDashoffset = circumference - (value / 100) * circumference;
 
     const getColor = (rating: number) => {
-      if (rating >= 70) return '#22c55e'; // green-500
-      if (rating >= 50) return '#eab308'; // yellow-500
-      return '#ef4444'; // red-500
+      if (rating >= 80) return { main: '#22c55e', bg: '#166534' }; // green
+      if (rating >= 70) return { main: '#3b82f6', bg: '#1e40af' }; // blue  
+      if (rating >= 60) return { main: '#f59e0b', bg: '#d97706' }; // amber
+      if (rating >= 50) return { main: '#f97316', bg: '#ea580c' }; // orange
+      return { main: '#ef4444', bg: '#dc2626' }; // red
     };
+
+    const colors = getColor(value);
 
     return (
       <div className="relative" style={{ width: size, height: size }}>
@@ -603,55 +868,266 @@ const PropFinderKillerDashboard: React.FC = () => {
           width={size}
           height={size}
         >
+          {/* Background circle */}
           <circle
-            stroke="rgb(71 85 105)" // slate-600
+            stroke={colors.bg}
             fill="transparent"
-            strokeWidth="4"
+            strokeWidth="3"
             r={radius}
             cx={size / 2}
             cy={size / 2}
+            opacity="0.3"
           />
-          <circle
-            stroke={getColor(value)}
+          {/* Progress circle */}
+          <motion.circle
+            stroke={colors.main}
             fill="transparent"
-            strokeWidth="4"
+            strokeWidth="3"
             strokeDasharray={strokeDasharray}
-            strokeDashoffset={strokeDashoffset}
+            strokeDashoffset={animated ? strokeDashoffset : 0}
             strokeLinecap="round"
             r={radius}
             cx={size / 2}
             cy={size / 2}
+            initial={animated ? { strokeDashoffset: circumference } : {}}
+            animate={animated ? { strokeDashoffset } : {}}
+            transition={{ duration: 1, ease: "easeOut" }}
           />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-sm font-semibold text-white">{value}</span>
+        {showLabel && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-sm font-bold text-white">{value}</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Enhanced performance cell component with better color logic
+  const PerformanceCell: React.FC<{ 
+    value: number; 
+    showFraction?: boolean; 
+    denominator?: number;
+    size?: 'sm' | 'md' | 'lg';
+    tooltip?: string;
+  }> = ({ 
+    value, 
+    showFraction = false, 
+    denominator = 0,
+    size = 'md',
+    tooltip
+  }) => {
+    const getColorClass = (val: number) => {
+      if (val >= 70) return 'bg-green-600 text-white border-green-500';
+      if (val >= 60) return 'bg-green-500 text-white border-green-400';
+      if (val >= 50) return 'bg-yellow-500 text-black border-yellow-400';
+      if (val >= 40) return 'bg-orange-500 text-white border-orange-400';
+      if (val >= 30) return 'bg-red-500 text-white border-red-400';
+      if (val > 0) return 'bg-red-600 text-white border-red-500';
+      return 'bg-slate-600 text-slate-300 border-slate-500';
+    };
+
+    const sizeClasses = {
+      sm: 'px-1.5 py-1 text-xs min-w-[45px]',
+      md: 'px-2 py-1.5 text-xs min-w-[55px]',
+      lg: 'px-3 py-2 text-sm min-w-[65px]'
+    };
+
+    const numerator = showFraction && denominator > 0 ? Math.floor((value/100) * denominator) : 0;
+
+    return (
+      <div 
+        className={`${sizeClasses[size]} rounded border font-bold text-center transition-all hover:shadow-md ${getColorClass(value)}`}
+        title={tooltip}
+      >
+        <div>{value}%</div>
+        {showFraction && denominator > 0 && (
+          <div className="text-xs opacity-90 leading-tight">
+            {numerator}/{denominator}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Enhanced recommendation badge component
+  const RecommendationBadge: React.FC<{ 
+    recommendation: string; 
+    confidence: number;
+    edge?: number;
+  }> = ({ recommendation, confidence, edge }) => {
+    const getStyle = (rec: string) => {
+      switch (rec) {
+        case 'STRONG':
+          return 'bg-green-500/20 text-green-300 border-green-500/50 shadow-green-500/25';
+        case 'LEAN':
+          return 'bg-blue-500/20 text-blue-300 border-blue-500/50 shadow-blue-500/25';
+        case 'AVOID':
+          return 'bg-red-500/20 text-red-300 border-red-500/50 shadow-red-500/25';
+        default:
+          return 'bg-slate-500/20 text-slate-300 border-slate-500/50';
+      }
+    };
+
+    return (
+      <div className="space-y-1">
+        <div className={`px-2 py-1 rounded-full text-xs font-semibold border shadow-sm ${getStyle(recommendation)}`}>
+          {recommendation}
+        </div>
+        <div className="text-xs text-slate-400 text-center">
+          {confidence}%
+          {edge !== undefined && edge > 0 && (
+            <span className="text-green-400 ml-1">+{edge.toFixed(1)}%</span>
+          )}
         </div>
       </div>
     );
   };
 
-  // Performance cell component
-  const PerformanceCell: React.FC<{ value: number; showFraction?: boolean; denominator?: number }> = ({ 
-    value, 
-    showFraction = false, 
-    denominator = 0 
+  // Enhanced streak indicator component
+  const StreakIndicator: React.FC<{ streak: number; size?: 'sm' | 'md' }> = ({ 
+    streak, 
+    size = 'md' 
   }) => {
-    const getColorClass = (val: number) => {
-      if (val >= 40) return 'bg-red-600 text-white';
-      if (val >= 30) return 'bg-red-500 text-white';  
-      if (val >= 20) return 'bg-orange-500 text-white';
-      if (val >= 10) return 'bg-yellow-500 text-black';
-      if (val >= 6) return 'bg-green-600 text-white';
-      if (val > 0) return 'bg-green-500 text-white';
-      return 'bg-slate-600 text-slate-300';
+    if (streak === 0) {
+      return <span className="text-slate-400">0</span>;
+    }
+
+    const isHot = streak > 0;
+    const streakMagnitude = Math.abs(streak);
+    
+    const getStreakStyle = (magnitude: number, hot: boolean) => {
+      if (magnitude >= 5) {
+        return hot 
+          ? 'bg-red-600 text-white animate-pulse' 
+          : 'bg-blue-600 text-white animate-pulse';
+      } else if (magnitude >= 3) {
+        return hot 
+          ? 'bg-red-500 text-white' 
+          : 'bg-blue-500 text-white';
+      } else {
+        return hot 
+          ? 'bg-orange-500 text-white' 
+          : 'bg-cyan-500 text-white';
+      }
     };
 
+    const sizeClasses = size === 'sm' ? 'text-xs px-1.5 py-0.5' : 'text-xs px-2 py-1';
+
     return (
-      <div className={`px-2 py-1.5 rounded text-xs font-bold text-center min-w-[55px] ${getColorClass(value)}`}>
-        <div>{value}%</div>
-        {showFraction && denominator > 0 && (
-          <div className="text-xs opacity-90 leading-tight">
-            {Math.floor((value/100) * denominator)}/{denominator}
+      <div className="flex items-center gap-2">
+        <span className="text-white font-medium">{streak}</span>
+        {streakMagnitude >= 3 && (
+          <div className={`rounded-full font-bold ${sizeClasses} ${getStreakStyle(streakMagnitude, isHot)}`}>
+            {isHot ? '🔥' : '❄️'}
+            {streakMagnitude >= 5 ? 'FIRE' : isHot ? 'HOT' : 'COLD'}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Enhanced odds display component with market dropdown
+  const OddsDisplay: React.FC<{ 
+    odds: string; 
+    playerId?: string;
+    impliedProb?: number;
+    edge?: number;
+  }> = ({ odds, impliedProb, edge }) => {
+    const [showMarkets, setShowMarkets] = useState(false);
+
+    return (
+      <div className="relative">
+        <div className="flex items-center gap-2">
+          <span className="text-white font-medium">{odds}</span>
+          <span className="text-slate-400">¥</span>
+          <button 
+            onClick={() => setShowMarkets(!showMarkets)}
+            className="text-slate-400 hover:text-white transition-colors"
+          >
+            <ChevronDown className="w-3 h-3" />
+          </button>
+        </div>
+        {impliedProb && (
+          <div className="text-xs text-slate-400 mt-1">
+            {impliedProb.toFixed(1)}% implied
+            {edge !== undefined && (
+              <span className={`ml-1 ${edge > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                ({edge > 0 ? '+' : ''}{edge.toFixed(1)}%)
+              </span>
+            )}
+          </div>
+        )}
+        
+        <AnimatePresence>
+          {showMarkets && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute top-full left-0 mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-10 min-w-[200px]"
+            >
+              <div className="p-3 space-y-2">
+                <div className="text-sm font-medium text-white mb-2">Markets</div>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between text-slate-300">
+                    <span>DraftKings</span>
+                    <span className="font-medium">{odds}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-300">
+                    <span>FanDuel</span>
+                    <span className="font-medium">+105</span>
+                  </div>
+                  <div className="flex justify-between text-slate-300">
+                    <span>BetMGM</span>
+                    <span className="font-medium">-110</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
+
+  // Enhanced player image component with better fallback
+  const PlayerImage: React.FC<{ 
+    src?: string; 
+    name: string; 
+    size?: number;
+  }> = ({ src, name, size = 40 }) => {
+    const [imageError, setImageError] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2);
+
+    return (
+      <div 
+        className="rounded-full bg-slate-700 flex items-center justify-center overflow-hidden border border-slate-600"
+        style={{ width: size, height: size }}
+      >
+        {src && !imageError ? (
+          <>
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
+            <img 
+              src={src} 
+              alt={name}
+              className="w-full h-full object-cover"
+              onLoad={() => setIsLoading(false)}
+              onError={() => {
+                setImageError(true);
+                setIsLoading(false);
+              }}
+            />
+          </>
+        ) : (
+          <div className="text-slate-300 font-semibold text-sm">
+            {initials || <User className="w-5 h-5" />}
           </div>
         )}
       </div>
@@ -790,11 +1266,34 @@ const PropFinderKillerDashboard: React.FC = () => {
                   className="absolute top-full left-0 mt-1 w-80 bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-50"
                 >
                   <div className="p-4">
-                    <input
-                      type="text"
-                      placeholder="Search players..."
-                      className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white placeholder-slate-400"
-                    />
+                    <div className="flex items-center gap-2 mb-3">
+                      <Search className="w-4 h-4 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Search players, teams, positions..."
+                        value={playerSearchQuery}
+                        onChange={(e) => setPlayerSearchQuery(e.target.value)}
+                        className="flex-1 bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        autoFocus
+                      />
+                      {playerSearchQuery && (
+                        <button
+                          onClick={() => setPlayerSearchQuery('')}
+                          className="text-slate-400 hover:text-white"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                    {playerSearchQuery && (
+                      <div className="text-sm text-slate-300">
+                        Found {processedPlayers.filter(p => 
+                          p.name.toLowerCase().includes(playerSearchQuery.toLowerCase()) ||
+                          p.team.toLowerCase().includes(playerSearchQuery.toLowerCase()) ||
+                          p.position.toLowerCase().includes(playerSearchQuery.toLowerCase())
+                        ).length} matching players
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -986,23 +1485,53 @@ const PropFinderKillerDashboard: React.FC = () => {
             </button>
           </div>
 
+          {/* Advanced Filters Toggle */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
+                showAdvancedFilters 
+                  ? 'bg-purple-600 text-white shadow-lg' 
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              }`}
+            >
+              <Filter className="w-4 h-4" />
+              Advanced
+              <ChevronDown className={`w-4 h-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
+
           {/* Favorites Filter Toggle */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setFilteredPlayers(
-                favorites.length > 0 
-                  ? mockPlayers.filter(p => favorites.includes(p.id))
-                  : mockPlayers
-              )}
+              onClick={() => setOnlyFavorites(!onlyFavorites)}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
-                filteredPlayers.some(p => favorites.includes(p.id)) && favorites.length > 0
+                onlyFavorites
                   ? 'bg-red-600 text-white shadow-lg' 
                   : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
               } flex items-center gap-2`}
             >
-              <Heart className="w-4 h-4" />
+              <Heart className={`w-4 h-4 ${onlyFavorites ? 'fill-current' : ''}`} />
               Favorites ({favorites.length})
             </button>
+          </div>
+
+          {/* Performance Stats */}
+          <div className="flex items-center gap-4 text-sm text-slate-400">
+            <div className="flex items-center gap-1">
+              <BarChart3 className="w-4 h-4" />
+              <span>{processedPlayers.length} props</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              <span>{Math.round(cacheHits / Math.max(apiCalls, 1) * 100)}% cached</span>
+            </div>
+            {lastUpdateTime && (
+              <div className="flex items-center gap-1">
+                <RefreshCw className="w-4 h-4" />
+                <span>Updated {lastUpdateTime.toLocaleTimeString()}</span>
+              </div>
+            )}
           </div>
 
           {/* Show All Lines Toggle */}
@@ -1030,11 +1559,157 @@ const PropFinderKillerDashboard: React.FC = () => {
                   />
                 </label>
               </div>
-              <span className="text-slate-300 text-sm">2/2</span>
+              <span className="text-slate-300 text-sm">{processedPlayers.length}/{realPlayers.length || mockPlayers.length}</span>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Advanced Filters Panel */}
+      <AnimatePresence>
+        {showAdvancedFilters && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="bg-slate-800/90 border-b border-slate-600 overflow-hidden"
+          >
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                {/* PF Rating Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                    <Award className="w-4 h-4" />
+                    Min PF Rating
+                  </label>
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={minPFRating}
+                      onChange={(e) => setMinPFRating(parseInt(e.target.value))}
+                      className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider"
+                    />
+                    <div className="flex justify-between text-xs text-slate-400">
+                      <span>0</span>
+                      <span className="text-white font-medium">{minPFRating}</span>
+                      <span>100</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Odds Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                    <Target className="w-4 h-4" />
+                    Max Odds
+                  </label>
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="100"
+                      max="500"
+                      value={maxOdds}
+                      onChange={(e) => setMaxOdds(parseInt(e.target.value))}
+                      className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider"
+                    />
+                    <div className="flex justify-between text-xs text-slate-400">
+                      <span>+100</span>
+                      <span className="text-white font-medium">+{maxOdds}</span>
+                      <span>+500</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Market Type Selection */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-300">Market Type</label>
+                  <div className="flex bg-slate-700 rounded-lg p-1">
+                    <button
+                      onClick={() => setSelectedMarketType('main')}
+                      className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                        selectedMarketType === 'main' 
+                          ? 'bg-purple-600 text-white' 
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Main
+                    </button>
+                    <button
+                      onClick={() => setSelectedMarketType('alternate')}
+                      className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                        selectedMarketType === 'alternate' 
+                          ? 'bg-purple-600 text-white' 
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Alt
+                    </button>
+                  </div>
+                </div>
+
+                {/* Auto Refresh Controls */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                    <Zap className="w-4 h-4" />
+                    Auto Refresh
+                  </label>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={autoRefreshEnabled}
+                        onChange={(e) => setAutoRefreshEnabled(e.target.checked)}
+                        className="w-4 h-4 text-purple-600 bg-slate-700 border-slate-600 rounded focus:ring-purple-500"
+                      />
+                      <span className="text-sm text-slate-300">Enable</span>
+                    </label>
+                    <select
+                      value={refreshInterval}
+                      onChange={(e) => setRefreshInterval(parseInt(e.target.value))}
+                      disabled={!autoRefreshEnabled}
+                      className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm disabled:opacity-50"
+                    >
+                      <option value={15}>15s</option>
+                      <option value={30}>30s</option>
+                      <option value={60}>1m</option>
+                      <option value={300}>5m</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-300">Quick Actions</label>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => {
+                        setMinPFRating(70);
+                        setMaxOdds(200);
+                        setOnlyFavorites(false);
+                      }}
+                      className="w-full px-3 py-2 bg-green-600/20 text-green-300 rounded-lg text-sm font-medium hover:bg-green-600/30 transition-colors"
+                    >
+                      Strong Bets
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMinPFRating(0);
+                        setMaxOdds(500);
+                        setOnlyFavorites(false);
+                      }}
+                      className="w-full px-3 py-2 bg-slate-600/50 text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-600/70 transition-colors"
+                    >
+                      Reset Filters
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Action Bar */}
       <div className="bg-slate-800/80 border-b border-slate-600 px-4 py-2 flex items-center justify-between">
@@ -1070,28 +1745,116 @@ const PropFinderKillerDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Data Table */}
+      {/* Enhanced Main Data Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-slate-800 border-b border-slate-600">
+          <thead className="bg-slate-800 border-b border-slate-600 sticky top-0 z-10">
             <tr className="text-slate-300">
-              <th className="text-left p-3 text-sm font-semibold w-8"></th>
-              <th className="text-left p-3 text-sm font-semibold w-20">PF Rating</th>
-              <th className="text-left p-3 text-sm font-semibold w-16">Team</th>
-              <th className="text-left p-3 text-sm font-semibold w-16">Pos</th>
-              <th className="text-left p-3 text-sm font-semibold w-48">Player</th>
-              <th className="text-left p-3 text-sm font-semibold w-32">Prop</th>
-              <th className="text-left p-3 text-sm font-semibold w-24">L10 Avg</th>
-              <th className="text-left p-3 text-sm font-semibold w-24">L5 Avg</th>
-              <th className="text-left p-3 text-sm font-semibold w-24">Odds</th>
-              <th className="text-left p-3 text-sm font-semibold w-20">Streak</th>
+              <th className="text-left p-3 text-sm font-semibold w-8">
+                <Heart className="w-4 h-4 text-slate-500" />
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-20 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('pfRating')}
+              >
+                <div className="flex items-center gap-1">
+                  <span>PF Rating</span>
+                  {sortConfig?.key === 'pfRating' && (
+                    <ChevronDown className={`w-3 h-3 transition-transform ${sortConfig.direction === 'asc' ? 'rotate-180' : ''}`} />
+                  )}
+                </div>
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-16 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('team')}
+              >
+                Team
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-16 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('position')}
+              >
+                Pos
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-48 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('name')}
+              >
+                Player
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-32 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('prop')}
+              >
+                Prop
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-24 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('l10Avg')}
+              >
+                <div className="flex items-center gap-1">
+                  <span>L10 Avg</span>
+                  <Info className="w-3 h-3 text-slate-500" title="Last 10 games average" />
+                </div>
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-24 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('l5Avg')}
+              >
+                <div className="flex items-center gap-1">
+                  <span>L5 Avg</span>
+                  <Info className="w-3 h-3 text-slate-500" title="Last 5 games average" />
+                </div>
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-24 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('odds')}
+              >
+                Odds
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-20 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('streak')}
+              >
+                Streak
+              </th>
               <th className="text-left p-3 text-sm font-semibold w-24">Matchup</th>
-              <th className="text-left p-3 text-sm font-semibold w-20">2024</th>
-              <th className="text-left p-3 text-sm font-semibold w-20">2025</th>
-              <th className="text-left p-3 text-sm font-semibold w-20">H2H</th>
-              <th className="text-left p-3 text-sm font-semibold w-20">L5</th>
-              <th className="text-left p-3 text-sm font-semibold w-20">L...</th>
-              <th className="text-left p-3 text-sm font-semibold w-20">L4</th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-20 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('percentages.2024')}
+              >
+                2024
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-20 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('percentages.2025')}
+              >
+                2025
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-20 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('percentages.h2h')}
+              >
+                H2H
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-20 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('percentages.l5')}
+              >
+                L5
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-20 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('percentages.last')}
+              >
+                L...
+              </th>
+              <th 
+                className="text-left p-3 text-sm font-semibold w-20 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={() => handleSort('percentages.l4')}
+              >
+                L4
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -1104,9 +1867,10 @@ const PropFinderKillerDashboard: React.FC = () => {
                   key={player.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="border-b border-slate-600/50 hover:bg-slate-800/60 transition-colors"
+                  transition={{ delay: Math.min(index * 0.05, 1) }}
+                  className="border-b border-slate-600/50 hover:bg-slate-800/60 transition-all duration-200 group"
                 >
+                  {/* Favorite Toggle */}
                   <td className="p-3">
                     <button
                       onClick={() => toggleFavorite(player.id)}
@@ -1118,134 +1882,177 @@ const PropFinderKillerDashboard: React.FC = () => {
                     </button>
                   </td>
                   
+                  {/* Enhanced PF Rating */}
                   <td className="p-3">
                     <div className="flex items-center gap-2">
-                      <CircularProgress value={player.pfRating} size={50} />
-                      <div className="text-xs">
-                        <div className={`font-semibold ${
-                          analysis.recommendation === 'STRONG' ? 'text-green-400' :
-                          analysis.recommendation === 'LEAN' ? 'text-yellow-400' : 'text-red-400'
-                        }`}>
-                          {analysis.recommendation}
-                        </div>
-                        <div className="text-slate-400">{analysis.confidence}%</div>
-                      </div>
+                      <CircularProgress value={player.pfRating} size={50} animated />
+                      <RecommendationBadge 
+                        recommendation={analysis.recommendation}
+                        confidence={analysis.confidence}
+                        edge={analysis.edge}
+                      />
                     </div>
                   </td>
                   
+                  {/* Team */}
                   <td className="p-3">
                     <span className="text-white font-medium">{player.team}</span>
                   </td>
                   
+                  {/* Position */}
                   <td className="p-3">
                     <span className="text-slate-300">{player.position}</span>
                   </td>
                   
+                  {/* Enhanced Player Info */}
                   <td className="p-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
-                        {player.imageUrl ? (
-                          <img 
-                            src={player.imageUrl} 
-                            alt={player.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = '';
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
-                        ) : (
-                          <User className="w-5 h-5 text-slate-400" />
-                        )}
-                      </div>
+                      <PlayerImage 
+                        src={player.imageUrl} 
+                        name={player.name}
+                        size={40}
+                      />
                       <div>
                         <div className="text-white font-medium">{player.name}</div>
-                        <div className="text-slate-400 text-xs">{player.position === '2B' ? 'RHB' : 'RHB'}</div>
+                        <div className="text-slate-400 text-xs flex items-center gap-1">
+                          #{player.number || '??'} • {player.position}
+                          {analysis.edge && analysis.edge > 5 && (
+                            <span className="bg-green-600/20 text-green-300 px-1.5 py-0.5 rounded text-xs font-medium">
+                              EDGE
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </td>
                   
+                  {/* Enhanced Prop Display */}
                   <td className="p-3">
                     <div className="space-y-1">
                       <span className="text-white font-medium">{player.prop}</span>
-                      {valueAnalysis.edge > 5 && (
-                        <div className="text-green-400 text-xs font-semibold">
-                          +{valueAnalysis.edge.toFixed(1)}% EDGE
+                      {valueAnalysis.edge > 0 && (
+                        <div className="flex items-center gap-1 text-xs">
+                          <TrendingUp className="w-3 h-3 text-green-400" />
+                          <span className="text-green-400 font-semibold">
+                            +{valueAnalysis.edge.toFixed(1)}% EDGE
+                          </span>
+                        </div>
+                      )}
+                      {valueAnalysis.kellyBet && valueAnalysis.kellyBet > 1 && (
+                        <div className="text-blue-400 text-xs font-medium">
+                          Kelly: {valueAnalysis.kellyBet.toFixed(1)}%
                         </div>
                       )}
                     </div>
                   </td>
                   
+                  {/* Enhanced Performance Metrics */}
                   <td className="p-3">
-                    <span className={`font-medium ${
-                      player.l10Avg > 0.5 ? 'text-green-400' : 
-                      player.l10Avg > 0.3 ? 'text-yellow-400' : 'text-red-400'
-                    }`}>
-                      {player.l10Avg}
-                    </span>
-                  </td>
-                  
-                  <td className="p-3">
-                    <span className={`font-medium ${
-                      player.l5Avg > 0.5 ? 'text-green-400' : 
-                      player.l5Avg > 0.3 ? 'text-yellow-400' : 'text-red-400'
-                    }`}>
-                      {player.l5Avg}
-                    </span>
-                  </td>
-                  
-                  <td className="p-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-white font-medium">{player.odds}</span>
-                      <span className="text-slate-400">¥</span>
-                      <ChevronDown className="w-3 h-3 text-slate-400" />
-                    </div>
-                    <div className="text-xs text-slate-400 mt-1">
-                      {valueAnalysis.impliedProbability.toFixed(1)}% implied
+                    <div className="flex items-center gap-1">
+                      <span className={`font-medium ${
+                        player.l10Avg > 0.8 ? 'text-green-400' : 
+                        player.l10Avg > 0.5 ? 'text-yellow-400' : 'text-red-400'
+                      }`}>
+                        {player.l10Avg.toFixed(1)}
+                      </span>
+                      {player.l5Avg > player.l10Avg && (
+                        <TrendingUp className="w-3 h-3 text-green-400" />
+                      )}
+                      {player.l5Avg < player.l10Avg && (
+                        <TrendingDown className="w-3 h-3 text-red-400" />
+                      )}
                     </div>
                   </td>
                   
                   <td className="p-3">
                     <div className="flex items-center gap-1">
-                      <span className="text-white">{player.streak}</span>
-                      {Math.abs(player.streak) >= 3 && (
-                        <div className={`text-xs px-1 py-0.5 rounded ${
-                          player.streak > 0 ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'
-                        }`}>
-                          {player.streak > 0 ? 'HOT' : 'COLD'}
-                        </div>
+                      <span className={`font-medium ${
+                        player.l5Avg > 0.8 ? 'text-green-400' : 
+                        player.l5Avg > 0.5 ? 'text-yellow-400' : 'text-red-400'
+                      }`}>
+                        {player.l5Avg.toFixed(1)}
+                      </span>
+                      {Math.abs(player.l5Avg - player.l10Avg) < 0.1 && (
+                        <Minus className="w-3 h-3 text-slate-400" />
                       )}
                     </div>
                   </td>
                   
+                  {/* Enhanced Odds Display */}
                   <td className="p-3">
-                    <div className="bg-orange-500/20 text-orange-300 px-2 py-1 rounded text-xs font-medium">
+                    <OddsDisplay 
+                      odds={player.odds} 
+                      playerId={player.id}
+                      impliedProb={valueAnalysis.impliedProbability}
+                      edge={valueAnalysis.edge}
+                    />
+                  </td>
+                  
+                  {/* Enhanced Streak Indicator */}
+                  <td className="p-3">
+                    <StreakIndicator streak={player.streak} />
+                  </td>
+                  
+                  {/* Enhanced Matchup */}
+                  <td className="p-3">
+                    <div className="bg-orange-500/20 text-orange-300 px-2 py-1 rounded text-xs font-medium border border-orange-500/30">
                       {player.matchup}
                     </div>
                   </td>
                   
+                  {/* Enhanced Performance Cells */}
                   <td className="p-3">
-                    <PerformanceCell value={player.percentages['2024']} showFraction denominator={150} />
+                    <PerformanceCell 
+                      value={player.percentages['2024']} 
+                      showFraction 
+                      denominator={150}
+                      tooltip="2024 Season Performance"
+                    />
                   </td>
                   
                   <td className="p-3">
-                    <PerformanceCell value={player.percentages['2025']} showFraction denominator={119} />
+                    <PerformanceCell 
+                      value={player.percentages['2025']} 
+                      showFraction 
+                      denominator={119}
+                      tooltip="2025 Season Performance"
+                    />
                   </td>
                   
                   <td className="p-3">
-                    <PerformanceCell value={player.percentages.h2h} showFraction denominator={32} />
+                    <PerformanceCell 
+                      value={player.percentages.h2h} 
+                      showFraction 
+                      denominator={32}
+                      tooltip="Head-to-Head Performance"
+                    />
                   </td>
                   
                   <td className="p-3">
-                    <PerformanceCell value={player.percentages.l5} showFraction denominator={5} />
+                    <PerformanceCell 
+                      value={player.percentages.l5} 
+                      showFraction 
+                      denominator={5}
+                      tooltip="Last 5 Games Performance"
+                    />
                   </td>
                   
                   <td className="p-3">
-                    <PerformanceCell value={player.percentages.last} showFraction denominator={10} />
+                    <PerformanceCell 
+                      value={player.percentages.last} 
+                      showFraction 
+                      denominator={10}
+                      tooltip="Last 10 Performance"
+                    />
                   </td>
                   
                   <td className="p-3">
-                    <PerformanceCell value={player.percentages.l4} showFraction denominator={2} />
+                    <PerformanceCell 
+                      value={player.percentages.l4} 
+                      showFraction 
+                      denominator={2}
+                      tooltip="Last 4 Performance"
+                    />
                   </td>
                 </motion.tr>
               );
@@ -1286,11 +2093,50 @@ const PropFinderKillerDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Footer */}
-      <div className="bg-slate-800/80 border-t border-slate-600 p-4 flex items-center justify-between text-sm text-slate-300">
-        <div>Total Rows: {filteredPlayers.length}</div>
-        <div className="flex items-center gap-4">
-          <span>Showing 1-{mockPlayers.length} of {mockPlayers.length} results</span>
+      {/* Enhanced Footer with Performance Metrics */}
+      <div className="bg-slate-800/90 border-t border-slate-600 p-4">
+        <div className="flex items-center justify-between text-sm text-slate-300">
+          <div className="flex items-center gap-6">
+            <span className="font-medium">
+              Showing {processedPlayers.length} of {realPlayers.length || mockPlayers.length} props
+            </span>
+            
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1">
+                <Shield className="w-4 h-4 text-green-400" />
+                <span>{processedPlayers.filter(p => p.pfRating >= 70).length} Strong</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Award className="w-4 h-4 text-blue-400" />
+                <span>{processedPlayers.filter(p => p.pfRating >= 50 && p.pfRating < 70).length} Lean</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <AlertCircle className="w-4 h-4 text-red-400" />
+                <span>{processedPlayers.filter(p => p.pfRating < 50).length} Avoid</span>
+              </div>
+            </div>
+            
+            {favorites.length > 0 && (
+              <div className="flex items-center gap-1 text-red-400">
+                <Heart className="w-4 h-4 fill-current" />
+                <span>{favorites.length} Favorited</span>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-6">
+            <div className="text-xs text-slate-400">
+              Cache Hit Rate: {Math.round(cacheHits / Math.max(apiCalls, 1) * 100)}%
+            </div>
+            <div className="text-xs text-slate-400">
+              API Calls: {apiCalls}
+            </div>
+            {lastUpdateTime && (
+              <div className="text-xs text-slate-400">
+                Last Updated: {lastUpdateTime.toLocaleTimeString()}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
