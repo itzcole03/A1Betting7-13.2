@@ -769,24 +769,41 @@ def create_app() -> FastAPI:
         print(f"❌ PRINT DEBUG: Exception in observability events: {e}")
     
     print("🔍 PRINT DEBUG: After observability events, moving to PropFinder...")
+    print("🚨 CRITICAL DEBUG: This is BEFORE PropFinder registration - if you see this, the code is executing!")
 
     # Import and mount PropFinder routes (PropFinder Dashboard Integration)
     print("🔍 PRINT DEBUG: About to register PropFinder routes - this should ALWAYS appear!")
     logger.info("🔍 DEBUG: About to register PropFinder routes")
     try:
-        print("🔍 PRINT DEBUG: Starting PropFinder import...")
-        from backend.routes.propfinder_routes import router as propfinder_router
-        print("🔍 PRINT DEBUG: PropFinder router imported successfully!")
-        logger.info("🔍 DEBUG: PropFinder router imported successfully")
-        _app.include_router(propfinder_router, tags=["PropFinder"])
-        print("✅ PRINT DEBUG: PropFinder routes registered successfully!")
-        logger.info("✅ PropFinder routes included (/api/propfinder/* endpoints)")
+        print("🔍 PRINT DEBUG: Starting Enhanced PropFinder import...")
+        from backend.routes.propfinder_enhanced_routes import router as propfinder_router
+        print("🔍 PRINT DEBUG: Enhanced PropFinder router imported successfully!")
+        logger.info("🔍 DEBUG: Enhanced PropFinder router imported successfully")
+        _app.include_router(propfinder_router, tags=["PropFinder Enhanced - Free Data"])
+        print("✅ PRINT DEBUG: Enhanced PropFinder routes registered successfully!")
+        logger.info("✅ Enhanced PropFinder routes included (/api/propfinder/* endpoints with free data)")
     except ImportError as e:
         print(f"❌ PRINT DEBUG: ImportError in PropFinder: {e}")
         logger.warning(f"⚠️ Could not import PropFinder routes: {e}")
     except Exception as e:
         print(f"❌ PRINT DEBUG: Exception in PropFinder: {e}")
         logger.error(f"❌ Failed to register PropFinder routes: {e}")
+
+    # Import and mount Ultra-Fast PropFinder routes (PropFinder Performance Optimization)
+    print("🔍 PRINT DEBUG: About to register Ultra-Fast PropFinder routes...")
+    try:
+        print("🔍 PRINT DEBUG: Starting Ultra-Fast PropFinder import...")
+        from backend.routes.ultra_fast_propfinder_routes import router as ultra_fast_propfinder_router
+        print("🔍 PRINT DEBUG: Ultra-Fast PropFinder router imported successfully!")
+        _app.include_router(ultra_fast_propfinder_router, tags=["Ultra-Fast PropFinder - Performance Optimized"])
+        print("✅ PRINT DEBUG: Ultra-Fast PropFinder routes registered successfully!")
+        logger.info("✅ Ultra-Fast PropFinder routes included (/api/v2/propfinder/* endpoints with caching)")
+    except ImportError as e:
+        print(f"❌ PRINT DEBUG: ImportError in Ultra-Fast PropFinder: {e}")
+        logger.warning(f"⚠️ Could not import Ultra-Fast PropFinder routes: {e}")
+    except Exception as e:
+        print(f"❌ PRINT DEBUG: Exception in Ultra-Fast PropFinder: {e}")
+        logger.error(f"❌ Failed to register Ultra-Fast PropFinder routes: {e}")
 
     # Import and mount admin control routes (Admin Control PR: Runtime Shadow Mode Control)
     try:

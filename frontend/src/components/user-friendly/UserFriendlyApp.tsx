@@ -8,6 +8,7 @@ import WebSocketStatusIndicator from '../WebSocketStatusIndicator';
 
 // Lazy load enhanced components with PropFinder-killer features
 const PropFinderKillerDashboard = React.lazy(() => import('../modern/PropFinderKillerDashboard'));
+const PropFinderIntegrationTest = React.lazy(() => import('../debug/PropFinderIntegrationTest'));
 const MobilePropResearch = React.lazy(() => import('../mobile/MobilePropResearch'));
 const MLModelCenter = React.lazy(() => import('../ml/MLModelCenter'));
 const UnifiedBettingInterface = React.lazy(() => import('../betting/UnifiedBettingInterface'));
@@ -151,6 +152,7 @@ const UserFriendlyApp: React.FC = memo(() => {
                 element={isMobile ? <MobilePropResearch /> : <PropFinderKillerDashboard />}
               />
               <Route path='/prop-killer' element={<PropFinderKillerDashboard />} />
+              <Route path='/test-propfinder' element={<PropFinderIntegrationTest />} />
               <Route path='/mobile-research' element={<MobilePropResearch />} />
               <Route path='/money-maker' element={<UltimateMoneyMaker />} />
 

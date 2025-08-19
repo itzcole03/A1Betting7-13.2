@@ -9,16 +9,16 @@
 import { EnhancedLogger } from './EnhancedLogger';
 
 interface PropFinderGame {
-  id: number;
+  id: string;
   away_team: string;
   home_team: string;
-  away_team_id: number;
-  home_team_id: number;
+  away_team_id?: number;
+  home_team_id?: number;
   game_date: string;
   game_time: string;
   status: string;
   venue: string;
-  is_locked: boolean;
+  is_locked?: boolean;
 }
 
 interface PropFinderPlayer {
@@ -118,12 +118,15 @@ interface PropFinderProp {
   book: string;
 }
 
-interface PropFinderResponse<T> {
-  success: boolean;
-  data: T;
-  message: string;
-  timestamp: string;
+interface PropFinderResponse<T = unknown> {
+  success?: boolean;
+  data?: T;
+  message?: string;
+  timestamp?: string;
   total_count?: number;
+  // Backend response format
+  props?: PropFinderProp[];
+  generated_at?: string;
 }
 
 interface PlayerStats {
@@ -219,7 +222,7 @@ class PropFinderDataService {
       this.logger.info('PropFinderDataService', 'api', 'Fetching today\'s games from PropFinder API');
       
       const response = await fetch(
-        `${this.API_BASE}/games/today?include_odds=${includeOdds}`,
+        `${this.API_BASE}/games`,
         {
           method: 'GET',
           headers: {
@@ -232,18 +235,14 @@ class PropFinderDataService {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const result: PropFinderResponse<PropFinderGame[]> = await response.json();
+      const games: PropFinderGame[] = await response.json();
       
-      if (!result.success) {
-        throw new Error(`API Error: ${result.message}`);
-      }
-
       // Cache the result
-      this.setCached(cacheKey, result.data, this.CACHE_TTL_GAMES);
+      this.setCached(cacheKey, games, this.CACHE_TTL_GAMES);
       
-      this.logger.info('PropFinderDataService', 'data', `Successfully fetched ${result.data.length} games`);
+      this.logger.info('PropFinderDataService', 'data', `Successfully fetched ${games.length} games`);
 
-      return result.data;
+      return games;
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -255,7 +254,7 @@ class PropFinderDataService {
   /**
    * Get players for a specific game
    */
-  public async getGamePlayers(gameId: number): Promise<PropFinderPlayer[]> {
+  public async getGamePlayers(gameId: string): Promise<PropFinderPlayer[]> {
     const cacheKey = `players_${gameId}`;
     
     // Check cache first
@@ -269,7 +268,7 @@ class PropFinderDataService {
       this.logger.info('PropFinderDataService', 'api', 'Fetching game players from PropFinder API');
       
       const response = await fetch(
-        `${this.API_BASE}/players/${gameId}`,
+        `${this.API_BASE}/props/${gameId}`,
         {
           method: 'GET',
           headers: {
@@ -282,18 +281,54 @@ class PropFinderDataService {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const result: PropFinderResponse<PropFinderPlayer[]> = await response.json();
+      const result: PropFinderResponse = await response.json();
       
-      if (!result.success) {
-        throw new Error(`API Error: ${result.message}`);
+      if (!result.props || !Array.isArray(result.props)) {
+        throw new Error('No props data in response');
       }
 
-      // Cache the result
-      this.setCached(cacheKey, result.data, this.CACHE_TTL_PLAYERS);
+      // Extract unique players from props
+      const playersMap = new Map<string, PropFinderPlayer>();
       
-      this.logger.info('PropFinderDataService', 'data', `Successfully fetched ${result.data.length} players for game ${gameId}`);
+      result.props.forEach((prop: PropFinderProp) => {
+        if (prop.player_id && prop.player_name) {
+          playersMap.set(prop.player_id, {
+            id: prop.player_id,
+            name: prop.player_name,
+            team: prop.team || 'Unknown',
+            position: prop.position || 'Unknown',
+            jersey_number: 0,
+            image_url: '',
+            pf_rating: prop.pf_rating || 0,
+            l10_avg: 0,
+            l5_avg: 0,
+            season_stats: {},
+            is_active: true,
+            prop: prop.prop_type || '',
+            odds: `${prop.line}`,
+            matchup: `${prop.team} (${prop.prop_type})`,
+            percentages: {
+              '2024': 0,
+              '2025': 0,
+              'h2h': 0,
+              'l5': 0,
+              'last': 0,
+              'l4': 0
+            },
+            streak: 0,
+            isFavorite: false
+          });
+        }
+      });
+      
+      const players = Array.from(playersMap.values());
 
-      return result.data;
+      // Cache the result
+      this.setCached(cacheKey, players, this.CACHE_TTL_PLAYERS);
+      
+      this.logger.info('PropFinderDataService', 'data', `Successfully fetched ${players.length} players for game ${gameId}`);
+
+      return players;
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -306,7 +341,7 @@ class PropFinderDataService {
    * Get props for a specific game
    */
   public async getGameProps(
-    gameId: number, 
+    gameId: string, 
     category?: string,
     minRating?: number
   ): Promise<PropFinderProp[]> {
@@ -341,16 +376,19 @@ class PropFinderDataService {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const result: PropFinderResponse<PropFinderProp[]> = await response.json();
+      const result: PropFinderResponse = await response.json();
       
-      if (!result.success) {
-        throw new Error(`API Error: ${result.message}`);
+      // Backend returns props directly in the props field
+      if (!result.props || !Array.isArray(result.props)) {
+        // Return empty array instead of throwing error for empty props
+        this.logger.info('PropFinderDataService', 'data', `Game ${gameId} returned no props - may be In Progress, Final, or Postponed`);
+        return [];
       }
 
       // Filter by minimum rating if specified
-      let filteredProps = result.data;
+      let filteredProps = result.props;
       if (minRating) {
-        filteredProps = result.data.filter(prop => prop.pf_rating >= minRating);
+        filteredProps = result.props.filter(prop => prop.pf_rating >= minRating);
       }
 
       // Cache the result
@@ -363,7 +401,9 @@ class PropFinderDataService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       this.logger.error('PropFinderDataService', 'api', 'Failed to fetch game props', { gameId, error: errorMessage });
-      throw new Error(`Failed to fetch props for game ${gameId}: ${errorMessage}`);
+      
+      // Return empty array instead of throwing error to prevent UI blocking
+      return [];
     }
   }
 
@@ -399,8 +439,8 @@ class PropFinderDataService {
 
       const result: PropFinderResponse<PlayerStats> = await response.json();
       
-      if (!result.success) {
-        throw new Error(`API Error: ${result.message}`);
+      if (!result.success || !result.data) {
+        throw new Error(`API Error: ${result.message || 'No data returned'}`);
       }
 
       // Cache the result
@@ -669,7 +709,7 @@ class PropFinderDataService {
    * Enhanced getGameProps that uses comprehensive statistics
    */
   public async getEnhancedGameProps(
-    gameId: number,
+    gameId: string,
     propType: string = 'hits'
   ): Promise<PropFinderPlayer[]> {
     try {

@@ -254,22 +254,33 @@ const PropFinderKillerDashboard: React.FC = () => {
         locked: !isAdminUser && index !== 0
       }));
 
-      // Find the most recent upcoming game (not finished)
+      // Find the most recent upcoming game (not finished) OR a finished game that's likely to have props
       let selectedGameIndex = 0;
       
-      // Filter to non-finished games first
-      const activeGames = transformedGames.filter((game) => {
-        const isFinished = game.status?.toLowerCase() === 'final' || 
-                          game.status?.toLowerCase() === 'completed' ||
-                          game.status?.toLowerCase() === 'game over';
-        return !isFinished;
+      // Filter to games that are likely to have props
+      const gamesWithPossibleProps = transformedGames.filter((game) => {
+        const isFinal = game.status?.toLowerCase() === 'final' || 
+                       game.status?.toLowerCase() === 'completed';
+        const isInProgress = game.status?.toLowerCase() === 'in progress' ||
+                            game.status?.toLowerCase() === 'live';
+        const isPostponed = game.status?.toLowerCase() === 'postponed';
+        
+        // Props are most likely available for Final games, less likely for In Progress, never for Postponed
+        return isFinal || (!isPostponed && !isInProgress);
       });
       
-      if (activeGames.length > 0) {
-        // Find the game closest to current time that's not finished
-        selectedGameIndex = transformedGames.findIndex(game => 
-          activeGames[0].id === game.id
+      if (gamesWithPossibleProps.length > 0) {
+        // Prefer Final games, then other valid games
+        const finalGames = gamesWithPossibleProps.filter(game => 
+          game.status?.toLowerCase() === 'final' || 
+          game.status?.toLowerCase() === 'completed'
         );
+        
+        const gameToSelect = finalGames.length > 0 ? finalGames[0] : gamesWithPossibleProps[0];
+        selectedGameIndex = transformedGames.findIndex(game => game.id === gameToSelect.id);
+      } else {
+        // If no good games found, select the first available
+        selectedGameIndex = 0;
       }
       
       // Set the selected game
@@ -293,33 +304,39 @@ const PropFinderKillerDashboard: React.FC = () => {
       const selectedGames = games.filter(game => game.selected && !game.locked);
       if (selectedGames.length === 0) {
         setRealPlayers([]);
-        setIsLoadingProps(false);
-        return;
+        return; // Will reach finally block
       }
 
       let allProps: PropFinderPlayer[] = [];
       const currentTime = Date.now();
+      let gamesProcessed = 0;
+      let gamesWithProps = 0;
       
       for (const game of selectedGames) {
+        gamesProcessed++;
+        
         // Check if we have cached data that's still fresh
         const cacheKey = `${game.id}_${betType}`;
         const cachedProps = propsCache.get(cacheKey);
         const cacheTime = cacheTimestamps.get(cacheKey);
         const isCacheValid = cachedProps && cacheTime && (currentTime - cacheTime) < CACHE_DURATION;
 
-        if (isCacheValid) {
+        if (isCacheValid && cachedProps.length > 0) {
           // Using cached props for performance
           allProps = [...allProps, ...cachedProps];
           setCacheHits(prev => prev + 1);
+          gamesWithProps++;
           continue;
         }
 
         try {
           // Loading fresh props
           setApiCalls(prev => prev + 1);
-          const gameProps = await propFinderService.getGameProps(parseInt(game.id));
+          const gameProps = await propFinderService.getGameProps(game.id);
           
-          if (gameProps.length > 0) {
+          if (gameProps && gameProps.length > 0) {
+            gamesWithProps++;
+            
             // Transform API props to dashboard format
             const transformedProps = gameProps.map(prop => ({
               id: prop.id,
@@ -354,50 +371,73 @@ const PropFinderKillerDashboard: React.FC = () => {
             setPropsCache(prev => new Map(prev).set(cacheKey, transformedProps));
             setCacheTimestamps(prev => new Map(prev).set(cacheKey, currentTime));
           } else {
-            // Fallback: try enhanced props with comprehensive statistics
-            const enhancedPlayers = await propFinderService.getEnhancedGameProps(
-              parseInt(game.id), 
-              'hits' // This can be made dynamic based on selected prop type
-            );
-            
-            if (enhancedPlayers.length > 0) {
-              // Transform enhanced players to PropFinder format
-              const transformedProps = enhancedPlayers.map(player => ({
-                id: player.id,
-                name: player.name,
-                team: player.team,
-                position: player.position,
-                number: player.jersey_number,
-                imageUrl: player.image_url,
-                pfRating: player.pf_rating,
-                prop: `${betType.toLowerCase()} ${player.prop}`,
-                l10Avg: player.l10_avg,
-                l5Avg: player.l5_avg,
-                odds: player.odds,
-                streak: player.streak,
-                matchup: player.matchup || `vs ${game.homeTeam === player.team ? game.awayTeam : game.homeTeam}`,
-                percentages: player.percentages,
-                isFavorite: favorites.includes(player.id),
-              }));
+            // Try enhanced props as fallback, but don't let it block loading completion
+            try {
+              const enhancedPlayers = await propFinderService.getEnhancedGameProps(
+                game.id, 
+                'hits' // This can be made dynamic based on selected prop type
+              );
               
-              allProps = [...allProps, ...transformedProps];
+              if (enhancedPlayers && enhancedPlayers.length > 0) {
+                gamesWithProps++;
+                
+                // Transform enhanced players to PropFinder format
+                const transformedProps = enhancedPlayers.map(player => ({
+                  id: player.id,
+                  name: player.name,
+                  team: player.team,
+                  position: player.position,
+                  number: player.jersey_number,
+                  imageUrl: player.image_url,
+                  pfRating: player.pf_rating,
+                  prop: `${betType.toLowerCase()} ${player.prop}`,
+                  l10Avg: player.l10_avg,
+                  l5Avg: player.l5_avg,
+                  odds: player.odds,
+                  streak: player.streak,
+                  matchup: player.matchup || `vs ${game.homeTeam === player.team ? game.awayTeam : game.homeTeam}`,
+                  percentages: player.percentages,
+                  isFavorite: favorites.includes(player.id),
+                }));
+                
+                allProps = [...allProps, ...transformedProps];
+              }
+            } catch (enhancedError) {
+              // Don't log enhanced errors unless in development
+              if (process.env.NODE_ENV === 'development') {
+                // eslint-disable-next-line no-console
+                console.warn(`Enhanced props failed for game ${game.id}:`, enhancedError);
+              }
             }
           }
         } catch (gameError) {
           // Continue with other games instead of failing completely
           if (process.env.NODE_ENV === 'development') {
             // eslint-disable-next-line no-console
-            console.error(`Failed to load props for game ${game.id}:`, gameError);
+            console.warn(`Failed to load props for game ${game.id}:`, gameError);
           }
+          // Game-specific errors don't prevent loading completion
         }
       }
 
       setRealPlayers(allProps);
       setLastUpdateTime(new Date());
       
-      // If no props were loaded, show a helpful message
+      // Provide helpful messaging based on results
       if (allProps.length === 0 && selectedGames.length > 0) {
-        setError('No props available for selected games. Props may not be generated for completed games.');
+        if (gamesProcessed === selectedGames.length) {
+          // All games processed but no props found
+          const gameStatuses = selectedGames.map(g => g.status).join(', ');
+          setError(`No props available for selected games (${gameStatuses}). Props are typically only available for games that haven't started yet.`);
+        } else {
+          setError('Failed to load props from all selected games. Try refreshing or selecting different games.');
+        }
+      } else if (allProps.length > 0 && gamesWithProps < selectedGames.length) {
+        // Some games had props, some didn't - this is normal
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.info(`Loaded props from ${gamesWithProps} of ${selectedGames.length} selected games`);
+        }
       }
       
     } catch (err) {
@@ -407,6 +447,7 @@ const PropFinderKillerDashboard: React.FC = () => {
       }
       setError(err instanceof Error ? err.message : 'Failed to load props');
     } finally {
+      // ALWAYS clear loading state, regardless of success or failure
       setIsLoadingProps(false);
     }
   }, [games, propFinderService, betType, favorites, propsCache, cacheTimestamps, CACHE_DURATION]);
@@ -429,7 +470,7 @@ const PropFinderKillerDashboard: React.FC = () => {
   }, [games, hasInitialLoad, loadPropsForSelectedGames]);
 
   // Enhanced player stats loading with better caching
-  const loadPlayerStats = useCallback(async (playerId: string, statType: string = 'hits') => {
+  const _loadPlayerStats = useCallback(async (playerId: string, statType: string = 'hits') => {
     try {
       const stats = await propFinderService.getPlayerComprehensiveStats(playerId, statType);
       return stats;
@@ -789,8 +830,10 @@ const PropFinderKillerDashboard: React.FC = () => {
         // Handle nested properties
         if (key.includes('.')) {
           const keys = key.split('.');
-          aValue = keys.reduce((obj: any, k) => obj?.[k], a);
-          bValue = keys.reduce((obj: any, k) => obj?.[k], b);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          aValue = keys.reduce((obj, k) => (obj as any)?.[k], a as any);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          bValue = keys.reduce((obj, k) => (obj as any)?.[k], b as any);
         } else {
           aValue = a[key as keyof PropFinderPlayer];
           bValue = b[key as keyof PropFinderPlayer];
@@ -1794,7 +1837,7 @@ const PropFinderKillerDashboard: React.FC = () => {
               >
                 <div className="flex items-center gap-1">
                   <span>L10 Avg</span>
-                  <Info className="w-3 h-3 text-slate-500" title="Last 10 games average" />
+                  <Info className="w-3 h-3 text-slate-500" />
                 </div>
               </th>
               <th 
@@ -1803,7 +1846,7 @@ const PropFinderKillerDashboard: React.FC = () => {
               >
                 <div className="flex items-center gap-1">
                   <span>L5 Avg</span>
-                  <Info className="w-3 h-3 text-slate-500" title="Last 5 games average" />
+                  <Info className="w-3 h-3 text-slate-500" />
                 </div>
               </th>
               <th 
