@@ -1,21 +1,18 @@
 """
-PropFinder Free Data Service - Complete PropFinder Clone             MarketType.PLAYER_HOME_RUNS: {
-                "display": "Home Runs",
-                "common_lines": [0.5, 1.5, 2.5],
-                "stat_key": "home_runs"
-            }, Free Sources
+PropFinder Free Data Service - Complete PropFinder Clone with Circuit Breaker Protection
 
 This service creates a complete propfinder.app experience using only FREE data:
 - MLB StatsAPI for games, players, and basic stats
 - Baseball Savant for advanced Statcast metrics  
 - Statistical models to generate realistic odds
 - Value calculations using our custom value engine
+- Circuit breaker pattern to prevent cascading failures
 
 No external odds APIs needed - generates everything from statistical projections.
 
 Author: AI Assistant
-Date: 2025
-Purpose: Complete propfinder functionality with zero API costs
+Date: 2025-08-19
+Purpose: Complete propfinder functionality with zero API costs and error resilience
 """
 
 import asyncio
@@ -23,6 +20,8 @@ import json
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from enum import Enum
 
 from backend.services.mlb_stats_api_client import MLBStatsAPIClient
 from backend.services.baseball_savant_client import BaseballSavantClient  
@@ -33,18 +32,74 @@ from backend.services.propfinder_probability_fixer import probability_fixer
 logger = logging.getLogger(__name__)
 
 
+class CircuitBreakerState(Enum):
+    """Circuit breaker states"""
+    CLOSED = "closed"    # Normal operation
+    OPEN = "open"        # Failing fast
+    HALF_OPEN = "half_open"  # Testing if service recovered
+
+
+@dataclass
+class CircuitBreaker:
+    """Simple circuit breaker for PropFinder operations"""
+    failure_threshold: int = 5
+    recovery_timeout: int = 300  # 5 minutes
+    failure_count: int = 0
+    last_failure_time: float = 0
+    state: CircuitBreakerState = CircuitBreakerState.CLOSED
+    
+    def __post_init__(self):
+        self.logger = logging.getLogger(f"{__name__}.CircuitBreaker")
+    
+    def can_execute(self) -> bool:
+        """Check if operation can proceed"""
+        if self.state == CircuitBreakerState.CLOSED:
+            return True
+        elif self.state == CircuitBreakerState.OPEN:
+            # Check if recovery timeout has passed
+            if datetime.now().timestamp() - self.last_failure_time > self.recovery_timeout:
+                self.state = CircuitBreakerState.HALF_OPEN
+                self.logger.info("Circuit breaker transitioning to HALF_OPEN")
+                return True
+            return False
+        else:  # HALF_OPEN
+            return True
+    
+    def record_success(self):
+        """Record successful operation"""
+        if self.state == CircuitBreakerState.HALF_OPEN:
+            self.state = CircuitBreakerState.CLOSED
+            self.failure_count = 0
+            self.logger.info("Circuit breaker reset to CLOSED")
+    
+    def record_failure(self):
+        """Record failed operation"""
+        self.failure_count += 1
+        self.last_failure_time = datetime.now().timestamp()
+        
+        if self.failure_count >= self.failure_threshold:
+            self.state = CircuitBreakerState.OPEN
+            self.logger.warning(f"Circuit breaker OPEN after {self.failure_count} failures")
+
+
 class PropFinderFreeDataService:
     """
-    Complete PropFinder service using only free MLB data sources.
+    Complete PropFinder service using only free MLB data sources with circuit breaker protection.
     
     This service replaces external odds APIs with statistical modeling
     to provide a full propfinder.app experience at zero API cost.
+    Includes circuit breakers to prevent cascading failures.
     """
     
     def __init__(self):
         self.mlb_client = MLBStatsAPIClient()
         self.savant_client = BaseballSavantClient()
         self.value_engine = ValueEngine()
+        
+        # Circuit breakers for different operations
+        self.player_projection_breaker = CircuitBreaker(failure_threshold=3, recovery_timeout=180)
+        self.value_calculation_breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=300)
+        self.game_processing_breaker = CircuitBreaker(failure_threshold=3, recovery_timeout=240)
         
         # Standard prop markets we'll generate
         self.supported_markets = {
@@ -98,14 +153,19 @@ class PropFinderFreeDataService:
         """
         Generate statistical projection for a player using free data sources.
         
-        Combines MLB StatsAPI season stats with Baseball Savant advanced metrics
-        to create realistic performance projections.
+        Uses circuit breaker to prevent repeated failures from cascading.
         """
+        # Check circuit breaker before proceeding
+        if not self.player_projection_breaker.can_execute():
+            logger.warning(f"Player projection circuit breaker OPEN - skipping {player_name}")
+            return None
+            
         try:
             # Get basic season stats from MLB API
             season_stats = await self.mlb_client.get_player_season_stats(player_id)
             if not season_stats:
                 logger.warning(f"No season stats found for player {player_id}")
+                self.player_projection_breaker.record_failure()
                 return None
             
             # Get advanced metrics from Baseball Savant if available
@@ -121,6 +181,7 @@ class PropFinderFreeDataService:
             market_config = self.supported_markets.get(market)
             if not market_config:
                 logger.warning(f"Unsupported market: {market}")
+                self.player_projection_breaker.record_failure()
                 return None
                 
             # Generate projection using probability fixer (FIXED VERSION)
@@ -145,10 +206,13 @@ class PropFinderFreeDataService:
                 last_updated=projection_data["last_updated"]
             )
             
+            # Record success
+            self.player_projection_breaker.record_success()
             return projection
             
         except Exception as e:
             logger.error(f"Error generating projection for {player_id}: {e}")
+            self.player_projection_breaker.record_failure()
             return None
     
     async def _calculate_market_projection(self,
@@ -259,6 +323,11 @@ class PropFinderFreeDataService:
         
         # Generate props for each market
         for market in markets_to_generate:
+            # Check circuit breaker before processing each market
+            if not self.value_calculation_breaker.can_execute():
+                logger.warning(f"Value calculation circuit breaker OPEN - skipping {market.value} for {player_name}")
+                continue
+                
             try:
                 # Generate projection
                 projection = await self.generate_player_projection(
@@ -266,6 +335,7 @@ class PropFinderFreeDataService:
                 )
                 
                 if not projection:
+                    self.value_calculation_breaker.record_failure()
                     continue
                 
                 # Generate props for each common line
@@ -325,9 +395,21 @@ class PropFinderFreeDataService:
                             "edge": best_odds["best_under"].edge_percent
                         }
                     
-                    # Top value bet
-                    if analysis["top_value_bet"]:
+                    # Top value bet - CHECK FOR MISSING FIELD
+                    if analysis.get("top_value_bet"):
                         top_bet = analysis["top_value_bet"]
+                        prop_data["top_value"] = {
+                            "side": top_bet.side,
+                            "odds": top_bet.american_odds,
+                            "book": top_bet.book_name,
+                            "ev": top_bet.expected_value,
+                            "kelly": top_bet.kelly_fraction,
+                            "edge": top_bet.edge_percent,
+                            "win_prob": top_bet.win_probability
+                        }
+                    elif analysis.get("value_ranked") and len(analysis["value_ranked"]) > 0:
+                        # Fallback: use the top value from rankings
+                        top_bet = analysis["value_ranked"][0]
                         prop_data["top_value"] = {
                             "side": top_bet.side,
                             "odds": top_bet.american_odds,
@@ -340,24 +422,34 @@ class PropFinderFreeDataService:
                     
                     all_props.append(prop_data)
                     
+                # Record success after completing market
+                self.value_calculation_breaker.record_success()
+                    
             except Exception as e:
                 logger.error(f"Error generating props for {player_name} {market}: {e}")
+                self.value_calculation_breaker.record_failure()
                 continue
         
         return all_props
     
     async def get_game_props(self, game_id: str, limit: int = 100) -> List[Dict[str, Any]]:
         """
-        Generate props for all players in a specific game.
+        Generate props for all players in a specific game with circuit breaker protection.
         
         This is the main endpoint that provides propfinder-style data
         for an entire game using only free data sources.
         """
+        # Check game processing circuit breaker
+        if not self.game_processing_breaker.can_execute():
+            logger.warning(f"Game processing circuit breaker OPEN - returning empty props for game {game_id}")
+            return []
+            
         try:
             # Get game details
             game_data = await self.mlb_client.get_game_details(game_id)
             if not game_data:
                 logger.error(f"Game {game_id} not found")
+                self.game_processing_breaker.record_failure()
                 return []
             
             # Get players for both teams
@@ -366,45 +458,76 @@ class PropFinderFreeDataService:
             
             all_game_props = []
             processed_players = 0
+            failed_players = 0
             
             # Process home team players
             for player in home_players:
                 if processed_players >= limit:
                     break
                 
-                player_props = await self.generate_complete_player_props(
-                    player_id=str(player["id"]),
-                    player_name=player["fullName"],
-                    game_id=game_id,
-                    position=player.get("positionCode", "Unknown")
-                )
-                
-                all_game_props.extend(player_props)
-                processed_players += 1
+                try:
+                    player_props = await self.generate_complete_player_props(
+                        player_id=str(player["id"]),
+                        player_name=player["fullName"],
+                        game_id=game_id,
+                        position=player.get("positionCode", "Unknown")
+                    )
+                    
+                    all_game_props.extend(player_props)
+                    processed_players += 1
+                    
+                except Exception as e:
+                    logger.error(f"Error processing player {player.get('fullName', 'Unknown')}: {e}")
+                    failed_players += 1
+                    
+                    # If too many players are failing, trip the circuit breaker
+                    if failed_players > 3:
+                        logger.warning("Too many player processing failures - stopping game processing")
+                        self.game_processing_breaker.record_failure()
+                        break
             
             # Process away team players  
             for player in away_players:
                 if processed_players >= limit:
                     break
                 
-                player_props = await self.generate_complete_player_props(
-                    player_id=str(player["id"]),
-                    player_name=player["fullName"], 
-                    game_id=game_id,
-                    position=player.get("positionCode", "Unknown")
-                )
-                
-                all_game_props.extend(player_props)
-                processed_players += 1
+                try:
+                    player_props = await self.generate_complete_player_props(
+                        player_id=str(player["id"]),
+                        player_name=player["fullName"], 
+                        game_id=game_id,
+                        position=player.get("positionCode", "Unknown")
+                    )
+                    
+                    all_game_props.extend(player_props)
+                    processed_players += 1
+                    
+                except Exception as e:
+                    logger.error(f"Error processing player {player.get('fullName', 'Unknown')}: {e}")
+                    failed_players += 1
+                    
+                    # If too many players are failing, trip the circuit breaker
+                    if failed_players > 3:
+                        logger.warning("Too many player processing failures - stopping game processing")
+                        self.game_processing_breaker.record_failure()
+                        break
             
             # Sort by highest value
             all_game_props.sort(key=lambda p: p.get("top_value", {}).get("edge", 0), reverse=True)
             
-            logger.info(f"Generated {len(all_game_props)} props for game {game_id}")
+            logger.info(f"Generated {len(all_game_props)} props for game {game_id} (processed {processed_players} players, {failed_players} failed)")
+            
+            # Record success if we got reasonable results
+            if len(all_game_props) > 0:
+                self.game_processing_breaker.record_success()
+            else:
+                self.game_processing_breaker.record_failure()
+                
             return all_game_props
             
         except Exception as e:
             logger.error(f"Error generating game props for {game_id}: {e}")
+            self.game_processing_breaker.record_failure()
             return []
     
     async def get_todays_props(self, limit: int = 200) -> List[Dict[str, Any]]:

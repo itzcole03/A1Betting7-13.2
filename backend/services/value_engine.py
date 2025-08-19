@@ -78,6 +78,18 @@ class ValueEngine:
     
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+        self.warning_tracker = {}  # Track warnings to reduce log noise
+        self.warning_limit = 5  # Max warnings per player per session
+    
+    def log_warning_once(self, message_key: str, message: str):
+        """Log warning with deduplication to reduce log noise"""
+        count = self.warning_tracker.get(message_key, 0)
+        if count < self.warning_limit:
+            self.logger.warning(message)
+            self.warning_tracker[message_key] = count + 1
+        elif count == self.warning_limit:
+            self.logger.warning(f"{message} (further similar warnings suppressed)")
+            self.warning_tracker[message_key] = count + 1
     
     # =============================================================================
     # ROBUST PROBABILITY CALCULATIONS (FIXED)
@@ -102,9 +114,17 @@ class ValueEngine:
             return 0.5  # Safe fallback
             
         if std_dev <= 0:
+            self.logger.warning(f"Invalid std_dev in prob_over: {std_dev}, mean={mean}, line={line}")
             return 1.0 if mean > line else 0.0
             
-        z = (line - mean) / std_dev
+        try:
+            z = (line - mean) / std_dev
+        except ZeroDivisionError:
+            self.logger.error(f"Division by zero in prob_over z-score calculation: line={line}, mean={mean}, std_dev={std_dev}")
+            return 0.5  # Safe fallback
+        except Exception as e:
+            self.logger.error(f"Error calculating z-score in prob_over: {e}")
+            return 0.5  # Safe fallback
         
         # Prevent extreme z-scores that cause numerical issues
         if z > 8:  # Probability would be essentially 0
@@ -185,26 +205,62 @@ class ValueEngine:
         Convert American odds to implied probability.
         ROBUST VERSION: Handles string inputs and edge cases, prevents division by zero
         """
-        if isinstance(american_odds, str):
-            try:
-                american_odds = int(american_odds.replace('+', '').replace('-', ''))
-                if american_odds < 0:
-                    american_odds = abs(american_odds)
-            except ValueError:
-                self.logger.warning(f"Invalid American odds string: {american_odds}")
+        try:
+            if isinstance(american_odds, str):
+                # Handle string inputs safely
+                original_str = american_odds.strip()
+                is_negative = original_str.startswith('-')
+                odds_str = american_odds.replace('+', '').replace('-', '').strip()
+                
+                if not odds_str:
+                    self.logger.warning("Empty odds string provided")
+                    return 0.5  # Safe fallback
+                    
+                try:
+                    american_odds = int(odds_str)
+                    # Restore negative sign if original was negative
+                    if is_negative and american_odds > 0:
+                        american_odds = -american_odds
+                except ValueError:
+                    self.logger.warning(f"Invalid American odds string: {american_odds}")
+                    return 0.5  # Safe fallback
+            
+            # Validate integer input
+            if not isinstance(american_odds, int):
+                self.logger.warning(f"Invalid American odds type: {type(american_odds)}")
                 return 0.5  # Safe fallback
                 
-        # Prevent edge cases that could lead to division by zero
-        if american_odds == 0:
-            return 0.5  # Safe fallback for invalid odds
+            # Prevent edge cases that could lead to division by zero
+            if american_odds == 0:
+                self.logger.warning("Zero American odds provided")
+                return 0.5  # Safe fallback for invalid odds
+                
+            # Handle very small odds that could cause numerical issues
+            if abs(american_odds) < 1:
+                self.logger.warning(f"American odds too small: {american_odds}")
+                return 0.5
+                
+            # Calculate probability with division by zero protection
+            if american_odds > 0:
+                denominator = american_odds + 100
+                if denominator == 0:  # Extra safety check
+                    self.logger.error(f"Division by zero in american_to_probability: positive odds denominator, american_odds={american_odds}")
+                    return 0.5
+                prob = 100.0 / denominator
+            else:
+                abs_odds = abs(american_odds)
+                denominator = abs_odds + 100
+                if denominator == 0:  # Extra safety check
+                    self.logger.error(f"Division by zero in american_to_probability: negative odds denominator, abs_odds={abs_odds}")
+                    return 0.5
+                prob = abs_odds / denominator
+                
+            # Ensure probability is never exactly 0 or 1 to prevent division issues downstream
+            return max(0.001, min(0.999, prob))
             
-        if american_odds > 0:
-            prob = 100 / (american_odds + 100)
-        else:
-            prob = abs(american_odds) / (abs(american_odds) + 100)
-            
-        # Ensure probability is never exactly 0 or 1 to prevent division issues
-        return max(0.001, min(0.999, prob))
+        except Exception as e:
+            self.logger.error(f"Error converting American odds to probability: {e}, odds: {american_odds}")
+            return 0.5  # Safe fallback
 
     # =============================================================================
     # VALUE CALCULATION FUNCTIONS
@@ -232,6 +288,35 @@ class ValueEngine:
         ROBUST VERSION: Prevents probability validation errors
         """
         try:
+            # Validate all inputs first
+            if projection.std_dev <= 0:
+                self.log_warning_once(
+                    f"std_dev_{projection.player_name}",
+                    f"Invalid projection std_dev: {projection.std_dev} for {projection.player_name}"
+                )
+                projection.std_dev = max(0.1, projection.mean * 0.5)  # Set reasonable std_dev
+            
+            if projection.mean <= 0:
+                self.log_warning_once(
+                    f"mean_{projection.player_name}",
+                    f"Invalid projection mean: {projection.mean} for {projection.player_name}"
+                )
+                projection.mean = 1.0  # Set reasonable mean
+            
+            if line < 0:
+                self.log_warning_once(
+                    f"line_{projection.player_name}",
+                    f"Invalid line: {line} for {projection.player_name}"
+                )
+                line = abs(line)
+            
+            if american_odds == 0:
+                self.log_warning_once(
+                    f"odds_{projection.player_name}",
+                    f"Invalid american_odds: {american_odds} for {projection.player_name}"
+                )
+                american_odds = -110  # Standard odds
+            
             # Calculate win probability based on side
             if side.upper() == "OVER":
                 win_prob = self.prob_over(projection.mean, projection.std_dev, line)
@@ -249,14 +334,32 @@ class ValueEngine:
             
             # Calculate edge percentage - FIXED to prevent division by zero
             implied_prob = self.american_to_probability(american_odds)
-            if implied_prob <= 0:
-                implied_prob = 0.001  # Prevent division by zero
-            edge_percent = ((win_prob - implied_prob) / implied_prob) * 100
+            if implied_prob <= 0.001:  # Prevent division by zero with larger safety margin
+                implied_prob = 0.001
+                self.logger.warning(f"Implied probability too low, using minimum: {implied_prob}")
+                
+            # Additional safety check for the division
+            try:
+                edge_percent = ((win_prob - implied_prob) / implied_prob) * 100
+            except ZeroDivisionError:
+                self.logger.error(f"Division by zero in edge calculation: win_prob={win_prob}, implied_prob={implied_prob}")
+                edge_percent = 0.0  # Safe fallback
+            except Exception as e:
+                self.logger.error(f"Error calculating edge percentage: {e}")
+                edge_percent = 0.0  # Safe fallback
             
             # Calculate Kelly fraction: (bp - q) / b where b = decimal_odds - 1, p = win_prob, q = 1 - win_prob
-            b = max(decimal_odds - 1, 0.001)  # Prevent division issues
-            kelly_fraction = max(0, (b * win_prob - (1 - win_prob)) / b)
-            kelly_fraction = min(kelly_fraction, 0.25)  # Cap at 25% for safety
+            # FIXED to prevent division by zero
+            b = max(decimal_odds - 1, 0.001)  # Prevent division issues with safety margin
+            try:
+                kelly_fraction = max(0, (b * win_prob - (1 - win_prob)) / b)
+                kelly_fraction = min(kelly_fraction, 0.25)  # Cap at 25% for safety
+            except ZeroDivisionError:
+                self.logger.error(f"Division by zero in Kelly calculation: b={b}")
+                kelly_fraction = 0.0  # Safe fallback
+            except Exception as e:
+                self.logger.error(f"Error calculating Kelly fraction: {e}")
+                kelly_fraction = 0.0  # Safe fallback
             
             return PropValue(
                 player_name=projection.player_name,
@@ -273,8 +376,27 @@ class ValueEngine:
                 kelly_fraction=kelly_fraction
             )
             
+        except ZeroDivisionError as zde:
+            self.logger.error(f"Division by zero error in calculate_prop_value: {zde}")
+            self.logger.error(f"Context - player: {projection.player_name}, market: {projection.market.value}, line: {line}, american_odds: {american_odds}, side: {side}")
+            # Return safe fallback value
+            return PropValue(
+                player_name=projection.player_name,
+                market=projection.market.value,
+                line=line,
+                side=side,
+                american_odds=american_odds,
+                decimal_odds=2.0,
+                win_probability=0.5,
+                expected_value=0.0,
+                edge_percent=0.0,
+                book_name=book_name,
+                confidence=0.1,  # Low confidence due to error
+                kelly_fraction=0.0
+            )
         except Exception as e:
             self.logger.error(f"Error calculating prop value: {e}")
+            self.logger.error(f"Prop value calculation failed - player: {projection.player_name}, market: {projection.market.value}, line: {line}, american_odds: {american_odds}, side: {side}")
             # Return safe fallback value
             return PropValue(
                 player_name=projection.player_name,
@@ -398,6 +520,9 @@ class ValueEngine:
             # Sort by edge percentage for value ranking
             value_ranked = sorted(all_prop_values, key=lambda p: p.edge_percent, reverse=True)
             
+            # Find top value bet (PropFinder expects this field)
+            top_value_bet = value_ranked[0] if value_ranked else None
+            
             return {
                 "projection": projection,
                 "base_line": base_line,
@@ -412,6 +537,7 @@ class ValueEngine:
                     "best_under": best_under
                 },
                 "value_ranked": value_ranked[:10],  # Top 10 by edge
+                "top_value_bet": top_value_bet,  # Add missing field for PropFinder
                 "analysis_timestamp": datetime.utcnow().isoformat()
             }
             
@@ -432,6 +558,7 @@ class ValueEngine:
                     "best_under": None
                 },
                 "value_ranked": [],
+                "top_value_bet": None,  # Add missing field for compatibility
                 "analysis_timestamp": datetime.utcnow().isoformat(),
                 "error": str(e)
             }

@@ -693,6 +693,16 @@ def create_app() -> FastAPI:
         print(f"❌ PRINT DEBUG: Exception in auth/users routes: {e}")
         logger.error(f"❌ Failed to register auth/users routes: {e}")
     
+    # Import and mount sports router (includes sports activation endpoint)
+    try:
+        from backend.routes.sports_routes import router as sports_router
+        _app.include_router(sports_router, tags=["Sports"])
+        logger.info("✅ Sports routes included (/api/v2/sports/activate endpoint)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import sports routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register sports routes: {e}")
+    
     # Import and mount diagnostics router (includes new structured health endpoint)
     try:
         from backend.routes.diagnostics import router as diagnostics_router

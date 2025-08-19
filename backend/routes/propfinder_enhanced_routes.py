@@ -204,8 +204,8 @@ async def get_todays_props(
             for book_data in prop_data.get("all_books", []):
                 books.append(PropFinderBook(
                     name=book_data["book_name"],
-                    over_odds=book_data["over_odds"],
-                    under_odds=book_data["under_odds"],
+                    over_odds=str(book_data["over_odds"]) if book_data["over_odds"] != 0 else "+100",
+                    under_odds=str(book_data["under_odds"]) if book_data["under_odds"] != 0 else "+100",
                     margin=book_data["margin"]
                 ))
             
@@ -214,7 +214,7 @@ async def get_todays_props(
             if prop_data.get("best_over_odds"):
                 bo = prop_data["best_over_odds"]
                 best_over = PropFinderBestOdds(
-                    odds=bo["odds"],
+                    odds=str(bo["odds"]) if bo["odds"] != 0 else "+100",
                     book=bo["book"],
                     ev=bo["ev"],
                     kelly=bo["kelly"],
@@ -225,7 +225,7 @@ async def get_todays_props(
             if prop_data.get("best_under_odds"):
                 bu = prop_data["best_under_odds"]
                 best_under = PropFinderBestOdds(
-                    odds=bu["odds"],
+                    odds=str(bu["odds"]) if bu["odds"] != 0 else "+100",
                     book=bu["book"],
                     ev=bu["ev"],
                     kelly=bu["kelly"],
@@ -238,7 +238,7 @@ async def get_todays_props(
                 tv = prop_data["top_value"]
                 top_value = PropFinderValueBet(
                     side=tv["side"],
-                    odds=tv["odds"],
+                    odds=str(tv["odds"]) if tv["odds"] != 0 else "+100",
                     book=tv["book"],
                     ev=tv["ev"],
                     kelly=tv["kelly"],
@@ -307,8 +307,8 @@ async def get_game_props(
             for book_data in prop_data.get("all_books", []):
                 books.append(PropFinderBook(
                     name=book_data["book_name"],
-                    over_odds=book_data["over_odds"],
-                    under_odds=book_data["under_odds"],
+                    over_odds=str(book_data["over_odds"]) if book_data["over_odds"] != 0 else "+100",
+                    under_odds=str(book_data["under_odds"]) if book_data["under_odds"] != 0 else "+100",
                     margin=book_data["margin"]
                 ))
             
@@ -317,7 +317,7 @@ async def get_game_props(
             if prop_data.get("best_over_odds"):
                 bo = prop_data["best_over_odds"]
                 best_over = PropFinderBestOdds(
-                    odds=bo["odds"], book=bo["book"], ev=bo["ev"],
+                    odds=str(bo["odds"]) if bo["odds"] != 0 else "+100", book=bo["book"], ev=bo["ev"],
                     kelly=bo["kelly"], edge=bo["edge"]
                 )
             
@@ -325,7 +325,7 @@ async def get_game_props(
             if prop_data.get("best_under_odds"):
                 bu = prop_data["best_under_odds"]
                 best_under = PropFinderBestOdds(
-                    odds=bu["odds"], book=bu["book"], ev=bu["ev"],
+                    odds=str(bu["odds"]) if bu["odds"] != 0 else "+100", book=bu["book"], ev=bu["ev"],
                     kelly=bu["kelly"], edge=bu["edge"]
                 )
             
@@ -333,7 +333,7 @@ async def get_game_props(
             if prop_data.get("top_value"):
                 tv = prop_data["top_value"]
                 top_value = PropFinderValueBet(
-                    side=tv["side"], odds=tv["odds"], book=tv["book"],
+                    side=tv["side"], odds=str(tv["odds"]) if tv["odds"] != 0 else "+100", book=tv["book"],
                     ev=tv["ev"], kelly=tv["kelly"], edge=tv["edge"],
                     win_prob=tv["win_prob"]
                 )
@@ -396,8 +396,8 @@ async def get_player_props(
             for book_data in prop_data.get("all_books", []):
                 books.append(PropFinderBook(
                     name=book_data["book_name"],
-                    over_odds=book_data["over_odds"],
-                    under_odds=book_data["under_odds"],
+                    over_odds=str(book_data["over_odds"]) if book_data["over_odds"] != 0 else "+100",
+                    under_odds=str(book_data["under_odds"]) if book_data["under_odds"] != 0 else "+100",
                     margin=book_data["margin"]
                 ))
             
@@ -405,7 +405,7 @@ async def get_player_props(
             if prop_data.get("best_over_odds"):
                 bo = prop_data["best_over_odds"]
                 best_over = PropFinderBestOdds(
-                    odds=bo["odds"], book=bo["book"], ev=bo["ev"],
+                    odds=str(bo["odds"]) if bo["odds"] != 0 else "+100", book=bo["book"], ev=bo["ev"],
                     kelly=bo["kelly"], edge=bo["edge"]
                 )
             
@@ -413,7 +413,7 @@ async def get_player_props(
             if prop_data.get("best_under_odds"):
                 bu = prop_data["best_under_odds"]
                 best_under = PropFinderBestOdds(
-                    odds=bu["odds"], book=bu["book"], ev=bu["ev"],
+                    odds=str(bu["odds"]) if bu["odds"] != 0 else "+100", book=bu["book"], ev=bu["ev"],
                     kelly=bu["kelly"], edge=bu["edge"]
                 )
             
@@ -421,7 +421,7 @@ async def get_player_props(
             if prop_data.get("top_value"):
                 tv = prop_data["top_value"]
                 top_value = PropFinderValueBet(
-                    side=tv["side"], odds=tv["odds"], book=tv["book"],
+                    side=tv["side"], odds=str(tv["odds"]) if tv["odds"] != 0 else "+100", book=tv["book"],
                     ev=tv["ev"], kelly=tv["kelly"], edge=tv["edge"],
                     win_prob=tv["win_prob"]
                 )
