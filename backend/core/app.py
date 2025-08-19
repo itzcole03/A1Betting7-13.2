@@ -789,6 +789,23 @@ def create_app() -> FastAPI:
         print(f"❌ PRINT DEBUG: Exception in PropFinder: {e}")
         logger.error(f"❌ Failed to register PropFinder routes: {e}")
 
+    # Import and mount Emergency PropFinder routes (Ultra-Fast Bypass)
+    print("🚨 PRINT DEBUG: About to register Emergency PropFinder bypass routes...")
+    try:
+        print("🚨 PRINT DEBUG: Starting Emergency PropFinder import...")
+        from backend.routes.emergency_propfinder_routes import emergency_propfinder_router
+        print("🚨 PRINT DEBUG: Emergency PropFinder router imported successfully!")
+        logger.info("🚨 DEBUG: Emergency PropFinder router imported successfully")
+        _app.include_router(emergency_propfinder_router, tags=["Emergency PropFinder - Ultra-Fast"])
+        print("✅ PRINT DEBUG: Emergency PropFinder routes registered successfully!")
+        logger.info("✅ Emergency PropFinder routes included (/api/emergency/propfinder/* endpoints)")
+    except ImportError as e:
+        print(f"❌ PRINT DEBUG: ImportError in Emergency PropFinder: {e}")
+        logger.warning(f"⚠️ Could not import Emergency PropFinder routes: {e}")
+    except Exception as e:
+        print(f"❌ PRINT DEBUG: Exception in Emergency PropFinder: {e}")
+        logger.error(f"❌ Failed to register Emergency PropFinder routes: {e}")
+
     # Import and mount Ultra-Fast PropFinder routes (PropFinder Performance Optimization)
     print("🔍 PRINT DEBUG: About to register Ultra-Fast PropFinder routes...")
     try:
