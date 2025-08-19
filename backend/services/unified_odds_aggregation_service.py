@@ -7,13 +7,15 @@ Features:
 - Real-time odds comparison
 - Arbitrage opportunity detection
 - Best line identification
+- Historical odds capture and storage
+- Line movement analytics and steam detection
 - Data normalization and standardization
 - Caching and performance optimization
 """
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Union, Tuple
 from dataclasses import dataclass, asdict
 from enum import Enum
@@ -80,12 +82,21 @@ class UnifiedOddsAggregationService:
     def __init__(self):
         self.supported_sportsbooks = ['DraftKings', 'BetMGM']
         self.arbitrage_threshold = 0.01  # 1% minimum profit margin
+        self.steam_threshold = 0.5  # Minimum line movement for steam detection
+        self.steam_window_minutes = 30  # Time window for synchronized movement  
+        self.steam_min_books = 3  # Minimum books for steam detection
+        
         self.cache_ttl = {
             'live_odds': 30,      # 30 seconds for live odds
             'pre_game_odds': 120, # 2 minutes for pre-game odds
             'arbitrage': 45,      # 45 seconds for arbitrage opportunities
-            'line_movement': 60   # 1 minute for line movement
+            'line_movement': 60,  # 1 minute for line movement
+            'historical_odds': 300  # 5 minutes for historical data
         }
+        
+        # Historical odds storage (in-memory for now, should be database)
+        self.historical_odds = {}  # prop_id -> List[OddsSnapshot]
+        self.movement_cache = {}   # prop_id:sportsbook -> MovementAnalysis
         
     async def get_aggregated_odds(
         self,
@@ -542,6 +553,168 @@ class UnifiedOddsAggregationService:
                 "error": str(e),
                 "timestamp": datetime.now().isoformat()
             }
+    
+    # === LINE MOVEMENT TRACKING METHODS ===
+    
+    async def capture_odds_snapshot(self, prop_id: str, sportsbook: str, sport: str, 
+                                   line: Optional[float], over_odds: Optional[int], 
+                                   under_odds: Optional[int]) -> None:
+        """Capture odds snapshot for line movement tracking"""
+        try:
+            from ..services.historical_odds_capture import OddsSnapshot
+            
+            snapshot = OddsSnapshot(
+                prop_id=prop_id,
+                sportsbook=sportsbook, 
+                sport=sport,
+                line=line,
+                over_odds=over_odds,
+                under_odds=under_odds,
+                captured_at=datetime.now(timezone.utc)
+            )
+            
+            # Store in memory cache (should be database)
+            if prop_id not in self.historical_odds:
+                self.historical_odds[prop_id] = {}
+            if sportsbook not in self.historical_odds[prop_id]:
+                self.historical_odds[prop_id][sportsbook] = []
+                
+            self.historical_odds[prop_id][sportsbook].append(snapshot)
+            
+            # Keep only recent snapshots (last 7 days)
+            cutoff_time = datetime.now(timezone.utc) - timedelta(days=7)
+            self.historical_odds[prop_id][sportsbook] = [
+                s for s in self.historical_odds[prop_id][sportsbook] 
+                if s.captured_at > cutoff_time
+            ]
+            
+            logger.debug(f"Captured odds snapshot for {prop_id} at {sportsbook}")
+            
+        except Exception as e:
+            logger.error(f"Error capturing odds snapshot: {e}")
+    
+    async def get_prop_history(self, prop_id: str, sportsbook: str, 
+                              start_time: Optional[datetime] = None,
+                              end_time: Optional[datetime] = None,
+                              limit: int = 100) -> List[Dict[str, Any]]:
+        """Get historical odds data for a prop"""
+        try:
+            if prop_id not in self.historical_odds:
+                return []
+                
+            if sportsbook not in self.historical_odds[prop_id]:
+                return []
+                
+            snapshots = self.historical_odds[prop_id][sportsbook]
+            
+            # Filter by time range if specified
+            if start_time:
+                snapshots = [s for s in snapshots if s.captured_at >= start_time]
+            if end_time:
+                snapshots = [s for s in snapshots if s.captured_at <= end_time]
+            
+            # Sort by timestamp and limit
+            snapshots = sorted(snapshots, key=lambda x: x.captured_at, reverse=True)[:limit]
+            
+            return [s.to_dict() for s in snapshots]
+            
+        except Exception as e:
+            logger.error(f"Error retrieving prop history: {e}")
+            return []
+    
+    async def analyze_line_movement(self, prop_id: str, sportsbook: str, 
+                                   hours_back: int = 24) -> Dict[str, Any]:
+        """Analyze line movement for a prop at a specific sportsbook"""
+        try:
+            from ..services.line_movement_analytics import get_movement_analytics
+            
+            # Get historical data
+            end_time = datetime.now(timezone.utc)
+            start_time = end_time - timedelta(hours=hours_back)
+            
+            historical_data = await self.get_prop_history(
+                prop_id=prop_id,
+                sportsbook=sportsbook, 
+                start_time=start_time,
+                end_time=end_time
+            )
+            
+            if not historical_data:
+                return {"error": "No historical data available"}
+                
+            # Use line movement analytics service
+            analytics_service = get_movement_analytics()
+            analysis = await analytics_service.analyze_prop_movement(
+                prop_id=prop_id,
+                sportsbook=sportsbook,
+                historical_data=historical_data
+            )
+            
+            return {
+                "prop_id": analysis.prop_id,
+                "sportsbook": analysis.sportsbook,
+                "movement_1h": analysis.movement_1h,
+                "movement_6h": analysis.movement_6h, 
+                "movement_24h": analysis.movement_24h,
+                "movement_total": analysis.movement_total,
+                "velocity_1h": analysis.velocity_1h,
+                "volatility_score": analysis.volatility_score,
+                "direction_changes": analysis.direction_changes,
+                "opening_line": analysis.opening_line,
+                "current_line": analysis.current_line,
+                "computed_at": analysis.computed_at.isoformat()
+            }
+            
+        except Exception as e:
+            logger.error(f"Error analyzing line movement: {e}")
+            return {"error": str(e)}
+    
+    async def detect_steam_movement(self, prop_id: str) -> Optional[Dict[str, Any]]:
+        """Detect steam across multiple sportsbooks for a prop"""
+        try:
+            from ..services.line_movement_analytics import get_movement_analytics
+            
+            # Get recent data for all books
+            end_time = datetime.now(timezone.utc)
+            start_time = end_time - timedelta(minutes=self.steam_window_minutes * 2)
+            
+            all_books_data = {}
+            if prop_id in self.historical_odds:
+                for sportsbook in self.historical_odds[prop_id]:
+                    book_data = await self.get_prop_history(
+                        prop_id=prop_id,
+                        sportsbook=sportsbook,
+                        start_time=start_time,
+                        end_time=end_time
+                    )
+                    if book_data:
+                        all_books_data[sportsbook] = book_data
+            
+            if len(all_books_data) < self.steam_min_books:
+                return None
+                
+            # Use analytics service for steam detection
+            analytics_service = get_movement_analytics()
+            steam_alert = await analytics_service.detect_steam_across_books(
+                prop_id=prop_id,
+                all_books_data=all_books_data
+            )
+            
+            if steam_alert:
+                return {
+                    "prop_id": steam_alert.prop_id,
+                    "detected_at": steam_alert.detected_at.isoformat(),
+                    "books_moving": steam_alert.books_moving,
+                    "movement_size": steam_alert.movement_size,
+                    "confidence_score": steam_alert.confidence_score,
+                    "synchronized_window_minutes": steam_alert.synchronized_window_minutes
+                }
+                
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error detecting steam movement: {e}")
+            return {"error": str(e)}
 
 # Global service instance
 unified_odds_service = UnifiedOddsAggregationService()

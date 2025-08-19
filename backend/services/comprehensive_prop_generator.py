@@ -47,15 +47,17 @@ except ImportError:
     BaseballSavantClient = None
 
 try:
-    from backend.services.intelligent_cache_service import intelligent_cache_service
+    from backend.services.unified_cache_service import unified_cache_service
 
-    # Create a wrapper class for intelligent_cache_service
+    # Create a wrapper class for unified_cache_service
     class IntelligentCacheService:
         def __init__(self):
-            self.service = intelligent_cache_service
+            self.service = unified_cache_service
 
         async def get_cached_data(self, key: str, category: Optional[str] = None):
             try:
+                if self.service is None:
+                    return None
                 return await self.service.get(key)
             except Exception:
                 return None
@@ -64,25 +66,36 @@ try:
             self, key: str, data: Any, ttl: int = 3600, category: Optional[str] = None
         ):
             try:
+                if self.service is None:
+                    return
                 await self.service.set(key, data, ttl)
             except Exception:
                 pass
 
         async def get(self, key: str):
             try:
+                if self.service is None:
+                    return None
                 return await self.service.get(key)
             except Exception:
                 return None
 
         async def set(self, key: str, data: Any, ttl: int = 3600):
             try:
+                if self.service is None:
+                    return
                 await self.service.set(key, data, ttl)
             except:
                 pass
 
 except ImportError:
+    unified_cache_service = None
+    
     # Fallback cache service
     class IntelligentCacheService:
+        def __init__(self):
+            self.service = None
+            
         async def get_cached_data(self, key: str, category: Optional[str] = None):
             return None
 

@@ -15,8 +15,9 @@ import {
   ArrowDownRight,
   Minus,
 } from 'lucide-react';
-import PlayerAvatar from '../PlayerAvatar';
-import StatcastMetrics from '../StatcastMetrics';
+// import PlayerAvatar from '../PlayerAvatar';
+// import StatcastMetrics from '../StatcastMetrics';
+import LineMovementChart from '../../LineMovementChart';
 
 // Unified interfaces
 interface StatBar {
@@ -129,11 +130,11 @@ const UnifiedPropCard: React.FC<UnifiedPropCardProps> = ({
   onCollapse,
   onRequestAnalysis,
   statcastData,
-  alternativeProps = [],
+  // _alternativeProps = [],
 }) => {
   const [showAnalysis, setShowAnalysis] = useState(false);
-  const [enhancedData, setEnhancedData] = useState<any>(null);
-  const [isLoadingEnhanced, setIsLoadingEnhanced] = useState(false);
+  const [_enhancedData] = useState<Record<string, unknown> | null>(null);
+  const [_isLoadingEnhanced] = useState(false);
 
   const confidenceScore = Math.round(prop.confidence || 0);
 
@@ -269,6 +270,18 @@ const UnifiedPropCard: React.FC<UnifiedPropCardProps> = ({
               }}
               isVisible={true}
             />
+          )}
+
+          {/* Line Movement Chart - Only show when expanded */}
+          {isExpanded && (
+            <div className="mt-4">
+              <LineMovementChart
+                propId={`${player.name}-${prop.stat}`}
+                sportsbook="DraftKings" // Default sportsbook, should be configurable
+                sport={game.sport || 'MLB'}
+                className="bg-gray-800/50 rounded-lg"
+              />
+            </div>
           )}
         </div>
       );

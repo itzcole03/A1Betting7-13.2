@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useDeferredValue, useTransition, startTransition } from 'react';
+import { useState, useEffect, useCallback, useMemo, useDeferredValue, useTransition } from 'react';
 
 interface PerformanceConfig {
   enableVirtualization?: boolean;
@@ -36,7 +36,7 @@ export function useOptimizedPerformance<T>(
   } = config;
 
   // React 19 concurrent features
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransitionHook] = useTransition();
   
   // State management
   const [state, setState] = useState<OptimizedState<T>>({
@@ -65,7 +65,7 @@ export function useOptimizedPerformance<T>(
   // Optimized fetch function with caching and error handling
   const optimizedFetch = useCallback(async (useCache = enableCaching) => {
     const startTime = performance.now();
-    const cacheKey = fetchFn.toString(); // Simple cache key
+    const cacheKey = 'fetch-data'; // Stable cache key
 
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
@@ -79,7 +79,7 @@ export function useOptimizedPerformance<T>(
           const fetchTime = performance.now() - startTime;
           
           if (enableDeferredUpdates) {
-            startTransition(() => {
+            startTransitionHook(() => {
               setState({
                 data: cached.data,
                 loading: false,
@@ -121,7 +121,7 @@ export function useOptimizedPerformance<T>(
 
       // Update state with transition for React 19 optimization
       if (enableDeferredUpdates) {
-        startTransition(() => {
+        startTransitionHook(() => {
           setState({
             data,
             loading: false,
@@ -173,7 +173,7 @@ export function useOptimizedPerformance<T>(
 
       throw error;
     }
-  }, [fetchFn, enableCaching, enableDeferredUpdates, cache]);
+  }, [enableCaching, enableDeferredUpdates, cache, fetchFn]);
 
   // Debounced refetch for performance
   const debouncedRefetch = useMemo(() => {
@@ -214,20 +214,17 @@ export function useOptimizedPerformance<T>(
     });
   }, [optimizedFetch, enableCaching]);
 
-  // Initial fetch
+  // Initial fetch - use a flag to prevent multiple calls
+  const [hasInitialized, setHasInitialized] = useState(false);
+  
   useEffect(() => {
-    optimizedFetch();
-  }, [optimizedFetch]);
-
-  // Performance monitoring
-  useEffect(() => {
-    const startRender = performance.now();
-    
-    return () => {
-      const renderTime = performance.now() - startRender;
-      setMetrics(prev => ({ ...prev, renderTime }));
-    };
-  }, [state.data]);
+    if (!hasInitialized) {
+      setHasInitialized(true);
+      optimizedFetch().catch(() => {
+        // Handle error silently for initial fetch
+      });
+    }
+  }, [hasInitialized, optimizedFetch]);
 
   return {
     // State
@@ -249,7 +246,7 @@ export function useOptimizedPerformance<T>(
     
     // React 19 features
     isPending,
-    startTransition
+    startTransition: startTransitionHook
   };
 }
 

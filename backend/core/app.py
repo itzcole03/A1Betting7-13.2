@@ -839,6 +839,16 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"❌ Failed to register consolidated Admin routes: {e}")
 
+    # Odds & Line Movement API (PropFinder parity - odds comparison and line tracking)
+    try:
+        from backend.routes.odds_routes import router as odds_router
+        _app.include_router(odds_router, prefix="/v1/odds", tags=["Odds & Line Movement"])
+        logger.info("✅ Odds & Line Movement routes included (/v1/odds/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import Odds routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register Odds routes: {e}")
+
     # Risk Management and Personalization API (Risk Management Engine, User Personalization, Alerting Foundation)
     try:
         from backend.routes.risk_personalization import router as risk_personalization_router
@@ -946,6 +956,26 @@ def create_app() -> FastAPI:
         logger.warning(f"⚠️ Could not import enterprise model registry routes: {e}")
     except Exception as e:
         logger.error(f"❌ Failed to register enterprise model registry routes: {e}")
+
+    # --- Alert Engine Routes (NEW) - PropFinder Parity Alert System ---
+    try:
+        from backend.routes.alert_engine_routes import router as alert_engine_router
+        _app.include_router(alert_engine_router, prefix="/api/alert-engine", tags=["Alert Engine"])
+        logger.info("✅ Alert engine routes included (/api/alert-engine/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import alert engine routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register alert engine routes: {e}")
+
+    # --- PropFinder Routes (NEW) - Real Data Integration for PropFinder Dashboard ---
+    try:
+        from backend.routes.propfinder_routes import router as propfinder_router
+        _app.include_router(propfinder_router, prefix="/api/propfinder", tags=["PropFinder"])
+        logger.info("✅ PropFinder routes included (/api/propfinder/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"⚠️ Could not import PropFinder routes: {e}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register PropFinder routes: {e}")
 
     # DB and config setup can be added here as modules are refactored in
     

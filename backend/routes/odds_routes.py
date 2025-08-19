@@ -4,7 +4,7 @@ Provides real-time odds aggregation and best-line identification
 """
 
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Depends, Query
@@ -21,10 +21,11 @@ from backend.services.odds_aggregation_service import (
     ArbitrageOpportunity,
     BookLine
 )
+from backend.services.unified_odds_aggregation_service import get_unified_odds_service
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/v1/odds", tags=["Odds Aggregation"])
+router = APIRouter(tags=["Odds Aggregation"])
 
 # Pydantic models for API responses
 class BookLineModel(BaseModel):
@@ -148,14 +149,14 @@ async def compare_odds(
         
         arbitrage_count = sum(1 for line in limited_lines if line.arbitrage_opportunity)
         
-        return ResponseBuilder.success(OddsComparisonResponse(
-            sport=sport,
-            total_lines=len(canonical_models)),
-            total_books=len(all_books),
-            best_lines=canonical_models,
-            arbitrage_count=arbitrage_count,
-            last_updated=datetime.utcnow()
-        )
+        return ResponseBuilder.success({
+            "sport": sport,
+            "total_lines": len(canonical_models),
+            "total_books": len(all_books),
+            "best_lines": [model.dict() for model in canonical_models],
+            "arbitrage_count": arbitrage_count,
+            "last_updated": datetime.utcnow().isoformat()
+        })
         
     except Exception as e:
         logger.error(f"Odds comparison error: {e}")
@@ -201,13 +202,13 @@ async def find_arbitrage(
         # Calculate average profit
         avg_profit = sum(opp.profit_percentage for opp in limited_opportunities) / len(limited_opportunities) if limited_opportunities else 0.0
         
-        return ResponseBuilder.success(ArbitrageResponse(
-            sport=sport,
-            opportunities=opportunity_models,
-            total_opportunities=len(opportunity_models)),
-            avg_profit=round(avg_profit, 2),
-            last_updated=datetime.utcnow()
-        )
+        return ResponseBuilder.success({
+            "sport": sport,
+            "opportunities": [model.dict() for model in opportunity_models],
+            "total_opportunities": len(opportunity_models),
+            "avg_profit": round(avg_profit, 2),
+            "last_updated": datetime.utcnow().isoformat()
+        })
         
     except Exception as e:
         logger.error(f"Arbitrage detection error: {e}")
@@ -230,7 +231,7 @@ async def get_player_odds(
         ]
         
         if not player_lines:
-            raise BusinessLogicException("f"No odds found for player: {player_name}")
+            raise BusinessLogicException(f"No odds found for player: {player_name}")
         
         # Group by stat type
         grouped_lines = {}
@@ -285,3 +286,121 @@ async def odds_health_check(
             "error": str(e),
             "timestamp": datetime.utcnow().isoformat()
         })
+
+
+# === LINE MOVEMENT ENDPOINTS ===
+
+@router.get("/line-movement/{prop_id}/{sportsbook}", response_model=StandardAPIResponse[Dict[str, Any]])
+async def analyze_line_movement(
+    prop_id: str,
+    sportsbook: str,
+    hours_back: int = Query(24, ge=1, le=168, description="Hours of historical data to analyze"),
+    unified_odds_service = Depends(get_unified_odds_service)
+):
+    """
+    Analyze line movement patterns for a specific prop at a specific sportsbook.
+    
+    Returns detailed movement analysis including:
+    - Time-based movements (1h, 6h, 24h, total)
+    - Velocity and volatility metrics
+    - Opening vs current line comparison
+    """
+    try:
+        analysis = await unified_odds_service.analyze_line_movement(
+            prop_id=prop_id,
+            sportsbook=sportsbook,
+            hours_back=hours_back
+        )
+        
+        if "error" in analysis:
+            raise BusinessLogicException(analysis["error"])
+            
+        return ResponseBuilder.success(analysis)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Line movement analysis error: {e}")
+        raise BusinessLogicException("Failed to analyze line movement")
+
+
+@router.get("/steam-detection/{prop_id}", response_model=StandardAPIResponse[Dict[str, Any]])
+async def detect_steam_movement(
+    prop_id: str,
+    unified_odds_service = Depends(get_unified_odds_service)
+):
+    """
+    Detect steam by analyzing synchronized line movements across multiple sportsbooks.
+    
+    Returns steam alert if synchronized movement detected, otherwise None.
+    Steam requires minimum 3 books moving in same direction within time window.
+    """
+    try:
+        steam_data = await unified_odds_service.detect_steam_movement(prop_id)
+        
+        if steam_data and "error" in steam_data:
+            raise BusinessLogicException(steam_data["error"])
+            
+        return ResponseBuilder.success({
+            "prop_id": prop_id,
+            "steam_detected": steam_data is not None,
+            "steam_data": steam_data
+        })
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Steam detection error: {e}")
+        raise BusinessLogicException("Failed to detect steam movement")
+
+
+@router.get("/history/{prop_id}/{sportsbook}", response_model=StandardAPIResponse[Dict[str, Any]])
+async def get_line_history(
+    prop_id: str,
+    sportsbook: str,
+    hours_back: int = Query(24, ge=1, le=168, description="Hours of history to return"),
+    limit: int = Query(100, ge=10, le=500, description="Maximum snapshots to return"),
+    unified_odds_service = Depends(get_unified_odds_service)
+):
+    """
+    Get historical line data for charting and visualization.
+    
+    Returns time series data suitable for line charts showing:
+    - Line movement over time
+    - Odds changes
+    - Capture timestamps
+    """
+    try:
+        from datetime import timedelta, timezone
+        
+        # Get historical data
+        end_time = datetime.now(timezone.utc)
+        start_time = end_time - timedelta(hours=hours_back)
+        
+        historical_data = await unified_odds_service.get_prop_history(
+            prop_id=prop_id,
+            sportsbook=sportsbook,
+            start_time=start_time,
+            end_time=end_time,
+            limit=limit
+        )
+        
+        if not historical_data:
+            raise BusinessLogicException(f"No historical data found for {prop_id} at {sportsbook}")
+        
+        return ResponseBuilder.success({
+            "prop_id": prop_id,
+            "sportsbook": sportsbook,
+            "total_snapshots": len(historical_data),
+            "date_range": {
+                "start": start_time.isoformat(),
+                "end": end_time.isoformat()
+            },
+            "snapshots": historical_data
+        })
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Line history error: {e}")
+        raise BusinessLogicException("Failed to retrieve line history")

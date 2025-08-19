@@ -22,6 +22,35 @@ export interface LiveOpportunity {
   confidence: number;
 }
 
+export interface MLModelStat {
+  name: string;
+  accuracy: number;
+  f1_score: number | null;
+  auc: number | null;
+  last_trained: string;
+}
+
+interface PropData {
+  id?: string;
+  result?: string;
+  profit?: number;
+  confidence?: number;
+  roi?: number;
+  sharpe_ratio?: number;
+  player_name?: string;
+  name?: string;
+  stake?: number;
+  expected_profit?: number;
+  stat_type?: string;
+  type?: string;
+  source?: string;
+  timestamp?: string;
+  model_name?: string;
+  f1_score?: number;
+  auc?: number;
+  last_trained?: string;
+}
+
 export function useKeyMetrics() {
   const [keyMetrics, setKeyMetrics] = useState<MetricCard[]>([]);
   useEffect(() => {
@@ -34,14 +63,14 @@ export function useKeyMetrics() {
           return;
         }
         // Aggregate metrics from props (example: win rate, profit, accuracy, ROI, Sharpe)
-        const _winRate = (data.filter((p: unknown) => p.result === 'win').length / data.length) * 100;
-        const _totalProfit = data.reduce((acc: number, p: unknown) => acc + (p.profit || 0), 0);
-        const _aiAccuracy =
-          data.reduce((acc: number, p: unknown) => acc + (p.confidence || 0), 0) / data.length;
-        const _roi = data.reduce((acc: number, p: unknown) => acc + (p.roi || 0), 0) / data.length;
-        const _sharpeRatio =
-          data.reduce((acc: number, p: unknown) => acc + (p.sharpe_ratio || 0), 0) / data.length;
-        const _metrics = [
+        const winRate = (data.filter((p: PropData) => p.result === 'win').length / data.length) * 100;
+        const totalProfit = data.reduce((acc: number, p: PropData) => acc + (p.profit || 0), 0);
+        const aiAccuracy =
+          data.reduce((acc: number, p: PropData) => acc + (p.confidence || 0), 0) / data.length;
+        const roi = data.reduce((acc: number, p: PropData) => acc + (p.roi || 0), 0) / data.length;
+        const sharpeRatio =
+          data.reduce((acc: number, p: PropData) => acc + (p.sharpe_ratio || 0), 0) / data.length;
+        const metrics = [
           {
             id: 'win-rate',
             title: 'Win Rate',
@@ -121,8 +150,8 @@ export function useLiveOpportunities() {
           return;
         }
         // Map API response to LiveOpportunity type
-        const _mapped = data.map((op: unknown) => ({
-          id: op.id,
+        const mapped = data.map((op: PropData) => ({
+          id: op.id || `opp-${Date.now()}-${Math.random()}`,
           game: op.player_name || op.name || '',
           roi: op.roi || 0,
           stake: op.stake || 0,
@@ -140,7 +169,7 @@ export function useLiveOpportunities() {
 }
 
 export function useMlModelStats() {
-  const [mlModelStats, setMlModelStats] = useState<unknown[]>([]);
+  const [mlModelStats, setMlModelStats] = useState<MLModelStat[]>([]);
   useEffect(() => {
     fetch('http://localhost:8000/api/prizepicks/props/enhanced')
       .then(res => res.json())
@@ -150,7 +179,7 @@ export function useMlModelStats() {
           return;
         }
         // Extract model stats from enhanced props (example: accuracy, f1, auc, last_trained)
-        const _models = data.map((p: unknown) => ({
+        const models = data.map((p: PropData) => ({
           name: p.model_name || p.player_name || '',
           accuracy: p.confidence || 0,
           f1_score: p.f1_score || null,

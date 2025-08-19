@@ -68,6 +68,16 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
   const navigationItems: NavigationItem[] = [
     // Main Features
     {
+      id: 'propfinder-clone',
+      name: 'PropFinder Clone',
+      href: '/propfinder-clone',
+      icon: Trophy,
+      badge: 'CLONE',
+      description: 'Exact PropFinder interface clone',
+      category: 'main',
+      isNew: true,
+    },
+    {
       id: 'prop-killer',
       name: 'PropFinder Killer',
       href: '/prop-killer',

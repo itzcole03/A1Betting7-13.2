@@ -1,973 +1,472 @@
 import * as React from 'react';
-import { useState, useEffect, useMemo, useTransition, useDeferredValue, startTransition, useCallback } from 'react';
-import Phase4Banner from '../phase4/Phase4Banner';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Search,
-  Filter,
-  TrendingUp,
-  TrendingDown,
-  Zap,
-  Brain,
-  Target,
+import { useState, useEffect, useMemo, Suspense, memo, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  Search, 
+  Filter, 
+  TrendingUp, 
+  Zap, 
+  RefreshCw, 
   Clock,
-  DollarSign,
   BarChart3,
   Activity,
-  Star,
-  ChevronDown,
-  ChevronUp,
-  Settings,
-  RefreshCw,
-  AlertCircle,
-  CheckCircle,
-  PlayCircle,
-  PauseCircle,
-  Maximize2,
-  Eye,
-  EyeOff,
-  Plus,
-  Minus,
-  Info,
-  Bookmark,
-  Share2,
-  Download,
-  Trophy,
-  Flame,
-  Shield,
-  Calculator,
+  Gauge
 } from 'lucide-react';
-import CommunityEngagement from '../community/CommunityEngagement';
+
+import { useOptimizedPerformance, useOptimizedList } from '../../hooks/useOptimizedPerformance';
+import { apiService } from '../../services/optimizedDataService';
+import Phase4Banner from '../phase4/Phase4Banner';
 import PerformanceMonitoringDashboard from '../phase4/PerformanceMonitoringDashboard';
 
-// Enhanced interfaces based on competitor analysis
 interface PropOpportunity {
   id: string;
   player: string;
-  playerImage?: string;
   team: string;
-  teamLogo?: string;
   opponent: string;
-  opponentLogo?: string;
-  sport: 'NBA' | 'NFL' | 'MLB' | 'NHL';
-  market: string;
+  sport: string;
+  propType: string;
   line: number;
-  pick: 'over' | 'under';
   odds: number;
-  impliedProbability: number;
-  aiProbability: number;
-  edge: number;
   confidence: number;
-  projectedValue: number;
-  volume: number;
+  expectedValue: number;
   trend: 'up' | 'down' | 'stable';
-  trendStrength: number;
-  timeToGame: string;
-  venue: 'home' | 'away';
-  weather?: string;
-  injuries: string[];
-  recentForm: number[];
-  matchupHistory: {
-    games: number;
-    average: number;
-    hitRate: number;
-  };
-  lineMovement: {
-    open: number;
-    current: number;
-    direction: 'up' | 'down' | 'stable';
-  };
-  bookmakers: Array<{
-    name: string;
-    odds: number;
-    line: number;
-  }>;
-  isBookmarked: boolean;
-  tags: string[];
-  socialSentiment: number;
-  sharpMoney: 'heavy' | 'moderate' | 'light' | 'public';
+  volume: number;
+  timestamp: string;
 }
 
-interface FilterState {
-  sport: string[];
-  confidence: [number, number];
-  edge: [number, number];
-  timeToGame: string;
-  market: string[];
-  venue: string[];
-  sharpMoney: string[];
-  showBookmarked: boolean;
-  sortBy: 'confidence' | 'edge' | 'time' | 'volume' | 'trend';
-  sortOrder: 'asc' | 'desc';
-}
+// Memoized prop card component for performance
+const PropCard = memo(({ 
+  opportunity, 
+  style,
+  onSelect 
+}: { 
+  opportunity: PropOpportunity; 
+  style?: React.CSSProperties;
+  onSelect: (opp: PropOpportunity) => void;
+}) => {
+  const handleClick = useCallback(() => {
+    onSelect(opportunity);
+  }, [opportunity, onSelect]);
 
-const PropFinderKillerDashboard: React.FC = () => {
-  const [opportunities, setOpportunities] = useState<PropOpportunity[]>([]);
-  const [filteredOpportunities, setFilteredOpportunities] = useState<PropOpportunity[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedOpp, setSelectedOpp] = useState<PropOpportunity | null>(null);
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'compact'>('grid');
-  const [showOnlyPremium, setShowOnlyPremium] = useState(false);
+  const confidenceColor = useMemo(() => {
+    if (opportunity.confidence >= 0.8) return 'text-green-400';
+    if (opportunity.confidence >= 0.6) return 'text-yellow-400';
+    return 'text-red-400';
+  }, [opportunity.confidence]);
 
-  // React 19 concurrent features for better performance
-  const [isPending, startTransitionLocal] = useTransition();
-  const deferredSearchQuery = useDeferredValue(searchQuery);
-  
-  const [filters, setFilters] = useState<FilterState>({
-    sport: [],
-    confidence: [80, 100],
-    edge: [0, 50],
-    timeToGame: 'all',
-    market: [],
-    venue: [],
-    sharpMoney: [],
-    showBookmarked: false,
-    sortBy: 'confidence',
-    sortOrder: 'desc',
-  });
+  const evColor = useMemo(() => {
+    if (opportunity.expectedValue > 0.1) return 'text-green-400';
+    if (opportunity.expectedValue > 0) return 'text-yellow-400';
+    return 'text-red-400';
+  }, [opportunity.expectedValue]);
 
-  // Mock data enhanced with PropFinder-style features
-  useEffect(() => {
-    const mockData: PropOpportunity[] = [
-      {
-        id: '1',
-        player: 'LeBron James',
-        playerImage: '/api/placeholder/40/40',
-        team: 'LAL',
-        teamLogo: '/api/placeholder/24/24',
-        opponent: 'GSW',
-        opponentLogo: '/api/placeholder/24/24',
-        sport: 'NBA',
-        market: 'Points',
-        line: 25.5,
-        pick: 'over',
-        odds: -110,
-        impliedProbability: 52.4,
-        aiProbability: 73.2,
-        edge: 20.8,
-        confidence: 94.7,
-        projectedValue: 28.4,
-        volume: 847,
-        trend: 'up',
-        trendStrength: 85,
-        timeToGame: '2h 15m',
-        venue: 'home',
-        weather: 'Clear',
-        injuries: [],
-        recentForm: [31, 28, 24, 29, 27],
-        matchupHistory: { games: 12, average: 27.8, hitRate: 75 },
-        lineMovement: { open: 24.5, current: 25.5, direction: 'up' },
-        bookmakers: [
-          { name: 'DraftKings', odds: -110, line: 25.5 },
-          { name: 'FanDuel', odds: -105, line: 25.5 },
-          { name: 'BetMGM', odds: -115, line: 25.5 },
-        ],
-        isBookmarked: true,
-        tags: ['Prime Time', 'Revenge Game', 'Sharp Play'],
-        socialSentiment: 78,
-        sharpMoney: 'heavy',
-      },
-      {
-        id: '2',
-        player: 'Luka Dončić',
-        playerImage: '/api/placeholder/40/40',
-        team: 'DAL',
-        teamLogo: '/api/placeholder/24/24',
-        opponent: 'PHX',
-        opponentLogo: '/api/placeholder/24/24',
-        sport: 'NBA',
-        market: 'Assists',
-        line: 8.5,
-        pick: 'over',
-        odds: -120,
-        impliedProbability: 54.5,
-        aiProbability: 79.3,
-        edge: 24.8,
-        confidence: 91.2,
-        projectedValue: 10.1,
-        volume: 632,
-        trend: 'up',
-        trendStrength: 92,
-        timeToGame: '4h 30m',
-        venue: 'away',
-        injuries: ['Minor ankle'],
-        recentForm: [12, 9, 8, 11, 10],
-        matchupHistory: { games: 8, average: 9.8, hitRate: 88 },
-        lineMovement: { open: 8.5, current: 8.5, direction: 'stable' },
-        bookmakers: [
-          { name: 'DraftKings', odds: -120, line: 8.5 },
-          { name: 'FanDuel', odds: -115, line: 8.5 },
-          { name: 'Caesars', odds: -125, line: 8.5 },
-        ],
-        isBookmarked: false,
-        tags: ['Sharp Play', 'Pace Up'],
-        socialSentiment: 82,
-        sharpMoney: 'heavy',
-      },
-      {
-        id: '3',
-        player: 'Jayson Tatum',
-        playerImage: '/api/placeholder/40/40',
-        team: 'BOS',
-        teamLogo: '/api/placeholder/24/24',
-        opponent: 'MIA',
-        opponentLogo: '/api/placeholder/24/24',
-        sport: 'NBA',
-        market: 'Rebounds',
-        line: 7.5,
-        pick: 'under',
-        odds: +105,
-        impliedProbability: 48.8,
-        aiProbability: 68.4,
-        edge: 19.6,
-        confidence: 87.1,
-        projectedValue: 6.2,
-        volume: 423,
-        trend: 'down',
-        trendStrength: 74,
-        timeToGame: '1h 45m',
-        venue: 'home',
-        injuries: [],
-        recentForm: [6, 5, 8, 6, 7],
-        matchupHistory: { games: 15, average: 6.8, hitRate: 67 },
-        lineMovement: { open: 8.5, current: 7.5, direction: 'down' },
-        bookmakers: [
-          { name: 'DraftKings', odds: +105, line: 7.5 },
-          { name: 'FanDuel', odds: +100, line: 7.5 },
-          { name: 'BetMGM', odds: +110, line: 7.5 },
-        ],
-        isBookmarked: false,
-        tags: ['Value Play', 'Line Movement'],
-        socialSentiment: 65,
-        sharpMoney: 'moderate',
-      },
-    ];
-    setOpportunities(mockData);
-    setFilteredOpportunities(mockData);
-  }, []);
+  return (
+    <motion.div
+      style={style}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02 }}
+      onClick={handleClick}
+      className="bg-gray-800 rounded-lg border border-gray-700 p-4 cursor-pointer hover:bg-gray-750 transition-all duration-200"
+    >
+      <div className="flex justify-between items-start mb-3">
+        <div>
+          <h3 className="text-lg font-bold text-white">{opportunity.player}</h3>
+          <p className="text-gray-400 text-sm">
+            {opportunity.team} vs {opportunity.opponent}
+          </p>
+        </div>
+        <div className="text-right">
+          <div className="flex items-center space-x-2">
+            {opportunity.trend === 'up' && <TrendingUp className="w-4 h-4 text-green-400" />}
+            <span className="text-white font-semibold">
+              {opportunity.odds > 0 ? '+' : ''}{opportunity.odds}
+            </span>
+          </div>
+        </div>
+      </div>
 
-  // Advanced filtering logic
-  const applyFilters = useMemo(() => {
-    const filtered = opportunities.filter(opp => {
-      // Search filter
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        if (
-          !opp.player.toLowerCase().includes(query) &&
-          !opp.team.toLowerCase().includes(query) &&
-          !opp.opponent.toLowerCase().includes(query) &&
-          !opp.market.toLowerCase().includes(query)
-        ) {
-          return false;
-        }
-      }
+      <div className="grid grid-cols-2 gap-4 mb-3">
+        <div>
+          <p className="text-gray-400 text-xs uppercase tracking-wide">Prop</p>
+          <p className="text-white font-semibold">
+            {opportunity.propType} {opportunity.line}
+          </p>
+        </div>
+        <div>
+          <p className="text-gray-400 text-xs uppercase tracking-wide">Volume</p>
+          <p className="text-white font-semibold">
+            {opportunity.volume.toLocaleString()}
+          </p>
+        </div>
+      </div>
 
-      // Sport filter
-      if (filters.sport.length > 0 && !filters.sport.includes(opp.sport)) {
-        return false;
-      }
+      <div className="flex justify-between items-center">
+        <div className="flex items-center space-x-4">
+          <div>
+            <p className="text-gray-400 text-xs">Confidence</p>
+            <p className={`font-bold ${confidenceColor}`}>
+              {(opportunity.confidence * 100).toFixed(1)}%
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs">Expected Value</p>
+            <p className={`font-bold ${evColor}`}>
+              {(opportunity.expectedValue * 100).toFixed(1)}%
+            </p>
+          </div>
+        </div>
+        <div className="bg-blue-600/20 px-2 py-1 rounded text-blue-400 text-xs">
+          {opportunity.sport.toUpperCase()}
+        </div>
+      </div>
+    </motion.div>
+  );
+});
 
-      // Confidence range
-      if (opp.confidence < filters.confidence[0] || opp.confidence > filters.confidence[1]) {
-        return false;
-      }
+PropCard.displayName = 'PropCard';
 
-      // Edge range
-      if (opp.edge < filters.edge[0] || opp.edge > filters.edge[1]) {
-        return false;
-      }
+// Loading skeleton component
+const LoadingSkeleton = memo(() => (
+  <div className="space-y-4">
+    {Array(6).fill(0).map((_, i) => (
+      <div key={i} className="bg-gray-800 rounded-lg border border-gray-700 p-4 animate-pulse">
+        <div className="flex justify-between items-start mb-3">
+          <div>
+            <div className="h-5 bg-gray-700 rounded w-32 mb-2"></div>
+            <div className="h-4 bg-gray-700 rounded w-24"></div>
+          </div>
+          <div className="h-6 bg-gray-700 rounded w-16"></div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 mb-3">
+          <div className="h-4 bg-gray-700 rounded"></div>
+          <div className="h-4 bg-gray-700 rounded"></div>
+        </div>
+        <div className="flex justify-between">
+          <div className="flex space-x-4">
+            <div className="h-4 bg-gray-700 rounded w-16"></div>
+            <div className="h-4 bg-gray-700 rounded w-16"></div>
+          </div>
+          <div className="h-6 bg-gray-700 rounded w-12"></div>
+        </div>
+      </div>
+    ))}
+  </div>
+));
 
-      // Bookmarked filter
-      if (filters.showBookmarked && !opp.isBookmarked) {
-        return false;
-      }
+LoadingSkeleton.displayName = 'LoadingSkeleton';
 
-      return true;
+const OptimizedPropFinderDashboard: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSport, setSelectedSport] = useState('all');
+  const [sortBy, setSortBy] = useState<'confidence' | 'expectedValue' | 'volume'>('confidence');
+  const [showPerformancePanel, setShowPerformancePanel] = useState(false);
+  const [selectedOpportunity, setSelectedOpportunity] = useState<PropOpportunity | null>(null);
+
+  // Optimized data fetching with React 19 features
+  const {
+    data: opportunities,
+    loading,
+    error,
+    refetch,
+    metrics,
+    cached,
+    debouncedRefetch,
+    isPending
+  } = useOptimizedPerformance<PropOpportunity[]>(
+    async () => {
+      // Mock data for demo - replace with real API calls
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+      
+      return Array.from({ length: 50 }, (_, i) => ({
+        id: `prop-${i}`,
+        player: `Player ${i + 1}`,
+        team: ['LAD', 'NYY', 'BOS', 'SF', 'HOU'][i % 5],
+        opponent: ['SD', 'BAL', 'TB', 'OAK', 'SEA'][i % 5],
+        sport: ['mlb', 'nba', 'nfl'][i % 3],
+        propType: ['hits', 'runs', 'rbis', 'strikeouts'][i % 4],
+        line: 0.5 + (i % 10) * 0.5,
+        odds: -110 + (i % 20) - 10,
+        confidence: 0.6 + (i % 40) * 0.01,
+        expectedValue: -0.05 + (i % 30) * 0.01,
+        trend: ['up', 'down', 'stable'][i % 3] as 'up' | 'down' | 'stable',
+        volume: 1000 + i * 100,
+        timestamp: new Date().toISOString()
+      }));
+    },
+    {
+      enableCaching: true,
+      enableDeferredUpdates: true,
+      debounceMs: 300
+    }
+  );
+
+  // Filter and sort opportunities
+  const filteredOpportunities = useMemo(() => {
+    if (!opportunities) return [];
+
+    let filtered = opportunities.filter(opp => {
+      const matchesSearch = opp.player.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           opp.team.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           opp.propType.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesSport = selectedSport === 'all' || opp.sport === selectedSport;
+      
+      return matchesSearch && matchesSport;
     });
 
-    // Sorting
+    // Sort opportunities
     filtered.sort((a, b) => {
-      let aVal, bVal;
-      switch (filters.sortBy) {
+      switch (sortBy) {
         case 'confidence':
-          aVal = a.confidence;
-          bVal = b.confidence;
-          break;
-        case 'edge':
-          aVal = a.edge;
-          bVal = b.edge;
-          break;
+          return b.confidence - a.confidence;
+        case 'expectedValue':
+          return b.expectedValue - a.expectedValue;
         case 'volume':
-          aVal = a.volume;
-          bVal = b.volume;
-          break;
-        case 'trend':
-          aVal = a.trendStrength;
-          bVal = b.trendStrength;
-          break;
+          return b.volume - a.volume;
         default:
-          aVal = a.confidence;
-          bVal = b.confidence;
+          return 0;
       }
-
-      return filters.sortOrder === 'desc' ? bVal - aVal : aVal - bVal;
     });
 
     return filtered;
-  }, [opportunities, searchQuery, filters]);
+  }, [opportunities, searchTerm, selectedSport, sortBy]);
 
+  // Optimized list rendering with virtualization
+  const {
+    visibleItems,
+    containerProps,
+    innerProps,
+    setContainerHeight
+  } = useOptimizedList(filteredOpportunities, {
+    itemHeight: 180,
+    overscan: 3,
+    enableVirtualization: filteredOpportunities.length > 20
+  });
+
+  // Set container height on mount
   useEffect(() => {
-    setFilteredOpportunities(applyFilters);
-  }, [applyFilters]);
+    setContainerHeight(600); // Set to desired height
+  }, [setContainerHeight]);
 
-  // Auto-refresh functionality
-  useEffect(() => {
-    if (!autoRefresh) return;
-
-    const interval = setInterval(() => {
-      // Simulate real-time updates
-      setOpportunities(prev => 
-        prev.map(opp => ({
-          ...opp,
-          confidence: Math.max(50, Math.min(99, opp.confidence + (Math.random() - 0.5) * 2)),
-          edge: Math.max(0, Math.min(50, opp.edge + (Math.random() - 0.5) * 1)),
-          volume: Math.max(0, opp.volume + Math.floor((Math.random() - 0.5) * 20)),
-        }))
-      );
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [autoRefresh]);
-
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 90) return 'text-green-400 bg-green-500/20';
-    if (confidence >= 80) return 'text-yellow-400 bg-yellow-500/20';
-    if (confidence >= 70) return 'text-orange-400 bg-orange-500/20';
-    return 'text-red-400 bg-red-500/20';
-  };
-
-  const getEdgeColor = (edge: number) => {
-    if (edge >= 20) return 'text-emerald-400';
-    if (edge >= 15) return 'text-green-400';
-    if (edge >= 10) return 'text-yellow-400';
-    return 'text-orange-400';
-  };
-
-  const getSharpMoneyIcon = (sharpMoney: string) => {
-    switch (sharpMoney) {
-      case 'heavy':
-        return <Flame className="w-3 h-3 text-red-400" />;
-      case 'moderate':
-        return <Target className="w-3 h-3 text-yellow-400" />;
-      case 'light':
-        return <Eye className="w-3 h-3 text-blue-400" />;
-      default:
-        return <Activity className="w-3 h-3 text-gray-400" />;
-    }
-  };
-
-  const toggleBookmark = useCallback((id: string) => {
-    startTransitionLocal(() => {
-      setOpportunities(prev =>
-        prev.map(opp =>
-          opp.id === id ? { ...opp, isBookmarked: !opp.isBookmarked } : opp
-        )
-      );
-    });
+  const handleOpportunitySelect = useCallback((opp: PropOpportunity) => {
+    setSelectedOpportunity(opp);
   }, []);
 
+  const handleRefresh = useCallback(() => {
+    refetch(false); // Force fresh data
+  }, [refetch]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
-      {/* Top Header */}
-      <div className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-lg border-b border-slate-700">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Brain className="w-8 h-8 text-cyan-400" />
-                <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                    PropFinder Killer
-                  </h1>
-                  <p className="text-sm text-gray-400">AI-Powered Player Prop Research</p>
-                </div>
-              </div>
-              
-              {/* Live Indicator */}
-              <div className="flex items-center space-x-2 bg-green-500/20 px-3 py-1 rounded-full">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-xs text-green-400 font-medium">LIVE</span>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              {/* View Mode Toggle */}
-              <div className="flex items-center bg-slate-800 rounded-lg p-1">
-                {(['grid', 'list', 'compact'] as const).map((mode) => (
-                  <button
-                    key={mode}
-                    onClick={() => setViewMode(mode)}
-                    className={`px-3 py-2 text-xs font-medium rounded transition-all ${
-                      viewMode === mode
-                        ? 'bg-cyan-500 text-white'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                  </button>
-                ))}
-              </div>
-
-              {/* Auto Refresh Toggle */}
-              <button
-                onClick={() => setAutoRefresh(!autoRefresh)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                  autoRefresh
-                    ? 'bg-green-500 text-white'
-                    : 'bg-slate-700 text-gray-400 hover:bg-slate-600'
-                }`}
-              >
-                {autoRefresh ? <PlayCircle className="w-4 h-4" /> : <PauseCircle className="w-4 h-4" />}
-                <span className="text-sm">Auto Refresh</span>
-              </button>
-
-              <button className="p-2 text-gray-400 hover:text-white transition-colors">
-                <Settings className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Search and Filters Bar */}
-          <div className="flex items-center space-x-4 mt-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search players, teams, markets..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all"
-              />
-            </div>
-
-            <button
-              onClick={() => setFiltersOpen(!filtersOpen)}
-              className={`flex items-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all ${
-                filtersOpen
-                  ? 'bg-cyan-500 text-white'
-                  : 'bg-slate-800 text-gray-400 hover:bg-slate-700 hover:text-white'
-              }`}
-            >
-              <Filter className="w-4 h-4" />
-              <span>Filters</span>
-              {filtersOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </button>
-
-            <button
-              onClick={() => setFilters({ ...filters, showBookmarked: !filters.showBookmarked })}
-              className={`flex items-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all ${
-                filters.showBookmarked
-                  ? 'bg-yellow-500 text-black'
-                  : 'bg-slate-800 text-gray-400 hover:bg-slate-700 hover:text-white'
-              }`}
-            >
-              <Bookmark className="w-4 h-4" />
-              <span>Bookmarked</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Advanced Filters Panel */}
-        <AnimatePresence>
-          {filtersOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="border-t border-slate-700 overflow-hidden"
-            >
-              <div className="px-6 py-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {/* Sport Filter */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Sports</label>
-                    <div className="space-y-2">
-                      {['NBA', 'NFL', 'MLB', 'NHL'].map((sport) => (
-                        <label key={sport} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={filters.sport.includes(sport)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setFilters({ ...filters, sport: [...filters.sport, sport] });
-                              } else {
-                                setFilters({ ...filters, sport: filters.sport.filter(s => s !== sport) });
-                              }
-                            }}
-                            className="mr-2 text-cyan-400"
-                          />
-                          <span className="text-sm text-gray-300">{sport}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Confidence Range */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Confidence Range: {filters.confidence[0]}% - {filters.confidence[1]}%
-                    </label>
-                    <div className="space-y-2">
-                      <input
-                        type="range"
-                        min="50"
-                        max="100"
-                        value={filters.confidence[0]}
-                        onChange={(e) => setFilters({
-                          ...filters,
-                          confidence: [parseInt(e.target.value), filters.confidence[1]]
-                        })}
-                        className="w-full"
-                      />
-                      <input
-                        type="range"
-                        min="50"
-                        max="100"
-                        value={filters.confidence[1]}
-                        onChange={(e) => setFilters({
-                          ...filters,
-                          confidence: [filters.confidence[0], parseInt(e.target.value)]
-                        })}
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Edge Range */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Edge Range: {filters.edge[0]}% - {filters.edge[1]}%
-                    </label>
-                    <div className="space-y-2">
-                      <input
-                        type="range"
-                        min="0"
-                        max="50"
-                        value={filters.edge[0]}
-                        onChange={(e) => setFilters({
-                          ...filters,
-                          edge: [parseInt(e.target.value), filters.edge[1]]
-                        })}
-                        className="w-full"
-                      />
-                      <input
-                        type="range"
-                        min="0"
-                        max="50"
-                        value={filters.edge[1]}
-                        onChange={(e) => setFilters({
-                          ...filters,
-                          edge: [filters.edge[0], parseInt(e.target.value)]
-                        })}
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Sort Options */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Sort By</label>
-                    <select
-                      value={filters.sortBy}
-                      onChange={(e) => setFilters({ ...filters, sortBy: e.target.value as any })}
-                      className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white"
-                    >
-                      <option value="confidence">Confidence</option>
-                      <option value="edge">Edge</option>
-                      <option value="volume">Volume</option>
-                      <option value="trend">Trend Strength</option>
-                    </select>
-                    <div className="flex items-center mt-2">
-                      <button
-                        onClick={() => setFilters({ 
-                          ...filters, 
-                          sortOrder: filters.sortOrder === 'desc' ? 'asc' : 'desc' 
-                        })}
-                        className="flex items-center space-x-1 text-sm text-cyan-400 hover:text-cyan-300"
-                      >
-                        {filters.sortOrder === 'desc' ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-                        <span>{filters.sortOrder === 'desc' ? 'Descending' : 'Ascending'}</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       {/* Phase 4 Banner */}
-      <div className="px-6 pt-6">
-        <Phase4Banner />
-      </div>
+      <Phase4Banner />
 
-      {/* Main Content */}
-      <div className="px-6 py-6">
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-slate-800/50 backdrop-blur-lg border border-slate-700 rounded-xl p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Total Opportunities</p>
-                <p className="text-2xl font-bold text-white">{filteredOpportunities.length}</p>
-                <p className="text-xs text-green-400 mt-1">+12 new today</p>
-              </div>
-              <Activity className="w-8 h-8 text-cyan-400" />
-            </div>
-          </motion.div>
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              Optimized PropFinder Dashboard
+            </h1>
+            <p className="text-gray-400 mt-2">Phase 4 Enhanced with React 19 Concurrent Features</p>
+          </div>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-slate-800/50 backdrop-blur-lg border border-slate-700 rounded-xl p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Avg Confidence</p>
-                <p className="text-2xl font-bold text-white">
-                  {(filteredOpportunities.reduce((sum, opp) => sum + opp.confidence, 0) / filteredOpportunities.length || 0).toFixed(1)}%
-                </p>
-                <p className="text-xs text-green-400 mt-1">Above threshold</p>
-              </div>
-              <Brain className="w-8 h-8 text-purple-400" />
-            </div>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-slate-800/50 backdrop-blur-lg border border-slate-700 rounded-xl p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Best Edge</p>
-                <p className="text-2xl font-bold text-white">
-                  {Math.max(...filteredOpportunities.map(opp => opp.edge), 0).toFixed(1)}%
-                </p>
-                <p className="text-xs text-green-400 mt-1">Market inefficiency</p>
-              </div>
-              <Target className="w-8 h-8 text-green-400" />
-            </div>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-slate-800/50 backdrop-blur-lg border border-slate-700 rounded-xl p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Sharp Money</p>
-                <p className="text-2xl font-bold text-white">
-                  {filteredOpportunities.filter(opp => opp.sharpMoney === 'heavy').length}
-                </p>
-                <p className="text-xs text-red-400 mt-1">Heavy action</p>
-              </div>
-              <Flame className="w-8 h-8 text-red-400" />
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Opportunities List */}
-        <div className="space-y-4">
-          <AnimatePresence>
-            {filteredOpportunities.map((opp, index) => (
-              <motion.div
-                key={opp.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ delay: index * 0.05 }}
-                className="bg-slate-800/50 backdrop-blur-lg border border-slate-700 rounded-xl hover:border-cyan-400/50 transition-all group"
-              >
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-4">
-                      {/* Player Info */}
-                      <div className="flex items-center space-x-3">
-                        <div className="relative">
-                          <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center">
-                            <span className="text-lg font-bold text-white">
-                              {opp.player.split(' ').map(n => n[0]).join('')}
-                            </span>
-                          </div>
-                          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-slate-600 rounded-full flex items-center justify-center text-xs">
-                            {opp.team}
-                          </div>
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-white text-lg">{opp.player}</h3>
-                          <p className="text-sm text-gray-400">{opp.team} vs {opp.opponent} • {opp.timeToGame}</p>
-                        </div>
-                      </div>
-
-                      {/* Tags */}
-                      <div className="flex items-center space-x-2">
-                        {opp.tags.slice(0, 2).map((tag, i) => (
-                          <span
-                            key={i}
-                            className="px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs font-medium rounded-full"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        {getSharpMoneyIcon(opp.sharpMoney)}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-4">
-                      <button
-                        onClick={() => toggleBookmark(opp.id)}
-                        className={`p-2 rounded-lg transition-all ${
-                          opp.isBookmarked 
-                            ? 'text-yellow-400 bg-yellow-500/20' 
-                            : 'text-gray-400 hover:text-yellow-400'
-                        }`}
-                      >
-                        <Bookmark className="w-5 h-5" />
-                      </button>
-                      <button className="p-2 text-gray-400 hover:text-white transition-colors">
-                        <Share2 className="w-5 h-5" />
-                      </button>
-                      <button 
-                        onClick={() => setSelectedOpp(selectedOpp?.id === opp.id ? null : opp)}
-                        className="p-2 text-gray-400 hover:text-cyan-400 transition-colors"
-                      >
-                        <Maximize2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Market Info */}
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-4">
-                    <div className="bg-slate-900/50 rounded-lg p-4">
-                      <div className="text-sm text-gray-400 mb-1">Market</div>
-                      <div className="font-bold text-white">{opp.market}</div>
-                      <div className="text-sm text-cyan-400">
-                        {opp.pick.toUpperCase()} {opp.line}
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-900/50 rounded-lg p-4">
-                      <div className="text-sm text-gray-400 mb-1">AI Confidence</div>
-                      <div className={`font-bold text-2xl ${getConfidenceColor(opp.confidence).split(' ')[0]}`}>
-                        {opp.confidence.toFixed(1)}%
-                      </div>
-                      <div className="text-xs text-gray-400">vs {opp.impliedProbability.toFixed(1)}% implied</div>
-                    </div>
-
-                    <div className="bg-slate-900/50 rounded-lg p-4">
-                      <div className="text-sm text-gray-400 mb-1">Edge</div>
-                      <div className={`font-bold text-2xl ${getEdgeColor(opp.edge)}`}>
-                        +{opp.edge.toFixed(1)}%
-                      </div>
-                      <div className="text-xs text-gray-400">Market inefficiency</div>
-                    </div>
-
-                    <div className="bg-slate-900/50 rounded-lg p-4">
-                      <div className="text-sm text-gray-400 mb-1">Projection</div>
-                      <div className="font-bold text-white text-xl">{opp.projectedValue.toFixed(1)}</div>
-                      <div className="text-xs text-gray-400">Expected value</div>
-                    </div>
-
-                    <div className="bg-slate-900/50 rounded-lg p-4">
-                      <div className="text-sm text-gray-400 mb-1">Best Odds</div>
-                      <div className="font-bold text-white text-xl">{opp.odds > 0 ? '+' : ''}{opp.odds}</div>
-                      <div className="text-xs text-gray-400">{opp.bookmakers[0]?.name}</div>
-                    </div>
-                  </div>
-
-                  {/* Trend & Analytics */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-6">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-400">Trend:</span>
-                        {opp.trend === 'up' ? (
-                          <TrendingUp className="w-4 h-4 text-green-400" />
-                        ) : opp.trend === 'down' ? (
-                          <TrendingDown className="w-4 h-4 text-red-400" />
-                        ) : (
-                          <Activity className="w-4 h-4 text-gray-400" />
-                        )}
-                        <span className="text-sm font-medium text-white">{opp.trendStrength}% strength</span>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-400">Volume:</span>
-                        <span className="text-sm font-medium text-white">{opp.volume.toLocaleString()}</span>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-400">Form:</span>
-                        <div className="flex space-x-1">
-                          {opp.recentForm.slice(-5).map((value, i) => (
-                            <div
-                              key={i}
-                              className={`w-2 h-6 rounded-sm ${
-                                value > opp.line ? 'bg-green-400' : 'bg-red-400'
-                              }`}
-                              style={{ opacity: 0.5 + (i * 0.1) }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right">
-                        <div className="text-sm text-gray-400">Line Movement</div>
-                        <div className="flex items-center space-x-1">
-                          <span className="text-sm text-white">{opp.lineMovement.open}</span>
-                          <span className="text-xs text-gray-400">→</span>
-                          <span className="text-sm font-bold text-white">{opp.lineMovement.current}</span>
-                          {opp.lineMovement.direction === 'up' ? (
-                            <ChevronUp className="w-3 h-3 text-green-400" />
-                          ) : opp.lineMovement.direction === 'down' ? (
-                            <ChevronDown className="w-3 h-3 text-red-400" />
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Expanded Details */}
-                  <AnimatePresence>
-                    {selectedOpp?.id === opp.id && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="border-t border-slate-700 mt-4 pt-4"
-                      >
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          {/* Matchup History */}
-                          <div className="bg-slate-900/50 rounded-lg p-4">
-                            <h4 className="font-bold text-white mb-3">Matchup History</h4>
-                            <div className="space-y-2">
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Games:</span>
-                                <span className="text-white">{opp.matchupHistory.games}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Average:</span>
-                                <span className="text-white">{opp.matchupHistory.average}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Hit Rate:</span>
-                                <span className="text-green-400">{opp.matchupHistory.hitRate}%</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Bookmaker Comparison */}
-                          <div className="bg-slate-900/50 rounded-lg p-4">
-                            <h4 className="font-bold text-white mb-3">Bookmaker Odds</h4>
-                            <div className="space-y-2">
-                              {opp.bookmakers.map((book, i) => (
-                                <div key={i} className="flex justify-between">
-                                  <span className="text-gray-400">{book.name}:</span>
-                                  <span className="text-white">{book.odds > 0 ? '+' : ''}{book.odds}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Additional Insights */}
-                          <div className="bg-slate-900/50 rounded-lg p-4">
-                            <h4 className="font-bold text-white mb-3">Insights</h4>
-                            <div className="space-y-2">
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Venue:</span>
-                                <span className="text-white capitalize">{opp.venue}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Weather:</span>
-                                <span className="text-white">{opp.weather || 'Indoor'}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Social Sentiment:</span>
-                                <span className="text-white">{opp.socialSentiment}%</span>
-                              </div>
-                              {opp.injuries.length > 0 && (
-                                <div className="mt-2">
-                                  <span className="text-red-400 text-sm">⚠️ {opp.injuries.join(', ')}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-
-        {/* Empty State */}
-        {filteredOpportunities.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-12 h-12 text-gray-400" />
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">No opportunities found</h3>
-            <p className="text-gray-400 mb-4">Try adjusting your filters or search criteria</p>
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setFilters({
-                  sport: [],
-                  confidence: [80, 100],
-                  edge: [0, 50],
-                  timeToGame: 'all',
-                  market: [],
-                  venue: [],
-                  sharpMoney: [],
-                  showBookmarked: false,
-                  sortBy: 'confidence',
-                  sortOrder: 'desc',
-                });
-              }}
-              className="px-6 py-3 bg-cyan-500 text-white rounded-lg font-medium hover:bg-cyan-600 transition-colors"
+          <div className="flex items-center space-x-4">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowPerformancePanel(!showPerformancePanel)}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
             >
-              Clear All Filters
-            </button>
+              <Gauge className="w-4 h-4" />
+              <span>Performance</span>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleRefresh}
+              disabled={loading || isPending}
+              className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${(loading || isPending) ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Performance Metrics Bar */}
+        {metrics && (
+          <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <p className="text-gray-400 text-sm">Data Fetch Time</p>
+                <p className="text-white font-bold">{metrics.dataFetchTime.toFixed(1)}ms</p>
+              </div>
+              <div className="text-center">
+                <p className="text-gray-400 text-sm">Cache Hit Rate</p>
+                <p className="text-green-400 font-bold">{metrics.cacheHitRate.toFixed(1)}%</p>
+              </div>
+              <div className="text-center">
+                <p className="text-gray-400 text-sm">Total Requests</p>
+                <p className="text-blue-400 font-bold">{metrics.totalRequests}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-gray-400 text-sm">Status</p>
+                <p className={`font-bold ${cached ? 'text-yellow-400' : 'text-green-400'}`}>
+                  {cached ? 'Cached' : 'Live'}
+                </p>
+              </div>
+            </div>
           </div>
         )}
-      </div>
 
-      {/* Performance Monitoring Section - Phase 4 */}
-      <div className="mt-8">
-        <PerformanceMonitoringDashboard />
-      </div>
+        {/* Controls */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search players, teams, props..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+            />
+          </div>
 
-      {/* Community Engagement Section */}
-      <div className="mt-8">
-        <CommunityEngagement />
+          <select
+            value={selectedSport}
+            onChange={(e) => setSelectedSport(e.target.value)}
+            className="px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+          >
+            <option value="all">All Sports</option>
+            <option value="mlb">MLB</option>
+            <option value="nba">NBA</option>
+            <option value="nfl">NFL</option>
+          </select>
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+            className="px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+          >
+            <option value="confidence">Sort by Confidence</option>
+            <option value="expectedValue">Sort by Expected Value</option>
+            <option value="volume">Sort by Volume</option>
+          </select>
+
+          <div className="flex items-center space-x-2 text-gray-400">
+            <Activity className="w-4 h-4" />
+            <span>{filteredOpportunities.length} opportunities</span>
+          </div>
+        </div>
+
+        {/* Performance Panel */}
+        {showPerformancePanel && (
+          <div className="mb-6">
+            <Suspense fallback={<LoadingSkeleton />}>
+              <PerformanceMonitoringDashboard />
+            </Suspense>
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Opportunities List */}
+          <div className="lg:col-span-2">
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
+              <div className="flex items-center space-x-2 mb-4">
+                <Zap className="w-5 h-5 text-yellow-400" />
+                <h2 className="text-xl font-bold text-white">Live Opportunities</h2>
+                {(loading || isPending) && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
+                )}
+              </div>
+
+              {error ? (
+                <div className="text-center py-8">
+                  <p className="text-red-400 mb-4">Error loading opportunities: {error}</p>
+                  <button
+                    onClick={handleRefresh}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : (
+                <div {...containerProps}>
+                  <div {...innerProps}>
+                    {visibleItems.map(({ item: opportunity, style }) => (
+                      <PropCard
+                        key={opportunity.id}
+                        opportunity={opportunity}
+                        style={style}
+                        onSelect={handleOpportunitySelect}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Selected Opportunity Details */}
+            {selectedOpportunity && (
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
+                <h3 className="text-lg font-bold text-white mb-4">Opportunity Details</h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-gray-400 text-sm">Player</p>
+                    <p className="text-white font-semibold">{selectedOpportunity.player}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Matchup</p>
+                    <p className="text-white">{selectedOpportunity.team} vs {selectedOpportunity.opponent}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Prop</p>
+                    <p className="text-white">{selectedOpportunity.propType} {selectedOpportunity.line}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Confidence</p>
+                    <p className="text-green-400 font-bold">
+                      {(selectedOpportunity.confidence * 100).toFixed(1)}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Stats */}
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
+              <h3 className="text-lg font-bold text-white mb-4">Quick Stats</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">High Confidence</span>
+                  <span className="text-green-400 font-bold">
+                    {filteredOpportunities.filter(o => o.confidence > 0.8).length}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Positive EV</span>
+                  <span className="text-blue-400 font-bold">
+                    {filteredOpportunities.filter(o => o.expectedValue > 0).length}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Live Updates</span>
+                  <span className="text-yellow-400 font-bold">Real-time</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      </div>
+    </div>
   );
 };
 
-export default PropFinderKillerDashboard;
+export default OptimizedPropFinderDashboard;

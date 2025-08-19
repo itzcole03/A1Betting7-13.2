@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 import { useOptimizedPerformance, useOptimizedList } from '../../hooks/useOptimizedPerformance';
-import { apiService } from '../../services/optimizedDataService';
+import { usePropFinderData } from '../../hooks/usePropFinderData';
 import Phase4Banner from '../phase4/Phase4Banner';
 import PerformanceMonitoringDashboard from '../phase4/PerformanceMonitoringDashboard';
 
@@ -163,6 +163,14 @@ const OptimizedPropFinderDashboard: React.FC = () => {
   const [showPerformancePanel, setShowPerformancePanel] = useState(false);
   const [selectedOpportunity, setSelectedOpportunity] = useState<PropOpportunity | null>(null);
 
+  // Real PropFinder data integration
+  const {
+    opportunities: propFinderOpportunities,
+    loading: propFinderLoading,
+    error: propFinderError,
+    refreshData: refreshPropFinderData
+  } = usePropFinderData();
+
   // Optimized data fetching with React 19 features
   const {
     data: opportunities,
@@ -267,9 +275,9 @@ const OptimizedPropFinderDashboard: React.FC = () => {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              Optimized PropFinder Dashboard
+              PropFinder Killer Dashboard
             </h1>
-            <p className="text-gray-400 mt-2">Phase 4 Enhanced with React 19 Concurrent Features</p>
+            <p className="text-gray-400 mt-2">Real PropFinder Data Integration with Alert Engine</p>
           </div>
 
           <div className="flex items-center space-x-4">

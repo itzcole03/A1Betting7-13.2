@@ -1,0 +1,400 @@
+"""
+PropFinder API Routes
+
+REST API endpoints for PropFinder dashboard real data integration:
+- Real prop opportunities with alert engine integration
+- Filtering and searching capabilities
+- Live data updates
+- PropFinder competitive parity features
+"""
+
+import logging
+from typing import List, Optional, Dict, Any
+from datetime import datetime
+
+from fastapi import APIRouter, HTTPException, Query, Depends
+from pydantic import BaseModel, Field
+
+from backend.core.response_models import ResponseBuilder, StandardAPIResponse
+from backend.core.exceptions import BusinessLogicException
+from backend.services.propfinder_data_service import (
+    get_propfinder_data_service,
+    PropFinderDataService,
+    PropOpportunity
+)
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter(tags=["PropFinder"])
+
+# Pydantic models for API
+
+class OpportunityResponse(BaseModel):
+    """Single prop opportunity response"""
+    id: str
+    player: str
+    playerImage: Optional[str] = None
+    team: str
+    teamLogo: Optional[str] = None
+    opponent: str
+    opponentLogo: Optional[str] = None
+    sport: str
+    market: str
+    line: float
+    pick: str
+    odds: int
+    impliedProbability: float
+    aiProbability: float
+    edge: float
+    confidence: float
+    projectedValue: float
+    volume: int
+    trend: str
+    trendStrength: int
+    timeToGame: str
+    venue: str
+    weather: Optional[str] = None
+    injuries: List[str] = []
+    recentForm: List[float] = []
+    matchupHistory: Dict[str, Any] = {}
+    lineMovement: Dict[str, Any] = {}
+    bookmakers: List[Dict[str, Any]] = []
+    isBookmarked: bool = False
+    tags: List[str] = []
+    socialSentiment: int = 50
+    sharpMoney: str = "moderate"
+    lastUpdated: str
+    alertTriggered: bool = False
+    alertSeverity: Optional[str] = None
+
+class OpportunitiesResponse(BaseModel):
+    """Multiple prop opportunities response"""
+    opportunities: List[OpportunityResponse]
+    total: int
+    filtered: int
+    summary: Dict[str, Any]
+
+class OpportunityFilters(BaseModel):
+    """Filters for prop opportunities"""
+    sports: Optional[List[str]] = None
+    confidence_min: Optional[float] = Field(None, ge=0, le=100)
+    confidence_max: Optional[float] = Field(None, ge=0, le=100)
+    edge_min: Optional[float] = Field(None, ge=0)
+    edge_max: Optional[float] = Field(None, ge=0)
+    markets: Optional[List[str]] = None
+    venues: Optional[List[str]] = None
+    sharp_money: Optional[List[str]] = None
+    bookmarked_only: bool = False
+    alert_triggered_only: bool = False
+
+def _convert_opportunity_to_response(opp: PropOpportunity) -> OpportunityResponse:
+    """Convert PropOpportunity to API response model"""
+    return OpportunityResponse(
+        id=opp.id,
+        player=opp.player,
+        playerImage=opp.playerImage,
+        team=opp.team,
+        teamLogo=opp.teamLogo,
+        opponent=opp.opponent,
+        opponentLogo=opp.opponentLogo,
+        sport=opp.sport.value,
+        market=opp.market.value,
+        line=opp.line,
+        pick=opp.pick.value,
+        odds=opp.odds,
+        impliedProbability=opp.impliedProbability,
+        aiProbability=opp.aiProbability,
+        edge=opp.edge,
+        confidence=opp.confidence,
+        projectedValue=opp.projectedValue,
+        volume=opp.volume,
+        trend=opp.trend.value,
+        trendStrength=opp.trendStrength,
+        timeToGame=opp.timeToGame,
+        venue=opp.venue.value,
+        weather=opp.weather,
+        injuries=opp.injuries,
+        recentForm=opp.recentForm,
+        matchupHistory={
+            "games": opp.matchupHistory.games,
+            "average": opp.matchupHistory.average,
+            "hitRate": opp.matchupHistory.hitRate
+        },
+        lineMovement={
+            "open": opp.lineMovement.open,
+            "current": opp.lineMovement.current,
+            "direction": opp.lineMovement.direction.value
+        },
+        bookmakers=[
+            {
+                "name": book.name,
+                "odds": book.odds,
+                "line": book.line
+            }
+            for book in opp.bookmakers
+        ],
+        isBookmarked=opp.isBookmarked,
+        tags=opp.tags,
+        socialSentiment=opp.socialSentiment,
+        sharpMoney=opp.sharpMoney.value,
+        lastUpdated=opp.lastUpdated.isoformat(),
+        alertTriggered=opp.alertTriggered,
+        alertSeverity=opp.alertSeverity
+    )
+
+@router.get("/opportunities", response_model=StandardAPIResponse[OpportunitiesResponse])
+async def get_prop_opportunities(
+    # Filter parameters
+    sports: Optional[str] = Query(None, description="Comma-separated list of sports (NBA,NFL,MLB,NHL)"),
+    confidence_min: Optional[float] = Query(None, ge=0, le=100, description="Minimum confidence percentage"),
+    confidence_max: Optional[float] = Query(None, ge=0, le=100, description="Maximum confidence percentage"),
+    edge_min: Optional[float] = Query(None, ge=0, description="Minimum edge percentage"),
+    edge_max: Optional[float] = Query(None, ge=0, description="Maximum edge percentage"),
+    markets: Optional[str] = Query(None, description="Comma-separated list of markets"),
+    venues: Optional[str] = Query(None, description="Comma-separated list of venues (home,away)"),
+    sharp_money: Optional[str] = Query(None, description="Comma-separated sharp money levels (heavy,moderate,light,public)"),
+    bookmarked_only: bool = Query(False, description="Show only bookmarked opportunities"),
+    alert_triggered_only: bool = Query(False, description="Show only alert-triggered opportunities"),
+    
+    # Pagination and sorting
+    limit: int = Query(50, ge=1, le=200, description="Maximum number of opportunities"),
+    search: Optional[str] = Query(None, description="Search by player, team, or market"),
+    
+    # Service dependency
+    data_service: PropFinderDataService = Depends(get_propfinder_data_service)
+):
+    """
+    Get prop betting opportunities with real data integration
+    
+    This endpoint provides PropFinder-style prop opportunities with:
+    - Real betting data from multiple sources
+    - Alert engine integration for high-value opportunities
+    - ML confidence scoring and edge calculation
+    - Advanced filtering and search capabilities
+    """
+    try:
+        # Parse filter parameters
+        sport_filter = sports.split(',') if sports else None
+        confidence_range = None
+        if confidence_min is not None or confidence_max is not None:
+            confidence_range = (
+                confidence_min or 0,
+                confidence_max or 100
+            )
+        
+        edge_range = None
+        if edge_min is not None or edge_max is not None:
+            edge_range = (
+                edge_min or 0,
+                edge_max or 100
+            )
+        
+        # Initialize data service
+        await data_service._initialize_services()
+        
+        # Fetch opportunities
+        opportunities = await data_service.get_prop_opportunities(
+            sport_filter=sport_filter,
+            confidence_range=confidence_range,
+            edge_range=edge_range,
+            limit=limit
+        )
+        
+        # Apply additional filters
+        if bookmarked_only:
+            opportunities = [opp for opp in opportunities if opp.isBookmarked]
+        
+        if alert_triggered_only:
+            opportunities = [opp for opp in opportunities if opp.alertTriggered]
+        
+        if markets:
+            market_filter = [m.strip() for m in markets.split(',')]
+            opportunities = [opp for opp in opportunities if opp.market.value in market_filter]
+        
+        if venues:
+            venue_filter = [v.strip() for v in venues.split(',')]
+            opportunities = [opp for opp in opportunities if opp.venue.value in venue_filter]
+        
+        if sharp_money:
+            sharp_filter = [s.strip() for s in sharp_money.split(',')]
+            opportunities = [opp for opp in opportunities if opp.sharpMoney.value in sharp_filter]
+        
+        # Apply search filter
+        if search:
+            search_lower = search.lower()
+            opportunities = [
+                opp for opp in opportunities
+                if (search_lower in opp.player.lower() or
+                    search_lower in opp.team.lower() or
+                    search_lower in opp.opponent.lower() or
+                    search_lower in opp.market.value.lower())
+            ]
+        
+        # Convert to response format
+        opportunity_responses = [
+            _convert_opportunity_to_response(opp) for opp in opportunities
+        ]
+        
+        # Calculate summary statistics
+        total_opportunities = len(opportunity_responses)
+        avg_confidence = sum(opp.confidence for opp in opportunity_responses) / max(1, total_opportunities)
+        max_edge = max((opp.edge for opp in opportunity_responses), default=0)
+        alert_count = sum(1 for opp in opportunity_responses if opp.alertTriggered)
+        sharp_heavy_count = sum(1 for opp in opportunity_responses if opp.sharpMoney == "heavy")
+        
+        summary = {
+            "total_opportunities": total_opportunities,
+            "avg_confidence": round(avg_confidence, 1),
+            "max_edge": round(max_edge, 1),
+            "alert_triggered_count": alert_count,
+            "sharp_heavy_count": sharp_heavy_count,
+            "sports_breakdown": {},
+            "markets_breakdown": {}
+        }
+        
+        # Sports breakdown
+        for opp in opportunity_responses:
+            sport = opp.sport
+            summary["sports_breakdown"][sport] = summary["sports_breakdown"].get(sport, 0) + 1
+        
+        # Markets breakdown
+        for opp in opportunity_responses:
+            market = opp.market
+            summary["markets_breakdown"][market] = summary["markets_breakdown"].get(market, 0) + 1
+        
+        response_data = OpportunitiesResponse(
+            opportunities=opportunity_responses,
+            total=len(opportunities),
+            filtered=total_opportunities,
+            summary=summary
+        )
+        
+        logger.info(f"Retrieved {total_opportunities} prop opportunities with filters applied")
+        return ResponseBuilder.success(response_data)
+        
+    except Exception as e:
+        logger.error(f"Error fetching prop opportunities: {e}")
+        raise BusinessLogicException("Failed to fetch prop opportunities")
+
+@router.get("/opportunities/{opportunity_id}", response_model=StandardAPIResponse[OpportunityResponse])
+async def get_prop_opportunity(
+    opportunity_id: str,
+    data_service: PropFinderDataService = Depends(get_propfinder_data_service)
+):
+    """Get specific prop opportunity by ID"""
+    try:
+        # Initialize data service
+        await data_service._initialize_services()
+        
+        # Get all opportunities and find the specific one
+        opportunities = await data_service.get_prop_opportunities(limit=200)
+        
+        opportunity = next((opp for opp in opportunities if opp.id == opportunity_id), None)
+        if not opportunity:
+            raise BusinessLogicException(f"Opportunity not found: {opportunity_id}")
+        
+        response_data = _convert_opportunity_to_response(opportunity)
+        
+        return ResponseBuilder.success(response_data)
+        
+    except BusinessLogicException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching opportunity {opportunity_id}: {e}")
+        raise BusinessLogicException("Failed to fetch opportunity")
+
+@router.get("/markets", response_model=StandardAPIResponse[List[str]])
+async def get_available_markets():
+    """Get list of available betting markets"""
+    try:
+        markets = [
+            "Points",
+            "Assists", 
+            "Rebounds",
+            "3-Pointers Made",
+            "Hits",
+            "Home Runs",
+            "RBI",
+            "Saves",
+            "Goals"
+        ]
+        
+        return ResponseBuilder.success(markets)
+        
+    except Exception as e:
+        logger.error(f"Error fetching markets: {e}")
+        raise BusinessLogicException("Failed to fetch markets")
+
+@router.get("/sports", response_model=StandardAPIResponse[List[str]])
+async def get_available_sports():
+    """Get list of available sports"""
+    try:
+        sports = ["NBA", "NFL", "MLB", "NHL"]
+        return ResponseBuilder.success(sports)
+        
+    except Exception as e:
+        logger.error(f"Error fetching sports: {e}")
+        raise BusinessLogicException("Failed to fetch sports")
+
+@router.post("/opportunities/{opportunity_id}/bookmark", response_model=StandardAPIResponse[Dict[str, Any]])
+async def bookmark_opportunity(
+    opportunity_id: str,
+    bookmarked: bool = Query(True, description="Bookmark status"),
+    data_service: PropFinderDataService = Depends(get_propfinder_data_service)
+):
+    """Bookmark or unbookmark a prop opportunity"""
+    try:
+        # In a real implementation, this would update the database
+        # For now, we'll just return success
+        
+        return ResponseBuilder.success({
+            "opportunity_id": opportunity_id,
+            "bookmarked": bookmarked,
+            "message": f"Opportunity {'bookmarked' if bookmarked else 'unbookmarked'} successfully"
+        })
+        
+    except Exception as e:
+        logger.error(f"Error bookmarking opportunity {opportunity_id}: {e}")
+        raise BusinessLogicException("Failed to bookmark opportunity")
+
+@router.get("/stats", response_model=StandardAPIResponse[Dict[str, Any]])
+async def get_propfinder_stats(
+    data_service: PropFinderDataService = Depends(get_propfinder_data_service)
+):
+    """Get PropFinder dashboard statistics"""
+    try:
+        # Initialize data service
+        await data_service._initialize_services()
+        
+        # Get opportunities for stats calculation
+        opportunities = await data_service.get_prop_opportunities(limit=200)
+        
+        if not opportunities:
+            return ResponseBuilder.success({
+                "total_opportunities": 0,
+                "avg_confidence": 0,
+                "max_edge": 0,
+                "alert_count": 0,
+                "sharp_heavy_count": 0,
+                "sports_count": 0,
+                "markets_count": 0
+            })
+        
+        opportunity_responses = [_convert_opportunity_to_response(opp) for opp in opportunities]
+        
+        stats = {
+            "total_opportunities": len(opportunity_responses),
+            "avg_confidence": round(sum(opp.confidence for opp in opportunity_responses) / len(opportunity_responses), 1),
+            "max_edge": round(max(opp.edge for opp in opportunity_responses), 1),
+            "alert_count": sum(1 for opp in opportunity_responses if opp.alertTriggered),
+            "sharp_heavy_count": sum(1 for opp in opportunity_responses if opp.sharpMoney == "heavy"),
+            "sports_count": len(set(opp.sport for opp in opportunity_responses)),
+            "markets_count": len(set(opp.market for opp in opportunity_responses)),
+            "last_updated": datetime.utcnow().isoformat()
+        }
+        
+        return ResponseBuilder.success(stats)
+        
+    except Exception as e:
+        logger.error(f"Error fetching PropFinder stats: {e}")
+        raise BusinessLogicException("Failed to fetch PropFinder stats")

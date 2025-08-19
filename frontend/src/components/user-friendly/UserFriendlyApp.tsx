@@ -7,7 +7,7 @@ import OptimizedPropOllamaContainer from '../optimized/OptimizedPropOllamaContai
 import WebSocketStatusIndicator from '../WebSocketStatusIndicator';
 
 // Lazy load enhanced components with PropFinder-killer features
-const PropFinderKillerDashboard = React.lazy(() => import('../modern/PropFinderKillerDashboard'));
+const PropFinderKillerDashboard = React.lazy(() => import('../modern/OptimizedPropFinderDashboard'));
 const MobilePropResearch = React.lazy(() => import('../mobile/MobilePropResearch'));
 const MLModelCenter = React.lazy(() => import('../ml/MLModelCenter'));
 const UnifiedBettingInterface = React.lazy(() => import('../betting/UnifiedBettingInterface'));
@@ -49,6 +49,9 @@ const LiveBettingDashboard = React.lazy(() => import('../live-betting/LiveBettin
 const AdvancedArbitrageDashboard = React.lazy(
   () => import('../arbitrage/AdvancedArbitrageDashboard')
 );
+
+// NEW: PropFinder Clone Dashboard
+const PropFinderDashboard = React.lazy(() => import('../dashboard/PropFinderDashboard'));
 
 // NEW: Phase 4.3 Advanced Kelly Dashboard
 const AdvancedKellyDashboard = React.lazy(() => import('../kelly/AdvancedKellyDashboard'));
@@ -140,6 +143,7 @@ const UserFriendlyApp: React.FC = memo(() => {
                 path='/'
                 element={isMobile ? <MobilePropResearch /> : <PropFinderKillerDashboard />}
               />
+              <Route path='/propfinder-clone' element={<PropFinderDashboard />} />
               <Route path='/prop-killer' element={<PropFinderKillerDashboard />} />
               <Route path='/mobile-research' element={<MobilePropResearch />} />
               <Route path='/money-maker' element={<UltimateMoneyMaker />} />
