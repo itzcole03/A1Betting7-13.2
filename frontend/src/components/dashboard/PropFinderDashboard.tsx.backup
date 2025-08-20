@@ -1,0 +1,743 @@
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Search, Heart, ChevronDown, ToggleLeft, ToggleRight, BarChart3, Star, RefreshCw, AlertCircle } from 'lucide-react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import CheatsheetView from './CheatsheetView';
+import { robustApi } from '../../utils/robustApi';
+
+interface Player {
+  id: string;
+  name: string;
+  team: string;
+  position: string;
+  image?: string;
+}
+
+interface MarketOdds {
+  sportsbook: string;
+  odds: number;
+  implied: number;
+}
+
+interface PropData {
+  id: string;
+  player: Player;
+  prop: string;
+  odds: number;
+  pfRating: number;
+  l10Avg: number;
+  l5Avg: number;
+  streak: string;
+  confidence: number;
+  recentForm: string;
+  isFavorited: boolean;
+  marketOdds: MarketOdds[];
+}
+
+// Backend API response types
+interface BackendPropData {
+  id: string;
+  player: string;
+  playerImage?: string | null;
+  team: string;
+  teamLogo?: string | null;
+  opponent: string;
+  opponentLogo?: string | null;
+  sport: string;
+  market: string;
+  line: number;
+  pick: string;
+  odds: number;
+  impliedProbability: number;
+  aiProbability: number;
+  edge: number;
+  confidence: number;
+  projectedValue: number;
+  volume: number;
+  trend: string;
+  trendStrength: number;
+  timeToGame: string;
+  venue: string;
+  weather?: string | null;
+  injuries: string[];
+  recentForm: number[];
+  matchupHistory: {
+    games: number;
+    average: number;
+    hitRate: number;
+  };
+  lineMovement: {
+    open: number;
+    current: number;
+    direction: string;
+  };
+  bookmakers: Array<{
+    name: string;
+    odds: number;
+    line: number;
+  }>;
+  isBookmarked: boolean;
+  tags: string[];
+  socialSentiment: number;
+  sharpMoney: string;
+  lastUpdated: string;
+  alertTriggered: boolean;
+  alertSeverity?: string | null;
+}
+
+interface BackendResponse {
+  opportunities: BackendPropData[];
+  total: number;
+  filtered: number;
+  summary: {
+    total_opportunities: number;
+    avg_confidence: number;
+    max_edge: number;
+    alert_triggered_count: number;
+    sharp_heavy_count: number;
+    sports_breakdown: { [key: string]: number };
+    markets_breakdown: { [key: string]: number };
+  };
+}
+
+const PropFinderDashboard: React.FC = () => {
+  const [selectedSport, setSelectedSport] = useState('MLB');
+  const [selectedTab, setSelectedTab] = useState<'over' | 'under'>('over');
+  const [activeView, setActiveView] = useState<'table' | 'cheatsheets'>('table');
+  const [selectedPlayer, setSelectedPlayer] = useState('');
+  const [showAllLines, setShowAllLines] = useState(false);
+  
+  // API state
+  const [propData, setPropData] = useState<PropData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string>('');
+  
+  // Advanced filters
+  const [confidenceMin, setConfidenceMin] = useState<number>(0);
+  const [confidenceMax, setConfidenceMax] = useState<number>(100);
+  const [edgeMin, setEdgeMin] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Convert backend data to frontend format
+  const convertBackendData = useCallback((backendData: BackendPropData[]): PropData[] => {
+    return backendData.map(item => ({
+      id: item.id,
+      player: {
+        id: item.id,
+        name: item.player,
+        team: item.team,
+        position: 'N/A', // Backend doesn't provide position
+        image: item.playerImage || undefined,
+      },
+      prop: `${item.market} ${item.pick.toUpperCase()} ${item.line}`,
+      odds: item.odds,
+      pfRating: Math.round(item.confidence),
+      l10Avg: item.matchupHistory.average,
+      l5Avg: item.recentForm.slice(-5).reduce((a, b) => a + b, 0) / Math.max(item.recentForm.slice(-5).length, 1),
+      streak: item.recentForm.length > 0 ? `${item.recentForm.slice(-3).filter(x => x > item.line).length}/3` : 'N/A',
+      confidence: Math.round(item.confidence),
+      recentForm: item.trend === 'up' ? 'Hot 🔥' : item.trend === 'down' ? 'Cold ❄️' : 'Steady',
+      isFavorited: item.isBookmarked,
+      marketOdds: item.bookmakers.map(book => ({
+        sportsbook: book.name,
+        odds: book.odds,
+        implied: Math.round((Math.abs(book.odds) / (Math.abs(book.odds) + 100)) * 100 * 10) / 10,
+      })),
+    }));
+  }, []);
+
+  // Fetch prop data from backend
+  const fetchPropData = useCallback(async () => {
+    if (!robustApi) {
+      console.warn('No API client available, using fallback data');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const params = new URLSearchParams();
+      if (selectedSport !== 'MLB') params.append('sports', selectedSport);
+      if (confidenceMin > 0) params.append('confidence_min', confidenceMin.toString());
+      if (confidenceMax < 100) params.append('confidence_max', confidenceMax.toString());
+      if (edgeMin > 0) params.append('edge_min', edgeMin.toString());
+      if (searchQuery) params.append('search', searchQuery);
+      
+      const url = `/api/propfinder/opportunities${params.toString() ? `?${params.toString()}` : ''}`;
+      const response = await robustApi.get<{ data: BackendResponse }>(url, {
+        fallbackData: { data: { opportunities: [], total: 0, filtered: 0, summary: {
+          total_opportunities: 0,
+          avg_confidence: 0,
+          max_edge: 0,
+          alert_triggered_count: 0,
+          sharp_heavy_count: 0,
+          sports_breakdown: {},
+          markets_breakdown: {}
+        }} },
+        timeout: 10000
+      });
+
+      if (response.success && response.data?.data) {
+        const convertedData = convertBackendData(response.data.data.opportunities);
+        setPropData(convertedData);
+        setLastUpdated(new Date().toLocaleTimeString());
+      } else {
+        throw new Error(response.error || 'Failed to fetch data');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(`Failed to load props: ${errorMessage}`);
+      console.error('PropFinder data fetch error:', err);
+      
+      // Use fallback mock data
+      const mockData: PropData[] = [{
+        id: '1',
+        player: { id: '1', name: 'Dansby Swanson', team: 'CHC', position: 'SS' },
+        prop: 'Total Bases O 1.5',
+        odds: 115,
+        pfRating: 82,
+        l10Avg: 1.2,
+        l5Avg: 0.8,
+        streak: '✅ 3 in a row',
+        confidence: 87,
+        recentForm: 'Hot 🔥',
+        isFavorited: true,
+        marketOdds: [
+          { sportsbook: 'DraftKings', odds: 115, implied: 46.5 },
+          { sportsbook: 'FanDuel', odds: 110, implied: 47.6 },
+        ]
+      }];
+      setPropData(mockData);
+      setLastUpdated('Mock Data');
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedSport, confidenceMin, confidenceMax, edgeMin, searchQuery, convertBackendData]);
+
+  // Initial load and sport change
+  useEffect(() => {
+    fetchPropData();
+  }, [fetchPropData]);
+
+  // Filter prop data based on current filters
+  const filteredPropData = useMemo(() => {
+    if (!propData || propData.length === 0) return [];
+
+    return propData.filter((item) => {
+      // Confidence range filter
+      if (item.pfRating < confidenceMin || item.pfRating > confidenceMax) {
+        return false;
+      }
+
+      // Edge minimum filter (assuming edge is calculated from some prop value)
+      // For now, we'll use a simple calculation based on pfRating and odds
+      const estimatedEdge = item.pfRating > 80 ? item.pfRating - 75 : 0;
+      if (estimatedEdge < edgeMin) {
+        return false;
+      }
+
+      // Search query filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const searchableText = [
+          item.player.name,
+          item.player.team,
+          item.player.position,
+          item.prop
+        ].join(' ').toLowerCase();
+        
+        if (!searchableText.includes(query)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [propData, confidenceMin, confidenceMax, edgeMin, searchQuery]);
+
+  // Get filtered data for display
+  const displayData = filteredPropData;
+  
+  // Virtualization setup for performance (Phase 4.1)
+  const parentRef = useRef<HTMLDivElement>(null);
+  const VIRTUALIZATION_THRESHOLD = 20; // Virtualize when >20 items
+  const shouldVirtualize = displayData.length > VIRTUALIZATION_THRESHOLD;
+  
+  const virtualizer = useVirtualizer({
+    count: displayData.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 80, // Approximate row height in pixels
+    overscan: 5, // Render 5 extra items for smooth scrolling
+  });
+
+  // Refresh data
+  const handleRefresh = useCallback(() => {
+    fetchPropData();
+  }, [fetchPropData]);
+
+  // Debounced search to avoid excessive API calls
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      // Trigger data refetch when search changes
+      fetchPropData();
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, fetchPropData]);
+
+  const getRatingColor = (rating: number): string => {
+    if (rating >= 90) return 'bg-green-600 text-white';
+    if (rating >= 80) return 'bg-blue-600 text-white';
+    return 'bg-yellow-600 text-black';
+  };
+
+  const formatOdds = (odds: number): string => {
+    return odds > 0 ? `+${odds}` : `${odds}`;
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-white">
+      {/* Header */}
+      <div className="bg-gray-800 border-b border-gray-700 px-4 py-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-6">
+              <h1 className="text-2xl font-bold text-white">
+                PropFinder <span className="text-blue-400">Clone</span>
+              </h1>
+              
+              {/* Sport Selector */}
+              <div className="flex bg-gray-700 rounded-lg p-1">
+                {['MLB', 'NFL', 'NBA', 'NHL'].map((sport) => (
+                  <button
+                    key={sport}
+                    onClick={() => setSelectedSport(sport)}
+                    className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                      selectedSport === sport
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-300 hover:text-white hover:bg-gray-600'
+                    }`}
+                  >
+                    {sport}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-sm text-gray-300">
+                {loading ? 'Updating...' : lastUpdated ? `Updated: ${lastUpdated}` : 'Live'}
+              </span>
+              {error && (
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-400" />
+                  <span className="text-red-400">{error}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              {/* Over/Under Toggle */}
+              <div className="flex bg-gray-700 rounded-lg p-1">
+                <button
+                  onClick={() => setSelectedTab('over')}
+                  className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                    selectedTab === 'over'
+                      ? 'bg-green-600 text-white'
+                      : 'text-gray-300 hover:text-white'
+                  }`}
+                >
+                  OVER
+                </button>
+                <button
+                  onClick={() => setSelectedTab('under')}
+                  className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                    selectedTab === 'under'
+                      ? 'bg-red-600 text-white'
+                      : 'text-gray-300 hover:text-white'
+                  }`}
+                >
+                  UNDER
+                </button>
+              </div>
+
+              {/* View Toggle */}
+              <div className="flex bg-gray-700 rounded-lg p-1">
+                <button
+                  onClick={() => setActiveView('table')}
+                  className={`px-4 py-2 rounded-md font-medium transition-colors flex items-center space-x-2 ${
+                    activeView === 'table'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-300 hover:text-white'
+                  }`}
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span>TABLE</span>
+                </button>
+                <button
+                  onClick={() => setActiveView('cheatsheets')}
+                  className={`px-4 py-2 rounded-md font-medium transition-colors flex items-center space-x-2 ${
+                    activeView === 'cheatsheets'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-300 hover:text-white'
+                  }`}
+                >
+                  <Star className="w-4 h-4" />
+                  <span>CHEATSHEETS</span>
+                </button>
+              </div>
+            </div>
+
+              <div className="flex items-center space-x-4">
+                {/* Search Player Dropdown */}
+                <div className="relative">
+                  <div className="flex items-center space-x-2 bg-gray-700 rounded-lg px-3 py-2 min-w-[200px]">
+                    <Search className="w-4 h-4 text-gray-400" />
+                    <select
+                      value={selectedPlayer}
+                      onChange={(e) => {
+                        setSelectedPlayer(e.target.value);
+                        setSearchQuery(e.target.value); // Sync with search query
+                      }}
+                      className="bg-transparent text-white border-none outline-none flex-1"
+                    >
+                      <option value="">Search Player</option>
+                      {propData.map(prop => (
+                        <option key={prop.player.id} value={prop.player.name}>{prop.player.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                  </div>
+                </div>
+
+                {/* Show All Lines Toggle */}
+                <button
+                  onClick={() => setShowAllLines(!showAllLines)}
+                  className="flex items-center space-x-2 bg-gray-700 rounded-lg px-3 py-2 hover:bg-gray-600 transition-colors"
+                >
+                  {showAllLines ? (
+                    <ToggleRight className="w-5 h-5 text-blue-400" />
+                  ) : (
+                    <ToggleLeft className="w-5 h-5 text-gray-400" />
+                  )}
+                  <span className="text-sm">All Lines</span>
+                </button>
+
+                {/* Refresh Button */}
+                <button
+                  onClick={handleRefresh}
+                  disabled={loading}
+                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:opacity-50 rounded-lg px-3 py-2 transition-colors"
+                  title="Refresh prop data"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                  <span className="text-sm">{loading ? 'Loading...' : 'Refresh'}</span>
+                </button>
+              </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Advanced Filters Panel */}
+        {showFilters && (
+          <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 mb-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Advanced Filters</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Confidence Range */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Confidence Range</label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={confidenceMin}
+                    onChange={(e) => setConfidenceMin(Number(e.target.value))}
+                    className="w-16 px-2 py-1 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-400 outline-none"
+                    placeholder="Min"
+                  />
+                  <span className="text-gray-400">-</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={confidenceMax}
+                    onChange={(e) => setConfidenceMax(Number(e.target.value))}
+                    className="w-16 px-2 py-1 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-400 outline-none"
+                    placeholder="Max"
+                  />
+                  <span className="text-xs text-gray-400">%</span>
+                </div>
+              </div>
+
+              {/* Edge Minimum */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Minimum Edge</label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={edgeMin}
+                    onChange={(e) => setEdgeMin(Number(e.target.value))}
+                    className="w-20 px-2 py-1 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-400 outline-none"
+                    placeholder="0.0"
+                  />
+                  <span className="text-xs text-gray-400">%</span>
+                </div>
+              </div>
+
+              {/* Search */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Search</label>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-3 py-1 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-400 outline-none"
+                  placeholder="Player, team, market..."
+                />
+              </div>
+
+              {/* Filter Actions */}
+              <div className="flex items-end space-x-2">
+                <button
+                  onClick={() => {
+                    setConfidenceMin(0);
+                    setConfidenceMax(100);
+                    setEdgeMin(0);
+                    setSearchQuery('');
+                  }}
+                  className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors text-sm"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors text-sm"
+                >
+                  Hide
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Toggle Filters Button */}
+        {!showFilters && (
+          <div className="mb-4">
+            <button
+              onClick={() => setShowFilters(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            >
+              <Search className="w-4 h-4" />
+              <span>Advanced Filters</span>
+            </button>
+          </div>
+        )}
+        {/* Filter Results Summary */}
+        {!loading && !error && propData.length > 0 && (
+          <div className="mb-4 flex items-center justify-between text-sm text-gray-400">
+            <div>
+              Showing {displayData.length} of {propData.length} opportunities
+              {displayData.length !== propData.length && (
+                <span className="ml-2 px-2 py-1 bg-blue-600/20 text-blue-400 rounded text-xs">
+                  {propData.length - displayData.length} filtered out
+                </span>
+              )}
+              {shouldVirtualize && (
+                <span className="ml-2 px-2 py-1 bg-green-600/20 text-green-400 rounded text-xs">
+                  ⚡ Virtualized
+                </span>
+              )}
+            </div>
+            {(searchQuery || confidenceMin > 0 || confidenceMax < 100 || edgeMin > 0) && (
+              <button
+                onClick={() => {
+                  setConfidenceMin(0);
+                  setConfidenceMax(100);
+                  setEdgeMin(0);
+                  setSearchQuery('');
+                }}
+                className="text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                Clear all filters
+              </button>
+            )}
+          </div>
+        )}
+
+        {activeView === 'cheatsheets' ? (
+          <CheatsheetView data={[]} selectedSport={selectedSport} />
+        ) : (
+          <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
+            {/* Loading State */}
+            {loading && (
+              <div className="flex items-center justify-center py-8">
+                <RefreshCw className="w-6 h-6 animate-spin text-blue-400 mr-2" />
+                <span className="text-gray-300">Loading prop opportunities...</span>
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && !loading && (
+              <div className="flex items-center justify-center py-8">
+                <AlertCircle className="w-6 h-6 text-red-400 mr-2" />
+                <div className="text-center">
+                  <div className="text-red-400 mb-2">Failed to load prop data</div>
+                  <div className="text-sm text-gray-400 mb-3">{error}</div>
+                  <button
+                    onClick={handleRefresh}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Data Table */}
+            {!loading && !error && (
+              <>
+                <div className="grid grid-cols-6 gap-4 px-4 py-3 bg-gray-750 border-b border-gray-700 text-sm font-medium text-gray-300">
+                  <div>Player</div>
+                  <div>Prop</div>
+                  <div>PF Rating</div>
+                  <div>L10 Avg</div>
+                  <div>Odds</div>
+                  <div>Actions</div>
+                </div>
+                
+                <div className="divide-y divide-gray-700">
+                  {displayData.length === 0 ? (
+                    <div className="text-center py-8 text-gray-400">
+                      {propData.length === 0 
+                        ? `No prop opportunities found for ${selectedSport}`
+                        : `No props match current filters (${filteredPropData.length}/${propData.length} shown)`
+                      }
+                    </div>
+                  ) : shouldVirtualize ? (
+                    // Virtualized rendering for large datasets (Phase 4.1)
+                    <div
+                      ref={parentRef}
+                      className="h-96 overflow-auto" // Fixed height container for virtualization
+                    >
+                      <div
+                        style={{
+                          height: `${virtualizer.getTotalSize()}px`,
+                          width: '100%',
+                          position: 'relative',
+                        }}
+                      >
+                        {virtualizer.getVirtualItems().map((virtualItem) => {
+                          const item = displayData[virtualItem.index];
+                          return (
+                            <div
+                              key={virtualItem.key}
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: `${virtualItem.size}px`,
+                                transform: `translateY(${virtualItem.start}px)`,
+                              }}
+                              className="grid grid-cols-6 gap-4 px-4 py-3 hover:bg-gray-750 transition-colors items-center border-b border-gray-700"
+                            >
+                              <div className="flex items-center space-x-3">
+                                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                  {item.player.name.split(' ').map((n: string) => n[0]).join('')}
+                                </div>
+                                <div>
+                                  <div className="font-medium">{item.player.name}</div>
+                                  <div className="text-xs text-gray-400">{item.player.team} {item.player.position}</div>
+                                </div>
+                              </div>
+                              
+                              <div className="font-medium">{item.prop}</div>
+                              
+                              <div>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${getRatingColor(item.pfRating)}`}>
+                                  {item.pfRating}
+                                </div>
+                              </div>
+                              
+                              <div className={item.l10Avg >= 1 ? 'text-green-400' : 'text-red-400'}>
+                                {item.l10Avg.toFixed(1)}
+                              </div>
+                              
+                              <div className="bg-gray-700 px-2 py-1 rounded text-sm inline-block">
+                                {formatOdds(item.odds)}
+                              </div>
+                              
+                              <div>
+                                <Heart
+                                  className={`w-5 h-5 cursor-pointer transition-colors ${
+                                    item.isFavorited ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-400'
+                                  }`}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    // Standard rendering for smaller datasets
+                    <>
+                      {displayData.map((item) => (
+                        <div key={item.id} className="grid grid-cols-6 gap-4 px-4 py-3 hover:bg-gray-750 transition-colors items-center">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                              {item.player.name.split(' ').map((n: string) => n[0]).join('')}
+                            </div>
+                            <div>
+                              <div className="font-medium">{item.player.name}</div>
+                              <div className="text-xs text-gray-400">{item.player.team} {item.player.position}</div>
+                            </div>
+                          </div>
+                          
+                          <div className="font-medium">{item.prop}</div>
+                          
+                          <div>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${getRatingColor(item.pfRating)}`}>
+                              {item.pfRating}
+                            </div>
+                          </div>
+                          
+                          <div className={item.l10Avg >= 1 ? 'text-green-400' : 'text-red-400'}>
+                            {item.l10Avg.toFixed(1)}
+                          </div>
+                          
+                          <div className="bg-gray-700 px-2 py-1 rounded text-sm inline-block">
+                            {formatOdds(item.odds)}
+                          </div>
+                          
+                          <div>
+                            <Heart
+                              className={`w-5 h-5 cursor-pointer transition-colors ${
+                                item.isFavorited ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-400'
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default PropFinderDashboard;

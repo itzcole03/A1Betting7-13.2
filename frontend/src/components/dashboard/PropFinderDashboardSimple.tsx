@@ -1,23 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Search, Filter, Heart, TrendingUp, TrendingDown, Star, DollarSign, Target, Zap } from 'lucide-react';
+import { Search, Filter, Heart, TrendingUp, TrendingDown } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-
-// Debounce hook for search optimization
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = React.useState<T>(value);
-
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
 
 // Types for PropFinder data
 interface PropOpportunity {
@@ -123,25 +106,15 @@ const PropFinderDashboard: React.FC = () => {
   const [minConfidence, setMinConfidence] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Quick filter presets for Phase 4.1
-  const filterPresets = [
-    { name: 'High Value', icon: Star, minConfidence: 80, description: '80%+ confidence' },
-    { name: 'Premium Only', icon: DollarSign, minConfidence: 60, description: '60%+ confidence' },
-    { name: 'Value Plays', icon: Target, minConfidence: 40, description: '40%+ confidence' }
-  ];
-
-  // Debounced search query for Phase 4.1
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
-
   // Filter and search logic
   const filteredOpportunities = useMemo(() => {
     return data.opportunities.filter(opp => {
-      const matchesSearch = opp.player.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-                          opp.prop.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+      const matchesSearch = opp.player.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          opp.prop.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesConfidence = opp.confidence >= minConfidence;
       return matchesSearch && matchesConfidence;
     });
-  }, [data.opportunities, debouncedSearchQuery, minConfidence]);
+  }, [data.opportunities, searchQuery, minConfidence]);
 
   // Virtualization setup
   const parentRef = useRef<HTMLDivElement>(null);
@@ -204,40 +177,14 @@ const PropFinderDashboard: React.FC = () => {
           </div>
 
           {showFilters && (
-            <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 space-y-4">
-              {/* Quick Filter Presets */}
-              <div>
-                <label className="block text-sm font-medium mb-2">Quick Filters</label>
-                <div className="flex flex-wrap gap-2">
-                  {filterPresets.map((preset) => {
-                    const IconComponent = preset.icon;
-                    return (
-                      <button
-                        key={preset.name}
-                        onClick={() => setMinConfidence(preset.minConfidence)}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-                          minConfidence === preset.minConfidence
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                        }`}
-                      >
-                        <IconComponent className="w-4 h-4" />
-                        <span className="text-sm">{preset.name}</span>
-                        <span className="text-xs text-gray-400">({preset.description})</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Enhanced Controls */}
-              <div className="flex flex-wrap gap-6 items-center">
+            <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+              <div className="flex flex-wrap gap-4 items-center">
                 <div>
                   <label className="block text-sm font-medium mb-1">Sport</label>
                   <select 
                     value={selectedSport}
                     onChange={(e) => setSelectedSport(e.target.value)}
-                    className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="px-3 py-1 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="MLB">MLB</option>
                     <option value="NBA">NBA</option>
@@ -245,26 +192,16 @@ const PropFinderDashboard: React.FC = () => {
                   </select>
                 </div>
                 
-                <div className="flex-1 min-w-48">
-                  <label className="block text-sm font-medium mb-2">
-                    Confidence Range: {minConfidence}% - 100%
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="5"
-                      value={minConfidence}
-                      onChange={(e) => setMinConfidence(Number(e.target.value))}
-                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                    />
-                    <div className="flex justify-between text-xs text-gray-400 mt-1">
-                      <span>0%</span>
-                      <span>50%</span>
-                      <span>100%</span>
-                    </div>
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Min Confidence: {minConfidence}%</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={minConfidence}
+                    onChange={(e) => setMinConfidence(Number(e.target.value))}
+                    className="w-32"
+                  />
                 </div>
               </div>
             </div>
@@ -355,74 +292,39 @@ const OpportunityRow: React.FC<{ opportunity: PropOpportunity }> = ({ opportunit
 
   return (
     <>
-      {/* Enhanced Player Column with Avatar */}
       <div className="flex items-center space-x-3">
-        <div className="relative">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
-            {opportunity.player.name.split(' ').map(n => n[0]).join('')}
-          </div>
-          {/* Hot indicator for high-edge opportunities */}
-          {opportunity.edge > 8 && (
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
-              <Zap className="w-2.5 h-2.5 text-white" />
-            </div>
-          )}
+        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+          {opportunity.player.name.split(' ').map(n => n[0]).join('')}
         </div>
         <div>
-          <div className="font-medium text-white">{opportunity.player.name}</div>
-          <div className="text-xs text-gray-400">
-            <span>{opportunity.player.team}</span>
-            <span className="mx-1">•</span>
-            <span>{opportunity.player.position}</span>
-          </div>
+          <div className="font-medium">{opportunity.player.name}</div>
+          <div className="text-xs text-gray-400">{opportunity.player.team} {opportunity.player.position}</div>
         </div>
       </div>
       
-      {/* Enhanced Prop Column */}
-      <div className="space-y-1">
-        <div className="font-medium text-white">{opportunity.prop}</div>
-        <div className="text-xs text-gray-400">
-          Line: {opportunity.line}
+      <div className="font-medium">{opportunity.prop}</div>
+      
+      <div>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${getRatingColor(opportunity.pfRating)}`}>
+          {Math.round(opportunity.pfRating)}
         </div>
       </div>
       
-      {/* Enhanced PF Rating with Edge Badge */}
-      <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${getRatingColor(opportunity.pfRating)}`}>
-            {Math.round(opportunity.pfRating)}
-          </div>
-          {opportunity.edge > 5 && (
-            <span className="px-2 py-1 bg-green-600 text-white text-xs rounded-full font-medium">
-              +{opportunity.edge.toFixed(1)}% EV
-            </span>
-          )}
-        </div>
-      </div>
-      
-      {/* Enhanced L10 Average Column */}
-      <div className={`font-medium ${opportunity.l10Avg >= 1.5 ? 'text-green-400' : 'text-red-400'}`}>
+      <div className={opportunity.l10Avg >= 1.5 ? 'text-green-400' : 'text-red-400'}>
         {opportunity.l10Avg.toFixed(1)}
       </div>
       
-      {/* Enhanced Odds Column */}
-      <div className="bg-gray-700 px-3 py-2 rounded-lg text-sm font-medium">
+      <div className="bg-gray-700 px-2 py-1 rounded text-sm inline-block">
         {formatOdds(opportunity.odds)}
       </div>
       
-      {/* Enhanced Actions Column */}
-      <div className="flex items-center gap-2">
+      <div>
         <Heart
           onClick={() => setIsFavorited(!isFavorited)}
           className={`w-5 h-5 cursor-pointer transition-colors ${
             isFavorited ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-400'
           }`}
         />
-        {opportunity.edge > 10 && (
-          <div className="text-xs bg-yellow-600 text-white px-2 py-1 rounded-full font-bold">
-            HOT
-          </div>
-        )}
       </div>
     </>
   );
