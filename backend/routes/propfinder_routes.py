@@ -24,6 +24,10 @@ from backend.services.simple_propfinder_service import (
     SimplePropFinderService,
     PropOpportunity
 )
+try:
+    from backend.services.odds_store import create_enhanced_bookmaker_response
+except Exception:
+    create_enhanced_bookmaker_response = None
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +80,9 @@ class OpportunityResponse(BaseModel):
     numBookmakers: int = 0
     hasArbitrage: bool = False
     arbitrageProfitPct: float = 0.0
+    # Fallback bookmaker name fields for historical aggregates
+    bestOverBookmakerName: Optional[str] = None
+    bestUnderBookmakerName: Optional[str] = None
 
 class OpportunitiesResponse(BaseModel):
     """Multiple prop opportunities response"""
@@ -114,6 +121,55 @@ class BookmarkResponse(BaseModel):
 
 def _convert_opportunity_to_response(opp: PropOpportunity, is_bookmarked: bool = False) -> OpportunityResponse:
     """Convert PropOpportunity to API response model"""
+    # Build enhanced bookmaker data when helper is available
+    enhanced_bookmakers = None
+    try:
+        if create_enhanced_bookmaker_response and opp.bookmakers:
+            bookmaker_map = {
+                b.name.lower(): {"over": b.odds, "line": b.line}
+                for b in opp.bookmakers
+            }
+            enhanced_bookmakers = create_enhanced_bookmaker_response(bookmaker_map, opp.aiProbability, side='over')
+    except Exception as e:
+        logger.warning(f"Could not create enhanced bookmaker response for {opp.id}: {e}")
+
+    # Prepare bookmakers field for API (either enhanced dict or simple list)
+    if isinstance(enhanced_bookmakers, dict):
+        bookmakers_field = enhanced_bookmakers.get('bookmakers', [])
+    else:
+        bookmakers_field = [
+            {
+                "name": book.name,
+                "odds": book.odds,
+                "line": book.line
+            }
+            for book in opp.bookmakers
+        ]
+
+    def _safe_float(val, default=0.0):
+        try:
+            if val is None:
+                return default
+            return float(val)
+        except Exception:
+            return default
+
+    def _safe_int(val, default=0):
+        try:
+            if val is None:
+                return default
+            return int(val)
+        except Exception:
+            return default
+
+    def _safe_bool(val, default=False):
+        try:
+            if val is None:
+                return default
+            return bool(val)
+        except Exception:
+            return default
+
     return OpportunityResponse(
         id=opp.id,
         player=opp.player,
@@ -150,14 +206,8 @@ def _convert_opportunity_to_response(opp: PropOpportunity, is_bookmarked: bool =
             "current": opp.lineMovement.current,
             "direction": opp.lineMovement.direction.value
         },
-        bookmakers=[
-            {
-                "name": book.name,
-                "odds": book.odds,
-                "line": book.line
-            }
-            for book in opp.bookmakers
-        ],
+        # Prefer enhanced bookmaker response when available (provides bestBook, numBookmakers, etc.)
+    bookmakers=bookmakers_field,
         isBookmarked=is_bookmarked,  # Use real bookmark status
         tags=opp.tags,
         socialSentiment=opp.socialSentiment,
@@ -165,13 +215,16 @@ def _convert_opportunity_to_response(opp: PropOpportunity, is_bookmarked: bool =
         lastUpdated=opp.lastUpdated.isoformat(),
         alertTriggered=opp.alertTriggered,
         alertSeverity=opp.alertSeverity,
-        # Phase 1.2: Best Line Aggregation fields
-        bestBookmaker=opp.bestBookmaker,
-        lineSpread=opp.lineSpread,
-        oddsSpread=opp.oddsSpread,
-        numBookmakers=opp.numBookmakers,
-        hasArbitrage=opp.hasArbitrage,
-        arbitrageProfitPct=opp.arbitrageProfitPct
+    # Phase 1.2: Best Line Aggregation fields
+    bestBookmaker=(opp.bestBookmaker if getattr(opp, 'bestBookmaker', None) else (enhanced_bookmakers.get('bestBook') if isinstance(enhanced_bookmakers, dict) else None)),
+    # Provide textual fallbacks when available
+    bestOverBookmakerName=(getattr(opp, 'best_over_bookmaker_name', None) or (enhanced_bookmakers.get('bestOverBook') if isinstance(enhanced_bookmakers, dict) else None)),
+    bestUnderBookmakerName=(getattr(opp, 'best_under_bookmaker_name', None) or (enhanced_bookmakers.get('bestUnderBook') if isinstance(enhanced_bookmakers, dict) else None)),
+    lineSpread=_safe_float(getattr(opp, 'lineSpread', None) or (enhanced_bookmakers.get('lineSpread') if isinstance(enhanced_bookmakers, dict) else None), 0.0),
+    oddsSpread=_safe_int(getattr(opp, 'oddsSpread', None) or (enhanced_bookmakers.get('oddsSpread') if isinstance(enhanced_bookmakers, dict) else None), 0),
+    numBookmakers=_safe_int(getattr(opp, 'numBookmakers', None) or (enhanced_bookmakers.get('numBookmakers') if isinstance(enhanced_bookmakers, dict) else None) or (len(bookmakers_field) if isinstance(bookmakers_field, list) else 0), 0),
+    hasArbitrage=_safe_bool(getattr(opp, 'hasArbitrage', None) or (enhanced_bookmakers.get('arbitrage') if isinstance(enhanced_bookmakers, dict) else None), False),
+    arbitrageProfitPct=_safe_float(getattr(opp, 'arbitrageProfitPct', None) or (enhanced_bookmakers.get('arbitrageProfitPct') if isinstance(enhanced_bookmakers, dict) else None), 0.0)
     )
 
 @router.get("/opportunities", response_model=StandardAPIResponse[OpportunitiesResponse])

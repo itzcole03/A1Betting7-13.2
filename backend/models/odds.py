@@ -183,6 +183,9 @@ class BestLineAggregate(Base):
     best_under_odds: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     best_under_bookmaker_id: Mapped[Optional[int]] = mapped_column(ForeignKey('bookmakers.id'), nullable=True)
     best_under_bookmaker = relationship("Bookmaker", foreign_keys=[best_under_bookmaker_id])
+    # Textual fallback names for historical aggregates when ids are not resolved
+    best_over_bookmaker_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    best_under_bookmaker_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     
     # Consensus data
     consensus_line: Mapped[Optional[float]] = mapped_column(Float, nullable=True)

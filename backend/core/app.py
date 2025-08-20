@@ -374,6 +374,25 @@ def create_app() -> FastAPI:
         """Normalized version alias for monitoring systems expecting /api/v2/health"""
         return await api_health()
 
+    # --- Startup Initialization Hook ---
+    try:
+        from backend.services.odds_store import odds_store_service
+        from backend.database import async_engine
+
+        @_app.on_event("startup")
+        async def _initialize_bookmakers():
+            """Ensure initial bookmakers are present in the registry at startup"""
+            try:
+                if getattr(odds_store_service, 'initialize_bookmakers', None):
+                    from sqlalchemy.ext.asyncio import AsyncSession
+                    async with AsyncSession(async_engine) as session:
+                        await odds_store_service.initialize_bookmakers(session)
+                        logger.info("✅ Bookmaker registry initialized on startup")
+            except Exception as e:
+                logger.warning(f"Could not initialize bookmakers on startup: {e}")
+    except Exception as e:
+        logger.warning(f"Odds store startup initialization not configured: {e}")
+
     # --- PR8 Request Correlation Test Endpoint ---
     @_app.get("/api/trace/test")
     async def test_request_correlation(request: Request):

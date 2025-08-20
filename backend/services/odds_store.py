@@ -224,9 +224,25 @@ class OddsStoreService:
             # Check cache first
             cache_key = f"best_line:{prop_id}:{max_age_minutes}"
             if self.cache_service:
-                cached_result = self.cache_service.get(cache_key)
-                if cached_result:
-                    return BestLineResult(**cached_result)
+                try:
+                    # cache service may be async (awaitable) or sync
+                    maybe_coroutine = self.cache_service.get(cache_key)
+                    if asyncio.iscoroutine(maybe_coroutine):
+                        cached_result = await maybe_coroutine
+                    else:
+                        cached_result = maybe_coroutine
+
+                    if cached_result:
+                        # If cached_result is a dict-like mapping
+                        if isinstance(cached_result, dict):
+                            return BestLineResult(**cached_result)
+                        # If cache stored pickled BestLineResult.__dict__
+                        try:
+                            return BestLineResult(**cached_result.__dict__)
+                        except Exception:
+                            pass
+                except Exception as e:
+                    self.logger.warning(f"Cache lookup failed for {cache_key}: {e}")
             
             # Get recent snapshots for the prop
             cutoff_time = datetime.now(timezone.utc) - timedelta(minutes=max_age_minutes)
@@ -282,9 +298,14 @@ class OddsStoreService:
                 last_updated=datetime.now(timezone.utc)
             )
             
-            # Cache result for 5 minutes
+            # Cache result for 5 minutes (handle async or sync cache)
             if self.cache_service:
-                self.cache_service.set(cache_key, result.__dict__, ttl_seconds=300)
+                try:
+                    maybe_set = self.cache_service.set(cache_key, result.__dict__, ttl_seconds=300)
+                    if asyncio.iscoroutine(maybe_set):
+                        await maybe_set
+                except Exception as e:
+                    self.logger.warning(f"Failed to set cache for {cache_key}: {e}")
             
             return result
             
@@ -444,15 +465,106 @@ class OddsStoreService:
             # This would be implemented with a proper database session
             # For now, just log the intent
             self.logger.info(f"Updating best line aggregate for {prop_id} ({sport})")
-            
-            # Implementation would:
-            # 1. Get current best line
-            # 2. Update BestLineAggregate table
-            # 3. Cache the result
-            
+            # Attempt to import async session factory on-demand to avoid circular imports
+            if not SQLALCHEMY_AVAILABLE:
+                self.logger.warning("SQLAlchemy not available - skipping best line aggregate update")
+                return
+
+            from backend.database import async_engine
+            # Use SQLAlchemy AsyncSession directly with the async engine
+            async with AsyncSession(async_engine) as session:
+                try:
+                    best = await self.get_best_line(session, prop_id)
+                    if not best:
+                        self.logger.info(f"No best line data for {prop_id}, skipping aggregate upsert")
+                        return
+
+                    # Upsert into BestLineAggregate table
+                    # Use BestLineAggregate model imported earlier
+                    stmt = None
+                    # Try to find existing aggregate
+                    query = select(BestLineAggregate).where(BestLineAggregate.prop_id == prop_id)
+                    res = await session.execute(query)
+                    existing = res.scalars().first()
+
+                    # Resolve bookmaker ids if we have string short names
+                    async def _resolve_bookmaker_id(name_or_short):
+                        try:
+                            if not name_or_short:
+                                return None
+                            # Try to find bookmaker by short_name or name (case-insensitive)
+                            q = select(Bookmaker).where(
+                                (Bookmaker.short_name.ilike(name_or_short)) | (Bookmaker.name.ilike(name_or_short)) | (Bookmaker.display_name.ilike(name_or_short))
+                            )
+                            r = await session.execute(q)
+                            b = r.scalars().first()
+                            return b.id if b else None
+                        except Exception:
+                            return None
+
+                    if existing:
+                        existing.best_over_odds = best.best_over_odds
+                        existing.best_over_bookmaker_id = await _resolve_bookmaker_id(best.best_over_bookmaker)
+                        existing.best_under_odds = best.best_under_odds
+                        existing.best_under_bookmaker_id = await _resolve_bookmaker_id(best.best_under_bookmaker)
+                        existing.consensus_line = best.consensus_line
+                        existing.consensus_over_prob = best.consensus_over_prob
+                        existing.consensus_under_prob = best.consensus_under_prob
+                        existing.num_bookmakers = best.num_bookmakers
+                        existing.line_spread = getattr(best, 'consensus_line', None)
+                        existing.odds_spread_over = None
+                        existing.odds_spread_under = None
+                        existing.arbitrage_opportunity = best.arbitrage_opportunity
+                        existing.arbitrage_profit_pct = best.arbitrage_profit_pct
+                        existing.last_updated = best.last_updated
+                        session.add(existing)
+                    else:
+                        agg = BestLineAggregate(
+                            prop_id=prop_id,
+                            sport=sport,
+                            best_over_odds=best.best_over_odds,
+                            best_over_bookmaker_id=await _resolve_bookmaker_id(best.best_over_bookmaker),
+                            best_under_odds=best.best_under_odds,
+                            best_under_bookmaker_id=await _resolve_bookmaker_id(best.best_under_bookmaker),
+                            consensus_line=best.consensus_line,
+                            consensus_over_prob=best.consensus_over_prob,
+                            consensus_under_prob=best.consensus_under_prob,
+                            num_bookmakers=best.num_bookmakers,
+                            line_spread=getattr(best, 'consensus_line', None),
+                            odds_spread_over=None,
+                            odds_spread_under=None,
+                            arbitrage_opportunity=best.arbitrage_opportunity,
+                            arbitrage_profit_pct=best.arbitrage_profit_pct,
+                            last_updated=best.last_updated
+                        )
+                        session.add(agg)
+
+                    await session.commit()
+
+                    # Cache result for fast reads
+                    if self.cache_service:
+                        cache_key = f"best_line_aggregate:{prop_id}"
+                        self.cache_service.set(cache_key, {
+                            'best_over_odds': best.best_over_odds,
+                            'best_over_bookmaker': best.best_over_bookmaker,
+                            'best_under_odds': best.best_under_odds,
+                            'best_under_bookmaker': best.best_under_bookmaker,
+                            'consensus_line': best.consensus_line,
+                            'consensus_over_prob': best.consensus_over_prob,
+                            'consensus_under_prob': best.consensus_under_prob,
+                            'num_bookmakers': best.num_bookmakers,
+                            'arbitrage_opportunity': best.arbitrage_opportunity,
+                            'arbitrage_profit_pct': best.arbitrage_profit_pct,
+                            'last_updated': best.last_updated.isoformat()
+                        }, ttl_seconds=600)
+
+                    self.logger.info(f"Upserted BestLineAggregate for {prop_id}")
+
+                except Exception as inner_e:
+                    self.logger.error(f"Error updating aggregate inside session for {prop_id}: {inner_e}")
         except Exception as e:
             self.logger.error(f"Error updating best line aggregate for {prop_id}: {e}")
-    
+
     def get_bookmaker_by_name(self, bookmakers: List[Bookmaker], name: str) -> Optional[Bookmaker]:
         """Helper method to find bookmaker by name"""
         for bookmaker in bookmakers:
