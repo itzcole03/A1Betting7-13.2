@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Search, Heart, ChevronDown, ToggleLeft, ToggleRight, BarChart3, Star, RefreshCw, AlertCircle } from 'lucide-react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import CheatsheetView from './CheatsheetView';
 import { robustApi } from '../../utils/robustApi';
 
@@ -258,6 +259,18 @@ const PropFinderDashboard: React.FC = () => {
 
   // Get filtered data for display
   const displayData = filteredPropData;
+  
+  // Virtualization setup for performance (Phase 4.1)
+  const parentRef = useRef<HTMLDivElement>(null);
+  const VIRTUALIZATION_THRESHOLD = 20; // Virtualize when >20 items
+  const shouldVirtualize = displayData.length > VIRTUALIZATION_THRESHOLD;
+  
+  const virtualizer = useVirtualizer({
+    count: displayData.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 80, // Approximate row height in pixels
+    overscan: 5, // Render 5 extra items for smooth scrolling
+  });
 
   // Refresh data
   const handleRefresh = useCallback(() => {
@@ -312,18 +325,18 @@ const PropFinderDashboard: React.FC = () => {
               </div>
             </div>
 
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-sm text-gray-300">
-                  {loading ? 'Updating...' : lastUpdated ? `Updated: ${lastUpdated}` : 'Live'}
-                </span>
-                {error && (
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-red-400" />
-                    <span className="text-red-400">{error}</span>
-                  </div>
-                )}
-              </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-sm text-gray-300">
+                {loading ? 'Updating...' : lastUpdated ? `Updated: ${lastUpdated}` : 'Live'}
+              </span>
+              {error && (
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-400" />
+                  <span className="text-red-400">{error}</span>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center justify-between">
@@ -538,6 +551,11 @@ const PropFinderDashboard: React.FC = () => {
                   {propData.length - displayData.length} filtered out
                 </span>
               )}
+              {shouldVirtualize && (
+                <span className="ml-2 px-2 py-1 bg-green-600/20 text-green-400 rounded text-xs">
+                  ⚡ Virtualized
+                </span>
+              )}
             </div>
             {(searchQuery || confidenceMin > 0 || confidenceMax < 100 || edgeMin > 0) && (
               <button
@@ -604,44 +622,113 @@ const PropFinderDashboard: React.FC = () => {
                         : `No props match current filters (${filteredPropData.length}/${propData.length} shown)`
                       }
                     </div>
-                  ) : (
-                    displayData.map((item) => (
-                      <div key={item.id} className="grid grid-cols-6 gap-4 px-4 py-3 hover:bg-gray-750 transition-colors items-center">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                            {item.player.name.split(' ').map((n: string) => n[0]).join('')}
-                          </div>
-                          <div>
-                            <div className="font-medium">{item.player.name}</div>
-                            <div className="text-xs text-gray-400">{item.player.team} {item.player.position}</div>
-                          </div>
-                        </div>
-                        
-                        <div className="font-medium">{item.prop}</div>
-                        
-                        <div>
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${getRatingColor(item.pfRating)}`}>
-                            {item.pfRating}
-                          </div>
-                        </div>
-                        
-                        <div className={item.l10Avg >= 1 ? 'text-green-400' : 'text-red-400'}>
-                          {item.l10Avg.toFixed(1)}
-                        </div>
-                        
-                        <div className="bg-gray-700 px-2 py-1 rounded text-sm inline-block">
-                          {formatOdds(item.odds)}
-                        </div>
-                        
-                        <div>
-                          <Heart
-                            className={`w-5 h-5 cursor-pointer transition-colors ${
-                              item.isFavorited ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-400'
-                            }`}
-                          />
-                        </div>
+                  ) : shouldVirtualize ? (
+                    // Virtualized rendering for large datasets (Phase 4.1)
+                    <div
+                      ref={parentRef}
+                      className="h-96 overflow-auto" // Fixed height container for virtualization
+                    >
+                      <div
+                        style={{
+                          height: `${virtualizer.getTotalSize()}px`,
+                          width: '100%',
+                          position: 'relative',
+                        }}
+                      >
+                        {virtualizer.getVirtualItems().map((virtualItem) => {
+                          const item = displayData[virtualItem.index];
+                          return (
+                            <div
+                              key={virtualItem.key}
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: `${virtualItem.size}px`,
+                                transform: `translateY(${virtualItem.start}px)`,
+                              }}
+                              className="grid grid-cols-6 gap-4 px-4 py-3 hover:bg-gray-750 transition-colors items-center border-b border-gray-700"
+                            >
+                              <div className="flex items-center space-x-3">
+                                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                  {item.player.name.split(' ').map((n: string) => n[0]).join('')}
+                                </div>
+                                <div>
+                                  <div className="font-medium">{item.player.name}</div>
+                                  <div className="text-xs text-gray-400">{item.player.team} {item.player.position}</div>
+                                </div>
+                              </div>
+                              
+                              <div className="font-medium">{item.prop}</div>
+                              
+                              <div>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${getRatingColor(item.pfRating)}`}>
+                                  {item.pfRating}
+                                </div>
+                              </div>
+                              
+                              <div className={item.l10Avg >= 1 ? 'text-green-400' : 'text-red-400'}>
+                                {item.l10Avg.toFixed(1)}
+                              </div>
+                              
+                              <div className="bg-gray-700 px-2 py-1 rounded text-sm inline-block">
+                                {formatOdds(item.odds)}
+                              </div>
+                              
+                              <div>
+                                <Heart
+                                  className={`w-5 h-5 cursor-pointer transition-colors ${
+                                    item.isFavorited ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-400'
+                                  }`}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                    ))
+                    </div>
+                  ) : (
+                    // Standard rendering for smaller datasets
+                    <>
+                      {displayData.map((item) => (
+                        <div key={item.id} className="grid grid-cols-6 gap-4 px-4 py-3 hover:bg-gray-750 transition-colors items-center">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                              {item.player.name.split(' ').map((n: string) => n[0]).join('')}
+                            </div>
+                            <div>
+                              <div className="font-medium">{item.player.name}</div>
+                              <div className="text-xs text-gray-400">{item.player.team} {item.player.position}</div>
+                            </div>
+                          </div>
+                          
+                          <div className="font-medium">{item.prop}</div>
+                          
+                          <div>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${getRatingColor(item.pfRating)}`}>
+                              {item.pfRating}
+                            </div>
+                          </div>
+                          
+                          <div className={item.l10Avg >= 1 ? 'text-green-400' : 'text-red-400'}>
+                            {item.l10Avg.toFixed(1)}
+                          </div>
+                          
+                          <div className="bg-gray-700 px-2 py-1 rounded text-sm inline-block">
+                            {formatOdds(item.odds)}
+                          </div>
+                          
+                          <div>
+                            <Heart
+                              className={`w-5 h-5 cursor-pointer transition-colors ${
+                                item.isFavorited ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-400'
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </>
                   )}
                 </div>
               </>

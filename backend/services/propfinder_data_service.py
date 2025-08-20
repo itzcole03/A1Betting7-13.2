@@ -7,6 +7,7 @@ Integrates PropFinderKillerDashboard with real betting data sources:
 - Line movement tracking
 - ML analysis and confidence scoring
 - Real-time odds comparison
+- Canonical odds normalization with no-vig calculations
 """
 
 import asyncio
@@ -22,12 +23,15 @@ try:
     from backend.services.unified_data_fetcher import unified_data_fetcher
     from backend.services.unified_cache_service import unified_cache_service
     from backend.services.unified_logging import unified_logging
+    from backend.services.odds_normalizer import OddsNormalizer, create_propfinder_odds_response
 except ImportError as e:
     logging.warning(f"Could not import unified services: {e}")
     # Graceful fallback for development
     unified_data_fetcher = None
     unified_cache_service = None
     unified_logging = None
+    OddsNormalizer = None
+    create_propfinder_odds_response = None
 
 logger = logging.getLogger(__name__)
 
@@ -130,6 +134,18 @@ class PropFinderDataService:
         self.cache_ttl = 30  # 30 seconds cache for real-time data
         self.alert_engine = None
         self.logger = logger
+        
+        # Initialize odds normalizer for edge calculations
+        try:
+            if OddsNormalizer is not None:
+                self.odds_normalizer = OddsNormalizer(precision=4)
+                self.logger.info("OddsNormalizer initialized successfully")
+            else:
+                self.odds_normalizer = None
+                self.logger.warning("OddsNormalizer not available - using fallback calculations")
+        except Exception as e:
+            self.logger.warning(f"Failed to initialize OddsNormalizer: {e}")
+            self.odds_normalizer = None
         
     async def _initialize_services(self):
         """Initialize backend services with error handling"""
@@ -268,11 +284,102 @@ class PropFinderDataService:
         except Exception as e:
             self.logger.warning(f"Error fetching MLB opportunities: {e}")
             return []
+    
+    def _calculate_normalized_odds(self, bookmaker_odds: Dict[str, Dict[str, int]], ai_probability: float, side: str = 'over') -> Dict:
+        """
+        Calculate normalized odds with proper edge calculations using OddsNormalizer.
+        
+        Args:
+            bookmaker_odds: {bookmaker_name: {'over': odds, 'under': odds}}
+            ai_probability: AI model prediction (0.0 to 1.0)
+            side: 'over' or 'under'
+            
+        Returns:
+            Dict with normalized odds data or fallback values
+        """
+        try:
+            if self.odds_normalizer and bookmaker_odds and create_propfinder_odds_response is not None:
+                # Use the odds normalizer for accurate calculations
+                self.logger.info(f"Using OddsNormalizer for {side} side with AI probability {ai_probability}")
+                return create_propfinder_odds_response(
+                    self.odds_normalizer, 
+                    bookmaker_odds, 
+                    ai_probability, 
+                    side
+                )
+            else:
+                # Fallback to simple calculations
+                best_odds = -110  # Default
+                for book_odds in bookmaker_odds.values():
+                    if side in book_odds:
+                        # Find best odds (highest for positive, closest to 0 for negative)
+                        if best_odds < 0 and book_odds[side] > best_odds:
+                            best_odds = book_odds[side]
+                
+                # Simple implied probability calculation
+                if best_odds > 0:
+                    implied_prob = 100 / (best_odds + 100)
+                else:
+                    implied_prob = abs(best_odds) / (abs(best_odds) + 100)
+                
+                edge = (ai_probability - implied_prob) * 100
+                
+                return {
+                    'odds': best_odds,
+                    'impliedProbability': round(implied_prob * 100, 1),
+                    'aiProbability': round(ai_probability * 100, 1),
+                    'edge': round(edge, 1),
+                    'bookmakers': [
+                        {'name': name, 'odds': odds.get(side, best_odds), 'line': None}
+                        for name, odds in bookmaker_odds.items()
+                    ]
+                }
+                
+        except Exception as e:
+            self.logger.error(f"Error calculating normalized odds: {e}")
+            # Emergency fallback
+            return {
+                'odds': -110,
+                'impliedProbability': 52.4,
+                'aiProbability': round(ai_probability * 100, 1),
+                'edge': round((ai_probability - 0.524) * 100, 1),
+                'bookmakers': []
+            }
 
     async def _get_nba_opportunities(self) -> List[PropOpportunity]:
-        """Fetch real NBA prop opportunities"""
+        """Fetch real NBA prop opportunities with best line aggregation"""
         try:
-            # Simulate NBA data for demo (replace with real NBA API integration)
+            # Sample bookmaker odds for LeBron James Points O/U 25.5
+            lebron_odds = {
+                'draftkings': {'over': -110, 'under': -110, 'line': 25.5},
+                'fanduel': {'over': -105, 'under': -115, 'line': 25.5},
+                'betmgm': {'over': -115, 'under': -105, 'line': 25.5},
+                'caesars': {'over': -108, 'under': -112, 'line': 25.5},
+                'barstool': {'over': -112, 'under': -108, 'line': 25.5}
+            }
+            
+            # AI model prediction (73.2% chance of OVER)
+            ai_prediction = 0.732
+            
+            # Use new odds store service for enhanced bookmaker data
+            try:
+                from backend.services.odds_store import create_enhanced_bookmaker_response, store_prop_odds
+                
+                # Store odds and get enhanced response with best line detection
+                prop_id = "nba_lebron_points_20250819"
+                bookmaker_data = await store_prop_odds(prop_id, "NBA", "Points", lebron_odds)
+                enhanced_odds = create_enhanced_bookmaker_response(lebron_odds, ai_prediction, 'over')
+                
+                self.logger.info(f"Best line for LeBron points: {enhanced_odds.get('bestBook')} at {enhanced_odds.get('odds')}")
+                
+            except ImportError:
+                self.logger.warning("Odds store service not available, using fallback calculations")
+                enhanced_odds = self._calculate_normalized_odds(lebron_odds, ai_prediction, 'over')
+                bookmaker_data = [
+                    {'name': name.title(), 'odds': odds.get('over'), 'line': odds.get('line', 25.5)}
+                    for name, odds in lebron_odds.items()
+                ]
+            
             nba_opportunities = [
                 PropOpportunity(
                     id="nba_lebron_points",
@@ -286,11 +393,11 @@ class PropFinderDataService:
                     market=MarketType.POINTS,
                     line=25.5,
                     pick=Pick.OVER,
-                    odds=-110,
-                    impliedProbability=52.4,
-                    aiProbability=73.2,
-                    edge=20.8,
-                    confidence=94.7,
+                    odds=enhanced_odds.get('odds', -110),
+                    impliedProbability=enhanced_odds.get('impliedProbability', 52.4),
+                    aiProbability=enhanced_odds.get('aiProbability', 73.2),
+                    edge=enhanced_odds.get('edge', 20.8),
+                    confidence=min(94.7, 50 + abs(enhanced_odds.get('edge', 20.8)) * 2),  # Higher confidence for bigger edges
                     projectedValue=28.4,
                     volume=847,
                     trend=Trend.UP,
@@ -303,9 +410,8 @@ class PropFinderDataService:
                     matchupHistory=MatchupHistory(games=12, average=27.8, hitRate=75),
                     lineMovement=LineMovement(open=24.5, current=25.5, direction=Trend.UP),
                     bookmakers=[
-                        Bookmaker(name="DraftKings", odds=-110, line=25.5),
-                        Bookmaker(name="FanDuel", odds=-105, line=25.5),
-                        Bookmaker(name="BetMGM", odds=-115, line=25.5),
+                        Bookmaker(name=book['name'], odds=book.get('odds'), line=book.get('line', 25.5))
+                        for book in bookmaker_data
                     ],
                     isBookmarked=False,
                     tags=["Prime Time", "Revenge Game", "Sharp Play"],

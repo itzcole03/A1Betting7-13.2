@@ -17,9 +17,10 @@ from pydantic import BaseModel, Field
 
 from backend.core.response_models import ResponseBuilder, StandardAPIResponse
 from backend.core.exceptions import BusinessLogicException
-from backend.services.propfinder_data_service import (
-    get_propfinder_data_service,
-    PropFinderDataService,
+# Temporarily using simple service for Phase 4.1
+from backend.services.simple_propfinder_service import (
+    get_simple_propfinder_service,
+    SimplePropFinderService,
     PropOpportunity
 )
 
@@ -161,7 +162,7 @@ async def get_prop_opportunities(
     search: Optional[str] = Query(None, description="Search by player, team, or market"),
     
     # Service dependency
-    data_service: PropFinderDataService = Depends(get_propfinder_data_service)
+    data_service: SimplePropFinderService = Depends(get_simple_propfinder_service)
 ):
     """
     Get prop betting opportunities with real data integration
@@ -279,7 +280,7 @@ async def get_prop_opportunities(
 @router.get("/opportunities/{opportunity_id}", response_model=StandardAPIResponse[OpportunityResponse])
 async def get_prop_opportunity(
     opportunity_id: str,
-    data_service: PropFinderDataService = Depends(get_propfinder_data_service)
+    data_service: SimplePropFinderService = Depends(get_simple_propfinder_service)
 ):
     """Get specific prop opportunity by ID"""
     try:
@@ -340,7 +341,7 @@ async def get_available_sports():
 async def bookmark_opportunity(
     opportunity_id: str,
     bookmarked: bool = Query(True, description="Bookmark status"),
-    data_service: PropFinderDataService = Depends(get_propfinder_data_service)
+    data_service: SimplePropFinderService = Depends(get_simple_propfinder_service)
 ):
     """Bookmark or unbookmark a prop opportunity"""
     try:
@@ -359,7 +360,7 @@ async def bookmark_opportunity(
 
 @router.get("/stats", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_propfinder_stats(
-    data_service: PropFinderDataService = Depends(get_propfinder_data_service)
+    data_service: SimplePropFinderService = Depends(get_simple_propfinder_service)
 ):
     """Get PropFinder dashboard statistics"""
     try:
