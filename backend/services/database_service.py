@@ -10,7 +10,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Optional, Type, Union
 
-from config_manager import get_database_url
+from backend.config_manager import get_database_url
 from sqlalchemy import (
     Boolean,
     Column,

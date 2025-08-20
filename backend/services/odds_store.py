@@ -33,12 +33,15 @@ try:
     )
     from backend.services.odds_normalizer import OddsNormalizer
     from backend.services.unified_cache_service import unified_cache_service
-    from backend.services.unified_logging import unified_logging
+    SQLALCHEMY_AVAILABLE = True
 except ImportError as e:
     logging.warning(f"Could not import database dependencies: {e}")
     AsyncSession = None
     Bookmaker = None
     OddsSnapshot = None
+    OddsNormalizer = None
+    unified_cache_service = None
+    SQLALCHEMY_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +79,11 @@ class OddsStoreService:
     def __init__(self):
         self.odds_normalizer = None
         self.cache_service = None
-        self.logger = unified_logging.get_logger("odds_store") if unified_logging else logger
+        try:
+            from backend.services.unified_logging import get_logger
+            self.logger = get_logger("odds_store")
+        except ImportError:
+            self.logger = logger
         
         try:
             if OddsNormalizer is not None:

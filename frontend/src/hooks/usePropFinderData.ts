@@ -59,6 +59,14 @@ export interface PropOpportunity {
   lastUpdated: string;
   alertTriggered: boolean;
   alertSeverity?: string;
+  
+  // Phase 1.2 - Best Line Aggregator fields
+  bestBookmaker?: string;
+  lineSpread?: number;
+  oddsSpread?: number;
+  numBookmakers?: number;
+  hasArbitrage?: boolean;
+  arbitrageProfitPct?: number;
 }
 
 export interface OpportunitiesResponse {

@@ -67,6 +67,14 @@ class OpportunityResponse(BaseModel):
     lastUpdated: str
     alertTriggered: bool = False
     alertSeverity: Optional[str] = None
+    
+    # Phase 1.2: Best Line Aggregation fields
+    bestBookmaker: Optional[str] = None
+    lineSpread: float = 0.0
+    oddsSpread: int = 0
+    numBookmakers: int = 0
+    hasArbitrage: bool = False
+    arbitrageProfitPct: float = 0.0
 
 class OpportunitiesResponse(BaseModel):
     """Multiple prop opportunities response"""
@@ -140,7 +148,14 @@ def _convert_opportunity_to_response(opp: PropOpportunity) -> OpportunityRespons
         sharpMoney=opp.sharpMoney.value,
         lastUpdated=opp.lastUpdated.isoformat(),
         alertTriggered=opp.alertTriggered,
-        alertSeverity=opp.alertSeverity
+        alertSeverity=opp.alertSeverity,
+        # Phase 1.2: Best Line Aggregation fields
+        bestBookmaker=opp.bestBookmaker,
+        lineSpread=opp.lineSpread,
+        oddsSpread=opp.oddsSpread,
+        numBookmakers=opp.numBookmakers,
+        hasArbitrage=opp.hasArbitrage,
+        arbitrageProfitPct=opp.arbitrageProfitPct
     )
 
 @router.get("/opportunities", response_model=StandardAPIResponse[OpportunitiesResponse])

@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-08-20T04:31:21.244Z",
+  "site": "propfinder.app",
+  "techStack": {
+    "bundles": [
+      "https://propfinder.app/assets/index-BU0xwb8m.js",
+      "https://propfinder.app/assets/polyfills-legacy-gY21MeHW.js"
+    ]
+  },
+  "apiEndpoints": [],
+  "performance": {
+    "initialLoadStatus": 200,
+    "apiRequestCount": 0
+  },
+  "features": [],
+  "errors": [],
+  "initialState": {},
+  "totalRequests": 27,
+  "technologies": []
+}

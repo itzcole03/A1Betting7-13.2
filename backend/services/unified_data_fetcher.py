@@ -306,8 +306,8 @@ class UnifiedDataFetcher:
         # Initialize ensemble system if available
         self._initialize_ensemble_system()
         
-        # Register service capability if available
-        asyncio.create_task(self._register_capability())
+        # Flag for capability registration
+        self._capability_registered = False
     
     async def _register_capability(self):
         """Register service capability with the matrix system"""
@@ -405,6 +405,14 @@ class UnifiedDataFetcher:
         Optimized for current season to avoid empty datasets.
         Uses unified error handler and structured logging.
         """
+        # Register capability on first use
+        if not self._capability_registered:
+            try:
+                await self._register_capability()
+                self._capability_registered = True
+            except Exception:
+                pass  # Don't fail if registration fails
+                
         cache_key = "current_prizepicks_props"
 
         # Check cache first if enabled
