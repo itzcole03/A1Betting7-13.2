@@ -426,6 +426,9 @@ def create_propfinder_odds_response(
             raise ValueError(f"No {side} odds available")
         
         # Calculate edge using no-vig probability
+        if best_line.no_vig_probability is None:
+            raise ValueError(f"No no-vig probability available for {side} side")
+        
         edge = normalizer.calculate_edge(ai_probability, best_line.no_vig_probability)
         
         # Format response for PropFinder API
@@ -439,11 +442,11 @@ def create_propfinder_odds_response(
                     'name': odds.bookmaker,
                     'odds': odds.american_odds,
                     'line': None,  # Populated by caller if needed
-                    'impliedProb': round(odds.no_vig_probability * 100, 1)
+                    'impliedProb': round(odds.no_vig_probability * 100, 1) if odds.no_vig_probability else 0
                 }
                 for odds in market_norm.individual_odds
-                if (side == 'over' and odds.american_odds > 0) or 
-                   (side == 'under' and odds.american_odds < 0)
+                # Include all bookmakers for the specified side (over or under)
+                # We'll let the calling code determine which odds belong to which side
             ],
             'marketEfficiency': market_norm.market_efficiency,
             'totalVig': market_norm.total_vig
@@ -472,13 +475,17 @@ if __name__ == "__main__":
     print("=== PropFinder Odds Normalization Example ===")
     print(f"Market Vig: {result.total_vig}%")
     print(f"Market Efficiency: {result.market_efficiency}")
-    print(f"Best Over Line: {result.best_over_odds.bookmaker} {result.best_over_odds.american_odds}")
-    print(f"Best Under Line: {result.best_under_odds.bookmaker} {result.best_under_odds.american_odds}")
+    
+    if result.best_over_odds:
+        print(f"Best Over Line: {result.best_over_odds.bookmaker} {result.best_over_odds.american_odds}")
+    if result.best_under_odds:
+        print(f"Best Under Line: {result.best_under_odds.bookmaker} {result.best_under_odds.american_odds}")
     
     # Example edge calculation with AI prediction
     ai_prediction = 0.58  # AI model says 58% chance of OVER
-    edge = normalizer.calculate_edge(ai_prediction, result.best_over_odds.no_vig_probability)
-    print(f"Edge for OVER bet: {edge * 100:.1f}%")
+    if result.best_over_odds and result.best_over_odds.no_vig_probability:
+        edge = normalizer.calculate_edge(ai_prediction, result.best_over_odds.no_vig_probability)
+        print(f"Edge for OVER bet: {edge * 100:.1f}%")
     
     # Create PropFinder API response
     api_response = create_propfinder_odds_response(

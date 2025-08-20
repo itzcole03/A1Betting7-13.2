@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 
 from backend.core.response_models import ResponseBuilder, StandardAPIResponse
 from backend.core.exceptions import BusinessLogicException
+from backend.services.bookmark_service import BookmarkService, get_bookmark_service
 # Temporarily using simple service for Phase 4.1
 from backend.services.simple_propfinder_service import (
     get_simple_propfinder_service,
@@ -96,7 +97,22 @@ class OpportunityFilters(BaseModel):
     bookmarked_only: bool = False
     alert_triggered_only: bool = False
 
-def _convert_opportunity_to_response(opp: PropOpportunity) -> OpportunityResponse:
+class BookmarkRequest(BaseModel):
+    """Request model for bookmark operations"""
+    prop_id: str = Field(..., description="Prop opportunity ID")
+    sport: str = Field(..., max_length=20, description="Sport name")
+    player: str = Field(..., max_length=100, description="Player name")
+    market: str = Field(..., max_length=50, description="Betting market")
+    team: str = Field(..., max_length=50, description="Team name")
+    bookmarked: bool = Field(..., description="Bookmark status")
+
+class BookmarkResponse(BaseModel):
+    """Response model for bookmark operations"""
+    prop_id: str
+    bookmarked: bool
+    message: str
+
+def _convert_opportunity_to_response(opp: PropOpportunity, is_bookmarked: bool = False) -> OpportunityResponse:
     """Convert PropOpportunity to API response model"""
     return OpportunityResponse(
         id=opp.id,
@@ -142,7 +158,7 @@ def _convert_opportunity_to_response(opp: PropOpportunity) -> OpportunityRespons
             }
             for book in opp.bookmakers
         ],
-        isBookmarked=opp.isBookmarked,
+        isBookmarked=is_bookmarked,  # Use real bookmark status
         tags=opp.tags,
         socialSentiment=opp.socialSentiment,
         sharpMoney=opp.sharpMoney.value,
@@ -172,12 +188,16 @@ async def get_prop_opportunities(
     bookmarked_only: bool = Query(False, description="Show only bookmarked opportunities"),
     alert_triggered_only: bool = Query(False, description="Show only alert-triggered opportunities"),
     
+    # User context for bookmarks
+    user_id: Optional[str] = Query(None, description="User ID for bookmark status"),
+    
     # Pagination and sorting
     limit: int = Query(50, ge=1, le=200, description="Maximum number of opportunities"),
     search: Optional[str] = Query(None, description="Search by player, team, or market"),
     
-    # Service dependency
-    data_service: SimplePropFinderService = Depends(get_simple_propfinder_service)
+    # Service dependencies
+    data_service: SimplePropFinderService = Depends(get_simple_propfinder_service),
+    bookmark_service: BookmarkService = Depends(get_bookmark_service)
 ):
     """
     Get prop betting opportunities with real data integration
@@ -216,9 +236,18 @@ async def get_prop_opportunities(
             limit=limit
         )
         
+        # Get user bookmarks for real bookmark status
+        user_bookmarked_prop_ids = set()
+        if user_id:
+            try:
+                user_bookmarked_prop_ids = await bookmark_service.get_user_bookmarked_prop_ids(user_id)
+            except Exception as e:
+                logger.warning(f"Could not retrieve bookmarks for user {user_id}: {e}")
+        
         # Apply additional filters
-        if bookmarked_only:
-            opportunities = [opp for opp in opportunities if opp.isBookmarked]
+        if bookmarked_only and user_id:
+            # Filter to only bookmarked opportunities
+            opportunities = [opp for opp in opportunities if opp.id in user_bookmarked_prop_ids]
         
         if alert_triggered_only:
             opportunities = [opp for opp in opportunities if opp.alertTriggered]
@@ -246,10 +275,13 @@ async def get_prop_opportunities(
                     search_lower in opp.market.value.lower())
             ]
         
-        # Convert to response format
-        opportunity_responses = [
-            _convert_opportunity_to_response(opp) for opp in opportunities
-        ]
+        # Convert to response format with real bookmark status
+        opportunity_responses = []
+        for opp in opportunities:
+            is_bookmarked = opp.id in user_bookmarked_prop_ids if user_id else opp.isBookmarked
+            opportunity_responses.append(
+                _convert_opportunity_to_response(opp, is_bookmarked)
+            )
         
         # Calculate summary statistics
         total_opportunities = len(opportunity_responses)
@@ -295,7 +327,9 @@ async def get_prop_opportunities(
 @router.get("/opportunities/{opportunity_id}", response_model=StandardAPIResponse[OpportunityResponse])
 async def get_prop_opportunity(
     opportunity_id: str,
-    data_service: SimplePropFinderService = Depends(get_simple_propfinder_service)
+    user_id: Optional[str] = Query(None, description="User ID for bookmark status"),
+    data_service: SimplePropFinderService = Depends(get_simple_propfinder_service),
+    bookmark_service: BookmarkService = Depends(get_bookmark_service)
 ):
     """Get specific prop opportunity by ID"""
     try:
@@ -309,7 +343,15 @@ async def get_prop_opportunity(
         if not opportunity:
             raise BusinessLogicException(f"Opportunity not found: {opportunity_id}")
         
-        response_data = _convert_opportunity_to_response(opportunity)
+        # Check if user has bookmarked this prop
+        is_bookmarked = opportunity.isBookmarked  # Default to mock data
+        if user_id:
+            try:
+                is_bookmarked = await bookmark_service.is_prop_bookmarked(user_id, opportunity_id)
+            except Exception as e:
+                logger.warning(f"Could not check bookmark status for user {user_id}: {e}")
+        
+        response_data = _convert_opportunity_to_response(opportunity, is_bookmarked)
         
         return ResponseBuilder.success(response_data)
         
@@ -352,26 +394,97 @@ async def get_available_sports():
         logger.error(f"Error fetching sports: {e}")
         raise BusinessLogicException("Failed to fetch sports")
 
-@router.post("/opportunities/{opportunity_id}/bookmark", response_model=StandardAPIResponse[Dict[str, Any]])
+@router.post("/bookmark", response_model=StandardAPIResponse[BookmarkResponse])
 async def bookmark_opportunity(
-    opportunity_id: str,
-    bookmarked: bool = Query(True, description="Bookmark status"),
-    data_service: SimplePropFinderService = Depends(get_simple_propfinder_service)
+    request: BookmarkRequest,
+    user_id: str = Query(..., description="User ID for bookmark operation"),
+    bookmark_service: BookmarkService = Depends(get_bookmark_service)
 ):
-    """Bookmark or unbookmark a prop opportunity"""
+    """Bookmark or unbookmark a prop opportunity with real persistence"""
     try:
-        # In a real implementation, this would update the database
-        # For now, we'll just return success
+        if request.bookmarked:
+            # Add bookmark
+            success = await bookmark_service.bookmark_prop(
+                user_id=user_id,
+                prop_id=request.prop_id,
+                sport=request.sport,
+                player=request.player,
+                market=request.market,
+                team=request.team
+            )
+            
+            if success:
+                message = "Opportunity bookmarked successfully"
+                logger.info(f"User {user_id} bookmarked prop {request.prop_id}")
+            else:
+                message = "Opportunity was already bookmarked"
+                logger.info(f"Prop {request.prop_id} already bookmarked by user {user_id}")
+        else:
+            # Remove bookmark
+            success = await bookmark_service.unbookmark_prop(
+                user_id=user_id,
+                prop_id=request.prop_id
+            )
+            
+            if success:
+                message = "Bookmark removed successfully"
+                logger.info(f"User {user_id} unbookmarked prop {request.prop_id}")
+            else:
+                message = "Bookmark was not found"
+                logger.info(f"No bookmark found for prop {request.prop_id} and user {user_id}")
         
-        return ResponseBuilder.success({
-            "opportunity_id": opportunity_id,
-            "bookmarked": bookmarked,
-            "message": f"Opportunity {'bookmarked' if bookmarked else 'unbookmarked'} successfully"
-        })
+        response_data = BookmarkResponse(
+            prop_id=request.prop_id,
+            bookmarked=request.bookmarked,
+            message=message
+        )
         
+        return ResponseBuilder.success(response_data)
+        
+    except ValueError as e:
+        logger.warning(f"Invalid bookmark request: {e}")
+        raise BusinessLogicException(str(e))
     except Exception as e:
-        logger.error(f"Error bookmarking opportunity {opportunity_id}: {e}")
-        raise BusinessLogicException("Failed to bookmark opportunity")
+        logger.error(f"Error processing bookmark for prop {request.prop_id}: {e}")
+        raise BusinessLogicException("Failed to process bookmark")
+
+@router.get("/bookmarks", response_model=StandardAPIResponse[List[Dict[str, Any]]])
+async def get_user_bookmarks(
+    user_id: str = Query(..., description="User ID"),
+    sport: Optional[str] = Query(None, description="Filter by sport"),
+    limit: int = Query(100, ge=1, le=200, description="Maximum number of bookmarks"),
+    bookmark_service: BookmarkService = Depends(get_bookmark_service)
+):
+    """Get user's bookmarked prop opportunities"""
+    try:
+        bookmarks = await bookmark_service.get_user_bookmarks(
+            user_id=user_id,
+            sport=sport,
+            limit=limit
+        )
+        
+        # Convert to response format
+        bookmark_responses = []
+        for bookmark in bookmarks:
+            bookmark_responses.append({
+                "id": bookmark.id,
+                "prop_id": bookmark.prop_id,
+                "sport": bookmark.sport,
+                "player": bookmark.player,
+                "market": bookmark.market,
+                "team": bookmark.team,
+                "created_at": bookmark.created_at.isoformat() if bookmark.created_at else None
+            })
+        
+        logger.info(f"Retrieved {len(bookmark_responses)} bookmarks for user {user_id}")
+        return ResponseBuilder.success(bookmark_responses)
+        
+    except ValueError as e:
+        logger.warning(f"Invalid bookmark request for user {user_id}: {e}")
+        raise BusinessLogicException(str(e))
+    except Exception as e:
+        logger.error(f"Error retrieving bookmarks for user {user_id}: {e}")
+        raise BusinessLogicException("Failed to retrieve bookmarks")
 
 @router.get("/stats", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_propfinder_stats(

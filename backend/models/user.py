@@ -1,4 +1,5 @@
 from sqlalchemy import JSON, Column, DateTime, Float, Integer, String
+from sqlalchemy.orm import relationship
 
 from backend.models.base import Base
 
@@ -25,6 +26,9 @@ class UserORM(Base):
     bookmakers = Column(JSON, default=list)
     settings = Column(JSON, default=dict)
     last_login = Column(DateTime(timezone=True), nullable=True)
+    
+    # Phase 4.2: Bookmark relationship
+    bookmarks = relationship("BookmarkORM", back_populates="user", cascade="all, delete-orphan")
 
 
 from datetime import datetime, timezone

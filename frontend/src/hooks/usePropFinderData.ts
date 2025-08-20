@@ -114,6 +114,7 @@ export interface UsePropFinderDataOptions {
   refreshInterval?: number; // in seconds
   initialFilters?: FilterOptions;
   limit?: number;
+  userId?: string; // Phase 4.2: User context for bookmarks
 }
 
 export interface UsePropFinderDataReturn {
@@ -134,12 +135,16 @@ export interface UsePropFinderDataReturn {
   refreshData: () => Promise<void>;
   updateFilters: (newFilters: Partial<FilterOptions>) => void;
   setSearchQuery: (query: string) => void;
-  bookmarkOpportunity: (opportunityId: string, bookmarked: boolean) => Promise<void>;
+  bookmarkOpportunity: (opportunityId: string, opportunity: PropOpportunity, bookmarked: boolean) => Promise<void>;
   getOpportunityById: (opportunityId: string) => Promise<PropOpportunity | null>;
+  getUserBookmarks: () => Promise<PropOpportunity[]>;
   
   // Auto-refresh control
   toggleAutoRefresh: () => void;
   isAutoRefreshEnabled: boolean;
+  
+  // Phase 4.2: User context
+  userId?: string;
 }
 
 const DEFAULT_REFRESH_INTERVAL = 30; // 30 seconds
@@ -150,7 +155,8 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
     autoRefresh = false,
     refreshInterval = DEFAULT_REFRESH_INTERVAL,
     initialFilters = {},
-    limit = 50
+    limit = 50,
+    userId
   } = options;
 
   // State management
@@ -166,6 +172,11 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
   // Build query parameters for API calls
   const buildQueryParams = useCallback((currentFilters: FilterOptions, currentSearch: string) => {
     const params = new URLSearchParams();
+    
+    // Phase 4.2: Add user context for bookmark status
+    if (userId) {
+      params.set('user_id', userId);
+    }
     
     if (currentFilters.sports?.length) {
       params.set('sports', currentFilters.sports.join(','));
@@ -204,7 +215,7 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
     params.set('limit', limit.toString());
     
     return params.toString();
-  }, [limit]);
+  }, [limit, userId]);
 
   // Fetch opportunities from API
   const fetchOpportunities = useCallback(async (currentFilters: FilterOptions, currentSearch: string, isRefresh = false) => {
@@ -292,15 +303,38 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
     setFilters(prev => ({ ...prev, ...newFilters }));
   }, []);
 
-  // Bookmark opportunity
-  const bookmarkOpportunity = useCallback(async (opportunityId: string, bookmarked: boolean) => {
+  // Bookmark opportunity with Phase 4.2 persistence
+  const bookmarkOpportunity = useCallback(async (opportunityId: string, opportunity: PropOpportunity, bookmarked: boolean) => {
+    if (!userId) {
+      throw new Error('User ID required for bookmark operations');
+    }
+    
     try {
-      const response = await fetch(`${API_BASE}/opportunities/${opportunityId}/bookmark?bookmarked=${bookmarked}`, {
-        method: 'POST'
+      const requestBody = {
+        prop_id: opportunityId,
+        sport: opportunity.sport,
+        player: opportunity.player,
+        market: opportunity.market,
+        team: opportunity.team,
+        bookmarked
+      };
+      
+      const response = await fetch(`${API_BASE}/bookmark?user_id=${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
       });
       
       if (!response.ok) {
         throw new Error(`Failed to bookmark opportunity: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error?.message || 'Failed to bookmark opportunity');
       }
       
       // Update local state
@@ -318,12 +352,20 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
       }
       throw err;
     }
-  }, []);
+  }, [userId]);
 
   // Get specific opportunity by ID
   const getOpportunityById = useCallback(async (opportunityId: string): Promise<PropOpportunity | null> => {
     try {
-      const response = await fetch(`${API_BASE}/opportunities/${opportunityId}`);
+      const params = new URLSearchParams();
+      if (userId) {
+        params.set('user_id', userId);
+      }
+      
+      const queryString = params.toString();
+      const url = `${API_BASE}/opportunities/${opportunityId}${queryString ? `?${queryString}` : ''}`;
+      
+      const response = await fetch(url);
       
       if (!response.ok) {
         if (response.status === 404) return null;
@@ -344,7 +386,38 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
       }
       return null;
     }
-  }, []);
+  }, [userId]);
+
+  // Get user bookmarks (Phase 4.2)
+  const getUserBookmarks = useCallback(async (): Promise<PropOpportunity[]> => {
+    if (!userId) {
+      return [];
+    }
+    
+    try {
+      const response = await fetch(`${API_BASE}/bookmarks?user_id=${userId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch bookmarks: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Note: This returns bookmark metadata, not full opportunities
+        // You might want to fetch full opportunity data for each bookmark
+        return data.data;
+      } else {
+        throw new Error(data.error?.message || 'Failed to fetch bookmarks');
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.error('Error fetching user bookmarks:', err);
+      }
+      return [];
+    }
+  }, [userId]);
 
   // Toggle auto-refresh
   const toggleAutoRefresh = useCallback(() => {
@@ -398,10 +471,14 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
     setSearchQuery,
     bookmarkOpportunity,
     getOpportunityById,
+    getUserBookmarks,
     
     // Auto-refresh control
     toggleAutoRefresh,
-    isAutoRefreshEnabled
+    isAutoRefreshEnabled,
+    
+    // Phase 4.2: User context
+    userId
   };
 };
 
