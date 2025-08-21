@@ -29,11 +29,12 @@ export class UnifiedNotificationService extends BaseService {
   private readonly defaultDuration: number = 5000;
   private readonly maxNotifications: number = 100;
 
-  constructor(registry: UnifiedServiceRegistry) {
-    super('notification', registry);
+  constructor(registry: unknown) {
+    const typedRegistry = registry as UnifiedServiceRegistry;
+    super('notification', typedRegistry);
     // Retrieve real services from the registry
-    const errorService = registry.get<UnifiedErrorService>('errors');
-    const stateService = registry.get<UnifiedStateService>('state');
+    const errorService = typedRegistry.get<UnifiedErrorService>('errors');
+    const stateService = typedRegistry.get<UnifiedStateService>('state');
     if (!errorService || !stateService) {
       throw new Error('Required services not found in registry');
     }

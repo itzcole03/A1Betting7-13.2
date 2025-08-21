@@ -27,7 +27,7 @@ from sqlalchemy import text
 from backend.models.odds import OddsSnapshot
 
 
-def run_backfill(database_url: str | None = None):
+def run_backfill(database_url: str | None = None, dry_run: bool = False):
     # Use provided database_url for isolated runs (tests) or default project's sync_engine
     engine = None
     if database_url:
@@ -115,7 +115,10 @@ def run_backfill(database_url: str | None = None):
                     under_name = INITIAL_BOOKMAKERS[0]['display_name']
 
                 if over_name or under_name:
-                    conn2.execute(text("UPDATE best_line_aggregates SET best_over_bookmaker_name = :o, best_under_bookmaker_name = :u WHERE id = :id"), {"o": over_name, "u": under_name, "id": agg_id})
+                    if dry_run:
+                        print(f"DRY-RUN: would update id={agg_id} -> over={over_name}, under={under_name}")
+                    else:
+                        conn2.execute(text("UPDATE best_line_aggregates SET best_over_bookmaker_name = :o, best_under_bookmaker_name = :u WHERE id = :id"), {"o": over_name, "u": under_name, "id": agg_id})
                     updated += 1
 
             print(f"Updated {updated} rows")
@@ -208,10 +211,14 @@ def run_backfill(database_url: str | None = None):
 
             if changed:
                 updated += 1
-                session.add(agg)
+                if dry_run:
+                    print(f"DRY-RUN: would update agg.id={agg.id} prop_id={agg.prop_id} -> over={getattr(agg,'best_over_bookmaker_name',None)} under={getattr(agg,'best_under_bookmaker_name',None)}")
+                else:
+                    session.add(agg)
 
-        session.commit()
-        print(f"Updated {updated} rows")
+        if not dry_run:
+            session.commit()
+        print(f"Updated {updated} rows (dry_run={dry_run})")
 
 
 if __name__ == '__main__':

@@ -435,7 +435,8 @@ const PropCharts: React.FC<{ library: string; options: any }> = ({ library, opti
               { name: 'Low', value: 20, fill: '#7c3aed' }
             ]}
           >
-            <RadialBar minAngle={15} label={{ position: 'insideStart', fill: '#fff' }} dataKey="value" />
+            {/* Cast props to any to work around Recharts typing differences */}
+            <RadialBar {...({ minAngle: 15, label: { position: 'insideStart', fill: '#fff' }, dataKey: 'value' } as any)} />
             <RechartsTooltip />
           </RadialBarChart>
         </ResponsiveContainer>

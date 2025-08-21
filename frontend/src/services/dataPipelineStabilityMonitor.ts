@@ -1,4 +1,5 @@
 import { UnifiedDataService } from './unified/UnifiedDataService';
+import { enhancedLogger } from '../utils/enhancedLogger';
 
 interface ServiceHealthMetrics {
   serviceName: string;
@@ -48,12 +49,12 @@ class DataPipelineStabilityMonitor {
 
   async startMonitoring(intervalMs: number = 60000): Promise<void> {
     if (this.isMonitoring) {
-      console.warn('Data pipeline monitoring is already running');
+      enhancedLogger.warn('DataPipelineStabilityMonitor', 'startMonitoring', 'Data pipeline monitoring is already running');
       return;
     }
 
     this.isMonitoring = true;
-    console.log('Starting data pipeline stability monitoring...');
+    enhancedLogger.info('DataPipelineStabilityMonitor', 'startMonitoring', 'Starting data pipeline stability monitoring...');
 
     // Initial health check
     await this.performHealthChecks();
@@ -63,7 +64,7 @@ class DataPipelineStabilityMonitor {
       try {
         await this.performHealthChecks();
       } catch (error) {
-        console.error('Error during health check:', error);
+        enhancedLogger.error('DataPipelineStabilityMonitor', 'monitorInterval', 'Error during health check', undefined, error as unknown as Error);
       }
     }, intervalMs);
   }
@@ -73,8 +74,8 @@ class DataPipelineStabilityMonitor {
       clearInterval(this.monitoringInterval);
       this.monitoringInterval = null;
     }
-    this.isMonitoring = false;
-    console.log('Data pipeline monitoring stopped');
+  this.isMonitoring = false;
+  enhancedLogger.info('DataPipelineStabilityMonitor', 'stopMonitoring', 'Data pipeline monitoring stopped');
   }
 
   private async performHealthChecks(): Promise<void> {
@@ -90,7 +91,7 @@ class DataPipelineStabilityMonitor {
     this.analyzeAndAlert();
   }
 
-  private async checkServiceHealth(serviceName: string, service: any): Promise<void> {
+  private async checkServiceHealth(serviceName: string, service: unknown): Promise<void> {
     const startTime = Date.now();
     let result: HealthCheckResult;
 
@@ -112,7 +113,7 @@ class DataPipelineStabilityMonitor {
     this.updateMetrics(serviceName, result);
   }
 
-  private async healthCheckUnifiedDataService(service: any): Promise<HealthCheckResult> {
+  private async healthCheckUnifiedDataService(service: unknown): Promise<HealthCheckResult> {
     const startTime = Date.now();
     try {
       // Test basic functionality that was fixed in the constructor
@@ -120,10 +121,16 @@ class DataPipelineStabilityMonitor {
       const testData = { test: true, timestamp: Date.now() };
       
       // Test cache operations (this validates the constructor fix)
-      await service.cacheData(testCacheKey, testData, 1000);
-      const cachedData = await service.getCachedData(testCacheKey);
+      const svc = service as { cacheData?: (k: string, v: unknown, ttl?: number) => Promise<void>; getCachedData?: (k: string) => Promise<unknown> };
+      if (typeof svc.cacheData !== 'function' || typeof svc.getCachedData !== 'function') {
+        throw new Error('UnifiedDataService does not expose required cache methods');
+      }
+
+      await svc.cacheData(testCacheKey, testData, 1000);
+      const cachedData = await svc.getCachedData(testCacheKey);
       
-      if (!cachedData || cachedData.test !== true) {
+      const cachedObj = cachedData as Record<string, unknown> | undefined;
+      if (!cachedObj || cachedObj['test'] !== true) {
         throw new Error('Cache operations failed');
       }
 
@@ -203,17 +210,17 @@ class DataPipelineStabilityMonitor {
     });
 
     if (unhealthyServices.length > 0) {
-      console.error('🚨 CRITICAL: Unhealthy services detected:', unhealthyServices);
+      enhancedLogger.error('DataPipelineStabilityMonitor', 'analyzeAndAlert', `🚨 CRITICAL: Unhealthy services detected: ${unhealthyServices.join(', ')}`);
       this.sendAlert('critical', `Unhealthy services: ${unhealthyServices.join(', ')}`);
     }
 
     if (degradedServices.length > 0) {
-      console.warn('⚠️ WARNING: Degraded services detected:', degradedServices);
+      enhancedLogger.warn('DataPipelineStabilityMonitor', 'analyzeAndAlert', `⚠️ WARNING: Degraded services detected: ${degradedServices.join(', ')}`);
       this.sendAlert('warning', `Degraded services: ${degradedServices.join(', ')}`);
     }
 
     if (unhealthyServices.length === 0 && degradedServices.length === 0) {
-      console.log('✅ All data pipeline services are healthy');
+      enhancedLogger.info('DataPipelineStabilityMonitor', 'analyzeAndAlert', '✅ All data pipeline services are healthy');
     }
   }
 
@@ -223,9 +230,9 @@ class DataPipelineStabilityMonitor {
     const alertMessage = `[${level.toUpperCase()}] ${timestamp}: ${message}`;
     
     if (level === 'critical') {
-      console.error(alertMessage);
+      enhancedLogger.error('DataPipelineStabilityMonitor', 'sendAlert', alertMessage);
     } else {
-      console.warn(alertMessage);
+      enhancedLogger.warn('DataPipelineStabilityMonitor', 'sendAlert', alertMessage);
     }
 
     // Store alert for dashboard display
@@ -275,7 +282,7 @@ class DataPipelineStabilityMonitor {
       
       // Test that the service was properly initialized with the registry
       if (!service) {
-        console.error('UnifiedDataService instance not available');
+        enhancedLogger.error('DataPipelineStabilityMonitor', 'validateUnifiedDataServiceFix', 'UnifiedDataService instance not available');
         return false;
       }
 
@@ -286,15 +293,15 @@ class DataPipelineStabilityMonitor {
       await service.cacheData(testKey, testData, 5000);
       const retrieved = await service.getCachedData(testKey);
       
-      if (!retrieved || retrieved.validated !== true) {
-        console.error('UnifiedDataService cache operations failed - constructor fix may not be working');
+    if (!retrieved || (retrieved as unknown as Record<string, unknown>)['validated'] !== true) {
+        enhancedLogger.error('DataPipelineStabilityMonitor', 'validateUnifiedDataServiceFix', 'UnifiedDataService cache operations failed - constructor fix may not be working');
         return false;
       }
 
-      console.log('✅ UnifiedDataService constructor fix validated successfully');
+      enhancedLogger.info('DataPipelineStabilityMonitor', 'validateUnifiedDataServiceFix', '✅ UnifiedDataService constructor fix validated successfully');
       return true;
     } catch (error) {
-      console.error('❌ UnifiedDataService constructor fix validation failed:', error);
+      enhancedLogger.error('DataPipelineStabilityMonitor', 'validateUnifiedDataServiceFix', '❌ UnifiedDataService constructor fix validation failed', undefined, error as unknown as Error);
       return false;
     }
   }

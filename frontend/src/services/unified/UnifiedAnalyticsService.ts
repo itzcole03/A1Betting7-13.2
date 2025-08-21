@@ -31,7 +31,7 @@ export class UnifiedAnalyticsService extends BaseService {
   private predictionService: UnifiedPredictionService;
   private errorService: UnifiedErrorService;
 
-  static getInstance(registry?: UnifiedServiceRegistry): UnifiedAnalyticsService {
+  static getInstance(registry?: unknown): UnifiedAnalyticsService {
     if (!UnifiedAnalyticsService.instance) {
       if (!registry) throw new Error('Registry required for first instantiation');
       UnifiedAnalyticsService.instance = new UnifiedAnalyticsService(registry);
@@ -40,12 +40,13 @@ export class UnifiedAnalyticsService extends BaseService {
     return UnifiedAnalyticsService.instance;
   }
 
-  constructor(registry: UnifiedServiceRegistry) {
-    super('analytics', registry);
-    this.stateService = registry.get('state')!;
-    this.bettingService = registry.get('betting')!;
-    this.predictionService = registry.get('predictions')!;
-    this.errorService = registry.get('errors')!;
+  constructor(registry: unknown) {
+    const typedRegistry = registry as UnifiedServiceRegistry;
+    super('analytics', typedRegistry);
+    this.stateService = typedRegistry.get('state')!;
+    this.bettingService = typedRegistry.get('betting')!;
+    this.predictionService = typedRegistry.get('predictions')!;
+    this.errorService = typedRegistry.get('errors')!;
   }
 
   // Renamed to avoid duplicate member error;

@@ -8,6 +8,7 @@ import {
   Target,
 } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
+import { enhancedLogger } from '../../../utils/enhancedLogger';
 import {
   Bar,
   BarChart,
@@ -118,7 +119,7 @@ const ArbitrageOpportunities: React.FC = () => {
     setError(null);
 
     try {
-      console.log('[ArbitrageOpportunities] Fetching real arbitrage data...');
+  enhancedLogger.info('ArbitrageOpportunities', 'loadArbitrageData', 'Fetching real arbitrage data...');
 
       // Try to fetch real arbitrage opportunities
       const response = await fetch('/v1/odds/arbitrage?sport=baseball_mlb&min_profit=0.5', {
@@ -126,8 +127,8 @@ const ArbitrageOpportunities: React.FC = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log('[ArbitrageOpportunities] API Response:', data);
+  const data = await response.json();
+  enhancedLogger.debug('ArbitrageOpportunities', 'loadArbitrageData', 'API response', { data });
 
         if (data.opportunities && Array.isArray(data.opportunities)) {
           // Transform API response to match our interface
@@ -215,9 +216,7 @@ const ArbitrageOpportunities: React.FC = () => {
           ];
 
           setHistoricalData(mockHistoricalData);
-          console.log(
-            `[ArbitrageOpportunities] Loaded ${transformedOpportunities.length} real opportunities`
-          );
+          enhancedLogger.info('ArbitrageOpportunities', 'loadArbitrageData', `Loaded ${transformedOpportunities.length} real opportunities`, { count: transformedOpportunities.length });
         } else {
           throw new Error('Invalid response format from arbitrage API');
         }
@@ -225,7 +224,7 @@ const ArbitrageOpportunities: React.FC = () => {
         throw new Error(`API returned ${response.status}: ${response.statusText}`);
       }
     } catch (err) {
-      console.warn('[ArbitrageOpportunities] Failed to load real data, using demo mode:', err);
+  enhancedLogger.warn('ArbitrageOpportunities', 'loadArbitrageData', 'Failed to load real data, using demo mode', undefined, err as Error);
       setError(
         `Failed to load arbitrage data: ${err instanceof Error ? err.message : String(err)}`
       );
@@ -335,10 +334,10 @@ const ArbitrageOpportunities: React.FC = () => {
         },
       ];
 
-      setOpportunities(mockOpportunities);
-      setSummary(mockSummary);
-      setHistoricalData(mockHistoricalData);
-      console.log('[ArbitrageOpportunities] Using demo mode (backend unavailable)');
+  setOpportunities(mockOpportunities);
+  setSummary(mockSummary);
+  setHistoricalData(mockHistoricalData);
+  enhancedLogger.info('ArbitrageOpportunities', 'loadArbitrageData', 'Using demo mode (backend unavailable)', { demoCount: mockOpportunities.length });
     } finally {
       setLoading(false);
     }
@@ -532,16 +531,16 @@ const ArbitrageOpportunities: React.FC = () => {
           >
             <Calculator className='mr-2 h-4 w-4' />
             Calculator
-            <button
-              data-testid={`arbitrage-opportunity-btn-${opportunity.id}`}
-              className='bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm flex items-center space-x-2'
-              onClick={() => executeArbitrage(opportunity)}
-              disabled={opportunity.status !== 'active'}
-            >
-              <Target className='w-4 h-4' />
-              <span>Execute Arbitrage</span>
-            </button>
-            Refresh
+              <button
+                data-testid={`arbitrage-opportunity-btn-${selectedOpportunity?.id ?? 'none'}`}
+                className='bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm flex items-center space-x-2'
+                onClick={() => selectedOpportunity && handleExecuteArbitrage(selectedOpportunity)}
+                disabled={!selectedOpportunity || selectedOpportunity.status !== 'active'}
+              >
+                <Target className='w-4 h-4' />
+                <span>Execute Selected</span>
+              </button>
+              Refresh
           </button>
 
           <div className='flex items-center'>

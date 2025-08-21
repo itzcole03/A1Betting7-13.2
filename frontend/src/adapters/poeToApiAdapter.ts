@@ -1,4 +1,5 @@
 import { UnifiedMonitor } from '@/core/UnifiedMonitor';
+import { enhancedLogger } from '../utils/enhancedLogger';
 import {
   PoeApiResponse,
   PoeDataBlock,
@@ -69,7 +70,7 @@ export class PoeToApiAdapter {
       this.unifiedMonitor.endTrace(trace);
       return transformedProps;
     } catch (error) {
-      console.error('PoeToApiAdapter transformation failed:', error);
+  enhancedLogger.error('PoeToApiAdapter', 'transformPoeDataToPrizePicksProps', 'PoeToApiAdapter transformation failed', undefined, error as unknown as Error);
       this.unifiedMonitor.endTrace(trace);
       throw error;
     }
@@ -136,7 +137,7 @@ export class PoeToApiAdapter {
       this.unifiedMonitor.endTrace(trace);
       return result;
     } catch (error) {
-      // console.error('Error fetching real API data:', error);
+  enhancedLogger.error('PoeToApiAdapter', 'fetchAndTransformPoeData', 'Error fetching real API data', undefined, error as unknown as Error);
       // Fallback to empty array instead of mock data
       return [];
     }

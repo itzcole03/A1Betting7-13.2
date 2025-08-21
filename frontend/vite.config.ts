@@ -59,6 +59,8 @@ export default defineConfig(({ mode, command }) => {
         '@': path.resolve(__dirname, './src'),
         src: path.resolve(__dirname, './src'),
       },
+  // Explicitly list extensions to resolve and prefer ts/tsx for modern toolchains
+  extensions: ['.mjs', '.js', '.ts', '.tsx', '.jsx', '.json'],
     },
 
     define: {
@@ -79,6 +81,10 @@ export default defineConfig(({ mode, command }) => {
         host: 'localhost',
       },
       strictPort: false,
+      // Allow serving files from the workspace root (helps Windows setups)
+      fs: {
+        allow: [path.resolve(__dirname)],
+      },
       watch: {
         // Ignore scanner-report files to prevent excessive reloads
         ignored: [

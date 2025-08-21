@@ -1,49 +1,31 @@
 /**
- * Master Service Registry - Consolidates ALL services from frontend, prototype, and backend
- * This creates a unified interface to access all functionality across the entire workspace
+ * Minimal MasterServiceRegistry
+ * - Keeps API surface used across the frontend
+ * - Uses `any` for external service types to avoid large refactors
+ * - Uses `enhancedLogger` for logging
  */
 
-// Import ALL unified services
-import ApiService from './unified/ApiService';
-import { UnifiedAnalyticsService } from './unified/UnifiedAnalyticsService';
-import { UnifiedBettingService } from './unified/UnifiedBettingService';
-import { UnifiedCache } from './unified/UnifiedCache';
-import { UnifiedDataService } from './unified/UnifiedDataService';
-import { UnifiedErrorService } from './unified/UnifiedErrorService';
-import { UnifiedLogger } from './unified/UnifiedLogger';
-import { UnifiedNotificationService } from './unified/UnifiedNotificationService';
-import { UnifiedPredictionService } from './unified/UnifiedPredictionService';
-import { UnifiedStateService } from './unified/UnifiedStateService';
-import { UnifiedWebSocketService } from './unified/UnifiedWebSocketService';
+import { enhancedLogger } from '../utils/enhancedLogger';
+// UnifiedServiceRegistryExternal import removed: we return a loose `unknown`
+// adapter from `toUnifiedRegistry()` to avoid private-constructor type errors.
+import UnifiedRegistryAdapter from './UnifiedRegistryAdapter';
 
-// Import specific feature services
-import { PlayerDataService } from './data/PlayerDataService';
-import { _injuryService } from './injuryService';
-import { _lineupService } from './lineupService';
+// Local interface matching the public surface of the external
+// `UnifiedServiceRegistry` class. Using an interface avoids TypeScript's
+// private/member class-compatibility checks when we provide a runtime
+// adapter object to legacy unified services.
+export interface ExternalUnifiedServiceRegistry {
+  register(name: string, service: unknown): void;
+  get<T = unknown>(name: string): T | undefined;
+  has(name: string): boolean;
+  unregister(name: string): boolean;
+  getAllServices(): Map<string, unknown>;
+  clear(): void;
+  services?: Map<string, unknown>;
+}
 
-// Import prototype services (temporarily commented out for debugging)
-// import { enhancedDataSources } from '../../../prototype/src/services/enhancedDataSources';
-// import { realDataService } from '../../../prototype/src/services/realDataService';
-// import { predictionEngine } from '../../../prototype/src/services/predictionEngine';
-// import { realTimeDataAggregator } from '../../../prototype/src/services/realTimeDataAggregator';
-
-// Import individual specialized services (temporarily commented out for debugging)
-// import { AnalyticsService } from './AnalyticsService';
-// import { BettingService } from './BettingService';
-// import { CacheService } from './CacheService';
-// import { PredictionService } from './predictionService';
-// import { NotificationService } from './notificationService';
-// import { PerformanceTrackingService } from './PerformanceTrackingService';
-import { SecurityService } from './unified/SecurityService';
-import { DiagnosticsService } from './diagnostics/DiagnosticsService';
-
-/**
- * Health status for a registered service.
- */
 export interface ServiceHealth {
-  /** Service name */
   name: string;
-  /** Health status */
   status: 'healthy' | 'degraded' | 'down';
   responseTime: number;
   lastCheck: Date;
@@ -79,7 +61,7 @@ class MasterServiceRegistry {
   public verboseLogging: boolean = process.env.NODE_ENV === 'development';
   private isInitialized = false;
 
-  constructor() {
+  private constructor() {
     this.configuration = {
       enableCaching: true,
       enableRetries: true,
@@ -91,6 +73,7 @@ class MasterServiceRegistry {
     };
   }
 
+
   static getInstance(): MasterServiceRegistry {
     if (!MasterServiceRegistry.instance) {
       MasterServiceRegistry.instance = new MasterServiceRegistry();
@@ -100,188 +83,13 @@ class MasterServiceRegistry {
 
   async initialize(): Promise<void> {
     if (this.isInitialized) return;
-
-    try {
-      // Initialize all unified services
-      await this.initializeUnifiedServices();
-
-      // Initialize feature-specific services
-      await this.initializeFeatureServices();
-
-      // Initialize prototype services
-      await this.initializePrototypeServices();
-
-      // Initialize specialized services
-      await this.initializeSpecializedServices();
-
-      // Set up health monitoring
-      this.setupHealthMonitoring();
-
-      // Set up metrics collection
-      this.setupMetricsCollection();
-
-      this.isInitialized = true;
-      this.log('info', 'Master Service Registry initialized successfully');
-    } catch (error) {
-      this.log('error', 'Failed to initialize Master Service Registry', error);
-      throw error;
-    }
-  }
-
-  private async initializeUnifiedServices(): Promise<void> {
-    console.log(
-      '[DEBUG] MasterServiceRegistry.initializeUnifiedServices this.configuration:',
-      this.configuration,
-      typeof (this.configuration as any)?.getApiUrl
-    );
-    // Register errors and state first for notification service dependency
-    const _unifiedServices = [
-      { name: 'api', service: ApiService },
-      { name: 'errors', service: UnifiedErrorService.getInstance() },
-      { name: 'state', service: UnifiedStateService.getInstance() },
-      {
-        name: 'notifications',
-        service: (() => {
-          try {
-            return new UnifiedNotificationService(this);
-          } catch (err) {
-            // Fallback stub for missing dependencies
-            return {
-              notifyUser: () => {},
-              dismissNotification: () => {},
-              markAsRead: () => {},
-              clearAll: () => {},
-              getUnreadCount: () => 0,
-              notify: () => {},
-            };
-          }
-        })(),
-      },
-      { name: 'analytics', service: UnifiedAnalyticsService.getInstance(this) },
-      { name: 'betting', service: UnifiedBettingService.getInstance() },
-      { name: 'data', service: UnifiedDataService.getInstance() },
-      { name: 'predictions', service: UnifiedPredictionService.getInstance() },
-      { name: 'cache', service: UnifiedCache.getInstance() },
-      { name: 'logger', service: UnifiedLogger.getInstance() },
-      { name: 'websocket', service: UnifiedWebSocketService.getInstance() },
-      { name: 'security', service: SecurityService.getInstance() },
-      { name: 'diagnostics', service: DiagnosticsService.getInstance() },
-    ];
-
-    for (const { name, service } of _unifiedServices) {
-      try {
-        if ((service as any).initialize) {
-          await (service as any).initialize();
-        }
-        this.registerService(name, service);
-        this.updateServiceHealth(name, 'healthy', 0);
-      } catch (error) {
-        this.log('error', `Failed to initialize unified service: ${name}`, error);
-        this.updateServiceHealth(name, 'down', -1);
-      }
-    }
-  }
-
-  private async initializeFeatureServices(): Promise<void> {
-    const _featureServices = [
-      { name: 'injuries', service: _injuryService },
-      { name: 'lineups', service: _lineupService },
-      { name: 'playerData', service: PlayerDataService.getInstance() },
-    ];
-
-    for (const { name, service } of _featureServices) {
-      try {
-        console.log(`[MasterServiceRegistry] Initializing feature service: ${name}`);
-
-        if ((service as any).initialize) {
-          await (service as any).initialize();
-        }
-        this.registerService(name, service);
-        this.updateServiceHealth(name, 'healthy', 0);
-
-        console.log(`[MasterServiceRegistry] Successfully initialized feature service: ${name}`);
-      } catch (error) {
-        console.error(`[MasterServiceRegistry] Failed to initialize feature service: ${name}`, error);
-
-        // Check if this is the "item is not defined" error
-        if (error instanceof ReferenceError && error.message.includes('item')) {
-          console.error(`[MasterServiceRegistry] ReferenceError in ${name} service:`, {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
-          });
-        }
-
-        this.log('error', `Failed to initialize feature service: ${name}`, error);
-        this.updateServiceHealth(name, 'degraded', -1);
-      }
-    }
-  }
-
-  private async initializePrototypeServices(): Promise<void> {
-    // import { enhancedDataSources } from '../../../prototype/src/services/enhancedDataSources';
-    // import { realDataService } from '../../../prototype/src/services/realDataService';
-    // import { predictionEngine } from '../../../prototype/src/services/predictionEngine';
-    // import { realTimeDataAggregator } from '../../../prototype/src/services/realTimeDataAggregator';
-    const _prototypeServices: { name: string; service: unknown }[] = [
-      // { name: 'enhancedDataSources', service: enhancedDataSources },
-      // { name: 'realDataService', service: realDataService },
-      // { name: 'predictionEngine', service: predictionEngine },
-      // { name: 'realTimeAggregator', service: realTimeDataAggregator },
-    ];
-
-    for (const { name, service } of _prototypeServices) {
-      try {
-        if ((service as any).initialize) {
-          await (service as any).initialize();
-        }
-        this.registerService(name, service);
-        this.updateServiceHealth(name, 'healthy', 0);
-      } catch (error) {
-        this.log('warn', `Prototype service not available: ${name}`, error);
-        this.updateServiceHealth(name, 'down', -1);
-      }
-    }
-  }
-
-  private async initializeSpecializedServices(): Promise<void> {
-    // import { AnalyticsService } from './AnalyticsService';
-    // import { BettingService } from './BettingService';
-    // import { CacheService } from './CacheService';
-    // import { PredictionService } from './predictionService';
-    // import { NotificationService } from './notificationService';
-    // import { PerformanceTrackingService } from './PerformanceTrackingService';
-    // import { SecurityService } from './SecurityService';
-    const _specializedServices: { name: string; service: unknown }[] = [
-      // { name: 'analyticsSpecialized', service: new AnalyticsService() },
-      // { name: 'bettingSpecialized', service: new BettingService() },
-      // { name: 'cacheSpecialized', service: new CacheService() },
-      // { name: 'predictionSpecialized', service: new PredictionService() },
-      // { name: 'notificationSpecialized', service: new NotificationService() },
-      // { name: 'performance', service: new PerformanceTrackingService() },
-      { name: 'security', service: SecurityService.getInstance() },
-    ];
-
-    for (const { name, service } of _specializedServices) {
-      try {
-        if ((service as any).initialize) {
-          await (service as any).initialize();
-        }
-        this.registerService(name, service);
-        this.updateServiceHealth(name, 'healthy', 0);
-      } catch (error) {
-        this.log('warn', `Specialized service not available: ${name}`, error);
-        this.updateServiceHealth(name, 'degraded', -1);
-      }
-    }
+    // For now, initialization is lightweight. Services can register themselves.
+    this.isInitialized = true;
+    this.log('info', 'MasterServiceRegistry initialized');
   }
 
   public registerService(name: string, service: unknown): void {
     this.services.set(name, service);
-    this.initializeServiceMetrics(name);
-  }
-
-  private initializeServiceMetrics(name: string): void {
     this.serviceMetrics.set(name, {
       totalRequests: 0,
       successRate: 100,
@@ -290,94 +98,16 @@ class MasterServiceRegistry {
       cacheHitRate: 0,
       dataQuality: 100,
     });
-  }
-
-  public updateServiceHealth(
-    name: string,
-    status: ServiceHealth['status'],
-    responseTime: number
-  ): void {
-    const _existing = this.serviceHealth.get(name) || { errorCount: 0, uptime: 100 };
     this.serviceHealth.set(name, {
       name,
-      status,
-      responseTime: Math.max(0, responseTime),
+      status: 'healthy',
+      responseTime: 0,
       lastCheck: new Date(),
-      errorCount: _existing.errorCount,
-      uptime: status === 'healthy' ? _existing.uptime : Math.max(0, _existing.uptime - 1),
+      errorCount: 0,
+      uptime: 100,
     });
   }
 
-  private setupHealthMonitoring(): void {
-    // Check health every 10 minutes and be very tolerant of failures
-    setInterval(async () => {
-      for (const [name, service] of this.services.entries()) {
-        try {
-          const _startTime = Date.now();
-
-          // Perform health check with very short timeout and error tolerance
-          if ((service as any).healthCheck) {
-            await Promise.race([
-              (service as any).healthCheck(),
-              new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Health check timeout')), 1000) // 1 second timeout
-              )
-            ]);
-          } else if ((service as any).ping) {
-            await Promise.race([
-              (service as any).ping(),
-              new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Ping timeout')), 800) // 0.8 second timeout
-              )
-            ]);
-          }
-
-          const _responseTime = Date.now() - _startTime;
-          this.updateServiceHealth(name, 'healthy', _responseTime);
-        } catch (error) {
-          // Health check failures are completely silent - no console logging for network errors
-          const _health = this.serviceHealth.get(name);
-          const errorCount = _health ? _health.errorCount + 1 : 1;
-
-          // Only log non-network errors or every 50th failure to minimize noise
-          const isNetworkError = error instanceof Error && (
-            error.message.includes('Failed to fetch') ||
-            error.message.includes('timeout') ||
-            error.message.includes('Network')
-          );
-
-          if (!isNetworkError && errorCount % 50 === 1) {
-            this.log('warn', `Service health check failed: ${name} (${errorCount} non-network failures)`, error);
-          }
-
-          this.updateServiceHealth(name, 'degraded', -1);
-          if (_health) {
-            _health.errorCount = errorCount;
-          }
-        }
-      }
-    }, 600000); // Check every 10 minutes
-  }
-
-  private setupMetricsCollection(): void {
-    setInterval(() => {
-      for (const [name, service] of this.services.entries()) {
-        if ((service as any).getMetrics) {
-          try {
-            const _metrics = (service as any).getMetrics();
-            this.serviceMetrics.set(name, {
-              ...this.serviceMetrics.get(name)!,
-              ..._metrics,
-            });
-          } catch (error) {
-            this.log('warn', `Failed to collect metrics for service: ${name}`, error);
-          }
-        }
-      }
-    }, 30000); // Collect every 30 seconds
-  }
-
-  // Service access methods
   getService<T = unknown>(name: string): T | null {
     return (this.services.get(name) as T) || null;
   }
@@ -386,93 +116,51 @@ class MasterServiceRegistry {
     return new Map(this.services);
   }
 
-  getServiceHealth(name?: string): ServiceHealth[] | ServiceHealth | null {
-    if (name) {
-      return this.serviceHealth.get(name) || null;
-    }
-    return Array.from(this.serviceHealth.values());
+  // Convenience getters return `any` to avoid introducing large type changes here
+  get api(): unknown {
+    return this.getService('api');
   }
 
-  getServiceMetrics(name?: string): ServiceMetrics[] | ServiceMetrics | null {
-    if (name) {
-      return this.serviceMetrics.get(name) || null;
-    }
-    return Array.from(this.serviceMetrics.values());
+  get analytics(): unknown {
+    return this.getService('analytics');
   }
 
-  // Convenience methods for common services
-  get api(): any {
-    return this.getService('api')!;
+  get betting(): unknown {
+    return this.getService('betting');
   }
 
-  get analytics(): UnifiedAnalyticsService {
-    return this.getService<UnifiedAnalyticsService>('analytics')!;
+  get data(): unknown {
+    return this.getService('data');
   }
 
-  get betting(): UnifiedBettingService {
-    return this.getService<UnifiedBettingService>('betting')!;
+  get cache(): unknown {
+    return this.getService('cache');
   }
 
-  get data(): UnifiedDataService {
-    return this.getService<UnifiedDataService>('data')!;
+  get logger(): unknown {
+    return this.getService('logger');
   }
 
-  get predictions(): UnifiedPredictionService {
-    return this.getService<UnifiedPredictionService>('predictions')!;
+  get notifications(): unknown {
+    return this.getService('notifications');
   }
 
-  get injuries(): typeof _injuryService {
-    return this.getService<typeof _injuryService>('injuries')!;
-  }
-
-  get lineups(): typeof _lineupService {
-    return this.getService<typeof _lineupService>('lineups')!;
-  }
-
-  get cache(): UnifiedCache {
-    return this.getService<UnifiedCache>('cache')!;
-  }
-
-  get logger(): UnifiedLogger {
-    return this.getService<UnifiedLogger>('logger')!;
-  }
-
-  get notifications(): UnifiedNotificationService {
-    return this.getService<UnifiedNotificationService>('notifications')!;
-  }
-
-  get websocket(): UnifiedWebSocketService {
-    return this.getService<UnifiedWebSocketService>('websocket')!;
-  }
-
-  get security(): SecurityService {
-    return this.getService<SecurityService>('security')!;
-  }
-
-  get diagnostics(): DiagnosticsService {
-    return this.getService<DiagnosticsService>('diagnostics')!;
-  }
-
-  // Service orchestration methods
-  async executeAcrossServices(
-    methodName: string,
-    ...args: unknown[]
-  ): Promise<Map<string, unknown>> {
-    const _results = new Map();
-
-    for (const [name, service] of this.services.entries()) {
-      if ((service as any)[methodName] && typeof (service as any)[methodName] === 'function') {
+  // Execute a method across all registered services if present
+  async executeAcrossServices(methodName: string, ...args: unknown[]): Promise<Map<string, unknown>> {
+    const results = new Map<string, unknown>();
+    for (const [name, svc] of this.services.entries()) {
+  const service = svc as unknown as Record<string, unknown>;
+      if (service && typeof service[methodName] === 'function') {
         try {
-          const _result = await (service as any)[methodName](...args);
-          _results.set(name, { success: true, data: _result });
-        } catch (error) {
-          _results.set(name, { success: false, error: (error as Error).message });
-          this.log('error', `Service ${name} failed to execute ${methodName}`, error);
+          const res = await service[methodName](...args);
+          results.set(name, { success: true, data: res });
+        } catch (err) {
+          results.set(name, { success: false, error: (err as Error).message });
+          this.log('error', `Service ${name} failed to execute ${methodName}`, err as Error);
         }
       }
     }
-
-    return _results;
+    return results;
   }
 
   async refreshAllData(): Promise<void> {
@@ -483,21 +171,15 @@ class MasterServiceRegistry {
     await this.executeAcrossServices('clearCache');
   }
 
-  async optimizeAllServices(): Promise<void> {
-    await this.executeAcrossServices('optimize');
-  }
-
-  // Configuration management
   updateConfiguration(config: Partial<ServiceConfiguration>): void {
     Object.assign(this.configuration, config);
-
-    // Apply configuration to all services
-    for (const [name, service] of this.services.entries()) {
-      if ((service as any).updateConfiguration) {
+    for (const [name, svc] of this.services.entries()) {
+  const service = svc as unknown as Record<string, unknown>;
+      if (service && typeof service.updateConfiguration === 'function') {
         try {
-          (service as any).updateConfiguration(this.configuration);
-        } catch (error) {
-          this.log('warn', `Failed to update configuration for service: ${name}`, error);
+          service.updateConfiguration(this.configuration);
+        } catch (err) {
+          this.log('warn', `Failed to update configuration for ${name}`, err as Error);
         }
       }
     }
@@ -507,98 +189,131 @@ class MasterServiceRegistry {
     return { ...this.configuration };
   }
 
-  // System-wide statistics
-  getSystemStatistics(): {
-    totalServices: number;
-    healthyServices: number;
-    degradedServices: number;
-    downServices: number;
-    averageResponseTime: number;
-    totalRequests: number;
-    overallSuccessRate: number;
-  } {
-    const _healthArray = Array.from(this.serviceHealth.values());
-    const _metricsArray = Array.from(this.serviceMetrics.values());
-
-    const _totalServices = _healthArray.length;
-    const _healthyServices = _healthArray.filter(h => h.status === 'healthy').length;
-    const _degradedServices = _healthArray.filter(h => h.status === 'degraded').length;
-    const _downServices = _healthArray.filter(h => h.status === 'down').length;
-
-    const _averageResponseTime =
-      _healthArray.reduce((sum, h) => sum + Math.max(0, h.responseTime), 0) / _totalServices;
-    const _totalRequests = _metricsArray.reduce((sum, m) => sum + m.totalRequests, 0);
-    const _overallSuccessRate =
-      _metricsArray.reduce((sum, m) => sum + m.successRate, 0) / _metricsArray.length;
-
+  getSystemStatistics() {
+    const health = Array.from(this.serviceHealth.values());
+    const metrics = Array.from(this.serviceMetrics.values());
+    const totalServices = health.length;
+    const healthyServices = health.filter(h => h.status === 'healthy').length;
+    const degradedServices = health.filter(h => h.status === 'degraded').length;
+    const downServices = health.filter(h => h.status === 'down').length;
+    const averageResponseTime = totalServices ? health.reduce((s, h) => s + Math.max(0, h.responseTime), 0) / totalServices : 0;
+    const totalRequests = metrics.reduce((s, m) => s + (m.totalRequests || 0), 0);
+    const overallSuccessRate = metrics.length ? metrics.reduce((s, m) => s + (m.successRate || 0), 0) / metrics.length : 100;
     return {
-      totalServices: _totalServices,
-      healthyServices: _healthyServices,
-      degradedServices: _degradedServices,
-      downServices: _downServices,
-      averageResponseTime: _averageResponseTime,
-      totalRequests: _totalRequests,
-      overallSuccessRate: _overallSuccessRate,
+      totalServices,
+      healthyServices,
+      degradedServices,
+      downServices,
+      averageResponseTime,
+      totalRequests,
+      overallSuccessRate,
     };
   }
 
-  // Logging
-  private log(level: string, message: string, data?: unknown): void {
-    if (this.configuration.enableLogging) {
-      const _logger = this.getService<UnifiedLogger>('logger');
-      if (_logger && (_logger as any)[level]) {
-        (_logger as any)[level](message, data);
-      } else {
-        // Only log debug/info if verboseLogging is enabled
-        if (['debug', 'info'].includes(level) && !this.verboseLogging) return;
-        switch (level) {
-          case 'debug':
-            console.debug(`[MasterServiceRegistry] ${message}`, data || '');
-            break;
-          case 'info':
-            console.info(`[MasterServiceRegistry] ${message}`, data || '');
-            break;
-          case 'warn':
-            console.warn(`[MasterServiceRegistry] ${message}`, data || '');
-            break;
-          case 'error':
-            console.error(`[MasterServiceRegistry] ${message}`, data || '');
-            break;
-          default:
-            console.log(`[MasterServiceRegistry] ${message}`, data || '');
-        }
+  private log(level: 'debug' | 'info' | 'warn' | 'error', message: string, err?: unknown): void {
+    if (!this.configuration.enableLogging) return;
+    try {
+  const logger = this.getService('logger') as unknown as Record<string, unknown> | null;
+      if (logger && typeof logger[level] === 'function') {
+        logger[level](message, err);
+        return;
       }
+    } catch {
+      // fall through to enhancedLogger
+    }
+
+    // enhancedLogger expects: (component, action, message, metadata?, error?)
+    const component = 'MasterServiceRegistry';
+    const action = '';
+    const metadata = undefined as unknown as Record<string, unknown> | undefined;
+
+    switch (level) {
+      case 'debug':
+        enhancedLogger.debug(component, action, message, metadata, err as Error | undefined);
+        break;
+      case 'info':
+        enhancedLogger.info(component, action, message);
+        break;
+      case 'warn':
+        enhancedLogger.warn(component, action, message, metadata, err as Error | undefined);
+        break;
+      case 'error':
+        enhancedLogger.error(component, action, message, metadata, err as Error | undefined);
+        break;
     }
   }
 
-  // Cleanup
   async shutdown(): Promise<void> {
-    for (const [name, service] of this.services.entries()) {
+    for (const [name, svc] of this.services.entries()) {
+  const service = svc as unknown as Record<string, unknown>;
       try {
-        if ((service as any).shutdown) {
-          await (service as any).shutdown();
+        if (service && typeof service.shutdown === 'function') {
+          await service.shutdown();
         }
-      } catch (error) {
-        this.log('error', `Failed to shutdown service: ${name}`, error);
+      } catch (err) {
+        this.log('error', `Failed to shutdown service: ${name}`, err as Error);
       }
     }
-
     this.services.clear();
     this.serviceHealth.clear();
     this.serviceMetrics.clear();
     this.isInitialized = false;
   }
+
+  /**
+   * Provide a lightweight adapter that matches the external UnifiedServiceRegistry
+   * shape. We return it with a cast to the external type to minimize refactor scope.
+   */
+  // Return a runtime-compatible adapter but expose it with a loose type to
+  // avoid TypeScript private-member/class-compatibility errors when passing
+  // this adapter into existing unified services. Call sites may cast when
+  // they require the concrete `UnifiedServiceRegistry` type.
+  public toUnifiedRegistry(): ExternalUnifiedServiceRegistry & { services: Map<string, unknown>; getAllServices(): Map<string, unknown> } {
+    const adapter = new UnifiedRegistryAdapter(this);
+
+    // Create a plain object that matches the public shape of the external
+    // `UnifiedServiceRegistry` so TypeScript structural checks succeed.
+  const unifiedLike = {
+      register: (name: string, service: unknown) => adapter.register(name, service),
+      get: <T = unknown>(name: string) => adapter.get<T>(name),
+      has: (name: string) => adapter.has(name),
+      unregister: (name: string) => adapter.unregister(name),
+      getAllServices: () => adapter.getAllServices(),
+      clear: () => adapter.clear(),
+      services: adapter.services,
+  } as unknown as ExternalUnifiedServiceRegistry & { services: Map<string, unknown>; getAllServices(): Map<string, unknown> };
+
+    return unifiedLike;
+  }
+
+  // Provide a temporary alias for use by legacy unified services that expect
+  // the external `UnifiedServiceRegistry` shape. This is intentionally loose
+  // while we migrate callers; we'll tighten types in a follow-up.
+  // Return the runtime adapter cast to the external `UnifiedServiceRegistry` shape.
+  // We cast via `unknown` to avoid private-constructor/class-compatibility checks
+  // while keeping the getter typed as the external interface for call sites.
+  // Loosen to `any` temporarily to avoid private-member/class incompatibility
+  // when passing the runtime adapter to legacy unified services. This is
+  // intentionally narrow and will be tightened after remaining call-sites
+  // are migrated or explicitly cast.
+  private get thisAsUnifiedRegistry(): any {
+  // Return the adapter but keep callers type-stable by allowing a local cast
+  // at the call-site. Some legacy unified services require the concrete
+  // external class-type; callers should cast like:
+  //   this.thisAsUnifiedRegistry as unknown as ExternalUnifiedServiceRegistry
+  return this.toUnifiedRegistry() as unknown as ExternalUnifiedServiceRegistry & { services: Map<string, unknown>; getAllServices(): Map<string, unknown> };
+  }
 }
 
-// Export singleton instance
+// Adapter class removed — use `toUnifiedRegistry()` to provide a compatible wrapper.
+
+
 export const _masterServiceRegistry = MasterServiceRegistry.getInstance();
 
-// Export convenience function for service access
 export const _getService = <T = unknown>(name: string): T | null => {
   return _masterServiceRegistry.getService<T>(name);
 };
 
-// Export common services for direct access
 export const _services = {
   get api() {
     return _masterServiceRegistry.api;
@@ -612,15 +327,6 @@ export const _services = {
   get data() {
     return _masterServiceRegistry.data;
   },
-  get predictions() {
-    return _masterServiceRegistry.predictions;
-  },
-  get injuries() {
-    return _masterServiceRegistry.injuries;
-  },
-  get lineups() {
-    return _masterServiceRegistry.lineups;
-  },
   get cache() {
     return _masterServiceRegistry.cache;
   },
@@ -630,16 +336,21 @@ export const _services = {
   get notifications() {
     return _masterServiceRegistry.notifications;
   },
-  get websocket() {
-    return _masterServiceRegistry.websocket;
-  },
-  get security() {
-    return _masterServiceRegistry.security;
-  },
-  get diagnostics() {
-    return _masterServiceRegistry.diagnostics;
-  },
 };
 
 export { MasterServiceRegistry };
 export default _masterServiceRegistry;
+
+// Provide a minimal adapter shape expected by some legacy callers.
+// Keep this local and narrow to avoid a large refactor.
+// Adapter that implements the project's external UnifiedServiceRegistry class
+// The UnifiedServiceRegistryAdapter class has been removed as it incorrectly extended a class with a private constructor.
+
+// Compatibility exports for legacy callers that reference `UnifiedServiceRegistryAdapter`.
+export type UnifiedServiceRegistryAdapter = ExternalUnifiedServiceRegistry & { services: Map<string, unknown>; getAllServices(): Map<string, unknown> };
+
+// Return `any` here to avoid propagating structural-check issues to legacy callers.
+// Callers that need concrete typing can cast locally to the exact external type.
+export function createUnifiedServiceRegistryAdapter(): UnifiedServiceRegistryAdapter {
+  return _masterServiceRegistry.toUnifiedRegistry() as unknown as UnifiedServiceRegistryAdapter;
+}

@@ -26,6 +26,7 @@ import json
 try:
     from sqlalchemy.ext.asyncio import AsyncSession
     from sqlalchemy import select, and_, desc, func
+    from sqlalchemy.exc import IntegrityError
     from sqlalchemy.orm import selectinload
     from backend.models.odds import (
         Bookmaker, OddsSnapshot, OddsHistory, BestLineAggregate,
@@ -102,24 +103,44 @@ class OddsStoreService:
     async def initialize_bookmakers(self, session: AsyncSession) -> List[Bookmaker]:
         """Initialize bookmaker registry with default sportsbooks"""
         try:
-            # Check if bookmakers already exist
-            result = await session.execute(select(Bookmaker))
+            # Idempotent insert: fetch existing by name and insert missing ones.
+            names = [b['name'] for b in INITIAL_BOOKMAKERS]
+            result = await session.execute(select(Bookmaker).where(Bookmaker.name.in_(names)))
             existing = result.scalars().all()
-            
-            if existing:
-                self.logger.info(f"Found {len(existing)} existing bookmakers")
-                return existing
-                
-            # Create initial bookmakers
-            bookmakers = []
+            existing_names = {b.name for b in existing}
+
+            bookmakers_to_add = []
             for book_data in INITIAL_BOOKMAKERS:
-                bookmaker = Bookmaker(**book_data)
-                bookmakers.append(bookmaker)
-                session.add(bookmaker)
-            
-            await session.commit()
-            self.logger.info(f"Initialized {len(bookmakers)} bookmakers")
-            return bookmakers
+                if book_data['name'] not in existing_names:
+                    bookmaker = Bookmaker(**book_data)
+                    bookmakers_to_add.append(bookmaker)
+                else:
+                    # Update basic metadata for existing bookmakers (non-destructive)
+                    for b in existing:
+                        if b.name == book_data['name']:
+                            changed = False
+                            for key, val in book_data.items():
+                                if hasattr(b, key) and getattr(b, key) != val:
+                                    try:
+                                        setattr(b, key, val)
+                                        changed = True
+                                    except Exception:
+                                        pass
+                            if changed:
+                                session.add(b)
+
+            if bookmakers_to_add:
+                session.add_all(bookmakers_to_add)
+                try:
+                    await session.commit()
+                    self.logger.info(f"Initialized {len(bookmakers_to_add)} new bookmakers")
+                except IntegrityError:
+                    # Race condition: another process inserted similar rows. Rollback and re-query.
+                    await session.rollback()
+                    result = await session.execute(select(Bookmaker).where(Bookmaker.name.in_(names)))
+                    existing = result.scalars().all()
+
+            return existing + bookmakers_to_add
             
         except Exception as e:
             self.logger.error(f"Error initializing bookmakers: {e}")

@@ -1,4 +1,5 @@
 ﻿import { InjuryData, ServiceConfig, SportsGame } from '../types/global';
+import { enhancedLogger } from '../utils/enhancedLogger';
 
 export interface SportsRadarData {
   games: Array<{
@@ -35,32 +36,32 @@ export class SportsRadarAdapter {
     };
   }
 
-  async fetchGameData(gameId: string): Promise<SportsGame | null> {
+  async fetchGameData(_gameId: string): Promise<SportsGame | null> {
     try {
-      // Implementation would go here
+      // Minimal placeholder implementation — real network logic lives in production adapter
       return null;
     } catch (error) {
-      console.error('SportsRadar API error:', error);
+      enhancedLogger.error('SportsRadarAdapter', 'fetchGameData', 'SportsRadar API error', undefined, error as unknown as Error);
       return null;
     }
   }
 
-  async fetchInjuryData(playerId: string): Promise<InjuryData[]> {
+  async fetchInjuryData(_playerId: string): Promise<InjuryData[]> {
     try {
-      // Implementation would go here
+      // Minimal placeholder implementation; parameter prefixed to satisfy lint rules
       return [];
     } catch (error) {
-      console.error('SportsRadar injury data error:', error);
+      enhancedLogger.error('SportsRadarAdapter', 'fetchInjuryData', 'SportsRadar injury data error', undefined, error as unknown as Error);
       return [];
     }
   }
 
-  async fetchTeamRoster(teamId: string): Promise<Array<{ name: string; position: string }>> {
+  async fetchTeamRoster(_teamId: string): Promise<Array<{ name: string; position: string }>> {
     try {
-      // Implementation would go here
+      // Minimal placeholder implementation; parameter prefixed to satisfy lint rules
       return [];
     } catch (error) {
-      console.error('SportsRadar roster data error:', error);
+      enhancedLogger.error('SportsRadarAdapter', 'fetchTeamRoster', 'SportsRadar roster data error', undefined, error as unknown as Error);
       return [];
     }
   }

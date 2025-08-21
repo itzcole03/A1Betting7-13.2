@@ -12,6 +12,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { enhancedLogger } from '../utils/enhancedLogger';
 import { Player } from '../components/player/PlayerDashboardContainer';
 import { realTimePlayerDataService } from '../services/RealTimePlayerDataService';
 
@@ -75,9 +76,9 @@ export const useOptimizedPlayerData = (
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Stable references to prevent infinite loops - initialized after function definitions
-  const loadPlayerDataRef = useRef<any>(null);
-  const subscribeToUpdatesRef = useRef<any>(null);
-  const unsubscribeFromUpdatesRef = useRef<any>(null);
+  const loadPlayerDataRef = useRef<((force?: boolean) => Promise<void>) | null>(null);
+  const subscribeToUpdatesRef = useRef<(() => void) | null>(null);
+  const unsubscribeFromUpdatesRef = useRef<(() => void) | null>(null);
 
   /**
    * Load player data with optimized performance and error handling
@@ -109,7 +110,7 @@ export const useOptimizedPlayerData = (
     }, 10000);
 
     try {
-      console.log(`[useOptimizedPlayerData] Loading data for ${playerId} (force: ${forceRefresh})`);
+  enhancedLogger.info('useOptimizedPlayerData', 'Load', `Loading data for ${playerId} (force: ${forceRefresh})`);
       
       // Get player data from optimized service
       const playerData = await realTimePlayerDataService.getPlayerData(playerId, sport);
@@ -139,7 +140,7 @@ export const useOptimizedPlayerData = (
           setIsStale(ageInMinutes > 5); // Consider stale after 5 minutes
         }
 
-        console.log(`[useOptimizedPlayerData] Successfully loaded ${playerId} from sources: ${playerData._sources?.join(', ')}`);
+  enhancedLogger.info('useOptimizedPlayerData', 'Load', `Successfully loaded ${playerId} from sources: ${playerData._sources?.join(', ')}`);
       } else {
         setPlayer(null);
         setError('Player data not found');
@@ -147,7 +148,7 @@ export const useOptimizedPlayerData = (
       }
 
     } catch (err) {
-      console.error(`[useOptimizedPlayerData] Failed to load ${playerId}:`, err);
+  enhancedLogger.error('useOptimizedPlayerData', 'Load', `Failed to load ${playerId}`, { error: err });
       
       if (!abortControllerRef.current?.signal.aborted) {
         setError(err instanceof Error ? err.message : 'Failed to load player data');
@@ -161,10 +162,10 @@ export const useOptimizedPlayerData = (
               setIsStale(true);
               setDataQuality('low');
               setCacheHit(true);
-              console.log(`[useOptimizedPlayerData] Using cached data for ${playerId}`);
+              enhancedLogger.debug('useOptimizedPlayerData', 'Cache', `Using cached data for ${playerId}`);
             }
           } catch (cacheError) {
-            console.warn('[useOptimizedPlayerData] Cache fallback also failed:', cacheError);
+            enhancedLogger.warn('useOptimizedPlayerData', 'Cache', 'Cache fallback also failed', { error: cacheError });
           }
         }
       }
@@ -188,44 +189,49 @@ export const useOptimizedPlayerData = (
       unsubscribeRef.current();
     }
 
-    console.log(`[useOptimizedPlayerData] Subscribing to real-time updates for ${playerId}`);
+  enhancedLogger.info('useOptimizedPlayerData', 'Subscription', `Subscribing to real-time updates for ${playerId}`);
 
     unsubscribeRef.current = realTimePlayerDataService.subscribeToPlayer(
       playerId,
       (updateData) => {
-        console.log(`[useOptimizedPlayerData] Received real-time update for ${playerId}:`, updateData);
-        
+        enhancedLogger.debug('useOptimizedPlayerData', 'Subscription', `Received real-time update for ${playerId}`, { updateData });
+
+        const update = updateData as {
+          type?: 'player_stats' | 'injury_update' | 'lineup_change' | 'trade';
+          data?: Record<string, unknown>;
+        };
+
         // Handle different types of updates
-        if (updateData.type === 'player_stats') {
+        if (update.type === 'player_stats') {
           setPlayer(prevPlayer => {
             if (!prevPlayer) return null;
-            
+
             return {
               ...prevPlayer,
               season_stats: {
                 ...prevPlayer.season_stats,
-                ...updateData.data
+                ...(update.data as Record<string, unknown>)
               },
               _updated_at: new Date().toISOString()
             };
           });
-          
+
           setLastUpdated(new Date());
           setIsRealTime(true);
           setIsStale(false);
-          
-        } else if (updateData.type === 'injury_update') {
+
+        } else if (update.type === 'injury_update') {
           setPlayer(prevPlayer => {
             if (!prevPlayer) return null;
-            
+
             return {
               ...prevPlayer,
-              injury_status: updateData.data.injury_status,
-              active: updateData.data.active !== false
+              injury_status: (update.data as Record<string, unknown>)?.injury_status as string | undefined,
+              active: ((update.data as Record<string, unknown>)?.active as boolean) !== false
             };
           });
-          
-        } else if (updateData.type === 'lineup_change' || updateData.type === 'trade') {
+
+        } else if (update.type === 'lineup_change' || update.type === 'trade') {
           // Major changes require full refresh
           if (loadPlayerDataRef.current) {
             loadPlayerDataRef.current(true);
@@ -242,7 +248,7 @@ export const useOptimizedPlayerData = (
    */
   const unsubscribeFromUpdates = useCallback(() => {
     if (unsubscribeRef.current) {
-      console.log(`[useOptimizedPlayerData] Unsubscribing from real-time updates`);
+  enhancedLogger.info('useOptimizedPlayerData', 'Subscription', `Unsubscribing from real-time updates`);
       unsubscribeRef.current();
       unsubscribeRef.current = null;
       setIsRealTime(false);
@@ -373,11 +379,11 @@ export const useOptimizedPlayerData = (
   // Performance monitoring effect
   useEffect(() => {
     if (responseTime !== null) {
-      console.log(`[useOptimizedPlayerData] Response time for ${playerId}: ${responseTime}ms (cache hit: ${cacheHit})`);
+  enhancedLogger.debug('useOptimizedPlayerData', 'Performance', `Response time for ${playerId}: ${responseTime}ms (cache hit: ${cacheHit})`);
       
       // Log slow responses
       if (responseTime > 3000) {
-        console.warn(`[useOptimizedPlayerData] Slow response detected: ${responseTime}ms for ${playerId}`);
+  enhancedLogger.warn('useOptimizedPlayerData', 'Performance', `Slow response detected: ${responseTime}ms for ${playerId}`);
       }
     }
   }, [responseTime, cacheHit, playerId]);
@@ -426,17 +432,16 @@ export const useOptimizedPlayerSearch = () => {
     setSearchError(null);
 
     try {
-      console.log(`[useOptimizedPlayerSearch] Searching for: ${query}`);
-      
+      enhancedLogger.debug('useOptimizedPlayerSearch', 'search', `Searching for: ${query}`);
       const results = await realTimePlayerDataService.searchPlayers(query, sport, limit);
-      
+
       if (!abortControllerRef.current?.signal.aborted) {
         setSearchResults(results);
-        console.log(`[useOptimizedPlayerSearch] Found ${results.length} results for: ${query}`);
+        enhancedLogger.debug('useOptimizedPlayerSearch', 'search', `Found ${results.length} results for: ${query}`);
       }
     } catch (err) {
       if (!abortControllerRef.current?.signal.aborted) {
-        console.error('[useOptimizedPlayerSearch] Search failed:', err);
+        enhancedLogger.error('useOptimizedPlayerSearch', 'search', 'Search failed', undefined, err as unknown as Error);
         setSearchError(err instanceof Error ? err.message : 'Search failed');
         setSearchResults([]);
       }
@@ -479,7 +484,7 @@ export const useOptimizedPlayerSearch = () => {
  * Hook for monitoring service health and performance
  */
 export const useOptimizedServiceHealth = () => {
-  const [healthMetrics, setHealthMetrics] = useState<Map<string, any>>(new Map());
+  const [healthMetrics, setHealthMetrics] = useState<Map<string, unknown>>(new Map());
   const [overallHealth, setOverallHealth] = useState<'healthy' | 'degraded' | 'offline'>('healthy');
 
   useEffect(() => {

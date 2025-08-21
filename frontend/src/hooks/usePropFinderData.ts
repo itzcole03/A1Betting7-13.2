@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { enhancedLogger } from '../utils/enhancedLogger';
 
 // Types matching backend API response
 export interface PropOpportunity {
@@ -257,8 +258,7 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
       setError(errorMessage);
       // Log error for debugging
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
-        console.error('Error fetching PropFinder opportunities:', err);
+        enhancedLogger.error('usePropFinderData', 'fetchOpportunities', 'Error fetching PropFinder opportunities', undefined, err as Error);
       }
     } finally {
       setLoading(false);
@@ -283,8 +283,7 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
     } catch (err) {
       // Log error for debugging in development
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
-        console.error('Error fetching PropFinder stats:', err);
+        enhancedLogger.error('usePropFinderData', 'fetchStats', 'Error fetching PropFinder stats', undefined, err as Error);
       }
       // Don't set error state for stats fetch failures
     }
@@ -347,8 +346,7 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
       );
     } catch (err) {
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
-        console.error('Error bookmarking opportunity:', err);
+        enhancedLogger.error('usePropFinderData', 'bookmarkOpportunity', 'Error bookmarking opportunity', { opportunityId }, err as Error);
       }
       throw err;
     }
@@ -381,8 +379,7 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
       }
     } catch (err) {
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
-        console.error('Error fetching opportunity by ID:', err);
+        enhancedLogger.error('usePropFinderData', 'getOpportunityById', 'Error fetching opportunity by ID', { opportunityId }, err as Error);
       }
       return null;
     }
@@ -412,8 +409,7 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
       }
     } catch (err) {
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
-        console.error('Error fetching user bookmarks:', err);
+        enhancedLogger.error('usePropFinderData', 'getUserBookmarks', 'Error fetching user bookmarks', undefined, err as Error);
       }
       return [];
     }

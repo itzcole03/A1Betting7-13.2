@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useMemo } from 'react';
+import { enhancedLogger } from '../../utils/enhancedLogger';
 import { httpFetch } from '../../services/HttpClient';
 import { BetSlipComponent } from '../betting/BetSlipComponent';
 import EnhancedErrorBoundary from '../EnhancedErrorBoundary';
@@ -36,10 +37,10 @@ const OptimizedPropOllamaContainer: React.FC = memo(() => {
   // Log health data for debugging but don't cause re-renders
   React.useEffect(() => {
     if (healthData) {
-      console.log('[OptimizedPropOllamaContainer] Health check success:', healthData);
+      enhancedLogger.info('OptimizedPropOllamaContainer', 'healthCheck', 'Health check success', { healthData });
     }
     if (healthError) {
-      console.error('[OptimizedPropOllamaContainer] Health check failed:', healthError);
+      enhancedLogger.error('OptimizedPropOllamaContainer', 'healthCheck', 'Health check failed', undefined, healthError as unknown as Error);
     }
   }, [healthData, healthError]);
 
@@ -70,7 +71,32 @@ const OptimizedPropOllamaContainer: React.FC = memo(() => {
   }), [state.connectionHealth.isHealthy, state.connectionHealth.latency, state.connectionHealth.lastChecked]);
 
   // Memoized performance metrics to prevent unnecessary re-renders
-  const performanceMetrics = useMemo(() => ({}), []);
+  const performanceMetrics = useMemo(() => ({} as unknown as object), []);
+
+  // Derive BetSlipItem[] from selectedProps to satisfy BetSlipComponent
+  const betSlipItems = React.useMemo(() => {
+    try {
+      return (state.selectedProps || []).map((sp: any) => ({
+        opportunityId: sp.id ?? sp.opportunityId ?? String(sp?.playerId ?? sp?.key ?? ''),
+        opportunity: sp as any,
+        stake: typeof sp.stake === 'number' ? sp.stake : state.entryAmount || 0,
+        potentialPayout: typeof sp.potentialPayout === 'number' ? sp.potentialPayout : 0,
+        addedAt: sp.addedAt ?? Date.now(),
+      }));
+    } catch (e) {
+      return [] as any[];
+    }
+  }, [state.selectedProps, state.entryAmount]);
+
+  // Normalize loadingStage to expected union for LoadingOverlay
+  const normalizedLoadingStage = React.useMemo(() => {
+    const stage = state.loadingStage;
+    if (!stage) return 'fetching' as const;
+    const s = typeof stage === 'string' ? stage : (stage?.stage as string | undefined);
+    if (s === 'activating' || s === 'fetching' || s === 'processing') return s as 'activating' | 'fetching' | 'processing';
+    // Map other internal stages to 'processing' as a safe default
+    return 'processing' as const;
+  }, [state.loadingStage]);
 
   return (
     <EnhancedErrorBoundary>
@@ -83,32 +109,37 @@ const OptimizedPropOllamaContainer: React.FC = memo(() => {
         />
 
         {/* Control Panel */}
-        <ControlPanel 
+        <ControlPanel
           state={state}
-          handlers={memoizedHandlers}
+          handlers={{
+            handleFiltersChange: memoizedHandlers.handleFiltersChange,
+            handleSortingChange: memoizedHandlers.handleSortingChange,
+            handleStatsGameSelect: memoizedHandlers.handleStatsGameSelect,
+          }}
         />
 
         {/* Main Content */}
-        <MainContent 
+        <MainContent
           state={state}
-          handlers={memoizedHandlers}
         />
 
         {/* Bet Slip */}
-        <BetSlipSection 
-          selectedProps={state.selectedProps}
+        <BetSlipSection
+          selectedProps={betSlipItems}
           entryAmount={state.entryAmount}
           onEntryAmountChange={actions.setEntryAmount}
+          onRemoveProp={(id: string) => actions.removeSelectedProp(id)}
+          onClearSlip={() => actions.setSelectedProps([])}
+          onPlaceBet={async () => { enhancedLogger.info('OptimizedPropOllamaContainer', 'onPlaceBet', 'Place bet not implemented in optimized container'); }}
         />
 
         {/* Loading Overlay */}
-        {state.isLoading && (
-          <LoadingOverlay 
-            stage={state.loadingStage}
-            message={state.loadingMessage}
-            progress={state.propLoadingProgress}
-          />
-        )}
+        <LoadingOverlay
+          isVisible={!!state.isLoading}
+          stage={normalizedLoadingStage}
+          message={state.loadingMessage}
+          progress={state.propLoadingProgress}
+        />
       </div>
     </EnhancedErrorBoundary>
   );
@@ -153,8 +184,12 @@ const ControlPanel = memo<{
     <div className='bg-slate-800/50 p-6 rounded-lg border border-slate-700'>
       <PropFilters
         filters={state.filters}
-        onChange={handlers.handleFiltersChange}
-        sportActivationStatus={state.sportActivationStatus}
+        onFiltersChange={handlers.handleFiltersChange}
+        sports={['All', 'NBA', 'NFL', 'NHL', 'MLB']}
+        statTypes={['All', 'Points', 'Rebounds', 'Assists', 'Home Runs', 'RBIs', 'Hits']}
+        upcomingGames={state.upcomingGames}
+        selectedGame={state.selectedGame}
+        onGameSelect={handlers.handleGameSelect}
       />
     </div>
 
@@ -162,7 +197,7 @@ const ControlPanel = memo<{
     <div className='bg-slate-800/50 p-6 rounded-lg border border-slate-700'>
       <PropSorting
         sorting={state.sorting}
-        onChange={handlers.handleSortingChange}
+        onSortingChange={handlers.handleSortingChange}
       />
     </div>
 
@@ -170,8 +205,9 @@ const ControlPanel = memo<{
     <div className='bg-slate-800/50 p-6 rounded-lg border border-slate-700'>
       <GameStatsPanel
         games={state.upcomingGames}
-        selectedGame={state.selectedGame}
+        selectedGameId={state.selectedGame?.game_id || null}
         onGameSelect={handlers.handleStatsGameSelect}
+        loading={state.isLoading}
       />
     </div>
   </div>
@@ -181,7 +217,7 @@ ControlPanel.displayName = 'ControlPanel';
 
 const MainContent = memo<{
   state: any;
-  handlers: any;
+  handlers?: any;
 }>(({ state, handlers }) => (
   <div className='main-content'>
     {/* Error Display */}
@@ -201,21 +237,20 @@ const MainContent = memo<{
     )}
 
     {/* Props List */}
-    <div className='bg-slate-800/30 rounded-lg border border-slate-700'>
+      <div className='bg-slate-800/30 rounded-lg border border-slate-700'>
       <PropList
-        projections={state.projections}
-        unifiedResponse={state.unifiedResponse}
-        filters={state.filters}
-        sorting={state.sorting}
-        displayOptions={state.displayOptions}
-        onPropSelect={handlers.handleGameSelect}
-        enhancedAnalysisCache={state.enhancedAnalysisCache}
-        loadingAnalysis={state.loadingAnalysis}
-        analyzingPropId={state.analyzingPropId}
-        selectedProps={state.selectedProps}
-        onAddToSlip={handlers.handleGameSelect}
+        props={state.projections || []}
+        loading={!!state.isLoading}
+        expandedRowKey={state.expandedRowKey ?? null}
+  onExpandToggle={(_key: string) => { /* noop for now */ }}
+  onAnalysisRequest={async (_prop: any) => { return Promise.resolve(null); }}
+        enhancedAnalysisCache={state.enhancedAnalysisCache || new Map()}
+        loadingAnalysis={state.loadingAnalysis || new Set()}
+        sortBy={state.sorting?.sortBy || ''}
+        searchTerm={state.filters?.searchTerm || ''}
+        useVirtualization={Array.isArray(state.projections) ? state.projections.length > 100 : false}
       />
-    </div>
+      </div>
   </div>
 ));
 
@@ -225,12 +260,18 @@ const BetSlipSection = memo<{
   selectedProps: any[];
   entryAmount: number;
   onEntryAmountChange: (amount: number) => void;
-}>(({ selectedProps, entryAmount, onEntryAmountChange }) => (
+  onRemoveProp?: (opportunityId: string) => void;
+  onClearSlip?: () => void;
+  onPlaceBet?: () => Promise<void>;
+}>(({ selectedProps, entryAmount, onEntryAmountChange, onRemoveProp, onClearSlip, onPlaceBet }) => (
   <div className='bet-slip-section mt-8'>
     <BetSlipComponent
       selectedProps={selectedProps}
       entryAmount={entryAmount}
       onEntryAmountChange={onEntryAmountChange}
+      onRemoveProp={onRemoveProp ?? (() => {})}
+      onClearSlip={onClearSlip ?? (() => {})}
+      onPlaceBet={onPlaceBet ? (() => { void onPlaceBet(); }) : (() => {})}
     />
   </div>
 ));

@@ -27,6 +27,22 @@ export interface EnhancedMetrics {
   memoryUsage?: number;
 }
 
+export interface EnhancedRequestMetrics {
+  totalRequests: number;
+  cacheHits: number;
+  cacheMisses: number;
+  errors: number;
+  avgResponseTime: number;
+  dataQualityScore: number;
+  validationErrors: number;
+  fallbacksUsed: number;
+  transformationErrors: number;
+  slowQueries: any[];
+  errorsByType: Record<string, number>;
+  errorsByEndpoint: Record<string, number>;
+  lastUpdate: number;
+}
+
 class EnhancedLogger {
   private cacheMetrics: CacheMetrics = {
     hits: 0,
@@ -49,20 +65,24 @@ class EnhancedLogger {
   /**
    * Standard logging methods with enhanced context
    */
-  debug(component: string, operation: string, message: string, data?: unknown) {
-    logger.debug(`[${component}:${operation}] ${message}`, data);
+  debug(component: string, operation: string, message: string, data?: Record<string, unknown>, err?: Error) {
+    const meta = { ...(data || {}), ...(err ? { error: { name: err.name, message: err.message, stack: err.stack } } : {}) } as Record<string, unknown>;
+    logger.debug(`[${component}:${operation}] ${message}`, meta);
   }
 
-  info(component: string, operation: string, message: string, data?: unknown) {
-    logger.info(`[${component}:${operation}] ${message}`, data);
+  info(component: string, operation: string, message: string, data?: Record<string, unknown>, err?: Error) {
+    const meta = { ...(data || {}), ...(err ? { error: { name: err.name, message: err.message } } : {}) } as Record<string, unknown>;
+    logger.info(`[${component}:${operation}] ${message}`, meta);
   }
 
-  warn(component: string, operation: string, message: string, data?: unknown) {
-    logger.warn(`[${component}:${operation}] ${message}`, data);
+  warn(component: string, operation: string, message: string, data?: Record<string, unknown>, err?: Error) {
+    const meta = { ...(data || {}), ...(err ? { error: { name: err.name, message: err.message } } : {}) } as Record<string, unknown>;
+    logger.warn(`[${component}:${operation}] ${message}`, meta);
   }
 
-  error(component: string, operation: string, message: string, data?: unknown) {
-    logger.error(`[${component}:${operation}] ${message}`, data);
+  error(component: string, operation: string, message: string, data?: Record<string, unknown>, err?: Error) {
+    const meta = { ...(data || {}), ...(err ? { error: { name: err.name, message: err.message, stack: err.stack } } : {}) } as Record<string, unknown>;
+    logger.error(`[${component}:${operation}] ${message}`, meta);
   }
 
   /**
@@ -142,13 +162,73 @@ class EnhancedLogger {
    * Get comprehensive metrics
    */
   getMetrics(): EnhancedMetrics {
-    return {
+    // Build EnhancedMetrics
+    const memoryUsage = (() => {
+      try {
+        const perf = typeof performance !== 'undefined' ? (performance as unknown as { memory?: { usedJSHeapSize?: number }}) : undefined;
+        return perf?.memory?.usedJSHeapSize;
+      } catch {
+        return undefined;
+      }
+    })();
+
+    const enhanced: EnhancedMetrics = {
       cache: { ...this.cacheMetrics },
       api: { ...this.apiMetrics },
       uptime: Date.now() - this.startTime,
-      memoryUsage: typeof performance !== 'undefined' && performance.memory ? 
-        performance.memory.usedJSHeapSize : undefined
+      memoryUsage: memoryUsage,
     };
+
+    return enhanced;
+  }
+
+  /**
+   * Compatibility: return metrics shaped like EnhancedRequestMetrics for services expecting that shape
+   */
+  getRequestMetrics(): EnhancedRequestMetrics {
+  const now = Date.now();
+  const requestMetrics: EnhancedRequestMetrics = {
+      totalRequests: this.apiMetrics.totalRequests,
+      cacheHits: this.cacheMetrics.hits,
+      cacheMisses: this.cacheMetrics.misses,
+      errors: this.apiMetrics.errorRequests || 0,
+      avgResponseTime: this.apiMetrics.averageResponseTime,
+      dataQualityScore: 0,
+      validationErrors: 0,
+      fallbacksUsed: 0,
+      transformationErrors: 0,
+      slowQueries: [],
+      errorsByType: {},
+      errorsByEndpoint: {},
+      lastUpdate: now,
+    };
+
+    return requestMetrics;
+  }
+
+  /**
+   * Log data validation metrics and context
+   */
+  logDataValidation(
+    operation: string,
+    sport: string,
+    total: number,
+    validated: number,
+    errorsCount: number,
+    averageQuality: number,
+    duration: number,
+    metadata?: Record<string, unknown>,
+    err?: Error
+  ) {
+    this.info('DataValidator', operation, `Validation summary for ${sport}: ${validated}/${total} valid`, {
+      sport,
+      total,
+      validated,
+      errorsCount,
+      averageQuality,
+      duration,
+      ...metadata,
+    }, err);
   }
 
   /**

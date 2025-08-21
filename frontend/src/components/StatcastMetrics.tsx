@@ -31,7 +31,7 @@ const StatcastMetrics: React.FC<StatcastMetricsProps> = ({ prop, isVisible }) =>
   // Extract Statcast data from the prop
   const statcastData: StatcastData = React.useMemo(() => {
     // Try to extract from enhanced data or raw prop data
-    const data: any = prop.enhancedData || prop;
+  const data: any = (prop as any).enhancedData || prop;
     return {
       exit_velocity: data.exit_velocity || data.exitVelocity || Math.random() * 30 + 85, // Mock for demo
       launch_angle: data.launch_angle || data.launchAngle || Math.random() * 50 - 10,

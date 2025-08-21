@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
+import { enhancedLogger } from '../../utils/enhancedLogger';
 import { Search, Filter, Heart, Star, DollarSign, Target, Zap, TrendingUp, AlertTriangle, Users } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { usePropFinderData, PropOpportunity } from '../../hooks/usePropFinderData';
@@ -167,12 +168,13 @@ const PropFinderDashboard: React.FC = () => {
   // Handle bookmark toggle
   const handleBookmarkToggle = async (opportunityId: string, isBookmarked: boolean) => {
     try {
-      await bookmarkOpportunity(opportunityId, !isBookmarked);
+      const opportunity = opportunities.find(o => o.id === opportunityId);
+      if (!opportunity) return;
+      await bookmarkOpportunity(opportunityId, opportunity, !isBookmarked);
     } catch (error) {
       // Log error for debugging in development
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
-        console.error('Failed to toggle bookmark:', error);
+        enhancedLogger.error('PropFinderDashboard', 'handleBookmarkToggle', 'Failed to toggle bookmark', undefined, error as Error);
       }
     }
   };

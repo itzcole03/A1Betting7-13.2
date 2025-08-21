@@ -31,7 +31,7 @@ export class UnifiedCache {
       return null;
     }
 
-    return _item.value;
+  return _item.value as T;
   }
 
   has(key: string): boolean {

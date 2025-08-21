@@ -25,12 +25,17 @@ import { getBackendUrl } from './utils/getBackendUrl';
 import { createLazyComponent } from './utils/lazyLoading';
 import { getLocation } from './utils/location';
 import { usePerformanceTracking } from './utils/performance';
+import { enhancedLogger } from './utils/enhancedLogger';
 // Ensure LazyUserFriendlyApp is imported for test env override
 // LazyUserFriendlyApp already declared above, remove duplicate
 
 // Lazy load components with performance tracking
 const LazyOnboardingFlow = createLazyComponent(
-  () => import('./onboarding/OnboardingFlow').then(module => ({ default: module.OnboardingFlow })),
+  () =>
+    import('./onboarding/OnboardingFlow').then(module => {
+      const m: any = module;
+      return { default: m.OnboardingFlow ?? m.default };
+    }),
   {
     fallback: () => <div className='text-white p-8'>Loading onboarding...</div>,
   }
@@ -44,9 +49,7 @@ const LazyUserFriendlyApp = createLazyComponent(
 );
 
 function App() {
-  console.log(
-    '[APP] Entering App component with React 19 features - Validating backend and imports'
-  );
+  enhancedLogger.debug('App', 'lifecycle', 'Entering App component with React 19 features - Validating backend and imports');
   const { trackOperation } = usePerformanceTracking('App');
 
   // Always use the proper backend URL for direct connection
@@ -56,44 +59,44 @@ function App() {
 
   // Register service worker and check API version compatibility on app start
   useEffect(() => {
-    console.log('[APP] Registering service worker with 2025 best practices');
+  enhancedLogger.info('App', 'serviceWorker', 'Registering service worker with 2025 best practices');
     serviceWorkerManager
       .register()
       .then(registration => {
         if (registration) {
-          console.log('[APP] Service worker registered successfully');
+          enhancedLogger.info('App', 'serviceWorker', 'Service worker registered successfully');
           webVitalsService.trackCustomMetric('sw_registration', 1);
         }
       })
       .catch(error => {
-        console.error('[APP] Service worker registration failed:', error);
+        enhancedLogger.error('App', 'serviceWorker', 'Service worker registration failed', undefined, error as Error);
       });
 
     // Check API version compatibility
     checkApiVersionCompatibility()
       .then(version => {
-        console.log(`[APP] API version compatibility check: ${version}`);
+        enhancedLogger.info('App', 'api', `API version compatibility check: ${version}`);
         if (version === 'demo') {
-          console.log('[APP] Running in demo mode due to backend unavailability');
+          enhancedLogger.info('App', 'mode', 'Running in demo mode due to backend unavailability');
         }
       })
       .catch(err => {
         // Log error but don't throw to avoid unhandled promise rejections
-        console.error('[APP] API version compatibility error:', err);
-        console.log('[APP] Continuing in demo mode due to API compatibility issues');
+        enhancedLogger.error('App', 'api', 'API version compatibility error', undefined, err as Error);
+        enhancedLogger.info('App', 'mode', 'Continuing in demo mode due to API compatibility issues');
         // Don't throw - let the app continue in demo mode
       });
 
     // Initialize core functionality validation (non-blocking)
     setTimeout(() => {
-      coreFunctionalityValidator.startValidation(60000); // Check every minute
-      console.log('[APP] Core functionality validation initialized');
+  coreFunctionalityValidator.startValidation(60000); // Check every minute
+  enhancedLogger.info('App', 'startup', 'Core functionality validation initialized');
     }, 5000); // Delay to allow app to fully load
 
     // Initialize live demo enhancement service (non-blocking)
     setTimeout(() => {
-      liveDemoEnhancementService.startMonitoring();
-      console.log('[APP] Live demo enhancement service initialized');
+  liveDemoEnhancementService.startMonitoring();
+  enhancedLogger.info('App', 'startup', 'Live demo enhancement service initialized');
     }, 7000); // Delay slightly more to allow core validation to start first
 
     return () => {
@@ -103,17 +106,17 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log('[APP] Backend health check disabled - running in demo mode');
+  enhancedLogger.info('App', 'health', 'Backend health check disabled - running in demo mode');
     async function checkBackend() {
       const url = apiUrl;
       let healthy = false;
       // Skip backend health check entirely to prevent fetch errors
       // App will run in demo mode - set healthy to true so app renders normally
-      console.log('[APP] Backend health check disabled - running in demo mode');
+  enhancedLogger.info('App', 'health', 'Backend health check disabled - running in demo mode');
       healthy = true; // Set to true so app renders in demo mode
 
       // Skip backend discovery as well to prevent additional fetch errors
-      console.log('[APP] Backend discovery disabled - using demo mode');
+  enhancedLogger.info('App', 'discovery', 'Backend discovery disabled - using demo mode');
       setBackendHealthy(healthy);
     }
 
@@ -142,7 +145,7 @@ function App() {
   }
 
   if (!backendHealthy) {
-    console.log(`[APP] Backend not healthy at ${apiUrl} - Skipping render`);
+  enhancedLogger.warn('App', 'health', `Backend not healthy at ${apiUrl} - Skipping render`);
     return (
       <div className='error-banner'>
         Cannot connect to backend at {apiUrl}.{' '}
@@ -174,14 +177,14 @@ function App() {
 }
 
 const _AppContent: React.FC = () => {
-  console.log('[APP] Entering _AppContent - Attempting to render child components');
+  enhancedLogger.debug('App', 'render', 'Entering _AppContent - Attempting to render child components');
   const { isAuthenticated, requiresPasswordChange, changePassword, loading, error, user } =
     useAuth();
   const onboardingComplete = localStorage.getItem('onboardingComplete');
 
   // Only show onboarding if NOT authenticated and onboarding is not complete
   if (!isAuthenticated && !onboardingComplete) {
-    console.log('[APP] Rendering OnboardingFlow - No authentication detected');
+  enhancedLogger.info('App', 'render', 'Rendering OnboardingFlow - No authentication detected');
     return (
       <OnboardingProvider>
         <LazyOnboardingFlow />
@@ -245,15 +248,13 @@ const _AppContent: React.FC = () => {
 
   // Show auth page if not authenticated
   if (!isAuthenticated) {
-    // eslint-disable-next-line no-console
-    console.log('[APP] Rendering AuthPage (not authenticated)');
+  enhancedLogger.info('App', 'render', 'Rendering AuthPage (not authenticated)');
     return <AuthPage />;
   }
 
   // Show password change if required
   if (requiresPasswordChange) {
-    // eslint-disable-next-line no-console
-    console.log('[APP] Rendering PasswordChangeForm (requires password change)');
+  enhancedLogger.info('App', 'render', 'Rendering PasswordChangeForm (requires password change)');
     return (
       <div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4'>
         <PasswordChangeForm
@@ -267,11 +268,11 @@ const _AppContent: React.FC = () => {
   }
 
   // Show user-friendly UI for all authenticated users
-  console.log('[APP] Rendering UserFriendlyApp (clean UI)');
+  enhancedLogger.info('App', 'render', 'Rendering UserFriendlyApp (clean UI)');
 
   // Handle critical reliability issues without disrupting user experience
   const handleCriticalIssue = (issue: string) => {
-    console.warn('[APP] Critical reliability issue detected:', issue);
+    enhancedLogger.warn('App', 'reliability', 'Critical reliability issue detected', { issue });
     // Could trigger silent recovery or background notification
     // Avoid disruptive user notifications unless absolutely necessary
   };

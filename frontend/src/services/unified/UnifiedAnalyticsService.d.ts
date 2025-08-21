@@ -5,7 +5,6 @@
   TrendDelta,
 } from '@/types/analytics.ts';
 import { BaseService } from './BaseService.ts';
-import { UnifiedServiceRegistry } from './UnifiedServiceRegistry.ts';
 export interface RecentActivity {
   id: string;
   type: 'bet' | 'prediction' | 'opportunity';
@@ -20,7 +19,8 @@ export declare class UnifiedAnalyticsService extends BaseService {
   private bettingService;
   private predictionService;
   private errorService;
-  constructor(registry: UnifiedServiceRegistry);
+  constructor(registry?: unknown);
+  static getInstance(registry?: unknown): UnifiedAnalyticsService;
   getPerformanceMetricsApi(
     eventId: string,
     marketId: string,

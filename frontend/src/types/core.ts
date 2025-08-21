@@ -475,6 +475,17 @@ export interface Player {
     percentage: number;
   };
   whyThisBet?: string;
+  // Optional fields added for compatibility with data hooks and legacy payloads
+  season_stats?: {
+    hits?: number;
+    games_played?: number;
+    batting_average?: number;
+    home_runs?: number;
+    rbis?: number;
+    [key: string]: unknown;
+  };
+  _sources?: string[];
+  _fetched_at?: string | number;
 }
 
 /**

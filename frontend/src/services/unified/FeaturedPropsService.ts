@@ -8,6 +8,7 @@
 
 import { debugEnhancedDataManager } from '../DebugEnhancedDataManager';
 import { enhancedDataManager } from '../EnhancedDataManager';
+import { enhancedLogger } from '../../utils/enhancedLogger';
 
 export interface FeaturedProp {
   id: string;
@@ -57,16 +58,18 @@ export async function fetchBatchPredictions(props: FeaturedProp[]): Promise<Feat
     const batchRequest = {
       id: 'batch_predictions',
       endpoint: '/api/unified/batch-predictions',
-      params: propsForBackend, // Pass the entire array as params
+      // The Unified fetchBatch expects params to be an object. Wrap array in an `items` field.
+      params: { items: propsForBackend } as Record<string, unknown>,
       priority: 'high' as const,
     };
 
     // Process batch with intelligent caching
-    const results = await enhancedDataManager.fetchBatch([batchRequest]);
+  // Call fetchBatch with the correctly shaped params object
+  const results = await enhancedDataManager.fetchBatch([batchRequest]);
 
     // Extract predictions from batch results
     const batchResult = results['batch_predictions'];
-    let backendPredictions: any[] = [];
+  let backendPredictions: unknown[] = [];
 
     if (batchResult) {
       // Handle backend response format: { predictions: [...], errors: [...] }
@@ -74,9 +77,9 @@ export async function fetchBatchPredictions(props: FeaturedProp[]): Promise<Feat
         typeof batchResult === 'object' &&
         batchResult !== null &&
         'predictions' in batchResult &&
-        Array.isArray((batchResult as any).predictions)
+        Array.isArray((batchResult as Record<string, unknown>).predictions)
       ) {
-        backendPredictions = (batchResult as any).predictions;
+        backendPredictions = (batchResult as Record<string, unknown>).predictions as unknown[];
       } else if (Array.isArray(batchResult)) {
         backendPredictions = batchResult;
       } else if (typeof batchResult === 'object') {
@@ -84,17 +87,19 @@ export async function fetchBatchPredictions(props: FeaturedProp[]): Promise<Feat
       }
     }
 
-    console.log(
-      `[FeaturedPropsService] Backend predictions received: ${backendPredictions.length} results for ${props.length} props`
-    );
+    enhancedLogger.info('FeaturedPropsService', 'fetchBatchPredictions', `Backend predictions received`, {
+      received: Array.isArray(backendPredictions) ? backendPredictions.length : 0,
+      requested: props.length,
+    });
 
     // Transform backend predictions back to FeaturedProp format with enhanced data
     const enhancedProps: FeaturedProp[] = props.map((originalProp, index) => {
       const backendPrediction = backendPredictions[index];
 
-      if (!backendPrediction || backendPrediction.error) {
+      const bp = backendPrediction as Record<string, any> | undefined;
+      if (!bp || bp.error) {
         // If prediction failed, return original prop
-        console.warn(`[FeaturedPropsService] No prediction for prop ${index}:`, originalProp.id);
+        enhancedLogger.warn('FeaturedPropsService', 'fetchBatchPredictions', `No prediction for prop`, { index, propId: originalProp.id });
         return originalProp;
       }
 
@@ -102,40 +107,26 @@ export async function fetchBatchPredictions(props: FeaturedProp[]): Promise<Feat
       const enhancedProp: FeaturedProp = {
         ...originalProp,
         // Update confidence from backend prediction
-        confidence: backendPrediction.confidence || originalProp.confidence,
-        // Add enhanced data as custom properties (will be available for enhanced analysis)
-        ...(backendPrediction.recommendation && {
-          recommendation: backendPrediction.recommendation,
-        }),
-        ...(backendPrediction.quantum_confidence && {
-          quantumConfidence: backendPrediction.quantum_confidence,
-        }),
-        ...(backendPrediction.neural_score && { neuralScore: backendPrediction.neural_score }),
-        ...(backendPrediction.kelly_fraction && {
-          kellyFraction: backendPrediction.kelly_fraction,
-        }),
-        ...(backendPrediction.expected_value && {
-          expectedValue: backendPrediction.expected_value,
-        }),
-        ...(backendPrediction.shap_explanation && {
-          shapExplanation: backendPrediction.shap_explanation,
-        }),
-        ...(backendPrediction.risk_assessment && {
-          riskAssessment: backendPrediction.risk_assessment,
-        }),
-        ...(backendPrediction.optimal_stake && { optimalStake: backendPrediction.optimal_stake }),
+  confidence: bp.confidence || originalProp.confidence,
+  // Add enhanced data as custom properties (will be available for enhanced analysis)
+  ...(bp.recommendation && { recommendation: bp.recommendation }),
+  ...(bp.quantum_confidence && { quantumConfidence: bp.quantum_confidence }),
+  ...(bp.neural_score && { neuralScore: bp.neural_score }),
+  ...(bp.kelly_fraction && { kellyFraction: bp.kelly_fraction }),
+  ...(bp.expected_value && { expectedValue: bp.expected_value }),
+  ...(bp.shap_explanation && { shapExplanation: bp.shap_explanation }),
+  ...(bp.risk_assessment && { riskAssessment: bp.risk_assessment }),
+  ...(bp.optimal_stake && { optimalStake: bp.optimal_stake }),
       };
 
       return enhancedProp;
     });
 
-    console.log(
-      `[FeaturedPropsService] Enhanced props created: ${enhancedProps.length} props with enhanced data`
-    );
+  enhancedLogger.info('FeaturedPropsService', 'fetchBatchPredictions', `Enhanced props created`, { enhancedCount: enhancedProps.length });
 
     return enhancedProps;
   } catch (error) {
-    console.error('[FeaturedPropsService] Batch predictions failed:', error);
+    enhancedLogger.error('FeaturedPropsService', 'fetchBatchPredictions', 'Batch predictions failed', undefined, error as Error);
     // Return original props if batch enhancement fails
     return props;
   }
@@ -167,11 +158,11 @@ export async function fetchFeaturedProps(
 
   try {
     if (sport === 'MLB') {
-      console.log(`[FeaturedPropsService] Fetching ${sport} props with enhanced data manager`);
+  enhancedLogger.info('FeaturedPropsService', 'fetchFeaturedProps', `Fetching ${sport} props with enhanced data manager`);
 
       try {
         // Try to use enhanced data manager for optimized MLB data fetching
-        console.log(`[FeaturedPropsService] Calling enhancedDataManager.fetchSportsProps with:`, {
+        enhancedLogger.debug('FeaturedPropsService', 'fetchFeaturedProps', 'Calling enhancedDataManager.fetchSportsProps with params', {
           sport,
           marketType: marketType || 'player',
           statTypes,
@@ -190,17 +181,14 @@ export async function fetchFeaturedProps(
           offset, // Pass offset for pagination
         });
 
-        console.log(`[FeaturedPropsService] Enhanced fetch completed: ${props.length} props`);
+  enhancedLogger.info('FeaturedPropsService', 'fetchFeaturedProps', `Enhanced fetch completed: ${props.length} props`, { count: props.length });
         return props;
       } catch (enhancedError) {
-        console.warn(
-          '[FeaturedPropsService] Enhanced manager failed, trying debug manager',
-          enhancedError
-        );
+  enhancedLogger.warn('FeaturedPropsService', 'fetchFeaturedProps', 'Enhanced manager failed, trying debug manager', undefined, enhancedError as Error);
 
         // Try debug manager as second fallback
         try {
-          console.log(`[FeaturedPropsService] Trying debug manager...`);
+          enhancedLogger.debug('FeaturedPropsService', 'fetchFeaturedProps', 'Trying debug manager...');
           const debugProps = await debugEnhancedDataManager.fetchSportsProps(
             sport,
             marketType || 'player',
@@ -210,13 +198,10 @@ export async function fetchFeaturedProps(
               offset,
             }
           );
-          console.log(`[FeaturedPropsService] Debug manager succeeded: ${debugProps.length} props`);
+          enhancedLogger.info('FeaturedPropsService', 'fetchFeaturedProps', `Debug manager succeeded: ${debugProps.length} props`, { count: debugProps.length });
           return debugProps;
         } catch (debugError) {
-          console.warn(
-            '[FeaturedPropsService] Debug manager also failed, falling back to direct API',
-            debugError
-          );
+          enhancedLogger.warn('FeaturedPropsService', 'fetchFeaturedProps', 'Debug manager also failed, falling back to direct API', undefined, debugError as Error);
         }
 
         // Fallback to direct API call with absolute URL
@@ -235,9 +220,9 @@ export async function fetchFeaturedProps(
         });
 
         // Map to FeaturedProp interface
-        const responseData = data as any;
-        const mappedProps = mapToFeaturedProps(responseData?.odds || [], sport);
-        console.log(`[FeaturedPropsService] Fallback fetch completed: ${mappedProps.length} props`);
+  const responseData = data as unknown;
+  const mappedProps = mapToFeaturedProps(((responseData as Record<string, unknown>)?.odds as unknown[]) || [], sport);
+  enhancedLogger.info('FeaturedPropsService', 'fetchFeaturedProps', `Fallback fetch completed: ${mappedProps.length} props`, { count: mappedProps.length });
         return mappedProps;
       }
     } else {
@@ -257,7 +242,7 @@ export async function fetchFeaturedProps(
       return mapToFeaturedProps(Array.isArray(data) ? data : [], sport);
     }
   } catch (error) {
-    console.error(`[FeaturedPropsService] Failed to fetch ${sport || 'general'} props:`, error);
+  enhancedLogger.error('FeaturedPropsService', 'fetchFeaturedProps', `Failed to fetch ${sport || 'general'} props`, undefined, error as Error);
 
     // Try to get cached data as fallback
     if (useCache) {
@@ -268,12 +253,10 @@ export async function fetchFeaturedProps(
           { useCache: true, realtime: false }
         );
 
-        console.warn(
-          `[FeaturedPropsService] Using fallback cached data: ${fallbackProps.length} props`
-        );
+  enhancedLogger.warn('FeaturedPropsService', 'fetchFeaturedProps', `Using fallback cached data: ${fallbackProps.length} props`);
         return fallbackProps;
       } catch (fallbackError) {
-        console.error('[FeaturedPropsService] Fallback also failed:', fallbackError);
+  enhancedLogger.error('FeaturedPropsService', 'fetchFeaturedProps', 'Fallback also failed', undefined, fallbackError as Error);
       }
     }
 
@@ -285,10 +268,10 @@ export async function fetchFeaturedProps(
         error.message.includes('timeout') ||
         error.message.includes('signal timed out') ||
         error.name === 'NetworkError' ||
-        (error as any).code === 'ERR_NETWORK');
+  ((error as unknown) as Record<string, unknown>).code === 'ERR_NETWORK');
 
     if (isConnectivityError) {
-      console.log(`[FeaturedPropsService] Backend unavailable for ${sport} - using mock data`);
+  enhancedLogger.warn('FeaturedPropsService', 'fetchFeaturedProps', `Backend unavailable for ${sport} - using mock data`);
 
       // Return mock data when backend is unavailable
       const mockProps: FeaturedProp[] = [
@@ -351,7 +334,7 @@ export async function fetchEnhancedPropAnalysis(
     useCache?: boolean;
     priority?: 'high' | 'normal' | 'low';
   } = {}
-): Promise<any> {
+): Promise<unknown> {
   const { useCache = true, priority = 'normal' } = options;
 
   try {
@@ -360,7 +343,7 @@ export async function fetchEnhancedPropAnalysis(
       priority,
     });
   } catch (error) {
-    console.error(`[FeaturedPropsService] Enhanced analysis failed for ${player} ${stat}:`, error);
+    enhancedLogger.error('FeaturedPropsService', 'fetchEnhancedPropAnalysis', `Enhanced analysis failed for ${player} ${stat}`, undefined, error as Error);
     throw error;
   }
 }
@@ -417,33 +400,38 @@ export async function prefetchPropsData(sport: string, patterns: string[] = []):
 }
 
 // Helper function to map raw data to FeaturedProp interface
-function mapToFeaturedProps(rawData: any[], sport?: string): FeaturedProp[] {
+function mapToFeaturedProps(rawData: unknown[], sport?: string): FeaturedProp[] {
   return rawData.map(item => {
+    const it = (item as Record<string, unknown>) || {};
     // Handle MLB odds data structure
-    const player = item.player || item.player_name || item.away_team || item.home_team || 'Unknown';
-    const matchup =
-      item.matchup ||
-      item.event_name ||
-      `${item.away_team || 'Team A'} vs ${item.home_team || 'Team B'}`;
-    const stat = item.stat || item.stat_type || item.market_type || 'Unknown';
+    const player = String(it.player ?? it.player_name ?? it.away_team ?? it.home_team ?? 'Unknown');
+    const matchup = String(
+      it.matchup ?? it.event_name ?? `${String(it.away_team ?? 'Team A')} vs ${String(it.home_team ?? 'Team B')}`
+    );
+    const stat = String(it.stat ?? it.stat_type ?? it.market_type ?? 'Unknown');
+
+    const id = String(it.id ?? it.event_id ?? `${player}-${stat}`);
 
     return {
-      id: item.id || item.event_id || `${player}-${stat}`,
+      id,
       player,
       matchup,
       stat,
-      line: parseFloat(item.line || item.line_score || 0),
-      overOdds: parseFloat(item.overOdds || item.over_odds || item.value || 0),
-      underOdds: parseFloat(item.underOdds || item.under_odds || item.value || 0),
-      confidence: parseFloat(item.confidence || 75), // Default confidence for real games
-      sport: sport || item.sport || 'MLB', // Use passed sport parameter first
-      gameTime: item.gameTime || item.start_time || new Date().toISOString(),
-      pickType: item.pickType || stat || 'prop',
+      line: parseFloat(String(it.line ?? it.line_score ?? 0)),
+      overOdds: parseFloat(String(it.overOdds ?? it.over_odds ?? it.value ?? 0)),
+      underOdds: parseFloat(String(it.underOdds ?? it.under_odds ?? it.value ?? 0)),
+      confidence: parseFloat(String(it.confidence ?? 75)), // Default confidence for real games
+      sport: String(sport ?? it.sport ?? 'MLB'), // Use passed sport parameter first
+      gameTime: String(it.gameTime ?? it.start_time ?? new Date().toISOString()),
+      pickType: String(it.pickType ?? stat ?? 'prop'),
       // Important: This is the player_id field from the MLB API that powers the headshot URLs
       // The headshots are loaded from: https://midfield.mlbstatic.com/v1/people/{player_id}/spots/120
-      espnPlayerId: item.espnPlayerId || item.player_id || item.playerId || undefined,
+      espnPlayerId:
+        typeof (it.espnPlayerId ?? it.player_id ?? it.playerId) === 'string'
+          ? ((it.espnPlayerId ?? it.player_id ?? it.playerId) as string)
+          : undefined,
       // Preserve original raw data for backend processing
-      _originalData: item,
+      _originalData: it as Record<string, unknown>,
     };
   });
 }

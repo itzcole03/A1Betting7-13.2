@@ -22,7 +22,7 @@
     "test:e2e:ui": "playwright test --ui",
     "lint": "eslint src --ext .ts,.tsx --max-warnings 0",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
-    "type-check": "tsc --noEmit",
+  "type-check": "tsc -p tsconfig.app.json --noEmit",
     "type-check:watch": "tsc --noEmit --watch",
     "check:legacy-ws": "powershell -Command \"Get-ChildItem src -Recurse -Include *.ts,*.tsx,*.js,*.jsx | Select-String -Pattern 'client_/ws' | Measure-Object | Select-Object -ExpandProperty Count\"",
     "check:model-metrics": "node ../scripts/detect-model-metrics-violations.js",

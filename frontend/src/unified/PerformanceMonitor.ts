@@ -204,18 +204,20 @@ export class PerformanceMonitor {
       const _end = performance.now();
       _metrics.cpu.usage = (_end - _start) / 1000;
     }
-    // Collect memory metrics;
-    if (performance.memory) {
+    // Collect memory metrics; guard for environments where memory isn't available
+    if (typeof performance !== 'undefined' && (performance as any).memory) {
+      const pm: any = (performance as any).memory;
       _metrics.memory = {
-        total: performance.memory.totalJSHeapSize,
-        used: performance.memory.usedJSHeapSize,
-        free: performance.memory.totalJSHeapSize - performance.memory.usedJSHeapSize,
+        total: pm.totalJSHeapSize || 0,
+        used: pm.usedJSHeapSize || 0,
+        free: (pm.totalJSHeapSize || 0) - (pm.usedJSHeapSize || 0),
         swap: 0,
       };
     }
-    // Collect network metrics;
-    if (navigator.connection) {
-      _metrics.network.latency = navigator.connection.rtt || 0;
+    // Collect network metrics; guard for browsers where navigator.connection isn't present
+    if (typeof navigator !== 'undefined' && (navigator as any).connection) {
+      const conn: any = (navigator as any).connection;
+      _metrics.network.latency = conn.rtt || 0;
     }
     return _metrics;
   }

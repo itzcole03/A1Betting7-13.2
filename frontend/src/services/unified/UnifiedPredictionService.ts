@@ -1,6 +1,7 @@
 import { BaseService } from './BaseService';
 import { UnifiedCache } from './UnifiedCache';
 import { UnifiedDataService } from './UnifiedDataService';
+import { UnifiedServiceRegistry } from './UnifiedServiceRegistry';
 
 interface PredictionRequest {
   sport: string;
@@ -25,8 +26,8 @@ export class UnifiedPredictionService extends BaseService {
   private dataService: UnifiedDataService;
 
   protected constructor() {
-    // @ts-expect-error TS(2554): Expected 2 arguments, but got 1.
-    super('UnifiedPredictionService');
+    // Pass the centralized registry instance to BaseService; keep signature compatible
+    super('UnifiedPredictionService', UnifiedServiceRegistry.getInstance());
     this.cache = UnifiedCache.getInstance();
     this.dataService = UnifiedDataService.getInstance();
   }
@@ -61,12 +62,13 @@ export class UnifiedPredictionService extends BaseService {
       };
 
       const response = await this.post('/api/predictions/make', predictionData);
+      const respAny = response as any;
 
       const result: PredictionResult = {
-        prediction: response.prediction,
-        confidence: response.confidence,
-        modelUsed: response.model || 'default',
-        factors: response.factors || [],
+        prediction: respAny.prediction,
+        confidence: respAny.confidence,
+        modelUsed: respAny.model || 'default',
+        factors: respAny.factors || [],
         timestamp: new Date(),
       };
 
@@ -88,8 +90,8 @@ export class UnifiedPredictionService extends BaseService {
 
   async batchPredict(requests: PredictionRequest[]): Promise<PredictionResult[]> {
     try {
-      const response = await this.post('/api/predictions/batch', { requests });
-      return response.predictions;
+  const response = await this.post('/api/predictions/batch', { requests });
+  return (response as any).predictions;
     } catch (error) {
       this.logger.error('Failed to make batch predictions', error);
       throw error;
@@ -98,8 +100,8 @@ export class UnifiedPredictionService extends BaseService {
 
   async getPredictionHistory(filters: unknown = {}): Promise<PredictionResult[]> {
     try {
-      const response = await this.get(`/api/predictions/history?${new URLSearchParams(filters as Record<string, string>)}`);
-      return response.predictions;
+  const response = await this.get(`/api/predictions/history?${new URLSearchParams(filters as Record<string, string>)}`);
+  return (response as any).predictions;
     } catch (error) {
       this.logger.error('Failed to fetch prediction history', error);
       return [];
@@ -111,8 +113,8 @@ export class UnifiedPredictionService extends BaseService {
       const url = modelName
         ? `/api/predictions/performance/${modelName}`
         : '/api/predictions/performance';
-      const response = await this.get(url);
-      return response;
+  const response = await this.get(url);
+  return response as any;
     } catch (error) {
       this.logger.error('Failed to fetch model performance', error);
       return {};
@@ -121,7 +123,7 @@ export class UnifiedPredictionService extends BaseService {
 
   async calibrateModel(modelName: string, calibrationData: unknown): Promise<boolean> {
     try {
-      await this.post(`/api/predictions/calibrate/${modelName}`, calibrationData);
+  await this.post(`/api/predictions/calibrate/${modelName}`, calibrationData);
       this.logger.info('Model calibrated', { modelName });
       return true;
     } catch (error) {
@@ -132,8 +134,8 @@ export class UnifiedPredictionService extends BaseService {
 
   async getAvailableModels(): Promise<string[]> {
     try {
-      const response = await this.get('/api/predictions/models');
-      return response.models;
+  const response = await this.get('/api/predictions/models');
+  return (response as any).models;
     } catch (error) {
       this.logger.error('Failed to fetch available models', error);
       return ['default'];

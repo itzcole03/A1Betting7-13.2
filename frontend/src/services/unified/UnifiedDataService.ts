@@ -109,7 +109,7 @@ import { UnifiedServiceRegistry } from './UnifiedServiceRegistry';
 
 export class UnifiedDataService extends BaseService {
   private static instance: UnifiedDataService;
-  private cache = new Map<string, unknown>();
+  private memoryCache = new Map<string, unknown>();
   protected unifiedCache: UnifiedCache;
 
   protected constructor() {
@@ -128,10 +128,10 @@ export class UnifiedDataService extends BaseService {
    * Cache data with TTL (Stabilization Fix)
    * Method expected by monitoring services that was missing
    */
-  async cacheData<T>(key: string, value: T): Promise<void> {
-    this.cache.set(key, value);
+  async cacheData<T>(key: string, value: T, ttl?: number): Promise<void> {
+    this.memoryCache.set(key, value);
     // Also cache in unified cache for compatibility
-    this.unifiedCache.set(key, value);
+    this.unifiedCache.set(key, value, ttl);
     this.logger.info('Data cached', { key });
   }
 
@@ -140,7 +140,7 @@ export class UnifiedDataService extends BaseService {
    * Method expected by monitoring services that was missing
    */
   async getCachedData<T>(key: string): Promise<T | undefined> {
-    const result = this.cache.get(key) as T | undefined;
+    const result = this.memoryCache.get(key) as T | undefined;
     this.logger.info('Cache accessed', { key, hit: result !== undefined });
     return result;
   }

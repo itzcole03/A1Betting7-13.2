@@ -14,6 +14,7 @@ import AIExplanationPanel from '../ai/AIExplanationPanel';
 import PlayerOverview from './PlayerOverview';
 import PlayerPropHistory from './PlayerPropHistory';
 import PlayerStatTrends from './PlayerStatTrends';
+import type { PlayerDataService } from '@/services/player/PlayerDataService';
 
 export interface Player {
   id: string;
@@ -26,9 +27,33 @@ export interface Player {
     batting_average?: number;
     home_runs?: number;
     rbis?: number;
+    hits?: number;
+    [key: string]: unknown;
   };
+  _sources?: string[];
+  _fetched_at?: string | number;
   active?: boolean;
   injury_status?: string;
+  last_30_games?: Array<{
+    date?: string;
+    opponent?: string;
+    home?: boolean;
+    result?: string;
+    stats?: Record<string, unknown>;
+    game_score?: number;
+    weather?: unknown;
+  }>;
+  performance_trends?: Record<string, unknown>;
+  advanced_metrics?: {
+    consistency_score?: number;
+    clutch_performance?: number;
+    injury_risk?: number;
+    hot_streak?: boolean;
+    cold_streak?: boolean;
+    breakout_candidate?: boolean;
+    [key: string]: unknown;
+  };
+  projections?: Record<string, unknown>;
 }
 
 // ...existing code...
@@ -131,15 +156,17 @@ export const PlayerDashboardContainer: React.FC<PlayerDashboardContainerProps> =
       } else {
         // Use standard search (existing implementation)
         const { default: registry } = await import('../../services/MasterServiceRegistry');
-        const playerDataService = registry.getService
-          ? registry.getService('playerData')
-          : undefined;
+        // Narrow the runtime service to the expected interface so TypeScript
+        // recognizes `searchPlayers` and related methods.
+        const playerDataService = (
+          registry.getService ? registry.getService('playerData') : undefined
+        ) as PlayerDataService | undefined;
         // Update type for playerDataService to include searchPlayers
         if (playerDataService && typeof (playerDataService as any).searchPlayers === 'function') {
           const results = await (playerDataService as any).searchPlayers(searchQuery, sport, 10);
           try {
             const results = await playerDataService.searchPlayers(searchQuery, sport, 10);
-            if (active) setSearchResults(results);
+            if (active) setSearchResults(results as unknown as Player[]);
           } catch {
             if (active) setSearchResults([]);
           }

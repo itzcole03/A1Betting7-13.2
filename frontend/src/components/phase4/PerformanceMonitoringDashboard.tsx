@@ -14,6 +14,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import React, { useEffect, useState, useRef } from 'react';
+import { enhancedLogger } from '../../utils/enhancedLogger';
 import { fetchHealthData, fetchPerformanceStats } from '../../utils/robustApi';
 
 // TEMPORARY: Runtime error diagnostics (remove after fix confirmed)  
@@ -121,12 +122,10 @@ const PerformanceMonitoringDashboard: React.FC = () => {
       // PERMANENT FIX: Safe object access pattern prevents race conditions
       const safePerformance = health.performance ?? {};
       try {
-        // eslint-disable-next-line no-console
-        console.log('Health performance keys:', Object.keys(safePerformance));
+        enhancedLogger.debug('PerformanceMonitoringDashboard', 'healthKeys', 'Health performance keys', { keys: Object.keys(safePerformance) });
         debugHealthStructure(health, 'PerformanceMonitoringDashboard');
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('[CRITICAL] Object.keys error despite safe pattern:', error);
+        enhancedLogger.error('PerformanceMonitoringDashboard', 'healthKeys', '[CRITICAL] Object.keys error despite safe pattern', undefined, error as unknown as Error);
       }
       hasLoggedHealthKeys.current = true;
     }
@@ -168,7 +167,7 @@ const PerformanceMonitoringDashboard: React.FC = () => {
       ) {
         perfData = perfDataRaw.data as PerformanceMetrics;
       } else {
-        perfData = perfDataRaw as PerformanceMetrics;
+  perfData = (perfDataRaw as unknown) as PerformanceMetrics;
       }
 
       setHealth(healthData);
@@ -176,8 +175,7 @@ const PerformanceMonitoringDashboard: React.FC = () => {
 
       // Add single dev-only diagnostic after metrics loaded
       if (process.env.NODE_ENV === 'development' && perfData) {
-        // eslint-disable-next-line no-console
-        console.log('[MetricsDiag]', {
+        enhancedLogger.debug('PerformanceMonitoringDashboard', 'metricsDiag', 'MetricsDiag', {
           total: getTotalRequests(perfData),
           optLevel: getOptimizationLevel(perfData),
           hits: getCacheHits(perfData),
@@ -196,8 +194,7 @@ const PerformanceMonitoringDashboard: React.FC = () => {
               perfData.system_info?.caching_strategy?.includes('Cloud Demo')))
       );
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('Failed to fetch performance data:', err);
+  enhancedLogger.error('PerformanceMonitoringDashboard', 'fetchData', 'Failed to fetch performance data', undefined, err as unknown as Error);
       setError('Using demo data - API may be unavailable');
       // Provide fallback data
       setMetrics(getMockMetrics());

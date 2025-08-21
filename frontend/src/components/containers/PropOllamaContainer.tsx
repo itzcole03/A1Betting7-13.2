@@ -1,4 +1,5 @@
 import React from 'react';
+import { enhancedLogger } from '../../utils/enhancedLogger';
 import { httpFetch } from '../../services/HttpClient';
 import { BetSlipComponent } from '../betting/BetSlipComponent';
 import DirectDataFetchTest from '../debug/DirectDataFetchTest';
@@ -21,24 +22,38 @@ import { GameStatsPanel } from '../stats/GameStatsPanel';
  * into manageable, reusable pieces with proper separation of concerns.
  */
 const PropOllamaContainer: React.FC = () => {
-  console.count('[PropOllamaContainer] RENDER');
-  console.log('[PropOllamaContainer] Component rendering');
+  enhancedLogger.debug('PropOllamaContainer', 'render', 'Component render');
 
   // Make a test API call to verify the component is actually running
   React.useEffect(() => {
-    console.log('[PropOllamaContainer] useEffect running - making test call');
+    enhancedLogger.debug('PropOllamaContainer', 'healthCheck', 'useEffect running - making test call');
     httpFetch('/api/v2/health')
       .then(response => response.json())
       .then(data => {
-        console.log('[PropOllamaContainer] Test call success:', JSON.stringify(data, null, 2));
+        enhancedLogger.info('PropOllamaContainer', 'healthCheck', 'Test call success', { data });
       })
       .catch(error => {
-        console.error('[PropOllamaContainer] Test call failed:', error);
+        enhancedLogger.error('PropOllamaContainer', 'healthCheck', 'Test call failed', undefined, error as Error);
       });
   }, []);
 
   // State and actions hooks
   const [state, actions] = usePropOllamaState();
+
+  // Derive BetSlipItem[] from SelectedProp[] to satisfy BetSlipComponent props
+  const betSlipItems = React.useMemo(() => {
+    try {
+      return (state.selectedProps || []).map((sp: any) => ({
+        opportunityId: sp.id ?? sp.opportunityId ?? String(sp?.playerId ?? sp?.key ?? ''),
+        opportunity: sp as any,
+        stake: typeof sp.stake === 'number' ? sp.stake : state.entryAmount || 0,
+        potentialPayout: typeof sp.potentialPayout === 'number' ? sp.potentialPayout : 0,
+        addedAt: sp.addedAt ?? Date.now(),
+      }));
+    } catch (e) {
+      return [] as any[];
+    }
+  }, [state.selectedProps, state.entryAmount]);
 
   // Memoized handlers for children
   const handleFiltersChange = React.useCallback(actions.updateFilters, [actions]);
@@ -137,7 +152,7 @@ const PropOllamaContainer: React.FC = () => {
               expandedRowKey={state.displayOptions.expandedRowKey}
               onExpandToggle={key => actions.updateDisplayOptions({ expandedRowKey: key })}
               onAnalysisRequest={async prop => {
-                console.log('Analysis requested for', prop);
+                enhancedLogger.info('PropOllamaContainer', 'onAnalysisRequest', 'Analysis requested for prop', { prop });
                 return Promise.resolve();
               }}
               enhancedAnalysisCache={state.enhancedAnalysisCache as unknown as Map<string, any>}
@@ -152,34 +167,32 @@ const PropOllamaContainer: React.FC = () => {
           {/* Bet Slip - Takes 1/4 of space */}
           <div className='betslip-section xl:col-span-1 bg-slate-800/50 backdrop-blur-sm rounded-lg border border-slate-600 p-6'>
             <BetSlipComponent
-              selectedProps={state.selectedProps}
+              selectedProps={betSlipItems}
               entryAmount={state.entryAmount}
               onRemoveProp={actions.removeSelectedProp}
               onEntryAmountChange={actions.setEntryAmount}
               onClearSlip={() => actions.setSelectedProps([])}
               onPlaceBet={() => {
-                console.log('Placing bet with props:', state.selectedProps);
+                enhancedLogger.info('PropOllamaContainer', 'onPlaceBet', 'Placing bet', { selectedProps: state.selectedProps });
               }}
             />
           </div>
         </div>
 
         {/* Loading Overlay */}
-        {state.isLoading && (
-          <LoadingOverlay
-            isVisible={state.isLoading}
-            stage={
-              state.loadingStage?.stage === 'filtering' || state.loadingStage?.stage === 'sorting'
-                ? 'processing'
-                : state.loadingStage?.stage === 'rendering' ||
-                  state.loadingStage?.stage === 'complete'
-                ? 'processing'
-                : state.loadingStage?.stage || 'fetching'
-            }
-            sport={state.filters.selectedSport}
-            message={state.loadingMessage}
-          />
-        )}
+        <LoadingOverlay
+          isVisible={!!state.isLoading}
+          stage={
+            state.loadingStage?.stage === 'filtering' || state.loadingStage?.stage === 'sorting'
+              ? 'processing'
+              : state.loadingStage?.stage === 'rendering' ||
+                state.loadingStage?.stage === 'complete'
+              ? 'processing'
+              : (state.loadingStage?.stage as any) || 'fetching'
+          }
+          sport={state.filters.selectedSport}
+          message={state.loadingMessage}
+        />
       </div>
     </EnhancedErrorBoundary>
   );

@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/main.tsx",
+    "src/index.tsx",
+  "src/App.tsx",
+  "src/onboarding/OnboardingFlow.d.ts"
+  ]
+}

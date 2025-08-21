@@ -16,19 +16,10 @@ import {
   Zap,
 } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { enhancedLogger } from '../../../utils/enhancedLogger';
 import { mockOddsData } from './MockOddsData';
 
-interface BookLine {
-  book_id: string;
-  book_name: string;
-  market: string;
-  player_name: string;
-  stat_type: string;
-  line: number;
-  over_price: number;
-  under_price: number;
-  timestamp: string;
-}
+// (Removed unused BookLine interface - kept canonical and arbitrage types only)
 
 interface CanonicalLine {
   market: string;
@@ -95,7 +86,8 @@ const OddsComparison: React.FC = () => {
 
   // Available books and stat types for filtering
   const [availableBooks, setAvailableBooks] = useState<string[]>([]);
-  const [availableStatTypes] = useState<string[]>([
+  // prefix with '_' because it's declared for future UI but currently unused
+  const [_availableStatTypes] = useState<string[]>([
     'hits',
     'home_runs',
     'rbis',
@@ -110,15 +102,20 @@ const OddsComparison: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    // Use mock data immediately for demo mode
-    console.log('[OddsComparison] Using mock data (backend unavailable)');
+  // Use mock data immediately for demo mode
+  enhancedLogger.info('OddsComparison', 'fetchOddsData', 'Using mock data (backend unavailable)');
     setBestLines(mockOddsData.best_lines);
 
     // Extract unique books for filtering
     const books = new Set<string>();
-    mockOddsData.best_lines.forEach((line: any) => {
-      books.add(line.best_over_book);
-      books.add(line.best_under_book);
+    mockOddsData.best_lines.forEach((line: unknown) => {
+      if (line && typeof line === 'object') {
+        const l = line as Record<string, unknown>;
+        const bo = l.best_over_book as string | undefined;
+        const bu = l.best_under_book as string | undefined;
+        if (typeof bo === 'string') books.add(bo);
+        if (typeof bu === 'string') books.add(bu);
+      }
     });
     setAvailableBooks(Array.from(books));
 
@@ -147,11 +144,11 @@ const OddsComparison: React.FC = () => {
         });
         setAvailableBooks(Array.from(realBooks));
         setLastUpdate(new Date());
-        console.log('[OddsComparison] Successfully loaded real data');
+  enhancedLogger.info('OddsComparison', 'fetchOddsData', 'Successfully loaded real data', { timestamp: new Date().toISOString() });
       }
     } catch (err) {
       // Silently continue with mock data
-      console.log('[OddsComparison] Backend unavailable, continuing with mock data');
+      enhancedLogger.warn('OddsComparison', 'fetchOddsData', 'Backend unavailable, continuing with mock data', undefined, err as Error);
     }
   }, [filters.sport]);
 
@@ -177,12 +174,12 @@ const OddsComparison: React.FC = () => {
         setArbitrageOps(data.opportunities || mockOddsData.arbitrage_opportunities);
       }
     } catch (err) {
-      console.log('[OddsComparison] Arbitrage API unavailable, using mock data');
+      enhancedLogger.warn('OddsComparison', 'fetchArbitrageData', 'Arbitrage API unavailable, using mock data', undefined, err as Error);
     }
   }, [filters.sport, filters.minArbitrageProfit]);
 
   // Generate mock data for demo
-  const generateMockBestLines = (): CanonicalLine[] => {
+  const _generateMockBestLines = (): CanonicalLine[] => {
     const mockPlayers = ['Aaron Judge', 'Mookie Betts', 'Ronald Acuna Jr.', 'Juan Soto'];
     const statTypes = ['hits', 'home_runs', 'rbis', 'total_bases'];
     const books = ['DraftKings', 'FanDuel', 'BetMGM', 'Caesars'];
@@ -206,7 +203,7 @@ const OddsComparison: React.FC = () => {
     );
   };
 
-  const generateMockArbitrageOps = (): ArbitrageOpportunity[] => {
+  const _generateMockArbitrageOps = (): ArbitrageOpportunity[] => {
     const mockPlayers = ['Aaron Judge', 'Mookie Betts'];
     const statTypes = ['hits', 'total_bases'];
     const books = ['DraftKings', 'FanDuel', 'BetMGM', 'Caesars'];
@@ -274,9 +271,13 @@ const OddsComparison: React.FC = () => {
         'Arbitrage',
         'Books',
       ];
+      const canonicalLines = (data as CanonicalLine[]).filter(
+        (l): l is CanonicalLine => !!l && typeof l.player_name === 'string'
+      );
+
       const csvContent = [
         headers.join(','),
-        ...data.map((line: CanonicalLine) =>
+        ...canonicalLines.map(line =>
           [
             line.player_name,
             line.stat_type,
@@ -509,15 +510,15 @@ const OddsComparison: React.FC = () => {
         <div className='bg-slate-800/50 backdrop-blur rounded-lg border border-slate-700 mb-6'>
           <div className='border-b border-slate-700'>
             <nav className='flex space-x-8 px-6'>
-              {[
+      {[ 
                 { id: 'lines', label: 'Best Lines', icon: TrendingUp },
                 { id: 'arbitrage', label: 'Arbitrage Opportunities', icon: Target },
-              ].map(tab => {
+      ].map(tab => {
                 const Icon = tab.icon;
                 return (
                   <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
+        key={tab.id}
+        onClick={() => setActiveTab(tab.id as 'lines' | 'arbitrage')}
                     className={`flex items-center gap-2 py-4 border-b-2 font-medium text-sm transition-colors ${
                       activeTab === tab.id
                         ? 'border-blue-500 text-blue-400'

@@ -3,7 +3,6 @@ import axios from 'axios';
 import { UnifiedCache } from './UnifiedCache';
 import { UnifiedConfig } from './UnifiedConfig';
 import { UnifiedLogger } from './UnifiedLogger';
-// @ts-expect-error TS(2305): Module '"./UnifiedServiceRegistry"' has no exporte... Remove this comment to see the full error message
 import { UnifiedServiceRegistry } from './UnifiedServiceRegistry';
 
 // Browser-compatible EventEmitter;
@@ -42,7 +41,8 @@ export abstract class BaseService extends EventEmitter {
 
   constructor(
     protected readonly name: string,
-    protected readonly serviceRegistry: UnifiedServiceRegistry
+    // Keep the registry loosely typed to avoid tight coupling during incremental fixes
+    protected readonly serviceRegistry: any
   ) {
     super();
     this.config = UnifiedConfig.getInstance();

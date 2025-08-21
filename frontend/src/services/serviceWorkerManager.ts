@@ -9,6 +9,7 @@
  */
 
 import React from 'react';
+import { enhancedLogger } from '../utils/enhancedLogger';
 
 interface ServiceWorkerUpdateState {
   hasUpdate: boolean;
@@ -34,12 +35,12 @@ class ServiceWorkerManager {
    */
   async register(): Promise<ServiceWorkerRegistration | null> {
     if (!('serviceWorker' in navigator)) {
-      console.log('[ServiceWorker] Not supported in this browser');
+      enhancedLogger.warn('ServiceWorker', 'register', 'Not supported in this browser');
       return null;
     }
 
     try {
-      console.log('[ServiceWorker] Registering with 2025 best practices...');
+  enhancedLogger.info('ServiceWorker', 'register', 'Registering with 2025 best practices...');
 
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/',
@@ -54,14 +55,14 @@ class ServiceWorkerManager {
       // Enable background sync
       this.enableBackgroundSync(registration);
 
-      // Track registration success
-      console.log('[ServiceWorker] Registration tracking: success');
+  // Track registration success
+  enhancedLogger.info('ServiceWorker', 'register', 'Registration tracking: success');
 
-      console.log('[ServiceWorker] Successfully registered');
+  enhancedLogger.info('ServiceWorker', 'register', 'Successfully registered');
       return registration;
     } catch (error) {
-      console.error('[ServiceWorker] Registration failed:', error);
-      console.log('[ServiceWorker] Registration tracking: error');
+  enhancedLogger.error('ServiceWorker', 'register', 'Registration failed', undefined, error as Error);
+  enhancedLogger.warn('ServiceWorker', 'register', 'Registration tracking: error');
 
       this.updateState({
         error: `Registration failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -77,7 +78,7 @@ class ServiceWorkerManager {
   private setupUpdateHandling(registration: ServiceWorkerRegistration): void {
     // Check for updates periodically
     setInterval(() => {
-      registration.update().catch(console.error);
+  registration.update().catch((e: any) => enhancedLogger.error('ServiceWorker', 'update', 'Update failed', undefined, e as Error));
     }, 60000); // Check every minute
 
     // Handle installation of new service worker
@@ -85,7 +86,7 @@ class ServiceWorkerManager {
       const newWorker = registration.installing;
       if (!newWorker) return;
 
-      console.log('[ServiceWorker] New version found, installing...');
+  enhancedLogger.info('ServiceWorker', 'updatefound', 'New version found, installing...');
 
       this.updateState({
         isInstalling: true,
@@ -96,7 +97,7 @@ class ServiceWorkerManager {
         if (newWorker.state === 'installed') {
           if (navigator.serviceWorker.controller) {
             // New version available
-            console.log('[ServiceWorker] New version ready');
+            enhancedLogger.info('ServiceWorker', 'update', 'New version ready');
             this.updateState({
               hasUpdate: true,
               isInstalling: false,
@@ -104,7 +105,7 @@ class ServiceWorkerManager {
             });
           } else {
             // First time installation
-            console.log('[ServiceWorker] App is ready for offline use');
+            enhancedLogger.info('ServiceWorker', 'update', 'App is ready for offline use');
             this.updateState({
               isInstalling: false,
             });
@@ -115,7 +116,7 @@ class ServiceWorkerManager {
 
     // Handle controller change (when new SW becomes active)
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      console.log('[ServiceWorker] New version is now controlling the app');
+  enhancedLogger.info('ServiceWorker', 'controllerchange', 'New version is now controlling the app');
       // Optionally reload the page or show notification
       window.location.reload();
     });
@@ -132,13 +133,13 @@ class ServiceWorkerManager {
         const syncManager = (registration as any).sync;
         if (syncManager && typeof syncManager.register === 'function') {
           syncManager.register('analytics-sync').catch((error: any) => {
-            console.log('[ServiceWorker] Sync registration failed:', error);
+            enhancedLogger.error('ServiceWorker', 'sync', 'Sync registration failed', undefined, error as Error);
           });
-          console.log('[ServiceWorker] Background sync enabled');
+          enhancedLogger.info('ServiceWorker', 'sync', 'Background sync enabled');
         }
-      } catch (error) {
-        console.log('[ServiceWorker] Background sync not available:', error);
-      }
+        } catch (error) {
+          enhancedLogger.warn('ServiceWorker', 'sync', 'Background sync not available', undefined, error as Error);
+        }
     }
   }
 
@@ -181,8 +182,9 @@ class ServiceWorkerManager {
       try {
         const subscription = await this.registration.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: this.urlBase64ToUint8Array(process.env.VITE_VAPID_PUBLIC_KEY || ''),
-        });
+          // Cast to any to accept various BufferSource implementations across browsers
+          applicationServerKey: this.urlBase64ToUint8Array(process.env.VITE_VAPID_PUBLIC_KEY || '') as any,
+        } as any);
 
         // Send subscription to backend
         await fetch('/api/push/subscribe', {
@@ -193,9 +195,9 @@ class ServiceWorkerManager {
           body: JSON.stringify(subscription),
         });
 
-        console.log('[ServiceWorker] Push notifications enabled');
+  enhancedLogger.info('ServiceWorker', 'push', 'Push notifications enabled');
       } catch (error) {
-        console.error('[ServiceWorker] Push subscription failed:', error);
+  enhancedLogger.error('ServiceWorker', 'push', 'Push subscription failed', undefined, error as Error);
       }
     }
 
@@ -214,7 +216,7 @@ class ServiceWorkerManager {
    */
   private updateState(updates: Partial<ServiceWorkerUpdateState>): void {
     this.state = { ...this.state, ...updates };
-    this.updateCallbacks.forEach(callback => callback(this.state));
+  this.updateCallbacks.forEach(callback => callback(this.state));
   }
 
   /**

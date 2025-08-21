@@ -147,10 +147,9 @@ class CheatsheetsService {
 
       // Return fallback data with error context
       logger.warn('Using fallback data due to API error', undefined, 'CheatsheetsService');
-      const fallbackData = this.generateFallbackData(filters);
-      fallbackData.api_error = true;
-      fallbackData.error_message = errorMessage;
-      return fallbackData;
+  const fallbackData = this.generateFallbackData(filters);
+  // Return fallback (typed) data; extended debug fields are intentionally omitted
+  return fallbackData;
     }
   }
 
@@ -214,7 +213,7 @@ class CheatsheetsService {
     }
   }
 
-  private generateCSVFromData(opportunities: any[]): string {
+  private generateCSVFromData(opportunities: PropOpportunity[]): string {
     if (opportunities.length === 0) {
       return 'No data available\n';
     }
@@ -224,7 +223,7 @@ class CheatsheetsService {
 
     opportunities.forEach(opp => {
       const row = headers.map(header => {
-        const value = opp[header];
+    const value = (opp as any)[header];
         return typeof value === 'string' && value.includes(',')
           ? `"${value.replace(/"/g, '""')}"`
           : value;
@@ -431,7 +430,8 @@ class CheatsheetsService {
       last_updated: new Date().toISOString(),
       data_sources: this.isCloudEnvironment ? ['cloud-demo-generator'] : ['fallback-generator'],
       market_status: this.isCloudEnvironment ? 'active' : 'limited',
-      cloud_demo_mode: this.isCloudEnvironment
+  // Attach cloud demo flag in an extended object to avoid changing OpportunitiesResponse
+  // cloud_demo_mode is kept in extendedFallback only (not part of OpportunitiesResponse)
     };
   }
 }

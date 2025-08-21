@@ -13,7 +13,7 @@ import {
 } from '../types/DataValidation';
 import { dataValidator } from './EnhancedDataValidator';
 import { enhancedLogger } from '../utils/enhancedLogger';
-import { buildWebSocketUrl, getOrPersistClientId } from '../utils/websocketBuilder';
+import { buildWebSocketUrl } from '../utils/websocketBuilder';
 import { safeObjectKeys } from '../utils/objectGuards';
 
 interface FeaturedProp extends ValidatedSportsProp {
@@ -267,7 +267,7 @@ class EnhancedDataManager {
             results[request.id] = data;
           })
           .catch(error => {
-            console.error(`[DataManager] Batch request failed for ${request.id}:`, error);
+            enhancedLogger.error('DataManager', 'batchRequest', `Batch request failed for ${request.id}`, undefined, error as Error);
             results[request.id] = null as any;
           });
 
@@ -304,9 +304,7 @@ class EnhancedDataManager {
 
       // Make single POST request to batch predictions endpoint
       const url = `${this.getBackendUrl()}/api/unified/batch-predictions`;
-      console.log(
-        `[DataManager] Making batch predictions request to ${url} with ${props.length} props`
-      );
+  enhancedLogger.info('DataManager', 'batchPredictions', `Making batch predictions request to ${url} with ${props.length} props`);
 
       const response = await axios.post(url, props, {
         headers: {
@@ -352,14 +350,12 @@ class EnhancedDataManager {
           });
         }
       } else {
-        console.warn('[DataManager] Unexpected batch predictions response format:', response.data);
+        enhancedLogger.warn('DataManager', 'batchPredictions', 'Unexpected batch predictions response format', { data: response.data });
       }
 
-      console.log(
-        `[DataManager] Batch predictions completed: ${safeObjectKeys(results).length} results`
-      );
+      enhancedLogger.info('DataManager', 'batchPredictions', `Batch predictions completed: ${safeObjectKeys(results).length} results`);
     } catch (error: any) {
-      console.error('[DataManager] Batch predictions request failed:', error);
+      enhancedLogger.error('DataManager', 'batchPredictions', 'Batch predictions request failed', undefined, error as Error);
 
       // Mark all requests as failed
       requests.forEach(request => {
@@ -433,17 +429,16 @@ class EnhancedDataManager {
       const predictions = this.getPrefetchPredictions(pattern);
 
       for (const prediction of predictions) {
-        // Use low priority for prefetch requests
-        this.fetchData(prediction.endpoint, prediction.params, {
-          priority: 'low',
-          cache: true,
-          ttl: 600000, // 10 minutes for prefetched data
-        }).catch(error => {
-          console.debug(`[DataManager] Prefetch failed for ${prediction.endpoint}:`, error);
-        });
+          this.fetchData(prediction.endpoint, prediction.params, {
+            priority: 'low',
+            cache: true,
+            ttl: 600000, // 10 minutes for prefetched data
+          }).catch(error => {
+            enhancedLogger.debug('DataManager', 'prefetch', `Prefetch failed for ${prediction.endpoint}`, undefined, error as Error);
+          });
       }
     } catch (error) {
-      console.error('[DataManager] Prefetch error:', error);
+      enhancedLogger.error('DataManager', 'prefetch', 'Prefetch error', undefined, error as Error);
     }
   }
 
@@ -485,9 +480,7 @@ class EnhancedDataManager {
 
       // Debug cache key generation
       const cacheKey = this.generateCacheKey(endpoint, params);
-      console.log(`[EnhancedDataManager] fetchSportsProps cache key: ${cacheKey}`);
-      console.log(`[EnhancedDataManager] fetchSportsProps params:`, params);
-      console.log(`[EnhancedDataManager] fetchSportsProps statTypes:`, statTypes);
+      enhancedLogger.debug('DataManager', 'fetchSportsProps', `fetchSportsProps cache key: ${cacheKey}`, { params, statTypes });
 
       const rawData = await this.fetchData<any>(endpoint, params, {
         cache: useCache,
@@ -502,6 +495,8 @@ class EnhancedDataManager {
         props = rawData.odds;
       } else if (Array.isArray(rawData?.data)) {
         props = rawData.data;
+      } else {
+        enhancedLogger.warn('DataManager', 'fetchSportsProps', 'Unexpected rawData format', { rawData });
       }
 
       // Consolidate props if requested
@@ -516,9 +511,7 @@ class EnhancedDataManager {
       const filteredProps =
         sport === 'MLB' ? this.filterByPlayerPosition(featuredProps) : featuredProps;
 
-      console.log(
-        `[EnhancedDataManager] Position filtering: ${featuredProps.length} -> ${filteredProps.length} props`
-      );
+  enhancedLogger.info('DataManager', 'positionFilter', `Position filtering: ${featuredProps.length} -> ${filteredProps.length} props`);
 
       // Subscribe to real-time updates if requested
       if (realtime) {
@@ -534,7 +527,7 @@ class EnhancedDataManager {
 
       return filteredProps;
     } catch (error) {
-      console.error(`[DataManager] Failed to fetch ${sport} props:`, error);
+      enhancedLogger.error('DataManager', 'fetchSportsProps', `Failed to fetch ${sport} props`, undefined, error as Error);
 
       // Check if this is a connectivity issue (including axios errors)
       const isConnectivityError =
@@ -547,7 +540,7 @@ class EnhancedDataManager {
           (error as any).code === 'ERR_NETWORK');
 
       if (isConnectivityError) {
-        console.log(`[DataManager] Backend unavailable for ${sport} - using mock data`);
+        enhancedLogger.info('DataManager', 'fetchSportsProps', `Backend unavailable for ${sport} - using mock data`);
 
         // Return mock props when backend is unavailable
         const mockProps = [
@@ -653,7 +646,7 @@ class EnhancedDataManager {
         0
       ),
       pendingRequests: this.pendingRequests.size,
-      enhancedMetrics: enhancedLogger.getMetrics(),
+  enhancedMetrics: enhancedLogger.getRequestMetrics(),
     };
   }
 
@@ -798,7 +791,7 @@ class EnhancedDataManager {
   clearCache(): void {
     this.cache.clear();
     this.pendingRequests.clear();
-    console.log('[DataManager] Cache cleared');
+    enhancedLogger.info('DataManager', 'cache', 'Cache cleared');
   }
 
   /**
@@ -947,7 +940,7 @@ class EnhancedDataManager {
 
     if (oldestEntry) {
       this.cache.delete(oldestEntry[0]);
-      console.debug(`[DataManager] Evicted LRU cache entry: ${oldestEntry[0]}`);
+      enhancedLogger.debug('DataManager', 'evictLRU', `Evicted LRU cache entry: ${oldestEntry[0]}`);
     }
   }
 
@@ -1113,7 +1106,7 @@ class EnhancedDataManager {
 
       // Debug logging for stat mapping
       if (prop.stat_type && prop.stat_type !== mappedProp.stat) {
-        console.log(`[DataManager] Stat mapping: ${prop.stat_type} -> ${mappedProp.stat}`, {
+        enhancedLogger.debug('DataManager', 'statMapping', `[DataManager] Stat mapping: ${prop.stat_type} -> ${mappedProp.stat}`, {
           original: prop,
           mapped: mappedProp,
         });
@@ -1228,9 +1221,7 @@ class EnhancedDataManager {
     keysToDelete.forEach(key => this.cache.delete(key));
 
     if (keysToDelete.length > 0) {
-      console.log(
-        `[DataManager] Invalidated ${keysToDelete.length} cache entries matching pattern: ${pattern}`
-      );
+      enhancedLogger.info('DataManager', 'invalidatePattern', `Invalidated ${keysToDelete.length} cache entries matching pattern: ${pattern}`);
     }
   }
 
@@ -1241,9 +1232,9 @@ class EnhancedDataManager {
 
   private getPrefetchPredictions(
     pattern: string
-  ): Array<{ endpoint: string; params?: Record<string, any> }> {
+  ): Array<{ endpoint: string; params?: Record<string, unknown> }> {
     // Simple prediction logic - in reality this would be more sophisticated
-    const predictions: Array<{ endpoint: string; params?: Record<string, any> }> = [];
+    const predictions: Array<{ endpoint: string; params?: Record<string, unknown> }> = [];
 
     if (pattern.includes('MLB')) {
       predictions.push(
@@ -1255,9 +1246,9 @@ class EnhancedDataManager {
     return predictions;
   }
 
-  private handlePropsUpdate(sport: string, propType: string, data: any): void {
-    // Handle real-time props updates
-    console.log(`[DataManager] Real-time update for ${sport} ${propType}:`, data);
+  private handlePropsUpdate(sport: string, propType: string, data: unknown): void {
+  // Handle real-time props updates
+    enhancedLogger.info('DataManager', 'realtimeUpdate', `Real-time update for ${sport} ${propType}`, { data });
 
     // Invalidate related cache entries
     this.invalidateCachePattern(`*${sport.toLowerCase()}*`);
@@ -1276,10 +1267,10 @@ class EnhancedDataManager {
     if (batch.length === 0) return;
 
     try {
-      const results = await this.fetchBatch(batch);
-      console.log(`[DataManager] Processed batch of ${batch.length} requests`);
+  const _results = await this.fetchBatch(batch);
+  enhancedLogger.info('DataManager', 'processBatch', `Processed batch of ${batch.length} requests`);
     } catch (error) {
-      console.error('[DataManager] Batch processing error:', error);
+      enhancedLogger.error('DataManager', 'processBatch', 'Batch processing error', undefined, error as Error);
     }
   }
 
@@ -1298,7 +1289,7 @@ class EnhancedDataManager {
       keysToDelete.forEach(key => this.cache.delete(key));
 
       if (keysToDelete.length > 0) {
-        console.log(`[DataManager] Cleaned up ${keysToDelete.length} expired cache entries`);
+        enhancedLogger.info('DataManager', 'cacheCleanup', `Cleaned up ${keysToDelete.length} expired cache entries`);
       }
     }, 300000); // 5 minutes
   }
@@ -1308,7 +1299,7 @@ class EnhancedDataManager {
    * Ensures pitchers only see pitcher stats and position players only see batter stats
    */
   private filterByPlayerPosition(props: FeaturedProp[]): FeaturedProp[] {
-    console.log(`[DataManager] Starting position-based filtering for ${props.length} props`);
+  enhancedLogger.debug('DataManager', 'positionFilterStart', `Starting position-based filtering for ${props.length} props`);
 
     // Define pitcher stat types
     const pitcherStatTypes = [
@@ -1358,7 +1349,7 @@ class EnhancedDataManager {
           prop.player.toLowerCase().includes('game') ||
           prop.stat?.toLowerCase() === 'totals'
         ) {
-          console.log(`[DataManager] Keeping team/game prop: ${prop.player} - ${prop.stat}`);
+          enhancedLogger.debug('DataManager', 'positionFilter', `Keeping team/game prop: ${prop.player} - ${prop.stat}`);
           return true;
         }
 
@@ -1370,7 +1361,7 @@ class EnhancedDataManager {
 
         // Check if we have position data
         if (!position) {
-          console.log(`[DataManager] No position data for ${prop.player}, keeping prop`);
+          enhancedLogger.debug('DataManager', 'positionFilter', `No position data for ${prop.player}, keeping prop`);
           return true;
         }
 
@@ -1382,34 +1373,30 @@ class EnhancedDataManager {
         let shouldKeep = true;
 
         if (isPitcher && isBatterStat) {
-          console.log(
-            `[DataManager] Filtering out batter stat "${statType}" for pitcher ${prop.player}`
-          );
+          enhancedLogger.info('DataManager', 'positionFilter', `Filtering out batter stat "${statType}" for pitcher ${prop.player}`);
           shouldKeep = false;
         } else if (!isPitcher && isPitcherStat) {
-          console.log(
-            `[DataManager] Filtering out pitcher stat "${statType}" for position player ${prop.player} (pos: ${position})`
-          );
+          enhancedLogger.info('DataManager', 'positionFilter', `Filtering out pitcher stat "${statType}" for position player ${prop.player} (pos: ${position})`);
           shouldKeep = false;
         } else {
-          console.log(
-            `[DataManager] Keeping ${isPitcher ? 'pitcher' : 'position player'} ${
-              prop.player
-            } with stat "${statType}"`
+          enhancedLogger.debug(
+            'DataManager',
+            'positionFilter',
+            `Keeping ${isPitcher ? 'pitcher' : 'position player'} ${prop.player} with stat "${statType}"`
           );
         }
 
         return shouldKeep;
       } catch (error) {
-        console.error(`[DataManager] Error filtering prop for ${prop.player}:`, error);
+  enhancedLogger.error('DataManager', 'positionFilter', `Error filtering prop for ${prop.player}`, undefined, error as Error);
         return true; // Keep prop if there's an error
       }
     });
 
-    console.log(
-      `[DataManager] Position filtering: ${props.length} → ${
-        filteredProps.length
-      } props (filtered out ${props.length - filteredProps.length})`
+    enhancedLogger.info(
+      'DataManager',
+      'positionFilterSummary',
+      `Position filtering: ${props.length} → ${filteredProps.length} props (filtered out ${props.length - filteredProps.length})`
     );
     return filteredProps;
   }

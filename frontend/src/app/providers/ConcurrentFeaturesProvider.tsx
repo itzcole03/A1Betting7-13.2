@@ -9,6 +9,7 @@
  */
 
 import React, { Suspense, useDeferredValue, useMemo, useTransition } from 'react';
+import { enhancedLogger } from '../../utils/enhancedLogger';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 
 // =============================================================================
@@ -33,7 +34,7 @@ export const withSuspense = <P extends object>(
     <ErrorBoundary
       FallbackComponent={errorFallback || DefaultErrorFallback}
       onError={(error: Error, errorInfo: any) => {
-        console.error('Suspense Error:', error, errorInfo);
+        enhancedLogger.error('ConcurrentFeaturesProvider', 'withSuspense', 'Suspense Error', { errorInfo }, error as unknown as Error);
       }}
     >
       <Suspense fallback={fallback || <DefaultSuspenseFallback />}>
@@ -57,7 +58,7 @@ export const SuspenseWrapper: React.FC<SuspenseWrapperProps> = ({
   <ErrorBoundary
     FallbackComponent={errorFallback || DefaultErrorFallback}
     onError={(error: Error, errorInfo: any) => {
-      console.error('Suspense Wrapper Error:', error, errorInfo);
+      enhancedLogger.error('ConcurrentFeaturesProvider', 'SuspenseWrapper', 'Suspense Wrapper Error', { errorInfo }, error as unknown as Error);
     }}
   >
     <Suspense fallback={fallback || <DefaultSuspenseFallback />}>{children}</Suspense>
@@ -331,7 +332,7 @@ export const useConcurrentForm = <T extends Record<string, any>>(
       try {
         await onSubmit(values);
       } catch (error) {
-        console.error('Form submission error:', error);
+        enhancedLogger.error('ConcurrentFeaturesProvider', 'useConcurrentForm', 'Form submission error', undefined, error as unknown as Error);
       } finally {
         setIsSubmitting(false);
       }

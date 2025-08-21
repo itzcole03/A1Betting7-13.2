@@ -5,7 +5,7 @@
 
 export class UnifiedServiceRegistry {
   private static instance: UnifiedServiceRegistry;
-  private services: Map<string, any> = new Map();
+  public services: Map<string, any> = new Map();
 
   private constructor() {}
 

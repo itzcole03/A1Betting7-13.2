@@ -63,11 +63,15 @@ export const AIExplanationPanel: React.FC<AIExplanationPanelProps> = ({
     abortControllerRef.current = new AbortController();
 
     try {
+      // Small runtime casts to satisfy branded types expected by ExplainRequest
+      const castPlayerIds = (playerIds || []).map(id => id as unknown as any);
+      const castSport = sport as unknown as any;
+
       const request: ExplainRequest = {
         context,
         question,
-        playerIds,
-        sport,
+        playerIds: castPlayerIds,
+        sport: castSport,
         includeTrends: true,
         includeMatchups: true,
       };

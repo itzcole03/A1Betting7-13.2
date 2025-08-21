@@ -172,8 +172,10 @@ export const _Alert: React.FC<AlertProps> = ({
               <div className={`flex-shrink-0 ${_config.iconColor}`}>
                 {React.isValidElement(_IconComponent) ? (
                   _IconComponent
+                ) : typeof _IconComponent === 'string' ? (
+                  <span className='w-5 h-5' aria-hidden>{_IconComponent}</span>
                 ) : (
-                  <_IconComponent className="w-5 h-5" />
+                  React.createElement(_IconComponent as React.ElementType, { className: 'w-5 h-5' })
                 )}
               </div>
             )}
