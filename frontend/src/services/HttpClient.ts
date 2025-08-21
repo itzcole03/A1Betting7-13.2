@@ -206,8 +206,11 @@ export async function httpFetch(url: string, options: HttpRequestOptions = {}): 
   // Enhanced logging with span context
   const logPrefix = `[${label}] [${requestId}]`;
   const spanInfo = span_name ? ` [${span_name}]` : '';
-  // eslint-disable-next-line no-console
-  console.log(`${logPrefix}${spanInfo} Request:`, finalUrl, fetchOptions);
+    const isTest = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+    if (!isTest) {
+      // eslint-disable-next-line no-console
+      console.log(`${logPrefix}${spanInfo} Request:`, finalUrl, fetchOptions);
+    }
 
   try {
     const response = await fetch(finalUrl, { ...fetchOptions, headers });
@@ -226,14 +229,16 @@ export async function httpFetch(url: string, options: HttpRequestOptions = {}): 
       requestSize
     );
 
-    // eslint-disable-next-line no-console
-    console.log(
-      `${logPrefix}${spanInfo} Response:`,
-      finalUrl,
-      `Status: ${response.status}`,
-      `Duration: ${telemetry.duration?.toFixed(1)}ms`,
-      responseSize ? `Size: ${responseSize}b` : ''
-    );
+    if (!isTest) {
+      // eslint-disable-next-line no-console
+      console.log(
+        `${logPrefix}${spanInfo} Response:`,
+        finalUrl,
+        `Status: ${response.status}`,
+        `Duration: ${telemetry.duration?.toFixed(1)}ms`,
+        responseSize ? `Size: ${responseSize}b` : ''
+      );
+    }
 
     return response;
   } catch (error) {
@@ -249,22 +254,24 @@ export async function httpFetch(url: string, options: HttpRequestOptions = {}): 
     );
 
     // Suppress "Failed to fetch" errors to avoid console noise when backend unavailable
-    if (error instanceof Error && error.message.includes('Failed to fetch')) {
-      // Only log as warning instead of error to reduce console noise
-      // eslint-disable-next-line no-console
-      console.warn(
-        `${logPrefix}${spanInfo} Backend unavailable:`,
-        finalUrl,
-        `Duration: ${telemetry.duration?.toFixed(1)}ms`
-      );
-    } else {
-      // eslint-disable-next-line no-console
-      console.error(
-        `${logPrefix}${spanInfo} Error:`,
-        finalUrl,
-        error,
-        `Duration: ${telemetry.duration?.toFixed(1)}ms`
-      );
+    if (!isTest) {
+      if (error instanceof Error && error.message.includes('Failed to fetch')) {
+        // Only log as warning instead of error to reduce console noise
+        // eslint-disable-next-line no-console
+        console.warn(
+          `${logPrefix}${spanInfo} Backend unavailable:`,
+          finalUrl,
+          `Duration: ${telemetry.duration?.toFixed(1)}ms`
+        );
+      } else {
+        // eslint-disable-next-line no-console
+        console.error(
+          `${logPrefix}${spanInfo} Error:`,
+          finalUrl,
+          error,
+          `Duration: ${telemetry.duration?.toFixed(1)}ms`
+        );
+      }
     }
     throw error;
   }

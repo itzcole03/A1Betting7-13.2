@@ -30,6 +30,13 @@ const mockLogger = {
 
 // Mock dependencies with correct paths
 jest.mock('../../utils/logger', () => ({
+  __esModule: true,
+  logger: mockLogger,
+}));
+
+// Also mock the TS-path aliased import used in some modules
+jest.mock('src/utils/logger', () => ({
+  __esModule: true,
   logger: mockLogger,
 }));
 

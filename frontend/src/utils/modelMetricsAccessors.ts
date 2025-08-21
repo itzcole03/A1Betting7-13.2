@@ -41,7 +41,7 @@ function createFieldAccessor<T extends string | number>(
     // Try to get from canonical ModelMetricsShape first (post-normalization)
     let current: unknown = rawObj;
     let foundCanonical = true;
-    
+
     for (const segment of descriptor.canonical) {
       if (current && typeof current === 'object' && segment in current) {
         current = (current as Record<string, unknown>)[segment];
@@ -51,46 +51,48 @@ function createFieldAccessor<T extends string | number>(
       }
     }
 
-    if (foundCanonical && current !== undefined) {
-      return descriptor.transform 
-        ? descriptor.transform(current) 
-        : (current as T);
-    }
-
-    // Try legacy paths if canonical not found
-    let usedLegacy = false;
-    if (descriptor.legacy) {
-      for (const legacyPath of descriptor.legacy) {
-        let legacyCurrent: unknown = rawObj;
-        let foundLegacy = true;
-        
-        for (const segment of legacyPath) {
-          if (legacyCurrent && typeof legacyCurrent === 'object' && segment in legacyCurrent) {
-            legacyCurrent = (legacyCurrent as Record<string, unknown>)[segment];
-          } else {
-            foundLegacy = false;
+  if (!(foundCanonical && current !== undefined)) {
+      // Try legacy paths if canonical not found
+  let usedLegacy = false;
+      if (descriptor.legacy) {
+        for (const legacyPath of descriptor.legacy) {
+          let legacyCurrent: unknown = rawObj;
+          let foundLegacy = true;
+          
+          for (const segment of legacyPath) {
+            if (legacyCurrent && typeof legacyCurrent === 'object' && segment in legacyCurrent) {
+              legacyCurrent = (legacyCurrent as Record<string, unknown>)[segment];
+            } else {
+              foundLegacy = false;
+              break;
+            }
+          }
+          
+          if (foundLegacy && legacyCurrent !== undefined) {
+            usedLegacy = true;
+            current = legacyCurrent;
             break;
           }
         }
-        
-        if (foundLegacy && legacyCurrent !== undefined) {
-          usedLegacy = true;
-          current = legacyCurrent;
-          break;
-        }
       }
-    }
 
-    // Log one-time development warning for legacy usage
-    if (usedLegacy && 
-        ((import.meta.env?.DEV || process.env.NODE_ENV === 'development')) && 
-        !warningTracker.has(descriptor.name)) {
-      warningTracker.add(descriptor.name);
-      // eslint-disable-next-line no-console
-      console.warn(
-        `[AIMetricsCompat] Field "${descriptor.name}" accessed via legacy path.`,
-        'Consider using normalized ModelMetricsShape for consistent access.'
-      );
+      // Log one-time development warning for legacy usage
+      if (usedLegacy && 
+          ((import.meta.env?.DEV || process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) && 
+          !warningTracker.has(descriptor.name)) {
+        warningTracker.add(descriptor.name);
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[AIMetricsCompat] Field "${descriptor.name}" accessed via legacy path. Consider using normalized ModelMetricsShape for consistent access.`
+        );
+      }
+      
+      // If neither canonical nor legacy path was found, clear current so defaults are returned
+      if (!foundCanonical && !usedLegacy) {
+        current = undefined;
+      }
+    } else {
+      // canonical found; leave current as-is
     }
 
     // Apply transform if available
@@ -98,7 +100,7 @@ function createFieldAccessor<T extends string | number>(
       return descriptor.transform(current);
     }
 
-    // Type coercion for direct values
+    // Type coercion for direct values (apply for canonical and legacy)
     if (current !== undefined) {
       if (descriptor.type === 'number') {
         const num = Number(current);

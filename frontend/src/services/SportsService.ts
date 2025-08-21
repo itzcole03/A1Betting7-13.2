@@ -16,6 +16,8 @@ export interface ActivateSportResponse {
  * Logs API versioning and migration events for diagnostics.
  */
 function logApiEvent(event: string, details: Record<string, unknown>) {
+  const isTest = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+  if (isTest) return;
   if (typeof window !== 'undefined' && window.console) {
     // eslint-disable-next-line no-console
     console.warn(`[SportsService] ${event}:`, details);
@@ -35,24 +37,36 @@ export async function detectSportsApiVersion(): Promise<'v2' | 'v1' | 'none'> {
     });
     if (v2resp.ok) {
       // Successful preflight indicates v2 is available and CORS is properly configured
-      // eslint-disable-next-line no-console
-      console.debug('[SportsService] v2 API detected via OPTIONS preflight');
+      const isTest = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+      if (!isTest) {
+        // eslint-disable-next-line no-console
+        console.debug('[SportsService] v2 API detected via OPTIONS preflight');
+      }
       return 'v2';
     } else if (v2resp.status === 405) {
       // 405 can indicate endpoint exists but OPTIONS not explicitly handled  
-      // eslint-disable-next-line no-console
-      console.debug('[SportsService] v2 API detected via 405 (method not allowed for OPTIONS)');
+      const isTest2 = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+      if (!isTest2) {
+        // eslint-disable-next-line no-console
+        console.debug('[SportsService] v2 API detected via 405 (method not allowed for OPTIONS)');
+      }
       return 'v2';
     }
   } catch (error) {
     // Handle network errors gracefully
     if (error instanceof Error && (error.message.includes('Failed to fetch') || error.name === 'TypeError')) {
-      // eslint-disable-next-line no-console
-      console.warn('[SportsService] Backend unavailable, falling back to demo mode');
+      const isTest3 = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+      if (!isTest3) {
+        // eslint-disable-next-line no-console
+        console.warn('[SportsService] Backend unavailable, falling back to demo mode');
+      }
       return 'none';
     }
-    // eslint-disable-next-line no-console
-    console.debug('[SportsService] v2 OPTIONS check failed:', error);
+    const isTest4 = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+    if (!isTest4) {
+      // eslint-disable-next-line no-console
+      console.debug('[SportsService] v2 OPTIONS check failed:', error);
+    }
   }
   // Try v1 endpoint
   try {
@@ -66,7 +80,11 @@ export async function detectSportsApiVersion(): Promise<'v2' | 'v1' | 'none'> {
   } catch (error) {
     // Handle network errors gracefully
     if (error instanceof Error && (error.message.includes('Failed to fetch') || error.name === 'TypeError')) {
-      console.warn('[SportsService] Backend unavailable, falling back to demo mode');
+      const isTest = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+      if (!isTest) {
+        // eslint-disable-next-line no-console
+        console.warn('[SportsService] Backend unavailable, falling back to demo mode');
+      }
       return 'none';
     }
   }
@@ -111,7 +129,11 @@ export async function activateSport(sport: string): Promise<ActivateSportRespons
   } catch (err) {
     // Handle network errors gracefully
     if (err instanceof Error && (err.message.includes('Failed to fetch') || err.name === 'TypeError')) {
-      console.warn('[SportsService] Backend unavailable, returning demo mode activation');
+      const isTest = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+      if (!isTest) {
+        // eslint-disable-next-line no-console
+        console.warn('[SportsService] Backend unavailable, returning demo mode activation');
+      }
       return {
         status: 'success',
         message: `${sport} activated in demo mode`,
@@ -146,7 +168,11 @@ export async function activateSport(sport: string): Promise<ActivateSportRespons
   } catch (err) {
     // Handle network errors gracefully
     if (err instanceof Error && (err.message.includes('Failed to fetch') || err.name === 'TypeError')) {
-      console.warn('[SportsService] Backend unavailable, returning demo mode activation');
+      const isTest = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+      if (!isTest) {
+        // eslint-disable-next-line no-console
+        console.warn('[SportsService] Backend unavailable, returning demo mode activation');
+      }
       return {
         status: 'success',
         message: `${sport} activated in demo mode`,
@@ -156,7 +182,11 @@ export async function activateSport(sport: string): Promise<ActivateSportRespons
     }
     logApiEvent('v1 activation error', { error: (err as Error).message, sport });
     // Return demo mode instead of throwing
-    console.warn(`[SportsService] All activation attempts failed for ${sport}, falling back to demo mode`);
+    const isTestFinal = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+    if (!isTestFinal) {
+      // eslint-disable-next-line no-console
+      console.warn(`[SportsService] All activation attempts failed for ${sport}, falling back to demo mode`);
+    }
     return {
       status: 'success',
       message: `${sport} activated in demo mode (backend unavailable)`,
@@ -174,7 +204,11 @@ export async function checkApiVersionCompatibility() {
     const version = await detectSportsApiVersion();
     if (version === 'none') {
       logApiEvent('no compatible sports activation API found - using demo mode', {});
-      console.warn('[SportsService] Backend unavailable, application will run in demo mode');
+      const isTest = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+      if (!isTest) {
+        // eslint-disable-next-line no-console
+        console.warn('[SportsService] Backend unavailable, application will run in demo mode');
+      }
       return 'demo'; // Return demo mode instead of throwing
     }
     if (version === 'v1') {
@@ -182,7 +216,11 @@ export async function checkApiVersionCompatibility() {
     }
     return version;
   } catch (error) {
-    console.warn('[SportsService] API compatibility check failed, falling back to demo mode:', error);
+    const isTest = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+    if (!isTest) {
+      // eslint-disable-next-line no-console
+      console.warn('[SportsService] API compatibility check failed, falling back to demo mode:', error);
+    }
     return 'demo';
   }
 }

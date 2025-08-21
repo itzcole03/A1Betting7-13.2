@@ -67,7 +67,7 @@ const UnifiedBettingInterface: React.FC<UnifiedBettingInterfaceProps> = ({
         </div>
         <div className='divide-y divide-gray-200'>
           {filteredOpportunities.map((opportunity: Opportunity) => (
-            <div key={opportunity.id} className='p-6 hover:bg-gray-50'>
+            <div key={opportunity.id} data-testid={`betting-opportunity-row-${opportunity.id}`} className='p-6 hover:bg-gray-50'>
               <div className='flex items-center justify-between'>
                 <div className='flex-1'>
                   <div className='flex items-center space-x-3 mb-2'>

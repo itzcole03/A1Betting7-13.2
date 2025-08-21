@@ -1,87 +1,34 @@
-import EventEmitter from 'eventemitter3';
+// Minimal EventBus used by tests. Provides on/off/emit for simple mocking.
+type Handler = (...args: unknown[]) => void;
 
-// Minimal EventTypes for EventBus;
-export interface EventTypes {
-  [event: string]: unknown;
-}
+class EventBus {
+  private handlers: Map<string, Set<Handler>> = new Map();
 
-export class EventBus {
-  private static instance: EventBus;
-  private emitter: any; // eventemitter3 v4+ workaround;
-
-  private constructor(registry?: any) {
-    this.emitter = new (EventEmitter as any)();
+  on(event: string, handler: Handler) {
+    if (!this.handlers.has(event)) this.handlers.set(event, new Set());
+    this.handlers.get(event)!.add(handler);
   }
 
-  public static getInstance(registry?: any): EventBus {
-    if (!EventBus.instance) {
-      EventBus.instance = new EventBus(registry);
+  off(event: string, handler?: Handler) {
+    if (!this.handlers.has(event)) return;
+    if (handler) this.handlers.get(event)!.delete(handler);
+    else this.handlers.set(event, new Set());
+  }
+
+  emit(event: string, ...args: unknown[]) {
+    const set = this.handlers.get(event);
+    if (!set) return;
+    for (const h of Array.from(set)) {
+      try {
+        h(...args);
+      } catch {
+        // swallow errors during tests
+      }
     }
-    return EventBus.instance;
-  }
-
-  public on<K extends keyof EventTypes & (string | symbol)>(
-    event: K,
-    listener: (data: EventTypes[K]) => void
-  ): void {
-    this.emitter.on(event as string | symbol, listener);
-  }
-
-  public once<K extends keyof EventTypes & (string | symbol)>(
-    event: K,
-    listener: (data: EventTypes[K]) => void
-  ): void {
-    this.emitter.once(event as string | symbol, listener);
-  }
-
-  public off<K extends keyof EventTypes & (string | symbol)>(
-    event: K,
-    listener: (data: EventTypes[K]) => void
-  ): void {
-    this.emitter.off(event as string | symbol, listener);
-  }
-
-  public emit<K extends keyof EventTypes & (string | symbol)>(event: K, data: EventTypes[K]): void {
-    this.emitter.emit(event as string | symbol, data);
-  }
-
-  public removeAllListeners<K extends keyof EventTypes & (string | symbol)>(event?: K): void {
-    this.emitter.removeAllListeners(event as string | symbol | undefined);
-  }
-
-  public listenerCount<K extends keyof EventTypes & (string | symbol)>(event: K): number {
-    return this.emitter.listenerCount(event as string | symbol);
-  }
-
-  public listeners<K extends keyof EventTypes & (string | symbol)>(
-    event: K
-  ): Array<(data: EventTypes[K]) => void> {
-    return this.emitter.listeners(event as string | symbol) as Array<(data: EventTypes[K]) => void>;
-  }
-
-  public eventNames(): Array<keyof EventTypes> {
-    return this.emitter.eventNames() as Array<keyof EventTypes>;
-  }
-
-  // Add onAny/offAny methods for DebugPanel;
-  public onAny(listener: (eventName: string, data: unknown) => void): void {
-    this.emitter.onAny(listener);
-  }
-
-  public offAny(listener: (eventName: string, data: unknown) => void): void {
-    this.emitter.offAny(listener);
-  }
-
-  /**
-   * Publish an event (alias for emit). For compatibility with analytics modules.
-   */
-  public publish<K extends keyof EventTypes & (string | symbol)>(
-    event: K,
-    data: EventTypes[K]
-  ): void {
-    this.emit(event, data);
   }
 }
 
-// Singleton instance for convenience;
-export const _eventBus = EventBus.getInstance();
+const _eventBus = new EventBus();
+
+export { EventBus, _eventBus };
+export default _eventBus;

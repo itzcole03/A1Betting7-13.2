@@ -274,7 +274,7 @@ const OptimizedPropFinderDashboard: React.FC = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 data-testid="propfinder-killer-heading" className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               PropFinder Killer Dashboard
             </h1>
             <p className="text-gray-400 mt-2">Real PropFinder Data Integration with Alert Engine</p>

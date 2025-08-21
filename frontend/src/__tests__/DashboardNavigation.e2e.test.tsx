@@ -1,6 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import UserFriendlyApp from '../components/user-friendly/UserFriendlyApp';
+import React from 'react';
 
 describe('Dashboard Navigation E2E', () => {
   beforeEach(() => {

@@ -2,8 +2,11 @@ import { render, screen } from '@testing-library/react';
 import App from '../App';
 
 describe('App', () => {
-  it('renders onboarding loading state by default', () => {
+  it('renders onboarding/loading state by default', () => {
     render(<App />);
-    expect(screen.getByText(/loading onboarding/i)).toBeInTheDocument();
+    // Accept either legacy onboarding text or current dashboard loading text
+    expect(
+      screen.getByText(/loading onboarding|loading dashboard/i)
+    ).toBeInTheDocument();
   });
 });

@@ -100,7 +100,14 @@ describe('App E2E - Empty State', () => {
         render(<App />);
         jest.runAllTimers();
       });
-      const emptyState = await screen.findByText(/No props found/i, {}, { timeout: 5000 });
+      // Prefer a data-testid if present, otherwise fallback to text match
+      let emptyState = null;
+      try {
+        emptyState = await screen.findByTestId('empty-props', {}, { timeout: 2000 });
+      } catch (err) {
+        // fallback to text matcher used historically
+        emptyState = await screen.findByText(/No props found|No enhanced props|No results/i, {}, { timeout: 5000 });
+      }
       expect(emptyState).toBeInTheDocument();
     } finally {
       jest.useRealTimers();

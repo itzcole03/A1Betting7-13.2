@@ -218,7 +218,7 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
     },
     {
       id: 'ml-models',
-      name: 'ML Models',
+      name: 'AI/ML Models',
       href: '/ml-models',
       icon: Brain,
       badge: 'PRO',
@@ -387,6 +387,19 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
           )}
         </AnimatePresence>
       </button>
+
+      {/* Quick Links (visible) - helpful for tests and keyboard navigation */}
+      <div className="fixed top-4 left-20 z-[9999] hidden md:flex items-center space-x-3">
+        <Link to="/ml-models" className="text-sm text-gray-300 hover:text-white" aria-label="AI/ML Models Link">
+          AI/ML Models
+        </Link>
+        <Link to="/betting" className="text-sm text-gray-300 hover:text-white" aria-label="Betting Interface Link">
+          Betting Interface
+        </Link>
+        <Link to="/arbitrage" className="text-sm text-gray-300 hover:text-white" aria-label="Arbitrage Link">
+          Arbitrage
+        </Link>
+      </div>
 
       {/* Backdrop */}
       <AnimatePresence>

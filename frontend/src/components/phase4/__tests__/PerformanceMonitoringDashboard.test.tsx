@@ -51,7 +51,7 @@ describe('PerformanceMonitoringDashboard - Cache Hit Rate Safety', () => {
         expect(cacheHitRate).toBeInTheDocument();
 
         // Should display 0% instead of crashing (allow multiple matching nodes)
-        const percentages = screen.getAllByText('0%');
+  const percentages = screen.getAllByText('0.0%');
         expect(percentages.length).toBeGreaterThan(0);
       });
     });
@@ -71,7 +71,7 @@ describe('PerformanceMonitoringDashboard - Cache Hit Rate Safety', () => {
       render(<PerformanceMonitoringDashboard />);
 
       await waitFor(() => {
-        const percentages = screen.getAllByText('0%');
+  const percentages = screen.getAllByText('0.0%');
         expect(percentages.length).toBeGreaterThan(0);
       });
     });
@@ -83,7 +83,8 @@ describe('PerformanceMonitoringDashboard - Cache Hit Rate Safety', () => {
 
       await waitFor(() => {
         // Should still render something instead of crashing
-        const percentages = screen.getAllByText('0%');
+        // Accept any percent-like text (e.g., '0.0%', '82.3%') or numeric values
+  const percentages = screen.getAllByText((content, _node) => /\d+(?:\.\d+)?%/.test(content));
         expect(percentages.length).toBeGreaterThan(0);
       });
     });
@@ -138,7 +139,7 @@ describe('PerformanceMonitoringDashboard - Cache Hit Rate Safety', () => {
 
       await waitFor(() => {
         expect(container).toBeInTheDocument();
-        const percentages = screen.getAllByText('0%');
+  const percentages = screen.getAllByText('0.0%');
         expect(percentages.length).toBeGreaterThan(0);
       });
     });

@@ -14,9 +14,16 @@ const mockEventBus = {
   off: jest.fn()
 };
 
-jest.mock('../../core/EventBus', () => ({
-  _eventBus: mockEventBus
-}));
+// Ensure the real module is loaded and then override the exported _eventBus
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const eb = require('../../core/EventBus');
+  if (eb && typeof eb === 'object') {
+    eb._eventBus = mockEventBus;
+  }
+} catch (e) {
+  // If require fails, continue — tests will report module-not-found
+}
 
 // Mock fetch for network requests
 global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
@@ -222,7 +229,12 @@ describe('SSE Fallback Activation', () => {
     }
     expect(sseChannelMock.isActive).toBe(true);
     
-    expect(mockEventBus.emit).toHaveBeenCalledTimes(4); // 2 activations + 2 deactivations
+  // Deactivate second cycle after stability
+  sseChannelMock.reportWebSocketSuccess();
+  jest.advanceTimersByTime(sseChannelMock.stabilityThreshold + 1000);
+  expect(sseChannelMock.isActive).toBe(false);
+
+  expect(mockEventBus.emit).toHaveBeenCalledTimes(4); // 2 activations + 2 deactivations
   });
 });
 
@@ -233,28 +245,35 @@ describe('Validator Error Classification', () => {
     jest.clearAllMocks();
     
     // Mock DOM methods
+    const mockQuerySelectorAll = jest.fn();
+    const mockQuerySelector = jest.fn();
+
     global.document = {
-      querySelectorAll: jest.fn(),
-      querySelector: jest.fn()
+      querySelectorAll: mockQuerySelectorAll,
+      querySelector: mockQuerySelector
     } as any;
-    
-    const mockQuerySelectorAll = document.querySelectorAll as jest.MockedFunction<typeof document.querySelectorAll>;
     
     // Mock validator with error classification
     validator = {
       classifyValidationError: (functionName: string, errorMessage: string, _originalError: unknown) => {
-        // Check for missing structural elements
-        if (errorMessage.includes('not found') || errorMessage.includes('No navigation elements') || 
-            errorMessage.includes('No elements found')) {
-          
+        // Normalize message for robust matching
+        const msg = (errorMessage || '').toLowerCase();
+
+        // Check for missing structural elements (covers "No X elements found", "no elements", "not found")
+        if (
+          msg.includes('not found') ||
+          msg.includes('no navigation elements') ||
+          msg.includes('no elements found') ||
+          /no .*elements/.test(msg)
+        ) {
           const missingElements: string[] = [];
           if (functionName === 'navigation') {
-            const navElements = mockQuerySelectorAll('[data-testid*="nav"], [role="navigation"], nav');
-            if (!navElements || navElements.length === 0) {
+            const navElements = (document.querySelectorAll as any)('[data-testid*="nav"], [role="navigation"], nav');
+            if (!navElements || (Array.isArray(navElements) && navElements.length === 0)) {
               missingElements.push('navigation elements');
             }
           }
-          
+
           return {
             type: 'structural_missing',
             details: { missingElements }
@@ -288,8 +307,9 @@ describe('Validator Error Classification', () => {
   });
 
   test('should classify structural missing errors correctly', () => {
-    const mockQuerySelectorAll = document.querySelectorAll as jest.MockedFunction<typeof document.querySelectorAll>;
-    mockQuerySelectorAll.mockReturnValue([] as any); // No elements found
+  // Ensure this test explicitly provides a jest.fn for querySelectorAll
+  const explicitMock = jest.fn().mockReturnValue([] as any);
+  (document as any).querySelectorAll = explicitMock;
     
     const result = validator.classifyValidationError(
       'navigation', 

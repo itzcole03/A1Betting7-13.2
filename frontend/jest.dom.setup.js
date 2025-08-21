@@ -4,6 +4,10 @@ import '@testing-library/jest-dom';
 // Configure testing library
 import { configure } from '@testing-library/react';
 
+// Make React available globally for tests that use JSX without explicit import
+import React from 'react';
+globalThis.React = React;
+
 configure({
   testIdAttribute: 'data-testid',
   asyncUtilTimeout: 5000,
@@ -16,6 +20,20 @@ global.console = {
   // warn: jest.fn(),
   // error: jest.fn(),
 };
+
+// Vitest `vi` compatibility shim for tests that use `vi` mocks/spies
+// Provides a minimal subset mapped to Jest equivalents so tests written
+// for Vitest don't error under Jest.
+if (typeof globalThis.vi === 'undefined') {
+  globalThis.vi = {
+    fn: (...args) => jest.fn(...args),
+    spyOn: (obj, prop) => jest.spyOn(obj, prop),
+    clearAllMocks: () => jest.clearAllMocks(),
+    restoreAllMocks: () => jest.restoreAllMocks(),
+    useFakeTimers: () => jest.useFakeTimers(),
+    useRealTimers: () => jest.useRealTimers(),
+  };
+}
 
 // Mock console methods that are too noisy in tests
 beforeAll(() => {

@@ -1,3 +1,4 @@
+import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import UserFriendlyApp from '../components/user-friendly/UserFriendlyApp';

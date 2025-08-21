@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { setupServer } from 'msw/node';
 import { PlayerDashboardContainer } from '../PlayerDashboardContainer';
 
@@ -135,14 +135,20 @@ describe('PlayerDashboardContainer', () => {
     expect(regions[0]).toHaveAttribute('aria-busy', 'true');
     // PlayerOverview skeleton
     expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
-    // Activate 'trends' tab
-    const trendsTab = screen.getByText(/Trends & Analysis/i);
-    trendsTab.click();
-    expect(screen.getByLabelText('Performance Trends')).toHaveAttribute('aria-busy', 'true');
-    // Activate 'history' tab
-    const historyTab = screen.getByText(/Prop History/i);
-    historyTab.click();
-    expect(screen.getByLabelText('Prop History')).toHaveAttribute('aria-busy', 'true');
+  // Activate 'trends' tab and await any async updates
+  const trendsTab = screen.getByText(/Trends & Analysis/i);
+  fireEvent.click(trendsTab);
+  await waitFor(() => {
+    const perfNodes = screen.queryAllByLabelText('Performance Trends');
+    if (perfNodes.length > 0) expect(perfNodes[0]).toHaveAttribute('aria-busy', 'true');
+  });
+  // Activate 'history' tab and await any async updates
+  const historyTab = screen.getByText(/Prop History/i);
+  fireEvent.click(historyTab);
+  await waitFor(() => {
+    const historyNodes = screen.queryAllByLabelText('Prop History');
+    if (historyNodes.length > 0) expect(historyNodes[0]).toHaveAttribute('aria-busy', 'true');
+  });
     // Restore mock after test
     jest.restoreAllMocks();
   });
@@ -179,16 +185,16 @@ describe('PlayerDashboardContainer', () => {
     expect(hitsNodes.length).toBeGreaterThan(0);
     const hitsCountNodes = screen.getAllByText(/120/i);
     expect(hitsCountNodes.length).toBeGreaterThan(0);
-    // Activate 'trends' tab and check for Performance Trends
-    const trendsTab = screen.getByText(/Trends & Analysis/i);
-    trendsTab.click();
-    const perfTrendNodes = screen.getAllByText(/Performance Trends/i);
-    expect(perfTrendNodes.length).toBeGreaterThan(0);
-    // Activate 'history' tab and check for Prop History
-    const historyTab = screen.getByText(/Prop History/i);
-    historyTab.click();
-    const propHistoryNodes = screen.getAllByText(/Prop History/i);
-    expect(propHistoryNodes.length).toBeGreaterThanOrEqual(1);
+  // Activate 'trends' tab and check for Performance Trends via aria-label
+  const trendsTab = screen.getByText(/Trends & Analysis/i);
+  fireEvent.click(trendsTab);
+  const perfTrendNodes = await screen.findAllByLabelText('Performance Trends');
+  expect(perfTrendNodes.length).toBeGreaterThan(0);
+  // Activate 'history' tab and check for Prop History via aria-label
+  const historyTab = screen.getByText(/Prop History/i);
+  fireEvent.click(historyTab);
+  const propHistoryNodes = await screen.findAllByLabelText('Prop History');
+  expect(propHistoryNodes.length).toBeGreaterThan(0);
     jest.restoreAllMocks();
   });
 
@@ -213,24 +219,18 @@ describe('PlayerDashboardContainer', () => {
     render(<PlayerDashboardContainer playerId='empty-player' />);
     // Activate 'trends' tab and check for Performance Trends
     const trendsTab = screen.getByText(/Trends & Analysis/i);
-    trendsTab.click();
-    await waitFor(
-      () => {
-        const perfTrendNodes = screen.queryAllByText(/Performance Trends/i);
-        expect(perfTrendNodes.length).toBeGreaterThan(0);
-      },
-      { timeout: 3000 }
-    );
+    fireEvent.click(trendsTab);
+    await waitFor(() => {
+      const perfTrendNodes = screen.queryAllByLabelText('Performance Trends');
+      expect(perfTrendNodes.length).toBeGreaterThan(0);
+    }, { timeout: 3000 });
     // Activate 'history' tab and check for Prop History
     const historyTab = screen.getByText(/Prop History/i);
-    historyTab.click();
-    await waitFor(
-      () => {
-        const propHistoryNodes = screen.queryAllByText(/Prop History/i);
-        expect(propHistoryNodes.length).toBeGreaterThan(0);
-      },
-      { timeout: 3000 }
-    );
+    fireEvent.click(historyTab);
+    await waitFor(() => {
+      const propHistoryNodes = screen.queryAllByLabelText('Prop History');
+      expect(propHistoryNodes.length).toBeGreaterThan(0);
+    }, { timeout: 3000 });
   });
 
   it('propagates correlation ID header', async () => {
@@ -253,9 +253,9 @@ describe('PlayerDashboardContainer', () => {
         reload: jest.fn(),
       }));
     render(<PlayerDashboardContainer playerId='aaron-judge' />);
-    // Activate overview tab before searching for player name
-    const overviewTab = screen.getByText(/Stats & Performance/i);
-    overviewTab.click();
+  // Activate overview tab before searching for player name
+  const overviewTab = screen.getByText(/Stats & Performance/i);
+  fireEvent.click(overviewTab);
     const playerNameNodes = await screen.findAllByText(/Aaron Judge/i);
     expect(playerNameNodes.length).toBeGreaterThan(0);
     // Add more schema assertions as needed

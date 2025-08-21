@@ -15,7 +15,34 @@
  */
 
 import { getRuntimeEnv, type RuntimeEnv } from './env';
-import { logger } from '../utils/logger';
+
+// Lazily populated logger. Tests mock the logger module and may rely on dynamic
+// imports; to ensure the test mocks are used we load the logger at runtime with
+// a safe console fallback. This avoids TypeErrors when a mock isn't wired up.
+let logger: {
+  info: (...args: any[]) => void;
+  debug: (...args: any[]) => void;
+  error: (...args: any[]) => void;
+  warn: (...args: any[]) => void;
+} = {
+  info: console.info.bind(console),
+  debug: console.debug.bind(console),
+  error: console.error.bind(console),
+  warn: console.warn.bind(console),
+};
+
+async function ensureLoggerLoaded(): Promise<void> {
+  try {
+    // dynamic import so jest module mocks are respected
+    const mod = await import('../utils/logger');
+    if (mod && (mod.logger || (mod.default && mod.default.logger))) {
+      // prefer named export, fall back to default shape
+      logger = (mod.logger ?? mod.default.logger) as any;
+    }
+  } catch (err) {
+    // keep console fallback
+  }
+}
 
 // Global symbol to prevent accidental name collisions
 const BOOTSTRAP_FLAG = Symbol.for('a1.bet.platform.bootstrapped');
@@ -96,6 +123,9 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<Boot
   const startTime = performance.now();
   const environment = getRuntimeEnv();
   const timestamp = new Date().toISOString();
+
+  // Ensure test-time mocks for logger are applied before any logger usage
+  await ensureLoggerLoaded();
 
   // Initialize result structure
   const result: BootstrapResult = {

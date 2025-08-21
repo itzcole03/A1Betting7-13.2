@@ -260,6 +260,26 @@ class MasterServiceRegistry {
     this.isInitialized = false;
   }
 
+  // Test helper: update a service health entry (used by E2E tests)
+  // Minimal, safe surface that mirrors how tests expect to simulate health updates.
+  public updateServiceHealth(name: string, status: ServiceHealth['status'], responseTime: number): void {
+    const existing = this.serviceHealth.get(name) || {
+      name,
+      status: 'healthy' as ServiceHealth['status'],
+      responseTime: 0,
+      lastCheck: new Date(),
+      errorCount: 0,
+      uptime: 100,
+    };
+    const updated: ServiceHealth = {
+      ...existing,
+      status,
+      responseTime: Math.max(0, responseTime),
+      lastCheck: new Date(),
+    };
+    this.serviceHealth.set(name, updated);
+  }
+
   /**
    * Provide a lightweight adapter that matches the external UnifiedServiceRegistry
    * shape. We return it with a cast to the external type to minimize refactor scope.
@@ -284,6 +304,11 @@ class MasterServiceRegistry {
   } as unknown as ExternalUnifiedServiceRegistry & { services: Map<string, unknown>; getAllServices(): Map<string, unknown> };
 
     return unifiedLike;
+  }
+
+  // Expose service health map as a read-only snapshot for tests and diagnostics
+  public getServiceHealth(name: string): ServiceHealth | null {
+    return this.serviceHealth.get(name) || null;
   }
 
   // Provide a temporary alias for use by legacy unified services that expect

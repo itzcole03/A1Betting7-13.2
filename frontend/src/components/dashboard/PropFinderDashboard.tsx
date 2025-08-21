@@ -208,7 +208,7 @@ const PropFinderDashboard: React.FC = () => {
         <div className="mb-8">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+              <h1 className="text-4xl font-bold mb-2 flex items-center gap-3" data-testid="propfinder-killer-heading">
                 PropFinder 
                 <span className="text-2xl">🎯</span>
                 {isAutoRefreshEnabled && (

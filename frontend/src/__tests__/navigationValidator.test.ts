@@ -3,9 +3,10 @@
  * Tests for the refactored navigation validation system
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import React from 'react';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { CoreFunctionalityValidator } from '../coreFunctionalityValidator';
-import * as navReadySignal from '../../navigation/navReadySignal';
+import * as navReadySignal from '../navigation/navReadySignal';
 
 // Mock environment variables
 const mockEnv = {
@@ -15,9 +16,9 @@ const mockEnv = {
 };
 
 // Mock DOM methods
-const mockQuerySelectorAll = vi.fn();
-const mockConsoleLog = vi.fn();
-const mockConsoleWarn = vi.fn();
+const mockQuerySelectorAll = jest.fn();
+const mockConsoleLog = jest.fn();
+const mockConsoleWarn = jest.fn();
 
 describe('NavigationValidator', () => {
   let validator: CoreFunctionalityValidator;
