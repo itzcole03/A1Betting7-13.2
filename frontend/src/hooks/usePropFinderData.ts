@@ -302,10 +302,35 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
     setFilters(prev => ({ ...prev, ...newFilters }));
   }, []);
 
+
   // Bookmark opportunity with Phase 4.2 persistence
   const bookmarkOpportunity = useCallback(async (opportunityId: string, opportunity: PropOpportunity, bookmarked: boolean) => {
+    // If no userId provided, fallback to localStorage bookmarks for local testing
     if (!userId) {
-      throw new Error('User ID required for bookmark operations');
+      try {
+        const key = 'local_propfinder_bookmarks';
+        const raw = localStorage.getItem(key);
+        const current: Record<string, boolean> = raw ? JSON.parse(raw) : {};
+        if (bookmarked) current[opportunityId] = true;
+        else delete current[opportunityId];
+        localStorage.setItem(key, JSON.stringify(current));
+
+        // Update local state
+        setOpportunities(prev => 
+          prev.map(opp => 
+            opp.id === opportunityId 
+              ? { ...opp, isBookmarked: bookmarked }
+              : opp
+          )
+        );
+
+        return;
+      } catch (err) {
+        if (process.env.NODE_ENV === 'development') {
+          enhancedLogger.error('usePropFinderData', 'bookmarkOpportunity', 'Error updating local bookmarks', { opportunityId }, err as Error);
+        }
+        throw err;
+      }
     }
     
     try {
@@ -387,8 +412,28 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
 
   // Get user bookmarks (Phase 4.2)
   const getUserBookmarks = useCallback(async (): Promise<PropOpportunity[]> => {
+    // If no userId provided, return locally stored bookmarks
     if (!userId) {
-      return [];
+      try {
+        const key = 'local_propfinder_bookmarks';
+        const raw = localStorage.getItem(key);
+        const map: Record<string, boolean> = raw ? JSON.parse(raw) : {};
+        const ids = Object.keys(map).filter(id => map[id]);
+        if (!ids.length) return [];
+
+        // Fetch full opportunity data for each bookmarked id
+        const results: PropOpportunity[] = [];
+        for (const id of ids) {
+          const opp = await getOpportunityById(id);
+          if (opp) results.push(opp);
+        }
+        return results;
+      } catch (err) {
+        if (process.env.NODE_ENV === 'development') {
+          enhancedLogger.error('usePropFinderData', 'getUserBookmarks', 'Error reading local bookmarks', undefined, err as Error);
+        }
+        return [];
+      }
     }
     
     try {
@@ -414,6 +459,75 @@ export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePr
       return [];
     }
   }, [userId]);
+
+  // Sync local bookmarks to server when user logs in
+  const syncLocalBookmarksToServer = useCallback(async (): Promise<void> => {
+    if (!userId) return;
+
+    try {
+      const key = 'local_propfinder_bookmarks';
+      const raw = localStorage.getItem(key);
+      const map: Record<string, boolean> = raw ? JSON.parse(raw) : {};
+      const ids = Object.keys(map).filter(id => map[id]);
+      if (!ids.length) return;
+
+      // Attempt to POST each bookmarked id to the server
+      for (const id of ids) {
+        try {
+          // Find opportunity in local cache to supply metadata
+          const localOpp = opportunities.find(o => o.id === id);
+          const body = {
+            prop_id: id,
+            sport: localOpp?.sport || 'NBA',
+            player: localOpp?.player || '',
+            market: localOpp?.market || '',
+            team: localOpp?.team || '',
+            bookmarked: true
+          };
+
+          const res = await fetch(`${API_BASE}/bookmark?user_id=${userId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+
+          if (!res.ok) {
+            // Log but continue
+            if (process.env.NODE_ENV === 'development') {
+              enhancedLogger.warn('usePropFinderData', 'syncLocalBookmarksToServer', `Failed to sync bookmark ${id}: ${res.status}`);
+            }
+            continue;
+          }
+
+          const data = await res.json();
+          if (!data.success) {
+            if (process.env.NODE_ENV === 'development') {
+              enhancedLogger.warn('usePropFinderData', 'syncLocalBookmarksToServer', `Server rejected bookmark ${id}: ${data.error?.message}`);
+            }
+          }
+        } catch (err) {
+          if (process.env.NODE_ENV === 'development') {
+            enhancedLogger.error('usePropFinderData', 'syncLocalBookmarksToServer', 'Error syncing bookmark', { id }, err as Error);
+          }
+          continue;
+        }
+      }
+
+      // Clear local stash on successful sync
+      localStorage.removeItem(key);
+    } catch (err) {
+      if (process.env.NODE_ENV === 'development') {
+        enhancedLogger.error('usePropFinderData', 'syncLocalBookmarksToServer', 'Error reading local bookmarks for sync', undefined, err as Error);
+      }
+    }
+  }, [userId, opportunities]);
+
+  // Effect: when userId becomes available, sync any local bookmarks to server
+  useEffect(() => {
+    if (!userId) return;
+    // fire-and-forget sync
+    void syncLocalBookmarksToServer();
+  }, [userId, syncLocalBookmarksToServer]);
 
   // Toggle auto-refresh
   const toggleAutoRefresh = useCallback(() => {

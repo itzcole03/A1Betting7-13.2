@@ -6,6 +6,7 @@
 
 import axios, { AxiosResponse } from 'axios';
 import { API_BASE_URL } from '../config/apiConfig';
+import { getEnvVar } from '../bootstrap/getEnv';
 import {
   CacheInvalidationEvent,
   EnhancedRequestMetrics,
@@ -404,7 +405,8 @@ class EnhancedDataManager {
       throw new Error('Realtime config not initialized');
     }
 
-    const baseWsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000';
+  import { getEnvVar } from '../bootstrap/getEnv';
+  const baseWsUrl = getEnvVar('VITE_WS_URL') || 'ws://localhost:8000';
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsHost = baseWsUrl.replace(/^https?:/, '').replace(/^wss?:/, '');
     

@@ -81,10 +81,10 @@ describe('PerformanceMonitoringDashboard metrics regression tests', () => {
       expect(screen.getByText('Total Requests')).toBeInTheDocument();
     });
 
-    // Should render the legacy values correctly through accessors
-    expect(screen.getByText('379')).toBeInTheDocument(); // total_requests
-    expect(screen.getByText('312')).toBeInTheDocument(); // hits
-    expect(screen.getByText('67')).toBeInTheDocument(); // misses
+  // Should render the legacy values correctly through accessors
+  expect(await screen.findByTestId('total-requests')).toHaveTextContent('379');
+  expect(await screen.findByTestId('cache-hits')).toHaveTextContent('312');
+  expect(await screen.findByTestId('cache-misses')).toHaveTextContent('67');
   });
 
   it('should handle canonical metrics shape', async () => {
@@ -117,10 +117,10 @@ describe('PerformanceMonitoringDashboard metrics regression tests', () => {
       expect(screen.getByText('Total Requests')).toBeInTheDocument();
     });
 
-    // Should render canonical values
-    expect(screen.getByText('500')).toBeInTheDocument(); // cache total_requests
-    expect(screen.getByText('450')).toBeInTheDocument(); // cache hits  
-    expect(screen.getByText('50')).toBeInTheDocument(); // cache misses
+  // Should render canonical values
+  expect(await screen.findByTestId('total-requests')).toHaveTextContent('500');
+  expect(await screen.findByTestId('cache-hits')).toHaveTextContent('450');
+  expect(await screen.findByTestId('cache-misses')).toHaveTextContent('50');
   });
 
   it('should handle partial metrics data without crashes', async () => {
@@ -142,8 +142,8 @@ describe('PerformanceMonitoringDashboard metrics regression tests', () => {
       expect(screen.getByText('Performance Monitoring')).toBeInTheDocument();
     });
 
-    // Should render available data and defaults for missing fields
-    expect(screen.getByText('100')).toBeInTheDocument(); // hits (available)
+  // Should render available data and defaults for missing fields
+  expect(await screen.findByTestId('cache-hits')).toHaveTextContent('100'); // hits (available)
     // total_requests should show 0 (default)
     // misses should show 0 (default)
   });
@@ -171,10 +171,10 @@ describe('PerformanceMonitoringDashboard metrics regression tests', () => {
       expect(screen.getByText('Performance Monitoring')).toBeInTheDocument();
     });
 
-    // Canonical values should win, legacy should fill gaps
-    expect(screen.getByText('600')).toBeInTheDocument(); // canonical hits
-    expect(screen.getByText('700')).toBeInTheDocument(); // canonical total_requests
-    expect(screen.getByText('100')).toBeInTheDocument(); // legacy misses
+  // Canonical values should win, legacy should fill gaps
+  expect(await screen.findByTestId('cache-hits')).toHaveTextContent('600'); // canonical hits
+  expect(await screen.findByTestId('total-requests')).toHaveTextContent('700'); // canonical total_requests
+  expect(await screen.findByTestId('cache-misses')).toHaveTextContent('100'); // legacy misses
   });
 
   it('should render error state gracefully when API fails', async () => {

@@ -1,3 +1,48 @@
+```markdown
+# A1Betting — AI Agent Onboarding (concise)
+
+Purpose: give AI coding agents the exact, discoverable patterns and commands they need to make safe, small, reversible changes.
+
+**Quick rules (must follow)**
+- Backend commands: run from project root (`A1Betting7-13.2/`).
+- Frontend commands: run from `frontend/` (Vite dev server, type-check, tests).
+- Ports: backend 8000 (required), frontend 5173 (Vite proxy to 8000).
+
+**Essential commands**
+```pwsh
+# From repo root (backend work)
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+pytest --verbose --tb=short
+
+# From frontend/
+npm run dev
+npm run type-check   # runs: tsc -p tsconfig.app.json --noEmit
+npm run test
+```
+
+**Project-specific patterns & gotchas**
+- Directory discipline is critical — many scripts assume precise cwd (root vs `frontend/`).
+- The frontend uses a `MasterServiceRegistry` (singleton). When adapting legacy `UnifiedServiceRegistry` callers prefer a small runtime adapter (plain-object) or local `as unknown as ...` casts rather than large refactors.
+- Replace `console.*` with `enhancedLogger` (see `frontend/src/utils/enhancedLogger.ts`). Do this in small batches (5–10 files) and run `npm run type-check` after each batch.
+- Vite proxy must target port 8000. If React errors reference `useReducer`, check `frontend/vite.config.ts` proxy settings.
+
+**Integration points & important files**
+- PropFinder API: `GET /api/propfinder/opportunities` (backend routes in `backend/routes/propfinder_routes.py`, service in `backend/services/simple_propfinder_service.py`).
+- Frontend dashboard: `frontend/src/components/dashboard/PropFinderDashboard.tsx` and hook `frontend/src/hooks/usePropFinderData.tsx`.
+- Unified backend services: `backend/services/unified_*` (fetcher, cache, logging, error_handler).
+- Frontend registry & adapter examples: `frontend/src/services/MasterServiceRegistry.ts`, `frontend/src/services/UnifiedRegistryAdapter.ts`.
+
+**TypeScript / testing workflow for AI edits**
+- Make minimal edits, commit small patches, then run:
+  1) `cd frontend && npm run type-check`
+  2) if errors persist, add narrow call-site casts (not global anys)
+  3) remove or replace `@ts-expect-error` only after verification
+
+**When to ask for human review**
+- Any change touching `backend/main.py`, database migrations, API schemas, or ML model code. Also ask when you must install new native dependencies (PyTorch, etc.).
+
+If something here is unclear or you'd like more detail for a specific area (registry adapters, PropFinder data flow, or ML service fallbacks), tell me which section to expand.
+```
 # AI Agent Onboarding Summary (August 2025)
 
 Welcome to A1Betting7-13.2! This is a production-ready PropFinder-killer platform with comprehensive sports analytics. Follow these patterns for immediate productivity:

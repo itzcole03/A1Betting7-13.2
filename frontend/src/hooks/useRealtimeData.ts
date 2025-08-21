@@ -9,6 +9,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { getEnvVar } from '../bootstrap/getEnv';
 // @ts-expect-error TS(2305): Module '"../services/ApiService"' has no exported ... Remove this comment to see the full error message
 import { apiService } from '../services/ApiService';
 
@@ -85,7 +86,7 @@ interface RealtimeData {
 
 // @ts-expect-error TS(2300): Duplicate identifier 'useRealtimeData'.
 export function useRealtimeData<T = RealtimeData>({
-  url = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws',
+  url = (getEnvVar('VITE_WS_URL') as string) || 'ws://localhost:8000/ws',
   initialData = null,
   onMessage,
   onError,

@@ -17,6 +17,17 @@ Object.defineProperty(global, 'import', {
   writable: true,
 });
 
+// Also expose a __import_meta__ on globalThis for runtime helpers
+globalThis.__import_meta__ = {
+  env: {
+    DEV: process.env.NODE_ENV === 'development',
+    PROD: process.env.NODE_ENV === 'production',
+    MODE: process.env.NODE_ENV || 'test',
+    VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://localhost:8000',
+    VITE_WS_URL: process.env.VITE_WS_URL || undefined,
+  },
+};
+
 // Mock process.env if not available
 if (typeof process === 'undefined') {
   global.process = {

@@ -137,14 +137,33 @@ def _convert_opportunity_to_response(opp: PropOpportunity, is_bookmarked: bool =
     if isinstance(enhanced_bookmakers, dict):
         bookmakers_field = enhanced_bookmakers.get('bookmakers', [])
     else:
-        bookmakers_field = [
-            {
-                "name": book.name,
-                "odds": book.odds,
-                "line": book.line
-            }
-            for book in opp.bookmakers
-        ]
+        bookmakers_field = []
+        for book in getattr(opp, 'bookmakers', []) or []:
+            try:
+                # Dataclass / object with attributes
+                if hasattr(book, 'name') and hasattr(book, 'odds') and hasattr(book, 'line'):
+                    bookmakers_field.append({
+                        'name': str(book.name),
+                        'odds': int(book.odds),
+                        'line': float(book.line)
+                    })
+                # Dict-like
+                elif isinstance(book, dict):
+                    bookmakers_field.append({
+                        'name': str(book.get('name') or book.get('display_name') or ''),
+                        'odds': int(book.get('odds') or 0),
+                        'line': float(book.get('line') or 0.0)
+                    })
+                else:
+                    # Fallback: try to coerce from string representation
+                    s = str(book)
+                    bookmakers_field.append({'name': s, 'odds': 0, 'line': 0.0})
+            except Exception:
+                # Best-effort fallback
+                try:
+                    bookmakers_field.append({'name': str(book), 'odds': 0, 'line': 0.0})
+                except Exception:
+                    continue
 
     def _safe_float(val, default=0.0):
         try:
@@ -170,6 +189,14 @@ def _convert_opportunity_to_response(opp: PropOpportunity, is_bookmarked: bool =
         except Exception:
             return default
 
+    # Normalize pick to lowercase string safely
+    _pick_val = None
+    if getattr(opp, 'pick', None) is not None:
+        try:
+            _pick_val = opp.pick.value.lower() if hasattr(opp.pick, 'value') else str(opp.pick).lower()
+        except Exception:
+            _pick_val = str(getattr(opp, 'pick', '')).lower()
+
     return OpportunityResponse(
         id=opp.id,
         player=opp.player,
@@ -181,7 +208,7 @@ def _convert_opportunity_to_response(opp: PropOpportunity, is_bookmarked: bool =
         sport=opp.sport.value,
         market=opp.market.value,
         line=opp.line,
-        pick=opp.pick.value,
+    pick=_pick_val or '',
         odds=opp.odds,
         impliedProbability=opp.impliedProbability,
         aiProbability=opp.aiProbability,

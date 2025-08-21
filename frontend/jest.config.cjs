@@ -34,21 +34,7 @@ module.exports = {
 
   // Transform configuration
   transform: {
-    '^.+\\.[tj]sx?$': [
-      'babel-jest',
-      {
-        presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
-        plugins: [
-          // Transform import.meta for Jest compatibility
-          [
-            'babel-plugin-transform-import-meta',
-            {
-              module: 'ES6',
-            },
-          ],
-        ],
-      },
-    ],
+    '^.+\\.[tj]sx?$': '<rootDir>/jest-transform-replace-import-meta.cjs',
   },
 
   // Transform ESM modules in node_modules

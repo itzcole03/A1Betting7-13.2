@@ -3,12 +3,14 @@
  * Centralizes API base URL and WebSocket URL configuration with environment variable support
  */
 
+import { getEnvVar } from '../bootstrap/getEnv';
+
 // API Base URL configuration
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+export const API_BASE_URL = getEnvVar('VITE_API_BASE_URL', 'http://localhost:8000') as string;
 
 // WebSocket URL configuration with protocol derivation
 const deriveWSUrl = (apiBaseUrl: string): string => {
-  const wsUrl = import.meta.env.VITE_WS_URL;
+  const wsUrl = getEnvVar('VITE_WS_URL');
   if (wsUrl) return wsUrl;
   
   // Derive WebSocket URL from API base URL
@@ -26,6 +28,6 @@ export const DEV_CONFIG = {
   API_BASE_URL,
   WS_URL,
   WS_BASE_URL,
-  IS_DEVELOPMENT: import.meta.env.DEV,
-  IS_PRODUCTION: import.meta.env.PROD,
+  IS_DEVELOPMENT: Boolean(getEnvVar('DEV') || getEnvVar('VITE_DEV') || false),
+  IS_PRODUCTION: Boolean(getEnvVar('PROD') || getEnvVar('VITE_PROD') || false),
 } as const;

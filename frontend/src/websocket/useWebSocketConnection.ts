@@ -8,6 +8,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { WebSocketManager } from './WebSocketManager';
+import { getEnvVar, isDev } from '../bootstrap/getEnv';
 import { WSState, WSMessage } from './ConnectionState';
 import { BackoffStrategy } from './BackoffStrategy';
 
@@ -65,15 +66,11 @@ function getManager(): WebSocketManager {
     
     // Determine WebSocket URL
     const wsUrl = (() => {
-      if (import.meta.env.VITE_WS_URL) {
-        return import.meta.env.VITE_WS_URL;
-      }
-      
-      // Development default
-      if (import.meta.env.DEV) {
-        return 'ws://localhost:8000';
-      }
-      
+      // Prefer Vite env, fallback to safe helper
+      const viteWs = getEnvVar('VITE_WS_URL');
+      if (viteWs) return viteWs;
+      if (isDev()) return 'ws://localhost:8000/ws';
+
       // Production: use current host with wss
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       return `${protocol}//${window.location.host}`;
