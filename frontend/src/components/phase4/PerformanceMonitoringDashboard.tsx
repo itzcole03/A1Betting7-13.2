@@ -188,13 +188,19 @@ const PerformanceMonitoringDashboard: React.FC = () => {
   console.debug('[PerfMon] computedHealthHitRate=', computedHealthHitRate);
 
       if (process.env.NODE_ENV === 'development' && perfData) {
-        enhancedLogger.debug('PerformanceMonitoringDashboard', 'metricsDiag', 'MetricsDiag', {
+        const perfRecord = perfData as unknown as Record<string, unknown>;
+        const metricsDiag = {
           total: getTotalRequests(perfData),
           optLevel: getOptimizationLevel(perfData),
           hits: getCacheHits(perfData),
           misses: getCacheMisses(perfData),
           errors: getCacheErrors(perfData),
-        });
+          mappedLegacy: (perfRecord['originFlags'] as Record<string, unknown> | undefined)?.['mappedLegacy'] || false,
+        };
+        enhancedLogger.debug('PerformanceMonitoringDashboard', 'metricsDiag', 'MetricsDiag', metricsDiag);
+        // Also emit a console.log for legacy tests that spy on console output
+        // eslint-disable-next-line no-console
+        console.log('[MetricsDiag]', metricsDiag);
       }
 
       setIsUsingMockData(
@@ -459,21 +465,21 @@ const PerformanceMonitoringDashboard: React.FC = () => {
             <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
               <div className='bg-gray-800 p-4 rounded-lg border border-gray-600'>
                 <p className='text-gray-400 text-sm'>Hit Rate</p>
-                <p className='text-xl font-bold text-green-400'>{displayedMetricsHitRate}</p>
+                <p data-testid='metrics-hit-rate' className='text-xl font-bold text-green-400'>{displayedMetricsHitRate}</p>
               </div>
               <div className='bg-gray-800 p-4 rounded-lg border border-gray-600'>
                 <p className='text-gray-400 text-sm'>Total Requests</p>
-                <p className='text-xl font-bold text-blue-400'>
+                <p data-testid='total-requests' className='text-xl font-bold text-blue-400'>
                   {getTotalRequests(metrics)}
                 </p>
               </div>
               <div className='bg-gray-800 p-4 rounded-lg border border-gray-600'>
                 <p className='text-gray-400 text-sm'>Cache Hits</p>
-                <p className='text-xl font-bold text-green-400'>{getCacheHits(metrics)}</p>
+                <p data-testid='cache-hits' className='text-xl font-bold text-green-400'>{getCacheHits(metrics)}</p>
               </div>
               <div className='bg-gray-800 p-4 rounded-lg border border-gray-600'>
                 <p className='text-gray-400 text-sm'>Cache Misses</p>
-                <p className='text-xl font-bold text-yellow-400'>
+                <p data-testid='cache-misses' className='text-xl font-bold text-yellow-400'>
                   {getCacheMisses(metrics)}
                 </p>
               </div>

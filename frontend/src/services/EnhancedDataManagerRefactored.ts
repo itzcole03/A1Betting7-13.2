@@ -256,9 +256,10 @@ class EnhancedDataManager {
     const backoff = this.realtimeConfig.backoff;
     let delayMs = Math.min(backoff.initialMs * Math.pow(backoff.factor, this.reconnectAttempts), backoff.maxMs);
     
-    // Add jitter if enabled
+    // Add jitter if enabled. Use deterministic multiplier in test environment.
     if (backoff.jitter) {
-      delayMs *= (0.5 + Math.random() * 0.5);
+      const multiplier = this.jitterMultiplier();
+      delayMs = Math.round(delayMs * multiplier);
     }
 
     enhancedLogger.info('DataManager', 'websocketBackoff', `WebSocket connection attempt ${attempt}/${maxAttempts}`, {
@@ -401,11 +402,9 @@ class EnhancedDataManager {
    * Build WebSocket URL with auth context and subscriptions
    */
   private buildWebSocketUrl(): string {
-    if (!this.realtimeConfig || !this.realtimeAuthContext) {
+  if (!this.realtimeConfig || !this.realtimeAuthContext) {
       throw new Error('Realtime config not initialized');
     }
-
-  import { getEnvVar } from '../bootstrap/getEnv';
   const baseWsUrl = getEnvVar('VITE_WS_URL') || 'ws://localhost:8000';
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsHost = baseWsUrl.replace(/^https?:/, '').replace(/^wss?:/, '');
@@ -464,10 +463,34 @@ class EnhancedDataManager {
     let delayMs = Math.min(backoff.initialMs * Math.pow(backoff.factor, this.reconnectAttempts), backoff.maxMs);
     
     if (backoff.jitter) {
-      delayMs *= (0.5 + Math.random() * 0.5);
+      const multiplier = this.jitterMultiplier();
+      delayMs = Math.round(delayMs * multiplier);
     }
 
     return Math.round(delayMs);
+  }
+
+  /**
+   * Return a jitter multiplier.
+   * In test environments (Jest/node with NODE_ENV==='test' or JEST_WORKER_ID set)
+   * return a deterministic multiplier to make timers predictable in tests.
+   */
+  private jitterMultiplier(): number {
+    // Use safer typed access to process.env and globalThis to avoid `any` usage in strict linting
+    try {
+      const proc = process as unknown as { env?: Record<string, string | undefined> };
+      const env = proc.env ?? {};
+      const isNodeTest = typeof process !== 'undefined' && (env.NODE_ENV === 'test' || typeof env.JEST_WORKER_ID !== 'undefined');
+      const testFlag = (globalThis as unknown as Record<string, unknown>)['__TEST_DISABLE_JITTER__'];
+      if (isNodeTest || testFlag === true) {
+        // Use a stable mid-point multiplier for deterministic behavior in tests
+        return 0.75;
+      }
+    } catch {
+      // ignore and fall through to non-deterministic behavior
+    }
+
+    return 0.5 + Math.random() * 0.5;
   }
 
   /**

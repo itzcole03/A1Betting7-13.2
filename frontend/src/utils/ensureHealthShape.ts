@@ -55,16 +55,62 @@ export function ensureHealthShape(raw: unknown, options?: { usedMock?: boolean }
       return 'unknown';
     };
 
+    // Helper to coerce values to safe numbers (NaN/Infinity -> 0), booleans handled
+    const toSafeNumber = (v: unknown): number => {
+      if (typeof v === 'boolean') return v ? 1 : 0;
+      const n = Number(v);
+      if (!Number.isFinite(n)) return 0;
+      return n;
+    };
+
     // Determine cache_hit_rate with support for multiple legacy fields
-    const perfHit = validated.performance?.cache_hit_rate;
+    const perfHitMain = validated.performance?.cache_hit_rate;
+    const perfHitLegacy = validated.performance?.hit_rate;
     const cacheHitAlt = (validated.cache as any)?.hit_rate;
     const infraHit = validated.infrastructure?.cache?.hit_rate_percent;
 
-    const computedHitRate = (
-      perfHit !== undefined && perfHit !== null ? perfHit :
+    // Which source did we use? prefer performance.cache_hit_rate, then performance.hit_rate, then cache.*, then infra
+    const computedRaw = (
+      perfHitMain !== undefined && perfHitMain !== null ? perfHitMain :
+      perfHitLegacy !== undefined && perfHitLegacy !== null ? perfHitLegacy :
       cacheHitAlt !== undefined && cacheHitAlt !== null ? cacheHitAlt :
       infraHit !== undefined && infraHit !== null ? infraHit : 0
     );
+
+    // Consider legacy source used only when performance.cache_hit_rate is missing
+    // and a legacy performance.hit_rate or cache.hit_rate is present. Ignore infraHit for mappedHitRate.
+    const usedLegacySource = !(perfHitMain !== undefined && perfHitMain !== null) && (
+      perfHitLegacy !== undefined || cacheHitAlt !== undefined
+    );
+
+    const computedHitRate = toSafeNumber(computedRaw);
+
+    // If mapping from legacy `hit_rate` (performance.hit_rate or cache.hit_rate), log when in development for diagnostics
+    if (process.env.NODE_ENV === 'development' && perfHitLegacy !== undefined && (perfHitMain === undefined || perfHitMain === null)) {
+      // eslint-disable-next-line no-console
+      console.log('[ensureHealthShape] Mapped hit_rate (' + perfHitLegacy + ') to cache_hit_rate');
+    }
+
+    // Determine mappedHitRate and emit development log based on original raw input (legacy fields)
+    let rawMappedHitRate = false;
+    try {
+      const rawAny = raw as any;
+      if (rawAny && typeof rawAny === 'object') {
+        const hasPerfCache = rawAny.performance && rawAny.performance.cache_hit_rate !== undefined;
+        const hasPerfHit = rawAny.performance && rawAny.performance.hit_rate !== undefined;
+        const hasCacheHit = rawAny.cache && rawAny.cache.hit_rate !== undefined;
+        const hasInfraHit = rawAny.infrastructure && rawAny.infrastructure.cache && rawAny.infrastructure.cache.hit_rate_percent !== undefined;
+
+        rawMappedHitRate = !hasPerfCache && (hasPerfHit || hasCacheHit || hasInfraHit);
+
+        if (process.env.NODE_ENV === 'development' && hasPerfHit && !hasPerfCache) {
+          // eslint-disable-next-line no-console
+          console.log('[ensureHealthShape] Mapped hit_rate (' + rawAny.performance.hit_rate + ') to cache_hit_rate');
+        }
+      }
+    } catch (_err) {
+      // ignore
+    }
 
     return {
       status: mapStatus(validated.overall_status),
@@ -74,13 +120,13 @@ export function ensureHealthShape(raw: unknown, options?: { usedMock?: boolean }
         database: mapStatus(validated.infrastructure?.database?.status) || 'unknown',
       },
       performance: {
-        cache_hit_rate: typeof computedHitRate === 'boolean' ? (computedHitRate ? 1 : 0) : Number(computedHitRate || 0),
+        cache_hit_rate: computedHitRate,
         cache_type: typeof validated.cache === 'object' ? 'unified' : 'unknown',
       },
-      uptime_seconds: Number(validated.uptime_seconds || 0),
+  uptime_seconds: toSafeNumber(validated.uptime_seconds),
       originFlags: {
-        hadCacheHitRate: !!(perfHit || cacheHitAlt || infraHit),
-        mappedHitRate: !!infraHit || !!cacheHitAlt,
+        hadCacheHitRate: !!(perfHitMain !== undefined && perfHitMain !== null) || !!(perfHitLegacy !== undefined && perfHitLegacy !== null) || !!(cacheHitAlt !== undefined && cacheHitAlt !== null) || !!(infraHit !== undefined && infraHit !== null),
+        mappedHitRate: rawMappedHitRate || !!usedLegacySource,
         usedMock: options?.usedMock || false,
       },
     };
@@ -93,8 +139,8 @@ export function ensureHealthShape(raw: unknown, options?: { usedMock?: boolean }
     );
 
     // If raw is an object, attempt to extract fields manually
-    if (raw && typeof raw === 'object') {
-      const rawObj = raw as Record<string, any>;
+  if (raw && typeof raw === 'object') {
+  const rawObj = raw as Record<string, unknown>;
 
       const mapLegacyStatus = (val: unknown) => {
         if (val === true || val === 1 || String(val).toLowerCase() === '1' || String(val).toLowerCase() === 'true') return 'healthy';
@@ -118,16 +164,36 @@ export function ensureHealthShape(raw: unknown, options?: { usedMock?: boolean }
         database: services.database !== undefined ? mapLegacyStatus(services.database) : 'unknown',
       };
 
-      let hitRate: number | boolean | undefined;
-      if (rawObj.performance && rawObj.performance.cache_hit_rate !== undefined) {
-        hitRate = rawObj.performance.cache_hit_rate;
-      } else if (rawObj.performance && rawObj.performance.hit_rate !== undefined) {
-        hitRate = rawObj.performance.hit_rate;
-      } else if (rawObj.infrastructure && rawObj.infrastructure.cache && rawObj.infrastructure.cache.hit_rate_percent !== undefined) {
-        hitRate = rawObj.infrastructure.cache.hit_rate_percent;
+      let hitRate: unknown = undefined;
+      if (rawObj.performance && (rawObj.performance as any).cache_hit_rate !== undefined) {
+        hitRate = (rawObj.performance as any).cache_hit_rate;
+      } else if (rawObj.performance && (rawObj.performance as any).hit_rate !== undefined) {
+        hitRate = (rawObj.performance as any).hit_rate;
+      } else if (
+        rawObj.infrastructure &&
+        (rawObj.infrastructure as any).cache &&
+        (rawObj.infrastructure as any).cache.hit_rate_percent !== undefined
+      ) {
+        hitRate = (rawObj.infrastructure as any).cache.hit_rate_percent;
       }
 
-      const cacheHit = typeof hitRate === 'boolean' ? (hitRate ? 1 : 0) : Number(hitRate || 0);
+      const cacheHit = ((): number => {
+        if (typeof hitRate === 'boolean') return hitRate ? 1 : 0;
+        const n = Number(hitRate);
+        if (!Number.isFinite(n)) return 0;
+        return n;
+      })();
+
+      // Emit development log when mapping legacy performance.hit_rate in fallback
+      try {
+        const rawAnyLog = rawObj as any;
+        if (process.env.NODE_ENV === 'development' && rawAnyLog.performance && rawAnyLog.performance.hit_rate !== undefined && rawAnyLog.performance.cache_hit_rate === undefined) {
+          // eslint-disable-next-line no-console
+          console.log('[ensureHealthShape] Mapped hit_rate (' + rawAnyLog.performance.hit_rate + ') to cache_hit_rate');
+        }
+      } catch (_e) {
+        // ignore
+      }
 
       return {
         status,
@@ -136,10 +202,18 @@ export function ensureHealthShape(raw: unknown, options?: { usedMock?: boolean }
           cache_hit_rate: cacheHit,
           cache_type: rawObj.cache ? 'unified' : 'unknown',
         },
-        uptime_seconds: Number(rawObj.uptime_seconds || 0),
+        uptime_seconds: ((): number => {
+          const n = Number((rawObj.uptime_seconds as unknown) || 0);
+          if (!Number.isFinite(n)) return 0;
+          return n;
+        })(),
         originFlags: {
           hadCacheHitRate: !!hitRate,
-          mappedHitRate: !!(rawObj.infrastructure && rawObj.infrastructure.cache && rawObj.infrastructure.cache.hit_rate_percent),
+          mappedHitRate: !!(
+            rawObj.performance && (rawObj.performance as any).hit_rate !== undefined
+          ) || (!!(
+            rawObj.infrastructure && (rawObj.infrastructure as any).cache && (rawObj.infrastructure as any).cache.hit_rate_percent !== undefined
+          ) && !(rawObj.performance && (rawObj.performance as any).cache_hit_rate !== undefined)),
           usedMock: options?.usedMock || true,
         },
       };

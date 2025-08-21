@@ -105,8 +105,13 @@ describe('App E2E - Empty State', () => {
       try {
         emptyState = await screen.findByTestId('empty-props', {}, { timeout: 2000 });
       } catch (err) {
-        // fallback to text matcher used historically
-        emptyState = await screen.findByText(/No props found|No enhanced props|No results/i, {}, { timeout: 5000 });
+        // Try alternate testid used by some components
+        try {
+          emptyState = await screen.findByTestId('empty-state', {}, { timeout: 2000 });
+  } catch {
+          // fallback to text matcher used historically
+          emptyState = await screen.findByText(/No props found|No enhanced props|No results/i, {}, { timeout: 5000 });
+        }
       }
       expect(emptyState).toBeInTheDocument();
     } finally {

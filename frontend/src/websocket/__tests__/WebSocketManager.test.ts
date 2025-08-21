@@ -290,7 +290,8 @@ describe('WebSocketManager', () => {
     it('attempts reconnection on abnormal close', async () => {
       const immediateStrategy = BackoffStrategy.createImmediateStrategy();
       const manager = new WebSocketManager('ws://test:8000', 'test-client', {
-        backoffStrategy: immediateStrategy
+        backoffStrategy: immediateStrategy,
+        testDelayBeforeAttemptMs: 20
       });
       
       await manager.connect();
@@ -304,15 +305,17 @@ describe('WebSocketManager', () => {
       
       expect(manager.getState().phase).toBe('failed');
       
-      // Advance timer for immediate reconnection
-      jest.advanceTimersByTime(150);
-      
-      expect(manager.getState().phase).toBe('reconnecting');
-      
-      // Let new connection open
-      jest.advanceTimersByTime(20);
-      
-      expect(manager.getState().phase).toBe('open');
+  // Advance timer to just after the scheduled reconnect timeout
+  const peek = immediateStrategy.peekNextDelay()!;
+  jest.advanceTimersByTime(peek + 5);
+
+  // Should be in reconnecting state before the testDelay before attempt
+  expect(manager.getState().phase).toBe('reconnecting');
+
+  // Let the testDelay elapse and the mock connection open (testDelay + mock open delay)
+  jest.advanceTimersByTime(20 + 10);
+
+  expect(manager.getState().phase).toBe('open');
     });
 
     it('enters fallback mode after max attempts', async () => {
@@ -323,7 +326,8 @@ describe('WebSocketManager', () => {
       });
       
       const manager = new WebSocketManager('ws://test:8000', 'test-client', {
-        backoffStrategy: quickFailStrategy
+        backoffStrategy: quickFailStrategy,
+        testDelayBeforeAttemptMs: 20
       });
       
       // Mock WebSocket to always fail
@@ -338,25 +342,32 @@ describe('WebSocketManager', () => {
       
       await manager.connect();
       
-      // First attempt fails
-      jest.advanceTimersByTime(10);
-      expect(manager.getState().phase).toBe('failed');
-      
-      // Second attempt after backoff  
-      jest.advanceTimersByTime(60);
-      expect(manager.getState().phase).toBe('reconnecting');
-      
-      // Second attempt fails
-      jest.advanceTimersByTime(10);
-      expect(manager.getState().phase).toBe('failed');
-      
-      // Should enter fallback after max attempts
-      jest.advanceTimersByTime(60);
-      
-      const state = manager.getState();
-      expect(state.phase).toBe('fallback');
-      expect(state.is_fallback_mode).toBe(true);
-      expect(state.fallback_reason).toContain('maximum attempts');
+  // First attempt fails (mock closes at 5ms)
+  jest.advanceTimersByTime(10);
+  expect(manager.getState().phase).toBe('failed');
+
+  const peek = quickFailStrategy.peekNextDelay()!;
+
+  // Advance to first scheduled reconnect
+  jest.advanceTimersByTime(peek + 5);
+  expect(manager.getState().phase).toBe('reconnecting');
+
+  // Allow the reconnect attempt to run and fail (testDelay + mock close)
+  jest.advanceTimersByTime(20 + 5);
+  expect(manager.getState().phase).toBe('failed');
+
+  // Advance to second scheduled reconnect (which will consume the last allowed attempt)
+  jest.advanceTimersByTime(peek + 5);
+  expect(manager.getState().phase).toBe('reconnecting');
+
+  // Allow the final reconnect attempt to run and fail; after this the manager
+  // should transition to fallback because maxAttempts have been consumed
+  jest.advanceTimersByTime(20 + 5);
+
+  const state = manager.getState();
+  expect(state.phase).toBe('fallback');
+  expect(state.is_fallback_mode).toBe(true);
+  expect(state.fallback_reason).toContain('maximum attempts');
     });
 
     it('resets backoff strategy on successful connection', async () => {
@@ -367,7 +378,8 @@ describe('WebSocketManager', () => {
       });
       
       const manager = new WebSocketManager('ws://test:8000', 'test-client', {
-        backoffStrategy: strategy
+        backoffStrategy: strategy,
+        testDelayBeforeAttemptMs: 20
       });
       
       // First connection fails

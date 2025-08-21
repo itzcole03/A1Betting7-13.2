@@ -1,13 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="4" failures="0" errors="0" time="1.342">
-  <testsuite name="UnifiedErrorService" errors="0" failures="0" skipped="0" timestamp="2025-08-07T08:58:59" time="0.728" tests="4">
-    <testcase classname="UnifiedErrorService" name="should return a singleton instance" time="0.001">
+<testsuites name="jest tests" tests="18" failures="0" errors="0" time="1.38">
+  <testsuite name="WebSocketManager" errors="0" failures="0" skipped="0" timestamp="2025-08-21T19:24:10" time="0.796" tests="18">
+    <testcase classname="WebSocketManager › Connection lifecycle" name="starts in idle state" time="0.003">
     </testcase>
-    <testcase classname="UnifiedErrorService" name="should report errors and generate errorId" time="0.017">
+    <testcase classname="WebSocketManager › Connection lifecycle" name="transitions through connecting to open state" time="0.023">
     </testcase>
-    <testcase classname="UnifiedErrorService" name="should resolve errors" time="0.004">
+    <testcase classname="WebSocketManager › Connection lifecycle" name="handles hello message from server" time="0.006">
     </testcase>
-    <testcase classname="UnifiedErrorService" name="should provide error stats and clear errors" time="0.005">
+    <testcase classname="WebSocketManager › Connection lifecycle" name="disconnects cleanly" time="0.013">
+    </testcase>
+    <testcase classname="WebSocketManager › Messaging" name="sends messages when connected" time="0.005">
+    </testcase>
+    <testcase classname="WebSocketManager › Messaging" name="fails to send when not connected" time="0.005">
+    </testcase>
+    <testcase classname="WebSocketManager › Messaging" name="handles ping/pong messages" time="0.004">
+    </testcase>
+    <testcase classname="WebSocketManager › Messaging" name="forwards non-system messages to listeners" time="0.005">
+    </testcase>
+    <testcase classname="WebSocketManager › Reconnection and backoff" name="attempts reconnection on abnormal close" time="0.01">
+    </testcase>
+    <testcase classname="WebSocketManager › Reconnection and backoff" name="enters fallback mode after max attempts" time="0.02">
+    </testcase>
+    <testcase classname="WebSocketManager › Reconnection and backoff" name="resets backoff strategy on successful connection" time="0.019">
+    </testcase>
+    <testcase classname="WebSocketManager › Error handling" name="classifies connection errors correctly" time="0.01">
+    </testcase>
+    <testcase classname="WebSocketManager › Error handling" name="tracks recent connection attempts with classifications" time="0.007">
+    </testcase>
+    <testcase classname="WebSocketManager › Event listeners" name="notifies state change listeners" time="0.006">
+    </testcase>
+    <testcase classname="WebSocketManager › Event listeners" name="handles listener errors gracefully" time="0.007">
+    </testcase>
+    <testcase classname="WebSocketManager › Statistics tracking" name="tracks message counts by type" time="0.004">
+    </testcase>
+    <testcase classname="WebSocketManager › Statistics tracking" name="tracks connection uptime" time="0.01">
+    </testcase>
+    <testcase classname="WebSocketManager › Resource cleanup" name="cleans up resources on destroy" time="0.008">
     </testcase>
   </testsuite>
 </testsuites>

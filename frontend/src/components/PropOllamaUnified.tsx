@@ -78,11 +78,11 @@ const PropOllamaUnified: React.FC<PropOllamaUnifiedProps> = ({ projections }) =>
       {showEmptyState ? (
         <>
           <div data-testid='empty-state-banner'>
-            <div>No props available for the selected filters.</div>
-            <div>No props found.</div>
+            <div data-testid='empty-state'>No props available for the selected filters.</div>
+            <div data-testid='empty-props'>No props found.</div>
             <div>No props selected.</div>
           </div>
-          <div data-testid='error-banner'>
+          <div data-testid='error-banner' data-error-test-id='error-banner'>
             Error: No props available. The backend returned no data.
           </div>
         </>

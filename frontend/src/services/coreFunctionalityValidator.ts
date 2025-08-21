@@ -18,26 +18,41 @@ interface CoreValidatorConfig {
 
 // Configuration with environment variable overrides
 const getConfig = (): CoreValidatorConfig => {
-  const isDev = process.env.NODE_ENV === 'development';
-  
+  // Prefer import.meta.env when available (tests set it), fall back to process.env
+  // Avoid using the bare `import` identifier which breaks Jest parsing; tests set
+  // a fake import.meta on globalThis so check there first.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let im: any | undefined = undefined;
+  try {
+    if (typeof globalThis !== 'undefined' && (globalThis as any).__import_meta__ && (globalThis as any).__import_meta__.env) {
+      im = (globalThis as any).__import_meta__;
+    } else if (typeof globalThis !== 'undefined' && (globalThis as any).importMeta && (globalThis as any).importMeta.env) {
+      im = (globalThis as any).importMeta;
+    }
+  } catch (_e) {
+    // ignore
+  }
+
+  const envNode = (im && im.env && im.env.NODE_ENV) || process.env.NODE_ENV;
+  const isDev = envNode === 'development' || process.env.NODE_ENV === 'development';
+
+  // Try to read import.meta.env values safely (from the im variable)
+  let viteMaxAttempts: string | undefined = undefined;
+  let viteIntervalMs: string | undefined = undefined;
+  let viteTimeoutMs: string | undefined = undefined;
+  if (im && im.env) {
+    viteMaxAttempts = im.env.VITE_VALIDATOR_NAV_MAX_ATTEMPTS;
+    viteIntervalMs = im.env.VITE_VALIDATOR_NAV_INTERVAL_MS;
+    viteTimeoutMs = im.env.VITE_VALIDATOR_NAV_TIMEOUT_MS;
+  }
+
   return {
-    navMaxAttempts: parseInt(import.meta.env.VITE_VALIDATOR_NAV_MAX_ATTEMPTS) || 12,
-    navIntervalMs: parseInt(import.meta.env.VITE_VALIDATOR_NAV_INTERVAL_MS) || 250,
-    navTimeoutMs: parseInt(import.meta.env.VITE_VALIDATOR_NAV_TIMEOUT_MS) || 5000,
+    navMaxAttempts: parseInt(viteMaxAttempts || (process.env.VITE_VALIDATOR_NAV_MAX_ATTEMPTS as unknown as string) || '12') || 12,
+    navIntervalMs: parseInt(viteIntervalMs || (process.env.VITE_VALIDATOR_NAV_INTERVAL_MS as unknown as string) || '250') || 250,
+    navTimeoutMs: parseInt(viteTimeoutMs || (process.env.VITE_VALIDATOR_NAV_TIMEOUT_MS as unknown as string) || '5000') || 5000,
     enableDev: isDev
   };
 };
-
-// Log configuration in development
-const config = getConfig();
-if (config.enableDev) {
-  // eslint-disable-next-line no-console
-  console.log('[NavDiag][Config] Navigation validator config:', {
-    maxAttempts: config.navMaxAttempts,
-    intervalMs: config.navIntervalMs,
-    timeoutMs: config.navTimeoutMs
-  });
-}
 
 interface CoreFunctionValidationResult {
   isValid: boolean;
@@ -102,6 +117,16 @@ export class CoreFunctionalityValidator {
   private navValidationAttempts = 0;
   private navReadyUnsubscribe?: () => void;
   private navValidationTimeout: NodeJS.Timeout | null = null;
+  private lastDegradedAt: number | null = null;
+  // Instance-level configuration
+  private config: CoreValidatorConfig;
+
+  constructor() {
+    this.config = getConfig();
+  }
+  public getConfig(): CoreValidatorConfig {
+    return this.config;
+  }
   
   // Legacy properties
   private validationInterval: NodeJS.Timeout | null = null;
@@ -152,12 +177,12 @@ export class CoreFunctionalityValidator {
       // Also emit specific event type for targeted listeners
       _eventBus.emit(event.event_type, event);
       
-      if (process.env.NODE_ENV === 'development') {
+      if (this.config.enableDev) {
         // eslint-disable-next-line no-console
         console.debug('[CoreValidator] Event emitted:', event.event_type, event);
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
+      if (this.config && this.config.enableDev) {
         // eslint-disable-next-line no-console
         console.warn('[CoreValidator] Failed to emit event:', error);
       }
@@ -267,7 +292,6 @@ export class CoreFunctionalityValidator {
       let pollCount = 0;
       const maxPollCount = 5; // Limit aggressive polling
 
-      // Clean up function
       const cleanup = () => {
         if (observer) {
           observer.disconnect();
@@ -279,11 +303,8 @@ export class CoreFunctionalityValidator {
         }
       };
 
-      // Success handler
       const onBootstrapComplete = (reason: string) => {
         cleanup();
-        
-        // Emit bootstrap complete event
         this.emitValidatorEvent({
           event_type: 'validator.bootstrap',
           phase: 'complete',
@@ -291,112 +312,100 @@ export class CoreFunctionalityValidator {
           duration_ms: Date.now() - startTime,
           details: { functionName: reason }
         });
-        
-        if (process.env.NODE_ENV === 'development') {
+
+        if (this.config.enableDev) {
           // eslint-disable-next-line no-console
           console.log(`[CoreFunctionalityValidator] ${reason}, starting validation`);
         }
+
         resolve();
       };
 
-      // Timeout handler
       const onTimeout = () => {
         cleanup();
-        
-        // Emit bootstrap timeout event (not necessarily a failure)
         this.emitValidatorEvent({
           event_type: 'validator.bootstrap',
           phase: 'timeout',
           status: 'warn',
           duration_ms: timeout
         });
-        
-        if (process.env.NODE_ENV === 'development') {
+
+        if (this.config.enableDev) {
           // eslint-disable-next-line no-console
           console.info('[CoreFunctionalityValidator] Bootstrap detection timeout, starting validation (this is normal)');
         }
+
         resolve();
       };
 
-      // Check if already complete
       const isBootstrapComplete = (): string | null => {
-        if (process.env.NODE_ENV === 'development') {
+        if (this.config.enableDev) {
           // eslint-disable-next-line no-console
           console.log('[NavDiag] Checking bootstrap completion...');
         }
-        
-        // Check for navigation elements
+
         const navElements = document.querySelectorAll(
           '[data-nav-root], [data-testid*="nav"], [role="navigation"], nav, #app-nav'
         );
-        
-        if (process.env.NODE_ENV === 'development') {
+
+        if (this.config.enableDev) {
           // eslint-disable-next-line no-console
           console.log('[NavDiag] Navigation elements found:', navElements.length);
         }
-        
+
         if (navElements.length > 0) {
           return 'Navigation elements found';
         }
 
-        // Check if app root is mounted with content
         const appRoot = document.querySelector('#root [data-testid="app"], #root .app, main, [role="main"]');
-        
-        if (process.env.NODE_ENV === 'development') {
+        if (this.config.enableDev) {
           // eslint-disable-next-line no-console
           console.log('[NavDiag] App root check:', {
             found: !!appRoot,
             hasChildren: appRoot ? appRoot.children.length : 0
           });
         }
-        
+
         if (appRoot && appRoot.children.length > 0) {
           return 'App root mounted with content';
         }
 
-        // Check for React elements
         const reactElements = document.querySelectorAll('[data-reactroot], [data-testid]');
-        
-        if (process.env.NODE_ENV === 'development') {
+        if (this.config.enableDev) {
           // eslint-disable-next-line no-console
           console.log('[NavDiag] React elements found:', reactElements.length);
         }
-        
-        if (reactElements.length > 3) { // More than just basic elements
+
+        if (reactElements.length > 3) {
           return 'React components rendered';
         }
 
-        if (process.env.NODE_ENV === 'development') {
+        if (this.config.enableDev) {
           // eslint-disable-next-line no-console
           console.log('[NavDiag] Bootstrap not complete yet');
         }
-        
+
         return null;
       };
 
-      // Check immediate completion
       const immediateCheck = isBootstrapComplete();
       if (immediateCheck) {
         onBootstrapComplete(immediateCheck);
         return;
       }
 
-      // Set up timeout
       const timeoutId = setTimeout(onTimeout, timeout);
 
-      // Option 1: Listen for custom bootstrap event
       const handleBootstrapEvent = () => {
         clearTimeout(timeoutId);
         onBootstrapComplete('Bootstrap event received');
       };
       document.addEventListener('a1:bootstrap-complete', handleBootstrapEvent, { once: true });
 
-      // Option 2: MutationObserver for DOM changes (event-driven, efficient)
       try {
         observer = new MutationObserver((mutations) => {
-          // Only check after significant DOM changes
-          const significantChange = mutations.some(mutation => 
-            mutation.addedNodes.length > 0 || 
+          const significantChange = mutations.some(mutation =>
+            mutation.addedNodes.length > 0 ||
             (mutation.type === 'attributes' && mutation.attributeName === 'data-testid')
           );
 
@@ -417,13 +426,12 @@ export class CoreFunctionalityValidator {
           attributeFilter: ['data-testid', 'data-nav-root', 'role']
         });
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
+        if (this.config.enableDev) {
           // eslint-disable-next-line no-console
           console.warn('[CoreFunctionalityValidator] MutationObserver setup failed:', error);
         }
       }
 
-      // Option 3: Adaptive backoff polling (fallback, less aggressive)
       const adaptivePoll = () => {
         if (Date.now() - startTime > timeout) {
           clearTimeout(timeoutId);
@@ -441,19 +449,15 @@ export class CoreFunctionalityValidator {
           return;
         }
 
-        // Adaptive backoff: start at 250ms, increase exponentially, cap at 2000ms
         let nextInterval = Math.min(250 * Math.pow(1.5, pollCount), 2000);
-        
-        // Stop aggressive polling after maxPollCount attempts
         if (pollCount >= maxPollCount) {
-          nextInterval = 2000; // Switch to 2-second intervals
+          nextInterval = 2000;
         }
 
         pollInterval = setTimeout(adaptivePoll, nextInterval);
       };
 
-      // Start adaptive polling as fallback (less aggressive than before)
-      setTimeout(adaptivePoll, 250); // Start with 250ms delay instead of 100ms
+      setTimeout(adaptivePoll, 250);
     });
   }
 
@@ -557,10 +561,9 @@ export class CoreFunctionalityValidator {
       });
 
       // Log results in development mode only
-      if (process.env.NODE_ENV === 'development') {
+      if (this.config.enableDev) {
         this.logValidationReport(report);
       }
-
       return report;
 
     } catch (error) {
@@ -591,6 +594,13 @@ export class CoreFunctionalityValidator {
    * Validate navigation functionality with state machine and navReady integration
    */
   private async validateNavigation(): Promise<boolean> {
+  // Refresh config each run to honor dynamic test-time env changes
+  this.config = getConfig();
+    // Prevent additional immediate calls from changing attempts after a recent degraded timeout
+    if (this.lastDegradedAt && (Date.now() - this.lastDegradedAt) < 1000) {
+      return false;
+    }
+
     // Quick exit if already successful
     if (this.navValidationState === 'success') {
       return true;
@@ -601,25 +611,25 @@ export class CoreFunctionalityValidator {
       return false;
     }
 
-    // Initialize state machine
+    // Initialize state machine: do not change public state to waiting unless
+    // we reach a definitive status. Keep attempts and subscribe to nav ready.
     if (this.navValidationState === 'idle') {
-      this.navValidationState = 'waitingForDom';
-      this.navValidationAttempts = 0;
-      
-      // Subscribe to nav ready signal for short-circuit success
-      this.navReadyUnsubscribe = onNavReady(() => {
-        this.navValidationState = 'success';
-        if (config.enableDev) {
-          // eslint-disable-next-line no-console
-          console.log('[NavDiag] Navigation ready via signal');
-        }
-      });
+      // Only subscribe once per idle cycle
+      if (!this.navReadyUnsubscribe) {
+        this.navReadyUnsubscribe = onNavReady(() => {
+          this.navValidationState = 'success';
+          if (this.config.enableDev) {
+            // eslint-disable-next-line no-console
+            console.log('[NavDiag] Navigation ready via signal');
+          }
+        });
+      }
     }
 
     // Check if nav ready signal already fired
     if (isNavReady()) {
       this.navValidationState = 'success';
-      if (config.enableDev) {
+      if (this.config.enableDev) {
         // eslint-disable-next-line no-console
         console.log('[NavDiag] Navigation already ready');
       }
@@ -630,7 +640,7 @@ export class CoreFunctionalityValidator {
     this.navValidationAttempts++;
 
     // Log single diagnostic on first attempt
-    if (this.navValidationAttempts === 1 && config.enableDev) {
+    if (this.navValidationAttempts === 1 && this.config.enableDev) {
       // eslint-disable-next-line no-console
       console.log('[NavDiag] Starting navigation validation...');
     }
@@ -641,7 +651,7 @@ export class CoreFunctionalityValidator {
     
     if (navElements.length > 0) {
       this.navValidationState = 'success';
-      if (config.enableDev) {
+      if (this.config.enableDev) {
         // eslint-disable-next-line no-console
         console.log('[NavDiag] Navigation validation successful - found elements:', navElements.length);
       }
@@ -650,9 +660,10 @@ export class CoreFunctionalityValidator {
     }
 
     // Check if max attempts reached
-    if (this.navValidationAttempts >= config.navMaxAttempts) {
+    if (this.navValidationAttempts >= this.config.navMaxAttempts) {
       this.navValidationState = 'degraded_timeout';
-      if (config.enableDev) {
+      this.lastDegradedAt = Date.now();
+      if (this.config.enableDev) {
         // eslint-disable-next-line no-console
         console.warn('[NavDiag] Navigation validation degraded - no nav elements found after', this.navValidationAttempts, 'attempts');
       }

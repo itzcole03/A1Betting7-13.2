@@ -217,8 +217,8 @@ describe('App E2E', () => {
       </TestProviders>
     );
     await waitFor(() => {
-      // Check for error banner (App.tsx) or alert (PropOllamaUnified)
-      const errorBanners = document.querySelectorAll('.error-banner');
+      // Prefer explicit test ids to avoid brittle text matching
+      const errorBanners = document.querySelectorAll('[data-testid="error-banner"], .error-banner');
       const alertNodes = screen.queryAllByRole('alert');
       const errorTextNodes = screen.queryAllByText((content, node) => {
         const text = node?.textContent || '';
@@ -226,7 +226,10 @@ describe('App E2E', () => {
       });
       // Accept either explicit error banners/alerts/text or the demo-mode indicator shown when backend
       // is unavailable. This makes E2E resilient to demo fallbacks in CI where backend is mocked.
-      const demoIndicator = screen.queryByText(/Demo Mode - Showing sample ML models/i) || document.querySelector('[data-testid="api-health-indicator"]');
+      const demoIndicator =
+        screen.queryByText(/Demo Mode - Showing sample ML models/i) ||
+        document.querySelector('[data-testid="api-health-indicator"]') ||
+        screen.queryByTestId('api-health-indicator', { exact: false });
       if (errorBanners.length === 0 && alertNodes.length === 0 && errorTextNodes.length === 0 && !demoIndicator) {
         screen.debug();
       }
