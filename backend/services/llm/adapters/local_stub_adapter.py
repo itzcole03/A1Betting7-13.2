@@ -4,6 +4,7 @@ Local Stub LLM Adapter - Deterministic placeholder for testing and development
 
 import hashlib
 import time
+import asyncio
 from typing import Dict, Any, Optional
 
 from .base_adapter import BaseAdapter, LLMResult
@@ -18,16 +19,21 @@ class LocalStubAdapter(BaseAdapter):
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         super().__init__(config)
         self.response_templates = {
-            "explanation": """This {prop_type} prop for {player_name} shows a {edge_direction} edge. 
-The model predicts {prediction:.1f} vs an offered line of {offered_line:.1f}, 
-giving an expected value of {ev:+.3f}. Key factors include recent performance trends 
-and {volatility_level} volatility ({volatility_score:.2f}). 
-Consider the {context_notes} when evaluating this opportunity.""",
-            
-            "fallback": """Automated explanation for {player_name} {prop_type}: 
-Model prediction {prediction:.1f} vs line {offered_line:.1f} 
-(EV: {ev:+.3f}, Volatility: {volatility_score:.2f})"""
+            "explanation": (
+                "This {prop_type} prop for {player_name} shows a {edge_direction} edge. "
+                "The model predicts {prediction:.1f} vs an offered line of {offered_line:.1f}, "
+                "giving an expected value of {ev:+.3f}. Key factors include recent performance trends "
+                "and {volatility_level} volatility ({volatility_score:.2f}). "
+                "Consider the {context_notes} when evaluating this opportunity."
+            ),
+            "fallback": (
+                "Automated explanation for {player_name} {prop_type}: "
+                "Model prediction {prediction:.1f} vs line {offered_line:.1f} "
+                "(EV: {ev:+.3f}, Volatility: {volatility_score:.2f})"
+            ),
         }
+        # Ensure provider name matches test expectations
+        self.provider_name = "localstubadapter"
     
     def is_available(self) -> bool:
         """Local stub is always available"""
@@ -167,7 +173,3 @@ Model prediction {prediction:.1f} vs line {offered_line:.1f}
         if len(sanitized) > 1000:
             sanitized = sanitized[:997] + "..."
         return sanitized
-
-
-# Fix import
-import asyncio

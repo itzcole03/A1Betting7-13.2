@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 from ..core.response_models import ResponseBuilder, StandardAPIResponse
 from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, EmailStr
-from typing import Optional, Literal
+from typing import Optional, Literal, Dict, Any
 from datetime import datetime
 import smtplib
 from email.mime.text import MIMEText
@@ -109,8 +109,8 @@ def save_feedback_to_file(feedback: FeedbackRequest) -> str:
         
         with open(feedback_file, 'w') as f:
             json.dump(feedback_data, f, indent=2)
-            
-        return ResponseBuilder.success(feedback_id)
+
+        return feedback_id
         
     except Exception as e:
         logger.error(f"Failed to save feedback to file: {e}")
@@ -159,20 +159,20 @@ async def get_feedback_stats():
         if not os.path.exists(feedback_dir):
             return ResponseBuilder.success({
                 "total_feedback": 0,
-                "by_type": {}),
+                "by_type": {},
                 "average_rating": 0,
                 "recent_count": 0
-            }
+            })
         
         feedback_files = [f for f in os.listdir(feedback_dir) if f.endswith('.json')]
         
         if not feedback_files:
             return ResponseBuilder.success({
                 "total_feedback": 0,
-                "by_type": {}),
+                "by_type": {},
                 "average_rating": 0,
                 "recent_count": 0
-            }
+            })
         
         # Load and analyze feedback
         feedback_data = []

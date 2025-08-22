@@ -63,26 +63,35 @@ class EnhancedAuthService:
     
     def __init__(self):
         """Initialize the enhanced auth service"""
-        self.config = unified_config
+        # unified_config is a manager; use get_config() to access the ApplicationConfig
+        config_obj = unified_config.get_config() if hasattr(unified_config, "get_config") else unified_config
+        self.config = config_obj
         self.error_handler = unified_error_handler
-        
+
         # JWT configuration with defaults
-        self.secret_key = self.config.api.jwt_secret or "dev-secret-key-change-in-production"
+        self.secret_key = (
+            getattr(getattr(self.config, "api", object()), "jwt_secret", None)
+            or "dev-secret-key-change-in-production"
+        )
         self.algorithm = "HS256"
-        self.access_token_expire_minutes = self.config.api.jwt_expire_minutes or 15
-        self.refresh_token_expire_days = 30
-        
+        self.access_token_expire_minutes = (
+            getattr(getattr(self.config, "api", object()), "jwt_expire_minutes", None) or 15
+        )
+        self.refresh_token_expire_days = (
+            getattr(getattr(self.config, "api", object()), "jwt_refresh_expire_days", 30)
+        )
+
         # Clock skew tolerance (5 minutes default)
         self.clock_skew_tolerance_seconds = 300
-        
+
         # Token blacklist for revoked tokens (in-memory for demo, should use Redis in production)
-        self._token_blacklist: Set[str] = set()
-        self._refresh_tokens: Dict[str, RefreshTokenData] = {}
-        
+        self._token_blacklist = set()
+        self._refresh_tokens = {}
+
         # Rate limiting for token operations
-        self._token_attempts: Dict[str, List[float]] = {}
+        self._token_attempts = {}
         self.max_token_attempts_per_minute = 10
-        
+
         logger.info("Enhanced Auth Service initialized")
     
     def _is_token_blacklisted(self, jti: str) -> bool:

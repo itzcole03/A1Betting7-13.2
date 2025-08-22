@@ -788,9 +788,9 @@ async def api_props(
     """
     Alias for /props/featured. Returns standardized response contract.
     """
-    return ResponseBuilder.success(await) get_featured_props(
+    return ResponseBuilder.success(await get_featured_props(
         sport=sport, min_confidence=min_confidence, max_results=max_results
-    )
+    ))
 
 
 # --- /predictions: Alias for /unified/batch-predictions ---
@@ -804,7 +804,7 @@ async def api_predictions(request: Request) -> dict:
     """
     Alias for /unified/batch-predictions. Returns standardized response contract.
     """
-    return ResponseBuilder.success(await) batch_predictions(request)
+    return ResponseBuilder.success(await batch_predictions(request))
 
 
 @router.get("/predictions", response_model=dict, tags=["Unified Intelligence"])

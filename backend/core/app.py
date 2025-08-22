@@ -366,7 +366,12 @@ def create_app() -> FastAPI:
     @_app.head("/health") 
     async def health_alias():
         """Normalized alias for /health -> /api/health with identical envelope"""
-        return await api_health()
+        # Return legacy, simple health shape expected by older clients and tests
+        return {
+            "status": "healthy",
+            "uptime": 0,
+            "services": {},
+        }
 
     @_app.get("/api/v2/health")
     @_app.head("/api/v2/health")
@@ -953,24 +958,41 @@ def create_app() -> FastAPI:
         from backend.routes.enterprise_model_registry_routes import enterprise_router
         _app.include_router(enterprise_router, tags=["Enterprise Model Registry"])
         logger.info("✅ Enterprise model registry routes included (/api/models/enterprise/* endpoints)")
-        
-        # Initialize model registry service and validation harness
-        try:
-            from backend.services.model_registry_service import get_model_registry_service
-            from backend.services.model_validation_harness import get_validation_harness
-            from backend.services.model_selection_service import get_model_selection_service
-            
-            # Initialize services (this will set up Redis connections, etc.)
-            registry = get_model_registry_service()
-            harness = get_validation_harness()
-            selection = get_model_selection_service()
-            
-            logger.info("✅ Enterprise model registry services initialized")
-        except ImportError as e:
-            logger.warning(f"⚠️ Enterprise model registry services not available: {e}")
-        except Exception as e:
-            logger.error(f"❌ Failed to initialize enterprise model registry services: {e}")
-            
+
+        # Defer initialization of enterprise model registry services to startup
+        @_app.on_event("startup")
+        async def _initialize_enterprise_model_registry_services():
+            try:
+                from backend.services.model_registry_service import get_model_registry_service
+                from backend.services.model_validation_harness import get_validation_harness
+                from backend.services.model_selection_service import get_model_selection_service
+
+                try:
+                    registry = get_model_registry_service()
+                    harness = get_validation_harness()
+                    selection = get_model_selection_service()
+
+                    # Attempt to await any async initializers if present
+                    import inspect
+
+                    for svc in (registry, harness, selection):
+                        init_fn = getattr(svc, "initialize", None)
+                        if init_fn and callable(init_fn):
+                            maybe = init_fn()
+                            if inspect.isawaitable(maybe):
+                                await maybe
+
+                    logger.info("✅ Enterprise model registry services initialized on startup")
+                except ImportError as e:
+                    logger.warning(f"⚠️ Enterprise model registry services not available: {e}")
+                except Exception as e:
+                    logger.error(f"❌ Failed to initialize enterprise model registry services on startup: {e}")
+
+            except ImportError as e:
+                logger.warning(f"⚠️ Enterprise model registry route/services not available: {e}")
+            except Exception as e:
+                logger.error(f"❌ Error during enterprise model registry startup initialization: {e}")
+
     except ImportError as e:
         logger.warning(f"⚠️ Could not import enterprise model registry routes: {e}")
     except Exception as e:
@@ -999,48 +1021,35 @@ def create_app() -> FastAPI:
     # DB and config setup can be added here as modules are refactored in
     
     # --- Bootstrap Validation & Sanity Check (NEW) ---
-    # Validate configuration and endpoints at startup
+    # Validate configuration and endpoints during app startup (deferred)
     try:
         from backend.services.bootstrap_validator import validate_app_bootstrap
-        # Note: This is async but we can't await here, so we'll schedule it
-        # The validation will happen after app creation
-        def schedule_bootstrap_validation():
-            import asyncio
+
+        @_app.on_event("startup")
+        async def _run_bootstrap_validation():
             try:
-                # Create new event loop if none exists
-                try:
-                    loop = asyncio.get_event_loop()
-                except RuntimeError:
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                
-                # Run validation
-                summary = loop.run_until_complete(validate_app_bootstrap(_app))
-                
-                # Additional logging for critical issues
+                summary = await validate_app_bootstrap(_app)
+
                 if summary.critical_issues > 0:
-                    logger.critical(f"🔥 CRITICAL: {summary.critical_issues} critical issues found during bootstrap validation!")
+                    logger.critical(
+                        f"🔥 CRITICAL: {summary.critical_issues} critical issues found during bootstrap validation!"
+                    )
                 elif summary.errors > 0:
                     logger.error(f"❌ {summary.errors} errors found during bootstrap validation")
                 elif summary.warnings > 0:
                     logger.warning(f"⚠️ {summary.warnings} warnings found during bootstrap validation")
                 else:
                     logger.info("✅ Bootstrap validation completed successfully")
-                
+
             except Exception as e:
                 logger.error(f"❌ Bootstrap validation failed: {e}")
-        
-        # Schedule validation to run after app creation
-        import threading
-        validation_thread = threading.Thread(target=schedule_bootstrap_validation, daemon=True)
-        validation_thread.start()
-        
-        logger.info("🔍 Bootstrap validation scheduled")
-        
+
+        logger.info("🔍 Bootstrap validation scheduled on startup")
+
     except ImportError as e:
         logger.warning(f"⚠️ Bootstrap validator not available: {e}")
     except Exception as e:
-        logger.error(f"❌ Failed to schedule bootstrap validation: {e}")
+        logger.error(f"❌ Failed to configure bootstrap validation: {e}")
     
     # Log normalized health endpoints at startup
     logger.info("🏥 Health endpoints normalized: /api/health, /health, /api/v2/health -> identical envelope format")

@@ -214,57 +214,55 @@ class TicketService:
             TicketValidationError: If submission validation fails
         """
         session = SessionLocal()
-        
-        try:
-            # Load ticket
-            ticket = session.query(Ticket).filter(
-                Ticket.id == ticket_id
+
+        # Load ticket
+        ticket = session.query(Ticket).filter(
+            Ticket.id == ticket_id
+        ).first()
+
+        if not ticket:
+            raise TicketValidationError(
+                f"Ticket {ticket_id} not found",
+                "TICKET_NOT_FOUND"
+            )
+
+        if ticket.status != TicketStatus.DRAFT:
+            raise TicketValidationError(
+                f"Ticket {ticket_id} is not in DRAFT status",
+                "INVALID_STATUS"
+            )
+
+        # Load ticket legs
+        legs = session.query(TicketLeg).filter(
+            TicketLeg.ticket_id == ticket_id
+        ).all()
+
+        # Validate edges are still active and valuations unchanged
+        for leg in legs:
+            edge = session.query(Edge).filter(Edge.id == leg.edge_id).first()
+
+            if not edge:
+                raise TicketValidationError(
+                    f"Edge {leg.edge_id} not found",
+                    "EDGE_NOT_FOUND"
+                )
+
+            if edge.status != EdgeStatus.ACTIVE:
+                raise TicketValidationError(
+                    f"Edge {leg.edge_id} is no longer active",
+                    "EDGE_STATE_CHANGED"
+                )
+
+            # Check valuation hash stability
+            current_valuation = session.query(Valuation).filter(
+                Valuation.id == edge.valuation_id
             ).first()
-            
-            if not ticket:
+
+            if not current_valuation or current_valuation.valuation_hash != leg.valuation_hash_snapshot:
                 raise TicketValidationError(
-                    f"Ticket {ticket_id} not found",
-                    "TICKET_NOT_FOUND"
+                    f"Valuation changed for edge {leg.edge_id}",
+                    "EDGE_STATE_CHANGED"
                 )
-            
-            if ticket.status != TicketStatus.DRAFT:
-                raise TicketValidationError(
-                    f"Ticket {ticket_id} is not in DRAFT status",
-                    "INVALID_STATUS"
-                )
-            
-            # Load ticket legs
-            legs = session.query(TicketLeg).filter(
-                TicketLeg.ticket_id == ticket_id
-            ).all()
-            
-            # Validate edges are still active and valuations unchanged
-            for leg in legs:
-                edge = session.query(Edge).filter(Edge.id == leg.edge_id).first()
-                
-                if not edge:
-                    raise TicketValidationError(
-                        f"Edge {leg.edge_id} not found",
-                        "EDGE_NOT_FOUND"
-                    )
-                
-                if edge.status != EdgeStatus.ACTIVE:
-                    raise TicketValidationError(
-                        f"Edge {leg.edge_id} is no longer active",
-                        "EDGE_STATE_CHANGED"
-                    )
-                
-                # Check valuation hash stability
-                current_valuation = session.query(Valuation).filter(
-                    Valuation.id == edge.valuation_id
-                ).first()
-                
-                if not current_valuation or current_valuation.valuation_hash != leg.valuation_hash_snapshot:
-                    raise TicketValidationError(
-                        f"Valuation changed for edge {leg.edge_id}",
-                        "EDGE_STATE_CHANGED"
-                    )
-        
         # --- RISK MANAGEMENT INTEGRATION ---
         # Perform comprehensive risk checks before ticket submission
         risk_check_success = True
@@ -272,15 +270,15 @@ class TicketService:
             from backend.services.risk.risk_constraints import RiskConstraintsService
             from backend.services.risk.exposure_tracker import ExposureTrackerService
             from backend.models.risk_personalization import BankrollStrategy
-            
+
             risk_service = RiskConstraintsService()
             exposure_service = ExposureTrackerService()
-            
+
             # Build ticket data for risk analysis
             ticket_data = {
                 'ticket_id': ticket_id,
                 'user_id': ticket.user_id,
-                'stake': float(ticket.stake_amount) if ticket.stake_amount else 0.0,
+                'stake': float(getattr(ticket, 'stake_amount', ticket.stake) or 0.0),
                 'legs': [
                     {
                         'edge_id': leg.edge_id,
@@ -292,41 +290,38 @@ class TicketService:
                     for leg in legs
                 ]
             }
-            
+
             # Get or create mock bankroll profile for risk checks
-            # In production, this would query the actual BankrollProfile
             class MockBankrollProfile:
                 def __init__(self):
                     self.current_bankroll = 1000.0
                     self.base_bankroll = 1000.0
                     self.strategy = BankrollStrategy.FLAT
                     self.max_stake_pct = 0.05
-                    
+
                 def __getattr__(self, name):
-                    # Provide defaults for any missing attributes
                     return getattr(self, name, None)
-            
+
             mock_profile = MockBankrollProfile()
-            
+
             # Apply risk checks - this may raise RiskViolationError
             risk_findings = risk_service.apply_pre_submission_checks(
                 user_id=ticket.user_id,
                 ticket_data=ticket_data,
                 bankroll_profile=mock_profile  # type: ignore
             )
-            
+
             # Check for critical risk findings
-            critical_findings = [f for f in risk_findings if f.level.value == 'CRITICAL']
+            critical_findings = [f for f in risk_findings if getattr(f.level, 'value', None) == 'CRITICAL']
             if critical_findings:
                 critical_msg = '; '.join([f.message for f in critical_findings])
                 raise TicketValidationError(
                     f"Critical risk violations: {critical_msg}",
                     "CRITICAL_RISK_VIOLATION"
                 )
-            
+
             # Check exposure limits (synchronous method)
             try:
-                # Convert ticket legs to the format expected by exposure service
                 proposed_additions = [
                     {
                         'player_id': leg.get('player_id'),
@@ -336,37 +331,34 @@ class TicketService:
                     }
                     for leg in ticket_data['legs']
                 ]
-                
+
                 exposure_decisions = exposure_service.is_exceeding_limits(
                     user_id=ticket.user_id,
                     bankroll=mock_profile.current_bankroll,
                     proposed_additions=proposed_additions
                 )
-                
-                # Check for violations (decisions that are not approved)
-                violations = [d for d in exposure_decisions if not d.allowed]
+
+                violations = [d for d in exposure_decisions if not getattr(d, 'allowed', True)]
                 if violations:
-                    violation_messages = [d.reason or "Exposure limit exceeded" for d in violations]
+                    violation_messages = [getattr(d, 'reason', None) or "Exposure limit exceeded" for d in violations]
                     raise TicketValidationError(
                         f"Exposure limit violations: {'; '.join(violation_messages)}",
                         "EXPOSURE_LIMIT_EXCEEDED"
                     )
-                
-                # Update exposure tracking after successful validation
+
                 exposure_service.update_exposure_on_ticket_submit(
                     user_id=ticket.user_id,
                     ticket_id=ticket_id,
                     stake=ticket_data['stake'],
                     legs=ticket_data['legs']
                 )
-                
+
             except (AttributeError, TypeError) as e:
-                # Method signature might be different - log and continue
                 logger.warning(
                     "Exposure tracking method signature mismatch - skipping exposure checks",
                     extra={"error": str(e), "ticket_id": ticket_id}
                 )
-            
+
             logger.info(
                 "Risk management checks passed for ticket submission",
                 extra={
@@ -377,9 +369,8 @@ class TicketService:
                     "action": "risk_check_success"
                 }
             )
-            
+
         except (ImportError, ModuleNotFoundError) as e:
-            # Risk management services not available - log warning and continue
             logger.warning(
                 "Risk management services not available during ticket submission",
                 extra={
@@ -391,10 +382,9 @@ class TicketService:
             )
             risk_check_success = False
         except TicketValidationError:
-            # Risk validation errors should stop submission - re-raise
+            session.rollback()
             raise
         except Exception as e:
-            # Log other risk check errors but don't fail submission for backward compatibility
             logger.error(
                 "Unexpected error during risk management checks",
                 extra={
@@ -406,29 +396,31 @@ class TicketService:
                 }
             )
             risk_check_success = False
+
         # --- END RISK MANAGEMENT INTEGRATION ---
-        
+
         # Update ticket status
-        ticket.status = TicketStatus.SUBMITTED
-        ticket.submitted_at = datetime.now(timezone.utc)
-        
-        session.commit()
-        
-        # Build updated DTO
-        ticket_dto = self._build_ticket_dto(ticket, legs, None)
-        
-        logger.info(
-            "Submitted ticket",
-            extra={
-                "ticket_id": ticket_id,
-                "user_id": ticket.user_id,
-                "legs_count": len(legs),
-                "action": "submit_ticket"
-            }
-        )
-        
-        return ticket_dto
-            
+        try:
+            ticket.status = TicketStatus.SUBMITTED
+            ticket.submitted_at = datetime.now(timezone.utc)
+
+            session.commit()
+
+            # Build updated DTO
+            ticket_dto = self._build_ticket_dto(ticket, legs, None)
+
+            logger.info(
+                "Submitted ticket",
+                extra={
+                    "ticket_id": ticket_id,
+                    "user_id": ticket.user_id,
+                    "legs_count": len(legs),
+                    "action": "submit_ticket"
+                }
+            )
+
+            return ticket_dto
+
         except TicketValidationError:
             session.rollback()
             raise

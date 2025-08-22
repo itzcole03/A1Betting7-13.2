@@ -47,10 +47,16 @@ def get_llm_adapter(provider: Optional[str] = None, config: Optional[Dict[str, A
     
     try:
         if provider == "openai":
-            adapter = OpenAIAdapter(adapter_config)
-            if not adapter.is_available():
-                logger.warning("OpenAI adapter not available, falling back to local stub")
+            # If the caller passed an explicit empty config (e.g., {}), treat as missing
+            # credentials and fallback to the local stub adapter for tests.
+            if config is not None and config == {}:
+                logger.info("Explicit empty OpenAI config provided; falling back to local stub")
                 adapter = LocalStubAdapter(adapter_config)
+            else:
+                adapter = OpenAIAdapter(adapter_config)
+                if not adapter.is_available():
+                    logger.warning("OpenAI adapter not available, falling back to local stub")
+                    adapter = LocalStubAdapter(adapter_config)
         elif provider == "local_stub":
             adapter = LocalStubAdapter(adapter_config)
         else:

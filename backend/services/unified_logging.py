@@ -408,6 +408,14 @@ unified_logger = UnifiedLogger("a1betting")
 unified_logging = unified_logger
 
 
+# Backwards compatibility: allow unified_logging.get_logger(name)
+def _unified_logging_get_logger(name: str = "a1betting"):
+    return get_logger(name)
+
+# Attach as attribute to the module-level unified_logging object
+setattr(unified_logging, "get_logger", _unified_logging_get_logger)
+
+
 # Convenience functions for backwards compatibility
 def get_logger(name: str = "a1betting") -> UnifiedLogger:
     """Get logger instance"""

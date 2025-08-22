@@ -13,6 +13,21 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 
 # Contract compliance imports
 from ..core.response_models import ResponseBuilder, StandardAPIResponse
+"""
+Real-Time Analysis API Routes
+============================
+
+API endpoints for triggering and monitoring comprehensive
+multi-sport betting analysis
+"""
+
+import logging
+from typing import Any, Dict, List, Optional
+
+from fastapi import APIRouter, BackgroundTasks, HTTPException, status
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
 from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel, Field
 
@@ -94,8 +109,7 @@ async def start_comprehensive_analysis(
 
     except Exception as e:
         logger.error(f"❌ Failed to start analysis: {str(e)}")
-        raise BusinessLogicException("f"Failed to start analysis: {str(e")}",
-        )
+        raise BusinessLogicException(f"Failed to start analysis: {str(e)}")
 
 
 @router.get("/progress/{analysis_id}", response_model=ProgressResponse)
@@ -116,6 +130,11 @@ async def get_analysis_progress(analysis_id: str) -> ProgressResponse:
             status_msg = "analyzing"
         else:
             status_msg = "collecting_data"
+        estimated = (
+            progress.estimated_completion.isoformat()
+            if progress.estimated_completion
+            else None
+        )
         return ResponseBuilder.success(ProgressResponse(
             analysis_id=analysis_id,
             progress_percentage=progress.progress_percentage,
@@ -123,19 +142,14 @@ async def get_analysis_progress(analysis_id: str) -> ProgressResponse:
             analyzed_bets=progress.analyzed_bets,
             current_sport=progress.current_sport,
             current_sportsbook=progress.current_sportsbook,
-            estimated_completion=(
-                progress.estimated_completion.isoformat())
-                if progress.estimated_completion
-                else None
-            ),
+            estimated_completion=estimated,
             status=status_msg,
-        )
+        ))
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"❌ Failed to get progress: {str(e)}")
-        raise BusinessLogicException("f"Failed to get analysis progress: {str(e")}",
-        )
+        raise BusinessLogicException(f"Failed to get analysis progress: {str(e)}")
 
 
 @router.get(
@@ -160,8 +174,7 @@ async def get_betting_opportunities(
     except Exception as e:
         logger = logging.getLogger("real_time_analysis.opportunities")
         logger.error(f"❌ Failed to get opportunities: {str(e)}")
-        raise BusinessLogicException("f"Failed to get betting opportunities: {str(e")}",
-        )
+        raise BusinessLogicException(f"Failed to get betting opportunities: {str(e)}")
 
 
 @router.get("/results/{analysis_id}/lineups", response_model=List[BetAnalysisResponse])
@@ -184,8 +197,7 @@ async def get_optimal_lineups(
     except Exception as e:
         logger = logging.getLogger("real_time_analysis.lineups")
         logger.error(f"❌ Failed to get lineups: {str(e)}")
-        raise BusinessLogicException("f"Failed to get optimal lineups: {str(e")}",
-        )
+        raise BusinessLogicException(f"Failed to get optimal lineups: {str(e)}")
 
 
 @router.get("/sports", response_model=List[str])

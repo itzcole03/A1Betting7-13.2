@@ -157,8 +157,12 @@ class AdvancedRateLimiter:
         # Initialize default rules
         self._init_default_rules()
         
-        # Start background cleanup task
-        asyncio.create_task(self._periodic_cleanup())
+        # Start background cleanup task if an event loop is running.
+        try:
+            asyncio.create_task(self._periodic_cleanup())
+        except RuntimeError:
+            # No running event loop (likely during test collection); skip background task.
+            logger.debug("No running event loop; background cleanup task not started")
         
         logger.info("Advanced rate limiter initialized")
     

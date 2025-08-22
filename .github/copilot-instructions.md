@@ -1,4 +1,63 @@
 ```markdown
+# A1Betting — Copilot Instructions (concise)
+
+Purpose: give AI coding agents the exact, discoverable patterns and commands needed
+to make small, safe, reversible changes in this repository.
+
+Quick rules
+- **Backend work:** run commands from repository root (`A1Betting7-13.2/`).
+- **Frontend work:** cd into `frontend/` for Vite dev, tests and type-checks.
+- **Ports:** backend 8000 (required), frontend 5173 (Vite proxy → 8000).
+
+Essential commands
+```pwsh
+# From repo root (backend)
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+pytest --verbose --tb=short
+
+# From frontend/
+npm run dev
+npm run type-check   # tsc -p tsconfig.app.json --noEmit
+npm run test         # runs Jest
+```
+
+Project-specific patterns (do not skip)
+- **Directory discipline**: many scripts assume CWD — follow Quick rules above.
+- **Unified services**: prefer `backend/services/unified_*` over ad-hoc clients.
+  Example: `unified_data_fetcher`, `unified_cache_service`, `unified_error_handler`.
+- **Frontend registry**: use `MasterServiceRegistry.getInstance()` for shared services.
+- **Virtualization threshold**: components auto-virtualize for lists >100 items
+  (see `frontend/src/components/lists/VirtualizedPropList.tsx`).
+- **Always pass sport context** when mapping props: `mapToFeaturedProps(props, sport)`.
+
+Testing & TypeScript guidance
+- Make minimal edits and run `cd frontend && npm run type-check` after changes.
+- For small local TS issues, prefer narrow call-site casts instead of global anys.
+- Use Jest fake timers carefully in tests that assert precise ordering (see
+  `frontend/src/websocket/__tests__/WebSocketManager.test.ts` for an example).
+
+Integration & important files
+- PropFinder API: `GET /api/propfinder/opportunities` — route: `backend/routes/propfinder_routes.py`;
+  service: `backend/services/simple_propfinder_service.py`.
+- Frontend dashboard: `frontend/src/components/dashboard/PropFinderDashboard.tsx` and
+  `frontend/src/hooks/usePropFinderData.tsx`.
+- WebSocket behavior: `frontend/src/websocket/WebSocketManager.ts` and `BackoffStrategy.ts` —
+  tests are timing-sensitive and use a test-only hook (`testDelayBeforeAttemptMs`).
+
+When to ask for human review
+- Changes touching `backend/main.py`, DB migrations, API schemas, ML model code, or
+  adding native system dependencies (Torch, etc.) require human sign-off.
+
+If uncertain, quick checks
+- Health: `curl http://127.0.0.1:8000/health` should return `{"status":"healthy"}`.
+- PropFinder endpoint: `curl -s "http://127.0.0.1:8000/api/propfinder/opportunities" | head -c 500`
+
+If something here is unclear or you want deeper guidance (registry adapters,
+PropFinder dataflow, or ML fallbacks), ask which section to expand.
+
+---
+<!-- EOF -->
+``````markdown
 # A1Betting — AI Agent Onboarding (concise)
 
 Purpose: give AI coding agents the exact, discoverable patterns and commands they need to make safe, small, reversible changes.

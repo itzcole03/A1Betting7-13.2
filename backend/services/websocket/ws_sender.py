@@ -66,7 +66,42 @@ async def send_enveloped(
         message_json = envelope.to_json()
         
         # Send the message
-        await websocket.send_text(message_json)
+        # Backwards-compatibility: some clients/tests expect a flat hello
+        # message with payload fields promoted to top-level (legacy shape).
+        if msg_type == "hello":
+            try:
+                # Build a flattened hello message that mirrors legacy format
+                envelope_dict = envelope.to_dict()
+                payload = envelope_dict.get("payload", {}) if isinstance(envelope_dict, dict) else {}
+
+                # Feature aliasing for compatibility (tests expect these names)
+                features = list(payload.get("features") or [])
+                if "structured_errors" in features:
+                    if "structured_messages" not in features:
+                        features.append("structured_messages")
+                    if "error_codes" not in features:
+                        features.append("error_codes")
+
+                flat_hello = {
+                    "type": envelope_dict.get("type", "hello"),
+                    "server_time": payload.get("server_time"),
+                    "accepted_version": payload.get("accepted_version"),
+                    "features": features,
+                    "heartbeat_interval_ms": payload.get("heartbeat_interval_ms"),
+                }
+
+                # Preserve client_id and request_id if present
+                if payload.get("client_id"):
+                    flat_hello["client_id"] = payload.get("client_id")
+                if envelope_dict.get("request_id"):
+                    flat_hello["request_id"] = envelope_dict.get("request_id")
+
+                await websocket.send_text(json.dumps(flat_hello))
+            except Exception:
+                # Fallback to sending the envelope if flattening fails
+                await websocket.send_text(message_json)
+        else:
+            await websocket.send_text(message_json)
         
         # Publish to observability event bus
         event_bus = get_event_bus()

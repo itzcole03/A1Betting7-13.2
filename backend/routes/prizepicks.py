@@ -317,8 +317,7 @@ async def get_optimal_lineup(
 
     except Exception as e:
         logger.error(f"Error generating optimal lineup: {e}")
-        raise BusinessLogicException("f"Failed to generate optimal lineup: {str(e")}",
-        )
+        raise BusinessLogicException(f"Failed to generate optimal lineup: {str(e)}")
 
 
 @router.get("/lineup/analysis", response_model=StandardAPIResponse[Dict[str, Any]])
@@ -359,8 +358,7 @@ async def get_lineup_analysis(
         raise
     except Exception as e:
         logger.error(f"Error analyzing custom lineup: {e}")
-        raise BusinessLogicException("f"Failed to analyze lineup: {str(e")}",
-        )
+        raise BusinessLogicException(f"Failed to analyze lineup: {str(e)}")
 
 
 @router.get("/trends", response_model=StandardAPIResponse[Dict[str, Any]])
@@ -421,8 +419,7 @@ async def get_prop_ai_explanation(prop_id: str) -> Dict[str, Any]:
                 break
 
         if not target_prop:
-            raise BusinessLogicException("f"Prop with ID {prop_id} not found"
-            ")
+            raise BusinessLogicException(f"Prop with ID {prop_id} not found")
 
         # Initialize explanation_data here to avoid re-declaration errors
         explanation_data: Dict[str, Any] = {}
@@ -574,12 +571,10 @@ async def get_enhanced_prizepicks_props(
         return ResponseBuilder.success(enhanced_props)
     except ImportError as e:
         logger.error(f"[ERROR] Failed to import enhanced fetcher: {e}")
-        raise BusinessLogicException("Enhanced data fetchers not available - import error",
-        ")
+        raise BusinessLogicException("Enhanced data fetchers not available - import error")
     except Exception as e:
         logger.error(f"[ERROR] Exception in /api/prizepicks/props/enhanced: {e}")
-        raise BusinessLogicException("f"Failed to fetch enhanced PrizePicks props: {str(e")}",
-        )
+        raise BusinessLogicException(f"Failed to fetch enhanced PrizePicks props: {str(e)}")
 
 
 # Legacy endpoint for backward compatibility
@@ -588,9 +583,8 @@ async def get_prizepicks_props_legacy(
     sport: Optional[str] = None, min_confidence: Optional[int] = 70
 ) -> List[Dict[str, Any]]:
     """Legacy endpoint - use /props instead"""
-    return ResponseBuilder.success(await) get_prizepicks_props(
-        sport=sport, min_confidence=min_confidence, enhanced=False
-    )
+    result = await get_prizepicks_props(sport=sport, min_confidence=min_confidence, enhanced=False)
+    return ResponseBuilder.success(result)
 
 
 @router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
@@ -630,5 +624,4 @@ async def trigger_prizepicks_healing(
         return ResponseBuilder.success({"message": "PrizePicks scraper healing initiated.", "status": "success"})
     except Exception as e:
         logger.error(f"Error triggering PrizePicks scraper healing: {e}")
-        raise BusinessLogicException("f"Failed to trigger PrizePicks scraper healing: {str(e")}",
-        )
+        raise BusinessLogicException(f"Failed to trigger PrizePicks scraper healing: {str(e)}")
