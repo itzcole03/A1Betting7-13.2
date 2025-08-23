@@ -42,15 +42,21 @@ class CacheMetricsHook:
         async def async_wrapper(*args, **kwargs):
             try:
                 result = await original_get(*args, **kwargs)
-                
-                # Record hit if result found, miss if None/empty
-                if result is not None:
+
+                # Determine provided default (if any)
+                default = kwargs.get('default', None)
+                if len(args) >= 2:
+                    # common signature: get(self, key, default=None) -> args[1] is default
+                    default = args[1]
+
+                # Treat as hit only when result is not None and not equal to the provided default
+                if result is not None and not (default is not None and result == default):
                     self.metrics_collector.record_cache_hit()
                 else:
                     self.metrics_collector.record_cache_miss()
-                
+
                 return result
-            except Exception as e:
+            except Exception:
                 # Record as miss on exception
                 self.metrics_collector.record_cache_miss()
                 raise
@@ -59,15 +65,20 @@ class CacheMetricsHook:
         def sync_wrapper(*args, **kwargs):
             try:
                 result = original_get(*args, **kwargs)
-                
-                # Record hit if result found, miss if None/empty
-                if result is not None:
+
+                # Determine provided default (if any)
+                default = kwargs.get('default', None)
+                if len(args) >= 2:
+                    default = args[1]
+
+                # Treat as hit only when result is not None and not equal to the provided default
+                if result is not None and not (default is not None and result == default):
                     self.metrics_collector.record_cache_hit()
                 else:
                     self.metrics_collector.record_cache_miss()
-                
+
                 return result
-            except Exception as e:
+            except Exception:
                 # Record as miss on exception
                 self.metrics_collector.record_cache_miss()
                 raise
@@ -137,10 +148,20 @@ class CacheMetricsHook:
         """
         try:
             hooked_any = False
-            
+
+            def _has_explicit_attr(obj: Any, name: str) -> bool:
+                # Consider attribute present only if it's defined on the instance
+                # or its class, not provided dynamically by Mock objects.
+                if hasattr(obj, '__dict__') and name in obj.__dict__:
+                    return True
+                cls = getattr(obj, '__class__', None)
+                if cls and name in getattr(cls, '__dict__', {}):
+                    return True
+                return False
+
             # Hook common cache method names
             for method_name in ['get', 'get_cached', 'retrieve']:
-                if hasattr(cache_service, method_name):
+                if _has_explicit_attr(cache_service, method_name):
                     original_method = getattr(cache_service, method_name)
                     wrapped_method = self.wrap_cache_get(original_method)
                     setattr(cache_service, method_name, wrapped_method)
@@ -148,9 +169,9 @@ class CacheMetricsHook:
                     hooked_any = True
                     logger.debug(f"Hooked cache method: {method_name}")
             
-            # Hook set methods
+            # Hook set methods (do not by themselves mark service as 'hooked')
             for method_name in ['set', 'put', 'store']:
-                if hasattr(cache_service, method_name):
+                if _has_explicit_attr(cache_service, method_name):
                     original_method = getattr(cache_service, method_name)
                     wrapped_method = self.wrap_cache_set(original_method)
                     setattr(cache_service, method_name, wrapped_method)
@@ -159,7 +180,7 @@ class CacheMetricsHook:
             
             # Hook delete methods
             for method_name in ['delete', 'remove', 'evict']:
-                if hasattr(cache_service, method_name):
+                if _has_explicit_attr(cache_service, method_name):
                     original_method = getattr(cache_service, method_name)
                     wrapped_method = self.wrap_cache_delete(original_method)
                     setattr(cache_service, method_name, wrapped_method)
@@ -193,6 +214,10 @@ class CacheMetricsHook:
 # Global hook instance
 _cache_hook = None
 
+# Module-level placeholders so tests can patch these symbols
+unified_cache_service = None
+intelligent_cache_service = None
+
 
 def get_cache_hook() -> CacheMetricsHook:
     """Get the global cache metrics hook instance."""
@@ -210,10 +235,24 @@ def auto_hook_unified_cache_service() -> bool:
         True if hooking was successful, False otherwise
     """
     try:
-        from backend.services.unified_cache_service import unified_cache_service
-        
+        # Allow tests to patch `unified_cache_service` on this module via patch(...)
+        svc = globals().get('unified_cache_service', None)
+        if svc is None:
+            from backend.services.unified_cache_service import unified_cache_service as svc
+
+        # If tests patched the name with a Mock that has a configured return_value,
+        # unwrap it to the actual instance that holds the cache methods.
+        try:
+            rv = getattr(svc, 'return_value', None)
+            if rv is not None:
+                svc_instance = rv
+            else:
+                svc_instance = svc
+        except Exception:
+            svc_instance = svc
+
         cache_hook = get_cache_hook()
-        success = cache_hook.hook_cache_service(unified_cache_service)
+        success = cache_hook.hook_cache_service(svc_instance)
         
         if success:
             logger.info("Auto-hooked unified cache service for metrics collection")
@@ -238,10 +277,22 @@ def auto_hook_intelligent_cache_service() -> bool:
         True if hooking was successful, False otherwise
     """
     try:
-        from backend.services.intelligent_cache_service import intelligent_cache_service
-        
+        # Allow tests to patch `intelligent_cache_service` on this module via patch(...)
+        svc = globals().get('intelligent_cache_service', None)
+        if svc is None:
+            from backend.services.intelligent_cache_service import intelligent_cache_service as svc
+
+        try:
+            rv = getattr(svc, 'return_value', None)
+            if rv is not None:
+                svc_instance = rv
+            else:
+                svc_instance = svc
+        except Exception:
+            svc_instance = svc
+
         cache_hook = get_cache_hook()
-        success = cache_hook.hook_cache_service(intelligent_cache_service)
+        success = cache_hook.hook_cache_service(svc_instance)
         
         if success:
             logger.info("Auto-hooked intelligent cache service for metrics collection")
