@@ -26,7 +26,12 @@ router = APIRouter(prefix="/nba", tags=["NBA"])
 @router.get("/health", response_model=StandardAPIResponse[Dict[str, Any]])
 async def nba_health_check():
     """NBA service health check"""
-    return ResponseBuilder.success(await) nba_service.health_check()
+    try:
+        health = await nba_service.health_check()
+        return ResponseBuilder.success(health)
+    except Exception as e:
+        logger.error(f"NBA health check failed: {e}")
+        raise BusinessLogicException(f"NBA health check failed: {str(e)}")
 
 
 @router.get("/teams", response_model=List[Dict[str, Any]])
@@ -38,8 +43,7 @@ async def get_nba_teams():
         return ResponseBuilder.success(teams)
     except Exception as e:
         logger.error(f"Error fetching NBA teams: {e}")
-        raise BusinessLogicException("f"Failed to fetch NBA teams: {str(e")}"
-        )
+        raise BusinessLogicException(f"Failed to fetch NBA teams: {str(e)}")
 
 
 @router.get("/teams/{team_id}/players", response_model=List[Dict[str, Any]])
@@ -51,8 +55,7 @@ async def get_team_players(team_id: int):
         return ResponseBuilder.success(players)
     except Exception as e:
         logger.error(f"Error fetching players for team {team_id}: {e}")
-        raise BusinessLogicException("f"Failed to fetch players: {str(e")}"
-        )
+        raise BusinessLogicException(f"Failed to fetch players: {str(e)}")
 
 
 @router.get("/players", response_model=List[Dict[str, Any]])
@@ -64,8 +67,7 @@ async def get_nba_players(team_id: int = Query(None, description="Filter by team
         return ResponseBuilder.success(players)
     except Exception as e:
         logger.error(f"Error fetching NBA players: {e}")
-        raise BusinessLogicException("f"Failed to fetch players: {str(e")}"
-        )
+        raise BusinessLogicException(f"Failed to fetch players: {str(e)}")
 
 
 @router.get("/games", response_model=List[Dict[str, Any]])
@@ -93,10 +95,10 @@ async def get_nba_games(
         return ResponseBuilder.success(games)
 
     except ValueError as e:
-        raise BusinessLogicException("f"Invalid date format: {str(e")}")
+        raise BusinessLogicException(f"Invalid date format: {str(e)}")
     except Exception as e:
         logger.error(f"Error fetching NBA games: {e}")
-        raise BusinessLogicException("f"Failed to fetch games: {str(e")}")
+        raise BusinessLogicException(f"Failed to fetch games: {str(e)}")
 
 
 @router.get("/games/today", response_model=List[Dict[str, Any]])
@@ -113,8 +115,7 @@ async def get_todays_nba_games():
 
     except Exception as e:
         logger.error(f"Error fetching today's NBA games: {e}")
-        raise BusinessLogicException("f"Failed to fetch today's games: {str(e")}"
-        )
+        raise BusinessLogicException(f"Failed to fetch today's games: {str(e)}")
 
 
 @router.get("/odds-comparison/", response_model=Dict[str, Any])
@@ -129,8 +130,7 @@ async def get_nba_odds_comparison():
 
     except Exception as e:
         logger.error(f"Error fetching NBA odds comparison: {e}")
-        raise BusinessLogicException("f"Failed to fetch odds comparison: {str(e")}"
-        )
+        raise BusinessLogicException(f"Failed to fetch odds comparison: {str(e)}")
 
 
 @router.get("/odds-comparison/team/{team_id}", response_model=StandardAPIResponse[Dict[str, Any]])
@@ -171,8 +171,7 @@ async def get_team_odds(team_id: int):
 
     except Exception as e:
         logger.error(f"Error fetching team odds for team {team_id}: {e}")
-        raise BusinessLogicException("f"Failed to fetch team odds: {str(e")}"
-        )
+        raise BusinessLogicException(f"Failed to fetch team odds: {str(e)}")
 
 
 @router.get("/standings", response_model=StandardAPIResponse[Dict[str, Any]])
@@ -209,5 +208,5 @@ async def get_player_stats(
         "status": "ok",
         "message": "NBA player stats endpoint - coming soon",
         "players": [],
-        "filters": {"team_id": team_id, "position": position}),
-    }
+        "filters": {"team_id": team_id, "position": position},
+    })

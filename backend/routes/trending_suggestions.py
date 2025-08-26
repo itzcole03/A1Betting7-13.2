@@ -1,8 +1,9 @@
 import logging
 from typing import Any, Dict, List, Optional
 
-import httpx
 from fastapi import APIRouter, HTTPException, Query, status
+
+# Avoid making HTTP calls at import time; lazy-import httpx inside functions
 
 from backend.exceptions.api_exceptions import BusinessLogicException
 from backend.services.trending_suggestions_service import get_trending_suggestions
@@ -24,7 +25,13 @@ def trending_suggestions(
     Example error:
         {"success": False, "data": None, "error": {"code": "trending_error", "message": "..."}}
     """
+    # Lazy import httpx (safe for tests)
     try:
+        import httpx
+    except Exception:
+        httpx = None
+
+    #...
         suggestions = get_trending_suggestions(sport=sport, limit=limit)
         return ok(suggestions)
     except Exception as e:

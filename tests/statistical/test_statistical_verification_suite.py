@@ -223,7 +223,8 @@ class TestCorrelationPSDMonitor:
         
         test_matrix = Q @ np.diag(eigenvalues) @ Q.T
         test_matrix = (test_matrix + test_matrix.T) / 2
-        np.fill_diagonal(test_matrix, 1.0)
+    # Do not overwrite diagonal; keep constructed eigen-spectrum so
+    # the intentionally tiny eigenvalue remains present for the test.
         
         result = statistical_suite.drift_monitor.validate_correlation_matrix(
             test_matrix, "test_small_eigenvalue"

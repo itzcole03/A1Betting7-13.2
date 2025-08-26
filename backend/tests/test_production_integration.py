@@ -76,6 +76,13 @@ class TestProductionIntegration:
             assert data["status"] == "ready"
         import pytest
 
+        # Fetch Prometheus metrics text for legacy assertions
+        try:
+            metrics_resp = client.get("/metrics")
+            metrics_text = metrics_resp.text if metrics_resp.status_code == 200 else ""
+        except Exception:
+            metrics_text = ""
+
         """
         Legacy production endpoint tests. All endpoints deprecated and tests skipped.
         """

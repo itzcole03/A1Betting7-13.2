@@ -43,6 +43,19 @@ class ResponseBuilder:
         
         if message and data is None:
             response["data"] = {"message": message}
+
+        # Promote commonly expected auth/compat fields to top-level for
+        # backward compatibility with older clients/tests that expect
+        # tokens or message at the root of the response.
+        try:
+            if isinstance(data, dict):
+                promote_keys = ("access_token", "refresh_token", "token_type", "message", "user")
+                for k in promote_keys:
+                    if k in data:
+                        response[k] = data[k]
+        except Exception:
+            # Be defensive; don't let promotion break normal flows
+            pass
         
         return response
     
@@ -63,6 +76,16 @@ class ResponseBuilder:
                 "details": details
             }
         }
+        # Backwards-compatibility: promote a top-level message/detail
+        # so older clients/tests that look for these keys at the root
+        # continue to work.
+        try:
+            error_response["message"] = message
+            if details is not None:
+                # Some callers expect a `detail` key at top-level
+                error_response["detail"] = details
+        except Exception:
+            pass
         
         return JSONResponse(
             status_code=status_code,

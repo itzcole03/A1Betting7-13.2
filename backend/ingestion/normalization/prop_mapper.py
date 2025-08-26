@@ -50,12 +50,8 @@ def map_raw_to_normalized(raw_prop: RawExternalPropDTO, taxonomy_service: Taxono
         # Parse timestamp
         timestamp = datetime.fromisoformat(raw_prop.updated_ts.replace('Z', '+00:00'))
         
-        # Create external IDs mapping
-        external_ids = {
-            "provider_player_id": raw_prop.external_player_id,
-            "provider_prop_id": raw_prop.provider_prop_id,
-            "provider_name": raw_prop.provider_name
-        }
+        # Create external IDs mapping using helper (maps provider -> id)
+        external_ids = create_external_ids_mapping(raw_prop)
         
         # Create normalized DTO
         normalized = NormalizedPropDTO(
@@ -136,26 +132,42 @@ def compute_line_hash(prop_type: PropTypeEnum, offered_line: float, payout_schem
         SHA-256 hash as hex string
     """
     # Create consistent string representation for hashing
+    # Prefer canonical multipliers when available, but fall back to legacy
+    # odds fields (`over` / `under`) so tests that construct PayoutSchema
+    # with legacy odds are still differentiated.
+    def _fmt_multiplier(mult):
+        return f"M:{mult:.6f}" if mult is not None else "None"
+
+    def _fmt_legacy_odds(odds):
+        return f"O:{odds:.6f}" if odds is not None else "None"
+
+    over_repr = _fmt_multiplier(payout_schema.over_multiplier) if payout_schema.over_multiplier is not None else _fmt_legacy_odds(payout_schema.over)
+    under_repr = _fmt_multiplier(payout_schema.under_multiplier) if payout_schema.under_multiplier is not None else _fmt_legacy_odds(payout_schema.under)
+    boost_repr = _fmt_multiplier(payout_schema.boost_multiplier) if payout_schema.boost_multiplier is not None else "None"
+
+    # Guard variant_code which may be optional in DTOs
+    variant_code_obj = getattr(payout_schema, 'variant_code', None)
+    variant_repr = variant_code_obj.value if variant_code_obj is not None else "none"
+
     hash_components = [
         prop_type.value,
-        f"{offered_line:.1f}",  # Standardize precision
+        f"{offered_line:.6f}",  # Preserve precision
         payout_schema.type.value,
-        payout_schema.variant_code.value,
-        
-        # Use canonical multipliers for consistent hashing
-        f"{payout_schema.over_multiplier:.3f}" if payout_schema.over_multiplier else "None",
-        f"{payout_schema.under_multiplier:.3f}" if payout_schema.under_multiplier else "None",
-        f"{payout_schema.boost_multiplier:.3f}" if payout_schema.boost_multiplier else "None"
+        variant_repr,
+        over_repr,
+        under_repr,
+        boost_repr
     ]
-    
+
     # Join with consistent separator
     hash_input = "|".join(hash_components)
-    
+
     # Compute SHA-256 hash
     hash_bytes = hashlib.sha256(hash_input.encode('utf-8')).hexdigest()
-    
-    logger.debug(f"Computed line hash for {prop_type.value} {offered_line} "
-                f"(variant: {payout_schema.variant_code.value}): {hash_bytes[:8]}...")
+
+    logger.debug(
+        f"Computed line hash for {prop_type.value} {offered_line} (variant: {variant_repr}): {hash_bytes[:8]}..."
+    )
     return hash_bytes
 
 
@@ -227,10 +239,17 @@ def create_external_ids_mapping(raw_prop: RawExternalPropDTO) -> Dict[str, str]:
     Returns:
         Dictionary mapping provider names to external IDs
     """
-    return {
+    # Return both legacy keys (used by tests) and provider-scoped keys
+    mapping = {
+        # Legacy keys for backward compatibility
+        "provider_player_id": raw_prop.external_player_id,
+        "provider_prop_id": raw_prop.provider_prop_id,
+        "provider_name": raw_prop.provider_name,
+        # Provider-scoped keys for lookup by provider
         raw_prop.provider_name: raw_prop.external_player_id,
         f"{raw_prop.provider_name}_prop": raw_prop.provider_prop_id
     }
+    return mapping
 
 
 def extract_position_from_additional_data(additional_data: Dict[str, Any]) -> Optional[str]:

@@ -1,3 +1,25 @@
+"""Pytest conftest to ensure repository root is on sys.path during collection."""
+
+import os
+import os
+import sys
+
+# Ensure the test DB environment is configured as early as possible. This
+# module imports `tests.conftest_db` which sets `DATABASE_URL` to an
+# in-memory sqlite URL if not already configured.
+try:
+    # import side-effect: tests/conftest_db.py will call os.environ.setdefault
+    # to ensure DATABASE_URL is present for modules that read it at import time.
+    import tests.conftest_db  # type: ignore
+except Exception:
+    # If the import fails (missing dependencies), continue — conftest_db
+    # provides fallbacks and will not raise during normal collection.
+    pass
+
+# Ensure the repository root (parent of tests/) is on sys.path
+ROOT = os.path.dirname(os.path.dirname(__file__))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
 """
 Pytest Configuration for A1Betting Backend Tests
 Provides shared fixtures, mock data, and test utilities
@@ -14,6 +36,9 @@ import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 
+# Top-level pytest configuration for the entire test suite
+pytest_plugins = ["pytest_asyncio"]
+
 # Optional SQLAlchemy imports
 try:
     from sqlalchemy import create_engine
@@ -27,8 +52,13 @@ backend_path = Path(__file__).parent / "backend"
 if str(backend_path) not in sys.path:
     sys.path.append(str(backend_path))
 
-# Test database URL (use in-memory SQLite for fast tests)
-TEST_DATABASE_URL = "sqlite:///:memory:"
+# Test database URL (use in-memory async SQLite for fast tests)
+# Prefer aiosqlite driver so async tests and SQLModel can use in-memory DB.
+TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL") or "sqlite+aiosqlite:///:memory:"
+
+# Ensure the process-level DATABASE_URL is set early so any backend modules
+# importing DB config at import-time will pick up the in-memory DB during tests.
+os.environ.setdefault("DATABASE_URL", TEST_DATABASE_URL)
 
 
 # ============================================================================
@@ -65,8 +95,22 @@ async def app():
 @pytest.fixture
 async def client(app) -> AsyncGenerator[AsyncClient, None]:
     """Create AsyncClient for testing async endpoints"""
-    async with AsyncClient(app=app, base_url="http://testserver", follow_redirects=True) as ac:
-        yield ac
+    # Some httpx versions accept `app=` directly; others require an ASGI
+    # transport. Try both patterns for compatibility with CI environments.
+    try:
+        async with AsyncClient(app=app, base_url="http://testserver", follow_redirects=True) as ac:
+            yield ac
+            return
+    except TypeError:
+        # Fallback to ASGITransport if available
+        try:
+            from httpx import ASGITransport
+        except Exception:
+            pytest.skip("httpx AsyncClient not compatible in this environment")
+
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://testserver", follow_redirects=True) as ac:
+            yield ac
 
 
 @pytest.fixture
@@ -223,20 +267,19 @@ def mock_enhanced_prediction_integration():
     """Mock the enhanced prediction integration service"""
     mock_service = AsyncMock()
     
-    # Mock enhanced_predict_single method
-    async def mock_predict_single(**kwargs):
-        return {
-            "request_id": kwargs.get("request_id", "test-req-123"),
-            "prediction": 0.68,
-            "confidence": 87.2,
-            "models_used": ["xgboost", "random_forest"],
-            "shap_explanations": {"feature_importance": {"batting_avg": 0.15}},
-            "performance_logged": True,
-            "processing_time_ms": 245
-        }
-    
-    # Mock batch_predict method
-    async def mock_batch_predict(requests, **kwargs):
+    # Mock enhanced_predict_single method as AsyncMock
+    mock_service.enhanced_predict_single = AsyncMock(return_value={
+        "request_id": "test-req-123",
+        "prediction": 0.68,
+        "confidence": 87.2,
+        "models_used": ["xgboost", "random_forest"],
+        "shap_explanations": {"feature_importance": {"batting_avg": 0.15}},
+        "performance_logged": True,
+        "processing_time_ms": 245
+    })
+
+    # Mock batch_predict method as AsyncMock
+    async def _batch_predict_impl(requests, **kwargs):
         results = []
         for i, req in enumerate(requests):
             results.append({
@@ -246,9 +289,22 @@ def mock_enhanced_prediction_integration():
                 "batch_position": i
             })
         return results
-    
-    mock_service.enhanced_predict_single = mock_predict_single
-    mock_service.batch_predict = mock_batch_predict
+
+    mock_service.batch_predict = AsyncMock(side_effect=_batch_predict_impl)
+
+    # Other optional async methods used by tests
+    mock_service.register_model = AsyncMock(return_value={
+        "model_id": "model-123",
+        "status": "registered",
+        "version": "1.0"
+    })
+    mock_service.list_models = AsyncMock(return_value=[])
+    mock_service.get_model_info = AsyncMock(return_value=None)
+    mock_service.get_performance_metrics = AsyncMock(return_value={})
+    mock_service.get_performance_summary = AsyncMock(return_value={})
+    mock_service.get_system_status = AsyncMock(return_value={})
+    mock_service.compare_models = AsyncMock(return_value={})
+    mock_service.update_prediction_outcome = AsyncMock(return_value={})
     
     return mock_service
 
@@ -269,33 +325,28 @@ def mock_unified_sportsbook_service():
     """Mock unified sportsbook service for multiple sportsbook routes"""
     mock_service = AsyncMock()
     
-    # Mock get_player_props method
-    async def mock_get_player_props(sport, **kwargs):
-        return [
-            {
-                "player": "Aaron Judge",
-                "sport": sport,
-                "bet_type": "Home Runs", 
-                "line": 0.5,
-                "odds": -125,
-                "sportsbook": "DraftKings"
-            }
-        ]
-    
-    # Mock get_arbitrage_opportunities method
-    async def mock_get_arbitrage_opportunities(sport, **kwargs):
-        return [
-            {
-                "sport": sport,
-                "player": "Aaron Judge",
-                "guaranteed_profit_percentage": 3.2,
-                "over_provider": "DraftKings",
-                "under_provider": "FanDuel"
-            }
-        ]
-    
-    mock_service.get_player_props = mock_get_player_props
-    mock_service.get_arbitrage_opportunities = mock_get_arbitrage_opportunities
+    # Mock get_player_props method as AsyncMock so tests can set .return_value
+    mock_service.get_player_props = AsyncMock(return_value=[
+        {
+            "player": "Aaron Judge",
+            "sport": "MLB",
+            "bet_type": "Home Runs",
+            "line": 0.5,
+            "odds": -125,
+            "sportsbook": "DraftKings"
+        }
+    ])
+
+    # Mock get_arbitrage_opportunities method as AsyncMock
+    mock_service.get_arbitrage_opportunities = AsyncMock(return_value=[
+        {
+            "sport": "MLB",
+            "player": "Aaron Judge",
+            "guaranteed_profit_percentage": 3.2,
+            "over_provider": "DraftKings",
+            "under_provider": "FanDuel"
+        }
+    ])
     
     return mock_service
 

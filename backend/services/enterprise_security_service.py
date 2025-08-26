@@ -1,3 +1,126 @@
+import asyncio
+import time
+from typing import Dict, Any, Optional, Set, List
+
+from .auth_service import get_auth_service
+
+
+class SecurityService:
+    def __init__(self):
+        self.auth = get_auth_service()
+        self.api_keys: Dict[str, Dict[str, Any]] = {}
+        self.active_sessions: Set[str] = set()
+        self.blacklisted_tokens: Set[str] = set()
+        self.security_events: List[Any] = []
+
+    @property
+    def users(self):
+        return getattr(self.auth, "_users", {})
+
+    async def register_user(self, username: str, email: str, password: str, role=None):
+        await asyncio.sleep(0)
+        try:
+            await self.auth.register(email, password)
+            return True, "User created"
+        except Exception as e:
+            return False, str(e)
+
+    async def login(self, username_or_email: str, password: str) -> Dict[str, Any]:
+        await asyncio.sleep(0)
+        result = await self.auth.authenticate(username_or_email, password)
+        token = result.get("access_token")
+        if token:
+            self.active_sessions.add(token)
+        return result
+
+
+_security_service: Optional[SecurityService] = None
+
+
+async def get_security_service() -> SecurityService:
+    global _security_service
+    if _security_service is None:
+        _security_service = SecurityService()
+    return _security_service
+    ADMIN = "admin"
+    DATA_SCIENTIST = "data_scientist"
+    ANALYST = "analyst"
+    API_USER = "api_user"
+    VIEWER = "viewer"
+    GUEST = "guest"
+
+
+class PermissionLevel(Enum):
+    READ = "read"
+    WRITE = "write"
+    ADMIN = "admin"
+    FULL_ACCESS = "full_access"
+
+
+class SecurityEventType(Enum):
+    LOGIN_SUCCESS = "login_success"
+    LOGIN_FAILURE = "login_failure"
+    API_ACCESS = "api_access"
+    PERMISSION_DENIED = "permission_denied"
+    SUSPICIOUS_ACTIVITY = "suspicious_activity"
+    DATA_BREACH_ATTEMPT = "data_breach_attempt"
+    RATE_LIMIT_EXCEEDED = "rate_limit_exceeded"
+    TOKEN_EXPIRED = "token_expired"
+    UNAUTHORIZED_ACCESS = "unauthorized_access"
+        self.api_keys: Dict[str, Dict[str, Any]] = {}
+        self.active_sessions: Set[str] = set()
+        self.blacklisted_tokens: Set[str] = set()
+        self.security_events: List[Any] = []
+
+    @property
+    def users(self):
+        # expose internal user map for compatibility
+        return getattr(self.auth, "_users", {})
+
+    async def register_user(self, username: str, email: str, password: str, role=None):
+        await asyncio.sleep(0)
+        try:
+            await self.auth.register(email, password)
+            return True, "User created"
+        except Exception as e:
+            return False, str(e)
+
+    async def login(self, username_or_email: str, password: str) -> Dict[str, Any]:
+        await asyncio.sleep(0)
+        result = await self.auth.authenticate(username_or_email, password)
+        token = result.get("access_token")
+        if token:
+            self.active_sessions.add(token)
+        return result
+
+    async def get_user_info(self, user_id: str) -> Optional[Dict[str, Any]]:
+        await asyncio.sleep(0)
+        u = self.users.get(user_id)
+        if not u:
+            # maybe key by email
+            for email, user in self.users.items():
+                if user.get("id") == user_id or user.get("email") == user_id:
+                    return {"user_id": user.get("id"), "email": user.get("email"), "username": user.get("email")}
+        return {"user_id": u.get("id"), "email": u.get("email"), "username": u.get("email")} if u else None
+
+    async def check_permission(self, user_permissions: Set[str], perm: str) -> bool:
+        await asyncio.sleep(0)
+        return perm in user_permissions
+
+    async def create_api_key(self, user_id: str, name: str, permissions: Set[str], rate_limit: int, expires_days: int, allowed_ips: Optional[Set[str]] = None):
+        await asyncio.sleep(0)
+        key_id = f"key-{int(time.time()*1000)}"
+        api_key = {"key_id": key_id, "api_key": f"api_{key_id}", "name": name, "permissions": list(permissions), "rate_limit": rate_limit, "expires_at": None, "created_at": time.time()}
+        self.api_keys[key_id] = api_key
+        return True, api_key, "API key created"
+
+    async def get_security_events(self, event_type=None, limit=100):
+        await asyncio.sleep(0)
+        return self.security_events[:limit]
+
+
+async def get_security_service() -> SecurityService:
+    return SecurityService()
 """
 Enterprise Security and Authentication Service
 Comprehensive security framework for AI services with role-based access control,

@@ -284,14 +284,23 @@ class TaxonomyService:
                     return value
             
             # Try partial matches for common patterns (sport-specific logic could go here)
+            # Prefer more specific checks first (e.g., 'three' or numeric '3')
+            # Use regex-like numeric token check to avoid matching unrelated '3' inside other tokens
+            try:
+                import re
+                # match whole-word '3' or '3-' or '3 ' etc.
+                if re.search(r"\b3\b|\b3\s|3-", lower_category) or "three" in lower_category:
+                    return PropTypeEnum.THREE_POINTERS_MADE
+            except Exception:
+                # If regex import/operation fails for any reason, fall back to simple contains
+                if "three" in lower_category or "3" in lower_category:
+                    return PropTypeEnum.THREE_POINTERS_MADE
             if "point" in lower_category:
                 return PropTypeEnum.POINTS
             elif "assist" in lower_category:
                 return PropTypeEnum.ASSISTS
             elif "rebound" in lower_category:
                 return PropTypeEnum.REBOUNDS
-            elif "three" in lower_category or "3" in lower_category:
-                return PropTypeEnum.THREE_POINTERS_MADE
             elif "steal" in lower_category:
                 return PropTypeEnum.STEALS
             elif "block" in lower_category:
@@ -329,6 +338,10 @@ class TaxonomyService:
             TaxonomyError: If mapping is not found
         """
         with self._lock:
+            # Validate input
+            if not raw_team:
+                raise TaxonomyError(f"Empty or missing team identifier for {sport}: '{raw_team}'")
+
             # Clean input
             clean_team = raw_team.strip().upper()
             

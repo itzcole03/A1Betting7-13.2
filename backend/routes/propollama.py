@@ -55,21 +55,53 @@ async def propollama_ping():
 
 import yaml
 
-from backend.services.comprehensive_feature_engine import enrich_prop_with_all_features
+# Replace eager import and business-rules file I/O with lazy-loading helpers
+# (previously: from backend.services.comprehensive_feature_engine import enrich_prop_with_all_features
+# and immediate YAML load)
 
-config_path = os.path.join(
-    os.path.dirname(__file__), "..", "config", "business_rules.yaml"
+# Test-environment detection (used to avoid file I/O and external calls during pytest collection)
+is_test_env = bool(
+    os.getenv("PYTEST_CURRENT_TEST")
+    or "test" in os.getenv("PYTHONPATH", "").lower()
 )
-with open(config_path, "r") as f:
-    rules = yaml.safe_load(f)
-forbidden_combos = [tuple(x) for x in rules.get("forbidden_combos", [])]
-allowed_stat_types = set(rules.get("allowed_stat_types", []))
-logger = logging.getLogger("propollama")
+
+# Business rules are loaded lazily. Defaults are safe for test discovery.
+_business_rules_loaded = False
+forbidden_combos: list = []
+allowed_stat_types: set = set()
+
+
+def _load_business_rules():
+    """Load business rules from YAML once. Safe no-op if file missing or on test runs."""
+    global _business_rules_loaded, forbidden_combos, allowed_stat_types
+    if _business_rules_loaded:
+        return
+    try:
+        config_path = os.path.join(
+            os.path.dirname(__file__), "..", "config", "business_rules.yaml"
+        )
+        if os.path.exists(config_path):
+            with open(config_path, "r") as f:
+                rules = yaml.safe_load(f) or {}
+                forbidden_combos = [tuple(x) for x in rules.get("forbidden_combos", [])]
+                allowed_stat_types = set(rules.get("allowed_stat_types", []))
+        else:
+            forbidden_combos = []
+            allowed_stat_types = set()
+    except Exception:
+        logging.getLogger("propollama").exception(
+            "Failed to load business rules; using safe defaults"
+        )
+        forbidden_combos = []
+        allowed_stat_types = set()
+    _business_rules_loaded = True
 
 
 async def pre_llm_business_logic(request):
     print("[DIAG] Entered pre_llm_business_logic")
     logger.info("[DIAG] Entered pre_llm_business_logic")
+    # Ensure business rules are loaded (lazy, safe)
+    _load_business_rules()
     entry_amt = getattr(request, "entryAmount", None)
     logger.info(f"[DIAG] entryAmount: {entry_amt}")
     if not isinstance(entry_amt, (int, float)):
@@ -131,6 +163,11 @@ async def pre_llm_business_logic(request):
     for idx, prop in enumerate(request.selectedProps):
         logger.info(f"[DIAG] Enriching prop {idx}: {prop}")
         try:
+            # Lazy import heavy enrichment function to avoid import-time side-effects
+            from backend.services.comprehensive_feature_engine import (
+                enrich_prop_with_all_features,
+            )
+
             enriched = await asyncio.wait_for(
                 enrich_prop_with_all_features(prop, user, session, allowed_stat_types),
                 timeout=1.0,
@@ -487,18 +524,23 @@ if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
-# Optional: persistent file logging
+
+# Optional: persistent file logging (skip creating file handlers during tests)
 log_dir = os.path.join(os.path.dirname(__file__), "..", "logs")
-os.makedirs(log_dir, exist_ok=True)
 file_handler_path = os.path.join(log_dir, "propollama.log")
-if not any(
-    isinstance(h, logging.FileHandler)
-    and getattr(h, "baseFilename", None) == file_handler_path
-    for h in logger.handlers
-):
-    file_handler = logging.FileHandler(file_handler_path)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
+if not is_test_env:
+    try:
+        os.makedirs(log_dir, exist_ok=True)
+        if not any(
+            isinstance(h, logging.FileHandler)
+            and getattr(h, "baseFilename", None) == file_handler_path
+            for h in logger.handlers
+        ):
+            file_handler = logging.FileHandler(file_handler_path)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+    except Exception:
+        logger.exception("Failed to initialize file logging; continuing without file handler")
 
 # --- Global Error Handler for Consistent Error Schema ---
 from fastapi import FastAPI

@@ -20,14 +20,15 @@ logger = logging.getLogger(__name__)
 
 async def send_enveloped(
     websocket: WebSocket,
-    msg_type: str, 
+    msg_type: str,
     payload: Dict[str, Any],
     *,
     request_id: Optional[str] = None,
-    span: Optional[str] = None, 
+    span: Optional[str] = None,
     parent_span: Optional[str] = None,
     retries: Optional[int] = None,
-    debug: Optional[bool] = None
+    debug: Optional[bool] = None,
+    client_id: Optional[str] = None,
 ) -> bool:
     """
     Send an enveloped WebSocket message with automatic event bus publishing.
@@ -101,7 +102,70 @@ async def send_enveloped(
                 # Fallback to sending the envelope if flattening fails
                 await websocket.send_text(message_json)
         else:
-            await websocket.send_text(message_json)
+            # Backwards-compatible flattening for legacy clients/tests
+            if msg_type in {"pong", "ping", "status", "echo", "error"}:
+                # Promote commonly-checked payload fields to top-level for legacy clients/tests
+                flat_msg: Dict[str, Any] = {"type": msg_type}
+                # If payload is a dict, merge selected keys to top-level
+                if isinstance(payload, dict):
+                    # Promote timestamp if present
+                    if "timestamp" in payload:
+                        flat_msg["timestamp"] = payload.get("timestamp")
+                    # Promote message or original_message
+                    if "message" in payload:
+                        flat_msg["message"] = payload.get("message")
+                    if "original_message" in payload:
+                        flat_msg["original_message"] = payload.get("original_message")
+                    # Promote connection/status fields
+                    if "connection_uptime_seconds" in payload:
+                        flat_msg["connection_uptime_seconds"] = payload.get("connection_uptime_seconds")
+                    if "heartbeat_count" in payload:
+                        flat_msg["heartbeat_count"] = payload.get("heartbeat_count")
+                    if "last_heartbeat" in payload:
+                        flat_msg["last_heartbeat"] = payload.get("last_heartbeat")
+                    # Promote error_code and message for error payloads
+                    if msg_type == "error":
+                        if "error_code" in payload:
+                            flat_msg["error_code"] = payload.get("error_code")
+                        if "message" in payload:
+                            flat_msg["message"] = payload.get("message")
+                    # Promote client_id from payload if present
+                    if "client_id" in payload:
+                        flat_msg["client_id"] = payload.get("client_id")
+
+                # Always include the client_id and request_id at top-level if provided
+                if client_id is not None:
+                    flat_msg["client_id"] = client_id
+                if request_id is not None:
+                    flat_msg["request_id"] = request_id
+
+                # Ensure a top-level timestamp exists (from payload or now)
+                if "timestamp" not in flat_msg:
+                    if isinstance(payload, dict) and "timestamp" in payload:
+                        flat_msg["timestamp"] = payload.get("timestamp")
+                    elif isinstance(payload, dict) and "original_timestamp" in payload:
+                        flat_msg["timestamp"] = payload.get("original_timestamp")
+                    else:
+                        try:
+                            from datetime import datetime, timezone
+                            flat_msg["timestamp"] = datetime.now(timezone.utc).isoformat()
+                        except Exception:
+                            flat_msg["timestamp"] = ""
+
+                # Keep original payload under 'payload' for completeness
+                flat_msg["payload"] = payload
+
+                try:
+                    await websocket.send_json(flat_msg)
+                    return True
+                except Exception:
+                    try:
+                        await websocket.close()
+                    except Exception:
+                        pass
+                    return False
+            else:
+                await websocket.send_text(message_json)
         
         # Publish to observability event bus
         event_bus = get_event_bus()
@@ -198,7 +262,8 @@ async def send_ping(
     *,
     request_id: Optional[str] = None,
     heartbeat_count: Optional[int] = None,
-    span: Optional[str] = None
+    span: Optional[str] = None,
+    client_id: Optional[str] = None
 ) -> bool:
     """
     Send a ping message for heartbeat/keepalive.
@@ -223,6 +288,7 @@ async def send_ping(
         payload=payload,
         request_id=request_id,
         span=span
+    ,client_id=client_id
     )
 
 
@@ -231,7 +297,8 @@ async def send_pong(
     *,
     request_id: Optional[str] = None,
     original_timestamp: Optional[str] = None,
-    span: Optional[str] = None
+    span: Optional[str] = None,
+    client_id: Optional[str] = None
 ) -> bool:
     """
     Send a pong response to a client ping.
@@ -256,6 +323,7 @@ async def send_pong(
         payload=payload,
         request_id=request_id,
         span=span
+    ,client_id=client_id
     )
 
 
@@ -385,11 +453,12 @@ def record_inbound_message(
     except Exception as e:
         logger.error(f"Failed to record inbound message: {e}")
 async def send_legacy_wrapped(
-    websocket: WebSocket, 
+    websocket: WebSocket,
     legacy_data: dict,
     msg_type: str = "legacy_echo",
     request_id: Optional[str] = None,
-    debug: bool = True
+    debug: bool = True,
+    client_id: Optional[str] = None
 ) -> bool:
     """
     Send legacy data wrapped in a modern envelope.
@@ -415,15 +484,34 @@ async def send_legacy_wrapped(
             "wrapped_at": datetime.now(timezone.utc).isoformat(),
             "notice": "This is a legacy message wrapped in an envelope. Please consider upgrading to envelope format."
         }
-        
+
+        # Include client_id in payload for legacy compatibility if provided
+        if client_id:
+            payload["client_id"] = client_id
+
+        # If the legacy data already contains an 'original_message' field, promote it
+        # to the top-level payload so flattened legacy responses include it.
+        try:
+            if isinstance(legacy_data, dict) and "original_message" in legacy_data:
+                payload["original_message"] = legacy_data.get("original_message")
+            # Also, if legacy_data itself looks like the original message (common case),
+            # promote it under 'original_message' to satisfy legacy clients/tests.
+            elif isinstance(legacy_data, dict) and all(k in legacy_data for k in ("type",)):
+                # Use the legacy_data as the original_message when appropriate
+                payload["original_message"] = legacy_data
+        except Exception:
+            # Non-critical: if promotion fails, continue without raising
+            pass
+
         return await send_enveloped(
             websocket=websocket,
             msg_type=msg_type,
             payload=payload,
             request_id=request_id,
-            debug=debug
+            debug=debug,
+            client_id=client_id
         )
-        
+
     except Exception as e:
         logger.error(f"Failed to send legacy wrapped message: {e}")
         return False

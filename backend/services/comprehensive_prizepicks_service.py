@@ -1381,11 +1381,22 @@ async def start_prizepicks_service():
     await comprehensive_prizepicks_service.start_real_time_ingestion()
 
 
-if __name__ == "__main__":
-    # For testing: run the scraping logic directly and close browser
-    async def test_scrape():
-        service = ComprehensivePrizePicksService()
-        props = await service.scrape_prizepicks_props()
-        print(f"Scraped {len(props)} props.")
+# Add a safe, guarded test-runner for manual debugging; do not run during pytest import
+async def test_scrape():
+    """Manual test helper: run a quick scrape and print results.
+    This function is intentionally safe to import but should not be invoked
+    at module import time. Use `python -m backend.services.comprehensive_prizepicks_service`
+    to run manually.
+    """
+    service = ComprehensivePrizePicksService()
+    props = await service.scrape_prizepicks_props()
+    print(f"Scraped {len(props)} props.")
 
-    asyncio.run(test_scrape())
+
+if __name__ == "__main__":
+    try:
+        import asyncio
+
+        asyncio.run(test_scrape())
+    except Exception:
+        print("PrizePicks test runner failed or dependencies missing; exiting.")

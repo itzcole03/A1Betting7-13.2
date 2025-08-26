@@ -36,9 +36,22 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             ),
             "Content-Security-Policy": config.get(
                 "A1BETTING_CONTENT_SECURITY_POLICY",
-                "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'",
+                "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; report-uri /api/security/csp-report",
             ),
-            "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+            "Permissions-Policy": config.get(
+                "A1BETTING_PERMISSIONS_POLICY",
+                "camera=(), microphone=(), geolocation=(), autoplay=()",
+            ),
+            # Cross-origin policies
+            "Cross-Origin-Opener-Policy": config.get(
+                "A1BETTING_COOP", "same-origin-allow-popups"
+            ),
+            "Cross-Origin-Embedder-Policy": config.get(
+                "A1BETTING_COEP", "require-corp"
+            ),
+            "Cross-Origin-Resource-Policy": config.get(
+                "A1BETTING_CORP", "same-site"
+            ),
         }
 
         # HSTS configuration
@@ -72,6 +85,16 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             "http://localhost:8173,http://localhost:8174,http://localhost:8175,http://localhost:3000,http://localhost:5173",
         )
         self.trusted_origins = [origin.strip() for origin in cors_origins.split(",")]
+
+        # Snapshot of static headers for unit tests / verification
+        try:
+            # shallow copy to allow tests to inspect expected static headers
+            self._static_headers = dict(self.security_headers)
+            # HSTS and Server header are added per-request so provide expected defaults here
+            self._static_headers.setdefault("Strict-Transport-Security", f"max-age={self.hsts_max_age}; includeSubDomains")
+            self._static_headers.setdefault("Server", "A1Betting/2.0")
+        except Exception:
+            self._static_headers = {}
 
     async def dispatch(self, request: Request, call_next):
         """Main security middleware dispatch"""

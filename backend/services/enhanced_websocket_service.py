@@ -279,15 +279,31 @@ class HeartbeatManager:
     
     async def stop(self):
         """Stop heartbeat monitoring"""
+        # During tests we may want to avoid starting background tasks.
+        # Honor the TESTING env var so pytest runs don't spawn persistent tasks
+        import os
+        if os.environ.get("TESTING", "false").lower() in ("1", "true", "yes"):
+            logger.info("Heartbeat manager start skipped in TESTING mode")
+            self.running = False
+            return
+        # If not running, nothing to stop
+        if not self.running and self.heartbeat_task is None:
+            return
+
+        # Signal loop to stop and cancel running task
         self.running = False
-        if self.heartbeat_task:
-            self.heartbeat_task.cancel()
+        if self.heartbeat_task is not None:
             try:
+                self.heartbeat_task.cancel()
                 await self.heartbeat_task
             except asyncio.CancelledError:
                 pass
+            except Exception as e:
+                logger.warning(f"Heartbeat task cancellation raised: {e}")
+            finally:
+                self.heartbeat_task = None
+
         logger.info("Heartbeat manager stopped")
-    
     async def _heartbeat_loop(self, connection_manager):
         """Main heartbeat monitoring loop"""
         while self.running:
@@ -340,14 +356,19 @@ class EnhancedConnectionManager:
     async def initialize(self):
         """Initialize connection manager"""
         try:
+            import os
+
             if redis is not None:
                 self.redis_client = redis.from_url("redis://localhost:6379/0")
                 await self.redis_client.ping()
                 logger.info("Redis connected for connection manager")
             else:
                 logger.warning("Redis not available, using memory-only mode")
-                
-            await self.heartbeat_manager.start(self)
+            # Only start heartbeat manager when not running under pytest/test env
+            if os.environ.get("TESTING", "false").lower() not in ("1", "true", "yes"):
+                await self.heartbeat_manager.start(self)
+            else:
+                logger.info("Skipping heartbeat manager start due to TESTING mode")
             logger.info("Enhanced connection manager initialized")
         except Exception as e:
             logger.error(f"Failed to initialize connection manager: {e}")

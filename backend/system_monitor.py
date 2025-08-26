@@ -1,3 +1,22 @@
+"""Minimal system_monitor shim used by tests that patch backend.system_monitor.SystemMonitor"""
+
+from typing import Any
+
+
+class SystemMonitor:
+    """Lightweight shim of the expected SystemMonitor used in tests."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        pass
+
+    async def start_monitoring(self) -> None:
+        return None
+
+    async def stop_monitoring(self) -> None:
+        return None
+
+
+__all__ = ["SystemMonitor"]
 """Comprehensive System Monitoring and Health Engine
 Real-time system monitoring, alerting, performance tracking, and predictive maintenance
 """

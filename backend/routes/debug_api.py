@@ -1,11 +1,12 @@
 import json
 import logging
+from typing import Any, Dict
 
 from fastapi import APIRouter, Request
 
 # Contract compliance imports
 from ..core.response_models import ResponseBuilder, StandardAPIResponse
-from ..core.exceptions import BusinessLogicException, AuthenticationException
+from ..core.exceptions import BusinessLogicException
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

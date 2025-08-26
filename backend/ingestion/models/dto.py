@@ -58,7 +58,7 @@ class RawExternalPropDTO(BaseModel):
     """
     external_player_id: str = Field(..., description="Provider's player identifier")
     player_name: str = Field(..., min_length=1, description="Player's full name")
-    team_code: str = Field(..., min_length=2, max_length=5, description="Team abbreviation or code")
+    team_code: Optional[str] = Field(None, min_length=0, max_length=50, description="Team abbreviation or code or full name")
     prop_category: str = Field(..., description="Raw prop category from provider")
     line_value: float = Field(..., ge=0, description="Offered line value")
     provider_prop_id: str = Field(..., description="Provider's prop identifier")
@@ -92,7 +92,7 @@ class PayoutSchema(BaseModel):
     across all providers, eliminating branching logic in downstream processing.
     """
     type: PayoutType = Field(..., description="Type of payout structure")
-    variant_code: PayoutVariant = Field(..., description="Payout structure variant")
+    variant_code: Optional[PayoutVariant] = Field(default=PayoutVariant.STANDARD_ODDS, description="Payout structure variant")
     
     # Canonical multiplier representation (normalized from provider formats)
     over_multiplier: Optional[float] = Field(None, ge=0, description="Over bet payout multiplier")

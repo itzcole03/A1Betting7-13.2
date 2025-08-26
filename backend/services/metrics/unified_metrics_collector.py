@@ -58,6 +58,9 @@ class UnifiedMetricsCollector:
 
         # Internal random for reservoir sampling
         self._rand = random.Random(42)
+        # Optional explicit success/failure counters for tests
+        self._successful_requests = 0
+        self._failed_requests = 0
 
     @classmethod
     def get_instance(cls):
@@ -77,6 +80,8 @@ class UnifiedMetricsCollector:
             self._ws_open = 0
             self._ws_messages = 0
             self._event_loop_lags = []
+            self._successful_requests = 0
+            self._failed_requests = 0
 
     # API used by tests
     def record_request(self, latency_ms, status_code=200):
@@ -99,6 +104,34 @@ class UnifiedMetricsCollector:
         # Incrementing simple counters is fast and tests run single-threaded;
         # avoid acquiring the lock here to reduce overhead in hot paths.
         self._cache_hits += 1
+
+    def record_request_latency(self, latency_ms, status_code=200):
+        """Compatibility wrapper used by older tests."""
+        return self.record_request(latency_ms, status_code)
+
+    def record_successful_request(self):
+        with self._lock:
+            self._successful_requests += 1
+
+    def record_failed_request(self):
+        with self._lock:
+            self._failed_requests += 1
+            self._total_errors += 1
+
+    def get_latency_stats(self):
+        with self._lock:
+            latencies = [s[1] for s in self._request_samples]
+        avg = (sum(latencies)/len(latencies)) if latencies else 0.0
+        _, _, p95, _ = self._compute_percentiles(latencies)
+        return {'avg_latency_ms': avg, 'p95_latency_ms': p95}
+
+    def get_request_counters(self):
+        with self._lock:
+            return {
+                'total_requests': self._total_requests,
+                'successful_requests': self._successful_requests,
+                'failed_requests': self._failed_requests,
+            }
 
     def record_cache_miss(self):
         self._cache_misses += 1
@@ -212,6 +245,13 @@ class UnifiedMetricsCollector:
                 'messages_sent': self._ws_messages
             }
 
+            # Compute success_rate: prefer explicit counters, fall back to errors
+            total_for_success = self._successful_requests + self._failed_requests
+            if total_for_success > 0:
+                success_rate = (self._successful_requests / total_for_success)
+            else:
+                success_rate = (1.0 - (self._total_errors / total_requests)) if total_requests > 0 else 0.0
+
             return {
                 'total_requests': total_requests,
                 'error_rate': error_rate,
@@ -222,8 +262,11 @@ class UnifiedMetricsCollector:
                 'p99_latency_ms': p99,
                 'histogram': histogram,
                 'event_loop': event_loop,
+                # legacy compatibility key
+                'event_loop_lag_ms': event_loop['avg_lag_ms'],
                 'cache': cache_stats,
                 'websocket': websocket,
+                'success_rate': success_rate,
                 'timestamp': int(time.time() * 1000)
             }
 

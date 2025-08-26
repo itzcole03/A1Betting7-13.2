@@ -113,7 +113,22 @@ class LegacyRegistry:
         """
         if path not in self._data:
             # Auto-register unknown legacy endpoint
-            self.register_legacy(path)
+            # If there is an existing registered prefix that matches this path,
+            # inherit its forwarding target so concrete paths don't get registered
+            # with forward=None (which leads to 404/deprecation behavior).
+            matching_prefix = None
+            for registered_path, data in self._data.items():
+                # Prefer exact prefix matches (registered entries that are prefixes
+                # of the requested path). Use longest-match semantics.
+                if path.startswith(registered_path):
+                    if matching_prefix is None or len(registered_path) > len(matching_prefix):
+                        matching_prefix = registered_path
+
+            if matching_prefix:
+                forward = self._data[matching_prefix].forward
+                self.register_legacy(path, forward)
+            else:
+                self.register_legacy(path)
         
         now = time.time()
         self._data[path].count += 1

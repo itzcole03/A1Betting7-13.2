@@ -1,113 +1,88 @@
-# PrizePicks Stealth Scraper
-# Requirements: pip install selenium selenium-stealth undetected-chromedriver pandas
-# For proxies: pip install selenium-wire
-# For anti-captcha: pip install 2captcha-python
+"""PrizePicks stealth scraper (import-safe).
 
-import time
+This script avoids importing or starting browser instances at import time so
+that test discovery and static analysis do not trigger heavy side-effects.
+Run directly to perform scraping.
+"""
 
-import pandas as pd
-import undetected_chromedriver as uc
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium_stealth import stealth
+from typing import Any, Dict, List, Optional
 
-# Optional: Use selenium-wire for proxy support
-# from seleniumwire import webdriver as wire_webdriver
-# proxy = "http://user:pass@proxy_ip:proxy_port"
 
-# --- CONFIG ---
-PRIZEPICKS_URL = "https://app.prizepicks.com/"
-CHROMEDRIVER_PATH = None  # Use default or specify path
-# proxy = None  # Set to your proxy string if needed
-
-# --- SETUP ---
-options = uc.ChromeOptions()
-options.add_argument("--headless=new")
-options.add_argument("--disable-blink-features=AutomationControlled")
-options.add_argument("--window-size=1920,1080")
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-gpu")
-options.add_argument("--disable-dev-shm-usage")
-
-# Uncomment for proxy support
-# options.add_argument(f'--proxy-server={proxy}')
-
-# Start undetected Chrome
-browser = uc.Chrome(options=options, driver_executable_path=CHROMEDRIVER_PATH)
-
-# Stealth settings
-stealth(
-    browser,
-    languages=["en-US", "en"],
-    vendor="Google Inc.",
-    platform="Win32",
-    webgl_vendor="Intel Inc.",
-    renderer="Intel Iris OpenGL Engine",
-    fix_hairline=True,
-)
-
-browser.get(PRIZEPICKS_URL)
-time.sleep(5)  # Wait for page to load
-# Save screenshot after initial load
-browser.save_screenshot("prizepicks_debug_initial.png")
-print("Saved screenshot: prizepicks_debug_initial.png")
-
-# --- Handle popups (if any) ---
-try:
-    close_btn = browser.find_element(By.CLASS_NAME, "popup-close")
-    close_btn.click()
-    time.sleep(1)
-except Exception:
-    pass
-
-# --- Scrape sports categories ---
-props = []
-sports_buttons = browser.find_elements(By.CSS_SELECTOR, '[data-testid="sport-tab"]')
-print(f"Found {len(sports_buttons)} sport tabs.")
-for sport_btn in sports_buttons:
+def _build_options() -> Any:
+    """Build browser options lazily to avoid importing selenium at module import."""
     try:
-        sport_btn.click()
-        time.sleep(2)
-        # Save screenshot after clicking each sport tab
-        idx = sports_buttons.index(sport_btn)
-        screenshot_name = f"prizepicks_debug_sport_{idx}.png"
-        browser.save_screenshot(screenshot_name)
-        print(
-            f"Clicked sport tab {idx}: '{sport_btn.text}'. Saved screenshot: {screenshot_name}"
-        )
-        # Scrape player props for this sport
-        players = browser.find_elements(By.CSS_SELECTOR, '[data-testid="player-card"]')
-        print(f"  Found {len(players)} player cards for sport '{sport_btn.text}'.")
-        for player in players:
-            try:
-                player_name = player.find_element(
-                    By.CSS_SELECTOR, '[data-testid="player-name"]'
-                ).text
-                prop_type = player.find_element(
-                    By.CSS_SELECTOR, '[data-testid*="stat-type"]'
-                ).text
-                prop_value = player.find_element(
-                    By.CSS_SELECTOR, '[data-testid*="stat-value"]'
-                ).text
-                props.append(
-                    {
-                        "Player": player_name,
-                        "Prop Type": prop_type,
-                        "Prop Value": prop_value,
-                        "Sport": sport_btn.text,
-                    }
-                )
-            except Exception:
-                print(f"    Error scraping player card: {e}")
-                continue
+        import undetected_chromedriver as uc
+        from selenium.webdriver.chrome.options import Options
     except Exception:
-        print(f"Error clicking sport tab: {e}")
-        continue
+        # If the optional packages are unavailable, return None so the caller
+        # can handle the missing dependency gracefully.
+        return None
 
-# --- Save to CSV ---
-df = pd.DataFrame(props)
-df.to_csv("prizepicks_props.csv", index=False)
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    return options
 
-browser.quit()
-print(f"Scraped {len(props)} props. Saved to prizepicks_props.csv.")
+
+def scrape_prizepicks(target_url: str) -> Optional[List[Dict[str, Any]]]:
+    """Perform scraping using undetected-chromedriver when available.
+
+    Returns parsed projection data or None if dependencies are missing.
+    """
+    options = _build_options()
+    if options is None:
+        print("Stealth scraping dependencies not installed; skipping.")
+        return None
+
+    try:
+        import undetected_chromedriver as uc
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+    except Exception:
+        print("Required selenium packages missing; install undetected_chromedriver and selenium.")
+        return None
+
+    driver = None
+    try:
+        driver = uc.Chrome(options=options)
+        driver.get(target_url)
+
+        # Example wait and parse logic (adjust selectors to actual site)
+        wait = WebDriverWait(driver, 10)
+        # Example: wait for a table of projections
+        wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".projection-row")))
+
+        rows = driver.find_elements(By.CSS_SELECTOR, ".projection-row")
+        results = []
+        for r in rows:
+            try:
+                player = r.find_element(By.CSS_SELECTOR, ".player-name").text
+                stat = r.find_element(By.CSS_SELECTOR, ".stat-type").text
+                line = r.find_element(By.CSS_SELECTOR, ".line").text
+                results.append({"player": player, "stat": stat, "line": line})
+            except Exception:
+                continue
+
+        return results
+    finally:
+        if driver:
+            try:
+                driver.quit()
+            except Exception:
+                pass
+
+
+def main():
+    # Example target; adjust as needed when running directly.
+    url = "https://app.prizepicks.com/"
+    data = scrape_prizepicks(url)
+    if data is None:
+        print("No data scraped or dependencies missing.")
+    else:
+        print(f"Scraped {len(data)} projection rows.")
+
+
+if __name__ == "__main__":
+    main()

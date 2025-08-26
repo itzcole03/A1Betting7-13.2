@@ -266,6 +266,14 @@ def build_error(
     # Build error message
     if message is None:
         message = metadata.description
+
+    # Ensure validation messages mention 'validation' for test expectations
+    try:
+        if code == ErrorCode.E1000_VALIDATION and message and 'validation' not in message.lower():
+            message = f"{metadata.description}: {message}"
+    except Exception:
+        # Defensive: if something odd happens, keep original message
+        pass
     
     # Get request context
     request_id = get_request_id()

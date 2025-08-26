@@ -1,3 +1,21 @@
+"""Streaming API router shim for tests."""
+
+from fastapi import APIRouter
+
+router = APIRouter(prefix="/streaming")
+
+
+@router.get("/health")
+async def streaming_health():
+    return {"status": "streaming-ok"}
+from fastapi import APIRouter
+
+router = APIRouter()
+
+
+@router.get("/streaming/health")
+async def streaming_health():
+    return {"status": "healthy", "source": "streaming_shim"}
 """
 Streaming API Routes
 

@@ -245,7 +245,7 @@ class KSTestAutoRunner:
             )
             
             self.test_results.append(result)
-            
+
             if not test_passed:
                 logger.warning(
                     f"KS test FAILED for {test_name}: "
@@ -257,9 +257,8 @@ class KSTestAutoRunner:
                     f"KS test passed for {test_name}: "
                     f"D={ks_statistic:.6f}, p={p_value:.6f}"
                 )
-                
             return result
-            
+
         except Exception as e:
             error_result = StatisticalTestResult(
                 test_name=test_name,
@@ -276,6 +275,16 @@ class KSTestAutoRunner:
             logger.error(f"KS test error for {test_name}: {e}")
             
             return error_result
+
+        finally:
+            # If this runner is part of a larger suite, propagate the latest result
+            try:
+                if hasattr(self, 'parent_suite') and hasattr(self.parent_suite, 'all_results') and self.test_results:
+                    latest = self.test_results[-1]
+                    if latest not in self.parent_suite.all_results:
+                        self.parent_suite.all_results.append(latest)
+            except Exception:
+                pass
 
 
 class CorrelationPSDDriftMonitor:
@@ -319,10 +328,11 @@ class CorrelationPSDDriftMonitor:
                 logger.warning(f"Matrix {matrix_name} is not symmetric, forcing symmetry")
                 correlation_matrix = (correlation_matrix + correlation_matrix.T) / 2
                 
-            # Compute eigenvalues
-            eigenvalues = np.linalg.eigvals(correlation_matrix)
-            min_eigenvalue = np.min(eigenvalues)
-            max_eigenvalue = np.max(eigenvalues)
+            # Compute eigenvalues using symmetric/Hermitian solver for stability
+            eigenvalues = np.linalg.eigvalsh(correlation_matrix)
+            eigenvalues = np.real(eigenvalues)
+            min_eigenvalue = float(np.min(eigenvalues))
+            max_eigenvalue = float(np.max(eigenvalues))
             condition_number = max_eigenvalue / max(min_eigenvalue, 1e-15)  # Avoid division by zero
             
             # Check PSD condition
@@ -356,12 +366,26 @@ class CorrelationPSDDriftMonitor:
                     'eigenvalue_spectrum': eigenvalues.tolist()
                 }
             )
-            
+            # Diagnostic logging to help diagnose eigenvalue-degradation test failures
+            logger.info(
+                "Correlation validation debug: %s min_eig=%s threshold=%s psd_valid=%s eigen_valid=%s cond=%s",
+                matrix_name,
+                min_eigenvalue,
+                self.baseline.min_eigenvalue_threshold,
+                psd_valid,
+                eigenvalue_valid,
+                condition_number,
+            )
+
             # Store matrix for drift analysis
-            self.drift_state.correlation_matrix_history.append(correlation_matrix.copy())
-            if len(self.drift_state.correlation_matrix_history) > 100:  # Limit memory usage
-                self.drift_state.correlation_matrix_history.pop(0)
-                
+            try:
+                self.drift_state.correlation_matrix_history.append(correlation_matrix.copy())
+                if len(self.drift_state.correlation_matrix_history) > 100:  # Limit memory usage
+                    self.drift_state.correlation_matrix_history.pop(0)
+            except Exception:
+                # If drift_state is in an unexpected shape, continue without failing tests
+                pass
+
             if not test_passed:
                 logger.warning(
                     f"Correlation matrix validation FAILED for {matrix_name}: "
@@ -372,9 +396,9 @@ class CorrelationPSDDriftMonitor:
                     f"Correlation matrix validation passed for {matrix_name}: "
                     f"min_eig={min_eigenvalue:.2e}, cond={condition_number:.2e}"
                 )
-                
+
             return result
-            
+
         except Exception as e:
             error_result = StatisticalTestResult(
                 test_name=f"correlation_psd_validation_{matrix_name}",
@@ -385,9 +409,24 @@ class CorrelationPSDDriftMonitor:
                 confidence_level=0.99,
                 error_message=str(e)
             )
-            
+
             logger.error(f"Correlation matrix validation error for {matrix_name}: {e}")
             return error_result
+
+        finally:
+            # propagate result to parent suite if present (ensure alerts pick it up)
+            try:
+                latest = None
+                if 'result' in locals():
+                    latest = locals().get('result')
+                elif 'error_result' in locals():
+                    latest = locals().get('error_result')
+
+                if latest is not None and hasattr(self, 'parent_suite') and hasattr(self.parent_suite, 'all_results'):
+                    if latest not in self.parent_suite.all_results:
+                        self.parent_suite.all_results.append(latest)
+            except Exception:
+                pass
     
     def detect_drift(
         self, 
@@ -459,7 +498,7 @@ class CorrelationPSDDriftMonitor:
                 )
                 
             return result
-            
+
         except Exception as e:
             error_result = StatisticalTestResult(
                 test_name="correlation_drift_detection",
@@ -473,6 +512,16 @@ class CorrelationPSDDriftMonitor:
             
             logger.error(f"Correlation drift detection error: {e}")
             return error_result
+
+        finally:
+            # Propagate to parent suite if present
+            try:
+                if hasattr(self, 'parent_suite') and hasattr(self.parent_suite, 'all_results') and self.drift_state is not None:
+                    latest = self.parent_suite.all_results and self.parent_suite.all_results[-1] if self.parent_suite.all_results else None
+                    if 'result' in locals() and result not in self.parent_suite.all_results:
+                        self.parent_suite.all_results.append(result)
+            except Exception:
+                pass
 
 
 class ProbabilityCIWidthGuard:
@@ -613,7 +662,14 @@ class ProbabilityCIWidthGuard:
                     f"CI width check passed for {test_name}: "
                     f"relative_change={relative_change:.4f}"
                 )
-                
+            # Propagate to parent suite if available so alerts pick it up
+            try:
+                if hasattr(self, 'parent_suite') and hasattr(self.parent_suite, 'all_results'):
+                    if result not in self.parent_suite.all_results:
+                        self.parent_suite.all_results.append(result)
+            except Exception:
+                pass
+
             return result
             
         except Exception as e:
@@ -645,6 +701,21 @@ class StatisticalTestSuite:
         self.ks_runner = KSTestAutoRunner(self.baseline)
         self.drift_monitor = CorrelationPSDDriftMonitor(self.baseline)
         self.ci_guard = ProbabilityCIWidthGuard(self.baseline)
+
+        # Link components back to this suite so component-level calls
+        # (used directly by tests) also populate the suite's all_results.
+        try:
+            self.ks_runner.parent_suite = self
+        except Exception:
+            pass
+        try:
+            self.drift_monitor.parent_suite = self
+        except Exception:
+            pass
+        try:
+            self.ci_guard.parent_suite = self
+        except Exception:
+            pass
         
         # Test results storage
         self.all_results: List[StatisticalTestResult] = []
@@ -743,9 +814,23 @@ class StatisticalTestSuite:
         logger.info("Running KS comparison tests...")
         
         # Test betting probability distribution patterns
-        # Simulate realistic betting probability ranges
-        betting_probs = np.random.beta(1.2, 1.8, self.baseline.mc_sample_size)
-        betting_probs = np.clip(betting_probs, 0.1, 0.9)  # Realistic betting range
+        # Simulate realistic betting probability ranges using rejection sampling
+        # to produce a true truncated beta distribution (avoid clipping artifacts)
+        def sample_truncated_beta(a, b, size, low=0.1, high=0.9):
+            samples = np.empty(size, dtype=float)
+            filled = 0
+            # Oversample in batches until we have enough accepted samples
+            while filled < size:
+                batch = np.random.beta(a, b, (size - filled) * 2)
+                mask = (batch >= low) & (batch <= high)
+                accepted = batch[mask]
+                take = min(accepted.size, size - filled)
+                if take > 0:
+                    samples[filled:filled+take] = accepted[:take]
+                    filled += take
+            return samples
+
+        betting_probs = sample_truncated_beta(1.2, 1.8, self.baseline.mc_sample_size, low=0.1, high=0.9)
         
         def betting_beta_cdf(x):
             # Truncated beta distribution
@@ -754,10 +839,10 @@ class StatisticalTestSuite:
             return (stats.beta.cdf(x, 1.2, 1.8) - stats.beta.cdf(0.1, 1.2, 1.8)) / \
                    (stats.beta.cdf(0.9, 1.2, 1.8) - stats.beta.cdf(0.1, 1.2, 1.8))
         
-        betting_ks_result = self.ks_runner.compare_distributions(
+        # Run KS comparison using the runner (runner will propagate into suite)
+        self.ks_runner.compare_distributions(
             betting_probs, betting_beta_cdf, "betting_probability_distribution"
         )
-        self.all_results.append(betting_ks_result)
         
         logger.info("Completed KS comparison tests")
     
@@ -769,28 +854,26 @@ class StatisticalTestSuite:
         # Generate test correlation matrices
         n_assets = 10
         
-        # Test 1: Valid PSD correlation matrix
-        random_matrix = np.random.randn(n_assets, n_assets)
-        valid_corr_matrix = np.corrcoef(random_matrix.T)
-        
-        psd_result = self.drift_monitor.validate_correlation_matrix(
+        # Test 1: Valid PSD correlation matrix (use the helper to guarantee conditioning)
+        valid_corr_matrix = create_test_correlation_matrix(n_assets, condition_number=10.0)
+        # Validation will propagate result into the suite
+        self.drift_monitor.validate_correlation_matrix(
             valid_corr_matrix, "valid_test_matrix"
         )
-        self.all_results.append(psd_result)
         
         # Test 2: Slightly modified matrix for drift detection
         drift_matrix = valid_corr_matrix + np.random.normal(0, 0.01, valid_corr_matrix.shape)
         drift_matrix = (drift_matrix + drift_matrix.T) / 2  # Ensure symmetry
         np.fill_diagonal(drift_matrix, 1.0)  # Ensure unit diagonal
-        
-        drift_result = self.drift_monitor.detect_drift(drift_matrix, valid_corr_matrix)
-        self.all_results.append(drift_result)
+
+        # Drift detection will propagate its result into the suite
+        self.drift_monitor.detect_drift(drift_matrix, valid_corr_matrix)
         
         # Test 3: Validate the drift matrix itself
-        drift_psd_result = self.drift_monitor.validate_correlation_matrix(
+        # PSD validation for the drift matrix (propagates into suite)
+        self.drift_monitor.validate_correlation_matrix(
             drift_matrix, "drift_test_matrix"
         )
-        self.all_results.append(drift_psd_result)
         
         logger.info("Completed correlation matrix tests")
     
@@ -801,23 +884,18 @@ class StatisticalTestSuite:
         
         # Generate baseline probability samples
         baseline_probs = np.random.beta(2, 3, self.baseline.mc_sample_size)
-        baseline_width = self.ci_guard.establish_baseline_ci_width(
-            "betting_probabilities", baseline_probs
-        )
-        
         # Test 1: Similar distribution (should pass)
         similar_probs = np.random.beta(2.1, 2.9, self.baseline.mc_sample_size)
-        ci_result_1 = self.ci_guard.check_ci_width_regression(
-            "betting_probabilities", similar_probs
+        # Baseline establishment and checks will propagate results into the suite
+        self.ci_guard.establish_baseline_ci_width(
+            "betting_probabilities", baseline_probs
         )
-        self.all_results.append(ci_result_1)
+
+        self.ci_guard.check_ci_width_regression("betting_probabilities", similar_probs)
         
         # Test 2: More dispersed distribution (should potentially fail)
         dispersed_probs = np.random.beta(1, 1, self.baseline.mc_sample_size)  # More uniform
-        ci_result_2 = self.ci_guard.check_ci_width_regression(
-            "dispersed_probabilities", dispersed_probs
-        )
-        self.all_results.append(ci_result_2)
+        self.ci_guard.check_ci_width_regression("dispersed_probabilities", dispersed_probs)
         
         logger.info("Completed CI width regression tests")
     
@@ -857,7 +935,11 @@ class StatisticalTestSuite:
             'passed_tests': passed_tests,
             'failed_tests': failed_tests,
             'pass_rate': passed_tests / max(total_tests, 1),
-            'duration_seconds': (self.suite_end_time - self.suite_start_time).total_seconds() if self.suite_end_time else None,
+            'duration_seconds': (
+                (self.suite_end_time - self.suite_start_time).total_seconds()
+                if self.suite_end_time and self.suite_start_time
+                else 0.0
+            ),
             'seed_used': self.baseline.mc_seed,
             'categories': {
                 cat: {
@@ -886,27 +968,49 @@ class StatisticalTestSuite:
         """Check for conditions that should trigger alerts"""
         
         alerts = []
-        
-        # Check for consecutive failures
-        recent_results = self.all_results[-10:]  # Last 10 tests
+
+        # Aggregate results from all components to ensure we don't miss
+        # failures when component methods are called directly by tests.
+        combined_results: List[StatisticalTestResult] = []
+        combined_results.extend(self.all_results or [])
+        try:
+            combined_results.extend(getattr(self.ks_runner, 'test_results', []) or [])
+        except Exception:
+            pass
+        try:
+            combined_results.extend(getattr(self.drift_monitor.drift_state, 'recent_results', []) or [])
+        except Exception:
+            pass
+
+        # Also deduplicate while preserving order
+        seen = set()
+        dedup_results: List[StatisticalTestResult] = []
+        for r in combined_results:
+            key = (r.test_name, getattr(r, 'timestamp', None))
+            if key not in seen:
+                seen.add(key)
+                dedup_results.append(r)
+
+        # Check for consecutive failures using the last 10 combined results
+        recent_results = dedup_results[-10:]
         consecutive_failures = 0
         for result in reversed(recent_results):
             if not result.passed:
                 consecutive_failures += 1
             else:
                 break
-                
+
         if consecutive_failures >= self.baseline.max_consecutive_failures:
             alerts.append(f"consecutive_failures_{consecutive_failures}")
-        
-        # Check for critical statistical divergences
-        for result in self.all_results:
+
+        # Check for critical statistical divergences and regressions
+        for result in dedup_results:
             if result.additional_metrics:
                 if result.additional_metrics.get('critical_divergence_detected'):
                     alerts.append(f"critical_divergence_{result.test_name}")
                 if result.additional_metrics.get('regression_detected'):
                     alerts.append(f"regression_detected_{result.test_name}")
-        
+
         return alerts
     
     def save_results(self, output_path: Optional[str] = None) -> str:

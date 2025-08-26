@@ -426,6 +426,44 @@ class IntelligentCacheService:
 
             logger.info(f"🔥 Warmed {warming_count} cache patterns for {sport}")
             return warming_count
+        except Exception as e:
+            logger.error(f"❌ Error warming sport cache: {e}")
+            return 0
+
+    async def get_stats(self) -> dict:
+        """Return a simplified stats dictionary expected by metrics endpoint and callers.
+
+        This method provides a lightweight snapshot of cache metrics so other
+        components (and tests) can call `await cache_service.get_stats()` even
+        when the full feature set isn't available in the test environment.
+        """
+        try:
+            stats = {
+                "hit_rate_percent": getattr(self.metrics, "hit_rate", 0.0) * 100
+                if getattr(self.metrics, "hit_rate", None) is not None
+                else 0.0,
+                "total_requests": self.metrics.hits + self.metrics.misses,
+                "memory_usage_mb": getattr(self.metrics, "total_memory_used", 0) // (1024 * 1024),
+                "hits": self.metrics.hits,
+                "misses": self.metrics.misses,
+                "evictions": self.metrics.evictions,
+            }
+
+            # Ensure numeric values
+            for k, v in list(stats.items()):
+                try:
+                    stats[k] = float(v)
+                except Exception:
+                    stats[k] = 0.0
+
+            return stats
+        except Exception as e:
+            logger.error(f"❌ Error collecting cache stats: {e}")
+            return {
+                "hit_rate_percent": 0.0,
+                "total_requests": 0,
+                "memory_usage_mb": 0,
+            }
 
         except Exception as e:
             logger.error(f"❌ Error in sport cache warming: {e}")
@@ -464,6 +502,38 @@ class IntelligentCacheService:
         }
 
         return base_patterns.get(data_category, [f"{sport}_{data_category}"])
+
+    async def health_check(self) -> dict:
+        """Lightweight health check used by middleware/tests.
+
+        Returns a dict with `status`, `latency_ms`, and `test_passed` fields.
+        If Redis is available, perform a ping; otherwise, report memory fallback healthy.
+        """
+        start = time.time()
+        try:
+            if not self._use_memory_fallback:
+                client = self.get_redis()
+                # Try a quick ping
+                try:
+                    await client.ping()
+                    latency = (time.time() - start) * 1000.0
+                    return {"status": "healthy", "latency_ms": latency, "test_passed": True}
+                except Exception:
+                    latency = (time.time() - start) * 1000.0
+                    return {"status": "degraded", "latency_ms": latency, "test_passed": False}
+            else:
+                latency = (time.time() - start) * 1000.0
+                return {"status": "healthy", "latency_ms": latency, "test_passed": True}
+
+        except Exception as e:
+            latency = (time.time() - start) * 1000.0
+            logger.debug(f"⚠️ health_check error: {e}")
+            return {"status": "unhealthy", "latency_ms": latency, "test_passed": False}
+
+    # Backwards-compatible alias used by some callers/tests
+    async def get_health(self) -> dict:
+        """Alias wrapper for compatibility with older cache_service interfaces."""
+        return await self.health_check()
 
     async def get_sport_cache_metrics(self) -> Dict[str, Any]:
         """Get sport-specific cache metrics and volatility insights"""

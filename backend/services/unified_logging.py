@@ -88,6 +88,27 @@ class StructuredFormatter(logging.Formatter):
         return json.dumps(log_entry, default=str)
 
 
+class SafeConsoleFormatter(logging.Formatter):
+    """Formatter that ensures console-safe output by replacing characters
+    that cannot be encoded by the console encoding. This prevents
+    UnicodeEncodeError on Windows consoles when log messages include emoji.
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        text = super().format(record)
+
+        # Determine console encoding; fall back to utf-8
+        encoding = getattr(sys.stdout, "encoding", None) or "utf-8"
+
+        try:
+            # Try to encode using the console encoding; if it fails, replace
+            _ = text.encode(encoding, errors="strict")
+            return text
+        except UnicodeEncodeError:
+            safe = text.encode(encoding, errors="replace").decode(encoding, errors="replace")
+            return safe
+
+
 class PerformanceTracker:
     """Track performance metrics in logs"""
 
@@ -168,7 +189,7 @@ class UnifiedLogger:
         # Console handler with human-readable format
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(logging.INFO)
-        console_formatter = logging.Formatter(
+        console_formatter = SafeConsoleFormatter(
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
         console_handler.setFormatter(console_formatter)
@@ -179,7 +200,7 @@ class UnifiedLogger:
         log_dir.mkdir(exist_ok=True)
 
         file_handler = logging.handlers.RotatingFileHandler(
-            log_dir / "unified.jsonl", maxBytes=50 * 1024 * 1024, backupCount=10  # 50MB
+            log_dir / "unified.jsonl", maxBytes=50 * 1024 * 1024, backupCount=10, encoding="utf-8"  # 50MB
         )
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(StructuredFormatter())
@@ -187,7 +208,7 @@ class UnifiedLogger:
 
         # Error file handler
         error_handler = logging.handlers.RotatingFileHandler(
-            log_dir / "errors.jsonl", maxBytes=10 * 1024 * 1024, backupCount=5  # 10MB
+            log_dir / "errors.jsonl", maxBytes=10 * 1024 * 1024, backupCount=5, encoding="utf-8"  # 10MB
         )
         error_handler.setLevel(logging.ERROR)
         error_handler.setFormatter(StructuredFormatter())

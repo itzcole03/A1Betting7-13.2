@@ -114,7 +114,6 @@ async def validation_exception_handler(request: Request, exc: Union[RequestValid
         errors = exc.errors()
     else:
         errors = []
-    
     # Format validation details
     validation_details = []
     for error in errors:
@@ -133,13 +132,40 @@ async def validation_exception_handler(request: Request, exc: Union[RequestValid
         details={"validation_errors": validation_details},
         route=getattr(request.url, "path", "unknown")
     )
+    # Ensure FastAPI-compatible top-level `detail` key exists for tests
+    try:
+        validation_details = exc.errors()
+    except Exception:
+        validation_details = []
+
+    # Keep the structured envelope but add `detail` so callers expecting
+    # FastAPI's default shape will find the validation info.
+    response_body = dict(error_response)
+    if "detail" not in response_body:
+        response_body["detail"] = validation_details
+    
+    # Log validation details and full error response for debugging (ensure visible in test output)
+    try:
+        app_logger.error(f"Validation details: {validation_details}")
+        app_logger.error(f"Validation error response: {error_response}")
+    except Exception:
+        # Fallback to printing if logger fails to avoid silent failures during tests
+        try:
+            print("Validation details:", validation_details)
+            print("Validation error response:", error_response)
+        except Exception:
+            pass
     
     # Extract HTTP status
-    http_status = error_response.pop("_http_status", 400)
-    
+    # Preserve FastAPI's default of 422 for request validation errors
+    if isinstance(exc, RequestValidationError):
+        http_status = 422
+    else:
+        http_status = error_response.pop("_http_status", 400)
+
     return JSONResponse(
         status_code=http_status,
-        content=error_response
+        content=response_body
     )
 
 

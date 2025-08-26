@@ -10,6 +10,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Optional, Type, Union
 
+import os
 from backend.config_manager import get_database_url
 from sqlalchemy import (
     Boolean,
@@ -32,7 +33,19 @@ logger = logging.getLogger(__name__)
 Base = declarative_base()
 
 # Database setup
-engine = create_engine(get_database_url(), connect_args={"check_same_thread": False})
+# Use a test-friendly synchronous SQLite engine when running under TESTING
+db_url = get_database_url()
+if os.environ.get("TESTING", "false").lower() in ("1", "true", "yes"):
+    # If the configured URL is async (e.g. sqlite+aiosqlite://) tests can hit
+    # SQLAlchemy/greenlet issues. Use a file-backed synchronous SQLite for tests.
+    if "aiosqlite" in db_url or "+async" in db_url:
+        sync_url = "sqlite:///./a1betting_test.db"
+    else:
+        sync_url = db_url
+    engine = create_engine(sync_url, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(db_url, connect_args={"check_same_thread": False})
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -148,19 +161,47 @@ def get_db_session() -> sessionmaker:
 
 
 # Initialize database and create singleton
-try:
-    create_tables()
-    database_service = DatabaseService()
-    logger.info("Database service initialized successfully")
-except Exception as e:
-    logger.error(f"Database service initialization failed: {e}")
+database_service: Union[DatabaseService, Any]
 
-    # Create a minimal fallback service
-    class FallbackDatabaseService:
+# Do NOT create tables at import time. Tests or the application startup
+# should explicitly call `initialize_database_for_tests()` or otherwise
+# create the schema. This avoids schema ordering and import-time side
+# effects that break test runs.
+try:
+    # Provide a default fallback service to keep the module importable.
+    class _FallbackDatabaseService:
         def __init__(self):
             self.Base = Base
             self.User = User
             self.Match = Match
             self.Bet = Bet
 
-    database_service = FallbackDatabaseService()
+    database_service = _FallbackDatabaseService()
+    logger.info("Database service module imported (lazy initialization). Call initialize_database_for_tests() to create schema.")
+except Exception as e:
+    # Extremely defensive fallback
+    logger.error(f"Database module import fallback failed: {e}")
+    database_service = None
+
+
+def initialize_database_for_tests(create_if_missing: bool = True) -> DatabaseService:
+    """Initialize the DatabaseService and create tables (for tests or explicit initialization).
+
+    Args:
+        create_if_missing: If True, call create_tables() before returning service.
+
+    Returns:
+        DatabaseService: initialized service instance bound to module-level engine.
+    """
+    global database_service
+
+    try:
+        svc = DatabaseService()
+        if create_if_missing:
+            create_tables()
+        database_service = svc
+        logger.info("Database service initialized via initialize_database_for_tests()")
+        return svc
+    except Exception as e:
+        logger.error(f"Failed to initialize database service: {e}")
+        raise

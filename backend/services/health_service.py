@@ -221,9 +221,49 @@ class HealthService:
     
     async def compute_health(self) -> HealthStatusResponse:
         """Compute comprehensive system health status"""
-        components = await self.get_component_statuses()
+        try:
+            components = await self.get_component_statuses()
+        except asyncio.TimeoutError:
+            # Component checks timed out; return degraded components envelope
+            components = {
+                "websocket": ComponentHealth(
+                    status="degraded",
+                    last_check=datetime.now(timezone.utc).isoformat(),
+                    details={"error": "Health check timeout"}
+                ),
+                "cache": ComponentHealth(
+                    status="degraded",
+                    last_check=datetime.now(timezone.utc).isoformat(),
+                    details={"error": "Health check timeout"}
+                ),
+                "model_inference": ComponentHealth(
+                    status="degraded",
+                    last_check=datetime.now(timezone.utc).isoformat(),
+                    details={"error": "Health check timeout"}
+                ),
+            }
+        except Exception as e:
+            # Unexpected error while gathering component statuses - mark components unknown
+            components = {
+                "websocket": ComponentHealth(
+                    status="unknown",
+                    last_check=datetime.now(timezone.utc).isoformat(),
+                    details={"error": str(e)}
+                ),
+                "cache": ComponentHealth(
+                    status="unknown",
+                    last_check=datetime.now(timezone.utc).isoformat(),
+                    details={"error": str(e)}
+                ),
+                "model_inference": ComponentHealth(
+                    status="unknown",
+                    last_check=datetime.now(timezone.utc).isoformat(),
+                    details={"error": str(e)}
+                ),
+            }
+
         overall_status = self.determine_overall_status(components)
-        
+
         return HealthStatusResponse(
             status=overall_status,
             uptime_seconds=self.get_uptime_seconds(),
@@ -245,7 +285,7 @@ async def get_health_status() -> HealthStatusResponse:
 
 
 # Legacy compatibility function
-def get_simple_health() -> Dict[str, Union[str, bool]]:
+def get_simple_health() -> Dict[str, Any]:
     """Simple health check for legacy compatibility"""
     return {
         "status": "ok",

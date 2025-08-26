@@ -1,7 +1,6 @@
 import pytest
 
-# Ensure pytest-asyncio plugin is available for async tests collected under tests/llm
-pytest_plugins = ["pytest_asyncio"]
+# Use FastAPI TestClient in backend tests when needed
 from fastapi.testclient import TestClient
 
 
@@ -21,6 +20,9 @@ from unittest.mock import MagicMock, patch
 import os
 import pytest
 from sqlmodel import SQLModel
+
+# Note: `pytest_plugins` must be declared only in the top-level `tests/conftest.py`.
+# Do not declare `pytest_plugins` in subpackage conftest files.
 
 # Force tests to use an in-memory SQLite database to avoid persistent DB conflicts
 # Set this before importing backend.database (which reads DATABASE_URL at import time)

@@ -188,6 +188,10 @@ class ProviderRegistry:
                     active[name] = provider
                     
         return active
+
+    def get_all_providers(self) -> Dict[str, BaseMarketDataProvider]:
+        """Return a copy of all registered providers (compatibility helper)."""
+        return self._providers.copy()
         
     def get_enabled_providers(self, sport: Optional[str] = None) -> Dict[str, BaseMarketDataProvider]:
         """Get all enabled providers (regardless of health), optionally filtered by sport"""
@@ -434,6 +438,11 @@ def get_active_providers(sport: Optional[str] = None) -> Dict[str, BaseMarketDat
     return provider_registry.get_active_providers(sport)
 
 
+def get_all_providers() -> Dict[str, BaseMarketDataProvider]:
+    """Compatibility helper used by tests: return all registered providers."""
+    return provider_registry.get_all_providers()
+
+
 def enable_provider(name: str, sport: Optional[str] = None) -> None:
     """Enable provider in global registry"""
     provider_registry.enable_provider(name, sport)
@@ -442,3 +451,16 @@ def enable_provider(name: str, sport: Optional[str] = None) -> None:
 def disable_provider(name: str, sport: Optional[str] = None) -> None:
     """Disable provider in global registry"""
     provider_registry.disable_provider(name, sport)
+
+
+# Public exports for tests and callers
+__all__ = [
+    "ProviderRegistry",
+    "provider_registry",
+    "register_provider",
+    "get_provider",
+    "get_active_providers",
+    "get_all_providers",
+    "enable_provider",
+    "disable_provider",
+]

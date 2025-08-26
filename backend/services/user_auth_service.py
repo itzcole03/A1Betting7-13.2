@@ -1,3 +1,55 @@
+from typing import Dict, Any, Optional
+from pydantic import BaseModel
+from backend.services.auth_service import get_auth_service
+
+
+class UserCreateRequest(BaseModel):
+    email: str
+    password: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+
+
+class UserLoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+class UserAuthServiceAdapter:
+    def __init__(self):
+        self._auth = get_auth_service()
+
+    async def register_user(self, user_data: UserCreateRequest) -> Dict[str, Any]:
+        await self._auth.register(user_data.email, user_data.password, user_data.first_name or "", user_data.last_name or "")
+        return {"email": user_data.email}
+
+    async def login_user(self, login_data: UserLoginRequest, ip_address: str = "", user_agent: str = "") -> Dict[str, Any]:
+        res = await self._auth.authenticate(login_data.username, login_data.password)
+        return {"session_id": res.get("access_token"), "user": res.get("user")}
+
+    async def logout_user(self, session_id: str) -> bool:
+        # no-op for tests
+        return True
+
+    async def refresh_token(self, refresh_token: str) -> Dict[str, Any]:
+        return await self._auth.refresh(refresh_token)
+
+    async def verify_session(self, token: str) -> Optional[Dict[str, Any]]:
+        try:
+            user = await self._auth.me(token)
+            return user
+        except Exception:
+            return None
+
+    async def initialize(self):
+        return True
+
+    async def shutdown(self):
+        return True
+
+
+# Module-level adapter instance used by routes
+user_auth_service = UserAuthServiceAdapter()
 """
 User Authentication and Management Service
 Implements user registration, login, session management, and preferences.

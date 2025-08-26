@@ -36,7 +36,11 @@ class RedisCacheService:
     """High-performance Redis caching service for A1Betting API endpoints."""
     
     def __init__(self):
-        self.redis_client: Optional[aioredis.Redis] = None
+        try:
+            import aioredis
+        except Exception:  # pragma: no cover - use shim when aioredis not installed in test env
+            aioredis = None
+            from backend.services.shims.redis_shim import RedisClientShim
         self.settings = get_settings()
         self._connection_retries = 3
         self._retry_delay = 1.0

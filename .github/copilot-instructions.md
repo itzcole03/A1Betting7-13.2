@@ -1,77 +1,79 @@
 ```markdown
-# A1Betting — Copilot Instructions (concise)
+# A1Betting — Copilot Instructions (practical)
 
-Purpose: give AI coding agents the exact, discoverable patterns and commands needed
-to make small, safe, reversible changes in this repository.
+Purpose: help an AI coding agent make small, safe, and testable edits fast.
 
 Quick rules
-- **Backend work:** run commands from repository root (`A1Betting7-13.2/`).
-- **Frontend work:** cd into `frontend/` for Vite dev, tests and type-checks.
-- **Ports:** backend 8000 (required), frontend 5173 (Vite proxy → 8000).
+- Backend work: run from repo root (`A1Betting7-13.2/`).
+- Frontend work: run from `frontend/` (Vite dev, tests, type-check).
+- Ports: backend 8000, frontend 5173 (Vite proxy → backend).
+
+# A1Betting — Copilot Instructions (concise, actionable)
+
+Purpose: give an AI coding agent the exact, discoverable patterns and commands
+needed to make small, safe, and testable edits quickly in this repo.
+
+Quick rules
+- Backend work: run from the repository root (`A1Betting7-13.2/`).
+- Frontend work: run from `frontend/` (Vite dev, tests, type-check).
+- Ports: backend 8000 (required), frontend 5173 (Vite proxy → backend).
 
 Essential commands
 ```pwsh
-# From repo root (backend)
-python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
-pytest --verbose --tb=short
+# Backend (from repo root)
+C:/path/to/python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+C:/path/to/python -m pytest --verbose --tb=short
 
-# From frontend/
-npm run dev
-npm run type-check   # tsc -p tsconfig.app.json --noEmit
-npm run test         # runs Jest
-```
-
-Project-specific patterns (do not skip)
-- **Directory discipline**: many scripts assume CWD — follow Quick rules above.
-- **Unified services**: prefer `backend/services/unified_*` over ad-hoc clients.
-  Example: `unified_data_fetcher`, `unified_cache_service`, `unified_error_handler`.
-- **Frontend registry**: use `MasterServiceRegistry.getInstance()` for shared services.
-- **Virtualization threshold**: components auto-virtualize for lists >100 items
-  (see `frontend/src/components/lists/VirtualizedPropList.tsx`).
-- **Always pass sport context** when mapping props: `mapToFeaturedProps(props, sport)`.
-
-Testing & TypeScript guidance
-- Make minimal edits and run `cd frontend && npm run type-check` after changes.
-- For small local TS issues, prefer narrow call-site casts instead of global anys.
-- Use Jest fake timers carefully in tests that assert precise ordering (see
-  `frontend/src/websocket/__tests__/WebSocketManager.test.ts` for an example).
-
-Integration & important files
-- PropFinder API: `GET /api/propfinder/opportunities` — route: `backend/routes/propfinder_routes.py`;
-  service: `backend/services/simple_propfinder_service.py`.
-- Frontend dashboard: `frontend/src/components/dashboard/PropFinderDashboard.tsx` and
-  `frontend/src/hooks/usePropFinderData.tsx`.
-- WebSocket behavior: `frontend/src/websocket/WebSocketManager.ts` and `BackoffStrategy.ts` —
-  tests are timing-sensitive and use a test-only hook (`testDelayBeforeAttemptMs`).
-
-When to ask for human review
-- Changes touching `backend/main.py`, DB migrations, API schemas, ML model code, or
-  adding native system dependencies (Torch, etc.) require human sign-off.
-
-If uncertain, quick checks
-- Health: `curl http://127.0.0.1:8000/health` should return `{"status":"healthy"}`.
-- PropFinder endpoint: `curl -s "http://127.0.0.1:8000/api/propfinder/opportunities" | head -c 500`
-
-If something here is unclear or you want deeper guidance (registry adapters,
-PropFinder dataflow, or ML fallbacks), ask which section to expand.
-
----
-<!-- EOF -->
-``````markdown
-# A1Betting — AI Agent Onboarding (concise)
-
-Purpose: give AI coding agents the exact, discoverable patterns and commands they need to make safe, small, reversible changes.
-
-**Quick rules (must follow)**
-- Backend commands: run from project root (`A1Betting7-13.2/`).
-- Frontend commands: run from `frontend/` (Vite dev server, type-check, tests).
-- Ports: backend 8000 (required), frontend 5173 (Vite proxy to 8000).
-
-**Essential commands**
-```pwsh
+# Frontend (from frontend/)
 # From repo root (backend work)
 python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 pytest --verbose --tb=short
+
+```
+
+Project-specific patterns (do this)
+- Directory discipline: many scripts assume exact CWD. Use project root for backend commands and `frontend/` for frontend tasks.
+- Prefer unified services in `backend/services/unified_*` (fetcher, cache, logging, error_handler). They are backwards-compatible and expected by many callers.
+- Use lazy imports for heavy optional deps (torch, xgboost, etc.) and provide graceful fallbacks.
+- Tests set `TESTING` / `DATABASE_URL` early in `tests/conftest*.py`. Avoid import-time DB connections.
+- There are lightweight route shims for legacy endpoints in `backend/routes/` — when tests import routers, ensure you edit the module that `tests` include (import-time ordering matters).
+
+Key files to inspect for most edits
+- `backend/core/app.py` — app factory & central route registration
+- `backend/main.py` — dev entrypoint used by uvicorn and some tests
+- `backend/services/` — unified services and feature services (look for `unified_*`)
+- `backend/routes/` — route modules (tests often include routers directly)
+- `tests/conftest.py`, `tests/conftest_db.py` — test fixtures (AsyncClient/TestClient, DB env)
+- `frontend/src/hooks/usePropFinderData.tsx` and `frontend/src/components/dashboard/PropFinderDashboard.tsx`
+
+Testing & editing guidance (practical)
+- When changing imports or adding dependencies that tests touch, run a focused pytest collection quickly:
+  - `cd A1Betting7-13.2` then `C:/path/to/python -m pytest tests/test_health_endpoint.py -q`
+- If tests error during collection with ModuleNotFoundError, either:
+  1) add a guarded import (try/except),
+  2) add a lightweight shim module under `backend/services/`, or
+  3) install the missing minimal dependency into the venv.
+- Tests use `httpx.AsyncClient(app=...)` or `TestClient`; preserve both code paths when possible.
+
+Patterns & quick examples
+- Lazy import guard (use everywhere for optional ML libs):
+```py
+try:
+    import xgboost
+    XGB_AVAILABLE = True
+except Exception:
+    XGB_AVAILABLE = False
+```
+- Route shim example: `backend/routes/__init__.py` implements a small lazy loader used by tests.
+
+When to ask a human
+- Any change touching `backend/main.py`, DB migrations, API schemas/models, ML model code, or introducing native system deps (torch, xgboost) — stop and ask for review.
+
+Quick checks (sanity)
+- Health: `curl http://127.0.0.1:8000/api/diagnostics/health`
+- PropFinder: `curl -s "http://127.0.0.1:8000/api/propfinder/opportunities" | head -c 500`
+
+If you want, I can expand this file with additional examples (service registry usage, unified cache patterns, or TypeScript type-workflows). Tell me which area to expand.
 
 # From frontend/
 npm run dev

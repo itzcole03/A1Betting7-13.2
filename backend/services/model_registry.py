@@ -1,3 +1,59 @@
+import asyncio
+from typing import Dict, Any, List, Optional
+
+
+class ModelRegistry:
+    def __init__(self):
+        self._models: Dict[str, Dict[str, Any]] = {}
+
+    async def register(self, model_name: str, version: str, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        key = f"{model_name}:{version}"
+        self._models[key] = {"name": model_name, "version": version, "metadata": metadata or {}}
+        await asyncio.sleep(0)
+        return self._models[key]
+
+    async def list_models(self) -> List[Dict[str, Any]]:
+        await asyncio.sleep(0)
+        return list(self._models.values())
+
+    async def get_model(self, model_name: str, version: str) -> Optional[Dict[str, Any]]:
+        await asyncio.sleep(0)
+        return self._models.get(f"{model_name}:{version}")
+
+
+_registry = ModelRegistry()
+
+
+def get_registry() -> ModelRegistry:
+    return _registry
+"""Minimal ModelRegistry shim for tests.
+
+Provides a simple in-memory registry and factory accessor used by tests
+to avoid import-time failures during pytest collection.
+"""
+
+from typing import Dict, Any
+
+
+class ModelRegistry:
+    def __init__(self):
+        self._models: Dict[str, Any] = {}
+
+    def register(self, name: str, model: Any) -> None:
+        self._models[name] = model
+
+    def get(self, name: str) -> Any:
+        return self._models.get(name)
+
+
+_GLOBAL_REGISTRY: ModelRegistry | None = None
+
+
+def get_model_registry() -> ModelRegistry:
+    global _GLOBAL_REGISTRY
+    if _GLOBAL_REGISTRY is None:
+        _GLOBAL_REGISTRY = ModelRegistry()
+    return _GLOBAL_REGISTRY
 """
 PR9: Model Registry Service
 

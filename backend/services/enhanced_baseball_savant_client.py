@@ -77,9 +77,19 @@ class EnhancedBaseballSavantClient:
             self.transformer = None
             logger.info("📊 Enhanced client initialized with parallel processing DISABLED")
 
-    async def _get_redis(self) -> redis.Redis:
-        """Get Redis connection for caching."""
-        return await redis.from_url(REDIS_URL)
+    async def _get_redis(self):
+        """Get Redis connection for caching.
+
+        Falls back to an in-memory shim when redis/aioredis is not available
+        (useful for tests and CI).
+        """
+        try:
+            import redis.asyncio as aioredis
+            return await aioredis.from_url(REDIS_URL)
+        except Exception:
+            # Fallback to in-memory shim
+            from backend.services.shims.redis_shim import RedisClientShim
+            return RedisClientShim()
 
     async def get_all_active_players(self) -> List[Dict[str, Any]]:
         """

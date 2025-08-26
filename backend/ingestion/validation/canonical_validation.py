@@ -153,9 +153,11 @@ async def _test_payout_normalization(validation_results: Dict[str, Any]):
                 if not payout_schema.is_canonical_format:
                     raise ValidationError("Payout schema not in canonical format")
                 
+                variant_obj = getattr(payout_schema, 'variant_code', None)
+                variant_val = variant_obj.value if variant_obj is not None else None
                 test_result["details"][f"case_{i}_{case['provider']}"] = {
                     "passed": True,
-                    "variant": payout_schema.variant_code.value,
+                    "variant": variant_val,
                     "over_multiplier": payout_schema.over_multiplier,
                     "under_multiplier": payout_schema.under_multiplier
                 }

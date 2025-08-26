@@ -126,7 +126,6 @@ class TestIntentionalDriftInjection:
         # Construct correlation matrix with problematic eigenvalues
         degraded_matrix = Q @ np.diag(eigenvalues) @ Q.T
         degraded_matrix = (degraded_matrix + degraded_matrix.T) / 2
-        np.fill_diagonal(degraded_matrix, 1.0)
         
         result = drift_test_suite.drift_monitor.validate_correlation_matrix(
             degraded_matrix, "intentional_eigenvalue_degradation"

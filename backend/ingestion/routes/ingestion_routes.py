@@ -6,8 +6,9 @@ Provides endpoints for manual execution and status monitoring.
 """
 
 import logging
-from typing import Optional
+from typing import Optional, Union
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Body
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from ..pipeline import run_nba_ingestion
@@ -35,7 +36,7 @@ class IngestionResponse(BaseModel):
 
 @router.post(
     "/nba/run",
-    response_model=IngestionResponse,
+    response_model=None,
     summary="Run NBA Data Ingestion",
     description="""
     Execute the NBA data ingestion pipeline to fetch, normalize, and persist
@@ -53,7 +54,7 @@ class IngestionResponse(BaseModel):
 )
 async def run_nba_ingestion_endpoint(
     request: IngestionRequest = Body(default=IngestionRequest(limit=None, allow_upsert=True))
-) -> IngestionResponse:
+) -> Union[dict, JSONResponse]:
     """
     Run NBA ingestion pipeline.
     
@@ -79,45 +80,26 @@ async def run_nba_ingestion_endpoint(
             allow_upsert=request.allow_upsert
         )
         
-        # Determine response based on result status
-        if result.status == "success":
-            response = IngestionResponse(
-                success=True,
-                message=f"NBA ingestion completed successfully. Processed {result.total_raw} props with {result.total_line_changes} changes.",
-                result=result
-            )
-            logger.info(f"NBA ingestion successful: {result.total_raw} props, {result.total_line_changes} changes")
-        
-        elif result.status == "partial":
-            response = IngestionResponse(
-                success=True,
-                message=f"NBA ingestion completed with {len(result.errors)} errors. Processed {result.total_raw} props with {result.total_line_changes} changes.",
-                result=result
-            )
-            logger.warning(f"NBA ingestion partial: {result.total_raw} props, {len(result.errors)} errors")
-        
-        else:  # failed
-            response = IngestionResponse(
-                success=False,
-                message=f"NBA ingestion failed. {len(result.errors)} errors encountered.",
-                result=result,
-                error=f"Ingestion status: {result.status}"
-            )
-            logger.error(f"NBA ingestion failed: {len(result.errors)} errors")
-        
-        return response
+        # Return the raw IngestResult dictionary so tests and clients
+        # receive the full result payload at top-level.
+        logger.info(f"NBA ingestion completed with status={result.status}: {result.total_raw} props, {result.total_line_changes} changes")
+        return result.dict()
     
     except Exception as e:
         logger.error(f"NBA ingestion endpoint error: {e}", exc_info=True)
-        raise HTTPException(
+        # Return error payload matching test expectations with HTTP 500
+        return JSONResponse(
             status_code=500,
-            detail=f"NBA ingestion failed with unexpected error: {str(e)}"
+            content={
+                "error": str(e),
+                "message": f"NBA ingestion failed with unexpected error: {str(e)}"
+            }
         )
 
 
 @router.post(
-    "/nba/run-async", 
-    response_model=dict,
+    "/nba/run-async",
+    response_model=None,
     summary="Run NBA Data Ingestion (Background)",
     description="""
     Execute the NBA data ingestion pipeline as a background task.

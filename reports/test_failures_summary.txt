@@ -1,0 +1,376 @@
+Pytest failure summary
+======================
+
+Total failed/error tests discovered: 251
+Unique test files with failures: 29
+
+Top failing files (by count):
+- tests/security/test_security_headers.py: 25
+- tests/statistical/test_statistical_verification_suite.py: 22
+- tests/backend/routes/test_mlb_extras.py: 19
+- tests/security/test_security_headers_core.py: 18
+- tests/test_streaming_system.py: 17
+- tests/backend/routes/test_enhanced_ml_routes.py: 17
+- backend.errors.catalog: 15
+- tests/backend/routes/test_multiple_sportsbook_routes.py: 14
+- tests/backend/routes/test_prediction_engine_routes.py: 13
+- tests/test_phase2_performance_optimization.py: 13
+- tests/test_streaming_integration.py: 12
+- tests/backend/routes/test_auth_routes.py: 6
+- tests/ingestion/test_prop_mapper.py: 6
+- tests/stabilization/test_stabilization_matrix.py: 6
+- tests/backend/routes/test_portfolio_optimization_routes.py: 5
+- tests/ingestion/test_nba_ingestion_pipeline.py: 5
+- tests/statistical/test_drift_injection.py: 5
+- tests/test_streaming_performance.py: 5
+- nba_ingestion_pipeline: 4
+- tests/ingestion/test_ingestion_endpoints.py: 4
+- tests/rate_limit/test_rate_limit_basic.py: 3
+- tests/test_health_endpoint.py: 3
+- tests/test_reliability_endpoint.py: 3
+- statistical.test_monte_carlo_deterministic: 2
+- tests/errors/test_error_taxonomy.py: 2
+- tests/ingestion/test_taxonomy_service.py: 2
+- tests/security/test_security_headers_basic.py: 2
+- tests/stabilization/test_health_aliases.py: 2
+- backend.ingestion.routes.ingestion_routes: 1
+
+Detailed per-file lists:
+
+File: tests/security/test_security_headers.py - 25 failures
+------------------------------------------------------------
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+tests/security/test_security_headers.py
+
+File: tests/statistical/test_statistical_verification_suite.py - 22 failures
+------------------------------------------------------------
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+tests/statistical/test_statistical_verification_suite.py
+
+File: tests/backend/routes/test_mlb_extras.py - 19 failures
+------------------------------------------------------------
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+tests/backend/routes/test_mlb_extras.py
+
+File: tests/security/test_security_headers_core.py - 18 failures
+------------------------------------------------------------
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+tests/security/test_security_headers_core.py
+
+File: tests/test_streaming_system.py - 17 failures
+------------------------------------------------------------
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+tests/test_streaming_system.py
+
+File: tests/backend/routes/test_enhanced_ml_routes.py - 17 failures
+------------------------------------------------------------
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+tests/backend/routes/test_enhanced_ml_routes.py
+
+File: backend.errors.catalog - 15 failures
+------------------------------------------------------------
+backend.errors.catalog
+backend.errors.catalog
+backend.errors.catalog
+backend.errors.catalog
+backend.errors.catalog
+backend.errors.catalog
+backend.errors.catalog
+backend.errors.catalog
+backend.errors.catalog
+backend.errors.catalog
+backend.errors.catalog
+backend.errors.catalog
+backend.errors.catalog
+backend.errors.catalog
+backend.errors.catalog
+
+File: tests/backend/routes/test_multiple_sportsbook_routes.py - 14 failures
+------------------------------------------------------------
+tests/backend/routes/test_multiple_sportsbook_routes.py
+tests/backend/routes/test_multiple_sportsbook_routes.py
+tests/backend/routes/test_multiple_sportsbook_routes.py
+tests/backend/routes/test_multiple_sportsbook_routes.py
+tests/backend/routes/test_multiple_sportsbook_routes.py
+tests/backend/routes/test_multiple_sportsbook_routes.py
+tests/backend/routes/test_multiple_sportsbook_routes.py
+tests/backend/routes/test_multiple_sportsbook_routes.py
+tests/backend/routes/test_multiple_sportsbook_routes.py
+tests/backend/routes/test_multiple_sportsbook_routes.py
+tests/backend/routes/test_multiple_sportsbook_routes.py
+tests/backend/routes/test_multiple_sportsbook_routes.py
+tests/backend/routes/test_multiple_sportsbook_routes.py
+tests/backend/routes/test_multiple_sportsbook_routes.py
+
+File: tests/backend/routes/test_prediction_engine_routes.py - 13 failures
+------------------------------------------------------------
+tests/backend/routes/test_prediction_engine_routes.py
+tests/backend/routes/test_prediction_engine_routes.py
+tests/backend/routes/test_prediction_engine_routes.py
+tests/backend/routes/test_prediction_engine_routes.py
+tests/backend/routes/test_prediction_engine_routes.py
+tests/backend/routes/test_prediction_engine_routes.py
+tests/backend/routes/test_prediction_engine_routes.py
+tests/backend/routes/test_prediction_engine_routes.py
+tests/backend/routes/test_prediction_engine_routes.py
+tests/backend/routes/test_prediction_engine_routes.py
+tests/backend/routes/test_prediction_engine_routes.py
+tests/backend/routes/test_prediction_engine_routes.py
+tests/backend/routes/test_prediction_engine_routes.py
+
+File: tests/test_phase2_performance_optimization.py - 13 failures
+------------------------------------------------------------
+tests/test_phase2_performance_optimization.py
+tests/test_phase2_performance_optimization.py
+tests/test_phase2_performance_optimization.py
+tests/test_phase2_performance_optimization.py
+tests/test_phase2_performance_optimization.py
+tests/test_phase2_performance_optimization.py
+tests/test_phase2_performance_optimization.py
+tests/test_phase2_performance_optimization.py
+tests/test_phase2_performance_optimization.py
+tests/test_phase2_performance_optimization.py
+tests/test_phase2_performance_optimization.py
+tests/test_phase2_performance_optimization.py
+tests/test_phase2_performance_optimization.py
+
+File: tests/test_streaming_integration.py - 12 failures
+------------------------------------------------------------
+tests/test_streaming_integration.py
+tests/test_streaming_integration.py
+tests/test_streaming_integration.py
+tests/test_streaming_integration.py
+tests/test_streaming_integration.py
+tests/test_streaming_integration.py
+tests/test_streaming_integration.py
+tests/test_streaming_integration.py
+tests/test_streaming_integration.py
+tests/test_streaming_integration.py
+tests/test_streaming_integration.py
+tests/test_streaming_integration.py
+
+File: tests/backend/routes/test_auth_routes.py - 6 failures
+------------------------------------------------------------
+tests/backend/routes/test_auth_routes.py
+tests/backend/routes/test_auth_routes.py
+tests/backend/routes/test_auth_routes.py
+tests/backend/routes/test_auth_routes.py
+tests/backend/routes/test_auth_routes.py
+tests/backend/routes/test_auth_routes.py
+
+File: tests/ingestion/test_prop_mapper.py - 6 failures
+------------------------------------------------------------
+tests/ingestion/test_prop_mapper.py
+tests/ingestion/test_prop_mapper.py
+tests/ingestion/test_prop_mapper.py
+tests/ingestion/test_prop_mapper.py
+tests/ingestion/test_prop_mapper.py
+tests/ingestion/test_prop_mapper.py
+
+File: tests/stabilization/test_stabilization_matrix.py - 6 failures
+------------------------------------------------------------
+tests/stabilization/test_stabilization_matrix.py
+tests/stabilization/test_stabilization_matrix.py
+tests/stabilization/test_stabilization_matrix.py
+tests/stabilization/test_stabilization_matrix.py
+tests/stabilization/test_stabilization_matrix.py
+tests/stabilization/test_stabilization_matrix.py
+
+File: tests/backend/routes/test_portfolio_optimization_routes.py - 5 failures
+------------------------------------------------------------
+tests/backend/routes/test_portfolio_optimization_routes.py
+tests/backend/routes/test_portfolio_optimization_routes.py
+tests/backend/routes/test_portfolio_optimization_routes.py
+tests/backend/routes/test_portfolio_optimization_routes.py
+tests/backend/routes/test_portfolio_optimization_routes.py
+
+File: tests/ingestion/test_nba_ingestion_pipeline.py - 5 failures
+------------------------------------------------------------
+tests/ingestion/test_nba_ingestion_pipeline.py
+tests/ingestion/test_nba_ingestion_pipeline.py
+tests/ingestion/test_nba_ingestion_pipeline.py
+tests/ingestion/test_nba_ingestion_pipeline.py
+tests/ingestion/test_nba_ingestion_pipeline.py
+
+File: tests/statistical/test_drift_injection.py - 5 failures
+------------------------------------------------------------
+tests/statistical/test_drift_injection.py
+tests/statistical/test_drift_injection.py
+tests/statistical/test_drift_injection.py
+tests/statistical/test_drift_injection.py
+tests/statistical/test_drift_injection.py
+
+File: tests/test_streaming_performance.py - 5 failures
+------------------------------------------------------------
+tests/test_streaming_performance.py
+tests/test_streaming_performance.py
+tests/test_streaming_performance.py
+tests/test_streaming_performance.py
+tests/test_streaming_performance.py
+
+File: tests/ingestion/test_ingestion_endpoints.py - 4 failures
+------------------------------------------------------------
+tests/ingestion/test_ingestion_endpoints.py
+tests/ingestion/test_ingestion_endpoints.py
+tests/ingestion/test_ingestion_endpoints.py
+tests/ingestion/test_ingestion_endpoints.py
+
+File: nba_ingestion_pipeline - 4 failures
+------------------------------------------------------------
+nba_ingestion_pipeline
+nba_ingestion_pipeline
+nba_ingestion_pipeline
+nba_ingestion_pipeline
+
+File: tests/rate_limit/test_rate_limit_basic.py - 3 failures
+------------------------------------------------------------
+tests/rate_limit/test_rate_limit_basic.py
+tests/rate_limit/test_rate_limit_basic.py
+tests/rate_limit/test_rate_limit_basic.py
+
+File: tests/test_health_endpoint.py - 3 failures
+------------------------------------------------------------
+tests/test_health_endpoint.py
+tests/test_health_endpoint.py
+tests/test_health_endpoint.py
+
+File: tests/test_reliability_endpoint.py - 3 failures
+------------------------------------------------------------
+tests/test_reliability_endpoint.py
+tests/test_reliability_endpoint.py
+tests/test_reliability_endpoint.py
+
+File: tests/errors/test_error_taxonomy.py - 2 failures
+------------------------------------------------------------
+tests/errors/test_error_taxonomy.py
+tests/errors/test_error_taxonomy.py
+
+File: tests/ingestion/test_taxonomy_service.py - 2 failures
+------------------------------------------------------------
+tests/ingestion/test_taxonomy_service.py
+tests/ingestion/test_taxonomy_service.py
+
+File: tests/security/test_security_headers_basic.py - 2 failures
+------------------------------------------------------------
+tests/security/test_security_headers_basic.py
+tests/security/test_security_headers_basic.py
+
+File: tests/stabilization/test_health_aliases.py - 2 failures
+------------------------------------------------------------
+tests/stabilization/test_health_aliases.py
+tests/stabilization/test_health_aliases.py
+
+File: statistical.test_monte_carlo_deterministic - 2 failures
+------------------------------------------------------------
+statistical.test_monte_carlo_deterministic
+statistical.test_monte_carlo_deterministic
+
+File: backend.ingestion.routes.ingestion_routes - 1 failures
+------------------------------------------------------------
+backend.ingestion.routes.ingestion_routes

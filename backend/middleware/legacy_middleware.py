@@ -61,6 +61,15 @@ class LegacyMiddleware(BaseHTTPMiddleware):
         
         # Enhanced ML routes (prefix-based)
         self.registry.register_legacy("/api/enhanced-ml", "/api/v2/ml")
+        # More specific enhanced-ml compatibility forwards expected by legacy clients/tests
+        self.registry.register_legacy("/api/enhanced-ml/performance/metrics", "/api/enhanced-ml/performance/metrics")
+        self.registry.register_legacy("/api/enhanced-ml/performance/update-outcome", "/api/enhanced-ml/performance/update-outcome")
+        self.registry.register_legacy("/api/enhanced-ml/models/compare", "/api/enhanced-ml/models/compare")
+        # Register concrete paths to avoid auto-registration of dynamic paths
+        self.registry.register_legacy("/api/enhanced-ml/models/list", "/api/enhanced-ml/models/list")
+        # Register a prefix-based entry so concrete model ids are associated with a forward path
+        self.registry.register_legacy("/api/enhanced-ml/models/", "/api/enhanced-ml/models/")
+        self.registry.register_legacy("/api/enhanced-ml/status", "/api/enhanced-ml/status")
         
         # Development endpoints
         self.registry.register_legacy("/dev/mode", "/api/v2/diagnostics/system")
@@ -163,18 +172,29 @@ class LegacyMiddleware(BaseHTTPMiddleware):
             
             # Track usage for enabled legacy endpoints
             self.registry.increment_usage(path)
-            
+
+            # (diagnostics removed) continue with normal legacy handling
+
             # Annotate request for downstream logging
             request.state.legacy = True
             request.state.legacy_path = path
-            
+
             # Get forwarding path safely
             endpoint_data = self.registry._data.get(path)
             request.state.legacy_forward = endpoint_data.forward if endpoint_data else None
-            
+
             # Log usage with safe count access
             count = endpoint_data.count if endpoint_data else 0
             logger.info(f"Legacy endpoint accessed: {method} {path} (count: {count})")
+
+            # Diagnostic logging: capture registry entry and forwarded target
+            try:
+                logger.info(
+                    f"Legacy registry entry: path={path}, forward={request.state.legacy_forward}, entry={endpoint_data}"
+                )
+            except Exception:
+                # Don't raise from logging in middleware; best-effort only
+                logger.debug("Failed to serialize legacy registry entry for diagnostics")
         else:
             # Mark as non-legacy for logging consistency
             request.state.legacy = False
