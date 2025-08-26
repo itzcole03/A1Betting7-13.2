@@ -18,6 +18,7 @@ import time
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 try:
@@ -132,10 +133,12 @@ router = APIRouter(prefix="/api/enhanced-ml", tags=["Enhanced-ML"])
 # Request/Response Models
 class PredictionRequest(BaseModel):
     """Single prediction request"""
-    request_id: str = Field(..., description="Unique request identifier")
-    event_id: str = Field(..., description="Event/game identifier")
+    # Make identifiers optional for backward-compatible lightweight payloads
+    request_id: Optional[str] = Field(None, description="Unique request identifier")
+    event_id: Optional[str] = Field(None, description="Event/game identifier")
     sport: str = Field(..., description="Sport type (e.g., MLB, NBA)")
-    bet_type: str = Field(..., description="Type of bet (e.g., over_under, moneyline)")
+    # Allow legacy clients to omit bet_type; default to a safe placeholder
+    bet_type: Optional[str] = Field("unknown", description="Type of bet (e.g., over_under, moneyline)")
     features: Dict[str, float] = Field(..., description="Feature dictionary for prediction")
     models: Optional[List[str]] = Field(None, description="Specific models to use")
     priority: int = Field(1, ge=1, le=3, description="Request priority (1=low, 2=medium, 3=high)")
@@ -187,55 +190,71 @@ class ModelComparison(BaseModel):
 async def predict_single(request: PredictionRequest) -> Dict[str, Any]:
     """
     Enhanced single prediction with SHAP explanations and performance logging
+
+    This wrapper preserves FastAPI validation and error behavior, but when the
+    underlying handler (or integration) returns the canonical envelope
+    (e.g. {"success": True, "data": ...}) we convert it to the legacy
+    envelope expected by older clients/tests ("status","result","timestamp").
     """
+    # Delegate to the existing implementation by calling the inner handler
+    # logic defined below in a small helper so we can inspect its return value
     try:
-        # Check Redis cache first
-        cache_service = await get_redis_cache()
-        
-        # Create cache key from request data
-        cache_key_data = {
-            'event_id': request.event_id,
-            'sport': request.sport,
-            'bet_type': request.bet_type,
-            'features': request.features,
-            'models': request.models,
-            'include_explanations': request.include_explanations
-        }
-        
-        # Try to get from cache
-        cached_result = await cache_service.get_prediction_result(cache_key_data)
-        if cached_result:
-            return {
-                "status": "success",
-                "result": cached_result,
-                "timestamp": time.time(),
-                "cache_hit": True
+        # Call into the original implementation logic (kept as a nested helper)
+        async def _impl(req: PredictionRequest):
+            # ...existing implementation logic preserved here...
+            cache_service = await get_redis_cache()
+
+            cache_key_data = {
+                'event_id': req.event_id,
+                'sport': req.sport,
+                'bet_type': req.bet_type,
+                'features': req.features,
+                'models': req.models,
+                'include_explanations': req.include_explanations
             }
-        
-        # Cache miss - execute prediction
-        result = await enhanced_prediction_integration.enhanced_predict_single(
-            request_id=request.request_id,
-            event_id=request.event_id,
-            sport=request.sport,
-            bet_type=request.bet_type,
-            features=request.features,
-            models=request.models,
-            include_explanations=request.include_explanations,
-            priority=request.priority
-        )
-        
-        # Cache the result
-        await cache_service.cache_prediction_result(cache_key_data, result)
-        
-        return {
-            "status": "success",
-            "result": result,
-            "timestamp": time.time(),
-            "cache_hit": False
-        }
-        
+
+            cached_result = await cache_service.get_prediction_result(cache_key_data)
+            if cached_result:
+                return {"status": "success", "result": cached_result, "timestamp": time.time(), "cache_hit": True}
+
+            result = await enhanced_prediction_integration.enhanced_predict_single(
+                request_id=req.request_id,
+                event_id=req.event_id,
+                sport=req.sport,
+                bet_type=req.bet_type,
+                features=req.features,
+                models=req.models,
+                include_explanations=req.include_explanations,
+                priority=req.priority
+            )
+
+            await cache_service.cache_prediction_result(cache_key_data, result)
+
+            return {"status": "success", "result": result, "timestamp": time.time(), "cache_hit": False}
+
+        # Execute implementation and capture result
+        impl_result = await _impl(request)
+
+        # If the implementation already returned the legacy-shaped dict, return it unchanged.
+        if isinstance(impl_result, dict) and ("status" in impl_result or "result" in impl_result):
+            return impl_result
+
+        # If the implementation returned a canonical envelope, convert it to the
+        # legacy envelope expected by these routes/tests: {status, result, timestamp}
+        if isinstance(impl_result, dict) and "success" in impl_result:
+            if impl_result.get("success"):
+                return {"status": "success", "result": impl_result.get("data"), "timestamp": time.time()}
+            else:
+                return {"status": "error", "error": impl_result.get("error", {"message": "An error occurred"}), "timestamp": time.time()}
+
+        # Fallback: wrap raw result into legacy envelope
+        return {"status": "success", "result": impl_result, "timestamp": time.time()}
+
+    except HTTPException:
+        # Preserve HTTPExceptions (status codes, detail field) raised by FastAPI
+        raise
     except Exception as e:
-        logger.error(f"Error in single prediction: {e}")
+        logger.error(f"Error in single prediction wrapper: {e}")
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
 

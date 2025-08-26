@@ -1,12 +1,12 @@
 {
   "suite_summary": {
     "success": true,
-    "timestamp": "2025-08-26T08:36:14.643336",
+    "timestamp": "2025-08-26T09:35:22.921817",
     "total_tests": 12,
     "passed_tests": 12,
     "failed_tests": 0,
     "pass_rate": 1.0,
-    "duration_seconds": 0.021,
+    "duration_seconds": 0.02578,
     "seed_used": 42,
     "categories": {
       "monte_carlo": {
@@ -42,7 +42,7 @@
   "detailed_results": [
     {
       "test_name": "normal_distribution_mc_vs_analytic",
-      "timestamp": "2025-08-26T08:36:14.624336",
+      "timestamp": "2025-08-26T09:35:22.897754",
       "passed": "True",
       "metric_value": 0.003674476700887941,
       "threshold_value": 0.01,
@@ -54,14 +54,14 @@
       "additional_metrics": {
         "critical_divergence_detected": "False",
         "analytic_points_generated": 10000,
-        "sample_mean": -0.0021359833684262055,
+        "sample_mean": -0.0021359833684262116,
         "sample_std": 1.0034122061299875
       },
       "error_message": null
     },
     {
       "test_name": "normal_distribution_mc_vs_analytic",
-      "timestamp": "2025-08-26T08:36:14.624336",
+      "timestamp": "2025-08-26T09:35:22.897754",
       "passed": "True",
       "metric_value": 0.003674476700887941,
       "threshold_value": 0.01,
@@ -73,14 +73,14 @@
       "additional_metrics": {
         "critical_divergence_detected": "False",
         "analytic_points_generated": 10000,
-        "sample_mean": -0.0021359833684262055,
+        "sample_mean": -0.0021359833684262116,
         "sample_std": 1.0034122061299875
       },
       "error_message": null
     },
     {
       "test_name": "exponential_distribution_mc_vs_analytic",
-      "timestamp": "2025-08-26T08:36:14.625337",
+      "timestamp": "2025-08-26T09:35:22.900091",
       "passed": "True",
       "metric_value": 0.013847909257064861,
       "threshold_value": 0.01,
@@ -99,7 +99,7 @@
     },
     {
       "test_name": "exponential_distribution_mc_vs_analytic",
-      "timestamp": "2025-08-26T08:36:14.625337",
+      "timestamp": "2025-08-26T09:35:22.900091",
       "passed": "True",
       "metric_value": 0.013847909257064861,
       "threshold_value": 0.01,
@@ -118,7 +118,7 @@
     },
     {
       "test_name": "beta_distribution_mc_vs_analytic",
-      "timestamp": "2025-08-26T08:36:14.629337",
+      "timestamp": "2025-08-26T09:35:22.903175",
       "passed": "True",
       "metric_value": 0.009229360294874311,
       "threshold_value": 0.01,
@@ -137,7 +137,7 @@
     },
     {
       "test_name": "beta_distribution_mc_vs_analytic",
-      "timestamp": "2025-08-26T08:36:14.629337",
+      "timestamp": "2025-08-26T09:35:22.903175",
       "passed": "True",
       "metric_value": 0.009229360294874311,
       "threshold_value": 0.01,
@@ -156,7 +156,7 @@
     },
     {
       "test_name": "betting_probability_distribution",
-      "timestamp": "2025-08-26T08:36:14.640344",
+      "timestamp": "2025-08-26T09:35:22.914377",
       "passed": "True",
       "metric_value": 0.0063266743408449955,
       "threshold_value": 0.01,
@@ -175,7 +175,7 @@
     },
     {
       "test_name": "correlation_psd_validation_valid_test_matrix",
-      "timestamp": "2025-08-26T08:36:14.640344",
+      "timestamp": "2025-08-26T09:35:22.915054",
       "passed": true,
       "metric_value": 0.6631388770708478,
       "threshold_value": 1e-08,
@@ -210,7 +210,7 @@
     },
     {
       "test_name": "correlation_drift_detection",
-      "timestamp": "2025-08-26T08:36:14.640344",
+      "timestamp": "2025-08-26T09:35:22.915370",
       "passed": true,
       "metric_value": 0.007001073117719123,
       "threshold_value": 0.15,
@@ -230,7 +230,7 @@
     },
     {
       "test_name": "correlation_psd_validation_drift_test_matrix",
-      "timestamp": "2025-08-26T08:36:14.640344",
+      "timestamp": "2025-08-26T09:35:22.915531",
       "passed": true,
       "metric_value": 0.6619786679400911,
       "threshold_value": 1e-08,
@@ -265,7 +265,7 @@
     },
     {
       "test_name": "ci_width_regression_betting_probabilities",
-      "timestamp": "2025-08-26T08:36:14.642340",
+      "timestamp": "2025-08-26T09:35:22.918721",
       "passed": true,
       "metric_value": 0.021834977797160565,
       "threshold_value": 0.05,
@@ -282,15 +282,15 @@
         "ci_lower": 0.0740973750973024,
         "ci_upper": 0.8229985755726189,
         "sample_size": 10000,
-        "sample_mean": 0.4174778279810983,
-        "sample_std": 0.20128395928713935,
+        "sample_mean": 0.4174778279810982,
+        "sample_std": 0.20128395928713938,
         "regression_detected": "False"
       },
       "error_message": null
     },
     {
       "test_name": "ci_width_regression_dispersed_probabilities",
-      "timestamp": "2025-08-26T08:36:14.643336",
+      "timestamp": "2025-08-26T09:35:22.921389",
       "passed": true,
       "metric_value": 0.0,
       "threshold_value": 0.05,
@@ -307,7 +307,7 @@
         "ci_lower": 0.02451953520784671,
         "ci_upper": 0.9769232432551409,
         "sample_size": 10000,
-        "sample_mean": 0.5001238151972119,
+        "sample_mean": 0.5001238151972118,
         "sample_std": 0.2890263228384116,
         "regression_detected": false
       },
