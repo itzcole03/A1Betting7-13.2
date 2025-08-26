@@ -1,4 +1,154 @@
-# A1Betting - Ultimate Sports Intelligence Platform
+# A1Betting — Sports Prop Analytics (PropFinder Clone)
+
+A1Betting is an open-source platform for sports prop research and analytics. It includes a PropFinder-style dashboard, backend prediction services, optional SportRadar integration, and a developer-friendly setup and test workflow.
+
+This README gives a focused, practical guide to getting started, running the app locally, and testing changes.
+
+---
+
+## Quick summary
+
+- Frontend: `frontend/` — React + TypeScript + Vite (dev server runs on `5173`).
+- Backend: `backend/` — FastAPI + Pydantic v2 (dev server runs on `8000`).
+- Tests: backend uses `pytest` (run from repo root). Frontend uses Jest/Playwright under `frontend/`.
+- SportRadar integration is optional and controlled by `SPORTRADAR_API_KEY`.
+
+---
+
+## Quick start (most common)
+
+1. Clone repository and start the frontend (demo mode):
+
+```pwsh
+git clone https://github.com/itzcole03/A1Betting7-13.2.git
+cd A1Betting7-13.2\frontend
+npm install
+npm run dev
+# Open http://localhost:5173
+```
+
+2. (Optional) Start backend (from repository root):
+
+```pwsh
+cd ..\
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+# API docs: http://127.0.0.1:8000/docs
+```
+
+Notes:
+
+- The frontend will operate in demo mode for many features if the backend is not present.
+- Frontend proxies to `http://localhost:8000` by default — keep backend on port `8000` for proxy compatibility.
+
+---
+
+## Backend: useful commands
+
+Run backend dev server (from repo root):
+
+```pwsh
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Run backend tests (from repo root):
+
+```pwsh
+pytest tests/backend/routes -q
+```
+
+Install backend dependencies:
+
+```pwsh
+pip install -r backend/requirements.txt
+```
+
+---
+
+## Frontend: useful commands (from `frontend/`)
+
+```pwsh
+npm install
+npm run dev        # start dev server (http://localhost:5173)
+npm run build      # produce production build
+npm run test       # run Jest tests
+npm run type-check # TypeScript checks
+```
+
+---
+
+## Configuration
+
+Create `backend/.env` to configure optional features. Minimal example:
+
+```env
+SPORTRADAR_API_KEY=your_sportradar_api_key_here
+DATABASE_URL=sqlite:///./a1betting.db
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+The app includes demo fallbacks so you can run many features without external API keys.
+
+---
+
+## Testing notes & best practices
+
+- Run pytest from the repository root to ensure fixtures set environment variables correctly:
+
+```pwsh
+pytest -q
+```
+
+- If tests fail during import with missing optional dependencies, either:
+  1. Install the missing minimal dependency, or
+  2. Add a guarded import at the call site (the codebase uses lazy imports for heavy optional libs).
+
+---
+
+## Important files & locations
+
+- `backend/core/app.py` — app factory, middleware, and route registration (central place to inspect middleware/compat behavior).
+- `backend/routes/` — API routes (see `enhanced_ml_routes.py`, `propfinder_routes.py`).
+- `backend/services/` — unified services (data fetchers, cache, logging, error handling).
+- `frontend/src/components/dashboard/PropFinderDashboard.tsx` — PropFinder-like dashboard.
+
+---
+
+## SportRadar integration
+
+SportRadar is optional. The codebase contains quota-aware clients and demo-mode fallbacks.
+
+Endpoints (examples):
+
+```
+GET /api/v1/sportradar/health
+GET /api/v1/sportradar/quota
+GET /api/v1/sportradar/live/{sport}
+```
+
+Set `SPORTRADAR_API_KEY` in `backend/.env` to enable live SportRadar access.
+
+---
+
+## Contributing
+
+1. Fork and create a feature branch.
+2. Run tests and add unit tests for new behavior.
+3. Keep PRs focused and include a short description and test coverage notes.
+
+Coding guidelines:
+
+- Backend: maintain existing style; run `black` / `mypy` where appropriate.
+- Frontend: follow `npm run type-check` and ESLint rules.
+
+---
+
+## License
+
+MIT — see `LICENSE`.
+
+---
+
+If you'd like, I can add a short developer onboarding checklist file (`DEVELOPER_ONBOARDING.md`) with the exact commands you use daily, or expand this README to include architecture diagrams and endpoint references. Tell me which you prefer and I will add it.# A1Betting - Ultimate Sports Intelligence Platform
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg) ![React](https://img.shields.io/badge/react-19.1.0-blue) ![TypeScript](https://img.shields.io/badge/typescript-5.7.3-blue) ![Build](https://img.shields.io/badge/build-stable-green) ![Status](https://img.shields.io/badge/status-production--ready-brightgreen) ![Vite](https://img.shields.io/badge/vite-7.0.6-blue) ![Phase](https://img.shields.io/badge/phase-4%20complete-success) ![Testing](https://img.shields.io/badge/testing-90%25%2B%20coverage-brightgreen) ![SportRadar](https://img.shields.io/badge/SportRadar-19%20APIs-orange)
 
