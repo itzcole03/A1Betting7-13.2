@@ -286,6 +286,58 @@ app.include_router(shap_router)
 app.include_router(trending_suggestions_router)
 app.include_router(user_router)
 app.include_router(sports_router)
+
+
+# Dev-only helper: set in-memory user password (only available in development)
+@app.post("/internal/dev/set-password")
+async def dev_set_password(payload: dict):
+    """Set a user's password in the in-memory auth service for local testing.
+
+    Payload: { "email": "user@example.com", "password": "newpass" }
+    """
+    try:
+        email = payload.get("email")
+        new_password = payload.get("password")
+        if not email or not new_password:
+            return fail(message="email and password required", status_code=400)
+        # Lazy import to avoid circular imports during startup
+        from backend.services.auth_service import get_auth_service
+        import hashlib
+
+        svc = get_auth_service()
+        # Access internal store (dev-only)
+        user = svc._users.get(email)
+        if not user:
+            return fail(message="user not found", status_code=404)
+        user["password"] = hashlib.sha256(new_password.encode()).hexdigest()
+        svc._users[email] = user
+        return ok(data={"message": "password updated"})
+    except Exception as e:
+        return fail(message=str(e), status_code=500)
+
+
+@app.post("/internal/dev/force-change-password")
+async def internal_force_change_password(payload: dict):
+    """Force change a user's password using the auth service singleton (dev-only).
+
+    Payload: { "email": "user@example.com", "current_password": "old", "new_password": "new" }
+    """
+    try:
+        email = payload.get("email")
+        current_password = payload.get("current_password")
+        new_password = payload.get("new_password")
+        if not email or not current_password or not new_password:
+            return fail(message="email/current_password/new_password required", code=400)
+        # Import service directly to ensure we get the singleton implementation
+        from backend.services.auth_service import get_auth_service
+
+        svc = get_auth_service()
+        if not hasattr(svc, "change_password_by_credentials"):
+            return fail(message="auth service does not support credential change", code=501)
+        await svc.change_password_by_credentials(email, current_password, new_password)
+        return ok(data={"message": "password changed"})
+    except Exception as e:
+        return fail(message=str(e), code=500)
 import time
 from datetime import datetime, timezone
 

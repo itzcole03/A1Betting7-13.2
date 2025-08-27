@@ -79,7 +79,7 @@ class AuthService {
       const _response = await axios.post(
         `${_API_URL}/login`,
         {
-          username: email,
+          email,
           password,
         },
         {

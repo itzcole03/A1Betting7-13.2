@@ -11,29 +11,8 @@
  * - Export-ready visualizations
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
-  BarChart3,
-  LineChart,
-  PieChart,
-  TrendingUp,
-  TrendingDown,
-  Activity,
-  Calendar,
-  Filter,
-  Download,
-  Settings,
-  Zap,
-  Target,
-  DollarSign,
-  Percent,
-  Clock,
-  Award,
-  Maximize2,
-  RefreshCw,
-  Eye,
-  EyeOff
-} from 'lucide-react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { BarChart3, LineChart, TrendingUp, TrendingDown, Activity, Download, Target, Maximize2, Eye } from 'lucide-react';
 
 export interface PerformanceMetric {
   id: string;
@@ -289,37 +268,35 @@ const AdvancedPerformanceCharts: React.FC<AdvancedPerformanceChartsProps> = ({
 
           {/* Chart Visualization */}
           <div className="mb-6">
-            {chartConfig.type === 'line' && (
-              <LineChartVisualization
-                data={chartData}
-                metrics={selectedMetrics}
-                metricConfigs={metrics}
-                config={chartConfig}
-                onHover={setHoveredDataPoint}
-                dimensions={chartDimensions}
-              />
-            )}
-            
-            {chartConfig.type === 'bar' && (
-              <BarChartVisualization
-                data={chartData}
-                metrics={selectedMetrics}
-                metricConfigs={metrics}
-                config={chartConfig}
-                dimensions={chartDimensions}
-              />
-            )}
+            <React.Suspense fallback={<div className="bg-gray-100 p-6 rounded">Loading chart...</div>}>
+              {chartConfig.type === 'line' && (
+                // Dynamically load PlayerPerformanceChart to provide an interactive visualization
+                React.createElement(React.lazy(() => import('./PlayerPerformanceChart')) as any, {
+                  data: chartData,
+                  metrics: selectedMetrics,
+                  metricConfigs: metrics,
+                  height: chartDimensions.height
+                })
+              )}
 
-            {chartConfig.type === 'comparison' && (
-              <ComparisonChartVisualization
-                data={chartData}
-                metrics={selectedMetrics}
-                metricConfigs={metrics}
-                config={chartConfig}
-                mode={comparisonMode}
-                dimensions={chartDimensions}
-              />
-            )}
+              {chartConfig.type === 'bar' && (
+                React.createElement(React.lazy(() => import('./PlayerPerformanceChart')) as any, {
+                  data: chartData,
+                  metrics: selectedMetrics,
+                  metricConfigs: metrics,
+                  height: chartDimensions.height
+                })
+              )}
+
+              {chartConfig.type === 'comparison' && (
+                React.createElement(React.lazy(() => import('./PlayerPerformanceChart')) as any, {
+                  data: chartData,
+                  metrics: selectedMetrics,
+                  metricConfigs: metrics,
+                  height: chartDimensions.height
+                })
+              )}
+            </React.Suspense>
           </div>
 
           {/* Performance Insights */}

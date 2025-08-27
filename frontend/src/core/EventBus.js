@@ -1,5 +1,6 @@
-// CommonJS shim for Jest resolution. Lightweight EventBus for tests.
-class EventBus {
+// Lightweight EventBus used in the frontend. This file uses pure ESM exports
+// so Vite/dev server and the browser can import named exports reliably.
+export class EventBus {
   constructor() {
     this.handlers = new Map();
   }
@@ -16,11 +17,12 @@ class EventBus {
     const set = this.handlers.get(event);
     if (!set) return;
     for (const h of Array.from(set)) {
-      try { h(...args); } catch (e) { /* swallow */ }
+      try { h(...args); } catch (err) { void err; }
     }
   }
 }
 
-const _eventBus = new EventBus();
+export const _eventBus = new EventBus();
 
-module.exports = { EventBus, _eventBus };
+// Default export for convenience
+export default _eventBus;

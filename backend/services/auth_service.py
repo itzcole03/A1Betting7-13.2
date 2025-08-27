@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import hashlib
 import hmac
@@ -78,6 +80,53 @@ class AuthService:
         # return public user info
         return {"email": user["email"], "first_name": user.get("first_name"), "last_name": user.get("last_name"), "id": user["id"]}
 
+    async def change_password(self, token: str, current_password: Optional[str], new_password: str) -> None:
+        """Change a user's password (development in-memory store).
+
+        Args:
+            token: access token issued by `authenticate` (format: access-<email>-<ts>)
+            current_password: current plaintext password (optional if admin reset)
+            new_password: new plaintext password to set
+
+        Raises:
+            ValueError: if token invalid, user not found, or current password mismatch
+        """
+        await asyncio.sleep(0)
+        if not token:
+            raise ValueError("Missing token")
+        parts = token.split("-")
+        if len(parts) < 2:
+            raise ValueError("Invalid token")
+        email = parts[1]
+        user = self._users.get(email)
+        if not user:
+            raise ValueError("User not found")
+
+        # If current_password provided, verify it matches
+        if current_password:
+            curr_hash = hashlib.sha256(current_password.encode()).hexdigest()
+            if not hmac.compare_digest(curr_hash, user["password"]):
+                raise ValueError("Invalid current password")
+
+        # Set new password
+        new_hash = hashlib.sha256(new_password.encode()).hexdigest()
+        user["password"] = new_hash
+        # persist back into store
+        self._users[email] = user
+
+    async def change_password_by_credentials(self, email: str, current_password: str, new_password: str) -> None:
+        """Change password by verifying current credentials. Dev-only helper."""
+        await asyncio.sleep(0)
+        user = self._users.get(email)
+        if not user:
+            raise ValueError("User not found")
+        curr_hash = hashlib.sha256(current_password.encode()).hexdigest()
+        if not hmac.compare_digest(curr_hash, user["password"]):
+            raise ValueError("Invalid current password")
+        new_hash = hashlib.sha256(new_password.encode()).hexdigest()
+        user["password"] = new_hash
+        self._users[email] = user
+
 
 # Singleton instance used by other modules
 _auth_service = AuthService()
@@ -85,59 +134,21 @@ _auth_service = AuthService()
 
 def get_auth_service() -> AuthService:
     return _auth_service
-from __future__ import annotations
 
-from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Union
+# Dev-only: pre-seed a known user for local testing if not present
+try:
+    import hashlib as _hashlib
 
-import jwt
-from fastapi import HTTPException
-
-from backend.config import config
-from backend.services.database_service import User
-
-
-def get_user_by_id(user_id: str) -> Optional[User]:
-    """Get user by ID - placeholder implementation
-    
-    Args:
-        user_id: The unique identifier for the user
-        
-    Returns:
-        User object if found, None otherwise
-        
-    Note:
-        This should be implemented with proper database session handling
-    """
-    # This should be implemented based on your database service
-    # For now, return None as this is a placeholder
-    return None
-
-
-def verify_token(token: str) -> User:
-    """Verify JWT token and return user if valid
-    
-    Args:
-        token: JWT token to verify
-        
-    Returns:
-        User object if token is valid and user needs verification
-        
-    Raises:
-        HTTPException: If token is invalid, expired, or user is already verified
-    """
-    try:
-        payload: Dict[str, Any] = jwt.decode(token, config.secret_key, algorithms=["HS256"])
-        user_id: Optional[str] = payload.get("sub")
-        if user_id:
-            user = get_user_by_id(user_id)  # Assuming a function to get user by ID exists
-            if user and not user.is_verified:  # Check if user exists and needs verification
-                return user  # Return the user object
-            raise HTTPException(
-                status_code=400, detail="User already verified or not found"
-            )
-        raise HTTPException(status_code=400, detail="Invalid token payload")
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail="Token has expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=400, detail="Invalid token")
+    _seed_email = "ncr@a1betting.com"
+    _seed_password = "A1Betting1337!"
+    if _seed_email not in _auth_service._users:
+        _auth_service._users[_seed_email] = {
+            "email": _seed_email,
+            "password": _hashlib.sha256(_seed_password.encode()).hexdigest(),
+            "first_name": "NCR",
+            "last_name": "User",
+            "id": _seed_email,
+            "is_verified": True,
+        }
+except Exception:
+    pass

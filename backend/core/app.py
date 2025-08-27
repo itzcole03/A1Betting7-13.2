@@ -1845,6 +1845,38 @@ def create_app() -> FastAPI:
     
     # Log normalized health endpoints at startup
     logger.info("🏥 Health endpoints normalized: /api/health, /health, /api/v2/health -> identical envelope format")
+    # Dev helper: ensure a seeded dev user exists in the in-memory auth service
+    try:
+        from backend.services.auth_service import get_auth_service
+
+        @_app.on_event("startup")
+        async def _seed_dev_user():
+            try:
+                svc = get_auth_service()
+                if svc and getattr(svc, "_users", None) is not None:
+                    _seed_email = "ncr@a1betting.com"
+                    _seed_password = "A1Betting1337!"
+                    if _seed_email not in svc._users:
+                        import hashlib as _hashlib
+
+                        svc._users[_seed_email] = {
+                            "email": _seed_email,
+                            "password": _hashlib.sha256(_seed_password.encode()).hexdigest(),
+                            "first_name": "NCR",
+                            "last_name": "User",
+                            "id": _seed_email,
+                            "is_verified": True,
+                        }
+                        logger.info(f"[DevSeed] seeded user: {_seed_email}")
+            except Exception as _e:
+                logger.debug(f"[DevSeed] failed to seed dev user: {_e}")
+    except Exception:
+        # Auth service not available in this environment
+        pass
+
+    # Dev runtime auth helpers intentionally removed to avoid import-time complexity.
+    # The app still seeds a dev user on startup (see _seed_dev_user above).
+
     logger.info("✅ A1Betting canonical app created successfully")
     return _app
 
@@ -1855,3 +1887,47 @@ app = create_app()
 # Legacy compatibility
 core_app = app
 # Reload trigger
+
+# Dev-only endpoints (guarded by DEV_AUTH). These are small helpers that
+# mutate the same in-process AuthService used by the auth routes. They are
+# added after the canonical app is created to avoid import-time complexity.
+try:
+    import os
+    if os.environ.get("DEV_AUTH", "false").lower() in ("1", "true", "yes"):
+        from fastapi import Body
+        from backend.services.auth_service import get_auth_service
+
+        @app.get("/dev/auth/users")
+        async def _dev_list_auth_users():
+            svc = get_auth_service()
+            if not svc:
+                return {"success": False, "data": None, "error": {"message": "Auth service not available"}}
+            users = list(getattr(svc, "_users", {}).keys())
+            return {"success": True, "data": {"users": users}, "error": None}
+
+        @app.post("/dev/auth/set-password")
+        async def _dev_set_password(payload: dict = Body(...)):
+            email = payload.get("email")
+            new_password = payload.get("new_password")
+            if not email or not new_password:
+                return {"success": False, "data": None, "error": {"message": "email and new_password required"}}
+            svc = get_auth_service()
+            if not svc:
+                return {"success": False, "data": None, "error": {"message": "Auth service not available"}}
+            import hashlib as _hashlib
+            users = getattr(svc, "_users", None)
+            if users is None:
+                try:
+                    setattr(svc, "_users", {})
+                    users = svc._users
+                except Exception as _e:
+                    return {"success": False, "data": None, "error": {"message": f"Auth service does not expose _users: {_e}"}}
+            users[email] = _hashlib.sha256(new_password.encode("utf-8")).hexdigest()
+            try:
+                setattr(svc, "_users", users)
+            except Exception:
+                pass
+            return {"success": True, "data": {"message": "password set"}, "error": None}
+except Exception:
+    # Do not fail app import if dev helpers cannot be added
+    pass
