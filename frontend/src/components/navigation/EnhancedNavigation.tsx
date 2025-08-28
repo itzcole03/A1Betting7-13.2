@@ -206,6 +206,16 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       description: 'Quick reference guides and strategies',
       category: 'tools',
     },
+    {
+      id: 'smart-alerts',
+      name: 'Smart Alerts',
+      href: '/smart-alerts',
+      icon: Bell,
+      badge: 'NEW',
+      description: 'AI-powered alert system for betting opportunities',
+      category: 'tools',
+      isNew: true,
+    },
 
     // Analytics
     {

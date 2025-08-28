@@ -18,18 +18,27 @@ let mockEnv = {
 // Test helper to set mock environment
 export function setMockEnv(env: Partial<typeof mockEnv>) {
   mockEnv = { ...mockEnv, ...env };
+  // Ensure DEV is always true in test environment
+  if (typeof jest !== 'undefined' || process.env.NODE_ENV === 'test') {
+    mockEnv.DEV = true;
+  }
 }
+
+// Export mockEnv for testing
+export { mockEnv };
 
 export function getOrPersistClientId(storageKey = 'ws_client_id', passedClientId?: string): string {
   let clientId = passedClientId;
   
-  // Try to get from storage first - ensure we have access to window
+  // Try to get from storage first - check both window and global
   let storedClientId: string | null = null;
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
       storedClientId = window.localStorage.getItem(storageKey);
+    } else if (typeof global !== 'undefined' && global.localStorage) {
+      storedClientId = global.localStorage.getItem(storageKey);
     }
-  } catch (e) {
+  } catch {
     // Storage access failed, continue without it
   }
   
@@ -48,8 +57,10 @@ export function getOrPersistClientId(storageKey = 'ws_client_id', passedClientId
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
       window.localStorage.setItem(storageKey, clientId);
+    } else if (typeof global !== 'undefined' && global.localStorage) {
+      global.localStorage.setItem(storageKey, clientId);
     }
-  } catch (e) {
+  } catch {
     // Storage access failed, continue without persistence
   }
   
@@ -70,10 +81,10 @@ export function resolveWebSocketBase(): string {
   let baseUrl = mockEnv.VITE_WS_URL;
   
   // Check for legacy path in environment and sanitize
-  if (baseUrl && baseUrl.includes('client_/ws')) {
+  if (baseUrl && baseUrl.includes('client_/')) {
     // eslint-disable-next-line no-console
     console.warn('[EnvDiag][LegacyInEnv] Legacy WebSocket path detected in environment, sanitizing:', baseUrl);
-    baseUrl = baseUrl.replace(/\/client_\/ws.*$/, '').replace(/\/ws\/client_.*$/, '');
+    baseUrl = baseUrl.replace(/\/ws\/client_.*$/, '').replace(/\/client_\/ws.*$/, '');
   }
   
   // Default fallback

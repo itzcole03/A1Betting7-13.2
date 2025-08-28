@@ -58,7 +58,7 @@ class RealSHAPService:
         self.explanation_cache = {}
         self.global_importance = {}
         
-        logger.info("🚀 Real SHAP Service initialized - ZERO mock explanations")
+        logger.info("STARTUP: Real SHAP Service initialized - ZERO mock explanations")
     
     async def initialize_explainer(self, model_id: str, model_path: str) -> bool:
         """
@@ -67,13 +67,13 @@ class RealSHAPService:
         CRITICAL: Uses ONLY real trained models for explanation generation
         """
         try:
-            logger.info(f"🔧 Initializing REAL SHAP explainer for model {model_id}")
+            logger.info(f"INIT: Initializing REAL SHAP explainer for model {model_id}")
             
             # Load the real trained model
             model_package = joblib.load(model_path)
             
             if 'model' not in model_package:
-                logger.error(f"❌ Invalid model package for {model_id}")
+                logger.error(f"ERROR: Invalid model package for {model_id}")
                 return False
             
             model = model_package['model']
@@ -96,11 +96,11 @@ class RealSHAPService:
                 'initialized_at': datetime.now(timezone.utc)
             }
             
-            logger.info(f"✅ SHAP explainer initialized for {model_id}")
+            logger.info(f"SUCCESS: SHAP explainer initialized for {model_id}")
             return True
             
         except Exception as e:
-            logger.error(f"❌ Error initializing SHAP explainer for {model_id}: {e}")
+            logger.error(f"ERROR: Error initializing SHAP explainer for {model_id}: {e}")
             return False
     
     async def generate_real_explanation(
@@ -116,7 +116,7 @@ class RealSHAPService:
         """
         try:
             if model_id not in self.explainers:
-                logger.error(f"❌ SHAP explainer not found for model {model_id}")
+                logger.error(f"ERROR: SHAP explainer not found for model {model_id}")
                 return None
             
             explainer_data = self.explainers[model_id]
@@ -124,7 +124,7 @@ class RealSHAPService:
             model = explainer_data['model']
             feature_names = explainer_data['feature_names']
             
-            logger.info(f"🔍 Generating REAL SHAP explanation for {model_id}")
+            logger.info(f"SEARCH: Generating REAL SHAP explanation for {model_id}")
             
             # Ensure input is 2D for SHAP
             if input_features.ndim == 1:
@@ -162,11 +162,11 @@ class RealSHAPService:
             cache_key = f"{model_id}_{explanation.prediction_id}"
             self.explanation_cache[cache_key] = explanation
             
-            logger.info(f"✅ Real SHAP explanation generated for {model_id}")
+            logger.info(f"SUCCESS: Real SHAP explanation generated for {model_id}")
             return explanation
             
         except Exception as e:
-            logger.error(f"❌ Error generating SHAP explanation: {e}")
+            logger.error(f"ERROR: Error generating SHAP explanation: {e}")
             return None
     
     async def generate_global_feature_importance(self, model_id: str, sample_data: np.ndarray) -> List[RealFeatureImportance]:
@@ -177,14 +177,14 @@ class RealSHAPService:
         """
         try:
             if model_id not in self.explainers:
-                logger.error(f"❌ SHAP explainer not found for model {model_id}")
+                logger.error(f"ERROR: SHAP explainer not found for model {model_id}")
                 return []
             
             explainer_data = self.explainers[model_id]
             explainer = explainer_data['explainer']
             feature_names = explainer_data['feature_names']
             
-            logger.info(f"📊 Generating GLOBAL feature importance for {model_id}")
+            logger.info(f"ANALYTICS: Generating GLOBAL feature importance for {model_id}")
             
             # Generate SHAP values for sample data
             shap_values = explainer(sample_data)
@@ -232,11 +232,11 @@ class RealSHAPService:
             # Store global importance
             self.global_importance[model_id] = feature_importance
             
-            logger.info(f"✅ Global feature importance calculated for {model_id}")
+            logger.info(f"SUCCESS: Global feature importance calculated for {model_id}")
             return feature_importance
             
         except Exception as e:
-            logger.error(f"❌ Error generating global feature importance: {e}")
+            logger.error(f"ERROR: Error generating global feature importance: {e}")
             return []
     
     def _calculate_explanation_confidence(self, shap_values: np.ndarray) -> float:
@@ -306,7 +306,7 @@ class RealSHAPService:
             return summary
             
         except Exception as e:
-            logger.error(f"❌ Error getting explanation summary: {e}")
+            logger.error(f"ERROR: Error getting explanation summary: {e}")
             return None
     
     def get_global_importance_summary(self, model_id: str) -> Optional[Dict[str, Any]]:
@@ -343,7 +343,7 @@ class RealSHAPService:
             return summary
             
         except Exception as e:
-            logger.error(f"❌ Error getting global importance summary: {e}")
+            logger.error(f"ERROR: Error getting global importance summary: {e}")
             return None
     
     def validate_shap_integrity(self) -> Dict[str, Any]:
@@ -367,7 +367,7 @@ class RealSHAPService:
             return validation_report
             
         except Exception as e:
-            logger.error(f"❌ SHAP validation failed: {e}")
+            logger.error(f"ERROR: SHAP validation failed: {e}")
             return {
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "phase_4_compliance": False,

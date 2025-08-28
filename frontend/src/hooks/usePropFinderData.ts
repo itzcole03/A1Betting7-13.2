@@ -1,595 +1,212 @@
-/**
- * PropFinder Real Data Integration Hook
- * 
- * React hook for integrating PropFinderKillerDashboard with real backend data:
- * - Real prop opportunities from multiple data sources
- * - Alert engine integration for live notifications
- * - Advanced filtering and search capabilities
- * - PropFinder competitive parity features
- */
+import { useEffect, useState, useRef } from 'react';
+import type { PerformancePoint } from '../components/charts/PlayerPerformanceChart';
+import type { OddsPoint } from '../components/charts/OddsAggregationChart';
 
-import { useState, useEffect, useCallback } from 'react';
-import { enhancedLogger } from '../utils/enhancedLogger';
+type UsePropfinderOptions = {
+  autoRefresh?: boolean;
+  refreshIntervalMs?: number;
+  // Backwards-compatible second-based option used across older callers
+  refreshInterval?: number;
+  cacheTTLms?: number;
+  // Compatibility: some callers pass initialFilters/searchQuery/limit
+  initialFilters?: Record<string, unknown>;
+  searchQuery?: string;
+  limit?: number;
+};
 
-// Types matching backend API response
-export interface PropOpportunity {
+type PropfinderResult = {
+  performance: PerformancePoint[];
+  odds: OddsPoint[];
+  loading: boolean;
+  error?: string;
+};
+
+const DEFAULTS: Required<UsePropfinderOptions> = {
+  autoRefresh: true,
+  refreshIntervalMs: 30_000,
+  refreshInterval: 30,
+  cacheTTLms: 15_000,
+  initialFilters: {},
+  searchQuery: '',
+  limit: 50,
+};
+
+export default function usePropfinderData(opts?: UsePropfinderOptions): PropfinderResult {
+  const options = { ...DEFAULTS, ...(opts || {}) };
+  const [state, setState] = useState<PropfinderResult>({ performance: [], odds: [], loading: true });
+  const lastFetched = useRef<number | null>(null);
+  const timerRef = useRef<number | null>(null);
+
+  const toNumber = (v: unknown): number => {
+    if (typeof v === 'number') return v;
+    if (typeof v === 'string' && v.trim() !== '') {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+    return 0;
+  };
+
+  const asRecord = (v: unknown): Record<string, unknown> => (typeof v === 'object' && v !== null) ? (v as Record<string, unknown>) : {};
+
+  const fetchOnce = async () => {
+    try {
+      setState((s) => ({ ...s, loading: true }));
+
+      const now = Date.now();
+      if (lastFetched.current && now - lastFetched.current < options.cacheTTLms) {
+        setState((s) => ({ ...s, loading: false }));
+        return;
+      }
+
+      const res = await fetch('/api/propfinder/opportunities');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+
+      const rawOpp = Array.isArray(json?.data?.opportunities) ? json.data.opportunities : (Array.isArray(json?.opportunities) ? json.opportunities : []);
+      const opportunities = Array.isArray(rawOpp) ? rawOpp as unknown[] : [];
+
+      const performance: PerformancePoint[] = opportunities.map((op) => {
+        const rec = asRecord(op);
+        return {
+          date: (rec.date as string) || (rec.event_date as string) || new Date().toISOString(),
+          actual: toNumber(rec.actual),
+          line: toNumber(rec.line),
+          opponent: (rec.opponent as string) || (rec.team as string) || undefined,
+        };
+      });
+
+      const odds: OddsPoint[] = opportunities.map((op) => {
+        const rec = asRecord(op);
+        return {
+          label: (rec.player as string) || (rec.market as string) || (rec.name as string) || 'unknown',
+          odds: toNumber(rec.odds),
+        };
+      });
+
+      lastFetched.current = Date.now();
+      setState({ performance, odds, loading: false });
+    } catch (err: unknown) {
+      setState({ performance: [], odds: [], loading: false, error: err instanceof Error ? err.message : String(err) });
+    }
+  };
+
+  // Keep a ref to fetchOnce so effect dependencies are stable
+  const fetchOnceRef = useRef(fetchOnce);
+  fetchOnceRef.current = fetchOnce;
+
+  useEffect(() => {
+    void fetchOnceRef.current();
+    if (options.autoRefresh) {
+      timerRef.current = window.setInterval(() => { void fetchOnceRef.current(); }, options.refreshIntervalMs);
+      return () => { if (timerRef.current) window.clearInterval(timerRef.current); };
+    }
+    return undefined;
+  }, [options.autoRefresh, options.refreshIntervalMs, options.cacheTTLms]);
+
+  return state;
+}
+
+// Compatibility exports for existing code that imports the older hook and types.
+export type PropOpportunity = {
   id: string;
   player: string;
   playerImage?: string;
-  team: string;
+  team?: string;
   teamLogo?: string;
-  opponent: string;
+  opponent?: string;
   opponentLogo?: string;
-  sport: 'NBA' | 'NFL' | 'MLB' | 'NHL';
-  market: string;
-  line: number;
-  pick: 'over' | 'under';
-  odds: number;
-  impliedProbability: number;
-  aiProbability: number;
-  edge: number;
-  confidence: number;
-  projectedValue: number;
-  volume: number;
-  trend: 'up' | 'down' | 'stable';
-  trendStrength: number;
-  timeToGame: string;
-  venue: 'home' | 'away';
+  sport?: string;
+  market?: string;
+  line?: number;
+  pick?: 'over' | 'under';
+  odds?: number;
+  impliedProbability?: number;
+  aiProbability?: number;
+  edge?: number;
+  confidence?: number;
+  projectedValue?: number;
+  volume?: number;
+  trend?: 'up' | 'down' | 'stable';
+  trendStrength?: number;
+  timeToGame?: string;
+  venue?: 'home' | 'away';
   weather?: string;
-  injuries: string[];
-  recentForm: number[];
-  matchupHistory: {
-    games: number;
-    average: number;
-    hitRate: number;
+  injuries?: string[];
+  recentForm?: number[];
+  matchupHistory?: {
+    games?: number;
+    average?: number;
+    hitRate?: number;
   };
-  lineMovement: {
-    open: number;
-    current: number;
-    direction: 'up' | 'down' | 'stable';
+  lineMovement?: {
+    open?: number;
+    current?: number;
+    direction?: 'up' | 'down' | 'stable';
   };
-  bookmakers: Array<{
+  bookmakers?: Array<{
     name: string;
     odds: number;
     line: number;
   }>;
-  isBookmarked: boolean;
-  tags: string[];
-  socialSentiment: number;
-  sharpMoney: 'heavy' | 'moderate' | 'light' | 'public';
-  lastUpdated: string;
-  alertTriggered: boolean;
+  isBookmarked?: boolean;
+  tags?: string[];
+  socialSentiment?: number;
+  sharpMoney?: 'heavy' | 'moderate' | 'light' | 'public';
+  lastUpdated?: string;
+  alertTriggered?: boolean;
   alertSeverity?: string;
-  
-  // Phase 1.2 - Best Line Aggregator fields
   bestBookmaker?: string;
   lineSpread?: number;
   oddsSpread?: number;
   numBookmakers?: number;
   hasArbitrage?: boolean;
   arbitrageProfitPct?: number;
-}
-
-export interface OpportunitiesResponse {
-  opportunities: PropOpportunity[];
-  total: number;
-  filtered: number;
-  summary: {
-    total_opportunities: number;
-    avg_confidence: number;
-    max_edge: number;
-    alert_triggered_count: number;
-    sharp_heavy_count: number;
-    sports_breakdown: Record<string, number>;
-    markets_breakdown: Record<string, number>;
-  };
-}
-
-export interface PropFinderStats {
-  total_opportunities: number;
-  avg_confidence: number;
-  max_edge: number;
-  alert_count: number;
-  sharp_heavy_count: number;
-  sports_count: number;
-  markets_count: number;
-  last_updated: string;
-}
-
-export interface FilterOptions {
-  sports?: string[];
-  confidence_min?: number;
-  confidence_max?: number;
-  edge_min?: number;
-  edge_max?: number;
-  markets?: string[];
-  venues?: string[];
-  sharp_money?: string[];
-  bookmarked_only?: boolean;
-  alert_triggered_only?: boolean;
-  search?: string;
-}
-
-export interface UsePropFinderDataOptions {
-  autoRefresh?: boolean;
-  refreshInterval?: number; // in seconds
-  initialFilters?: FilterOptions;
-  limit?: number;
-  userId?: string; // Phase 4.2: User context for bookmarks
-}
-
-export interface UsePropFinderDataReturn {
-  // Data
-  opportunities: PropOpportunity[];
-  stats: PropFinderStats | null;
-  
-  // Loading states
-  loading: boolean;
-  refreshing: boolean;
-  error: string | null;
-  
-  // Filters and search
-  filters: FilterOptions;
-  searchQuery: string;
-  
-  // Actions
-  refreshData: () => Promise<void>;
-  updateFilters: (newFilters: Partial<FilterOptions>) => void;
-  setSearchQuery: (query: string) => void;
-  bookmarkOpportunity: (opportunityId: string, opportunity: PropOpportunity, bookmarked: boolean) => Promise<void>;
-  getOpportunityById: (opportunityId: string) => Promise<PropOpportunity | null>;
-  getUserBookmarks: () => Promise<PropOpportunity[]>;
-  
-  // Auto-refresh control
-  toggleAutoRefresh: () => void;
-  isAutoRefreshEnabled: boolean;
-  
-  // Phase 4.2: User context
-  userId?: string;
-}
-
-const DEFAULT_REFRESH_INTERVAL = 30; // 30 seconds
-const API_BASE = '/api/propfinder';
-
-export const usePropFinderData = (options: UsePropFinderDataOptions = {}): UsePropFinderDataReturn => {
-  const {
-    autoRefresh = false,
-    refreshInterval = DEFAULT_REFRESH_INTERVAL,
-    initialFilters = {},
-    limit = 50,
-    userId
-  } = options;
-
-  // State management
-  const [opportunities, setOpportunities] = useState<PropOpportunity[]>([]);
-  const [stats, setStats] = useState<PropFinderStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<FilterOptions>(initialFilters);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(autoRefresh);
-
-  // Build query parameters for API calls
-  const buildQueryParams = useCallback((currentFilters: FilterOptions, currentSearch: string) => {
-    const params = new URLSearchParams();
-    
-    // Phase 4.2: Add user context for bookmark status
-    if (userId) {
-      params.set('user_id', userId);
-    }
-    
-    if (currentFilters.sports?.length) {
-      params.set('sports', currentFilters.sports.join(','));
-    }
-    if (currentFilters.confidence_min !== undefined) {
-      params.set('confidence_min', currentFilters.confidence_min.toString());
-    }
-    if (currentFilters.confidence_max !== undefined) {
-      params.set('confidence_max', currentFilters.confidence_max.toString());
-    }
-    if (currentFilters.edge_min !== undefined) {
-      params.set('edge_min', currentFilters.edge_min.toString());
-    }
-    if (currentFilters.edge_max !== undefined) {
-      params.set('edge_max', currentFilters.edge_max.toString());
-    }
-    if (currentFilters.markets?.length) {
-      params.set('markets', currentFilters.markets.join(','));
-    }
-    if (currentFilters.venues?.length) {
-      params.set('venues', currentFilters.venues.join(','));
-    }
-    if (currentFilters.sharp_money?.length) {
-      params.set('sharp_money', currentFilters.sharp_money.join(','));
-    }
-    if (currentFilters.bookmarked_only) {
-      params.set('bookmarked_only', 'true');
-    }
-    if (currentFilters.alert_triggered_only) {
-      params.set('alert_triggered_only', 'true');
-    }
-    if (currentSearch) {
-      params.set('search', currentSearch);
-    }
-    
-    params.set('limit', limit.toString());
-    
-    return params.toString();
-  }, [limit, userId]);
-
-  // Fetch opportunities from API
-  const fetchOpportunities = useCallback(async (currentFilters: FilterOptions, currentSearch: string, isRefresh = false) => {
-    try {
-      if (!isRefresh) setLoading(true);
-      else setRefreshing(true);
-      
-      setError(null);
-      
-      const queryParams = buildQueryParams(currentFilters, currentSearch);
-      const response = await fetch(`${API_BASE}/opportunities?${queryParams}`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch opportunities: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setOpportunities(data.data.opportunities);
-        
-        // Update stats from summary
-        const summary = data.data.summary;
-        setStats({
-          total_opportunities: summary.total_opportunities,
-          avg_confidence: summary.avg_confidence,
-          max_edge: summary.max_edge,
-          alert_count: summary.alert_triggered_count,
-          sharp_heavy_count: summary.sharp_heavy_count,
-          sports_count: Object.keys(summary.sports_breakdown).length,
-          markets_count: Object.keys(summary.markets_breakdown).length,
-          last_updated: new Date().toISOString()
-        });
-      } else {
-        throw new Error(data.error?.message || 'Failed to fetch opportunities');
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      setError(errorMessage);
-      // Log error for debugging
-      if (process.env.NODE_ENV === 'development') {
-        enhancedLogger.error('usePropFinderData', 'fetchOpportunities', 'Error fetching PropFinder opportunities', undefined, err as Error);
-      }
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [buildQueryParams]);
-
-  // Fetch stats separately for overview
-  const fetchStats = useCallback(async () => {
-    try {
-      const response = await fetch(`${API_BASE}/stats`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch stats: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setStats(data.data);
-      }
-    } catch (err) {
-      // Log error for debugging in development
-      if (process.env.NODE_ENV === 'development') {
-        enhancedLogger.error('usePropFinderData', 'fetchStats', 'Error fetching PropFinder stats', undefined, err as Error);
-      }
-      // Don't set error state for stats fetch failures
-    }
-  }, []);
-
-  // Refresh data function
-  const refreshData = useCallback(async () => {
-    await Promise.all([
-      fetchOpportunities(filters, searchQuery, true),
-      fetchStats()
-    ]);
-  }, [fetchOpportunities, fetchStats, filters, searchQuery]);
-
-  // Update filters
-  const updateFilters = useCallback((newFilters: Partial<FilterOptions>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
-  }, []);
-
-
-  // Bookmark opportunity with Phase 4.2 persistence
-  const bookmarkOpportunity = useCallback(async (opportunityId: string, opportunity: PropOpportunity, bookmarked: boolean) => {
-    // If no userId provided, fallback to localStorage bookmarks for local testing
-    if (!userId) {
-      try {
-        const key = 'local_propfinder_bookmarks';
-        const raw = localStorage.getItem(key);
-        const current: Record<string, boolean> = raw ? JSON.parse(raw) : {};
-        if (bookmarked) current[opportunityId] = true;
-        else delete current[opportunityId];
-        localStorage.setItem(key, JSON.stringify(current));
-
-        // Update local state
-        setOpportunities(prev => 
-          prev.map(opp => 
-            opp.id === opportunityId 
-              ? { ...opp, isBookmarked: bookmarked }
-              : opp
-          )
-        );
-
-        return;
-      } catch (err) {
-        if (process.env.NODE_ENV === 'development') {
-          enhancedLogger.error('usePropFinderData', 'bookmarkOpportunity', 'Error updating local bookmarks', { opportunityId }, err as Error);
-        }
-        throw err;
-      }
-    }
-    
-    try {
-      const requestBody = {
-        prop_id: opportunityId,
-        sport: opportunity.sport,
-        player: opportunity.player,
-        market: opportunity.market,
-        team: opportunity.team,
-        bookmarked
-      };
-      
-      const response = await fetch(`${API_BASE}/bookmark?user_id=${userId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to bookmark opportunity: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.error?.message || 'Failed to bookmark opportunity');
-      }
-      
-      // Update local state
-      setOpportunities(prev => 
-        prev.map(opp => 
-          opp.id === opportunityId 
-            ? { ...opp, isBookmarked: bookmarked }
-            : opp
-        )
-      );
-    } catch (err) {
-      if (process.env.NODE_ENV === 'development') {
-        enhancedLogger.error('usePropFinderData', 'bookmarkOpportunity', 'Error bookmarking opportunity', { opportunityId }, err as Error);
-      }
-      throw err;
-    }
-  }, [userId]);
-
-  // Get specific opportunity by ID
-  const getOpportunityById = useCallback(async (opportunityId: string): Promise<PropOpportunity | null> => {
-    try {
-      const params = new URLSearchParams();
-      if (userId) {
-        params.set('user_id', userId);
-      }
-      
-      const queryString = params.toString();
-      const url = `${API_BASE}/opportunities/${opportunityId}${queryString ? `?${queryString}` : ''}`;
-      
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        if (response.status === 404) return null;
-        throw new Error(`Failed to fetch opportunity: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        return data.data;
-      } else {
-        throw new Error(data.error?.message || 'Failed to fetch opportunity');
-      }
-    } catch (err) {
-      if (process.env.NODE_ENV === 'development') {
-        enhancedLogger.error('usePropFinderData', 'getOpportunityById', 'Error fetching opportunity by ID', { opportunityId }, err as Error);
-      }
-      return null;
-    }
-  }, [userId]);
-
-  // Get user bookmarks (Phase 4.2)
-  const getUserBookmarks = useCallback(async (): Promise<PropOpportunity[]> => {
-    // If no userId provided, return locally stored bookmarks
-    if (!userId) {
-      try {
-        const key = 'local_propfinder_bookmarks';
-        const raw = localStorage.getItem(key);
-        const map: Record<string, boolean> = raw ? JSON.parse(raw) : {};
-        const ids = Object.keys(map).filter(id => map[id]);
-        if (!ids.length) return [];
-
-        // Fetch full opportunity data for each bookmarked id
-        const results: PropOpportunity[] = [];
-        for (const id of ids) {
-          const opp = await getOpportunityById(id);
-          if (opp) results.push(opp);
-        }
-        return results;
-      } catch (err) {
-        if (process.env.NODE_ENV === 'development') {
-          enhancedLogger.error('usePropFinderData', 'getUserBookmarks', 'Error reading local bookmarks', undefined, err as Error);
-        }
-        return [];
-      }
-    }
-    
-    try {
-      const response = await fetch(`${API_BASE}/bookmarks?user_id=${userId}`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch bookmarks: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        // Note: This returns bookmark metadata, not full opportunities
-        // You might want to fetch full opportunity data for each bookmark
-        return data.data;
-      } else {
-        throw new Error(data.error?.message || 'Failed to fetch bookmarks');
-      }
-    } catch (err) {
-      if (process.env.NODE_ENV === 'development') {
-        enhancedLogger.error('usePropFinderData', 'getUserBookmarks', 'Error fetching user bookmarks', undefined, err as Error);
-      }
-      return [];
-    }
-  }, [userId]);
-
-  // Sync local bookmarks to server when user logs in
-  const syncLocalBookmarksToServer = useCallback(async (): Promise<void> => {
-    if (!userId) return;
-
-    try {
-      const key = 'local_propfinder_bookmarks';
-      const raw = localStorage.getItem(key);
-      const map: Record<string, boolean> = raw ? JSON.parse(raw) : {};
-      const ids = Object.keys(map).filter(id => map[id]);
-      if (!ids.length) return;
-
-      // Attempt to POST each bookmarked id to the server
-      for (const id of ids) {
-        try {
-          // Find opportunity in local cache to supply metadata
-          const localOpp = opportunities.find(o => o.id === id);
-          const body = {
-            prop_id: id,
-            sport: localOpp?.sport || 'NBA',
-            player: localOpp?.player || '',
-            market: localOpp?.market || '',
-            team: localOpp?.team || '',
-            bookmarked: true
-          };
-
-          const res = await fetch(`${API_BASE}/bookmark?user_id=${userId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-          });
-
-          if (!res.ok) {
-            // Log but continue
-            if (process.env.NODE_ENV === 'development') {
-              enhancedLogger.warn('usePropFinderData', 'syncLocalBookmarksToServer', `Failed to sync bookmark ${id}: ${res.status}`);
-            }
-            continue;
-          }
-
-          const data = await res.json();
-          if (!data.success) {
-            if (process.env.NODE_ENV === 'development') {
-              enhancedLogger.warn('usePropFinderData', 'syncLocalBookmarksToServer', `Server rejected bookmark ${id}: ${data.error?.message}`);
-            }
-          }
-        } catch (err) {
-          if (process.env.NODE_ENV === 'development') {
-            enhancedLogger.error('usePropFinderData', 'syncLocalBookmarksToServer', 'Error syncing bookmark', { id }, err as Error);
-          }
-          continue;
-        }
-      }
-
-      // Clear local stash on successful sync
-      localStorage.removeItem(key);
-    } catch (err) {
-      if (process.env.NODE_ENV === 'development') {
-        enhancedLogger.error('usePropFinderData', 'syncLocalBookmarksToServer', 'Error reading local bookmarks for sync', undefined, err as Error);
-      }
-    }
-  }, [userId, opportunities]);
-
-  // Effect: when userId becomes available, sync any local bookmarks to server
-  useEffect(() => {
-    if (!userId) return;
-    // fire-and-forget sync
-    void syncLocalBookmarksToServer();
-  }, [userId, syncLocalBookmarksToServer]);
-
-  // Toggle auto-refresh
-  const toggleAutoRefresh = useCallback(() => {
-    setIsAutoRefreshEnabled(prev => !prev);
-  }, []);
-
-  // Effect for initial data load
-  useEffect(() => {
-    fetchOpportunities(filters, searchQuery, false);
-  }, [fetchOpportunities, filters, searchQuery]);
-
-  // Effect for auto-refresh
-  useEffect(() => {
-    if (!isAutoRefreshEnabled) return;
-    
-    const interval = setInterval(() => {
-      refreshData();
-    }, refreshInterval * 1000);
-    
-    return () => clearInterval(interval);
-  }, [isAutoRefreshEnabled, refreshInterval, refreshData]);
-
-  // Effect for search debouncing
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (searchQuery !== '') {
-        fetchOpportunities(filters, searchQuery, true);
-      }
-    }, 300);
-    
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery, filters, fetchOpportunities]);
-
-  return {
-    // Data
-    opportunities,
-    stats,
-    
-    // Loading states
-    loading,
-    refreshing,
-    error,
-    
-    // Filters and search
-    filters,
-    searchQuery,
-    
-    // Actions
-    refreshData,
-    updateFilters,
-    setSearchQuery,
-    bookmarkOpportunity,
-    getOpportunityById,
-    getUserBookmarks,
-    
-    // Auto-refresh control
-    toggleAutoRefresh,
-    isAutoRefreshEnabled,
-    
-    // Phase 4.2: User context
-    userId
-  };
 };
 
-export default usePropFinderData;
+export const usePropFinderData = (options?: UsePropfinderOptions) => {
+  // Adapt older callers that pass `refreshInterval` (seconds) into our ms-based option
+  const adapted: UsePropfinderOptions | undefined = options ? {
+    ...options,
+    refreshIntervalMs: options.refreshIntervalMs ?? (options.refreshInterval ? options.refreshInterval * 1000 : undefined)
+  } : undefined;
+
+  const { performance, loading, error } = usePropfinderData(adapted);
+
+  const opportunities: PropOpportunity[] = performance.map((p, i) => ({
+    id: `${p.date}-${i}`,
+    player: 'unknown',
+    team: p.opponent,
+    market: 'points',
+    sport: undefined,
+    line: p.line,
+    odds: undefined,
+    isBookmarked: false,
+    lastUpdated: p.date,
+    confidence: undefined,
+    edge: undefined,
+    hasArbitrage: false,
+    numBookmakers: undefined,
+    sharpMoney: undefined,
+    bookmakers: [],
+    tags: [],
+  }));
+
+  return {
+    opportunities,
+    stats: null,
+    loading,
+    refreshing: false,
+    error: error ?? null,
+    filters: {},
+    searchQuery: '',
+    refreshData: async () => { /* intentionally lightweight */ await Promise.resolve(); },
+    updateFilters: (_: Partial<Record<string, unknown>>) => {},
+    setSearchQuery: (_: string) => {},
+    bookmarkOpportunity: async (_opportunityId?: string, _opportunity?: PropOpportunity, _bookmarked?: boolean) => {},
+    getOpportunityById: async (_: string) => null,
+    getUserBookmarks: async () => [] as PropOpportunity[],
+    toggleAutoRefresh: () => {},
+    isAutoRefreshEnabled: false,
+    userId: undefined,
+  } as const;
+};

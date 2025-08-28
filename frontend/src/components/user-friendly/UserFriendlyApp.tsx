@@ -70,6 +70,9 @@ const UnifiedAIPredictionsDashboard = React.lazy(
   () => import('../ai/UnifiedAIPredictionsDashboard')
 );
 
+// NEW: SmartAlerts component for alert rule management
+const SmartAlerts = React.lazy(() => import('../SmartAlerts'));
+
 // Phase 3 Components
 const Phase3Page = React.lazy(() => import('../../pages/Phase3Page'));
 
@@ -196,6 +199,9 @@ const UserFriendlyApp: React.FC = memo(() => {
               />
               <Route path='/betting' element={<UnifiedBettingInterface />} />
               <Route path='/test-dashboard' element={<PlayerDashboardTest />} />
+
+              {/* NEW: SmartAlerts Route */}
+              <Route path='/smart-alerts' element={<SmartAlerts />} />
 
               {/* Fallback to PropFinder Killer Dashboard */}
               <Route path='*' element={<PropFinderKillerDashboard />} />

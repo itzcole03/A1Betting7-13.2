@@ -263,16 +263,16 @@ class ComprehensivePrizePicksService:
             self.session = self.SessionLocal()
             logger.info("PrizePicks database initialized successfully")
         except OperationalError as e:
-            logger.error("❌ Database operational error: %s", e)
+            logger.error("ERROR: Database operational error: %s", e)
             # Potentially raise a custom exception or trigger a fallback
         except SQLAlchemyError as e:
-            logger.error("❌ Database SQLAlchemy error: %s", e)
+            logger.error("ERROR: Database SQLAlchemy error: %s", e)
             # General SQLAlchemy error
         except (
             Exception
         ) as e:  # Keep this as a fallback for truly unexpected issues for now
             logger.error(
-                "❌ Database initialization failed with an unexpected error: %s", e
+                "ERROR: Database initialization failed with an unexpected error: %s", e
             )
 
     async def initialize(self):
@@ -314,7 +314,7 @@ class ComprehensivePrizePicksService:
                 verify=True,  # Ensure SSL verification is enabled
             )
             logger.info(
-                "✅ PrizePicks HTTP client initialized successfully with user-agent: %s",
+                "SUCCESS: PrizePicks HTTP client initialized successfully with user-agent: %s",
                 user_agent,
             )
         # Load existing projections from database for immediate access
@@ -382,12 +382,12 @@ class ComprehensivePrizePicksService:
                 await asyncio.sleep(0.1)
 
             logger.info(
-                f"📊 Fetched {len(all_projections)} total projections across {len(leagues)} leagues"
+                f"ANALYTICS: Fetched {len(all_projections)} total projections across {len(leagues)} leagues"
             )
             return all_projections
 
         except Exception as e:
-            logger.error(f"❌ Error fetching all projections: {e}")
+            logger.error(f"ERROR: Error fetching all projections: {e}")
             return []
 
     async def _make_api_request(
@@ -395,7 +395,7 @@ class ComprehensivePrizePicksService:
     ) -> Optional[Dict[str, Any]]:
         """Make an authenticated API request with rate limiting and retry logic"""
         if not self.http_client:
-            logger.error("❌ HTTP client not initialized")
+            logger.error("ERROR: HTTP client not initialized")
             return None
 
         if params is None:
@@ -489,14 +489,14 @@ class ComprehensivePrizePicksService:
                     wait_time = max(retry_after, base_delay, 5)  # At least 5 seconds
 
                     logger.warning(
-                        f"⚠️ Rate limited by API (429), using exponential backoff: waiting {wait_time}s before retry (attempt {attempt + 1}/{self.max_retries})"
+                        f"WARNING: Rate limited by API (429), using exponential backoff: waiting {wait_time}s before retry (attempt {attempt + 1}/{self.max_retries})"
                     )
                     await asyncio.sleep(wait_time)
                     continue
 
                 # Handle authentication errors
                 if response.status_code == 403:
-                    logger.error("❌ Authentication failed - check API key")
+                    logger.error("ERROR: Authentication failed - check API key")
                     return None
 
                 response.raise_for_status()
@@ -512,56 +512,56 @@ class ComprehensivePrizePicksService:
                 return result
 
             except httpx.TimeoutException as e:
-                logger.error(f"❌ HTTP request timed out for URL {url}: {e}")
+                logger.error(f"ERROR: HTTP request timed out for URL {url}: {e}")
                 if attempt < self.max_retries - 1:
                     wait_time = self.base_backoff_delay * (2**attempt)
                     logger.info(
-                        f"🔄 Retrying in {wait_time}s due to timeout error (attempt {attempt + 1}/{self.max_retries})..."
+                        f"RETRY: Retrying in {wait_time}s due to timeout error (attempt {attempt + 1}/{self.max_retries})..."
                     )
                     await asyncio.sleep(wait_time)
                     continue
                 return None
             except httpx.RequestError as e:  # Catch network errors, DNS errors, etc.
-                logger.error(f"❌ HTTP request error for URL {url}: {e}")
+                logger.error(f"ERROR: HTTP request error for URL {url}: {e}")
                 if attempt < self.max_retries - 1:
                     wait_time = self.base_backoff_delay * (2**attempt)
                     logger.info(
-                        f"🔄 Retrying in {wait_time}s due to request error (attempt {attempt + 1}/{self.max_retries})..."
+                        f"RETRY: Retrying in {wait_time}s due to request error (attempt {attempt + 1}/{self.max_retries})..."
                     )
                     await asyncio.sleep(wait_time)
                     continue
                 return None
             except httpx.HTTPStatusError as e:
                 logger.error(
-                    f"❌ HTTP status error {e.response.status_code} for URL {e.request.url}: {e}"
+                    f"ERROR: HTTP status error {e.response.status_code} for URL {e.request.url}: {e}"
                 )
                 if e.response.status_code in [429, 500, 502, 503, 504]:
                     if attempt < self.max_retries - 1:
                         wait_time = self.base_backoff_delay * (2**attempt)
                         logger.info(
-                            f"🔄 Retrying in {wait_time}s due to server error (attempt {attempt + 1}/{self.max_retries})..."
+                            f"RETRY: Retrying in {wait_time}s due to server error (attempt {attempt + 1}/{self.max_retries})..."
                         )
                         await asyncio.sleep(wait_time)
                         continue
                 return None
             except json.JSONDecodeError as e:
-                logger.error(f"❌ JSON decoding error for URL {url}: {e}")
+                logger.error(f"ERROR: JSON decoding error for URL {url}: {e}")
                 return None
             except Exception as e:
                 logger.error(
-                    f"❌ An unexpected error occurred during API request to {url}: {e}"
+                    f"ERROR: An unexpected error occurred during API request to {url}: {e}"
                 )
                 if attempt < self.max_retries - 1:
                     wait_time = self.base_backoff_delay * (2**attempt)
                     logger.info(
-                        f"🔄 Retrying in {wait_time}s due to unexpected error (attempt {attempt + 1}/{self.max_retries})..."
+                        f"RETRY: Retrying in {wait_time}s due to unexpected error (attempt {attempt + 1}/{self.max_retries})..."
                     )
                     await asyncio.sleep(wait_time)
                     continue
                 return None
 
         logger.error(
-            f"❌ API request failed for {url} after {self.max_retries} retries with exponential backoff."
+            f"ERROR: API request failed for {url} after {self.max_retries} retries with exponential backoff."
         )
         return None
 
@@ -572,10 +572,10 @@ class ComprehensivePrizePicksService:
 
             if data:
                 leagues = data.get("data", [])
-                logger.info(f"📋 Found {len(leagues)} active leagues")
+                logger.info(f"FOUND: Found {len(leagues)} active leagues")
                 return leagues
             else:
-                logger.warning("⚠️ Failed to fetch leagues, using defaults")
+                logger.warning("WARNING: Failed to fetch leagues, using defaults")
                 return [
                     {"id": "NBA", "name": "NBA"},
                     {"id": "NFL", "name": "NFL"},

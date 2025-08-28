@@ -1,41 +1,534 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="18" failures="0" errors="0" time="1.38">
-  <testsuite name="WebSocketManager" errors="0" failures="0" skipped="0" timestamp="2025-08-21T19:24:10" time="0.796" tests="18">
-    <testcase classname="WebSocketManager › Connection lifecycle" name="starts in idle state" time="0.003">
+<testsuites name="jest tests" tests="212" failures="4" errors="0" time="3.639">
+  <testsuite name="WebSocket Legacy Elimination" errors="0" failures="4" skipped="0" timestamp="2025-08-27T23:59:45" time="0.674" tests="11">
+    <testcase classname="WebSocket Legacy Elimination › buildWebSocketUrl canonical builder" name="never returns URL containing client_/ws" time="0.003">
     </testcase>
-    <testcase classname="WebSocketManager › Connection lifecycle" name="transitions through connecting to open state" time="0.023">
+    <testcase classname="WebSocket Legacy Elimination › buildWebSocketUrl canonical builder" name="throws in development when legacy path detected" time="0.004">
+      <failure>Error: expect(received).toThrow(expected)
+
+Expected substring: &quot;Legacy websocket path constructed after migration&quot;
+
+Received function did not throw
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\websocket\__tests__\websocketUrlLegacyElimination.test.ts:91:63)
+    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
+    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
+    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
+    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\index.js:343:7)</failure>
     </testcase>
-    <testcase classname="WebSocketManager › Connection lifecycle" name="handles hello message from server" time="0.006">
+    <testcase classname="WebSocket Legacy Elimination › buildWebSocketUrl canonical builder" name="generates correct canonical URLs" time="0.001">
     </testcase>
-    <testcase classname="WebSocketManager › Connection lifecycle" name="disconnects cleanly" time="0.013">
+    <testcase classname="WebSocket Legacy Elimination › Environment variable sanitization" name="sanitizes legacy path from VITE_WS_URL environment" time="0.001">
     </testcase>
-    <testcase classname="WebSocketManager › Messaging" name="sends messages when connected" time="0.005">
+    <testcase classname="WebSocket Legacy Elimination › Environment variable sanitization" name="handles environment without legacy path correctly" time="0.001">
     </testcase>
-    <testcase classname="WebSocketManager › Messaging" name="fails to send when not connected" time="0.005">
+    <testcase classname="WebSocket Legacy Elimination › Client ID persistence" name="creates and persists new client ID when none exists" time="0.001">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: &quot;client_j9yl4reve&quot;
+Received: undefined
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\websocket\__tests__\websocketUrlLegacyElimination.test.ts:142:55)
+    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
+    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
+    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
+    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\index.js:343:7)</failure>
     </testcase>
-    <testcase classname="WebSocketManager › Messaging" name="handles ping/pong messages" time="0.004">
+    <testcase classname="WebSocket Legacy Elimination › Client ID persistence" name="reuses existing client ID from storage" time="0.001">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: &quot;stored_client_id&quot;
+Received: &quot;client_jt0vo8t86&quot;
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\websocket\__tests__\websocketUrlLegacyElimination.test.ts:160:24)
+    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
+    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
+    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
+    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\index.js:343:7)</failure>
     </testcase>
-    <testcase classname="WebSocketManager › Messaging" name="forwards non-system messages to listeners" time="0.005">
+    <testcase classname="WebSocket Legacy Elimination › Client ID persistence" name="prefers passed client ID but still persists it" time="0">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: &quot;custom_client_123&quot;
+Received: undefined
+    at Object.&lt;anonymous&gt; (C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\src\websocket\__tests__\websocketUrlLegacyElimination.test.ts:176:58)
+    at Promise.finally.completed (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1559:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1499:10)
+    at _callCircusTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1009:40)
+    at _runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:949:3)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+    at _runTestsForDescribeBlock (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+    at run (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+    at runAndTransformResultsToJestFormat (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\jestAdapterInit.js:1920:21)
+    at jestAdapter (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-circus\build\runner.js:101:19)
+    at runTestInternal (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\index.js:275:16)
+    at runTest (C:\Users\bcmad\Downloads\A1Betting7-13.2\node_modules\jest-runner\build\index.js:343:7)</failure>
     </testcase>
-    <testcase classname="WebSocketManager › Reconnection and backoff" name="attempts reconnection on abnormal close" time="0.01">
+    <testcase classname="WebSocket Legacy Elimination › URL validation" name="validateWebSocketUrl correctly identifies legacy URLs" time="0">
     </testcase>
-    <testcase classname="WebSocketManager › Reconnection and backoff" name="enters fallback mode after max attempts" time="0.02">
+    <testcase classname="WebSocket Legacy Elimination › Reconnection backoff capping integration" name="mock reconnection delay sequence caps at expected max" time="0.001">
     </testcase>
-    <testcase classname="WebSocketManager › Reconnection and backoff" name="resets backoff strategy on successful connection" time="0.019">
+    <testcase classname="WebSocket Legacy Elimination › Integration with legacy detection" name="full URL construction flow prevents legacy path" time="0.001">
     </testcase>
-    <testcase classname="WebSocketManager › Error handling" name="classifies connection errors correctly" time="0.01">
+  </testsuite>
+  <testsuite name="WebSocketManager" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:46" time="0.141" tests="18">
+    <testcase classname="WebSocketManager › Connection lifecycle" name="starts in idle state" time="0.002">
     </testcase>
-    <testcase classname="WebSocketManager › Error handling" name="tracks recent connection attempts with classifications" time="0.007">
+    <testcase classname="WebSocketManager › Connection lifecycle" name="transitions through connecting to open state" time="0.012">
     </testcase>
-    <testcase classname="WebSocketManager › Event listeners" name="notifies state change listeners" time="0.006">
+    <testcase classname="WebSocketManager › Connection lifecycle" name="handles hello message from server" time="0.002">
     </testcase>
-    <testcase classname="WebSocketManager › Event listeners" name="handles listener errors gracefully" time="0.007">
+    <testcase classname="WebSocketManager › Connection lifecycle" name="disconnects cleanly" time="0.002">
     </testcase>
-    <testcase classname="WebSocketManager › Statistics tracking" name="tracks message counts by type" time="0.004">
+    <testcase classname="WebSocketManager › Messaging" name="sends messages when connected" time="0.001">
     </testcase>
-    <testcase classname="WebSocketManager › Statistics tracking" name="tracks connection uptime" time="0.01">
+    <testcase classname="WebSocketManager › Messaging" name="fails to send when not connected" time="0.001">
     </testcase>
-    <testcase classname="WebSocketManager › Resource cleanup" name="cleans up resources on destroy" time="0.008">
+    <testcase classname="WebSocketManager › Messaging" name="handles ping/pong messages" time="0.002">
+    </testcase>
+    <testcase classname="WebSocketManager › Messaging" name="forwards non-system messages to listeners" time="0.001">
+    </testcase>
+    <testcase classname="WebSocketManager › Reconnection and backoff" name="attempts reconnection on abnormal close" time="0.002">
+    </testcase>
+    <testcase classname="WebSocketManager › Reconnection and backoff" name="enters fallback mode after max attempts" time="0.008">
+    </testcase>
+    <testcase classname="WebSocketManager › Reconnection and backoff" name="resets backoff strategy on successful connection" time="0.004">
+    </testcase>
+    <testcase classname="WebSocketManager › Error handling" name="classifies connection errors correctly" time="0.005">
+    </testcase>
+    <testcase classname="WebSocketManager › Error handling" name="tracks recent connection attempts with classifications" time="0.001">
+    </testcase>
+    <testcase classname="WebSocketManager › Event listeners" name="notifies state change listeners" time="0.001">
+    </testcase>
+    <testcase classname="WebSocketManager › Event listeners" name="handles listener errors gracefully" time="0.003">
+    </testcase>
+    <testcase classname="WebSocketManager › Statistics tracking" name="tracks message counts by type" time="0.001">
+    </testcase>
+    <testcase classname="WebSocketManager › Statistics tracking" name="tracks connection uptime" time="0.001">
+    </testcase>
+    <testcase classname="WebSocketManager › Resource cleanup" name="cleans up resources on destroy" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ensureModelMetricsShape" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:46" time="0.088" tests="10">
+    <testcase classname="ensureModelMetricsShape" name="should handle empty object with full defaults" time="0.003">
+    </testcase>
+    <testcase classname="ensureModelMetricsShape" name="should map legacy optimization_level fields" time="0">
+    </testcase>
+    <testcase classname="ensureModelMetricsShape" name="should prefer canonical structure over legacy" time="0">
+    </testcase>
+    <testcase classname="ensureModelMetricsShape" name="should coerce string numbers to numbers" time="0.001">
+    </testcase>
+    <testcase classname="ensureModelMetricsShape" name="should mark partial payload when sections missing" time="0">
+    </testcase>
+    <testcase classname="ensureModelMetricsShape" name="should handle multiple legacy optimization variants" time="0.001">
+    </testcase>
+    <testcase classname="ensureModelMetricsShape" name="should derive total_tokens from input + output" time="0">
+    </testcase>
+    <testcase classname="ensureModelMetricsShape" name="should derive success_rate from success_requests/total_requests" time="0">
+    </testcase>
+    <testcase classname="ensureModelMetricsShape" name="should handle null input gracefully" time="0">
+    </testcase>
+    <testcase classname="ensureModelMetricsShape" name="should handle non-object input gracefully" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="ensureHealthShape" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:46" time="0.118" tests="24">
+    <testcase classname="ensureHealthShape › Basic normalization" name="should handle null/undefined input gracefully" time="0.011">
+    </testcase>
+    <testcase classname="ensureHealthShape › Basic normalization" name="should handle empty object input" time="0.002">
+    </testcase>
+    <testcase classname="ensureHealthShape › Basic normalization" name="should preserve valid existing data" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Field mapping (hit_rate → cache_hit_rate)" name="should map hit_rate to cache_hit_rate" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Field mapping (hit_rate → cache_hit_rate)" name="should prefer cache_hit_rate over hit_rate when both exist" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Field mapping (hit_rate → cache_hit_rate)" name="should map infrastructure.cache.hit_rate_percent to cache_hit_rate" time="0">
+    </testcase>
+    <testcase classname="ensureHealthShape › Field mapping (hit_rate → cache_hit_rate)" name="should prefer performance.cache_hit_rate over infrastructure structure" time="0">
+    </testcase>
+    <testcase classname="ensureHealthShape › Field mapping (hit_rate → cache_hit_rate)" name="should log field mapping in development" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Type coercion" name="should coerce string numbers to numeric values" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Type coercion" name="should handle invalid numeric strings gracefully" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Type coercion" name="should handle boolean values as numbers" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Nested object handling" name="should handle missing services object" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Nested object handling" name="should handle partial services object" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Nested object handling" name="should handle missing performance object" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Status normalization" name="should normalize boolean status values" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Status normalization" name="should handle numeric status values" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Status normalization" name="should preserve valid string status" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Real-world scenarios" name="should handle API response with mixed types" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Real-world scenarios" name="should handle completely malformed input" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Type safety validation" name="should return proper TypeScript types" time="0">
+    </testcase>
+    <testcase classname="ensureHealthShape › Type safety validation" name="should satisfy SystemHealth interface completely" time="0">
+    </testcase>
+    <testcase classname="ensureHealthShape › Performance edge cases" name="should handle very large numbers" time="0.001">
+    </testcase>
+    <testcase classname="ensureHealthShape › Performance edge cases" name="should handle negative numbers" time="0">
+    </testcase>
+    <testcase classname="ensureHealthShape › Performance edge cases" name="should handle Infinity and NaN" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="encryption utils" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:46" time="0.1" tests="3">
+    <testcase classname="encryption utils" name="should encrypt and decrypt data correctly" time="0.002">
+    </testcase>
+    <testcase classname="encryption utils" name="should throw on invalid decryption" time="0.001">
+    </testcase>
+    <testcase classname="encryption utils" name="should throw on invalid encryption input" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="BackoffStrategy" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:46" time="0.097" tests="16">
+    <testcase classname="BackoffStrategy › Basic backoff sequence" name="generates correct base delay sequence" time="0">
+    </testcase>
+    <testcase classname="BackoffStrategy › Basic backoff sequence" name="respects delay cap" time="0">
+    </testcase>
+    <testcase classname="BackoffStrategy › Basic backoff sequence" name="returns null when max attempts exceeded" time="0.001">
+    </testcase>
+    <testcase classname="BackoffStrategy › Jitter functionality" name="applies deterministic jitter with seeded RNG" time="0">
+    </testcase>
+    <testcase classname="BackoffStrategy › Jitter functionality" name="keeps jittered values within expected bounds" time="0.003">
+    </testcase>
+    <testcase classname="BackoffStrategy › Jitter functionality" name="enforces minimum delay of 100ms" time="0">
+    </testcase>
+    <testcase classname="BackoffStrategy › Reset functionality" name="resets attempt counter and allows new sequence" time="0.001">
+    </testcase>
+    <testcase classname="BackoffStrategy › Preview functionality" name="peeks at next delay without consuming attempt" time="0">
+    </testcase>
+    <testcase classname="BackoffStrategy › Configuration validation" name="uses default configuration when no options provided" time="0.001">
+    </testcase>
+    <testcase classname="BackoffStrategy › Configuration validation" name="clamps jitter ratio to valid range" time="0">
+    </testcase>
+    <testcase classname="BackoffStrategy › Configuration validation" name="provides configuration summary" time="0.001">
+    </testcase>
+    <testcase classname="BackoffStrategy › Static factory methods" name="creates immediate strategy for testing" time="0">
+    </testcase>
+    <testcase classname="BackoffStrategy › Static factory methods" name="creates aggressive strategy" time="0.001">
+    </testcase>
+    <testcase classname="BackoffStrategy › Static factory methods" name="creates production strategy" time="0">
+    </testcase>
+    <testcase classname="BackoffStrategy › Jitter bounds calculation" name="calculates correct jitter bounds" time="0">
+    </testcase>
+    <testcase classname="BackoffStrategy › Jitter bounds calculation" name="enforces minimum delay in bounds calculation" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="modelMetricsAccessors" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:46" time="0.093" tests="29">
+    <testcase classname="modelMetricsAccessors › getOptimizationLevel" name="should get canonical optimization_level" time="0.001">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › getOptimizationLevel" name="should fall back to legacy optimizationLevel" time="0.001">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › getOptimizationLevel" name="should try multiple legacy paths" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › getOptimizationLevel" name="should return default for missing field" time="0.001">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › getModelName" name="should get canonical model name" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › getModelName" name="should fall back to legacy modelName" time="0.001">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › getModelName" name="should return default for missing field" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › getProvider" name="should get canonical provider" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › getProvider" name="should fall back to legacy provider" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › performance metrics accessors" name="should get throughput from canonical path" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › performance metrics accessors" name="should get throughput from legacy path" time="0.001">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › performance metrics accessors" name="should get latency metrics" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › performance metrics accessors" name="should normalize success rate from percentage" time="0.001">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › performance metrics accessors" name="should keep decimal success rate as-is" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › usage metrics accessors" name="should get total requests from canonical path" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › usage metrics accessors" name="should get total requests from legacy path" time="0.001">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › usage metrics accessors" name="should get total tokens" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › tuning parameters" name="should get temperature from canonical path" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › tuning parameters" name="should get temperature from legacy path" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › tuning parameters" name="should return default temperature" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › type coercion" name="should coerce string numbers to numbers" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › type coercion" name="should coerce numbers to strings" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › type coercion" name="should handle invalid numeric strings" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › safeMetricsAccess utility" name="should safely access nested properties" time="0.001">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › safeMetricsAccess utility" name="should return default for missing nested properties" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › safeMetricsAccess utility" name="should handle null/undefined objects" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › isNormalizedModelMetrics" name="should identify normalized ModelMetricsShape" time="0">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › isNormalizedModelMetrics" name="should reject incomplete objects" time="0.001">
+    </testcase>
+    <testcase classname="modelMetricsAccessors › one-time warning behavior" name="should warn only once per field" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="location utils" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:46" time="0.084" tests="4">
+    <testcase classname="location utils" name="getLocation should return window.location" time="0.001">
+    </testcase>
+    <testcase classname="location utils" name="getQueryParams should parse query parameters correctly" time="0">
+    </testcase>
+    <testcase classname="location utils" name="navigateTo should be callable" time="0.005">
+    </testcase>
+    <testcase classname="location utils" name="reloadPage should be callable" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="metricsAccessors" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:47" time="0.09" tests="25">
+    <testcase classname="metricsAccessors › getTotalRequests" name="should return canonical cache.total_requests" time="0.001">
+    </testcase>
+    <testcase classname="metricsAccessors › getTotalRequests" name="should fallback to legacy cache_performance.total_requests" time="0.001">
+    </testcase>
+    <testcase classname="metricsAccessors › getTotalRequests" name="should fallback to flat total_requests" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getTotalRequests" name="should return 0 for null/undefined input" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getApiTotalRequests" name="should return canonical api.total_requests" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getApiTotalRequests" name="should aggregate from legacy api_performance" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getApiTotalRequests" name="should return 0 when no API data available" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getErrorRequests" name="should return canonical api.error_requests" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getErrorRequests" name="should aggregate errors from legacy api_performance" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getApiErrorRate" name="should calculate error rate correctly" time="0.001">
+    </testcase>
+    <testcase classname="metricsAccessors › getApiErrorRate" name="should return 0 when no total requests" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getApiErrorRate" name="should work with aggregated legacy data" time="0.001">
+    </testcase>
+    <testcase classname="metricsAccessors › getSuccessRequests" name="should return canonical api.success_requests" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getSuccessRequests" name="should calculate from total - errors when success not available" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getSuccessRequests" name="should return 0 when no API data" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getAverageLatencyMs" name="should return canonical api.avg_latency_ms" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getAverageLatencyMs" name="should average from legacy api_performance" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getAverageLatencyMs" name="should return 0 when no latency data" time="0.001">
+    </testcase>
+    <testcase classname="metricsAccessors › getCacheHits" name="should return canonical cache.hits" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getCacheHits" name="should fallback to legacy cache_performance.hits with warning" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getCacheMisses" name="should return canonical cache.misses" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getCacheMisses" name="should fallback to legacy cache_performance.misses" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › getCacheErrors" name="should return canonical cache.errors" time="0.001">
+    </testcase>
+    <testcase classname="metricsAccessors › getCacheErrors" name="should fallback to legacy cache_performance.errors with warning" time="0">
+    </testcase>
+    <testcase classname="metricsAccessors › one-time warning behavior" name="should only warn once per accessor type across multiple calls" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="getCacheHitRate" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:47" time="0.093" tests="22">
+    <testcase classname="getCacheHitRate › Priority 1: Canonical cache_hit_rate" name="should return cache_hit_rate when present" time="0.001">
+    </testcase>
+    <testcase classname="getCacheHitRate › Priority 2: Legacy performance.hit_rate" name="should return performance.hit_rate and warn when cache_hit_rate missing" time="0">
+    </testcase>
+    <testcase classname="getCacheHitRate › Priority 2: Legacy performance.hit_rate" name="should prefer cache_hit_rate over hit_rate when both exist" time="0.001">
+    </testcase>
+    <testcase classname="getCacheHitRate › Priority 3: Phase 3 infrastructure structure" name="should return infrastructure.cache.hit_rate_percent and warn" time="0">
+    </testcase>
+    <testcase classname="getCacheHitRate › Priority 4: Metrics structure" name="should return cache_performance.hit_rate" time="0">
+    </testcase>
+    <testcase classname="getCacheHitRate › Priority 5: Flat legacy structure" name="should return flat hit_rate and warn" time="0">
+    </testcase>
+    <testcase classname="getCacheHitRate › Default cases" name="should return 0 for null/undefined" time="0">
+    </testcase>
+    <testcase classname="getCacheHitRate › Default cases" name="should return 0 when no hit_rate fields present" time="0">
+    </testcase>
+    <testcase classname="hasPerformanceSection" name="should return true for canonical performance section" time="0">
+    </testcase>
+    <testcase classname="hasPerformanceSection" name="should return true for infrastructure section" time="0">
+    </testcase>
+    <testcase classname="hasPerformanceSection" name="should return true for cache_performance section" time="0">
+    </testcase>
+    <testcase classname="hasPerformanceSection" name="should return true for flat hit_rate" time="0.001">
+    </testcase>
+    <testcase classname="hasPerformanceSection" name="should return false for empty objects" time="0">
+    </testcase>
+    <testcase classname="safeIterateCacheMetrics" name="should filter valid metrics and return mapped results" time="0">
+    </testcase>
+    <testcase classname="safeIterateCacheMetrics" name="should return empty array for null/undefined input" time="0">
+    </testcase>
+    <testcase classname="safeIterateCacheMetrics" name="should return empty array for non-array input" time="0">
+    </testcase>
+    <testcase classname="Integration with ensureHealthShape" name="should work with ensureHealthShape output" time="0.002">
+    </testcase>
+    <testcase classname="getCacheType" name="should return performance.cache_type when present" time="0">
+    </testcase>
+    <testcase classname="getCacheType" name="should return flat cache_type when performance missing" time="0.001">
+    </testcase>
+    <testcase classname="getCacheType" name="should prefer performance.cache_type over flat cache_type" time="0">
+    </testcase>
+    <testcase classname="getCacheType" name="should return &quot;Unknown&quot; for null/undefined" time="0">
+    </testcase>
+    <testcase classname="getCacheType" name="should return &quot;Unknown&quot; when no cache_type fields present" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="smoothing utils" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:47" time="0.077" tests="4">
+    <testcase classname="smoothing utils" name="movingAverage with window=2 computes averages" time="0.001">
+    </testcase>
+    <testcase classname="smoothing utils" name="exponentialMovingAverage with window=2 smooths progressively" time="0">
+    </testcase>
+    <testcase classname="smoothing utils" name="movingAverage handles window=1 and empty input" time="0">
+    </testcase>
+    <testcase classname="smoothing utils" name="exponentialMovingAverage handles window=1 and empty input" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="userSettings utils" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:47" time="0.11" tests="15">
+    <testcase classname="userSettings utils" name="getUserSettings should return default settings if nothing in localStorage" time="0">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserSettings should return parsed settings from localStorage" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserSettings should merge saved settings with defaults" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils" name="applySettings should apply dark mode class and background color" time="0">
+    </testcase>
+    <testcase classname="userSettings utils" name="applySettings should set font size" time="0">
+    </testcase>
+    <testcase classname="userSettings utils" name="saveUserSettings should save settings to localStorage and apply them" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserDisplayName should return name from localStorage if available" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserDisplayName should return name from settings if not in localStorage" time="0">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserDisplayName should return default if no name found" time="0">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserEmail should return email from localStorage if available" time="0">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserEmail should return email from settings if not in localStorage" time="0">
+    </testcase>
+    <testcase classname="userSettings utils" name="getUserEmail should return default if no email found" time="0">
+    </testcase>
+    <testcase classname="userSettings utils" name="isDarkMode should return dark mode setting" time="0.001">
+    </testcase>
+    <testcase classname="userSettings utils" name="isDarkMode should return default if settings not found" time="0">
+    </testcase>
+    <testcase classname="userSettings utils" name="initializeSettings should get and apply settings" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="safeNumber utils" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:47" time="0.086" tests="13">
+    <testcase classname="safeNumber utils" name="safeNumber should format a number correctly" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeNumber should handle string input" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeNumber should handle invalid input with fallback" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safePercentage should format a percentage correctly" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safePercentage should handle invalid input with default fallback" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeCurrency should format currency correctly" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeCurrency should handle invalid input with default fallback" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeCompactNumber should format large numbers with suffixes" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeCompactNumber should handle invalid input with default fallback" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeDivision should perform division correctly" time="0.001">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safeDivision should handle invalid input with fallback" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safePercentageChange should calculate percentage change correctly" time="0">
+    </testcase>
+    <testcase classname="safeNumber utils" name="safePercentageChange should handle invalid input with default fallback" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="WebSocket Legacy Elimination" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:47" time="0.085" tests="7">
+    <testcase classname="WebSocket Legacy Elimination › URL validation" name="validateWebSocketUrl correctly identifies legacy URLs" time="0">
+    </testcase>
+    <testcase classname="WebSocket Legacy Elimination › Reconnection backoff capping integration" name="mock reconnection delay sequence caps at expected max" time="0">
+    </testcase>
+    <testcase classname="WebSocket Legacy Elimination › URL construction validation" name="canonical URL format is enforced" time="0">
+    </testcase>
+    <testcase classname="WebSocket Legacy Elimination › URL construction validation" name="environment variable sanitization concept" time="0.001">
+    </testcase>
+    <testcase classname="WebSocket Legacy Elimination › CI integration validation" name="legacy path detection patterns work correctly" time="0">
+    </testcase>
+    <testcase classname="WebSocket Legacy Elimination › Production safety checks" name="no hardcoded legacy paths in production patterns" time="0.001">
+    </testcase>
+    <testcase classname="WebSocket Legacy Elimination › Production safety checks" name="canonical patterns pass validation" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="DataPipeline" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:47" time="0.074" tests="1">
+    <testcase classname="DataPipeline" name="should run a dummy test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="cacheUtils" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:47" time="0.073" tests="1">
+    <testcase classname="cacheUtils" name="should run a placeholder test" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ensureMetricsShape" errors="0" failures="0" skipped="0" timestamp="2025-08-27T23:59:47" time="0.056" tests="9">
+    <testcase classname="ensureMetricsShape" name="should return fully populated numeric fields with empty object input" time="0.001">
+    </testcase>
+    <testcase classname="ensureMetricsShape" name="should handle legacy cache_performance shape only" time="0">
+    </testcase>
+    <testcase classname="ensureMetricsShape" name="should handle mixed canonical and legacy with canonical winning" time="0.001">
+    </testcase>
+    <testcase classname="ensureMetricsShape" name="should coerce string numbers correctly" time="0">
+    </testcase>
+    <testcase classname="ensureMetricsShape" name="should handle partial data with missing fields defaulting to zero" time="0.001">
+    </testcase>
+    <testcase classname="ensureMetricsShape" name="should detect and flag legacy mapping" time="0">
+    </testcase>
+    <testcase classname="ensureMetricsShape" name="should aggregate API performance stats correctly" time="0.001">
+    </testcase>
+    <testcase classname="ensureMetricsShape" name="should handle null input gracefully" time="0">
+    </testcase>
+    <testcase classname="ensureMetricsShape" name="should handle Infinity and NaN in numeric fields" time="0.001">
     </testcase>
   </testsuite>
 </testsuites>

@@ -32,6 +32,11 @@ describe('ensureMetricsShape', () => {
         hit_rate: 0,
         errors: 0,
       },
+      system_info: {
+        optimization_level: 'Basic',
+        caching_strategy: 'Memory',
+        monitoring: 'Standard',
+      },
       timestamps: {
         updated_at: expect.any(String),
       },

@@ -114,13 +114,24 @@ export function initWebVitals(options: InitWebVitalsOptions = {}): boolean {
   }
   const emit = (metric: CoreWebVitalMetric) => {
     if (!options.onMetric) return;
+    // Safely read navigation entries: mocked getEntriesByType may return undefined
+    let navigationType: string | undefined = undefined;
+    try {
+      const entries = (typeof performance.getEntriesByType === 'function' && performance.getEntriesByType('navigation')) || [];
+      if (Array.isArray(entries) && entries.length > 0 && entries[0] && (entries[0] as any).type) {
+        navigationType = (entries[0] as any).type;
+      }
+    } catch (e) {
+      // ignore and leave navigationType undefined
+    }
+
     const record: WebVitalMetricRecord = {
       name: metric.name,
       value: clampNonNegative(metric.value) ?? 0,
       rating: metric.rating,
       delta: metric.delta,
       id: metric.id,
-      navigationType: (performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined)?.type,
+      navigationType,
       timestamp: Date.now()
     };
 

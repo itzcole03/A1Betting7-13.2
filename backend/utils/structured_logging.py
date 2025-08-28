@@ -12,7 +12,29 @@ from typing import Any, Dict, Optional
 
 from pythonjsonlogger import jsonlogger
 
-from backend.config.settings import LogLevel, get_settings
+# Import settings
+from backend.config.settings import get_settings
+
+class SafeStreamHandler(logging.StreamHandler):
+    """StreamHandler that handles encoding errors gracefully"""
+
+    def emit(self, record):
+        try:
+            super().emit(record)
+        except UnicodeEncodeError:
+            # Fallback: encode the message safely
+            msg = self.format(record)
+            try:
+                # Try to encode with UTF-8 and replace errors
+                safe_msg = msg.encode('utf-8', errors='replace').decode('utf-8')
+                record.msg = safe_msg
+                super().emit(record)
+            except Exception:
+                # Last resort: use ASCII-safe version
+                import re
+                safe_msg = re.sub(r'[^\x00-\x7F]+', '?', msg)
+                record.msg = safe_msg
+                super().emit(record)
 
 
 class CorrelationIdFilter(logging.Filter):

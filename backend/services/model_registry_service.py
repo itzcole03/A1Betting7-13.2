@@ -134,9 +134,9 @@ class ModelRegistryService:
                 socket_timeout=5
             )
             self.redis_client.ping()
-            logger.info("✅ Redis connection established for model registry")
+            logger.info("SUCCESS: Redis connection established for model registry")
         except Exception as e:
-            logger.warning(f"⚠️ Redis unavailable, using in-memory storage: {e}")
+            logger.warning(f"WARNING: Redis unavailable, using in-memory storage: {e}")
             self.redis_client = None
     
     async def _load_models_from_persistence(self):
@@ -206,7 +206,7 @@ class ModelRegistryService:
                     
                     self._performance_metrics[model_id] = metrics
             
-            logger.info(f"✅ Loaded {len(self._models)} models from persistence")
+            logger.info(f"SUCCESS: Loaded {len(self._models)} models from persistence")
             
         except Exception as e:
             unified_error_handler.handle_error(
@@ -241,7 +241,7 @@ class ModelRegistryService:
                 # Persist to Redis
                 await self._persist_model_metadata(metadata)
                 
-                logger.info(f"✅ Registered model {metadata.model_id} ({metadata.name} v{metadata.version})")
+                logger.info(f"SUCCESS: Registered model {metadata.model_id} ({metadata.name} v{metadata.version})")
                 
                 return metadata.model_id
                 
@@ -312,7 +312,7 @@ class ModelRegistryService:
             # Persist changes
             await self._persist_model_metadata(self._models[model_id])
             
-            logger.info(f"✅ Updated model {model_id} status: {old_status.value} → {status.value}")
+            logger.info(f"SUCCESS: Updated model {model_id} status: {old_status.value} → {status.value}")
             return True
     
     def get_model(self, model_id: str) -> Optional[ModelMetadata]:
@@ -496,7 +496,7 @@ class ModelRegistryService:
             await self._remove_model(model_id)
         
         if expired_models:
-            logger.info(f"🧹 Cleaned up {len(expired_models)} expired models")
+            logger.info(f"CLEANUP: Cleaned up {len(expired_models)} expired models")
     
     async def _remove_model(self, model_id: str):
         """Remove model from registry and persistence"""

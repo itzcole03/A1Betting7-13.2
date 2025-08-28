@@ -107,7 +107,7 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
   };
 
   // Robust connect logic with exponential backoff and error tracking
-  const connectWebSocket = React.useCallback(() => {
+  const connectWebSocket = React.useCallback((isReconnection = false) => {
     const _wsUrl = getWebSocketUrl();
 
     // If WebSocket URL is null, it means WebSocket is disabled
@@ -119,7 +119,7 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
       return;
     }
 
-    setStatus(reconnectAttempts.current > 0 ? 'reconnecting' : 'connecting');
+    setStatus(reconnectAttempts.current > 0 || isReconnection ? 'reconnecting' : 'connecting');
     setLastError(null);
 
     if (verboseLogging) console.debug(`[WebSocket] Connecting to: ${_wsUrl}`);
@@ -154,7 +154,7 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
             reconnectTimeout.current = setTimeout(() => {
               setStatus('reconnecting');
               console.log(`[WebSocket] Reconnecting... (attempt ${reconnectAttempts.current})`);
-              connectWebSocket();
+              connectWebSocket(true);
             }, delay);
             setLastError(
               `Disconnected. Attempting to reconnect in ${delay / 1000}s (attempt ${
@@ -261,7 +261,7 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
         setLastError(null);
         reconnectAttempts.current = 0;
         if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
-        connectWebSocket();
+        connectWebSocket(true);
       }
     };
     const handleOffline = () => {

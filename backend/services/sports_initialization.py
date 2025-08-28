@@ -6,10 +6,10 @@ Only loads models and services when the corresponding sport tab is selected.
 """
 
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from backend.services.lazy_sport_manager import lazy_sport_manager
-from backend.services.sport_service_base import unified_sport_service
+from backend.services.sport_service_base import unified_sport_service, SportServiceBase
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("sports_init")
@@ -34,17 +34,17 @@ async def initialize_sports_services() -> Dict[str, Any]:
     # Start the lazy sport manager cleanup service
     try:
         await lazy_sport_manager.start_cleanup_service()
-        logger.info("✅ Lazy sport manager cleanup service started")
+        logger.info("Lazy sport manager cleanup service started")
     except Exception as e:
         logger.warning(f"⚠️ Failed to start cleanup service: {e}")
 
     # Register NBA service (lazy)
     try:
         # Create a lazy wrapper that will load the actual service on demand
-        class LazyNBAWrapper:
+        class LazyNBAWrapper(SportServiceBase):
             def __init__(self):
-                self.sport_name = "NBA"
-                self._loaded_service = None
+                super().__init__("NBA")
+                self._loaded_service: Optional[SportServiceBase] = None
 
             async def initialize(self):
                 if not self._loaded_service:
@@ -58,6 +58,34 @@ async def initialize_sports_services() -> Dict[str, Any]:
                             f"Failed to activate NBA: {activation_result.get('error', 'Unknown error')}"
                         )
 
+            async def close(self):
+                if self._loaded_service and hasattr(self._loaded_service, "close"):
+                    await self._loaded_service.close()
+
+            async def get_teams(self):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("NBA service not loaded")
+                return await self._loaded_service.get_teams()
+
+            async def get_players(self, team_id=None):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("NBA service not loaded")
+                return await self._loaded_service.get_players(team_id=team_id)
+
+            async def get_games(self, start_date=None, end_date=None, team_id=None):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("NBA service not loaded")
+                return await self._loaded_service.get_games(start_date=start_date, end_date=end_date, team_id=team_id)
+
+            async def get_odds_comparison(self):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("NBA service not loaded")
+                return await self._loaded_service.get_odds_comparison()
+
             async def health_check(self):
                 status = lazy_sport_manager.get_sport_status("NBA")
                 return {
@@ -70,20 +98,20 @@ async def initialize_sports_services() -> Dict[str, Any]:
         nba_wrapper = LazyNBAWrapper()
         unified_sport_service.register_sport_service("NBA", nba_wrapper)
         initialization_status["registered_services"].append("NBA")
-        logger.info("✅ NBA service registered for lazy loading")
+        logger.info("SUCCESS: NBA service registered for lazy loading")
     except Exception as e:
         initialization_status["failed_services"].append(
             {"service": "NBA", "error": str(e)}
         )
-        logger.error(f"❌ Failed to register NBA service: {e}")
+        logger.error(f"ERROR: Failed to register NBA service: {e}")
 
     # Register MLB service (lazy)
     try:
 
-        class LazyMLBWrapper:
+        class LazyMLBWrapper(SportServiceBase):
             def __init__(self):
-                self.sport_name = "MLB"
-                self._loaded_service = None
+                super().__init__("MLB")
+                self._loaded_service: Optional[SportServiceBase] = None
 
             async def initialize(self):
                 if not self._loaded_service:
@@ -97,15 +125,33 @@ async def initialize_sports_services() -> Dict[str, Any]:
                             f"Failed to activate MLB: {activation_result.get('error', 'Unknown error')}"
                         )
 
-            async def get_odds_comparison(self):
-                # Ensure service is loaded
+            async def close(self):
+                if self._loaded_service and hasattr(self._loaded_service, "close"):
+                    await self._loaded_service.close()
+
+            async def get_teams(self):
                 await self.initialize()
-                return {
-                    "status": "ok",
-                    "sport": "MLB",
-                    "odds": [],
-                    "message": "MLB odds available via lazy-loaded service",
-                }
+                if self._loaded_service is None:
+                    raise Exception("MLB service not loaded")
+                return await self._loaded_service.get_teams()
+
+            async def get_players(self, team_id=None):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("MLB service not loaded")
+                return await self._loaded_service.get_players(team_id=team_id)
+
+            async def get_games(self, start_date=None, end_date=None, team_id=None):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("MLB service not loaded")
+                return await self._loaded_service.get_games(start_date=start_date, end_date=end_date, team_id=team_id)
+
+            async def get_odds_comparison(self):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("MLB service not loaded")
+                return await self._loaded_service.get_odds_comparison()
 
             async def health_check(self):
                 status = lazy_sport_manager.get_sport_status("MLB")
@@ -119,21 +165,21 @@ async def initialize_sports_services() -> Dict[str, Any]:
         mlb_wrapper = LazyMLBWrapper()
         unified_sport_service.register_sport_service("MLB", mlb_wrapper)
         initialization_status["registered_services"].append("MLB")
-        logger.info("✅ MLB service registered for lazy loading")
+        logger.info("SUCCESS: MLB service registered for lazy loading")
 
     except Exception as e:
         initialization_status["failed_services"].append(
             {"service": "MLB", "error": str(e)}
         )
-        logger.warning(f"⚠️ MLB service not available for lazy loading: {e}")
+        logger.warning(f"WARNING: MLB service not available for lazy loading: {e}")
 
     # Register NFL service (lazy)
     try:
 
-        class LazyNFLWrapper:
+        class LazyNFLWrapper(SportServiceBase):
             def __init__(self):
-                self.sport_name = "NFL"
-                self._loaded_service = None
+                super().__init__("NFL")
+                self._loaded_service: Optional[SportServiceBase] = None
 
             async def initialize(self):
                 if not self._loaded_service:
@@ -147,6 +193,34 @@ async def initialize_sports_services() -> Dict[str, Any]:
                             f"Failed to activate NFL: {activation_result.get('error', 'Unknown error')}"
                         )
 
+            async def close(self):
+                if self._loaded_service and hasattr(self._loaded_service, "close"):
+                    await self._loaded_service.close()
+
+            async def get_teams(self):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("NFL service not loaded")
+                return await self._loaded_service.get_teams()
+
+            async def get_players(self, team_id=None):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("NFL service not loaded")
+                return await self._loaded_service.get_players(team_id=team_id)
+
+            async def get_games(self, start_date=None, end_date=None, team_id=None):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("NFL service not loaded")
+                return await self._loaded_service.get_games(start_date=start_date, end_date=end_date, team_id=team_id)
+
+            async def get_odds_comparison(self):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("NFL service not loaded")
+                return await self._loaded_service.get_odds_comparison()
+
             async def health_check(self):
                 status = lazy_sport_manager.get_sport_status("NFL")
                 return {
@@ -159,20 +233,20 @@ async def initialize_sports_services() -> Dict[str, Any]:
         nfl_wrapper = LazyNFLWrapper()
         unified_sport_service.register_sport_service("NFL", nfl_wrapper)
         initialization_status["registered_services"].append("NFL")
-        logger.info("✅ NFL service registered for lazy loading")
+        logger.info("SUCCESS: NFL service registered for lazy loading")
     except Exception as e:
         initialization_status["failed_services"].append(
             {"service": "NFL", "error": str(e)}
         )
-        logger.error(f"❌ Failed to register NFL service: {e}")
+        logger.error(f"ERROR: Failed to register NFL service: {e}")
 
     # Register NHL service (lazy)
     try:
 
-        class LazyNHLWrapper:
+        class LazyNHLWrapper(SportServiceBase):
             def __init__(self):
-                self.sport_name = "NHL"
-                self._loaded_service = None
+                super().__init__("NHL")
+                self._loaded_service: Optional[SportServiceBase] = None
 
             async def initialize(self):
                 if not self._loaded_service:
@@ -186,6 +260,34 @@ async def initialize_sports_services() -> Dict[str, Any]:
                             f"Failed to activate NHL: {activation_result.get('error', 'Unknown error')}"
                         )
 
+            async def close(self):
+                if self._loaded_service and hasattr(self._loaded_service, "close"):
+                    await self._loaded_service.close()
+
+            async def get_teams(self):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("NHL service not loaded")
+                return await self._loaded_service.get_teams()
+
+            async def get_players(self, team_id=None):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("NHL service not loaded")
+                return await self._loaded_service.get_players(team_id=team_id)
+
+            async def get_games(self, start_date=None, end_date=None, team_id=None):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("NHL service not loaded")
+                return await self._loaded_service.get_games(start_date=start_date, end_date=end_date, team_id=team_id)
+
+            async def get_odds_comparison(self):
+                await self.initialize()
+                if self._loaded_service is None:
+                    raise Exception("NHL service not loaded")
+                return await self._loaded_service.get_odds_comparison()
+
             async def health_check(self):
                 status = lazy_sport_manager.get_sport_status("NHL")
                 return {
@@ -198,17 +300,17 @@ async def initialize_sports_services() -> Dict[str, Any]:
         nhl_wrapper = LazyNHLWrapper()
         unified_sport_service.register_sport_service("NHL", nhl_wrapper)
         initialization_status["registered_services"].append("NHL")
-        logger.info("✅ NHL service registered for lazy loading")
+        logger.info("SUCCESS: NHL service registered for lazy loading")
     except Exception as e:
         initialization_status["failed_services"].append(
             {"service": "NHL", "error": str(e)}
         )
-        logger.error(f"❌ Failed to register NHL service: {e}")
+        logger.error(f"ERROR: Failed to register NHL service: {e}")
 
     # Don't initialize all services - they will be loaded on demand
-    logger.info("🚀 Lazy loading sports services registration completed")
+    logger.info("Lazy loading sports services registration completed")
     logger.info(
-        "📋 Services will be initialized only when corresponding sport tabs are selected"
+        "Services will be initialized only when corresponding sport tabs are selected"
     )
 
     initialization_status["total_services"] = len(
@@ -216,7 +318,7 @@ async def initialize_sports_services() -> Dict[str, Any]:
     )
 
     logger.info(
-        f"✅ Lazy sports initialization complete: {initialization_status['total_services']} services registered for on-demand loading"
+        f"Lazy sports initialization complete: {initialization_status['total_services']} services registered for on-demand loading"
     )
     return initialization_status
 
@@ -235,10 +337,10 @@ async def shutdown_sports_services():
 
         await unified_sport_service.close_all()
         logger.info(
-            "✅ All sports services shut down successfully with lazy loading cleanup"
+            "All sports services shut down successfully with lazy loading cleanup"
         )
     except Exception as e:
-        logger.error(f"❌ Error during sports services shutdown: {e}")
+        logger.error(f"Error during sports services shutdown: {e}")
 
 
 # Startup event for sports services

@@ -379,8 +379,10 @@ export function ensureModelMetricsShape(raw: unknown): ModelMetricsShape {
   if (!hasPerformanceSection) missingFields.push('performance section');
   if (!hasUsageSection) missingFields.push('usage section');
 
-  if ((import.meta.env?.DEV || process.env.NODE_ENV === 'development') && 
-      (missingFields.length > 0 || originFlags.mappedLegacy) && 
+  if ((process.env.NODE_ENV === 'development' ||
+        process.env.NODE_ENV === 'test' ||
+        typeof jest !== 'undefined') &&
+      (missingFields.length > 0 || originFlags.mappedLegacy) &&
       !hasLoggedMissingFields) {
     hasLoggedMissingFields = true;
     

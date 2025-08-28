@@ -67,12 +67,12 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         self._csp_header_name, self._csp_header_value = self._build_csp_header()
         
         if self.enabled:
-            logger.info(f"✅ Security headers middleware enabled: "
+            logger.info(f"SUCCESS: Security headers middleware enabled: "
                        f"CSP={'report-only' if settings.csp_report_only else 'enforced'}, "
                        f"HSTS={settings.enable_hsts}, "
                        f"strict_mode={settings.security_strict_mode}")
         else:
-            logger.warning("⚠️ Security headers middleware DISABLED")
+            logger.warning("WARNING: Security headers middleware DISABLED")
     
     def _build_static_headers(self) -> Dict[str, str]:
         """Build static security headers that don't change per request."""

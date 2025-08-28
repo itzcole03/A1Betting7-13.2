@@ -31,8 +31,7 @@ describe('Performance Monitor', () => {
   beforeEach(() => {
     // Mock performance.now to return predictable values
     mockPerformanceNow = jest.spyOn(performance, 'now')
-      .mockReturnValueOnce(1000)  // First call (start time)
-      .mockReturnValueOnce(1250); // Second call (end time)
+      .mockImplementation(() => 1000); // Default to 1000, override in specific tests
 
     // Clear metrics before each test
     performanceMonitor.clear();
@@ -48,7 +47,10 @@ describe('Performance Monitor', () => {
     it('should track component load times correctly', () => {
       const componentName = 'TestComponent';
 
+      mockPerformanceNow.mockReturnValueOnce(1000); // startLoading
       performanceMonitor.startLoading(componentName);
+      
+      mockPerformanceNow.mockReturnValueOnce(1250); // endLoading
       performanceMonitor.endLoading(componentName);
 
       const metrics = performanceMonitor.getMetrics();
@@ -101,13 +103,19 @@ describe('Performance Monitor', () => {
 
   describe('Performance Summary', () => {
     beforeEach(() => {
-      // Add some test metrics
+      // Clear any existing mocks
+      jest.clearAllMocks();
+      performanceMonitor.clear();
+      
+      // Add some test metrics with controlled timing
+      mockPerformanceNow.mockReturnValueOnce(1000); // FastComponent start
       performanceMonitor.startLoading('FastComponent');
-      mockPerformanceNow.mockReturnValueOnce(1100); // 100ms load time
+      mockPerformanceNow.mockReturnValueOnce(1100); // FastComponent end (100ms)
       performanceMonitor.endLoading('FastComponent');
 
-      performanceMonitor.startLoading('SlowComponent');  
-      mockPerformanceNow.mockReturnValueOnce(1500); // 500ms load time
+      mockPerformanceNow.mockReturnValueOnce(1000); // SlowComponent start  
+      performanceMonitor.startLoading('SlowComponent');
+      mockPerformanceNow.mockReturnValueOnce(1500); // SlowComponent end (500ms)
       performanceMonitor.endLoading('SlowComponent');
     });
 
@@ -146,8 +154,10 @@ describe('Performance Monitor', () => {
     it('should log warning for slow components', () => {
       const mockLogger = logger as jest.Mocked<typeof logger>;
       
+      mockPerformanceNow.mockReturnValueOnce(1000); // startLoading
       performanceMonitor.startLoading('SlowComponent');
-      mockPerformanceNow.mockReturnValueOnce(3500); // 2500ms load time (> 2000ms threshold)
+      
+      mockPerformanceNow.mockReturnValueOnce(3500); // endLoading (2500ms load time)
       performanceMonitor.endLoading('SlowComponent');
 
       expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -160,8 +170,10 @@ describe('Performance Monitor', () => {
     it('should not log warning for fast components', () => {
       const mockLogger = logger as jest.Mocked<typeof logger>;
       
+      mockPerformanceNow.mockReturnValueOnce(1000); // startLoading
       performanceMonitor.startLoading('FastComponent');
-      mockPerformanceNow.mockReturnValueOnce(1500); // 500ms load time (< 2000ms threshold)
+      
+      mockPerformanceNow.mockReturnValueOnce(1500); // endLoading (500ms load time)
       performanceMonitor.endLoading('FastComponent');
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
@@ -236,7 +248,7 @@ describe('withPerformanceTracking HOC', () => {
 
   beforeEach(() => {
     mockPerformanceNow = jest.spyOn(performance, 'now')
-      .mockReturnValue(1000);
+      .mockImplementation(() => 1000); // Default value
     
     performanceMonitor.clear();
     jest.clearAllMocks();
@@ -255,7 +267,7 @@ describe('withPerformanceTracking HOC', () => {
     // Should start tracking on mount
     expect(performance.now).toHaveBeenCalled();
 
-    // Simulate unmount
+    // Simulate unmount with different time
     mockPerformanceNow.mockReturnValue(1250);
     unmount();
 

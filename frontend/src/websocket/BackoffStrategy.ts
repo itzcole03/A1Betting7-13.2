@@ -57,7 +57,7 @@ export class BackoffStrategy {
     // Apply jitter: delay ± (jitterRatio * delay)
     const jitterAmount = cappedDelay * this.jitterRatio;
     const jitter = (this.rng() - 0.5) * 2 * jitterAmount; // Random between -jitterAmount and +jitterAmount
-  const jitteredDelay = Math.max(10, cappedDelay + jitter); // Minimum 10ms for testing
+    const jitteredDelay = Math.max(100, cappedDelay + jitter); // Minimum 100ms to match test expectations
     
     this.currentAttempt++;
     

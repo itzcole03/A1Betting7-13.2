@@ -8,9 +8,7 @@
  */
 
 import type { ModelMetricsShape } from './ensureModelMetricsShape';
-
-// Track one-time warnings per field to avoid spam
-const warningTracker = new Set<string>();
+import { oneTimeLog } from './oneTimeLog';
 
 /**
  * Generic field accessor descriptor
@@ -77,17 +75,25 @@ function createFieldAccessor<T extends string | number>(
       }
 
       // Log one-time development warning for legacy usage
-      if (usedLegacy && 
-          ((import.meta.env?.DEV || process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) && 
-          !warningTracker.has(descriptor.name)) {
-        warningTracker.add(descriptor.name);
-        // eslint-disable-next-line no-console
-        console.warn(
-          `[AIMetricsCompat] Field "${descriptor.name}" accessed via legacy path. Consider using normalized ModelMetricsShape for consistent access.`
-        );
-      }
-      
-      // If neither canonical nor legacy path was found, clear current so defaults are returned
+      if (usedLegacy) {
+        // Check if we're in a development or test environment
+        const isDevOrTest = process.env.NODE_ENV === 'development' ||
+                           process.env.NODE_ENV === 'test' ||
+                           typeof jest !== 'undefined';
+
+        if (isDevOrTest) {
+          oneTimeLog(
+            descriptor.name,
+            () => {
+              // eslint-disable-next-line no-console
+              console.warn(
+                `[AIMetricsCompat] Field "${descriptor.name}" accessed via legacy path. Consider using normalized ModelMetricsShape for consistent access.`
+              );
+            },
+            descriptor.name
+          );
+        }
+      }      // If neither canonical nor legacy path was found, clear current so defaults are returned
       if (!foundCanonical && !usedLegacy) {
         current = undefined;
       }

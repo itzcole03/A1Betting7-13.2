@@ -12,16 +12,39 @@ import {
   safeMetricsAccess,
   isNormalizedModelMetrics
 } from '../modelMetricsAccessors';
+import { oneTimeLog, clearLoggedSignatures } from '../oneTimeLog';
 
-// Mock console.warn to test development warnings
-const mockWarn = jest.spyOn(console, 'warn').mockImplementation();
-
-beforeEach(() => {
-  mockWarn.mockClear();
+// Mock oneTimeLog to test warning calls
+jest.mock('../oneTimeLog', () => {
+  const loggedSignatures = new Set<string>();
+  const logFnCalls: (() => void)[] = [];
+  
+  return {
+    oneTimeLog: jest.fn((key: string, logFn: () => void, message?: string) => {
+      const signature = `${key}:${message || 'generic'}`;
+      if (!loggedSignatures.has(signature)) {
+        loggedSignatures.add(signature);
+        logFn();
+        logFnCalls.push(logFn);
+      }
+    }),
+    clearLoggedSignatures: jest.fn(() => {
+      loggedSignatures.clear();
+      logFnCalls.length = 0;
+    }),
+    getLogFnCallCount: () => logFnCalls.length,
+  };
 });
 
-afterAll(() => {
-  mockWarn.mockRestore();
+const mockOneTimeLog = oneTimeLog as jest.MockedFunction<any>;
+const mockClearLoggedSignatures = clearLoggedSignatures as jest.MockedFunction<any>;
+
+beforeEach(() => {
+  mockOneTimeLog.mockClear();
+  mockClearLoggedSignatures.mockClear();
+  // Ensure we're in test environment for warnings
+  process.env.NODE_ENV = 'test';
+  clearLoggedSignatures();
 });
 
 describe('modelMetricsAccessors', () => {
@@ -41,8 +64,10 @@ describe('modelMetricsAccessors', () => {
       
       const result = getOptimizationLevel(legacy);
       expect(result).toBe('Advanced');
-      expect(mockWarn).toHaveBeenCalledWith(
-        expect.stringContaining('[AIMetricsCompat] Field "optimization_level" accessed via legacy path')
+      expect(mockOneTimeLog).toHaveBeenCalledWith(
+        'optimization_level',
+        expect.any(Function),
+        'optimization_level'
       );
     });
 
@@ -270,13 +295,13 @@ describe('modelMetricsAccessors', () => {
     it('should warn only once per field', () => {
       const legacyData = { optimizationLevel: 'Test' };
       
-      // First access should warn
+      // First access should call oneTimeLog
       getOptimizationLevel(legacyData);
-      expect(mockWarn).toHaveBeenCalledTimes(1);
+      expect(mockOneTimeLog).toHaveBeenCalledTimes(1);
       
-      // Second access should not warn again
+      // Second access should call oneTimeLog again but not log again
       getOptimizationLevel(legacyData);
-      expect(mockWarn).toHaveBeenCalledTimes(1);
+      expect(mockOneTimeLog).toHaveBeenCalledTimes(2);
     });
   });
 });

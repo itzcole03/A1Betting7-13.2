@@ -20,10 +20,10 @@ import { getRuntimeEnv, type RuntimeEnv } from './env';
 // imports; to ensure the test mocks are used we load the logger at runtime with
 // a safe console fallback. This avoids TypeErrors when a mock isn't wired up.
 let logger: {
-  info: (...args: any[]) => void;
-  debug: (...args: any[]) => void;
-  error: (...args: any[]) => void;
-  warn: (...args: any[]) => void;
+  info: (...args: unknown[]) => void;
+  debug: (...args: unknown[]) => void;
+  error: (...args: unknown[]) => void;
+  warn: (...args: unknown[]) => void;
 } = {
   info: console.info.bind(console),
   debug: console.debug.bind(console),
@@ -35,11 +35,19 @@ async function ensureLoggerLoaded(): Promise<void> {
   try {
     // dynamic import so jest module mocks are respected
     const mod = await import('../utils/logger');
-    if (mod && (mod.logger || (mod.default && mod.default.logger))) {
-      // prefer named export, fall back to default shape
-      logger = (mod.logger ?? mod.default.logger) as any;
+    // Some modules export a named `logger`, others export a default with `logger`.
+    type LoggerModuleShape = {
+      logger?: typeof logger;
+      default?: { logger?: typeof logger };
+    };
+
+    const modTyped = mod as unknown as LoggerModuleShape;
+    if (modTyped.logger) {
+      logger = modTyped.logger;
+    } else if (modTyped.default && modTyped.default.logger) {
+      logger = modTyped.default.logger;
     }
-  } catch (err) {
+  } catch {
     // keep console fallback
   }
 }

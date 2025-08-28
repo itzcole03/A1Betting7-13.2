@@ -1,11 +1,7 @@
 /**
- * @deprecated This module is deprecated. Use validateHealthResponse from './validateHealthResponse' instead.
- * Guards against runtime errors when accessing health.performance.cache_hit_rate
- * and other critical health metrics by normalizing API responses to a safe shape.
- * 
- * @module ensureHealthShape
+ * Clean, single implementation of ensureHealthShape.
+ * Normalizes health responses and avoids direct property access on unknown.
  */
-
 import { validateHealthResponse } from './validateHealthResponse';
 import { oneTimeLog } from './oneTimeLog';
 
@@ -28,120 +24,101 @@ export interface SystemHealth {
   };
 }
 
-/**
- * @deprecated Use validateHealthResponse from './validateHealthResponse' instead.
- * Ensures health data conforms to SystemHealth shape with safe defaults
- * 
- * This function now acts as a compatibility shim that converts new health format
- * to the legacy SystemHealth format for backward compatibility.
- */
+const isRecord = (x: unknown): x is Record<string, unknown> => typeof x === 'object' && x !== null;
+
+const mapStatus = (s: unknown) => {
+  if (s === 'ok' || s === 'healthy') return 'healthy';
+  if (s === 'degraded') return 'degraded';
+  if (s === 'down' || s === 'unhealthy' || s === 'error') return 'unhealthy';
+  return 'unknown';
+};
+
+const toSafeNumber = (v: unknown): number => {
+  if (typeof v === 'boolean') return v ? 1 : 0;
+  const n = Number(v);
+  if (!Number.isFinite(n)) return 0;
+  return n;
+};
+
 export function ensureHealthShape(raw: unknown, options?: { usedMock?: boolean }): SystemHealth {
-  // Log deprecation notice once per session
-  oneTimeLog(
-    'ensureHealthShape-deprecated',
-    // eslint-disable-next-line no-console
-    () => console.info('[DEPRECATED] ensureHealthShape is deprecated. Use validateHealthResponse instead.')
-  );
+  oneTimeLog('ensureHealthShape-deprecated', () => console.info('[DEPRECATED] ensureHealthShape is deprecated.'));
 
   try {
-    // Try the new validator first
     const validated = validateHealthResponse(raw);
+    const vRec: Record<string, unknown> = isRecord(validated) ? validated as Record<string, unknown> : {};
 
-    // Map normalized statuses from validator to legacy strings
-    const mapStatus = (s: unknown) => {
-      if (s === 'ok' || s === 'healthy') return 'healthy';
-      if (s === 'degraded') return 'degraded';
-      if (s === 'down' || s === 'unhealthy' || s === 'error') return 'unhealthy';
-      return 'unknown';
-    };
+    const perf = isRecord(vRec.performance) ? (vRec.performance as Record<string, unknown>) : undefined;
+    const cache = isRecord(vRec.cache) ? (vRec.cache as Record<string, unknown>) : undefined;
+    const infra = isRecord(vRec.infrastructure) ? (vRec.infrastructure as Record<string, unknown>) : undefined;
 
-    // Helper to coerce values to safe numbers (NaN/Infinity -> 0), booleans handled
-    const toSafeNumber = (v: unknown): number => {
-      if (typeof v === 'boolean') return v ? 1 : 0;
-      const n = Number(v);
-      if (!Number.isFinite(n)) return 0;
-      return n;
-    };
+    const perfHitMain = perf ? perf.cache_hit_rate : undefined;
+    const perfHitLegacy = perf ? perf.hit_rate : undefined;
+    const cacheHitAlt = cache ? cache.hit_rate : undefined;
+    const infraHit = infra && isRecord(infra.cache) ? ((infra.cache as Record<string, unknown>).hit_rate_percent) : undefined;
 
-    // Determine cache_hit_rate with support for multiple legacy fields
-    const perfHitMain = validated.performance?.cache_hit_rate;
-    const perfHitLegacy = validated.performance?.hit_rate;
-    const cacheHitAlt = (validated.cache as any)?.hit_rate;
-    const infraHit = validated.infrastructure?.cache?.hit_rate_percent;
-
-    // Which source did we use? prefer performance.cache_hit_rate, then performance.hit_rate, then cache.*, then infra
     const computedRaw = (
-      perfHitMain !== undefined && perfHitMain !== null ? perfHitMain :
-      perfHitLegacy !== undefined && perfHitLegacy !== null ? perfHitLegacy :
-      cacheHitAlt !== undefined && cacheHitAlt !== null ? cacheHitAlt :
-      infraHit !== undefined && infraHit !== null ? infraHit : 0
-    );
-
-    // Consider legacy source used only when performance.cache_hit_rate is missing
-    // and a legacy performance.hit_rate or cache.hit_rate is present. Ignore infraHit for mappedHitRate.
-    const usedLegacySource = !(perfHitMain !== undefined && perfHitMain !== null) && (
-      perfHitLegacy !== undefined || cacheHitAlt !== undefined
+      perfHitMain ?? perfHitLegacy ?? cacheHitAlt ?? infraHit ?? 0
     );
 
     const computedHitRate = toSafeNumber(computedRaw);
 
-    // If mapping from legacy `hit_rate` (performance.hit_rate or cache.hit_rate), log when in development for diagnostics
-    if (process.env.NODE_ENV === 'development' && perfHitLegacy !== undefined && (perfHitMain === undefined || perfHitMain === null)) {
-      // eslint-disable-next-line no-console
-      console.log('[ensureHealthShape] Mapped hit_rate (' + perfHitLegacy + ') to cache_hit_rate');
-    }
-
-    // Determine mappedHitRate and emit development log based on original raw input (legacy fields)
+    // mappedHitRate heuristics using original raw when possible
     let rawMappedHitRate = false;
     try {
-      const rawAny = raw as any;
-      if (rawAny && typeof rawAny === 'object') {
-        const hasPerfCache = rawAny.performance && rawAny.performance.cache_hit_rate !== undefined;
-        const hasPerfHit = rawAny.performance && rawAny.performance.hit_rate !== undefined;
-        const hasCacheHit = rawAny.cache && rawAny.cache.hit_rate !== undefined;
-        const hasInfraHit = rawAny.infrastructure && rawAny.infrastructure.cache && rawAny.infrastructure.cache.hit_rate_percent !== undefined;
+      if (isRecord(raw)) {
+        const rawRec = raw as Record<string, unknown>;
+        const rPerf = isRecord(rawRec.performance) ? rawRec.performance as Record<string, unknown> : undefined;
+        const rCache = isRecord(rawRec.cache) ? rawRec.cache as Record<string, unknown> : undefined;
+        const rInfraCache = isRecord(rawRec.infrastructure) && isRecord((rawRec.infrastructure as Record<string, unknown>).cache)
+          ? ((rawRec.infrastructure as Record<string, unknown>).cache as Record<string, unknown>)
+          : undefined;
+
+        const hasPerfCache = !!(rPerf && rPerf.cache_hit_rate !== undefined);
+        const hasPerfHit = !!(rPerf && rPerf.hit_rate !== undefined);
+        const hasCacheHit = !!(rCache && rCache.hit_rate !== undefined);
+        const hasInfraHit = !!(rInfraCache && rInfraCache.hit_rate_percent !== undefined);
 
         rawMappedHitRate = !hasPerfCache && (hasPerfHit || hasCacheHit || hasInfraHit);
-
-        if (process.env.NODE_ENV === 'development' && hasPerfHit && !hasPerfCache) {
-          // eslint-disable-next-line no-console
-          console.log('[ensureHealthShape] Mapped hit_rate (' + rawAny.performance.hit_rate + ') to cache_hit_rate');
-        }
       }
-    } catch (_err) {
+    } catch {
       // ignore
     }
 
+    const overallStatus = vRec.overall_status as unknown;
+    const servicesList = vRec.services as unknown;
+    const findServiceStatus = (name: string): unknown => {
+      if (Array.isArray(servicesList)) {
+        const arr = servicesList as Array<Record<string, unknown>>;
+        const found = arr.find((s) => s && typeof s === 'object' && 'name' in s && (s as Record<string, unknown>).name === name);
+        return found ? (found as Record<string, unknown>).status : undefined;
+      }
+      return undefined;
+    };
+
     return {
-      status: mapStatus(validated.overall_status),
+      status: mapStatus(overallStatus),
       services: {
-        api: mapStatus(validated.services?.find(s => s.name === 'api')?.status) || 'unknown',
-        cache: mapStatus(validated.infrastructure?.cache?.status) || 'unknown',
-        database: mapStatus(validated.infrastructure?.database?.status) || 'unknown',
+        api: mapStatus(findServiceStatus('api')) || 'unknown',
+        cache: mapStatus(infra && isRecord(infra.cache) ? (infra.cache as Record<string, unknown>).status : undefined) || 'unknown',
+        database: mapStatus(infra && isRecord(infra.database) ? (infra.database as Record<string, unknown>).status : undefined) || 'unknown',
       },
       performance: {
         cache_hit_rate: computedHitRate,
-        cache_type: typeof validated.cache === 'object' ? 'unified' : 'unknown',
+        cache_type: isRecord(vRec.cache) ? 'unified' : 'unknown',
       },
-  uptime_seconds: toSafeNumber(validated.uptime_seconds),
+      uptime_seconds: toSafeNumber(vRec.uptime_seconds),
       originFlags: {
         hadCacheHitRate: !!(perfHitMain !== undefined && perfHitMain !== null) || !!(perfHitLegacy !== undefined && perfHitLegacy !== null) || !!(cacheHitAlt !== undefined && cacheHitAlt !== null) || !!(infraHit !== undefined && infraHit !== null),
-        mappedHitRate: rawMappedHitRate || !!usedLegacySource,
+        mappedHitRate: rawMappedHitRate,
         usedMock: options?.usedMock || false,
       },
     };
   } catch (error) {
-    // If validation fails, try to tolerant-parse the raw object to satisfy legacy expectations
-    oneTimeLog(
-      'ensureHealthShape-fallback',
-      // eslint-disable-next-line no-console
-      () => console.warn('[ensureHealthShape] Validation failed, using fallback data:', error)
-    );
+    // Fallback: tolerant parsing for legacy shapes
+    oneTimeLog('ensureHealthShape-fallback', () => console.warn('[ensureHealthShape] Validation failed, using fallback data:', error));
 
-    // If raw is an object, attempt to extract fields manually
-  if (raw && typeof raw === 'object') {
-  const rawObj = raw as Record<string, unknown>;
-
+    if (raw && typeof raw === 'object') {
+      const rawObj = raw as Record<string, unknown>;
       const mapLegacyStatus = (val: unknown) => {
         if (val === true || val === 1 || String(val).toLowerCase() === '1' || String(val).toLowerCase() === 'true') return 'healthy';
         if (val === false || val === 0 || String(val).toLowerCase() === '0' || String(val).toLowerCase() === 'false') return 'unhealthy';
@@ -156,26 +133,22 @@ export function ensureHealthShape(raw: unknown, options?: { usedMock?: boolean }
       };
 
       const status = rawObj.status !== undefined ? mapLegacyStatus(rawObj.status) : 'unknown';
-
-      const services = rawObj.services || {};
+      const servicesRaw: unknown = rawObj.services ?? {};
+      const servicesRec: Record<string, unknown> = isRecord(servicesRaw) ? servicesRaw as Record<string, unknown> : {} as Record<string, unknown>;
       const servicesOut = {
-        api: services.api !== undefined ? mapLegacyStatus(services.api) : 'unknown',
-        cache: services.cache !== undefined ? mapLegacyStatus(services.cache) : 'unknown',
-        database: services.database !== undefined ? mapLegacyStatus(services.database) : 'unknown',
+        api: servicesRec['api'] !== undefined ? mapLegacyStatus(servicesRec['api']) : 'unknown',
+        cache: servicesRec['cache'] !== undefined ? mapLegacyStatus(servicesRec['cache']) : 'unknown',
+        database: servicesRec['database'] !== undefined ? mapLegacyStatus(servicesRec['database']) : 'unknown',
       };
 
+      const perfRec = isRecord(rawObj.performance) ? (rawObj.performance as Record<string, unknown>) : undefined;
+      const infraRec = isRecord(rawObj.infrastructure) ? (rawObj.infrastructure as Record<string, unknown>) : undefined;
+      const infraCacheRec = infraRec && isRecord(infraRec.cache) ? (infraRec.cache as Record<string, unknown>) : undefined;
+
       let hitRate: unknown = undefined;
-      if (rawObj.performance && (rawObj.performance as any).cache_hit_rate !== undefined) {
-        hitRate = (rawObj.performance as any).cache_hit_rate;
-      } else if (rawObj.performance && (rawObj.performance as any).hit_rate !== undefined) {
-        hitRate = (rawObj.performance as any).hit_rate;
-      } else if (
-        rawObj.infrastructure &&
-        (rawObj.infrastructure as any).cache &&
-        (rawObj.infrastructure as any).cache.hit_rate_percent !== undefined
-      ) {
-        hitRate = (rawObj.infrastructure as any).cache.hit_rate_percent;
-      }
+      if (perfRec && perfRec.cache_hit_rate !== undefined) hitRate = perfRec.cache_hit_rate;
+      else if (perfRec && perfRec.hit_rate !== undefined) hitRate = perfRec.hit_rate;
+      else if (infraCacheRec && infraCacheRec.hit_rate_percent !== undefined) hitRate = infraCacheRec.hit_rate_percent;
 
       const cacheHit = ((): number => {
         if (typeof hitRate === 'boolean') return hitRate ? 1 : 0;
@@ -184,17 +157,6 @@ export function ensureHealthShape(raw: unknown, options?: { usedMock?: boolean }
         return n;
       })();
 
-      // Emit development log when mapping legacy performance.hit_rate in fallback
-      try {
-        const rawAnyLog = rawObj as any;
-        if (process.env.NODE_ENV === 'development' && rawAnyLog.performance && rawAnyLog.performance.hit_rate !== undefined && rawAnyLog.performance.cache_hit_rate === undefined) {
-          // eslint-disable-next-line no-console
-          console.log('[ensureHealthShape] Mapped hit_rate (' + rawAnyLog.performance.hit_rate + ') to cache_hit_rate');
-        }
-      } catch (_e) {
-        // ignore
-      }
-
       return {
         status,
         services: servicesOut,
@@ -202,41 +164,22 @@ export function ensureHealthShape(raw: unknown, options?: { usedMock?: boolean }
           cache_hit_rate: cacheHit,
           cache_type: rawObj.cache ? 'unified' : 'unknown',
         },
-        uptime_seconds: ((): number => {
-          const n = Number((rawObj.uptime_seconds as unknown) || 0);
-          if (!Number.isFinite(n)) return 0;
-          return n;
-        })(),
+        uptime_seconds: ((): number => { const n = Number((rawObj.uptime_seconds as unknown) || 0); return Number.isFinite(n) ? n : 0; })(),
         originFlags: {
           hadCacheHitRate: !!hitRate,
-          mappedHitRate: !!(
-            rawObj.performance && (rawObj.performance as any).hit_rate !== undefined
-          ) || (!!(
-            rawObj.infrastructure && (rawObj.infrastructure as any).cache && (rawObj.infrastructure as any).cache.hit_rate_percent !== undefined
-          ) && !(rawObj.performance && (rawObj.performance as any).cache_hit_rate !== undefined)),
+          mappedHitRate: !!(perfRec && perfRec.hit_rate !== undefined) || (!!(infraCacheRec && infraCacheRec.hit_rate_percent !== undefined) && !(perfRec && perfRec.cache_hit_rate !== undefined)),
           usedMock: options?.usedMock || true,
         },
       };
     }
 
-    // Final fallback
     return {
       status: 'unknown',
-      services: {
-        api: 'unknown',
-        cache: 'unknown',
-        database: 'unknown',
-      },
-      performance: {
-        cache_hit_rate: 0,
-        cache_type: 'unknown',
-      },
+      services: { api: 'unknown', cache: 'unknown', database: 'unknown' },
+      performance: { cache_hit_rate: 0, cache_type: 'unknown' },
       uptime_seconds: 0,
-      originFlags: {
-        hadCacheHitRate: false,
-        mappedHitRate: false,
-        usedMock: options?.usedMock || true,
-      },
+      originFlags: { hadCacheHitRate: false, mappedHitRate: false, usedMock: options?.usedMock || true },
     };
   }
 }
+// Trimmed: keep only the single clean implementation above.

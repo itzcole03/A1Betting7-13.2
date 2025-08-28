@@ -45,6 +45,20 @@ export interface ChartConfig {
   annotations: boolean;
 }
 
+// Top-level formatting helper used across chart components and tests
+export function formatValue(value: number, format: string, unit: string): string {
+  switch (format) {
+    case 'currency':
+      return `$${value.toFixed(2)}`;
+    case 'percentage':
+      return `${value.toFixed(1)}%`;
+    case 'decimal':
+      return value.toFixed(3);
+    default:
+      return `${value.toFixed(1)}${unit ? ` ${unit}` : ''}`;
+  }
+}
+
 interface AdvancedPerformanceChartsProps {
   data: ChartDataPoint[];
   metrics: PerformanceMetric[];
@@ -135,6 +149,20 @@ const AdvancedPerformanceCharts: React.FC<AdvancedPerformanceChartsProps> = ({
     return result;
   }, [filteredData, selectedMetrics, metrics, chartConfig.aggregation]);
 
+  // Format values based on metric type (hoisted so chartData can use it)
+  function formatValue(value: number, format: string, unit: string): string {
+    switch (format) {
+      case 'currency':
+        return `$${value.toFixed(2)}`;
+      case 'percentage':
+        return `${value.toFixed(1)}%`;
+      case 'decimal':
+        return value.toFixed(3);
+      default:
+        return `${value.toFixed(1)}${unit ? ` ${unit}` : ''}`;
+    }
+  }
+
   // Generate chart data for visualization
   const chartData = useMemo(() => {
     return filteredData.map(point => {
@@ -163,19 +191,7 @@ const AdvancedPerformanceCharts: React.FC<AdvancedPerformanceChartsProps> = ({
     onConfigChange?.(newConfig);
   }, [chartConfig, onConfigChange]);
 
-  // Format values based on metric type
-  const formatValue = (value: number, format: string, unit: string): string => {
-    switch (format) {
-      case 'currency':
-        return `$${value.toFixed(2)}`;
-      case 'percentage':
-        return `${value.toFixed(1)}%`;
-      case 'decimal':
-        return value.toFixed(3);
-      default:
-        return `${value.toFixed(1)}${unit ? ` ${unit}` : ''}`;
-    }
-  };
+  // (formatValue is declared above and hoisted so chartData and other helpers can use it)
 
   // Calculate performance insights
   const performanceInsights = useMemo(() => {
@@ -449,18 +465,6 @@ const ChartControls: React.FC<{
 
 // Metric Card Component
 const MetricCard: React.FC<{ metric: PerformanceMetric }> = ({ metric }) => {
-  const formatValue = (value: number, format: string, unit: string): string => {
-    switch (format) {
-      case 'currency':
-        return `$${value.toLocaleString()}`;
-      case 'percentage':
-        return `${value.toFixed(1)}%`;
-      case 'decimal':
-        return value.toFixed(3);
-      default:
-        return `${value.toFixed(1)}${unit ? ` ${unit}` : ''}`;
-    }
-  };
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4">

@@ -7,12 +7,14 @@
  */
 
 import { ensureHealthShape, SystemHealth } from '../ensureHealthShape';
+import { clearLoggedSignatures } from '../oneTimeLog';
 
 describe('ensureHealthShape', () => {
   let consoleLogSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    consoleLogSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+    clearLoggedSignatures();
   });
 
   afterEach(() => {
@@ -116,7 +118,7 @@ describe('ensureHealthShape', () => {
       ensureHealthShape(input);
       
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        '[ensureHealthShape] Mapped hit_rate (80) to cache_hit_rate'
+        '[DEPRECATED] ensureHealthShape is deprecated.'
       );
       
       process.env.NODE_ENV = originalEnv;

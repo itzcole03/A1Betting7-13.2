@@ -1,101 +1,110 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import type { ChartData, ChartOptions } from 'chart.js';
+import React, { useEffect, useRef } from 'react';
+import { Chart, registerables } from 'chart.js';
+import type { ChartDataset, ChartConfiguration } from 'chart.js';
 
-// Lightweight wrapper that lazily loads Chart.js + react-chartjs-2.
-// Falls back to a placeholder UI if the deps are not available.
-
-interface PlayerPerformanceChartProps {
-  data: Array<Record<string, unknown> & { date: string }>;
-  metrics: string[];
-  metricConfigs: Array<{ id: string; name: string; color?: string; format?: string }>;
-  height?: number;
+// Chart.register may not exist on a lightweight test mock; guard the call.
+if (typeof (Chart as any).register === 'function') {
+  (Chart as any).register(...(registerables as any));
 }
 
-const PlayerPerformanceChart: React.FC<PlayerPerformanceChartProps> = ({ data, metrics, metricConfigs, height = 360 }) => {
-  const [ChartComponents, setChartComponents] = useState<unknown | null | undefined>(undefined);
+export type PerformancePoint = {
+  date: string; // ISO
+  actual: number; // actual player stat (e.g., points)
+  line: number; // betting line
+  opponent?: string;
+};
+
+type Props = {
+  title?: string;
+  data: PerformancePoint[];
+  lastN?: number; // show last N games
+};
+
+export const PlayerPerformanceChart: React.FC<Props> = ({ title = 'Player Performance vs Line', data, lastN }) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const chartRef = useRef<Chart<'line', number[], string> | null>(null);
 
   useEffect(() => {
-    let mounted = true;
+  const canvas = canvasRef.current;
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
 
-    (async () => {
-      try {
-        // dynamic import so app doesn't crash if deps are missing
-        const ChartJS = await import('chart.js/auto');
-        const { Line } = await import('react-chartjs-2');
+    const points = lastN ? data.slice(-lastN) : data;
 
-        if (mounted) setChartComponents({ ChartJS, Line });
-      } catch (_err) {
-        // If Chart.js isn't installed, set to null to render helpful fallback
-        if (mounted) setChartComponents(null);
-      }
-    })();
+    const labels = points.map((p) => new Date(p.date).toLocaleDateString());
+    const actualDataset: ChartDataset<'line', number[]> = {
+      label: 'Actual',
+      data: points.map((p) => p.actual),
+      borderColor: 'rgba(75,192,192,1)',
+      backgroundColor: 'rgba(75,192,192,0.2)',
+      tension: 0.2,
+      yAxisID: 'y',
+      pointRadius: 4,
+    };
 
-    return () => { mounted = false; };
-  }, []);
+    const lineDataset: ChartDataset<'line', number[]> = {
+      label: 'Line',
+      data: points.map((p) => p.line),
+      borderColor: 'rgba(255,99,132,1)',
+      backgroundColor: 'rgba(255,99,132,0.2)',
+      borderDash: [6, 4],
+      tension: 0.1,
+      yAxisID: 'y',
+      pointRadius: 2,
+    };
 
-  const labels = useMemo(() => data.map(d => d.date), [data]);
+    const datasets: ChartDataset<'line', number[]>[] = [actualDataset, lineDataset];
 
-  const datasets = useMemo(() => {
-    return metrics.map(metricId => {
-      const cfg = metricConfigs.find(m => m.id === metricId) || { id: metricId, name: metricId, color: '#3B82F6' };
-      return {
-        label: cfg.name || metricId,
-        data: data.map(d => (d[metricId] === undefined ? null : d[metricId])),
-        borderColor: cfg.color || '#3B82F6',
-        backgroundColor: (cfg.color || '#3B82F6') + '33',
-        tension: 0.3,
-        spanGaps: true,
-        pointRadius: 2,
-      };
-    });
-  }, [metrics, data, metricConfigs]);
-
-  const chartData: ChartData<'line'> = {
-    labels,
-    datasets: datasets as unknown as ChartData<'line'>['datasets'],
-  };
-
-  const options: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
-    plugins: {
-      legend: { position: 'top' },
-      tooltip: { mode: 'index', intersect: false }
-    },
-    scales: {
-      x: { display: true },
-      y: { display: true }
+    if (chartRef.current) {
+      chartRef.current.data.labels = labels;
+      chartRef.current.data.datasets = datasets;
+      chartRef.current.update();
+      return;
     }
-  };
 
-  if (ChartComponents === null) {
-    return (
-      <div className="bg-gray-100 rounded-lg p-6 flex items-center justify-center" style={{ height }}>
-        <div className="text-center text-gray-600">
-          <p className="font-medium">Interactive Chart Unavailable</p>
-          <p className="text-sm mt-2">Install `chart.js` and `react-chartjs-2` for full visuals.</p>
-        </div>
-      </div>
-    );
-  }
+    const config: ChartConfiguration<'line', number[], string> = {
+      type: 'line',
+      data: {
+        labels,
+        datasets,
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: { display: !!title, text: title },
+          tooltip: { mode: 'index', intersect: false },
+        },
+        interaction: { mode: 'nearest', axis: 'x', intersect: false },
+        scales: {
+          y: { type: 'linear', position: 'left', title: { display: true, text: 'Value' } },
+        },
+      },
+    };
 
-  const Line = (ChartComponents as any)?.Line;
+    chartRef.current = new Chart(ctx, config);
+
+    return () => chartRef.current?.destroy();
+  }, [data, lastN, title]);
 
   return (
-    <div style={{ height }} className="rounded-lg overflow-hidden">
-      {Line ? (
-  // @ts-expect-error dynamic import types
-  <Line data={chartData} options={options} />
-      ) : (
-        <div className="bg-gray-100 rounded-lg p-6 flex items-center justify-center" style={{ height }}>
-          <div className="text-center text-gray-600">
-            <p className="font-medium">Chart loading…</p>
-          </div>
-        </div>
-      )}
+    <div style={{ height: 360 }}>
+      <canvas ref={canvasRef} />
     </div>
   );
 };
 
+
+// Pure helper to map performance points into chart-friendly arrays.
+// Exported for unit testing and reuse.
+export function mapPerformancePoints(points: PerformancePoint[], lastN?: number) {
+  const pts = typeof lastN === 'number' && lastN > 0 ? points.slice(-lastN) : points.slice();
+  const labels = pts.map((p) => new Date(p.date).toLocaleDateString());
+  const actual = pts.map((p) => p.actual);
+  const line = pts.map((p) => p.line);
+  return { points: pts, labels, actual, line };
+}
+
 export default PlayerPerformanceChart;
+

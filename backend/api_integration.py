@@ -199,6 +199,7 @@ from backend.routes.sports_routes import router as sports_router
 from backend.routes.trending_suggestions import router as trending_suggestions_router
 from backend.routes.unified_api import router as unified_api_router
 from backend.routes.user import router as user_router
+from backend.routes.unified_sports_routes import router as unified_sports_router
 
 # Define the global app instance first
 app = FastAPI(
@@ -286,6 +287,7 @@ app.include_router(shap_router)
 app.include_router(trending_suggestions_router)
 app.include_router(user_router)
 app.include_router(sports_router)
+app.include_router(unified_sports_router)
 
 
 # Dev-only helper: set in-memory user password (only available in development)

@@ -157,7 +157,7 @@ class CircuitBreaker:
         if self.state == CircuitBreakerState.OPEN:
             if self._should_attempt_reset():
                 self.state = CircuitBreakerState.HALF_OPEN
-                logger.info("🔄 Circuit breaker transitioning to HALF_OPEN")
+                logger.info("CIRCUIT_BREAKER: Circuit breaker transitioning to HALF_OPEN")
             else:
                 raise Exception("Circuit breaker is OPEN - failing fast")
 
@@ -187,7 +187,7 @@ class CircuitBreaker:
                 self.state = CircuitBreakerState.CLOSED
                 self.failure_count = 0
                 self.success_count = 0
-                logger.info("✅ Circuit breaker CLOSED - service recovered")
+                logger.info("SUCCESS: Circuit breaker CLOSED - service recovered")
 
         self.failure_count = 0
 
@@ -198,7 +198,7 @@ class CircuitBreaker:
 
         if self.state == CircuitBreakerState.HALF_OPEN:
             self.state = CircuitBreakerState.OPEN
-            logger.warning("❌ Circuit breaker OPEN - service still failing")
+            logger.warning("ERROR: Circuit breaker OPEN - service still failing")
         elif self.failure_count >= self.failure_threshold:
             self.state = CircuitBreakerState.OPEN
             logger.warning(
@@ -274,14 +274,14 @@ class EnhancedDataPipeline:
         self._streaming_task = asyncio.create_task(self._streaming_processor())
         self._metrics_task = asyncio.create_task(self._metrics_collector())
 
-        logger.info("🚀 Enhanced data pipeline initialized")
+        logger.info("STARTUP: Enhanced data pipeline initialized")
 
     def register_data_source(self, source_name: str, **circuit_breaker_config) -> None:
         """Register a data source with circuit breaker protection"""
         self.data_sources[source_name] = CircuitBreaker(**circuit_breaker_config)
         self.source_metrics[source_name] = DataSourceMetrics()
 
-        logger.info(f"📡 Registered data source: {source_name}")
+        logger.info(f"DATASOURCE: Registered data source: {source_name}")
 
     async def fetch_data_with_resilience(
         self,
@@ -307,7 +307,7 @@ class EnhancedDataPipeline:
         if use_cache:
             cached_data = await intelligent_cache_service.get(cache_key)
             if cached_data is not None:
-                logger.debug(f"📋 Cache hit for {source_name}")
+                logger.debug(f"CACHE: Cache hit for {source_name}")
                 return cached_data
 
         # Acquire semaphore for rate limiting
@@ -380,7 +380,7 @@ class EnhancedDataPipeline:
                 metrics.consecutive_failures += 1
                 metrics.circuit_breaker_state = circuit_breaker.state
 
-                logger.error(f"❌ Data fetch failed for {source_name}: {e}")
+                logger.error(f"ERROR: Data fetch failed for {source_name}: {e}")
 
                 # Try to return stale cached data as fallback
                 if use_cache:
@@ -388,7 +388,7 @@ class EnhancedDataPipeline:
                         f"stale:{cache_key}"
                     )
                     if stale_data is not None:
-                        logger.warning(f"⚠️ Returning stale data for {source_name}")
+                        logger.warning(f"WARNING: Returning stale data for {source_name}")
                         return stale_data
 
                 raise
@@ -427,7 +427,7 @@ class EnhancedDataPipeline:
             if isinstance(result, Exception):
                 results[source_name] = None
                 failure_count += 1
-                logger.error(f"❌ Parallel fetch failed for {source_name}: {result}")
+                logger.error(f"ERROR: Parallel fetch failed for {source_name}: {result}")
             else:
                 results[source_name] = result
 
@@ -441,7 +441,7 @@ class EnhancedDataPipeline:
             )
 
         logger.info(
-            f"📊 Parallel fetch completed: {len(sources)-failure_count}/{len(sources)} successful"
+            f"ANALYTICS: Parallel fetch completed: {len(sources)-failure_count}/{len(sources)} successful"
         )
 
         return results
@@ -453,7 +453,7 @@ class EnhancedDataPipeline:
             client_id = f"{websocket.remote_address[0]}:{websocket.remote_address[1]}"
             self.streaming_connections[client_id] = websocket
 
-            logger.info(f"📡 Streaming client connected: {client_id}")
+            logger.info(f"STREAMING: Streaming client connected: {client_id}")
 
             try:
                 await websocket.wait_closed()
@@ -462,7 +462,7 @@ class EnhancedDataPipeline:
             finally:
                 if client_id in self.streaming_connections:
                     del self.streaming_connections[client_id]
-                    logger.info(f"📡 Streaming client disconnected: {client_id}")
+                    logger.info(f"STREAMING: Streaming client disconnected: {client_id}")
 
         start_server = websockets.serve(handle_client, "localhost", port)
         await start_server
@@ -493,12 +493,12 @@ class EnhancedDataPipeline:
                 try:
                     self.streaming_queue.get_nowait()
                     self.streaming_queue.put_nowait(streaming_point)
-                    logger.warning("⚠️ Streaming queue full - dropped oldest message")
+                    logger.warning("WARNING: Streaming queue full - dropped oldest message")
                 except asyncio.QueueEmpty:
                     pass
 
         except Exception as e:
-            logger.error(f"❌ Failed to queue streaming data: {e}")
+            logger.error(f"ERROR: Failed to queue streaming data: {e}")
 
     async def _streaming_processor(self) -> None:
         """Background task to process streaming queue"""
@@ -536,7 +536,7 @@ class EnhancedDataPipeline:
                 # No messages in queue - continue
                 continue
             except Exception as e:
-                logger.error(f"❌ Streaming processor error: {e}")
+                logger.error(f"ERROR: Streaming processor error: {e}")
                 await asyncio.sleep(1)
 
     async def _send_to_client(
@@ -550,7 +550,7 @@ class EnhancedDataPipeline:
             if client_id in self.streaming_connections:
                 del self.streaming_connections[client_id]
         except Exception as e:
-            logger.error(f"❌ Failed to send to client {client_id}: {e}")
+            logger.error(f"ERROR: Failed to send to client {client_id}: {e}")
 
     async def _metrics_collector(self) -> None:
         """Background task to collect and log metrics"""
@@ -577,7 +577,7 @@ class EnhancedDataPipeline:
 
                 # Log metrics
                 logger.info(
-                    f"📊 Pipeline metrics - Total: {total_requests}, "
+                    f"ANALYTICS: Pipeline metrics - Total: {total_requests}, "
                     f"Success: {total_successes} ({success_rate:.1f}%), "
                     f"Failures: {total_failures}, "
                     f"Active streams: {len(self.streaming_connections)}"
@@ -587,11 +587,11 @@ class EnhancedDataPipeline:
                 for source_name, metrics in self.source_metrics.items():
                     if metrics.consecutive_failures >= 3:
                         logger.warning(
-                            f"⚠️ Source {source_name} has {metrics.consecutive_failures} consecutive failures"
+                            f"WARNING: Source {source_name} has {metrics.consecutive_failures} consecutive failures"
                         )
 
             except Exception as e:
-                logger.error(f"❌ Metrics collection error: {e}")
+                logger.error(f"ERROR: Metrics collection error: {e}")
 
     async def get_health_status(self) -> Dict[str, Any]:
         """Get overall pipeline health status"""
@@ -656,7 +656,7 @@ class EnhancedDataPipeline:
 
         self.streaming_connections.clear()
 
-        logger.info("🔄 Enhanced data pipeline shutdown completed")
+        logger.info("SHUTDOWN: Enhanced data pipeline shutdown completed")
 
 
 # Global instance

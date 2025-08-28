@@ -16,7 +16,7 @@ module.exports = {
 
   // Setup files - run before each test
   setupFiles: ['<rootDir>/jest.polyfill.textencoder.js', '<rootDir>/jest.env.mock.js'],
-  setupFilesAfterEnv: ['<rootDir>/jest.dom.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.dom.setup.js', '<rootDir>/src/setupTests.js'],
 
   // Module handling
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'],
@@ -30,6 +30,8 @@ module.exports = {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
       'jest-transform-stub',
+  // Map Chart.js to a single manual mock to avoid duplicate manual mock warnings
+  '^chart.js$': '<rootDir>/__mocks__/chart.js',
   },
 
   // Transform configuration

@@ -36,7 +36,7 @@ try:
     from backend.services.unified_logging import unified_logger, LogContext, LogComponent
     UNIFIED_SERVICES_AVAILABLE = True
 except ImportError as e:
-    print(f"⚠️ Failed to import unified services: {e}")
+    print(f"Failed to import unified services: {e}")
     unified_config = None
     unified_logger = None
     LogContext = None
@@ -430,7 +430,7 @@ class BootstrapValidator:
                 expected=EndpointExpectation("", [], EndpointType.SYSTEM, description="Correlation system"),
                 resolved=None,
                 level=ValidationLevel.INFO,
-                message=f"✅ Correlation system available with {stats.get('total_active_contexts', 0)} active contexts",
+                message=f"Correlation system available with {stats.get('total_active_contexts', 0)} active contexts",
                 suggestions=[]
             ))
             
@@ -440,7 +440,7 @@ class BootstrapValidator:
                     expected=EndpointExpectation("", [], EndpointType.WEBSOCKET, description="WebSocket correlation"),
                     resolved=None,
                     level=ValidationLevel.INFO,
-                    message="✅ WebSocket correlation ID support available",
+                    message="WebSocket correlation ID support available",
                     suggestions=[]
                 ))
             
@@ -449,7 +449,7 @@ class BootstrapValidator:
                 expected=EndpointExpectation("", [], EndpointType.SYSTEM, description="Correlation system"),
                 resolved=None,
                 level=ValidationLevel.WARN,
-                message="⚠️ Correlation system not available",
+                message="Correlation system not available",
                 suggestions=["Ensure backend.services.correlation_service is properly implemented"]
             ))
         
@@ -498,9 +498,9 @@ class BootstrapValidator:
                     operation="bootstrap_validation",
                     additional_data={"correlation_id": self.correlation_id}
                 )
-                unified_logger.info(f"🔍 Starting bootstrap validation [correlation_id: {self.correlation_id}]", context)
+                unified_logger.info(f"Starting bootstrap validation [correlation_id: {self.correlation_id}]", context)
             else:
-                print(f"🔍 Starting bootstrap validation [correlation_id: {self.correlation_id}]")
+                print(f"Starting bootstrap validation [correlation_id: {self.correlation_id}]")
             
             summary = BootstrapSummary(
                 correlation_id=self.correlation_id,
@@ -543,13 +543,13 @@ class BootstrapValidator:
                     
                     if expected_methods.issubset(resolved_methods):
                         level = ValidationLevel.INFO
-                        message = f"✅ Endpoint {expected.path} found with methods {resolved.methods}"
+                        message = f"Endpoint {expected.path} found with methods {resolved.methods}"
                     else:
                         level = ValidationLevel.WARN
-                        message = f"⚠️ Endpoint {expected.path} found but missing methods. Expected: {expected.methods}, Found: {resolved.methods}"
+                        message = f"Endpoint {expected.path} found but missing methods. Expected: {expected.methods}, Found: {resolved.methods}"
                 else:
                     level = ValidationLevel.ERROR if expected.required else ValidationLevel.WARN
-                    message = f"❌ Expected endpoint {expected.path} not found"
+                    message = f"Expected endpoint {expected.path} not found"
                     
                 result = ValidationResult(
                     expected=expected,
@@ -589,7 +589,7 @@ class BootstrapValidator:
                     if unified_logger:
                         unified_logger.warning(f"Failed to get config summary: {e}")
                     else:
-                        print(f"⚠️ Failed to get config summary: {e}")
+                        print(f"Failed to get config summary: {e}")
             
             summary.validation_end_time = datetime.utcnow()
             
@@ -607,16 +607,16 @@ class BootstrapValidator:
         
         # Create summary message
         summary_lines = [
-            "🚀 BOOTSTRAP VALIDATION SUMMARY",
+            "BOOTSTRAP VALIDATION SUMMARY",
             f"Correlation ID: {summary.correlation_id}",
             f"Validation Duration: {duration:.2f}s",
             f"Total Validations: {summary.total_validations}",
-            f"✅ Passed: {summary.passed_validations}",
-            f"⚠️ Warnings: {summary.warnings}",
-            f"❌ Errors: {summary.errors}",
-            f"🔥 Critical: {summary.critical_issues}",
+            f"Passed: {summary.passed_validations}",
+            f"Warnings: {summary.warnings}",
+            f"Errors: {summary.errors}",
+            f"Critical: {summary.critical_issues}",
             "",
-            "📋 ENDPOINT VALIDATION DETAILS:"
+            "ENDPOINT VALIDATION DETAILS:"
         ]
         
         # Group results by type
@@ -630,14 +630,14 @@ class BootstrapValidator:
         for endpoint_type, type_results in by_type.items():
             summary_lines.append(f"  {endpoint_type.value.upper()}:")
             for result in type_results:
-                icon = "✅" if result.level == ValidationLevel.INFO else "⚠️" if result.level == ValidationLevel.WARN else "❌"
+                icon = "PASS" if result.level == ValidationLevel.INFO else "WARN" if result.level == ValidationLevel.WARN else "FAIL"
                 summary_lines.append(f"    {icon} {result.message}")
         
         # WebSocket paths summary
         if summary.websocket_paths:
             summary_lines.extend([
                 "",
-                "🔌 WEBSOCKET PATHS:",
+                "WEBSOCKET PATHS:",
                 *[f"  • {path}" for path in summary.websocket_paths]
             ])
         
@@ -645,7 +645,7 @@ class BootstrapValidator:
         if summary.cors_origins:
             summary_lines.extend([
                 "",
-                "🌐 CORS ORIGINS:",
+                "CORS ORIGINS:",
                 *[f"  • {origin}" for origin in summary.cors_origins]
             ])
         
@@ -654,7 +654,7 @@ class BootstrapValidator:
             config = summary.config_summary
             summary_lines.extend([
                 "",
-                "⚙️ CONFIGURATION SUMMARY:",
+                "CONFIGURATION SUMMARY:",
                 f"  Environment: {config.get('environment', 'unknown')}",
                 f"  Debug Mode: {config.get('debug', False)}",
                 f"  API Host: {config.get('api_host', 'unknown')}:{config.get('api_port', 'unknown')}",
@@ -668,22 +668,22 @@ class BootstrapValidator:
         if summary.critical_issues > 0:
             summary_lines.extend([
                 "",
-                "🔥 CRITICAL ISSUES DETECTED - Application may not start properly!"
+                "CRITICAL ISSUES DETECTED - Application may not start properly!"
             ])
         elif summary.errors > 0:
             summary_lines.extend([
                 "",
-                "❌ Errors detected - Some functionality may be unavailable"
+                "ERROR: Errors detected - Some functionality may be unavailable"
             ])
         elif summary.warnings > 0:
             summary_lines.extend([
                 "",
-                "⚠️ Warnings detected - Review configuration for optimal performance"
+                "WARNING: Warnings detected - Review configuration for optimal performance"
             ])
         else:
             summary_lines.extend([
                 "",
-                "✅ All validations passed - Application ready for startup!"
+                "SUCCESS: All validations passed - Application ready for startup!"
             ])
         
         summary_message = "\n".join(summary_lines)

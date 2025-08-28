@@ -64,6 +64,15 @@ class PerformanceMonitor {
     const result = renderFn();
     const renderTime = performance.now() - startTime;
 
+    // Store render time as a metric
+    this.recordMetric({
+      componentName,
+      loadTime: renderTime,
+      renderTime,
+      timestamp: Date.now(),
+      userAgent: navigator.userAgent,
+    });
+
     logger.debug(
       `🔄 ${componentName} rendered in ${renderTime.toFixed(2)}ms`,
       {

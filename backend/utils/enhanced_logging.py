@@ -155,6 +155,12 @@ class EnhancedLogger:
                     fmt="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
                     datefmt="%H:%M:%S",
                 )
+                # Handle Unicode encoding errors on Windows
+                try:
+                    console_handler.stream.reconfigure(encoding='utf-8', errors='replace')
+                except AttributeError:
+                    # Fallback for streams that don't support reconfigure
+                    pass
             else:
                 console_formatter = formatter
 

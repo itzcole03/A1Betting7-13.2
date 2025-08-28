@@ -11,6 +11,7 @@ import time
 from enum import Enum
 from typing import Any, Dict, Optional, Set
 
+from backend.services.sport_service_base import SportServiceBase
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("lazy_sport_manager")
@@ -32,12 +33,12 @@ class SportServiceInfo:
     def __init__(self, sport_name: str):
         self.sport_name = sport_name
         self.status = SportStatus.NOT_LOADED
-        self.service_instance = None
-        self.ml_models = {}
-        self.last_accessed = None
-        self.load_time = None
-        self.error_message = None
-        self.active_requests = 0
+        self.service_instance: Optional[Any] = None
+        self.ml_models: Dict[str, Any] = {}
+        self.last_accessed: Optional[float] = None
+        self.load_time: Optional[float] = None
+        self.error_message: Optional[str] = None
+        self.active_requests: int = 0
 
 
 class LazySportManager:
@@ -73,14 +74,14 @@ class LazySportManager:
             self.initialization_locks[sport] = asyncio.Lock()
 
         logger.info(
-            f"✅ LazySportManager initialized with {len(self.sport_initializers)} sports"
+            f"LazySportManager initialized with {len(self.sport_initializers)} sports"
         )
 
     async def start_cleanup_service(self):
         """Start the background cleanup service"""
         if not self.cleanup_task:
             self.cleanup_task = asyncio.create_task(self._cleanup_loop())
-            logger.info("🧹 Cleanup service started")
+            logger.info("CLEANUP: Cleanup service started")
 
     async def stop_cleanup_service(self):
         """Stop the background cleanup service"""
@@ -91,7 +92,7 @@ class LazySportManager:
             except asyncio.CancelledError:
                 pass
             self.cleanup_task = None
-            logger.info("🛑 Cleanup service stopped")
+            logger.info("STOPPED: Cleanup service stopped")
 
     async def activate_sport(self, sport: str) -> Dict[str, Any]:
         """
@@ -122,7 +123,7 @@ class LazySportManager:
         if service_info.status == SportStatus.READY:
             service_info.last_accessed = time.time()
             self.active_sport = sport
-            logger.info(f"🏆 {sport} service already ready, updated access time")
+            logger.info(f"READY: {sport} service already ready, updated access time")
             return {
                 "status": "ready",
                 "sport": sport,
@@ -150,7 +151,7 @@ class LazySportManager:
             service_info.load_time = time.time()
 
             try:
-                logger.info(f"🚀 Loading {sport} service and models...")
+                logger.info(f"Loading {sport} service and models...")
 
                 # Initialize the sport service
                 service_instance = await self.sport_initializers[sport]()
@@ -161,9 +162,24 @@ class LazySportManager:
                 service_info.error_message = None
                 self.active_sport = sport
 
-                load_duration = time.time() - service_info.load_time
+                # Register the service with unified_sport_service
+                try:
+                    from backend.services.sport_service_base import unified_sport_service
+
+                    unified_sport_service.register_sport_service(sport, service_instance)
+                    logger.info(f"Registered {sport} service with unified_sport_service")
+                except ImportError as e:
+                    logger.warning(
+                        f"Could not import unified_sport_service: {e}"
+                    )
+                except Exception as e:
+                    logger.warning(
+                        f"Failed to register {sport} with unified_sport_service: {e}"
+                    )
+
+                load_duration = time.time() - (service_info.load_time or time.time())
                 logger.info(
-                    f"✅ {sport} service loaded successfully in {load_duration:.2f}s"
+                    f"{sport} service loaded successfully in {load_duration:.2f}s"
                 )
 
                 return {
@@ -176,10 +192,10 @@ class LazySportManager:
             except Exception as e:
                 service_info.status = SportStatus.ERROR
                 service_info.error_message = str(e)
-                load_duration = time.time() - service_info.load_time
+                load_duration = time.time() - (service_info.load_time or time.time())
 
                 logger.error(
-                    f"❌ Failed to load {sport} service in {load_duration:.2f}s: {e}"
+                    f"Failed to load {sport} service in {load_duration:.2f}s: {e}"
                 )
 
                 return {
@@ -212,7 +228,7 @@ class LazySportManager:
         # Check if there are active requests
         if service_info.active_requests > 0:
             logger.warning(
-                f"⚠️ {sport} has {service_info.active_requests} active requests, delaying deactivation"
+                f"{sport} has {service_info.active_requests} active requests, delaying deactivation"
             )
             return {
                 "status": "delayed",
@@ -224,7 +240,7 @@ class LazySportManager:
             service_info.status = SportStatus.UNLOADING
 
             # Clean up the service
-            if hasattr(service_info.service_instance, "close"):
+            if service_info.service_instance and hasattr(service_info.service_instance, "close"):
                 await service_info.service_instance.close()
 
             # Clear ML models
@@ -236,14 +252,14 @@ class LazySportManager:
             if self.active_sport == sport:
                 self.active_sport = None
 
-            logger.info(f"🧹 {sport} service deactivated and resources freed")
+            logger.info(f"CLEANUP: {sport} service deactivated and resources freed")
 
             return {"status": "deactivated", "sport": sport}
 
         except Exception as e:
             service_info.status = SportStatus.ERROR
             service_info.error_message = str(e)
-            logger.error(f"❌ Error deactivating {sport}: {e}")
+            logger.error(f"Error deactivating {sport}: {e}")
 
             return {"status": "error", "sport": sport, "error": str(e)}
 
@@ -305,7 +321,7 @@ class LazySportManager:
             ):
 
                 logger.info(
-                    f"🧹 Cleaning up inactive {sport} service (last accessed {current_time - service_info.last_accessed:.0f}s ago)"
+                    f"CLEANUP: Cleaning up inactive {sport} service (last accessed {current_time - service_info.last_accessed:.0f}s ago)"
                 )
                 await self.deactivate_sport(sport)
 
@@ -316,11 +332,11 @@ class LazySportManager:
         try:
             from backend.services.mlb_provider_client import MLBProviderClient
 
-            # Create MLB service wrapper
-            class MLBServiceWrapper:
+            # Create MLB service wrapper that inherits from SportServiceBase
+            class MLBServiceWrapper(SportServiceBase):
                 def __init__(self):
+                    super().__init__("MLB")
                     self.mlb_client = MLBProviderClient()
-                    self.sport_name = "MLB"
 
                 async def initialize(self):
                     # Ensure ML service is initialized
@@ -330,78 +346,109 @@ class LazySportManager:
                     from backend.services.enhanced_ml_service import enhanced_ml_service
 
                     if not enhanced_ml_service.has_sport_models("MLB"):
-                        logger.info("🚀 Training MLB models on-demand...")
+                        logger.info("Training MLB models on-demand...")
                         await enhanced_ml_service.initialize_sport_models("MLB")
 
                 async def close(self):
                     # Cleanup if needed
                     pass
 
+                async def get_teams(self):
+                    # MLB doesn't have traditional teams endpoint, return empty list
+                    return []
+
+                async def get_players(self, team_id=None):
+                    # MLB players are handled through props, return empty list
+                    return []
+
+                async def get_games(self, start_date=None, end_date=None, team_id=None):
+                    # MLB games are handled through props, return empty list
+                    return []
+
+                async def get_odds_comparison(self):
+                    # Get MLB odds comparison using the MLB provider client
+                    odds_data = await self.mlb_client.fetch_odds_comparison()
+                    # Wrap the list in a dictionary to match the expected return type
+                    return {
+                        "status": "ok" if odds_data else "error",
+                        "sport": "MLB",
+                        "odds": odds_data if isinstance(odds_data, list) else [],
+                        "total_games": len(odds_data) if isinstance(odds_data, list) else 0
+                    }
+
+                async def health_check(self):
+                    # Return basic health status
+                    return {
+                        "status": "healthy",
+                        "service": "MLB",
+                        "message": "MLB service operational"
+                    }
+
             mlb_service = MLBServiceWrapper()
             await mlb_service.initialize()
 
-            logger.info("✅ MLB service initialized with ML models")
+            logger.info("MLB service initialized with ML models")
             return mlb_service
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize MLB service: {e}")
+            logger.error(f"Failed to initialize MLB service: {e}")
             raise
 
     async def _initialize_nba_service(self):
         """Initialize NBA service and models"""
         try:
-            from backend.services.enhanced_ml_service import enhanced_ml_service
             from backend.services.nba_service_client import nba_service
+            from backend.services.enhanced_ml_service import enhanced_ml_service
 
             # Initialize NBA-specific models only
             if not enhanced_ml_service.has_sport_models("NBA"):
-                logger.info("🚀 Training NBA models on-demand...")
+                logger.info("Training NBA models on-demand...")
                 await enhanced_ml_service.initialize_sport_models("NBA")
 
             await nba_service.initialize()
-            logger.info("✅ NBA service initialized with ML models")
+            logger.info("NBA service initialized with ML models")
             return nba_service
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize NBA service: {e}")
+            logger.error(f"Failed to initialize NBA service: {e}")
             raise
 
     async def _initialize_nfl_service(self):
         """Initialize NFL service and models"""
         try:
-            from backend.services.enhanced_ml_service import enhanced_ml_service
             from backend.services.nfl_service_client import nfl_service
+            from backend.services.enhanced_ml_service import enhanced_ml_service
 
             # Initialize NFL-specific models only
             if not enhanced_ml_service.has_sport_models("NFL"):
-                logger.info("🚀 Training NFL models on-demand...")
+                logger.info("Training NFL models on-demand...")
                 await enhanced_ml_service.initialize_sport_models("NFL")
 
             await nfl_service.initialize()
-            logger.info("✅ NFL service initialized with ML models")
+            logger.info("NFL service initialized with ML models")
             return nfl_service
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize NFL service: {e}")
+            logger.error(f"Failed to initialize NFL service: {e}")
             raise
 
     async def _initialize_nhl_service(self):
         """Initialize NHL service and models"""
         try:
-            from backend.services.enhanced_ml_service import enhanced_ml_service
             from backend.services.nhl_service_client import nhl_service
+            from backend.services.enhanced_ml_service import enhanced_ml_service
 
             # Initialize NHL-specific models only
             if not enhanced_ml_service.has_sport_models("NHL"):
-                logger.info("🚀 Training NHL models on-demand...")
+                logger.info("Training NHL models on-demand...")
                 await enhanced_ml_service.initialize_sport_models("NHL")
 
             await nhl_service.initialize()
-            logger.info("✅ NHL service initialized with ML models")
+            logger.info("NHL service initialized with ML models")
             return nhl_service
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize NHL service: {e}")
+            logger.error(f"Failed to initialize NHL service: {e}")
             raise
 
 
