@@ -12,6 +12,7 @@ Provides comprehensive logging with:
 import json
 import logging
 import logging.handlers
+import os
 import time
 import uuid
 from contextvars import ContextVar
@@ -52,11 +53,16 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
         try:
             log_dir = Path(__file__).parent.parent / "logs"
             log_dir.mkdir(exist_ok=True)
-            file_handler = logging.handlers.RotatingFileHandler(
-                log_dir / "structured.log",
-                maxBytes=10 * 1024 * 1024,  # 10MB
-                backupCount=5
-            )
+            # Use plain FileHandler during tests to avoid Windows rename/lock issues
+            testing = bool(os.environ.get("TESTING") or os.environ.get("PYTEST_CURRENT_TEST"))
+            if testing:
+                file_handler = logging.FileHandler(log_dir / "structured.log")
+            else:
+                file_handler = logging.handlers.RotatingFileHandler(
+                    log_dir / "structured.log",
+                    maxBytes=10 * 1024 * 1024,  # 10MB
+                    backupCount=5,
+                )
             file_handler.setFormatter(formatter)
             file_handler.setLevel(logging.DEBUG)
             self.logger.addHandler(file_handler)

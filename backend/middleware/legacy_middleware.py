@@ -113,6 +113,16 @@ class LegacyMiddleware(BaseHTTPMiddleware):
             "/api/betting-opportunities", "/api/arbitrage-opportunities",
             "/debug/", "/v1/", "/cache/"
         ]
+        # Exclude internal admin/management prefixes from legacy detection
+        # These routes are current internal APIs and should not be auto-tracked as legacy.
+        non_legacy_admin_prefixes = [
+            "/api/ingestion/admin",
+            "/api/admin",
+        ]
+
+        for prefix in non_legacy_admin_prefixes:
+            if path.startswith(prefix):
+                return False
         
         for prefix in legacy_prefixes:
             if path.startswith(prefix):

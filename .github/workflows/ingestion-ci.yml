@@ -1,0 +1,47 @@
+name: Ingestion Quick CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ingestion-tests:
+    runs-on: ubuntu-latest
+    env:
+      USE_FREE_INGESTION: "false"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: Install backend deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          # Ensure prometheus client is available for metrics tests
+          pip install prometheus-client
+
+      - name: Run focused ingestion tests
+        run: |
+          python -m pytest backend/tests/test_backfill_worker.py backend/tests/test_metrics_endpoint.py backend/tests/test_localfile_storage_adapter.py -q
+
+      - name: Optional /metrics scrape check
+        # This step attempts to curl /metrics on localhost. It will be skipped
+        # if the test environment cannot start the app. Keep it non-fatal.
+        run: |
+          set -e
+          # Try to start the backend in background (single-run dev server)
+          python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 &
+          sleep 2
+          if curl -sS --fail http://127.0.0.1:8000/metrics; then
+            echo "/metrics ok"
+          else
+            echo "/metrics not available or prometheus-client missing; continuing"
+          fi
+        shell: bash

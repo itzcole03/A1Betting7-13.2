@@ -39,6 +39,7 @@ import {
   Maximize2,
   Minimize2
 } from 'lucide-react';
+import { enhancedLogger } from '../../services/EnhancedLogger';
 
 // Widget types
 export interface Widget {
@@ -190,7 +191,7 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
   const loadDashboardData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data: Record<string, any> = {};
+      const data: Record<string, unknown> = {};
       
       // Load data for each widget
       for (const widget of layout.widgets) {
@@ -201,64 +202,151 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
       
       setWidgetData(data);
     } catch (error) {
-      console.error('Failed to load dashboard data:', error);
+      enhancedLogger.error(
+        'CustomizableDashboard',
+        'loadDashboardData',
+        'Failed to load dashboard data',
+        { error: error instanceof Error ? error.message : 'Unknown error' },
+        error instanceof Error ? error : undefined
+      );
     } finally {
       setIsLoading(false);
     }
-  }, [layout.widgets]);
+  }, [layout.widgets, loadWidgetData]);
+
+  // Load stats card data from API
+  const loadStatsCardData = useCallback(async (config: Record<string, unknown>): Promise<Record<string, unknown>> => {
+    const metric = config.metric as string || 'total_profit';
+    
+    try {
+      const response = await fetch(`/api/dashboard/stats/${metric}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch stats: ${response.status}`);
+      }
+      const data = await response.json();
+      return {
+        value: data.value || 0,
+        change: data.change || 0,
+        label: data.label || metric
+      };
+    } catch (error) {
+      enhancedLogger.warn(
+        'CustomizableDashboard',
+        'loadStatsCardData',
+        `Failed to load stats for metric ${metric}`,
+        { metric, error: error instanceof Error ? error.message : 'Unknown error' }
+      );
+      // Return default values
+      return {
+        value: 0,
+        change: 0,
+        label: metric
+      };
+    }
+  }, []);
+
+  // Load line chart data from API
+  const loadLineChartData = useCallback(async (config: Record<string, unknown>): Promise<Record<string, unknown>> => {
+    const dataSource = config.dataSource as string || 'bankroll_history';
+    const timeframe = config.timeframe as string || '30d';
+    
+    try {
+      const response = await fetch(`/api/dashboard/charts/${dataSource}?timeframe=${timeframe}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch chart data: ${response.status}`);
+      }
+      const data = await response.json();
+      return { data: data.points || [] };
+    } catch (error) {
+      enhancedLogger.warn(
+        'CustomizableDashboard',
+        'loadLineChartData',
+        `Failed to load chart data for ${dataSource}`,
+        { dataSource, timeframe, error: error instanceof Error ? error.message : 'Unknown error' }
+      );
+      // Return empty data array
+      return { data: [] };
+    }
+  }, []);
+
+  // Load recent bets data from API
+  const loadRecentBetsData = useCallback(async (config: Record<string, unknown>): Promise<Record<string, unknown>> => {
+    const limit = config.limit as number || 10;
+    
+    try {
+      const response = await fetch(`/api/bets/recent?limit=${limit}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch recent bets: ${response.status}`);
+      }
+      const data = await response.json();
+      return { bets: data.bets || [] };
+    } catch (error) {
+      enhancedLogger.warn(
+        'CustomizableDashboard',
+        'loadRecentBetsData',
+        `Failed to load recent bets`,
+        { limit, error: error instanceof Error ? error.message : 'Unknown error' }
+      );
+      // Return empty bets array
+      return { bets: [] };
+    }
+  }, []);
+
+  // Load prop opportunities data from API
+  const loadPropOpportunitiesData = useCallback(async (config: Record<string, unknown>): Promise<Record<string, unknown>> => {
+    const minConfidence = config.minConfidence as number || 0.7;
+    const minEV = config.minEV as number || 0.05;
+    
+    try {
+      const response = await fetch(`/api/propfinder/opportunities?minConfidence=${minConfidence}&minEV=${minEV}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch prop opportunities: ${response.status}`);
+      }
+      const data = await response.json();
+      return { opportunities: data.opportunities || [] };
+    } catch (error) {
+      enhancedLogger.warn(
+        'CustomizableDashboard',
+        'loadPropOpportunitiesData',
+        `Failed to load prop opportunities`,
+        { minConfidence, minEV, error: error instanceof Error ? error.message : 'Unknown error' }
+      );
+      // Return empty opportunities array
+      return { opportunities: [] };
+    }
+  }, []);
 
   // Load data for a specific widget
-  const loadWidgetData = async (widget: Widget): Promise<any> => {
-    // Mock data loading - in production, fetch from APIs
-    await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 400));
-    
-    switch (widget.type) {
-      case 'stats_card':
-        return {
-          value: Math.random() * 10000,
-          change: (Math.random() - 0.5) * 20,
-          label: widget.config.metric || 'Metric'
-        };
-        
-      case 'line_chart':
-        return {
-          data: Array.from({ length: 30 }, (_, i) => ({
-            date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            value: Math.random() * 1000 + 500
-          }))
-        };
-        
-      case 'recent_bets':
-        return {
-          bets: Array.from({ length: widget.config.limit || 10 }, (_, i) => ({
-            id: `bet_${i}`,
-            player: ['LeBron James', 'Stephen Curry', 'Aaron Judge'][Math.floor(Math.random() * 3)],
-            prop: ['Points', 'Assists', 'Home Runs'][Math.floor(Math.random() * 3)],
-            line: Math.random() * 50,
-            status: ['pending', 'won', 'lost'][Math.floor(Math.random() * 3)],
-            amount: Math.random() * 100,
-            timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()
-          }))
-        };
-        
-      case 'prop_opportunities':
-        return {
-          opportunities: Array.from({ length: 8 }, (_, i) => ({
-            id: `opp_${i}`,
-            player: ['LeBron James', 'Stephen Curry', 'Aaron Judge', 'Josh Allen'][Math.floor(Math.random() * 4)],
-            prop: ['Points Over', 'Assists Over', 'Rebounds Over'][Math.floor(Math.random() * 3)],
-            line: Math.random() * 30,
-            prediction: Math.random() * 35,
-            confidence: 0.7 + Math.random() * 0.3,
-            ev: Math.random() * 0.2,
-            sportsbook: ['DraftKings', 'FanDuel', 'BetMGM'][Math.floor(Math.random() * 3)]
-          }))
-        };
-        
-      default:
-        return { message: 'Widget data loading...' };
+  const loadWidgetData = useCallback(async (widget: Widget): Promise<Record<string, unknown>> => {
+    try {
+      switch (widget.type) {
+        case 'stats_card':
+          return await loadStatsCardData(widget.config);
+          
+        case 'line_chart':
+          return await loadLineChartData(widget.config);
+          
+        case 'recent_bets':
+          return await loadRecentBetsData(widget.config);
+          
+        case 'prop_opportunities':
+          return await loadPropOpportunitiesData(widget.config);
+          
+        default:
+          return { message: 'Widget data loading...' };
+      }
+    } catch (error) {
+      enhancedLogger.error(
+        'CustomizableDashboard',
+        'loadWidgetData',
+        `Failed to load data for widget ${widget.id} (${widget.type})`,
+        { widgetId: widget.id, widgetType: widget.type, error: error instanceof Error ? error.message : 'Unknown error' },
+        error instanceof Error ? error : undefined
+      );
+      // Return empty data instead of throwing to prevent widget crashes
+      return { error: 'Failed to load data' };
     }
-  };
+  }, [loadStatsCardData, loadLineChartData, loadRecentBetsData, loadPropOpportunitiesData]);
 
   // Handle widget drag and drop
   const handleWidgetDragStart = (widget: Widget) => {
@@ -323,12 +411,23 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
   const saveLayout = async () => {
     try {
       // Mock save - in production, save to backend
-      console.log('Saving layout:', layout);
+      enhancedLogger.info(
+        'CustomizableDashboard',
+        'saveLayout',
+        'Saving dashboard layout',
+        { layoutId: layout.id, widgetCount: layout.widgets.length }
+      );
       if (onLayoutChange) {
         onLayoutChange(layout);
       }
     } catch (error) {
-      console.error('Failed to save layout:', error);
+      enhancedLogger.error(
+        'CustomizableDashboard',
+        'saveLayout',
+        'Failed to save layout',
+        { layoutId: layout.id, error: error instanceof Error ? error.message : 'Unknown error' },
+        error instanceof Error ? error : undefined
+      );
     }
   };
 
@@ -355,7 +454,7 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
     return () => {
       intervals.forEach(clearInterval);
     };
-  }, [layout.widgets]);
+  }, [layout.widgets, loadWidgetData]);
 
   return (
     <div className={`customizable-dashboard h-full ${className}`}>

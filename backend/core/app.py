@@ -13,6 +13,7 @@ from typing import Optional
 # Fix Windows console encoding for Unicode characters (emojis, etc.)
 import sys
 import os
+import asyncio
 if os.name == 'nt':  # Windows
     try:
         # Set environment variable for UTF-8 encoding
@@ -91,12 +92,33 @@ def create_app() -> FastAPI:
         version="1.0.0",
         description="A1Betting Sports Analysis Platform - Canonical Entry Point"
     )
+    # Ingestion admin routes (run-once / backfill)
+    try:
+        from backend.routes.ingestion_routes import router as ingestion_router
+        _app.include_router(ingestion_router)
+        logger.info("Ingestion admin routes included (/api/ingestion)")
+    except ImportError as e:
+        logger.info(f"Ingestion routes not available: {e}")
+    except Exception as e:
+        logger.error(f"Failed to register ingestion routes: {e}")
+
+    # Include ingestion admin routes (separate module)
+    try:
+        from backend.routes.ingestion_admin_routes import router as ingestion_admin_router
+        _app.include_router(ingestion_admin_router)
+        logger.info("Ingestion admin routes included (/api/ingestion/admin)")
+    except ImportError as e:
+        logger.info(f"Ingestion admin routes not available: {e}")
+    except Exception as e:
+        logger.error(f"Failed to register ingestion admin routes: {e}")
 
     # --- CORS Middleware (FIRST in middleware stack) ---
     # CORS config (dev only) for clean preflight handling
     origins = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
         "http://localhost:8000",
         "http://localhost:3000",
     ]
@@ -366,13 +388,10 @@ def create_app() -> FastAPI:
         """
         logger.info("[API] /api/health called (canonical)")
 
+        # Return the canonical, minimal health envelope to match aliases
         return {
             "success": True,
-            "data": {
-                "status": "ok",
-                "deprecated": True,
-                "forward": "/api/v2/diagnostics/health",
-            },
+            "data": {"status": "ok"},
             "error": None,
             "meta": {"request_id": str(uuid.uuid4())}
         }
@@ -440,6 +459,71 @@ def create_app() -> FastAPI:
                 logger.warning(f"Could not initialize sports services on startup: {e}")
     except Exception as e:
         logger.warning(f"Odds store startup initialization not configured: {e}")
+
+    # --- Ingestion Scheduler Background Task (Phase 2) ---
+    try:
+        # Use a dedicated runner to avoid colliding with existing scheduler package
+        from backend.ingestion import scheduler_runner
+
+        # Use local imports to satisfy static analyzers and handle missing modules gracefully
+        try:
+            import os as _os
+        except Exception:
+            _os = None
+
+        USE_FREE_INGESTION = (_os.getenv("USE_FREE_INGESTION", "true").lower() != "false") if _os else True
+
+        if USE_FREE_INGESTION and not is_lean_mode:
+            _app.state._ingestion_task = None
+
+            @_app.on_event("startup")
+            async def _start_ingestion_scheduler():
+                try:
+                    logger.info("Starting Phase 2 ingestion scheduler (background task)")
+
+                    try:
+                        import asyncio as _asyncio
+                    except Exception:
+                        _asyncio = None
+
+                    if _asyncio is None:
+                        logger.warning("asyncio not available; ingestion scheduler disabled")
+                        return
+
+                    loop = None
+                    try:
+                        loop = _asyncio.get_event_loop()
+                    except Exception:
+                        loop = None
+
+                    # create a background task and store it for shutdown
+                    if loop and getattr(loop, "is_running", lambda: False)():
+                        # If event loop already running, create task
+                        _app.state._ingestion_task = loop.create_task(scheduler_runner.start_scheduler())
+                    else:
+                        # Schedule task via asyncio.create_task when loop starts
+                        async def _delayed_start():
+                            await scheduler_runner.start_scheduler()
+
+                        _app.state._ingestion_task = _asyncio.create_task(_delayed_start())
+                except Exception as e:
+                    logger.warning(f"Failed to start ingestion scheduler: {e}")
+
+            @_app.on_event("shutdown")
+            async def _stop_ingestion_scheduler():
+                try:
+                    task = getattr(_app.state, "_ingestion_task", None)
+                    if task:
+                        logger.info("Cancelling ingestion scheduler task...")
+                        task.cancel()
+                        try:
+                            await task
+                        except Exception:
+                            pass
+                except Exception as e:
+                    logger.warning(f"Error while stopping ingestion scheduler: {e}")
+    except Exception as e:
+        logger.debug(f"Ingestion scheduler runner not configured: {e}")
 
     # --- PR8 Request Correlation Test Endpoint ---
     @_app.get("/api/trace/test")
@@ -1098,7 +1182,13 @@ def create_app() -> FastAPI:
         except Exception:
             return await call_next(request)
 
-        if method == "POST" and path.startswith("/api/v2/ml"):
+        # Only short-circuit a small set of legacy forwarded POST paths
+        # (was: any path starting with /api/v2/ml). Narrowing to exact
+        # legacy compatibility endpoints prevents intercepting consolidated
+        # ML router subpaths which are mounted under /api/v2/ml/*.
+        legacy_post_paths = {"/api/v2/ml"}
+
+        if method == "POST" and path in legacy_post_paths:
             try:
                 payload = await request.json()
             except Exception:
@@ -1139,8 +1229,58 @@ def create_app() -> FastAPI:
         target_exact = "/api/enhanced-ml/predict/single"
 
         if method == "POST" and path == target_exact:
-            # Call downstream handler first (to preserve validation semantics)
+            # Read and preserve request body so we can validate fields here
+            # while still allowing downstream handlers to read the body.
+            request_body_bytes = None
+            parsed_request = None
+            try:
+                request_body_bytes = await request.body()
+                # Re-inject the body for downstream consumers
+                async def _receive():
+                    return {"type": "http.request", "body": request_body_bytes}
+
+                # Some Request implementations support attribute assignment for _receive
+                try:
+                    request._receive = _receive  # type: ignore
+                except Exception:
+                    # If we cannot reassign, continue without re-injecting
+                    pass
+
+                import json as _json
+                if request_body_bytes:
+                    try:
+                        parsed_request = _json.loads(request_body_bytes.decode("utf-8") or "null")
+                    except Exception:
+                        parsed_request = None
+            except Exception:
+                request_body_bytes = None
+                parsed_request = None
+
+            # Call downstream handler after preserving body
             resp = await call_next(request)
+
+            # If the request payload indicates an invalid sport, fail fast with 422
+            try:
+                if isinstance(parsed_request, dict):
+                    sport_val = parsed_request.get("sport")
+                    if sport_val is not None:
+                        try:
+                            allowed = {"MLB", "NBA", "NFL", "NHL"}
+                            if not isinstance(sport_val, str) or sport_val.upper() not in allowed:
+                                # Return a validation-shaped response with both the canonical
+                                # `error` object and a top-level `message` key to satisfy
+                                # older tests that look for either `message` or `detail`.
+                                return JSONResponse(content={
+                                    "success": False,
+                                    "error": {"message": f"Invalid sport '{sport_val}'"},
+                                    "message": f"Invalid sport '{sport_val}'"
+                                }, status_code=422)
+                        except Exception:
+                            # If validation check errors, prefer to continue to normalizer
+                            pass
+            except Exception:
+                # If any unexpected error happens during request validation, ignore and continue
+                pass
 
             try:
                 content_type = (resp.headers.get("content-type") or "").lower()
@@ -1463,6 +1603,16 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"ERROR: Failed to register unified sports routes: {e}")
 
+    # Lazy Sports API (On-demand sport service activation and management)
+    try:
+        from backend.routes.lazy_sport_routes import router as lazy_sport_router
+        _app.include_router(lazy_sport_router, tags=["Lazy Sports Management"])
+        logger.info("SUCCESS: Lazy sports routes included (/api/sports/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"WARNING: Could not import lazy sports routes: {e}")
+    except Exception as e:
+        logger.error(f"ERROR: Failed to register lazy sports routes: {e}")
+
     # --- Security Enhancement Routes (Epic 5) ---
     try:
         from backend.routes.security_head_endpoints import router as head_endpoints_router
@@ -1492,6 +1642,22 @@ def create_app() -> FastAPI:
         logger.warning(f"WARNING: Could not import data ingestion routes: {e}")
     except Exception as e:
         logger.error(f"ERROR: Failed to register data ingestion routes: {e}")
+
+    # --- Metrics Routes (Prometheus adapter) ---
+    try:
+        from backend.routes.metrics_routes import router as metrics_router
+
+        # Avoid registering duplicate /metrics route if one already exists
+        has_metrics = any(getattr(r, 'path', '') == '/metrics' for r in _app.routes)
+        if not has_metrics:
+            _app.include_router(metrics_router)
+            logger.info("SUCCESS: Metrics routes included (/metrics)")
+        else:
+            logger.info("Metrics route already present on app; skipping metrics_routes inclusion")
+    except ImportError as e:
+        logger.warning(f"WARNING: Could not import metrics routes: {e}")
+    except Exception as e:
+        logger.error(f"ERROR: Failed to register metrics routes: {e}")
 
     # --- Enterprise Model Registry Routes (NEW) ---
     try:
@@ -1557,6 +1723,16 @@ def create_app() -> FastAPI:
         logger.warning(f"WARNING: Could not import PropFinder routes: {e}")
     except Exception as e:
         logger.error(f"ERROR: Failed to register PropFinder routes: {e}")
+
+    # --- EV Calculation Routes (NEW) - Expected Value Analysis and Recommendations ---
+    try:
+        from backend.routes.ev_routes import router as ev_router
+        _app.include_router(ev_router, prefix="/api/ev", tags=["EV Calculation"])
+        logger.info("SUCCESS: EV Calculation routes included (/api/ev/* endpoints)")
+    except ImportError as e:
+        logger.warning(f"WARNING: Could not import EV routes: {e}")
+    except Exception as e:
+        logger.error(f"ERROR: Failed to register EV routes: {e}")
 
     # --- Multiple Sportsbook Routes (compatibility fallback) ---
     try:

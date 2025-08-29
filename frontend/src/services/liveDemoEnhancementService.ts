@@ -70,14 +70,18 @@ class LiveDemoEnhancementService {
     this.isMonitoring = true;
     this.collectBaselineMetrics();
 
-    // Monitor demo performance every 30 seconds
+    // Monitor demo performance every 2 minutes instead of 30 seconds
     this.monitoringInterval = setInterval(() => {
       this.collectMetrics();
       this.analyzePerformance();
       this.optimizeDemoExperience();
-    }, 30000);
+    }, 120000); // 2 minutes
 
-    console.log('[LiveDemo] Monitoring started for demo enhancement');
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+      console.log('[LiveDemo] Monitoring started for demo enhancement');
+    }
+    }
   }
 
   /**

@@ -7,6 +7,7 @@ import json
 import logging
 import logging.config
 import sys
+import os
 from datetime import datetime
 from typing import Any, Dict, Optional
 
@@ -149,6 +150,9 @@ def setup_logging():
     """Configure logging based on settings"""
     settings = get_settings()
 
+    # Detect test runtime (pytest or explicit TESTING env var).
+    testing = bool(os.environ.get("TESTING") or os.environ.get("PYTEST_CURRENT_TEST"))
+
     # Determine log level
     log_level = getattr(logging, settings.monitoring.log_level.value)
 
@@ -181,21 +185,17 @@ def setup_logging():
                 },
                 "file": {
                     "level": log_level,
-                    "class": "logging.handlers.RotatingFileHandler",
+                    "class": "logging.FileHandler" if testing else "logging.handlers.RotatingFileHandler",
                     "formatter": "json",
                     "filters": ["correlation_id"],
                     "filename": "logs/app.log",
-                    "maxBytes": 10485760,  # 10MB
-                    "backupCount": 5,
                 },
                 "error_file": {
                     "level": "ERROR",
-                    "class": "logging.handlers.RotatingFileHandler",
+                    "class": "logging.FileHandler" if testing else "logging.handlers.RotatingFileHandler",
                     "formatter": "json",
                     "filters": ["correlation_id"],
                     "filename": "logs/error.log",
-                    "maxBytes": 10485760,  # 10MB
-                    "backupCount": 5,
                 },
             },
             "loggers": {
@@ -269,8 +269,6 @@ def setup_logging():
 
     # Create logs directory if using file handlers
     if settings.monitoring.log_format == "json":
-        import os
-
         os.makedirs("logs", exist_ok=True)
 
 
