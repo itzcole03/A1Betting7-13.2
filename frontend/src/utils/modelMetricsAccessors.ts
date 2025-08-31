@@ -127,10 +127,10 @@ export const getOptimizationLevel = createFieldAccessor<string>({
   name: 'optimization_level',
   canonical: ['model', 'optimization_level'],
   legacy: [
-    ['optimizationLevel'],
     ['opt_level'], 
     ['optimization_mode'],
     ['system_info', 'optimization_level'],
+    ['optimizationLevel'],
     ['optimizationTier'],
     ['optTier']
   ],

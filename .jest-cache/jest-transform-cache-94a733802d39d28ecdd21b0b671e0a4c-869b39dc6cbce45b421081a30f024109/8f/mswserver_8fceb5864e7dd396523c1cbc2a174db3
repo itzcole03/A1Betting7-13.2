@@ -1,0 +1,13 @@
+9586a8f2e155ede0aa0ab01d6eff57c8
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.server = void 0;
+var _node = require("msw/node");
+var _mswHandlers = require("./msw-handlers");
+// MSW server setup for Jest (Node)
+
+const server = exports.server = (0, _node.setupServer)(..._mswHandlers.handlers);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfbm9kZSIsInJlcXVpcmUiLCJfbXN3SGFuZGxlcnMiLCJzZXJ2ZXIiLCJleHBvcnRzIiwic2V0dXBTZXJ2ZXIiLCJoYW5kbGVycyJdLCJzb3VyY2VzIjpbIm1zdy1zZXJ2ZXIuanMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gTVNXIHNlcnZlciBzZXR1cCBmb3IgSmVzdCAoTm9kZSlcclxuaW1wb3J0IHsgc2V0dXBTZXJ2ZXIgfSBmcm9tICdtc3cvbm9kZSc7XHJcbmltcG9ydCB7IGhhbmRsZXJzIH0gZnJvbSAnLi9tc3ctaGFuZGxlcnMnO1xyXG5cclxuZXhwb3J0IGNvbnN0IHNlcnZlciA9IHNldHVwU2VydmVyKC4uLmhhbmRsZXJzKTtcclxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7QUFDQSxJQUFBQSxLQUFBLEdBQUFDLE9BQUE7QUFDQSxJQUFBQyxZQUFBLEdBQUFELE9BQUE7QUFGQTs7QUFJTyxNQUFNRSxNQUFNLEdBQUFDLE9BQUEsQ0FBQUQsTUFBQSxHQUFHLElBQUFFLGlCQUFXLEVBQUMsR0FBR0MscUJBQVEsQ0FBQyIsImlnbm9yZUxpc3QiOltdfQ==

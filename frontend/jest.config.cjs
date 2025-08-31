@@ -32,6 +32,7 @@ module.exports = {
       'jest-transform-stub',
   // Map Chart.js to a single manual mock to avoid duplicate manual mock warnings
   '^chart.js$': '<rootDir>/__mocks__/chart.js',
+  '^framer-motion$': '<rootDir>/src/__mocks__/framer-motion.js',
   },
 
   // Transform configuration

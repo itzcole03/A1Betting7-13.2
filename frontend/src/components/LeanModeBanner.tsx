@@ -8,7 +8,12 @@ import { isLeanMode } from '../utils/leanMode';
 
 const LeanModeBanner: React.FC = () => {
   // Only show in development and when lean mode is active
-  if (import.meta.env.PROD || !isLeanMode()) {
+  // Avoid direct `import.meta` usage to keep Jest/Babel parsing stable in test envs
+  const isProd =
+    (typeof (global as any).importMeta !== 'undefined' && (global as any).importMeta.env && (global as any).importMeta.env.PROD) ||
+    process.env.NODE_ENV === 'production';
+
+  if (isProd || !isLeanMode()) {
     return null;
   }
 

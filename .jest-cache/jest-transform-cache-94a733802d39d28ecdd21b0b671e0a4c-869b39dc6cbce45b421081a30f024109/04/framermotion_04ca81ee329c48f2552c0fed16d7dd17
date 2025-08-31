@@ -1,0 +1,65 @@
+65a9855c2a1541abc268c94f8226a0a5
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+const React = __importStar(require("react"));
+const actual = jest.requireActual('framer-motion');
+function custom(Component) {
+    return React.forwardRef((props, ref) => {
+        const regularProps = Object.entries(props || {}).reduce((acc, [key, value]) => {
+            if (!actual.isValidMotionProp || !actual.isValidMotionProp(key)) {
+                acc[key] = value;
+            }
+            return acc;
+        }, {});
+        return React.createElement(Component, { ref, ...regularProps });
+    });
+}
+const componentCache = new Map();
+const motion = new Proxy(custom, {
+    get: (_target, key) => {
+        if (!componentCache.has(key)) {
+            componentCache.set(key, custom(key));
+        }
+        return componentCache.get(key);
+    },
+});
+const AnimatePresence = ({ children }) => React.createElement(React.Fragment, null, children);
+module.exports = {
+    ...actual,
+    AnimatePresence,
+    motion,
+};
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxiY21hZFxcRG93bmxvYWRzXFxBMUJldHRpbmc3LTEzLjJcXGZyb250ZW5kXFxzcmNcXF9fbW9ja3NfX1xcZnJhbWVyLW1vdGlvbi50cyIsIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUNBLDZDQUErQjtBQUUvQixNQUFNLE1BQU0sR0FBRyxJQUFJLENBQUMsYUFBYSxDQUFDLGVBQWUsQ0FBQyxDQUFDO0FBRW5ELFNBQVMsTUFBTSxDQUFDLFNBQTRDO0lBQzFELE9BQU8sS0FBSyxDQUFDLFVBQVUsQ0FBQyxDQUFDLEtBQVUsRUFBRSxHQUFRLEVBQUUsRUFBRTtRQUMvQyxNQUFNLFlBQVksR0FBRyxNQUFNLENBQUMsT0FBTyxDQUFDLEtBQUssSUFBSSxFQUFFLENBQUMsQ0FBQyxNQUFNLENBQUMsQ0FBQyxHQUFRLEVBQUUsQ0FBQyxHQUFHLEVBQUUsS0FBSyxDQUFDLEVBQUUsRUFBRTtZQUNqRixJQUFJLENBQUMsTUFBTSxDQUFDLGlCQUFpQixJQUFJLENBQUMsTUFBTSxDQUFDLGlCQUFpQixDQUFDLEdBQUcsQ0FBQyxFQUFFLENBQUM7Z0JBQ2hFLEdBQUcsQ0FBQyxHQUFHLENBQUMsR0FBRyxLQUFLLENBQUM7WUFDbkIsQ0FBQztZQUNELE9BQU8sR0FBRyxDQUFDO1FBQ2IsQ0FBQyxFQUFFLEVBQUUsQ0FBQyxDQUFDO1FBQ1AsT0FBTyxLQUFLLENBQUMsYUFBYSxDQUFDLFNBQVMsRUFBRSxFQUFFLEdBQUcsRUFBRSxHQUFHLFlBQVksRUFBRSxDQUFDLENBQUM7SUFDbEUsQ0FBQyxDQUFDLENBQUM7QUFDTCxDQUFDO0FBRUQsTUFBTSxjQUFjLEdBQUcsSUFBSSxHQUFHLEVBQWUsQ0FBQztBQUM5QyxNQUFNLE1BQU0sR0FBRyxJQUFJLEtBQUssQ0FBQyxNQUFNLEVBQUU7SUFDL0IsR0FBRyxFQUFFLENBQUMsT0FBTyxFQUFFLEdBQVcsRUFBRSxFQUFFO1FBQzVCLElBQUksQ0FBQyxjQUFjLENBQUMsR0FBRyxDQUFDLEdBQUcsQ0FBQyxFQUFFLENBQUM7WUFDN0IsY0FBYyxDQUFDLEdBQUcsQ0FBQyxHQUFHLEVBQUUsTUFBTSxDQUFDLEdBQUcsQ0FBQyxDQUFDLENBQUM7UUFDdkMsQ0FBQztRQUNELE9BQU8sY0FBYyxDQUFDLEdBQUcsQ0FBQyxHQUFHLENBQUUsQ0FBQztJQUNsQyxDQUFDO0NBQ0YsQ0FBQyxDQUFDO0FBRUgsTUFBTSxlQUFlLEdBQUcsQ0FBQyxFQUFFLFFBQVEsRUFBaUMsRUFBRSxFQUFFLENBQ3RFLEtBQUssQ0FBQyxhQUFhLENBQUMsS0FBSyxDQUFDLFFBQVEsRUFBRSxJQUFJLEVBQUUsUUFBUSxDQUFDLENBQUM7QUFFdEQsTUFBTSxDQUFDLE9BQU8sR0FBRztJQUNmLEdBQUcsTUFBTTtJQUNULGVBQWU7SUFDZixNQUFNO0NBQ1AsQ0FBQyIsIm5hbWVzIjpbXSwic291cmNlcyI6WyJDOlxcVXNlcnNcXGJjbWFkXFxEb3dubG9hZHNcXEExQmV0dGluZzctMTMuMlxcZnJvbnRlbmRcXHNyY1xcX19tb2Nrc19fXFxmcmFtZXItbW90aW9uLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIiBcclxuaW1wb3J0ICogYXMgUmVhY3QgZnJvbSAncmVhY3QnO1xyXG5cclxuY29uc3QgYWN0dWFsID0gamVzdC5yZXF1aXJlQWN0dWFsKCdmcmFtZXItbW90aW9uJyk7XHJcblxyXG5mdW5jdGlvbiBjdXN0b20oQ29tcG9uZW50OiBzdHJpbmcgfCBSZWFjdC5Db21wb25lbnRUeXBlPGFueT4pIHtcclxuICByZXR1cm4gUmVhY3QuZm9yd2FyZFJlZigocHJvcHM6IGFueSwgcmVmOiBhbnkpID0+IHtcclxuICAgIGNvbnN0IHJlZ3VsYXJQcm9wcyA9IE9iamVjdC5lbnRyaWVzKHByb3BzIHx8IHt9KS5yZWR1Y2UoKGFjYzogYW55LCBba2V5LCB2YWx1ZV0pID0+IHtcclxuICAgICAgaWYgKCFhY3R1YWwuaXNWYWxpZE1vdGlvblByb3AgfHwgIWFjdHVhbC5pc1ZhbGlkTW90aW9uUHJvcChrZXkpKSB7XHJcbiAgICAgICAgYWNjW2tleV0gPSB2YWx1ZTtcclxuICAgICAgfVxyXG4gICAgICByZXR1cm4gYWNjO1xyXG4gICAgfSwge30pO1xyXG4gICAgcmV0dXJuIFJlYWN0LmNyZWF0ZUVsZW1lbnQoQ29tcG9uZW50LCB7IHJlZiwgLi4ucmVndWxhclByb3BzIH0pO1xyXG4gIH0pO1xyXG59XHJcblxyXG5jb25zdCBjb21wb25lbnRDYWNoZSA9IG5ldyBNYXA8c3RyaW5nLCBhbnk+KCk7XHJcbmNvbnN0IG1vdGlvbiA9IG5ldyBQcm94eShjdXN0b20sIHtcclxuICBnZXQ6IChfdGFyZ2V0LCBrZXk6IHN0cmluZykgPT4ge1xyXG4gICAgaWYgKCFjb21wb25lbnRDYWNoZS5oYXMoa2V5KSkge1xyXG4gICAgICBjb21wb25lbnRDYWNoZS5zZXQoa2V5LCBjdXN0b20oa2V5KSk7XHJcbiAgICB9XHJcbiAgICByZXR1cm4gY29tcG9uZW50Q2FjaGUuZ2V0KGtleSkhO1xyXG4gIH0sXHJcbn0pO1xyXG5cclxuY29uc3QgQW5pbWF0ZVByZXNlbmNlID0gKHsgY2hpbGRyZW4gfTogeyBjaGlsZHJlbjogUmVhY3QuUmVhY3ROb2RlIH0pID0+XHJcbiAgUmVhY3QuY3JlYXRlRWxlbWVudChSZWFjdC5GcmFnbWVudCwgbnVsbCwgY2hpbGRyZW4pO1xyXG5cclxubW9kdWxlLmV4cG9ydHMgPSB7XHJcbiAgLi4uYWN0dWFsLFxyXG4gIEFuaW1hdGVQcmVzZW5jZSxcclxuICBtb3Rpb24sXHJcbn07XHJcbiJdLCJ2ZXJzaW9uIjozfQ==

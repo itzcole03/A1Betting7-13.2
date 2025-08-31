@@ -2,23 +2,48 @@
 module.exports = {
   rootDir: ".",
   testEnvironment: "jest-environment-jsdom",
-  setupFilesAfterEnv: ["<rootDir>/jest.setup.enhanced.ts"],
+  // Run simple shims early so import.meta and global stubs are available before any transforms
+  setupFiles: ["<rootDir>/jest.setup.enhanced.js"],
+  setupFilesAfterEnv: ["<rootDir>/frontend/src/setupTests.ts"],
   moduleFileExtensions: ["js", "jsx", "ts", "tsx", "json"],
   
   // Enhanced Transform Configuration
   transform: {
-    "^.+\\.(ts|tsx)$": [
-      "ts-jest",
+    "^.+\.(ts|tsx)$": [
+      "babel-jest",
       {
-        tsconfig: {
-          jsx: "react-jsx",
-          allowImportingTsExtensions: false,
-          moduleResolution: "node",
-          esModuleInterop: true,
-          allowSyntheticDefaultImports: true,
-        },
-        isolatedModules: true,
-        useESM: false,
+        presets: [
+          ["@babel/preset-env", { targets: { node: "current" } }],
+          ["@babel/preset-react", { runtime: "automatic" }],
+          "@babel/preset-typescript"
+        ],
+        plugins: [
+          "@babel/plugin-transform-modules-commonjs",
+          [
+            "@babel/plugin-proposal-class-properties",
+            {
+              "loose": true
+            }
+          ],
+          [
+            "@babel/plugin-proposal-private-methods",
+            {
+              "loose": true
+            }
+          ],
+          [
+            "@babel/plugin-proposal-private-property-in-object",
+            {
+              "loose": true
+            }
+          ],
+          [
+            "babel-plugin-transform-import-meta",
+            {
+              "target": "CommonJS"
+            }
+          ]
+        ],
       },
     ],
     "^.+\\.(js|jsx)$": [
@@ -31,7 +56,24 @@ module.exports = {
         ],
         plugins: [
           "@babel/plugin-transform-modules-commonjs",
-          "@babel/plugin-proposal-class-properties",
+          [
+            "@babel/plugin-proposal-class-properties",
+            {
+              "loose": true
+            }
+          ],
+          [
+            "@babel/plugin-proposal-private-methods",
+            {
+              "loose": true
+            }
+          ],
+          [
+            "@babel/plugin-proposal-private-property-in-object",
+            {
+              "loose": true
+            }
+          ]
         ],
       },
     ],
@@ -71,19 +113,21 @@ module.exports = {
     "^types/(.*)$": "<rootDir>/frontend/src/types/$1",
     "^contexts/(.*)$": "<rootDir>/frontend/src/contexts/$1",
     
-    // React/DOM mappings
-    "^react$": "<rootDir>/node_modules/react",
-    "^react-dom$": "<rootDir>/node_modules/react-dom",
+  // React/DOM mappings (point to frontend node_modules)
+  "^react$": "<rootDir>/frontend/node_modules/react",
+  "^react-dom$": "<rootDir>/frontend/node_modules/react-dom",
     
     // Asset mappings
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "jest-transform-stub",
     
-    // Mock mappings
+  // Mock mappings
     "^framer-motion$": "<rootDir>/frontend/src/__mocks__/framer-motion.ts",
     "^framer-motion/(.*)$": "<rootDir>/frontend/src/__mocks__/framer-motion.ts",
     "^electron$": "<rootDir>/frontend/src/__mocks__/electron.ts",
     "^axios$": "<rootDir>/frontend/src/__mocks__/axios.ts",
+  // Point Chart.js to the canonical manual mock to avoid haste-map duplicate warnings
+  "^chart.js$": "<rootDir>/frontend/__mocks__/chart.js",
   },
 
   // Global Test Variables
@@ -160,8 +204,9 @@ module.exports = {
     url: "http://localhost:3000",
   },
 
-  // Setup Files
+  // Setup Files (merge with early shims)
   setupFiles: [
+    "<rootDir>/jest.setup.enhanced.js",
     "<rootDir>/jest.env.js",
     "<rootDir>/jest.polyfills.js",
   ],

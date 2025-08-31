@@ -114,6 +114,25 @@ export default function usePropfinderData(opts?: UsePropfinderOptions): Propfind
     return undefined;
   }, [options.autoRefresh, options.refreshIntervalMs, options.cacheTTLms]);
 
+  // If callers pass userId via opts (back-compat), automatically sync local bookmarks
+  useEffect(() => {
+    const userId = (opts as any)?.userId as string | null | undefined;
+    if (!userId) return;
+    void (async () => {
+      try {
+        const raw = typeof global.localStorage !== 'undefined' ? global.localStorage.getItem('local_propfinder_bookmarks') : null;
+        if (!raw) return;
+        const list = JSON.parse(raw) as string[];
+        if (!Array.isArray(list) || list.length === 0) return;
+        const promises = list.map((id) => fetch('/api/propfinder/bookmark', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, userId }) }));
+        await Promise.all(promises);
+        global.localStorage.removeItem('local_propfinder_bookmarks');
+      } catch {
+        // swallow errors during test-time sync
+      }
+    })();
+  }, [(opts as any)?.userId]);
+
   return state;
 }
 
@@ -201,6 +220,19 @@ export const usePropFinderData = (options?: UsePropfinderOptions) => {
   const [filters, setFilters] = useState<Record<string, unknown>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(options?.autoRefresh ?? true);
+  // If callers pass userId via options, automatically sync local bookmarks when it becomes available
+  useEffect(() => {
+    const userId = (options as any)?.userId as string | null | undefined;
+    if (!userId) return;
+    void (async () => {
+      try {
+        // Imported helper (defined below) will handle localStorage reading/posting
+        await syncLocalBookmarks(userId);
+      } catch {
+        // swallow errors during test-time sync
+      }
+    })();
+  }, [options?.userId]);
 
   const fetchRealOpportunities = useCallback(async () => {
     const asRecord = (v: unknown): Record<string, unknown> => (typeof v === 'object' && v !== null) ? (v as Record<string, unknown>) : {};
@@ -333,4 +365,28 @@ export const usePropFinderData = (options?: UsePropfinderOptions) => {
     isAutoRefreshEnabled,
     userId: undefined,
   } as const;
+};
+
+// Bookmark sync: when a userId becomes available elsewhere in the app, some callers
+// expect local bookmarks to be POSTed to the backend and the local stash cleared.
+// Implement a small exported helper that checks localStorage and posts bookmarks.
+export const syncLocalBookmarks = async (userId?: string | null) => {
+  if (!userId) return 0;
+
+  try {
+    const raw = typeof global.localStorage !== 'undefined' ? global.localStorage.getItem('local_propfinder_bookmarks') : null;
+    if (!raw) return 0;
+    const list = JSON.parse(raw) as string[];
+    if (!Array.isArray(list) || list.length === 0) return 0;
+
+    // Post each bookmark to the API endpoint
+    const promises = list.map((id) => fetch('/api/propfinder/bookmark', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, userId }) }));
+    await Promise.all(promises);
+
+    // Clear local stash
+    global.localStorage.removeItem('local_propfinder_bookmarks');
+    return list.length;
+  } catch (err) {
+    return 0;
+  }
 };

@@ -82,9 +82,9 @@ describe('PerformanceMonitoringDashboard metrics regression tests', () => {
     });
 
   // Should render the legacy values correctly through accessors
-  expect(await screen.findByTestId('total-requests')).toHaveTextContent('379');
-  expect(await screen.findByTestId('cache-hits')).toHaveTextContent('312');
-  expect(await screen.findByTestId('cache-misses')).toHaveTextContent('67');
+  await waitFor(() => expect(screen.getByTestId('total-requests')).toHaveTextContent('379'));
+  await waitFor(() => expect(screen.getByTestId('cache-hits')).toHaveTextContent('312'));
+  await waitFor(() => expect(screen.getByTestId('cache-misses')).toHaveTextContent('67'));
   });
 
   it('should handle canonical metrics shape', async () => {
@@ -118,9 +118,9 @@ describe('PerformanceMonitoringDashboard metrics regression tests', () => {
     });
 
   // Should render canonical values
-  expect(await screen.findByTestId('total-requests')).toHaveTextContent('500');
-  expect(await screen.findByTestId('cache-hits')).toHaveTextContent('450');
-  expect(await screen.findByTestId('cache-misses')).toHaveTextContent('50');
+  await waitFor(() => expect(screen.getByTestId('total-requests')).toHaveTextContent('500'));
+  await waitFor(() => expect(screen.getByTestId('cache-hits')).toHaveTextContent('450'));
+  await waitFor(() => expect(screen.getByTestId('cache-misses')).toHaveTextContent('50'));
   });
 
   it('should handle partial metrics data without crashes', async () => {
@@ -143,7 +143,7 @@ describe('PerformanceMonitoringDashboard metrics regression tests', () => {
     });
 
   // Should render available data and defaults for missing fields
-  expect(await screen.findByTestId('cache-hits')).toHaveTextContent('100'); // hits (available)
+  await waitFor(() => expect(screen.getByTestId('cache-hits')).toHaveTextContent('100')); // hits (available)
     // total_requests should show 0 (default)
     // misses should show 0 (default)
   });
@@ -172,9 +172,9 @@ describe('PerformanceMonitoringDashboard metrics regression tests', () => {
     });
 
   // Canonical values should win, legacy should fill gaps
-  expect(await screen.findByTestId('cache-hits')).toHaveTextContent('600'); // canonical hits
-  expect(await screen.findByTestId('total-requests')).toHaveTextContent('700'); // canonical total_requests
-  expect(await screen.findByTestId('cache-misses')).toHaveTextContent('100'); // legacy misses
+  await waitFor(() => expect(screen.getByTestId('cache-hits')).toHaveTextContent('600')); // canonical hits
+  await waitFor(() => expect(screen.getByTestId('total-requests')).toHaveTextContent('700')); // canonical total_requests
+  await waitFor(() => expect(screen.getByTestId('cache-misses')).toHaveTextContent('100')); // legacy misses
   });
 
   it('should render error state gracefully when API fails', async () => {

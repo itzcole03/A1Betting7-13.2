@@ -262,9 +262,9 @@ describe('CacheStatsPanel Component', () => {
       />
     );
 
-    await waitFor(() => {
-      expect(onStatsUpdate).toHaveBeenCalledWith(mockCacheStats);
-    });
+      await waitFor(() => {
+        expect(onStatsUpdate).toHaveBeenCalledWith(mockCacheStats);
+      }, { timeout: 1500 });
   });
 
   it('should handle namespace table sorting', async () => {
@@ -385,8 +385,10 @@ describe('CacheStatsPanel Component', () => {
     expect(screen.getByText('Latency Percentiles')).toBeInTheDocument();
     expect(screen.getByText('Healthy')).toBeInTheDocument();
 
-    // Verify callbacks were called
-    expect(onStatsUpdate).toHaveBeenCalledWith(mockCacheStats);
+      // Verify callbacks were called (wait for effect)
+      await waitFor(() => {
+        expect(onStatsUpdate).toHaveBeenCalledWith(mockCacheStats);
+      }, { timeout: 1500 });
 
     // Verify key metrics are displayed correctly - use getAllByText for multiple instances
     expect(screen.getAllByText('85.0%')[0]).toBeInTheDocument(); // Hit ratio

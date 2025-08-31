@@ -389,9 +389,14 @@ def create_app() -> FastAPI:
         logger.info("[API] /api/health called (canonical)")
 
         # Return the canonical, minimal health envelope to match aliases
+        # For legacy /api/health include deprecation notice and forward path
         return {
             "success": True,
-            "data": {"status": "ok"},
+            "data": {
+                "status": "ok",
+                "deprecated": True,
+                "forward": "/api/v2/diagnostics/health"
+            },
             "error": None,
             "meta": {"request_id": str(uuid.uuid4())}
         }
@@ -1658,6 +1663,8 @@ def create_app() -> FastAPI:
         logger.warning(f"WARNING: Could not import metrics routes: {e}")
     except Exception as e:
         logger.error(f"ERROR: Failed to register metrics routes: {e}")
+
+   
 
     # --- Enterprise Model Registry Routes (NEW) ---
     try:
