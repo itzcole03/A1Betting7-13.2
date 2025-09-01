@@ -61,7 +61,6 @@ module.exports = {
     '/admin/',
     '/shared/',
     '/features/',
-    '/services/',
     '/src/test-artifacts/',
     '/src/legacy/',
     '/src/deprecated/',
