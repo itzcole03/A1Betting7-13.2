@@ -116,3 +116,6 @@ phase*_performance_*.db
 test_*.html
 restore_*.py
 *_COMPLETE.py
+
+# Jest cache
+.jest-cache/
