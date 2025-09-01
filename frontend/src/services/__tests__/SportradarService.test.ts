@@ -1,10 +1,11 @@
 import { createSportRadarService } from '../sportRadarService';
 
-// Mock default export from robustApi module
+// Create a mock and ensure the module returns the same object reference
 const mockGet = jest.fn();
+const mockRobustApi = { get: mockGet };
 jest.mock('../../utils/robustApi', () => ({
   __esModule: true,
-  default: { get: mockGet },
+  default: mockRobustApi,
 }));
 import robustApi from '../../utils/robustApi';
 
@@ -16,6 +17,6 @@ describe('SportRadarService (mock mode)', () => {
 
     expect(health).toBeDefined();
     expect(health.service).toBe('comprehensive_sportradar');
-    expect((robustApi as any).get as jest.Mock).not.toHaveBeenCalled();
+    expect((robustApi as any).get).not.toHaveBeenCalled();
   });
 });
