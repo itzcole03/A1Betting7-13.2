@@ -8,6 +8,15 @@ Quick rules
 - Frontend work: run from `frontend/` (Vite dev, tests, type-check).
 - Ports: backend 8000, frontend 5173 (Vite proxy → backend).
 
+## Admin Dashboard Notes
+
+- **Purpose**: React-admin dashboard for secure business rule management (admin area).
+- **Focus areas**: prioritize admin authentication, YAML editing UX, REST API integration, and audit log visibility.
+- **Editor**: use Monaco or Ace editor for YAML fields in admin pages.
+- **APIs**: ensure all admin API calls are authenticated and auditable; admin paths commonly include `/api/ingestion/admin` and `/api/admin`.
+- **UI framework**: Material UI is used in the admin dashboard; follow existing admin styling patterns.
+
+
 # A1Betting — Copilot Instructions (concise, actionable)
 
 **Recent Agent Addendum (Aug 2025)**
