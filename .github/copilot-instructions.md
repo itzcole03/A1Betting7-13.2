@@ -42,98 +42,80 @@ pytest --verbose --tb=short
 
 ```
 
-Project-specific patterns (do this)
-- Directory discipline: many scripts assume exact CWD. Use project root for backend commands and `frontend/` for frontend tasks.
-- Prefer unified services in `backend/services/unified_*` (fetcher, cache, logging, error_handler). They are backwards-compatible and expected by many callers.
-- Use lazy imports for heavy optional deps (torch, xgboost, etc.) and provide graceful fallbacks.
-- Tests set `TESTING` / `DATABASE_URL` early in `tests/conftest*.py`. Avoid import-time DB connections.
-- There are lightweight route shims for legacy endpoints in `backend/routes/` — when tests import routers, ensure you edit the module that `tests` include (import-time ordering matters).
+```markdown
+# A1Betting — Copilot Instructions (concise)
 
-Key files to inspect for most edits
-- `backend/core/app.py` — app factory & central route registration
-- `backend/main.py` — dev entrypoint used by uvicorn and some tests
-- `backend/services/` — unified services and feature services (look for `unified_*`)
-- `backend/routes/` — route modules (tests often include routers directly)
-- `tests/conftest.py`, `tests/conftest_db.py` — test fixtures (AsyncClient/TestClient, DB env)
-- `frontend/src/hooks/usePropFinderData.tsx` and `frontend/src/components/dashboard/PropFinderDashboard.tsx`
+Purpose: give an AI coding agent the exact, discoverable patterns and commands
+needed to make small, safe, and testable edits quickly in this repo.
 
-Testing & editing guidance (practical)
-- When changing imports or adding dependencies that tests touch, run a focused pytest collection quickly:
-  - `cd A1Betting7-13.2` then `C:/path/to/python -m pytest tests/test_health_endpoint.py -q`
-- If tests error during collection with ModuleNotFoundError, either:
-  1) add a guarded import (try/except),
-  2) add a lightweight shim module under `backend/services/`, or
-  3) install the missing minimal dependency into the venv.
-- Tests use `httpx.AsyncClient(app=...)` or `TestClient`; preserve both code paths when possible.
+Quick rules
+- Backend work: run commands from the repository root (`A1Betting7-13.2/`).
+- Frontend work: run commands from `frontend/`.
+- Ports: backend `8000`, frontend `5173` (Vite proxy → backend).
 
-Patterns & quick examples
-- Lazy import guard (use everywhere for optional ML libs):
-```py
-try:
-    import xgboost
-    XGB_AVAILABLE = True
-except Exception:
-    XGB_AVAILABLE = False
-```
-- Route shim example: `backend/routes/__init__.py` implements a small lazy loader used by tests.
+Essential commands (copy/paste)
+```pwsh
+# Backend (from repo root)
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+pytest --verbose --tb=short
 
-When to ask a human
-- Any change touching `backend/main.py`, DB migrations, API schemas/models, ML model code, or introducing native system deps (torch, xgboost) — stop and ask for review.
-
-Quick checks (sanity)
-- Health: `curl http://127.0.0.1:8000/api/diagnostics/health`
-- PropFinder: `curl -s "http://127.0.0.1:8000/api/propfinder/opportunities" | head -c 500`
-
-If you want, I can expand this file with additional examples (service registry usage, unified cache patterns, or TypeScript type-workflows). Tell me which area to expand.
-
-# From frontend/
+# Frontend (from frontend/)
+cd frontend
+npm install
 npm run dev
-npm run type-check   # runs: tsc -p tsconfig.app.json --noEmit
+npm run type-check
 npm run test
 ```
 
-**Project-specific patterns & gotchas**
-- Directory discipline is critical — many scripts assume precise cwd (root vs `frontend/`).
-- The frontend uses a `MasterServiceRegistry` (singleton). When adapting legacy `UnifiedServiceRegistry` callers prefer a small runtime adapter (plain-object) or local `as unknown as ...` casts rather than large refactors.
-- Replace `console.*` with `enhancedLogger` (see `frontend/src/utils/enhancedLogger.ts`). Do this in small batches (5–10 files) and run `npm run type-check` after each batch.
-- Vite proxy must target port 8000. If React errors reference `useReducer`, check `frontend/vite.config.ts` proxy settings.
+Project-specific conventions (do this)
+- Directory discipline: many scripts assume exact CWD. Use project root for backend tasks and `frontend/` for frontend tasks.
+- Use `backend/services/unified_*` helpers for network, cache and feature services (they are backwards-compatible wrappers).
+- Lazy-import heavy optional ML libs (e.g. `torch`, `xgboost`) and provide fallbacks.
+- Tests set `TESTING` / `DATABASE_URL` early in `tests/conftest*.py`; avoid import-time DB connections.
+- Frontend: always pass `sport` into mapping helpers: `EnhancedDataManager.mapToFeaturedProps(props, sport)` (missing sport → `"Unknown"` → empty UI lists).
 
-**Integration points & important files**
-- PropFinder API: `GET /api/propfinder/opportunities` (backend routes in `backend/routes/propfinder_routes.py`, service in `backend/services/simple_propfinder_service.py`).
-- Frontend dashboard: `frontend/src/components/dashboard/PropFinderDashboard.tsx` and hook `frontend/src/hooks/usePropFinderData.tsx`.
-- Unified backend services: `backend/services/unified_*` (fetcher, cache, logging, error_handler).
-- Frontend registry & adapter examples: `frontend/src/services/MasterServiceRegistry.ts`, `frontend/src/services/UnifiedRegistryAdapter.ts`.
+Key files to inspect for most edits
+- `backend/main.py`, `backend/core/app.py` — app/factory & route registration
+- `backend/services/` — unified service implementations (fetcher, cache, logging)
+- `backend/routes/` — API route modules; tests sometimes import routers directly
+- `frontend/src/hooks/usePropFinderData.tsx` — PropFinder data hook
+- `frontend/src/components/dashboard/PropFinderDashboard.tsx` — primary dashboard UI
+- `tests/conftest.py` — test fixtures and env setup
 
-**TypeScript / testing workflow for AI edits**
-- Make minimal edits, commit small patches, then run:
-  1) `cd frontend && npm run type-check`
-  2) if errors persist, add narrow call-site casts (not global anys)
-  3) remove or replace `@ts-expect-error` only after verification
+Testing & quick edit workflow
+1. Make a small change.
+2. Run focused tests that exercise the changed module (example):
+```pwsh
+# from repo root
+pytest tests/backend/routes/test_enhanced_ml_compat.py -q
 
-**When to ask for human review**
-- Any change touching `backend/main.py`, database migrations, API schemas, or ML model code. Also ask when you must install new native dependencies (PyTorch, etc.).
+# frontend type-check & tests
+cd frontend
+npm run type-check
+npm run test -- --watchAll=false
+```
 
-If something here is unclear or you'd like more detail for a specific area (registry adapters, PropFinder data flow, or ML service fallbacks), tell me which section to expand.
+If tests fail at import/collection with ModuleNotFoundError:
+1) Add a guarded import (try/except) or lightweight shim under `backend/services/`.
+2) Or install the minimal dependency in the venv.
 
-# 🚀 **A1Betting7-13.2 Production Architecture Overview**
+When to ask a human
+- Any change touching `backend/main.py`, DB migrations, API schemas/models, ML model code, or adding native system deps (PyTorch, xgboost). Stop and request review.
 
-**A1Betting7-13.2** is a sophisticated, production-ready sports analytics and AI-powered betting platform built for high-performance real-time predictions and explainable machine learning insights.
+Examples of project-specific fixes
+- Sport context bug (frontend): ensure `mapToFeaturedProps(props, sport)` is called with `sport`.
+- Test collection issues (backend): set `TESTING=1` and `DATABASE_URL` in the test environment before import.
 
-## Core Technology Stack & Architecture
+Quick references
+- PropFinder API: `GET /api/propfinder/opportunities` — backend: `backend/routes/propfinder_routes.py`, service: `backend/services/simple_propfinder_service.py`.
+- Frontend registry: `frontend/src/services/MasterServiceRegistry.ts`.
 
-**Backend (FastAPI + Async Python)**
-- **Production Entry Point:** `backend/main.py` → `production_integration.py` (comprehensive production app factory)
-- **Development Entry:** `backend/minimal_test_app.py` (lightweight testing)
-- **Core Architecture:** Async-first FastAPI with intelligent middleware stacking
-- **Service Layer:** `backend/services/` - All services async with structured logging via `logging.getLogger("propollama")`
-- **Route Architecture:** `backend/routes/` - Modular route registration with unified error handling
-- **LLM Integration:** `enhanced_propollama_engine.py` with Ollama models, fallback chains, conversational memory
-- **ML Pipeline:** `enhanced_model_service.py` with SHAP explainability, ensemble predictions, confidence scoring
-- **Data Sources:** SportRadar/TheOdds APIs → Redis cache → SQLite (dev) / PostgreSQL (prod)
-- **ETL Pipeline:** `etl_mlb.py` + `mlb_feature_engineering.py` via `deploy_etl_production.sh`
+PR & commit guidance for AI patches
+- Keep edits small and focused (single responsibility). Commit messages: `fix:`, `feat:`, `tests:`, `docs:`.
+- After code change: run focused tests, type-check (frontend), then commit and push to a feature branch. Open pull request with a short summary and test results.
 
-**Frontend (React 18 + TypeScript + Vite)**
-- **Build System:** Vite with React 18.3.1, TypeScript strict mode, ESM modules
+If anything here is unclear or you want a deeper section (service registry adapters, unified cache patterns, or type-guides for TypeScript work), tell me which part to expand.
+```
 - **State Management:** Zustand global state + local useState patterns, TanStack Query for server state
 - **Core Components:** `PropOllamaUnified.tsx` (main prop analysis), `CondensedPropCard.tsx` (condensed cards), `PlayerAvatar.tsx` (headshot display)
 - **Data Architecture:** Backend API → EnhancedDataManager → FeaturedPropsService → React components
