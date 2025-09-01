@@ -23,6 +23,8 @@ type UsePropfinderOptions = {
   initialFilters?: Record<string, unknown>;
   searchQuery?: string;
   limit?: number;
+  // Optional user id for syncing bookmarks (back-compat)
+  userId?: string;
 };
 
 type PropfinderResult = {
@@ -32,7 +34,15 @@ type PropfinderResult = {
   error?: string;
 };
 
-const DEFAULTS: Required<UsePropfinderOptions> = {
+const DEFAULTS: Partial<UsePropfinderOptions> & {
+  autoRefresh: boolean;
+  refreshIntervalMs: number;
+  refreshInterval: number;
+  cacheTTLms: number;
+  initialFilters: Record<string, unknown>;
+  searchQuery: string;
+  limit: number;
+} = {
   autoRefresh: true,
   refreshIntervalMs: 30_000,
   refreshInterval: 30,
@@ -116,7 +126,7 @@ export default function usePropfinderData(opts?: UsePropfinderOptions): Propfind
 
   // If callers pass userId via opts (back-compat), automatically sync local bookmarks
   useEffect(() => {
-    const userId = (opts as any)?.userId as string | null | undefined;
+    const userId = opts?.userId;
     if (!userId) return;
     void (async () => {
       try {
@@ -131,7 +141,7 @@ export default function usePropfinderData(opts?: UsePropfinderOptions): Propfind
         // swallow errors during test-time sync
       }
     })();
-  }, [(opts as any)?.userId]);
+  }, [opts?.userId]);
 
   return state;
 }
@@ -222,7 +232,7 @@ export const usePropFinderData = (options?: UsePropfinderOptions) => {
   const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(options?.autoRefresh ?? true);
   // If callers pass userId via options, automatically sync local bookmarks when it becomes available
   useEffect(() => {
-    const userId = (options as any)?.userId as string | null | undefined;
+    const userId = options?.userId;
     if (!userId) return;
     void (async () => {
       try {
@@ -386,7 +396,7 @@ export const syncLocalBookmarks = async (userId?: string | null) => {
     // Clear local stash
     global.localStorage.removeItem('local_propfinder_bookmarks');
     return list.length;
-  } catch (err) {
-    return 0;
-  }
+    } catch {
+      return 0;
+    }
 };
