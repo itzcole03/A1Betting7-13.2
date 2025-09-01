@@ -3,9 +3,9 @@
  * Provides access to all SportRadar trial APIs through unified interface
  */
 
-import { robustApiClient } from '../utils/robustApi';
+import robustApi from '../utils/robustApi';
 
-export interface SportRadarResponse<T = any> {
+export interface SportRadarResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -41,11 +41,29 @@ export interface APIInfo {
   packages: string[];
 }
 
+// Minimal ApiClient interface so we can type-inject clients in tests
+interface ApiClient {
+  get: (url: string, options?: any) => Promise<{ success: boolean; data?: any }>; // lightweight typing for now
+}
+
+// Simple logger wrapper to centralize console usage and satisfy lint rules
+const Logger = {
+  info: (...args: unknown[]) => {
+    // eslint-disable-next-line no-console
+    console.log(...(args as any));
+  },
+  warn: (...args: unknown[]) => {
+    // eslint-disable-next-line no-console
+    console.warn(...(args as any));
+  },
+};
+
 class SportRadarService {
   private baseUrl: string;
   private isCloudEnvironment: boolean;
+  private apiClient: ApiClient | null;
 
-  constructor(options?: { isCloudEnvironment?: boolean; baseUrl?: string }) {
+  constructor(options?: { isCloudEnvironment?: boolean; baseUrl?: string; apiClient?: ApiClient | null }) {
     // Allow overriding for testability and SSR
     this.baseUrl = options?.baseUrl ?? '/api/v1/sportradar';
 
@@ -66,6 +84,9 @@ class SportRadarService {
     } else {
       console.log('🏠 SportRadar Service: Local environment detected');
     }
+
+    // Allow explicit API client injection for tests/SSR; default to robustApi (may be null in cloud demo)
+    this.apiClient = (options?.apiClient ?? robustApi) as ApiClient | null;
   }
 
   /**
@@ -77,10 +98,15 @@ class SportRadarService {
     }
 
     try {
-      const response = await robustApiClient.get(`${this.baseUrl}/health`);
+      if (!this.apiClient) {
+    Logger.warn('No API client available, returning mock health status');
+        return this.getMockHealthStatus();
+      }
+
+      const response = await this.apiClient.get(`${this.baseUrl}/health`);
       return response.data;
     } catch (error) {
-      console.warn('⚠️ SportRadar health check failed, returning mock data:', error);
+  Logger.warn('⚠️ SportRadar health check failed, returning mock data:', error);
       return this.getMockHealthStatus();
     }
   }
@@ -94,10 +120,15 @@ class SportRadarService {
     }
 
     try {
-      const response = await robustApiClient.get(`${this.baseUrl}/quota`);
+      if (!this.apiClient) {
+  Logger.warn('No API client available, returning mock quota status');
+        return this.getMockQuotaStatus();
+      }
+
+      const response = await this.apiClient.get(`${this.baseUrl}/quota`);
       return response.data;
     } catch (error) {
-      console.warn('⚠️ SportRadar quota status failed, returning mock data:', error);
+  Logger.warn('⚠️ SportRadar quota status failed, returning mock data:', error);
       return this.getMockQuotaStatus();
     }
   }
@@ -107,19 +138,24 @@ class SportRadarService {
    */
   async getComprehensiveData(
     sports: string[] = ['mlb', 'nfl', 'nba', 'nhl']
-  ): Promise<{ success: boolean; comprehensive_data: any }> {
+  ): Promise<{ success: boolean; comprehensive_data: unknown }> {
     if (this.isCloudEnvironment) {
       return this.getMockComprehensiveData(sports);
     }
 
     try {
       const sportsParam = sports.join(',');
-      const response = await robustApiClient.get(
+      if (!this.apiClient) {
+  Logger.warn('No API client available, returning mock comprehensive data');
+        return this.getMockComprehensiveData(sports);
+      }
+
+      const response = await this.apiClient.get(
         `${this.baseUrl}/comprehensive?sports=${sportsParam}`
       );
       return response.data;
     } catch (error) {
-      console.warn('⚠️ SportRadar comprehensive data failed, returning mock data:', error);
+  Logger.warn('⚠️ SportRadar comprehensive data failed, returning mock data:', error);
       return this.getMockComprehensiveData(sports);
     }
   }
@@ -133,10 +169,15 @@ class SportRadarService {
     }
 
     try {
-      const response = await robustApiClient.get(`${this.baseUrl}/live/${sport}`);
+      if (!this.apiClient) {
+  Logger.warn('No API client available, returning mock live data');
+        return this.getMockLiveData(sport);
+      }
+
+      const response = await this.apiClient.get(`${this.baseUrl}/live/${sport}`);
       return response.data;
     } catch (error) {
-      console.warn(`⚠️ SportRadar live data failed for ${sport}, returning mock data:`, error);
+  Logger.warn(`⚠️ SportRadar live data failed for ${sport}, returning mock data:`, error);
       return this.getMockLiveData(sport);
     }
   }
@@ -147,19 +188,31 @@ class SportRadarService {
   async getSportsData(
     sport: string, 
     endpoint: string, 
-    params: Record<string, any> = {}
+    params: Record<string, string> = {}
   ): Promise<SportRadarResponse> {
     if (this.isCloudEnvironment) {
       return this.getMockSportsData(sport, endpoint);
     }
 
     try {
-      const queryParams = new URLSearchParams(params).toString();
+      // Ensure params values are strings for URLSearchParams
+      const stringParams: Record<string, string> = Object.keys(params).reduce((acc, k) => {
+        const v = (params as Record<string, unknown>)[k];
+        acc[k] = v === undefined || v === null ? '' : String(v);
+        return acc;
+      }, {} as Record<string, string>);
+
+      const queryParams = new URLSearchParams(stringParams).toString();
       const url = `${this.baseUrl}/sports/${sport}/${endpoint}${queryParams ? `?${queryParams}` : ''}`;
-      const response = await robustApiClient.get(url);
+      if (!this.apiClient) {
+  Logger.warn('No API client available, returning mock sports data');
+        return this.getMockSportsData(sport, endpoint);
+      }
+
+      const response = await this.apiClient.get(url);
       return response.data;
     } catch (error) {
-      console.warn(`⚠️ SportRadar sports data failed for ${sport}/${endpoint}, returning mock data:`, error);
+  Logger.warn(`⚠️ SportRadar sports data failed for ${sport}/${endpoint}, returning mock data:`, error);
       return this.getMockSportsData(sport, endpoint);
     }
   }
@@ -178,10 +231,15 @@ class SportRadarService {
 
     try {
       const url = `${this.baseUrl}/odds/player-props/${sport}/${competition}${eventId ? `?event_id=${eventId}` : ''}`;
-      const response = await robustApiClient.get(url);
+      if (!this.apiClient) {
+  Logger.warn('No API client available, returning mock player props odds');
+        return this.getMockPlayerPropsOdds(sport, competition);
+      }
+
+      const response = await this.apiClient.get(url);
       return response.data;
     } catch (error) {
-      console.warn(`⚠️ SportRadar player props odds failed for ${sport}/${competition}, returning mock data:`, error);
+  Logger.warn(`⚠️ SportRadar player props odds failed for ${sport}/${competition}, returning mock data:`, error);
       return this.getMockPlayerPropsOdds(sport, competition);
     }
   }
@@ -200,10 +258,15 @@ class SportRadarService {
 
     try {
       const url = `${this.baseUrl}/odds/prematch/${sport}/${competition}${eventId ? `?event_id=${eventId}` : ''}`;
-      const response = await robustApiClient.get(url);
+      if (!this.apiClient) {
+  Logger.warn('No API client available, returning mock prematch odds');
+        return this.getMockPrematchOdds(sport, competition);
+      }
+
+      const response = await this.apiClient.get(url);
       return response.data;
     } catch (error) {
-      console.warn(`⚠️ SportRadar prematch odds failed for ${sport}/${competition}, returning mock data:`, error);
+  Logger.warn(`⚠️ SportRadar prematch odds failed for ${sport}/${competition}, returning mock data:`, error);
       return this.getMockPrematchOdds(sport, competition);
     }
   }
@@ -222,10 +285,15 @@ class SportRadarService {
 
     try {
       const url = `${this.baseUrl}/odds/futures/${sport}/${competition}${eventId ? `?event_id=${eventId}` : ''}`;
-      const response = await robustApiClient.get(url);
+      if (!this.apiClient) {
+  Logger.warn('No API client available, returning mock futures odds');
+        return this.getMockFuturesOdds(sport, competition);
+      }
+
+      const response = await this.apiClient.get(url);
       return response.data;
     } catch (error) {
-      console.warn(`⚠️ SportRadar futures odds failed for ${sport}/${competition}, returning mock data:`, error);
+  Logger.warn(`⚠️ SportRadar futures odds failed for ${sport}/${competition}, returning mock data:`, error);
       return this.getMockFuturesOdds(sport, competition);
     }
   }
@@ -243,12 +311,17 @@ class SportRadarService {
     }
 
     try {
-      const response = await robustApiClient.get(
+      if (!this.apiClient) {
+  Logger.warn('No API client available, returning mock getty images');
+        return this.getMockGettyImages(sport, competition, imageType);
+      }
+
+      const response = await this.apiClient.get(
         `${this.baseUrl}/images/getty/${sport}/${competition}?image_type=${imageType}`
       );
       return response.data;
     } catch (error) {
-      console.warn(`⚠️ SportRadar Getty images failed for ${sport}/${competition}, returning mock data:`, error);
+  Logger.warn(`⚠️ SportRadar Getty images failed for ${sport}/${competition}, returning mock data:`, error);
       return this.getMockGettyImages(sport, competition, imageType);
     }
   }
@@ -262,10 +335,15 @@ class SportRadarService {
     }
 
     try {
-      const response = await robustApiClient.get(`${this.baseUrl}/images/sportradar/${imageType}`);
+      if (!this.apiClient) {
+  Logger.warn('No API client available, returning mock sportradar images');
+        return this.getMockSportRadarImages(imageType);
+      }
+
+      const response = await this.apiClient.get(`${this.baseUrl}/images/sportradar/${imageType}`);
       return response.data;
     } catch (error) {
-      console.warn(`⚠️ SportRadar images failed for ${imageType}, returning mock data:`, error);
+  Logger.warn(`⚠️ SportRadar images failed for ${imageType}, returning mock data:`, error);
       return this.getMockSportRadarImages(imageType);
     }
   }
@@ -279,10 +357,15 @@ class SportRadarService {
     }
 
     try {
-      const response = await robustApiClient.get(`${this.baseUrl}/apis`);
+      if (!this.apiClient) {
+  Logger.warn('No API client available, returning mock available APIs');
+        return this.getMockAvailableAPIs();
+      }
+
+      const response = await this.apiClient.get(`${this.baseUrl}/apis`);
       return response.data;
     } catch (error) {
-      console.warn('⚠️ SportRadar API list failed, returning mock data:', error);
+  Logger.warn('⚠️ SportRadar API list failed, returning mock data:', error);
       return this.getMockAvailableAPIs();
     }
   }
@@ -328,7 +411,7 @@ class SportRadarService {
             schedules: { upcoming_games: [], status: "demo_mode" }
           };
           return acc;
-        }, {} as any),
+        }, {} as Record<string, unknown>),
         odds_data: {
           player_props: { props: [], status: "demo_mode" },
           prematch: { odds: [], status: "demo_mode" },
@@ -339,7 +422,7 @@ class SportRadarService {
         },
         metadata: {
           apis_used: sports.concat(['odds_comparison', 'images']),
-          quota_usage: sports.reduce((acc, sport) => { acc[sport] = Math.floor(Math.random() * 50); return acc; }, {} as any),
+          quota_usage: sports.reduce((acc, sport) => { acc[sport] = Math.floor(Math.random() * 50); return acc; }, {} as Record<string, number>),
           trial_status: "active",
           cloud_demo_mode: true
         }

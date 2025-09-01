@@ -23,7 +23,6 @@ type UsePropfinderOptions = {
   initialFilters?: Record<string, unknown>;
   searchQuery?: string;
   limit?: number;
-  userId?: string;
 };
 
 type PropfinderResult = {
@@ -41,7 +40,6 @@ const DEFAULTS: Required<UsePropfinderOptions> = {
   initialFilters: {},
   searchQuery: '',
   limit: 50,
-  userId: '',
 };
 
 export default function usePropfinderData(opts?: UsePropfinderOptions): PropfinderResult {
