@@ -42,18 +42,26 @@ export interface APIInfo {
 }
 
 class SportRadarService {
-  private baseUrl = '/api/v1/sportradar';
+  private baseUrl: string;
   private isCloudEnvironment: boolean;
 
-  constructor() {
-    // Detect cloud environment
-    const hostname = window.location.hostname;
-    this.isCloudEnvironment = hostname.includes('.fly.dev') || 
-                              hostname.includes('.vercel.app') || 
-                              hostname.includes('.netlify.app') || 
-                              !hostname.includes('localhost');
+  constructor(options?: { isCloudEnvironment?: boolean; baseUrl?: string }) {
+    // Allow overriding for testability and SSR
+    this.baseUrl = options?.baseUrl ?? '/api/v1/sportradar';
+
+    if (typeof options?.isCloudEnvironment === 'boolean') {
+      this.isCloudEnvironment = options!.isCloudEnvironment;
+    } else {
+      // Detect cloud environment when running in browser
+      const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+      this.isCloudEnvironment = hostname.includes('.fly.dev') || 
+                               hostname.includes('.vercel.app') || 
+                               hostname.includes('.netlify.app') || 
+                               !hostname.includes('localhost');
+    }
 
     if (this.isCloudEnvironment) {
+      // console-level output is acceptable for diagnostic info
       console.log('🌥️ SportRadar Service: Cloud environment detected, using fallback mode');
     } else {
       console.log('🏠 SportRadar Service: Local environment detected');
@@ -540,6 +548,11 @@ class SportRadarService {
   }
 }
 
-// Export singleton instance
-export const sportRadarService = new SportRadarService();
+// Factory to create service instances (useful for tests and SSR)
+export function createSportRadarService(options?: { isCloudEnvironment?: boolean; baseUrl?: string }) {
+  return new SportRadarService(options);
+}
+
+// Export singleton instance (backwards-compatible)
+export const sportRadarService = createSportRadarService();
 export default sportRadarService;
