@@ -1,13 +1,11 @@
-import { createSportRadarService } from '../sportRadarService';
-
-// Create a mock and ensure the module returns the same object reference
-const mockGet = jest.fn();
-const mockRobustApi = { get: mockGet };
+// Mock robustApi before importing the service so the service receives the mock
 jest.mock('../../utils/robustApi', () => ({
   __esModule: true,
-  default: mockRobustApi,
+  default: { get: jest.fn() },
 }));
-import robustApi from '../../utils/robustApi';
+
+const robustApi = jest.requireMock('../../utils/robustApi').default;
+const { createSportRadarService } = require('../sportRadarService');
 
 describe('SportRadarService (mock mode)', () => {
   it('returns mock health status and does not call robustApiClient.get when in cloud demo mode', async () => {
