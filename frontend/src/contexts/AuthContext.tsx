@@ -94,7 +94,12 @@ function useAuthState(): AuthContextType {
         }
       }
     };
-    setTimeout(_initializeAuth, 100);
+    // In tests we want immediate auth restoration to avoid timing flakiness
+    if (process.env.NODE_ENV === 'test') {
+      _initializeAuth();
+    } else {
+      setTimeout(_initializeAuth, 100);
+    }
   }, []);
 
   const login = async (email: string, password: string) => {

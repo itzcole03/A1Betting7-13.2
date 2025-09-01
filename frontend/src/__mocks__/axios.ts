@@ -106,7 +106,7 @@ const mockAxios = {
 // Setup default mock behaviors
 mockAxios.get.mockImplementation((url: string) => {
   // Simulate different responses based on URL patterns
-  if (url.includes('/api/health')) {
+  if (url.includes('/api/health') || url.includes('/api/v2/health')) {
     return Promise.resolve(mockAxios.mockResponse({ status: 'healthy' }));
   }
   if (url.includes('/api/predictions')) {

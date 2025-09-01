@@ -13,10 +13,11 @@
  * @returns true if lean mode is active, false otherwise
  */
 export function isLeanMode(): boolean {
-  // Check environment variable first
-  if (import.meta.env.VITE_DEV_LEAN_MODE === "true") {
-    return true;
-  }
+  // Check environment variable first (runtime-safe)
+  const envLean =
+    (typeof (global as any).importMeta !== 'undefined' && (global as any).importMeta.env && (global as any).importMeta.env.VITE_DEV_LEAN_MODE) ||
+    process.env.VITE_DEV_LEAN_MODE;
+  if (envLean === 'true') return true;
   
   // Check URL parameters
   try {
@@ -65,8 +66,11 @@ export function getLeanModeStatus(): {
   source: "environment" | "url" | "localStorage" | "none";
 } {
   // Check environment variable
-  if (import.meta.env.VITE_DEV_LEAN_MODE === "true") {
-    return { enabled: true, source: "environment" };
+  const envLean2 =
+    (typeof (global as any).importMeta !== 'undefined' && (global as any).importMeta.env && (global as any).importMeta.env.VITE_DEV_LEAN_MODE) ||
+    process.env.VITE_DEV_LEAN_MODE;
+  if (envLean2 === 'true') {
+    return { enabled: true, source: 'environment' };
   }
   
   // Check URL parameters

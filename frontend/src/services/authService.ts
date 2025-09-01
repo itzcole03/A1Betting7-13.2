@@ -59,10 +59,14 @@ class AuthService {
   }
 
   isAuthenticated(): boolean {
+    // Ensure we pick up any token that may have been set after construction
+    if (!this.token) this.loadFromLocalStorage();
     return !!this.token;
   }
 
   getUser(): User | null {
+    // Lazy-load from localStorage in case tests set items after import time
+    if (!this.user) this.loadFromLocalStorage();
     return this.user;
   }
 

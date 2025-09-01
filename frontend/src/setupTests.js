@@ -166,3 +166,44 @@ if (typeof global !== 'undefined' && global.console) {
     return _log.apply(global.console, args);
   };
 }
+
+// Test-time fetch shim: convert leading-relative `/api/...` URLs to an absolute
+// `http://localhost` URL and then delegate to the real fetch. This allows MSW
+// handlers (configured per-test) to intercept requests while avoiding Invalid
+// URL errors in Node's fetch implementation.
+if (typeof global !== 'undefined' && typeof global.fetch === 'function') {
+  const origFetch = global.fetch.bind(global);
+  global.fetch = async (input, init) => {
+    try {
+      if (typeof input === 'string' && input.startsWith('/api/')) {
+        input = `http://localhost${input}`;
+      } else if (input && input.url && typeof input.url === 'string' && input.url.startsWith('/api/')) {
+        const cloned = new Request(`http://localhost${input.url}`, input);
+        return origFetch(cloned, init);
+      }
+    } catch (err) {
+      return origFetch(input, init);
+    }
+    return origFetch(input, init);
+  };
+}
+
+// --- MSW test server setup ---
+try {
+  // Lazily require to avoid breaking environments without msw installed
+  // eslint-disable-next-line global-require
+  const { server } = require('./mocks/browser');
+
+  if (server && typeof server.listen === 'function') {
+    // Start the MSW server before all tests
+    beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
+    // Reset handlers between tests
+    afterEach(() => server.resetHandlers());
+    // Close the server when tests finish
+    afterAll(() => server.close());
+  }
+} catch (err) {
+  // If MSW isn't available in the environment, skip setup (tests using network
+  // fallbacks will still work with the global fetch shim).
+}
+

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Search, Filter, Heart, TrendingUp, TrendingDown } from 'lucide-react';
+import { Search, Filter, Heart } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { enhancedLogger } from '../../services/EnhancedLogger';
 
 // Types for PropFinder data
 interface PropOpportunity {
@@ -37,18 +38,21 @@ const usePropFinderData = () => {
         setLoading(true);
         const response = await fetch('/api/propfinder/opportunities');
         if (!response.ok) {
-          throw new Error('Failed to fetch PropFinder data');
+          throw new Error(`Failed to fetch PropFinder data: ${response.status} ${response.statusText}`);
         }
         const result = await response.json();
         setData(result);
       } catch (err) {
-        console.error('PropFinder data fetch error:', err);
+        enhancedLogger.error(
+          'PropFinderDashboard',
+          'fetchData',
+          'Failed to fetch PropFinder data',
+          { error: err instanceof Error ? err.message : 'Unknown error' },
+          err instanceof Error ? err : undefined
+        );
         setError(err instanceof Error ? err.message : 'Unknown error');
-        // Fallback to demo data
-        setData({
-          opportunities: generateDemoData(),
-          totalCount: 50
-        });
+        // No fallback to mock data - let user see the error
+        setData({ opportunities: [], totalCount: 0 });
       } finally {
         setLoading(false);
       }
@@ -58,32 +62,6 @@ const usePropFinderData = () => {
   }, []);
 
   return { data, loading, error };
-};
-
-// Generate demo data for fallback
-const generateDemoData = (): PropOpportunity[] => {
-  const players = [
-    { name: 'Shohei Ohtani', team: 'LAD', position: 'DH' },
-    { name: 'Aaron Judge', team: 'NYY', position: 'OF' },
-    { name: 'Mookie Betts', team: 'LAD', position: 'OF' },
-    { name: 'Juan Soto', team: 'SD', position: 'OF' },
-    { name: 'Ronald Acuña Jr.', team: 'ATL', position: 'OF' },
-  ];
-
-  const props = ['Total Bases', 'Hits', 'RBIs', 'Home Runs', 'Strikeouts'];
-
-  return Array.from({ length: 25 }, (_, i) => ({
-    id: `prop-${i}`,
-    player: players[i % players.length],
-    prop: props[i % props.length],
-    line: 1.5 + Math.random() * 3,
-    odds: -120 + Math.random() * 240,
-    pfRating: 60 + Math.random() * 40,
-    l10Avg: 0.5 + Math.random() * 2.5,
-    edge: Math.random() * 10 - 2,
-    confidence: 50 + Math.random() * 50,
-    isFavorited: Math.random() > 0.8,
-  }));
 };
 
 // Utility functions

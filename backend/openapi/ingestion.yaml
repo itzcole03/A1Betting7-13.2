@@ -1,0 +1,49 @@
+openapi: 3.0.3
+info:
+  title: Ingestion Admin API
+  version: 0.1.0
+  description: Admin endpoints for ingestion control (run-once, backfill)
+
+paths:
+  /api/ingestion/run-once:
+    post:
+      summary: Trigger a single ingestion run
+      responses:
+        '200':
+          description: Run completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  result:
+                    type: object
+        '202':
+          description: Run accepted for async processing
+
+  /api/ingestion/backfill:
+    post:
+      summary: Trigger a historical backfill
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+                dry_run:
+                  type: boolean
+      responses:
+        '202':
+          description: Backfill accepted
+        '400':
+          description: Invalid request

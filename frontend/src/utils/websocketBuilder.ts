@@ -31,7 +31,9 @@ export function getOrPersistClientId(storageKey = 'ws_client_id', passedClientId
   window.localStorage.setItem(storageKey, clientId);
   
   // Dev-only diagnostic log
-  if (import.meta.env.DEV) {
+  const _import_meta_env = (globalThis as any).importMeta?.env || (global as any).importMeta?.env || (typeof window !== 'undefined' ? (window as any).import?.meta?.env : undefined) || {};
+
+  if (_import_meta_env.DEV) {
     // eslint-disable-next-line no-console
     console.log('[ClientIdDiag]', {
       initialFromStorage,
@@ -45,7 +47,9 @@ export function getOrPersistClientId(storageKey = 'ws_client_id', passedClientId
 
 // Environment resolution helper
 export function resolveWebSocketBase(): string {
-  let baseUrl = import.meta.env.VITE_WS_URL;
+  const _import_meta_env2 = (globalThis as any).importMeta?.env || (global as any).importMeta?.env || (typeof window !== 'undefined' ? (window as any).import?.meta?.env : undefined) || {};
+
+  let baseUrl = _import_meta_env2.VITE_WS_URL;
   
   // Check for legacy path in environment and sanitize
   if (baseUrl && baseUrl.includes('client_/ws')) {
@@ -79,6 +83,9 @@ export function buildWebSocketUrl(options: WebSocketUrlOptions = {}): string {
   
   // Resolve base URL
   const baseUrl = providedBaseUrl || resolveWebSocketBase();
+
+  // Runtime-safe import.meta.env accessor for DEV checks inside this function
+  const _import_meta_env2 = (globalThis as any).importMeta?.env || (global as any).importMeta?.env || (typeof window !== 'undefined' ? (window as any).import?.meta?.env : undefined) || {};
   
   // Get or generate client ID
   const clientId = getOrPersistClientId('ws_client_id', providedClientId);
@@ -93,7 +100,7 @@ export function buildWebSocketUrl(options: WebSocketUrlOptions = {}): string {
     const result = url.toString();
     
     // Defensive assertion - dev only
-    if (import.meta.env.DEV) {
+    if (_import_meta_env2.DEV) {
       if (result.includes('client_/ws')) {
         // eslint-disable-next-line no-console
         console.error('[WSBuildDiag][LegacyDetected]', { 
@@ -118,7 +125,7 @@ export function buildWebSocketUrl(options: WebSocketUrlOptions = {}): string {
     const fallbackUrl = `${baseUrl}/ws/client?${params.toString()}`;
     
     // Defensive assertion on fallback too
-    if (import.meta.env.DEV && fallbackUrl.includes('client_/ws')) {
+    if (_import_meta_env2.DEV && fallbackUrl.includes('client_/ws')) {
       // eslint-disable-next-line no-console
       console.error('[WSBuildDiag][LegacyDetected] Even fallback created legacy path!', { 
         url: fallbackUrl, 
@@ -128,7 +135,7 @@ export function buildWebSocketUrl(options: WebSocketUrlOptions = {}): string {
       throw new Error('Legacy websocket path constructed in fallback after migration');
     }
     
-    if (import.meta.env.DEV) {
+  if (_import_meta_env2.DEV) {
       // eslint-disable-next-line no-console
       console.warn('[WSBuildDiag] URL constructor failed, using fallback:', fallbackUrl, error);
     }

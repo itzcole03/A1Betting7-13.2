@@ -1,3 +1,37 @@
+(// @ts-nocheck
+// Enhanced Jest setup: provide import.meta.env shim for jsdom tests
+/* eslint-disable */
+(global as any).import = (global as any).import || function () {};
+if (typeof (global as any).importMeta === 'undefined') {
+  // Provide import.meta.env for components that read Vite env
+  (global as any).import = (global as any).import || {};
+  (global as any).importMeta = { env: {} };
+}
+// Make import.meta.env available as import.meta.env for modules that access it directly
+Object.defineProperty(global, 'import', { value: (global as any).import });
+Object.defineProperty(global, 'importMeta', { value: (global as any).importMeta });
+// Also set import.meta on the global scope used by some transpiled modules
+(global as any).import = (global as any).import || {};
+(global as any).import.meta = (global as any).import.meta || { env: {
+  MODE: 'test',
+  DEV: false,
+  PROD: false,
+  VITE_API_URL: 'http://localhost:8000',
+  VITE_WS_ENDPOINT: 'ws://localhost:8000/ws',
+}};
+
+// Provide URL.createObjectURL stub used in some components
+if (typeof window !== 'undefined' && !window.URL.createObjectURL) {
+  // @ts-ignore
+  window.URL.createObjectURL = () => 'blob:mock';
+}
+
+// Silence specific console noise in test runs
+const originalWarn = console.warn;
+console.warn = (...args: any[]) => {
+  if (typeof args[0] === 'string' && args[0].includes('Deprecation')) return;
+  originalWarn.apply(console, args);
+};
 // Enhanced Jest Setup for Phase 4 Testing Automation
 import '@testing-library/jest-dom';
 import 'jest-localstorage-mock';

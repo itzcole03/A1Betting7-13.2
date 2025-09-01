@@ -35,6 +35,28 @@ python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 # API docs: http://127.0.0.1:8000/docs
 ```
 
+CI & local tests
+
+```pwsh
+# Run all backend tests (from repo root)
+pytest -q
+
+# Note: CI sets `USE_FREE_INGESTION=false` to avoid starting background ingestion during automated runs.
+```
+
+Ingestion-focused CI and local tests
+
+```pwsh
+# Fast CI for ingestion changes: the repo contains a focused workflow at `.github/workflows/ingestion-ci.yml`
+# which runs only the ingestion unit tests on PRs/pushes. CI still defaults `USE_FREE_INGESTION=false`.
+
+# Run ingestion-related unit tests locally (from repo root):
+python -m pytest backend/tests/test_cache.py backend/tests/test_scheduler_runner.py -q
+
+# To run the full backend suite (long):
+pytest -q
+```
+
 Notes:
 
 - The frontend will operate in demo mode for many features if the backend is not present.
@@ -126,6 +148,30 @@ GET /api/v1/sportradar/live/{sport}
 ```
 
 Set `SPORTRADAR_API_KEY` in `backend/.env` to enable live SportRadar access.
+
+---
+
+## Prometheus metrics (optional)
+
+The backend includes an optional Prometheus exporter. By default the project supports `prometheus-client` when installed. To enable metrics:
+
+1. Install the dependency (project's canonical `requirements.txt` already lists `prometheus-client`, but if you're using a virtual env ensure it's installed):
+
+```pwsh
+pip install -r backend/requirements.txt
+# or specifically
+pip install prometheus-client
+```
+
+2. Start the backend and scrape `/metrics`:
+
+```pwsh
+python -m uvicorn backend.main:app --reload
+curl http://127.0.0.1:8000/metrics
+```
+
+If `prometheus-client` is not available the `/metrics` endpoint will return an empty body or a JSON message indicating metrics are disabled. The app's `USE_FREE_INGESTION` environment variable controls whether free-provider ingestion background tasks start (default is `true`). CI workflows should set `USE_FREE_INGESTION=false` to avoid starting background ingestion during tests.
+
 
 ---
 

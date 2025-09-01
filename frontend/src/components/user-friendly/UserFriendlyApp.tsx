@@ -7,8 +7,18 @@ import OptimizedPropOllamaContainer from '../optimized/OptimizedPropOllamaContai
 import WebSocketStatusIndicator from '../WebSocketStatusIndicator';
 
 // Lazy load enhanced components with PropFinder-killer features
-const PropFinderKillerDashboard = React.lazy(() => import('../modern/OptimizedPropFinderDashboard'));
-const MobilePropResearch = React.lazy(() => import('../mobile/MobilePropResearch'));
+const PropFinderKillerDashboard =
+  process.env.NODE_ENV === 'test'
+    ? // Synchronous require in tests for deterministic rendering
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('../modern/OptimizedPropFinderDashboard').default
+    : React.lazy(() => import('../modern/OptimizedPropFinderDashboard'));
+
+const MobilePropResearch =
+  process.env.NODE_ENV === 'test'
+    ? // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('../mobile/MobilePropResearch').default
+    : React.lazy(() => import('../mobile/MobilePropResearch'));
 const MLModelCenter = React.lazy(() => import('../ml/MLModelCenter'));
 const UnifiedBettingInterface = React.lazy(() => import('../betting/UnifiedBettingInterface'));
 const ArbitrageOpportunities = React.lazy(
@@ -51,7 +61,11 @@ const AdvancedArbitrageDashboard = React.lazy(
 );
 
 // NEW: PropFinder Clone Dashboard
-const PropFinderDashboard = React.lazy(() => import('../dashboard/PropFinderDashboard'));
+const PropFinderDashboard =
+  process.env.NODE_ENV === 'test'
+    ? // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('../dashboard/PropFinderDashboard').default
+    : React.lazy(() => import('../dashboard/PropFinderDashboard'));
 
 // NEW: Phase 4.3 Advanced Kelly Dashboard
 const AdvancedKellyDashboard = React.lazy(() => import('../kelly/AdvancedKellyDashboard'));
@@ -112,6 +126,7 @@ const UserFriendlyApp: React.FC = memo(() => {
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white'>
+      {/* test helpers removed: rely on actual UI elements */}
       {/* Global API Health Indicator and WebSocket Status Indicator for all routes */}
       <div className='fixed top-2 right-2 z-50 flex flex-col gap-2 items-end'>
         <ApiHealthIndicator />

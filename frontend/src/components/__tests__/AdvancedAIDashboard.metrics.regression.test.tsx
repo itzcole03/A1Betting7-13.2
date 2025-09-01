@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { act } from 'react';
 import { render } from '@testing-library/react';
 import { AdvancedAIDashboard } from '../../components/ai/AdvancedAIDashboard';
 import { getOptimizationLevel, getModelName, getProvider } from '../../utils/modelMetricsAccessors';
@@ -6,10 +6,60 @@ import { getOptimizationLevel, getModelName, getProvider } from '../../utils/mod
 // Mock the API calls to return controlled test data
 jest.mock('../../services/TypedAPIClient');
 
+// Provide a lightweight `fetch` mock for the endpoints used by the component so
+// mount effects receive shape-correct payloads. Tests that need custom data can
+// override this by spying on `global.fetch` themselves.
+const _origFetch = global.fetch;
+beforeAll(() => {
+  global.fetch = jest.fn((input, init) => {
+    const url = typeof input === 'string' ? input : input?.url;
+    // Only handle the AI-dashboard endpoints; fall back to original fetch otherwise
+    if (typeof url === 'string') {
+      if (url.includes('/api/ai/multi-sport/integration-status')) {
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ sports: [{ sport: 'NBA', league: 'NBA', total_games: 123, active_players: 450, data_freshness: '1m', prediction_accuracy: 88.5, last_updated: new Date().toISOString(), status: 'active' }] }) });
+      }
+      if (url.includes('/api/ai/sport-features/status')) {
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ features: [] }) });
+      }
+      if (url.includes('/api/ai/ensemble/models')) {
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ models: [] }) });
+      }
+      if (url.includes('/api/ai/model-registry/entries')) {
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ models: [] }) });
+      }
+      if (url.includes('/api/ai/inference/metrics')) {
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ metrics: { total_requests: 1000, avg_latency_ms: 20, success_rate: 0.99, error_rate: 0.01, queue_size: 1, active_models: 1, cache_hit_rate: 0.9, throughput_per_second: 50 } }) });
+      }
+      if (url.includes('/api/ai/inference/real-time/latest')) {
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ predictions: [] }) });
+      }
+      if (url.includes('/api/ai/monitoring/dashboard/overview')) {
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ total_predictions: 10000, active_models: 1 }) });
+      }
+      if (url.includes('/api/ai/monitoring/models')) {
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ models: [] }) });
+      }
+      if (url.match(/\/api\/ai\/monitoring\/models\/[^/]+\/health/)) {
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({}) });
+      }
+    }
+    return _origFetch(input, init);
+  });
+});
+
+afterAll(() => {
+  global.fetch = _origFetch;
+});
+
 describe('AdvancedAIDashboard - Model Metrics Regression', () => {
   it('should render without crashing when metrics are null', () => {
     const { container } = render(<AdvancedAIDashboard />);
-    expect(container).toBeInTheDocument();
+    // Flush any pending effects initiated on mount to avoid "not wrapped in act" warnings
+    return act(async () => {
+      // allow microtasks + one macrotask to process MSW responses and Promise.all
+      await new Promise((r) => setTimeout(r, 20));
+      expect(container).toBeInTheDocument();
+    });
   });
 
   it('should handle legacy optimization_level fields via accessors', () => {

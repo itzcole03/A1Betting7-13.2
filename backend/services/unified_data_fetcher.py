@@ -1,3 +1,97 @@
+"""Unified data fetcher scaffold.
+
+Purpose:
+- Provide a single adapter point for different provider connectors (sportradar, theodds, mlb_stats, baseball_savant).
+- Expose a canonical data model and a simple registration API so existing call-sites can be migrated incrementally.
+
+This file is intentionally small and non-disruptive. Implementations for real fetching should live
+under `backend/ingestion/` as provider-specific connectors that register themselves here.
+"""
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Protocol
+
+
+@dataclass
+class Player:
+    id: Optional[str]
+    name: str
+    team: Optional[str]
+
+
+@dataclass
+class GameEvent:
+    id: str
+    home_team: str
+    away_team: str
+    start_time: Optional[str]
+
+
+@dataclass
+class OddsSnapshot:
+    event_id: str
+    provider: str
+    market: str
+    line: float
+    over_odds: Optional[float] = None
+    under_odds: Optional[float] = None
+    raw: Dict[str, Any] = field(default_factory=dict)
+
+
+class ProviderConnector(Protocol):
+    """Connector protocol. Implement this in provider-specific modules."""
+
+    name: str
+
+    async def fetch_events(self) -> List[GameEvent]:
+        ...
+
+    async def fetch_player_props(self, event_id: str) -> List[OddsSnapshot]:
+        ...
+
+
+# Registry for connectors
+_CONNECTORS: Dict[str, ProviderConnector] = {}
+
+
+def register_connector(connector: ProviderConnector) -> None:
+    """Register a provider connector by its `name` attribute."""
+    _CONNECTORS[connector.name] = connector
+
+
+def get_connector(name: str) -> Optional[ProviderConnector]:
+    return _CONNECTORS.get(name)
+
+
+def list_connectors() -> List[str]:
+    return list(_CONNECTORS.keys())
+
+
+async def fetch_all_events() -> List[GameEvent]:
+    """Fetch events from all registered connectors.
+
+    This performs a best-effort fetch and will skip connectors that raise.
+    """
+    events: List[GameEvent] = []
+    for name, connector in _CONNECTORS.items():
+        try:
+            connector_events = await connector.fetch_events()
+            events.extend(connector_events)
+        except Exception:
+            # non-fatal: skip provider failures here; caller may log/alert
+            continue
+    return events
+
+
+async def fetch_props_for_event(event_id: str) -> List[OddsSnapshot]:
+    """Fetch props for a single event across providers and return consolidated list."""
+    snapshots: List[OddsSnapshot] = []
+    for connector in _CONNECTORS.values():
+        try:
+            props = await connector.fetch_player_props(event_id)
+            snapshots.extend(props)
+        except Exception:
+            continue
+    return snapshots
 """
 Unified Data Fetcher Service
 

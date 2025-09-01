@@ -55,11 +55,14 @@ class UnifiedApiServiceMock {
     console.log('[MOCK] UnifiedApiServiceMock constructor called');
   }
   async getEnhancedBets() {
-    console.log(
-      '[MOCK] getEnhancedBets error flag:',
-      (globalThis as any).__MOCK_GET_ENHANCED_BETS_ERROR__
-    );
-    if ((globalThis as any).__MOCK_GET_ENHANCED_BETS_ERROR__) {
+    console.log('[MOCK] getEnhancedBets error flags:', {
+      mockFlag: (globalThis as any).__MOCK_GET_ENHANCED_BETS_ERROR__,
+      e2eFlag: (globalThis as any).__JEST_E2E_ERROR__,
+    });
+    if (
+      (globalThis as any).__MOCK_GET_ENHANCED_BETS_ERROR__ ||
+      (globalThis as any).__JEST_E2E_ERROR__
+    ) {
       console.log('[MOCK] getEnhancedBets throwing error for test');
       throw new Error('Cannot connect to backend');
     }

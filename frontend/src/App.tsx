@@ -16,7 +16,7 @@ import { _WebSocketProvider } from './contexts/WebSocketContext';
 import { OnboardingProvider } from './onboarding/OnboardingContext';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import { coreFunctionalityValidator } from './services/coreFunctionalityValidator';
-import { liveDemoEnhancementService } from './services/liveDemoEnhancementService';
+// import { liveDemoEnhancementService } from './services/liveDemoEnhancementService'; // DISABLED - causing console spam
 import { serviceWorkerManager } from './services/serviceWorkerManager';
 import { checkApiVersionCompatibility } from './services/SportsService';
 import { webVitalsService } from './services/webVitalsService';
@@ -48,14 +48,36 @@ const LazyUserFriendlyApp = createLazyComponent(
   }
 );
 
+// For test environments, prefer a synchronous require to avoid Suspense fallback
+let SyncUserFriendlyApp: any = null;
+if (process.env.NODE_ENV === 'test') {
+  try {
+    // Use require to synchronously load the module in the Jest environment
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    let mod: any = null;
+    try {
+      // Prefer project-root alias path used by Jest resolver
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      mod = require('src/components/user-friendly/UserFriendlyApp');
+    } catch (e) {
+      // Fallback to relative path
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      mod = require('./components/user-friendly/UserFriendlyApp');
+    }
+    SyncUserFriendlyApp = mod && (mod.default || mod);
+  } catch (err) {
+    // Failed to require synchronously; leave SyncUserFriendlyApp null to fall back to lazy import
+  }
+}
+
 function App() {
   enhancedLogger.debug('App', 'lifecycle', 'Entering App component with React 19 features - Validating backend and imports');
   const { trackOperation } = usePerformanceTracking('App');
 
   // Always use the proper backend URL for direct connection
-  const [apiUrl, setApiUrl] = useState(getBackendUrl());
+  const [apiUrl] = useState(getBackendUrl());
   const [backendHealthy, setBackendHealthy] = useState(true);
-  const expectedVersion = '2.0.0';
+  const [_expectedVersion] = useState('2.0.0');
 
   // Register service worker and check API version compatibility on app start
   useEffect(() => {
@@ -87,36 +109,45 @@ function App() {
         // Don't throw - let the app continue in demo mode
       });
 
-    // Initialize core functionality validation (non-blocking)
+    // Initialize core functionality validation (non-blocking) - reduced frequency
     setTimeout(() => {
-  coreFunctionalityValidator.startValidation(60000); // Check every minute
+  coreFunctionalityValidator.startValidation(300000); // Check every 5 minutes instead of 1 minute
   enhancedLogger.info('App', 'startup', 'Core functionality validation initialized');
     }, 5000); // Delay to allow app to fully load
 
-    // Initialize live demo enhancement service (non-blocking)
-    setTimeout(() => {
-  liveDemoEnhancementService.startMonitoring();
-  enhancedLogger.info('App', 'startup', 'Live demo enhancement service initialized');
-    }, 7000); // Delay slightly more to allow core validation to start first
+    // Initialize live demo enhancement service (DISABLED - causing console spam)
+    // setTimeout(() => {
+    // liveDemoEnhancementService.startMonitoring();
+    // enhancedLogger.info('App', 'startup', 'Live demo enhancement service initialized');
+    // }, 10000); // Delay slightly more to allow core validation to start first
 
     return () => {
       coreFunctionalityValidator.stopValidation();
-      liveDemoEnhancementService.stopMonitoring();
+      // liveDemoEnhancementService.stopMonitoring(); // DISABLED
     };
   }, []);
 
   useEffect(() => {
-  enhancedLogger.info('App', 'health', 'Backend health check disabled - running in demo mode');
+  enhancedLogger.info('App', 'health', 'Checking backend connectivity');
     async function checkBackend() {
       const url = apiUrl;
       let healthy = false;
-      // Skip backend health check entirely to prevent fetch errors
-      // App will run in demo mode - set healthy to true so app renders normally
-  enhancedLogger.info('App', 'health', 'Backend health check disabled - running in demo mode');
-      healthy = true; // Set to true so app renders in demo mode
-
-      // Skip backend discovery as well to prevent additional fetch errors
-  enhancedLogger.info('App', 'discovery', 'Backend discovery disabled - using demo mode');
+      try {
+        // Test backend connectivity with a simple health check
+        const response = await fetch(`${url}/health`, {
+          method: 'GET',
+          signal: AbortSignal.timeout(5000) // 5 second timeout
+        });
+        healthy = response.ok;
+        if (healthy) {
+          enhancedLogger.info('App', 'health', `Backend healthy at ${url}`);
+        } else {
+          enhancedLogger.warn('App', 'health', `Backend returned ${response.status} at ${url}`);
+        }
+      } catch (error) {
+        enhancedLogger.warn('App', 'health', `Backend not reachable at ${url}`, undefined, error as Error);
+        healthy = false;
+      }
       setBackendHealthy(healthy);
     }
 
@@ -133,7 +164,9 @@ function App() {
               <_WebSocketProvider>
                 <_AuthProvider>
                   <BrowserRouter>
-                    <LazyUserFriendlyApp />
+                    <React.Suspense fallback={null}>
+                      {SyncUserFriendlyApp ? <SyncUserFriendlyApp /> : <LazyUserFriendlyApp />}
+                    </React.Suspense>
                   </BrowserRouter>
                 </_AuthProvider>
               </_WebSocketProvider>
@@ -164,7 +197,7 @@ function App() {
                 <BrowserRouter>
                   <Routes>
                     <Route path='/reset-password' element={<ResetPasswordPage />} />
-                    <Route path='*' element={<_AppContent />} />
+                    <Route path='*' element={<AppContent />} />
                   </Routes>
                 </BrowserRouter>
               </_AuthProvider>
@@ -176,8 +209,8 @@ function App() {
   );
 }
 
-const _AppContent: React.FC = () => {
-  enhancedLogger.debug('App', 'render', 'Entering _AppContent - Attempting to render child components');
+const AppContent: React.FC = () => {
+  enhancedLogger.debug('App', 'render', 'Entering AppContent - Attempting to render child components');
   const { isAuthenticated, requiresPasswordChange, changePassword, loading, error, user } =
     useAuth();
   const onboardingComplete = localStorage.getItem('onboardingComplete');
@@ -291,12 +324,14 @@ const _AppContent: React.FC = () => {
       >
         <ServiceWorkerUpdateNotification />
         <UpdateModal />
-        <LazyUserFriendlyApp />
+          <React.Suspense fallback={null}>
+            {SyncUserFriendlyApp ? <SyncUserFriendlyApp /> : <LazyUserFriendlyApp />}
+          </React.Suspense>
       </ReliabilityIntegrationWrapper>
     </ErrorBoundary>
   );
 };
 
-export { _AppContent as AppContent };
+export { AppContent };
 
 export default App;

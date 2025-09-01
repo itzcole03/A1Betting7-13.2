@@ -69,12 +69,52 @@ jest.mock('../../services/webVitalsService', () => ({
 }));
 
 // Setup DOM mocks without causing navigation
-delete (window as any).location;
-(window as any).location = {
-  search: '',
-  reload: jest.fn(),
-  href: 'http://localhost:3000'
-};
+// Avoid assigning `location.href` directly because jsdom navigation isn't implemented.
+// Instead, stub the specific pieces the bootstrap code reads (search/reload) so we don't
+// trigger a navigation error.
+// Attempt to patch existing `window.location` properties safely so we don't trigger
+// jsdom navigation errors or try to redefine a non-configurable property.
+if (typeof (window as any).location === 'object') {
+  try {
+    // Ensure reload is a jest mock if possible
+    (window as any).location.reload = jest.fn();
+  } catch {
+    // ignore
+  }
+
+  try {
+    // Try to set search if configurable
+    Object.defineProperty((window as any).location, 'search', {
+      value: '',
+      writable: true,
+      configurable: true,
+    });
+  } catch {
+    // ignore if not configurable
+  }
+
+  try {
+    // Expose href as a harmless getter
+    Object.defineProperty((window as any).location, 'href', {
+      get: () => 'http://localhost:3000',
+      configurable: true,
+    });
+  } catch {
+    // ignore if not configurable
+  }
+} else {
+  // Fall back to defining a simple location object
+  Object.defineProperty(window, 'location', {
+    value: {
+      search: '',
+      reload: jest.fn(),
+      get href() {
+        return 'http://localhost:3000';
+      },
+    },
+    writable: true,
+  });
+}
 
 Object.defineProperty(window, 'localStorage', {
   value: {
@@ -84,12 +124,17 @@ Object.defineProperty(window, 'localStorage', {
   writable: true,
 });
 
-// Mock performance API
+// Mock performance API to return increasing values so durationMs > 0 in tests
+let _perfNow = 100;
 Object.defineProperty(window, 'performance', {
   value: {
-    now: jest.fn().mockReturnValue(100)
+    now: jest.fn().mockImplementation(() => {
+      // increment on each call to simulate elapsed time
+      _perfNow += 50;
+      return _perfNow;
+    }),
   },
-  writable: true
+  writable: true,
 });
 
 import { bootstrapApp, isBootstrapped, __resetBootstrapForTesting } from '../bootstrapApp';
@@ -104,8 +149,9 @@ Object.defineProperty(window, 'navigator', {
 
 describe('Bootstrap App', () => {
   beforeEach(() => {
-    // Reset all mocks and bootstrap state
-    jest.clearAllMocks();
+    // Reset all mocks and bootstrap state. Use resetAllMocks so mock implementations
+    // (e.g. mockRejectedValue) are cleared between tests.
+    jest.resetAllMocks();
     __resetBootstrapForTesting();
     
     // Clear any global state
@@ -119,6 +165,34 @@ describe('Bootstrap App', () => {
     
     // Mock import.meta.env
     (global as any).importMetaEnv = { MODE: 'test' };
+    
+    // Reset localStorage mock to default for each test to avoid cross-test leakage
+    try {
+      Object.defineProperty(window, 'localStorage', {
+        value: {
+          getItem: jest.fn().mockReturnValue(null),
+          setItem: jest.fn(),
+        },
+        writable: true,
+      });
+    } catch {
+      // ignore if not configurable
+    }
+    // Restore performance.now mock implementation after resetAllMocks
+    _perfNow = 100;
+    try {
+      Object.defineProperty(window, 'performance', {
+        value: {
+          now: jest.fn().mockImplementation(() => {
+            _perfNow += 50;
+            return _perfNow;
+          }),
+        },
+        writable: true,
+      });
+    } catch {
+      // ignore if not configurable
+    }
   });
 
   describe('Environment Detection', () => {

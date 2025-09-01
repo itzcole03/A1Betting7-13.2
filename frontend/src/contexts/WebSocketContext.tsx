@@ -83,8 +83,8 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
     }
 
     if (process.env.NODE_ENV === 'development') {
-      // In development, only connect if backend is available and WebSocket is enabled
-      return 'ws://localhost:8000/ws';
+      // In development, connect to backend port 8000
+      return 'ws://localhost:8000/ws/client';
     } else {
       // In production, use secure WebSocket
       const baseUrl = (() => {

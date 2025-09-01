@@ -13,7 +13,7 @@ module.exports = {
     [
       "babel-plugin-transform-import-meta",
       {
-        module: "ES6",
+        target: "CommonJS",
       },
     ],
   ],

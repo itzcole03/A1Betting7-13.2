@@ -24,6 +24,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
+import types
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, validator
@@ -64,7 +65,104 @@ except ImportError:
     TORCH_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/v1/ml", tags=["ML-Consolidated"])
+router = APIRouter(tags=["Machine Learning", "ML-Consolidated"])
+
+# EV enrichment imports (robust import of functions)
+try:
+    from ..services.ev_service import parse_odds, compute_ev, american_to_decimal
+    ev_service = types.SimpleNamespace(parse_odds=parse_odds, compute_ev=compute_ev, american_to_decimal=american_to_decimal)
+    EV_SERVICE_AVAILABLE = True
+except Exception:
+    ev_service = None
+    EV_SERVICE_AVAILABLE = False
+
+
+def _extract_decimal_odds_from_request(request: "PredictionRequest") -> Optional[float]:
+    """Attempt to find a market odds value in the request and convert to decimal odds.
+
+    Looks in `request.data` then `request.features` for keys commonly used for odds.
+    Returns decimal odds or None if not found/convertible.
+    """
+    search_sources = []
+    if getattr(request, "data", None):
+        search_sources.append(request.data)
+    if getattr(request, "features", None):
+        # features is a dict of floats; odds may sometimes be provided there
+        search_sources.append(request.features)
+
+    candidate = None
+    for src in search_sources:
+        if not isinstance(src, dict):
+            continue
+        for key in ("odds", "market_odds", "odds_decimal", "market_decimal_odds", "american_odds"):
+            if key in src:
+                candidate = src[key]
+                break
+        if candidate is not None:
+            break
+
+    if candidate is None:
+        return None
+
+    # Try to parse numeric-like values
+    try:
+        val = float(candidate)
+    except Exception:
+        return None
+
+    # Use ev_service.parse_odds which handles decimal vs American guessing
+    try:
+        if EV_SERVICE_AVAILABLE and ev_service:
+            return ev_service.parse_odds(val)
+        else:
+            # Fallback: treat as decimal if >= 1.01
+            return val if val >= 1.01 else None
+    except Exception:
+        return None
+
+
+def _maybe_add_ev_to_unified(request: "PredictionRequest", unified_result: dict) -> None:
+    """Enrich unified_result with EV fields when possible.
+
+    Adds `ev`, `ev_pct`, and `odds_decimal` when request contains market odds and
+    the prediction/confidence can be interpreted as a probability.
+    """
+    try:
+        if not EV_SERVICE_AVAILABLE or ev_service is None:
+            return
+
+        odds_decimal = _extract_decimal_odds_from_request(request)
+        if odds_decimal is None:
+            return
+
+        # Determine probability: prefer 'confidence', then 'prediction'
+        prob = unified_result.get("confidence")
+        if prob is None:
+            prob = unified_result.get("prediction")
+
+        if prob is None:
+            return
+
+        # Normalize if confidence is given as percentage (0-100)
+        try:
+            p = float(prob)
+        except Exception:
+            return
+
+        if p > 1.0 and p <= 100.0:
+            p = p / 100.0
+
+        if not (0.0 <= p <= 1.0):
+            return
+
+        ev, ev_pct = ev_service.compute_ev(p, odds_decimal, stake=1.0)
+        unified_result.setdefault("odds_decimal", odds_decimal)
+        unified_result["ev"] = ev
+        unified_result["ev_pct"] = ev_pct
+        unified_result["ev_label"] = "+EV" if ev > 0 else ("ZeroEV" if abs(ev) < 1e-9 else "-EV")
+    except Exception:
+        # Be defensive; enrichment must not break prediction flow
+        return
 
 # Initialize integration services
 if MODERN_ML_AVAILABLE:
@@ -620,7 +718,13 @@ async def _enhanced_ml_predict(request: PredictionRequest) -> Optional[Dict[str,
             "cache_hit": False,
             "timestamp": time.time()
         }
-        
+
+        # Try to enrich with EV if possible (do not raise on failure)
+        try:
+            _maybe_add_ev_to_unified(request, unified_result)
+        except Exception:
+            pass
+
         return unified_result
         
     except Exception as e:
@@ -677,7 +781,13 @@ async def _modern_ml_predict(request: PredictionRequest) -> Optional[Dict[str, A
             "cache_hit": False,
             "timestamp": time.time()
         }
-        
+
+        # Enrich with EV if possible
+        try:
+            _maybe_add_ev_to_unified(request, unified_result)
+        except Exception:
+            pass
+
         return unified_result
         
     except Exception as e:
@@ -691,7 +801,7 @@ async def _basic_ml_predict(request: PredictionRequest) -> Dict[str, Any]:
     confidence = sum(request.features.values()) / len(request.features) if request.features else 0.5
     confidence = max(0.0, min(1.0, confidence))  # Clamp between 0 and 1
     
-    return {
+    unified_result = {
         "request_id": request.request_id,
         "prediction": confidence,
         "confidence": confidence * 100,  # Convert to percentage
@@ -702,6 +812,13 @@ async def _basic_ml_predict(request: PredictionRequest) -> Dict[str, Any]:
         "cache_hit": False,
         "timestamp": time.time()
     }
+
+    try:
+        _maybe_add_ev_to_unified(request, unified_result)
+    except Exception:
+        pass
+
+    return unified_result
 
 
 async def _enhanced_ml_batch_predict(request: BatchPredictionRequest) -> Optional[List[Dict[str, Any]]]:

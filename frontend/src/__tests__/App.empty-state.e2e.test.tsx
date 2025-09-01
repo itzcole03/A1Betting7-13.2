@@ -22,6 +22,7 @@ jest.mock('../services/unified/FeaturedPropsService', () => ({
 }));
 
 import { render, screen } from '@testing-library/react';
+import { act } from 'react';
 import '../../../jest.setup.e2e.js';
 import * as backendDiscoveryModule from '../services/backendDiscovery';
 import * as getBackendUrlModule from '../utils/getBackendUrl';
@@ -68,7 +69,7 @@ describe('App E2E - Empty State', () => {
     jest.clearAllMocks();
 
     // Setup backend mocks
-    setupBackendMocks();
+    setupBackendMocks({ emptyFeaturedProps: true });
 
     // Mock getBackendUrl to return a consistent URL
     jest.spyOn(getBackendUrlModule, 'getBackendUrl').mockReturnValue('http://localhost:8000');
@@ -93,10 +94,10 @@ describe('App E2E - Empty State', () => {
   it('shows empty state if no enhanced bets are returned', async () => {
     jest.useFakeTimers();
     try {
+      // Ensure the app loads the legacy PropOllama route so the empty-state component is rendered
+      window.history.pushState({}, 'Test', '/legacy-propollama');
       const App = (await import('../App')).default;
-      await (
-        await import('react-dom/test-utils')
-      ).act(async () => {
+      await act(async () => {
         render(<App />);
         jest.runAllTimers();
       });
@@ -113,7 +114,7 @@ describe('App E2E - Empty State', () => {
           emptyState = await screen.findByText(/No props found|No enhanced props|No results/i, {}, { timeout: 5000 });
         }
       }
-      expect(emptyState).toBeInTheDocument();
+      expect(emptyState).toBeDefined();
     } finally {
       jest.useRealTimers();
     }

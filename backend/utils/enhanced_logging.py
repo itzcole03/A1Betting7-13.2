@@ -132,12 +132,16 @@ class EnhancedLogger:
 
         # File handler with rotation
         try:
-            file_handler = logging.handlers.RotatingFileHandler(
-                filename=self.log_file_path,
-                maxBytes=self._parse_size(self.log_rotation_size),
-                backupCount=self.log_retention_days,
-                encoding="utf-8",
-            )
+            testing = bool(os.environ.get("TESTING") or os.environ.get("PYTEST_CURRENT_TEST"))
+            if testing:
+                file_handler = logging.FileHandler(filename=self.log_file_path, encoding="utf-8")
+            else:
+                file_handler = logging.handlers.RotatingFileHandler(
+                    filename=self.log_file_path,
+                    maxBytes=self._parse_size(self.log_rotation_size),
+                    backupCount=self.log_retention_days,
+                    encoding="utf-8",
+                )
             file_handler.setLevel(log_level)
             file_handler.setFormatter(formatter)
             root_logger.addHandler(file_handler)
