@@ -6,10 +6,14 @@
  */
 
 import eventSchemaGovernanceRule from './event-schema-governance';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - JS rule file
+import noTrivialWhileHoverScale from './no-trivial-whilehover-scale';
 
 const plugin = {
   rules: {
-    'event-schema-governance': eventSchemaGovernanceRule
+    'event-schema-governance': eventSchemaGovernanceRule,
+    'no-trivial-whilehover-scale': noTrivialWhileHoverScale
   },
   configs: {
     recommended: {
@@ -21,4 +25,5 @@ const plugin = {
   }
 };
 
-export = plugin;
+// Use CommonJS export for ESLint plugin resolution
+module.exports = plugin;

@@ -28,6 +28,7 @@ import {
   Bell,
   HelpCircle,
   Database,
+  Wallet,
 } from 'lucide-react';
 import { signalNavReady } from '../../navigation/navReadySignal';
 
@@ -96,6 +97,17 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       description: 'Exact PropFinder interface clone',
       category: 'main',
       isNew: true,
+    },
+    {
+      id: 'ev-feed',
+      name: '+EV Feed',
+      href: '/ev-feed',
+      icon: TrendingUp,
+      badge: 'NEW',
+      description: 'Real-time positive expected value opportunities',
+      category: 'main',
+      isNew: true,
+      isHot: true,
     },
     {
       id: 'prop-killer',
@@ -193,6 +205,16 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       category: 'tools',
     },
     {
+      id: 'fair-odds-calculator',
+      name: 'Fair Odds Calculator',
+      href: '/fair-odds-calculator',
+      icon: BarChart3,
+      badge: 'NEW',
+      description: 'Calculate mathematically fair odds from projections',
+      category: 'tools',
+      isNew: true,
+    },
+    {
       id: 'advanced-kelly',
       name: 'Advanced Kelly',
       href: '/advanced-kelly',
@@ -217,6 +239,26 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       icon: Activity,
       description: 'Track line movements and betting patterns',
       category: 'tools',
+    },
+    {
+      id: 'smart-signals',
+      name: 'Smart Signals',
+      href: '/smart-signals',
+      icon: Zap,
+      badge: 'NEW',
+      description: 'AI-powered betting signals with EV analysis',
+      category: 'tools',
+      isNew: true,
+    },
+    {
+      id: 'lineup-builder',
+      name: 'Lineup Builder',
+      href: '/lineup-builder',
+      icon: Calculator,
+      badge: 'NEW',
+      description: 'Enhanced parlay analytics with correlation detection',
+      category: 'tools',
+      isNew: true,
     },
     {
       id: 'cheatsheets',
@@ -245,6 +287,16 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
       icon: BarChart3,
       description: 'Track your betting performance',
       category: 'analytics',
+    },
+    {
+      id: 'bankroll-management',
+      name: 'Bankroll Management',
+      href: '/bankroll',
+      icon: Wallet,
+      badge: 'NEW',
+      description: 'Advanced bankroll management with Kelly criterion',
+      category: 'analytics',
+      isNew: true,
     },
     {
       id: 'ml-models',

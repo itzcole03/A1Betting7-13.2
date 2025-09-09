@@ -368,3 +368,48 @@ def redis_cached(cache_type: str, ttl: Optional[int] = None):
             
         return wrapper
     return decorator
+
+
+    async def add_line_snapshot(self, sport: str, player: str, market: str, book: str, line: float, odds: int):
+        """Add a line snapshot to capped Redis list (last 10 snapshots)."""
+        if not self.redis_client:
+            return False
+            
+        try:
+            key = f"line_snapshots:{sport}:{player}:{market}:{book}"
+            snapshot = {
+                "line": line, 
+                "odds": odds, 
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            
+            # Add to list and trim to keep only last 10
+            await self.redis_client.rpush(key, json.dumps(snapshot))
+            await self.redis_client.ltrim(key, -10, -1)
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error adding line snapshot: {e}")
+            return False
+
+    async def get_line_snapshots(self, sport: str, player: str, market: str, book: str) -> List[Dict]:
+        """Get line snapshots from Redis capped list."""
+        if not self.redis_client:
+            return []
+            
+        try:
+            key = f"line_snapshots:{sport}:{player}:{market}:{book}"
+            raw_data = await self.redis_client.lrange(key, 0, -1)
+            snapshots = []
+            
+            for item in raw_data:
+                try:
+                    snapshots.append(json.loads(item))
+                except (json.JSONDecodeError, TypeError):
+                    continue
+                    
+            return snapshots
+            
+        except Exception as e:
+            logger.error(f"Error getting line snapshots: {e}")
+            return []

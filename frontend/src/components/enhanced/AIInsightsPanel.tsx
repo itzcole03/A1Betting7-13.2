@@ -151,14 +151,12 @@ const _AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
           {predictions.slice(0, 5).map(bet => (
             <motion.div
               key={bet.id}
-              className={`p-3 rounded-lg cursor-pointer border transition-all duration-200 ${
+              onClick={() => onBetSelect(bet)}
+              className={`p-3 rounded-lg cursor-pointer border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
                 selectedBet?.id === bet.id
                   ? 'bg-cyan-500/20 border-cyan-400/50 shadow-lg shadow-cyan-500/10'
                   : 'bg-gray-700/50 border-gray-600/50 hover:bg-gray-700/70 hover:border-gray-500/50'
               }`}
-              onClick={() => onBetSelect(bet)}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
             >
               <div className='flex items-center justify-between'>
                 <div>

@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import React from 'react';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
@@ -30,7 +29,7 @@ export const _Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant = 'primary',
       size = 'md',
       isLoading = false,
-      asChild = false,
+  asChild: _asChild = false, // legacy prop retained for compatibility (unused)
       children,
       className,
       ...props
@@ -59,27 +58,23 @@ export const _Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // const _Comp = asChild ? 'span' : 'button';
 
     // Destructure out problematic drag-related props
-    const { onDrag, onDragStart, onDragEnd, onAnimationStart, ...rest } = props;
+  const { ...rest } = props; // stripped unused motion-related event props
+    const disabled = isLoading || rest.disabled;
+    const _interactionClasses = disabled
+      ? 'transition-transform'
+      : 'transition-transform hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03]';
     return (
-      <motion.button
+      <button
         ref={ref}
-        className={`${_baseClasses} ${_variantClasses[variant]} ${_sizeClasses[size]} ${
-          className || ''
-        }`}
-        whileHover={{ scale: isLoading || rest.disabled ? 1 : 1.05 }}
-        whileTap={{ scale: isLoading || rest.disabled ? 1 : 0.95 }}
-        disabled={isLoading || rest.disabled}
+        className={`${_baseClasses} ${_variantClasses[variant]} ${_sizeClasses[size]} ${_interactionClasses} ${className || ''}`}
+        disabled={disabled}
         {...rest}
       >
         {isLoading && (
-          <motion.div
-            className='w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2'
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          />
+          <div className='w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2 animate-spin' />
         )}
         {children}
-      </motion.button>
+      </button>
     );
   }
 );

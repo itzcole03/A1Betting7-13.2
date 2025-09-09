@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface MetricDataPoint {
@@ -37,12 +37,12 @@ export interface RealTimeMetricsProps {
   isLive?: boolean;
 }
 
-const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
+const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
   metrics = [],
   variant = 'default',
   className = '',
   updateInterval = 5000,
-  showHistory = true,
+  showHistory: _showHistory = true, // unused currently
   showSparklines = true,
   showAlerts = true,
   maxDataPoints = 50,
@@ -52,12 +52,13 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
 }) => {
   const [currentMetrics, setCurrentMetrics] = useState<RealTimeMetric[]>([]);
   const [lastUpdate, setLastUpdate] = useState(new Date());
-  const _intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const _defaultMetrics: RealTimeMetric[] =
-    metrics.length > 0
-      ? metrics
-      : [
+  const defaultMetrics: RealTimeMetric[] = useMemo(
+    () => (
+      metrics.length > 0
+        ? metrics
+        : [
           {
             id: 'active-bets',
             name: 'Active Bets',
@@ -69,9 +70,7 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
             threshold: { warning: 1500, critical: 2000 },
             color: '#10b981',
             icon: (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <path
                   strokeLinecap='round'
                   strokeLinejoin='round'
@@ -92,9 +91,7 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
             threshold: { warning: 500, critical: 300 },
             color: '#3b82f6',
             icon: (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <path
                   strokeLinecap='round'
                   strokeLinejoin='round'
@@ -115,9 +112,7 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
             threshold: { warning: 40000, critical: 50000 },
             color: '#8b5cf6',
             icon: (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <path
                   strokeLinecap='round'
                   strokeLinejoin='round'
@@ -138,9 +133,7 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
             threshold: { warning: 7000, critical: 10000 },
             color: '#f59e0b',
             icon: (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <path
                   strokeLinecap='round'
                   strokeLinejoin='round'
@@ -161,9 +154,7 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
             threshold: { warning: 75, critical: 90 },
             color: '#ef4444',
             icon: (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <path
                   strokeLinecap='round'
                   strokeLinejoin='round'
@@ -184,9 +175,7 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
             threshold: { warning: 1.0, critical: 2.5 },
             color: '#14b8a6',
             icon: (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <path
                   strokeLinecap='round'
                   strokeLinejoin='round'
@@ -196,11 +185,14 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
               </svg>
             ),
           },
-        ];
+        ]
+    ),
+    [metrics]
+  );
 
   // Initialize metrics with history
   useEffect(() => {
-    const _initialMetrics = defaultMetrics.map(metric => ({
+    const initialMetrics = defaultMetrics.map(metric => ({
       ...metric,
       history: Array.from({ length: 10 }, (_, i) => ({
         timestamp: new Date(Date.now() - (9 - i) * 60000),
@@ -208,7 +200,7 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
       })),
     }));
     setCurrentMetrics(initialMetrics);
-  }, []);
+  }, [defaultMetrics]);
 
   // Simulate real-time updates
   useEffect(() => {
@@ -217,18 +209,18 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
     intervalRef.current = setInterval(() => {
       setCurrentMetrics(prevMetrics =>
         prevMetrics.map(metric => {
-          const _variation = (Math.random() - 0.5) * 0.1;
-          const _newValue = Math.max(0, metric.value * (1 + variation));
-          const _change = ((newValue - metric.value) / metric.value) * 100;
+          const variation = (Math.random() - 0.5) * 0.1;
+          const newValue = Math.max(0, metric.value * (1 + variation));
+          const change = ((newValue - metric.value) / Math.max(metric.value, 0.0001)) * 100;
 
-          const _newDataPoint: MetricDataPoint = {
+          const newDataPoint: MetricDataPoint = {
             timestamp: new Date(),
             value: newValue,
           };
 
-          const _updatedHistory = [...metric.history, newDataPoint].slice(-maxDataPoints);
+          const updatedHistory = [...metric.history, newDataPoint].slice(-maxDataPoints);
 
-          const _updatedMetric = {
+          const updatedMetric = {
             ...metric,
             value: newValue,
             change: change,
@@ -263,7 +255,7 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
     };
   }, [isLive, updateInterval, maxDataPoints, showAlerts, onAlert]);
 
-  const _getStatusColor = (metric: RealTimeMetric) => {
+  const getStatusColor = (metric: RealTimeMetric) => {
     if (!metric.threshold) return metric.color || '#6b7280';
 
     if (metric.value >= metric.threshold.critical) {
@@ -275,10 +267,9 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
     return metric.color || (variant === 'cyber' ? '#00ff88' : '#10b981');
   };
 
-  const _formatValue = (value: number, unit: string) => {
-    const _formattedValue = value;
-    const _suffix = '';
-
+  const formatValue = (value: number, unit: string) => {
+    let formattedValue = value;
+    let suffix = '';
     if (value >= 1000000) {
       formattedValue = value / 1000000;
       suffix = 'M';
@@ -286,33 +277,29 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
       formattedValue = value / 1000;
       suffix = 'K';
     }
-
-    const _precision = unit === '%' || value < 10 ? 1 : 0;
+    const precision = unit === '%' || value < 10 ? 1 : 0;
     return `${formattedValue.toFixed(precision)}${suffix}${unit}`;
   };
 
-  const _renderSparkline = (history: MetricDataPoint[], color: string) => {
+  const renderSparkline = (history: MetricDataPoint[], color: string) => {
     if (!showSparklines || history.length < 2) return null;
 
-    const _width = 60;
-    const _height = 20;
-    const _values = history.map(point => point.value);
-    const _min = Math.min(...values);
-    const _max = Math.max(...values);
-    const _range = max - min || 1;
-
-    const _points = values
+    const width = 60;
+    const height = 20;
+    const values = history.map(point => point.value);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+    const points = values
       .map((value, index) => {
-        const _x = (index / (values.length - 1)) * width;
-        const _y = height - ((value - min) / range) * height;
+        const x = (index / (values.length - 1)) * width;
+        const y = height - ((value - min) / range) * height;
         return `${x},${y}`;
       })
       .join(' ');
 
     return (
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <svg width={width} height={height} className='opacity-70'>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <polyline
           points={points}
           fill='none'
@@ -324,22 +311,20 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
     );
   };
 
-  const _baseClasses = `
-    ${variant === 'dashboard' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}
-    ${className}
-  `;
+  const baseClasses = `${
+    variant === 'dashboard'
+      ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
+      : 'space-y-4'
+  } ${className}`;
 
   return (
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className={baseClasses}>
       {/* Header */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div
         className={`flex items-center justify-between mb-6 ${
           variant === 'dashboard' ? 'col-span-full' : ''
         }`}
       >
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <h2
           className={`text-xl font-bold ${
             variant === 'cyber' ? 'text-cyan-400' : 'text-gray-900 dark:text-white'
@@ -347,11 +332,8 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
         >
           {variant === 'cyber' ? 'REAL-TIME METRICS' : 'Live Metrics'}
         </h2>
-
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-center space-x-4'>
           {isLive && (
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
                 variant === 'cyber'
@@ -359,13 +341,11 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
                   : 'bg-green-100 dark:bg-green-900/30'
               }`}
             >
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`w-2 h-2 rounded-full animate-pulse ${
                   variant === 'cyber' ? 'bg-cyan-400' : 'bg-green-500'
                 }`}
               />
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span
                 className={`text-xs font-medium ${
                   variant === 'cyber' ? 'text-cyan-400' : 'text-green-700 dark:text-green-400'
@@ -375,8 +355,6 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
               </span>
             </div>
           )}
-
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span className={`text-xs ${variant === 'cyber' ? 'text-cyan-300/70' : 'text-gray-500'}`}>
             Updated: {lastUpdate.toLocaleTimeString()}
           </span>
@@ -384,57 +362,52 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
       </div>
 
       {/* Metric Cards */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <AnimatePresence>
         {currentMetrics.map((metric, index) => (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             key={metric.id}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ delay: index * 0.05 }}
-            className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 ${
+            className={`p-4 rounded-lg border cursor-pointer transition duration-150 transform hover:scale-[1.02] active:scale-[0.98] focus-visible:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-cyan-400/40 ${
               variant === 'cyber'
                 ? 'bg-black border-cyan-400/30 hover:border-cyan-400/50 hover:shadow-lg hover:shadow-cyan-400/20'
                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-600'
             }`}
             onClick={() => onMetricClick?.(metric)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            role='button'
+            tabIndex={0}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onMetricClick?.(metric);
+              }
+            }}
           >
             {/* Cyber grid overlay */}
             {variant === 'cyber' && (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='absolute inset-0 opacity-10 pointer-events-none'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='grid grid-cols-6 grid-rows-4 h-full w-full'>
                   {Array.from({ length: 24 }).map((_, i) => (
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div key={i} className='border border-cyan-400/20' />
                   ))}
                 </div>
               </div>
             )}
 
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='relative z-10'>
               {/* Header */}
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center justify-between mb-2'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center space-x-2'>
                   {metric.icon && (
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <div
                       className='p-1 rounded'
                       style={{ backgroundColor: `${getStatusColor(metric)}20` }}
                     >
-                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div style={{ color: getStatusColor(metric) }}>{metric.icon}</div>
                     </div>
                   )}
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <h3
                     className={`font-medium text-sm ${
                       variant === 'cyber' ? 'text-cyan-300' : 'text-gray-700 dark:text-gray-300'
@@ -448,9 +421,7 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
               </div>
 
               {/* Value */}
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='mb-2'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <motion.span
                   className={`text-2xl font-bold ${
                     variant === 'cyber' ? 'text-cyan-400' : 'text-gray-900 dark:text-white'
@@ -465,9 +436,7 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
               </div>
 
               {/* Change */}
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-center space-x-2'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div
                   className={`flex items-center space-x-1 ${
                     metric.changeType === 'increase'
@@ -480,9 +449,7 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
                   }`}
                 >
                   {metric.changeType === 'increase' && (
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <svg className='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <path
                         strokeLinecap='round'
                         strokeLinejoin='round'
@@ -492,9 +459,7 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
                     </svg>
                   )}
                   {metric.changeType === 'decrease' && (
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <svg className='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <path
                         strokeLinecap='round'
                         strokeLinejoin='round'
@@ -504,9 +469,7 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
                     </svg>
                   )}
                   {metric.changeType === 'stable' && (
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <svg className='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <path
                         strokeLinecap='round'
                         strokeLinejoin='round'
@@ -515,7 +478,6 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
                       />
                     </svg>
                   )}
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <span className='text-xs font-medium'>
                     {metric.change > 0 ? '+' : ''}
                     {metric.change.toFixed(1)}%
@@ -524,7 +486,6 @@ const _RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({
 
                 {/* Threshold indicator */}
                 {metric.threshold && (
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <div
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
                       metric.value >= metric.threshold.critical

@@ -1064,6 +1064,338 @@ class UltraArbitrageEngine:
             "success_rate": 0.0,
             "average_roi": 0.0,
         }
+        
+        # Prometheus-style counters for monitoring
+        self.prometheus_counters = {
+            "arbitrage_opportunities_total": 0,
+            "low_juice_opportunities_total": 0,
+            "cross_book_arbitrage_total": 0,
+            "two_way_arbitrage_total": 0,
+            "three_way_arbitrage_total": 0,
+            "arbitrage_detection_errors_total": 0,
+            "low_juice_detection_errors_total": 0
+        }
+
+    def detect_low_juice(self, opportunity_aggregate: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Detect low juice (low vig) opportunities from aggregated market data.
+        
+        Args:
+            opportunity_aggregate: Dict containing aggregated odds from multiple books
+                                 Format: {
+                                     'event_id': str,
+                                     'market_type': str,
+                                     'books': [{'book': str, 'over_odds': float, 'under_odds': float}, ...]
+                                 }
+        
+        Returns:
+            Dict with vig_pct (float) and is_low_juice (bool)
+        """
+        try:
+            books_data = opportunity_aggregate.get('books', [])
+            if len(books_data) < 2:
+                return {"vig_pct": 100.0, "is_low_juice": False}
+
+            # Find the best odds across all books for both sides
+            best_over_odds = max(book.get('over_odds', 1.0) for book in books_data if book.get('over_odds'))
+            best_under_odds = max(book.get('under_odds', 1.0) for book in books_data if book.get('under_odds'))
+
+            if best_over_odds <= 1.0 or best_under_odds <= 1.0:
+                return {"vig_pct": 100.0, "is_low_juice": False}
+
+            # Calculate implied probabilities
+            over_prob = 1 / best_over_odds
+            under_prob = 1 / best_under_odds
+
+            # Calculate total implied probability (vig included)
+            total_prob = over_prob + under_prob
+
+            # Calculate vig percentage
+            vig_pct = ((total_prob - 1.0) / total_prob) * 100 if total_prob > 1.0 else 0.0
+
+            # Low juice threshold: typically under 3% vig is considered low juice
+            # Elite books (Pinnacle) often have <2% vig
+            is_low_juice = vig_pct < 3.0
+
+            # Increment Prometheus counter for low juice opportunities
+            if is_low_juice:
+                self.prometheus_counters["low_juice_opportunities_total"] += 1
+
+            logger.info(f"Low juice analysis - Event: {opportunity_aggregate.get('event_id')}, "
+                       f"Vig: {vig_pct:.2f}%, Low Juice: {is_low_juice}")
+
+            return {
+                "vig_pct": round(vig_pct, 2),
+                "is_low_juice": is_low_juice,
+                "best_over_odds": best_over_odds,
+                "best_under_odds": best_under_odds,
+                "total_implied_prob": round(total_prob, 4),
+                "analysis_timestamp": datetime.now(timezone.utc).isoformat()
+            }
+
+        except Exception as e:
+            self.prometheus_counters["low_juice_detection_errors_total"] += 1
+            logger.error(f"Low juice detection failed: {e}")
+            return {"vig_pct": 100.0, "is_low_juice": False, "error": str(e)}
+
+    def detect_cross_book_arbitrage(self, books_odds_set: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        """
+        Detect cross-book arbitrage opportunities from a set of odds across multiple books.
+        
+        Args:
+            books_odds_set: List of dicts containing odds from different sportsbooks
+                           Format: [
+                               {
+                                   'book': str,
+                                   'event_id': str,
+                                   'market_type': str,
+                                   'outcome': str,  # 'over', 'under', 'home', 'away', etc.
+                                   'odds': float,
+                                   'max_stake': float,
+                                   'timestamp': datetime
+                               }, ...
+                           ]
+        
+        Returns:
+            Dict containing arbitrage opportunity details or None if no arbitrage exists
+        """
+        try:
+            if len(books_odds_set) < 2:
+                return None
+
+            # Group odds by outcome type
+            outcomes_by_book = defaultdict(lambda: defaultdict(dict))
+
+            for odds_entry in books_odds_set:
+                book = odds_entry.get('book')
+                outcome = odds_entry.get('outcome', '').lower()
+                odds_value = odds_entry.get('odds')
+                
+                if not all([book, outcome, odds_value]) or (odds_value is not None and odds_value <= 1.0):
+                    continue
+
+                outcomes_by_book[outcome][book] = {
+                    'odds': odds_value,
+                    'max_stake': odds_entry.get('max_stake', 1000),
+                    'timestamp': odds_entry.get('timestamp', datetime.now(timezone.utc)),
+                    'event_id': odds_entry.get('event_id'),
+                    'market_type': odds_entry.get('market_type')
+                }
+
+            # Check for two-way arbitrage (most common)
+            outcomes = list(outcomes_by_book.keys())
+            
+            if len(outcomes) == 2:
+                result = self._check_two_way_cross_book_arbitrage(outcomes_by_book, outcomes)
+                if result:
+                    self.prometheus_counters["arbitrage_opportunities_total"] += 1
+                    self.prometheus_counters["cross_book_arbitrage_total"] += 1
+                    self.prometheus_counters["two_way_arbitrage_total"] += 1
+                return result
+            elif len(outcomes) == 3:
+                result = self._check_three_way_cross_book_arbitrage(outcomes_by_book, outcomes)
+                if result:
+                    self.prometheus_counters["arbitrage_opportunities_total"] += 1
+                    self.prometheus_counters["cross_book_arbitrage_total"] += 1
+                    self.prometheus_counters["three_way_arbitrage_total"] += 1
+                return result
+            
+            return None
+
+        except Exception as e:
+            self.prometheus_counters["arbitrage_detection_errors_total"] += 1
+            logger.error(f"Cross-book arbitrage detection failed: {e}")
+            return None
+
+    def _check_two_way_cross_book_arbitrage(self, outcomes_by_book: Dict, outcomes: List[str]) -> Optional[Dict[str, Any]]:
+        """Check for two-way cross-book arbitrage opportunity"""
+        try:
+            outcome1, outcome2 = outcomes[0], outcomes[1]
+            
+            # Find best odds for each outcome across all books
+            best_odds1 = max(
+                (book_data['odds'] for book_data in outcomes_by_book[outcome1].values()),
+                default=0
+            )
+            best_odds2 = max(
+                (book_data['odds'] for book_data in outcomes_by_book[outcome2].values()),
+                default=0
+            )
+
+            if best_odds1 <= 1.0 or best_odds2 <= 1.0:
+                return None
+
+            # Find which books have the best odds
+            best_book1 = None
+            best_book2 = None
+            
+            for book, data in outcomes_by_book[outcome1].items():
+                if data['odds'] == best_odds1:
+                    best_book1 = book
+                    break
+                    
+            for book, data in outcomes_by_book[outcome2].items():
+                if data['odds'] == best_odds2:
+                    best_book2 = book
+                    break
+
+            if not best_book1 or not best_book2 or best_book1 == best_book2:
+                return None
+
+            # Calculate arbitrage
+            implied_prob1 = 1 / best_odds1
+            implied_prob2 = 1 / best_odds2
+            total_implied_prob = implied_prob1 + implied_prob2
+
+            if total_implied_prob >= 1.0:
+                return None  # No arbitrage
+
+            # Calculate stakes and profit
+            total_stake = 1000.0  # Base calculation on $1000
+            stake1 = total_stake * implied_prob1 / total_implied_prob
+            stake2 = total_stake * implied_prob2 / total_implied_prob
+
+            profit1 = stake1 * best_odds1 - total_stake
+            profit2 = stake2 * best_odds2 - total_stake
+            guaranteed_profit = min(profit1, profit2)
+            profit_percentage = (guaranteed_profit / total_stake) * 100
+
+            # Get event details
+            event_id = None
+            market_type = None
+            for outcome_data in outcomes_by_book.values():
+                for book_data in outcome_data.values():
+                    if book_data.get('event_id'):
+                        event_id = book_data['event_id']
+                        market_type = book_data['market_type']
+                        break
+                if event_id:
+                    break
+
+            arbitrage_opportunity = {
+                "id": f"cross_book_arb_{event_id}_{int(datetime.now().timestamp())}",
+                "type": "cross_book_arbitrage",
+                "event_id": event_id,
+                "market_type": market_type,
+                "outcomes": {
+                    outcome1: {"book": best_book1, "odds": best_odds1, "stake": round(stake1, 2)},
+                    outcome2: {"book": best_book2, "odds": best_odds2, "stake": round(stake2, 2)}
+                },
+                "guaranteed_profit": round(guaranteed_profit, 2),
+                "profit_percentage": round(profit_percentage, 2),
+                "total_stake_required": round(total_stake, 2),
+                "total_implied_probability": round(total_implied_prob, 4),
+                "arbitrage_margin": round((1 - total_implied_prob) * 100, 2),
+                "execution_time_window": 300,  # 5 minutes in seconds
+                "confidence_score": 0.85,
+                "detection_timestamp": datetime.now(timezone.utc).isoformat(),
+                "books_involved": [best_book1, best_book2],
+                "risk_factors": {
+                    "execution_risk": "medium",
+                    "liquidity_risk": "low",
+                    "timing_risk": "high"
+                }
+            }
+
+            logger.info(f"Cross-book arbitrage detected: {profit_percentage:.2f}% profit, "
+                       f"Books: {best_book1} vs {best_book2}")
+
+            return arbitrage_opportunity
+
+        except Exception as e:
+            logger.error(f"Two-way cross-book arbitrage check failed: {e}")
+            return None
+
+    def _check_three_way_cross_book_arbitrage(self, outcomes_by_book: Dict, outcomes: List[str]) -> Optional[Dict[str, Any]]:
+        """Check for three-way cross-book arbitrage opportunity"""
+        try:
+            # Find best odds for each outcome
+            best_odds_data = {}
+            
+            for outcome in outcomes:
+                best_odds = 0
+                best_book = None
+                
+                for book, data in outcomes_by_book[outcome].items():
+                    if data['odds'] > best_odds:
+                        best_odds = data['odds']
+                        best_book = book
+                
+                if best_odds > 1.0 and best_book:
+                    best_odds_data[outcome] = {"odds": best_odds, "book": best_book}
+
+            if len(best_odds_data) != 3:
+                return None
+
+            # Calculate total implied probability
+            total_implied_prob = sum(1 / data['odds'] for data in best_odds_data.values())
+
+            if total_implied_prob >= 1.0:
+                return None  # No arbitrage
+
+            # Calculate stakes
+            total_stake = 1000.0
+            stakes = {}
+            profits = []
+
+            for outcome, data in best_odds_data.items():
+                implied_prob = 1 / data['odds']
+                stake = total_stake * implied_prob / total_implied_prob
+                stakes[outcome] = stake
+                profit = stake * data['odds'] - total_stake
+                profits.append(profit)
+
+            guaranteed_profit = min(profits)
+            profit_percentage = (guaranteed_profit / total_stake) * 100
+
+            # Get event details
+            event_id = None
+            market_type = None
+            for outcome_data in outcomes_by_book.values():
+                for book_data in outcome_data.values():
+                    if book_data.get('event_id'):
+                        event_id = book_data['event_id']
+                        market_type = book_data['market_type']
+                        break
+                if event_id:
+                    break
+
+            arbitrage_opportunity = {
+                "id": f"cross_book_3way_arb_{event_id}_{int(datetime.now().timestamp())}",
+                "type": "cross_book_three_way_arbitrage",
+                "event_id": event_id,
+                "market_type": market_type,
+                "outcomes": {
+                    outcome: {
+                        "book": best_odds_data[outcome]["book"],
+                        "odds": best_odds_data[outcome]["odds"],
+                        "stake": round(stakes[outcome], 2)
+                    }
+                    for outcome in outcomes
+                },
+                "guaranteed_profit": round(guaranteed_profit, 2),
+                "profit_percentage": round(profit_percentage, 2),
+                "total_stake_required": round(total_stake, 2),
+                "total_implied_probability": round(total_implied_prob, 4),
+                "arbitrage_margin": round((1 - total_implied_prob) * 100, 2),
+                "execution_time_window": 180,  # 3 minutes for three-way
+                "confidence_score": 0.80,
+                "detection_timestamp": datetime.now(timezone.utc).isoformat(),
+                "books_involved": [best_odds_data[outcome]["book"] for outcome in outcomes],
+                "risk_factors": {
+                    "execution_risk": "high",
+                    "liquidity_risk": "medium",
+                    "timing_risk": "very_high"
+                }
+            }
+
+            logger.info(f"Three-way cross-book arbitrage detected: {profit_percentage:.2f}% profit")
+
+            return arbitrage_opportunity
+
+        except Exception as e:
+            logger.error(f"Three-way cross-book arbitrage check failed: {e}")
+            return None
 
     async def scan_for_opportunities(
         self,
@@ -1136,6 +1468,15 @@ class UltraArbitrageEngine:
             "inefficiency_detector_status": "operational",
             "last_health_check": datetime.now(timezone.utc).isoformat(),
         }
+
+    def get_prometheus_metrics(self) -> Dict[str, int]:
+        """Get Prometheus-style counters for monitoring"""
+        return self.prometheus_counters.copy()
+
+    def reset_prometheus_counters(self) -> None:
+        """Reset all Prometheus counters (useful for testing)"""
+        for key in self.prometheus_counters:
+            self.prometheus_counters[key] = 0
 
 
 # Global instance

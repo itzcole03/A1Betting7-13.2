@@ -1,0 +1,42 @@
+name: Synthetic Backend Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  synthetic-smart-signals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f "backend/requirements.txt" ]; then
+            pip install -r backend/requirements.txt
+          else
+            pip install -r requirements.txt || true
+          fi
+
+      - name: Run synthetic E2E smart-signals tests
+        env:
+          ENABLE_SMART_SIGNALS: "true"
+          DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+          SYNTHETIC_REPORT_DIR: "synthetic-reports"
+        run: |
+          pytest -q tests/synthetic
+
+      - name: Upload synthetic test reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-smart-signals-reports
+          path: synthetic-reports
+          if-no-files-found: warn

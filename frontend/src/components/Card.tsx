@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import React from 'react';
 
 interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'as'> {
@@ -30,16 +29,18 @@ export const _Card = React.forwardRef<HTMLDivElement, CardProps>(
       ? 'hover:shadow-lg hover:border-cyan-500/50 hover:-translate-y-1'
       : '';
     // Destructure out problematic drag-related props
-    const { onDrag, onDragStart, onDragEnd, onAnimationStart, ...rest } = props;
+  const { ...rest } = props; // removed unused motion drag/animation handlers
+    const scaleClasses = hoverEffect
+      ? 'transition-transform hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03]'
+      : '';
     return (
-      <motion.div
+      <div
         ref={ref}
-        className={`${baseClasses} ${variantClasses[variant]} ${hoverClasses} ${className || ''}`}
-        whileHover={hoverEffect ? { scale: 1.02 } : {}}
+        className={`${baseClasses} ${variantClasses[variant]} ${hoverClasses} ${scaleClasses} ${className || ''}`}
         {...rest}
       >
         {children}
-      </motion.div>
+      </div>
     );
   }
 );

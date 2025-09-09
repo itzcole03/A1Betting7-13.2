@@ -20,7 +20,7 @@ export const _GlowCard: React.FC<GlowCardProps> = ({
   hover = true,
   pulse = false,
 }) => {
-  const _variantConfig = {
+  const variantConfig = {
     default: {
       gradient: 'from-slate-800/50 to-slate-900/50',
       border: 'border-slate-700/50',
@@ -53,17 +53,17 @@ export const _GlowCard: React.FC<GlowCardProps> = ({
     },
   };
 
-  const _intensityMultiplier = {
+  const intensityMultiplier = {
     low: 0.5,
     medium: 1,
     high: 1.5,
     extreme: 2,
   };
 
-  const _config = variantConfig[variant];
-  const _multiplier = intensityMultiplier[intensity];
+  const config = variantConfig[variant];
+  const multiplier = intensityMultiplier[intensity];
 
-  const _cardVariants = {
+  const cardVariants = {
     hidden: {
       opacity: 0,
       y: 20,
@@ -102,10 +102,10 @@ export const _GlowCard: React.FC<GlowCardProps> = ({
     },
   };
 
-  const _baseClasses = `
+  const baseClasses = `
     relative backdrop-blur-lg border rounded-xl p-6
     bg-gradient-to-br ${config.gradient} ${config.border}
-    transition-all duration-300
+    transition-all duration-300 ${hover ? 'transition-transform hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03]' : ''}
     ${className}
   `;
 
@@ -114,10 +114,10 @@ export const _GlowCard: React.FC<GlowCardProps> = ({
     <motion.div
       className={baseClasses}
       // @ts-expect-error TS(2322): Type '{ hidden: { opacity: number; y: number; scal... Remove this comment to see the full error message
-      variants={cardVariants}
+  variants={cardVariants}
       initial={animate ? 'hidden' : 'visible'}
       animate={pulse ? 'pulse' : 'visible'}
-      whileHover={hover ? 'hover' : undefined}
+      // hover variant replaced by Tailwind scale classes
       style={{
         filter: `brightness(${1 + (multiplier - 1) * 0.2})`,
       }}

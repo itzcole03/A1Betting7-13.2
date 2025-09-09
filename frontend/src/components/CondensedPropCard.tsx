@@ -165,6 +165,17 @@ const CondensedPropCard: React.FC<CondensedPropCardProps> = ({
         <div data-testid='prop-card-expanded' className='w-full p-4 bg-gray-900 rounded-xl mt-2'>
           <div className='text-white font-bold'>Expanded Card for {player}</div>
           <div className='text-gray-400'>Stat: {stat}</div>
+          
+          {/* Placeholder for Player Performance Chart - Use separate integration example */}
+          <div className='mt-4 p-4 bg-gray-800 rounded-lg border border-gray-600'>
+            <div className='text-gray-300 text-sm'>
+              📊 Player Performance Chart
+            </div>
+            <div className='text-gray-500 text-xs mt-1'>
+              Chart integration available - see PlayerChartExample.tsx
+            </div>
+          </div>
+          
           <button
             aria-label='Deep AI Analysis'
             className='mt-2 px-3 py-1 bg-blue-700 text-white rounded'

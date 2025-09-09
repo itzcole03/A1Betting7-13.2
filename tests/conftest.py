@@ -528,3 +528,155 @@ def load_test_data():
         ]
     
     return _generate_requests
+
+
+# CLV Metrics Test Fixtures
+@pytest.fixture
+def mock_clv_enabled_config():
+    """Mock unified config with CLV metrics enabled."""
+    from unittest.mock import patch, MagicMock
+    with patch('backend.services.unified_config.unified_config') as mock_config:
+        mock_performance_config = MagicMock()
+        mock_performance_config.enable_clv_metrics = True
+        mock_config.get_config.return_value.performance = mock_performance_config
+        yield mock_config
+
+
+@pytest.fixture
+def mock_clv_disabled_config():
+    """Mock unified config with CLV metrics disabled."""
+    from unittest.mock import patch, MagicMock
+    with patch('backend.services.unified_config.unified_config') as mock_config:
+        mock_performance_config = MagicMock()
+        mock_performance_config.enable_clv_metrics = False
+        mock_config.get_config.return_value.performance = mock_performance_config
+        yield mock_config
+
+
+@pytest.fixture
+def mock_propfinder_service():
+    """Mock SimplePropFinderService with AsyncMock for async methods."""
+    from unittest.mock import AsyncMock, MagicMock
+    from backend.services.simple_propfinder_service import PropOpportunity, Sport, Market, Pick, Venue, Trend, MatchupHistory, LineMovement, Direction, SharpMoney
+    from datetime import datetime
+    
+    mock_service = MagicMock()
+    
+    # Create proper PropOpportunity objects
+    sample_opportunities = [
+        PropOpportunity(
+            id="test1",
+            player="Test Player",
+            playerImage=None,
+            team="TEST",
+            teamLogo=None,
+            opponent="TEST2",
+            opponentLogo=None,
+            sport=Sport.MLB,
+            market=Market.HITS,
+            line=1.5,
+            pick=Pick.OVER,
+            odds=110,
+            impliedProbability=0.52,
+            aiProbability=0.55,
+            edge=0.03,
+            confidence=75.0,
+            projectedValue=1.0,
+            volume=100,
+            trend=Trend.RISING,
+            trendStrength=3,
+            timeToGame="2 hours",
+            venue=Venue.HOME,
+            weather=None,
+            injuries=[],
+            recentForm=[0.75, 0.80, 0.65],
+            matchupHistory=MatchupHistory(games=5, average=0.6, hitRate=0.6),
+            lineMovement=LineMovement(open=1.5, current=1.5, direction=Direction.NONE),
+            bookmakers=[],
+            isBookmarked=False,
+            tags=["high-confidence"],
+            socialSentiment=75,
+            sharpMoney=SharpMoney.HEAVY,
+            lastUpdated=datetime.now(),
+            alertTriggered=False,
+            alertSeverity=None,
+            bestBookmaker="FanDuel",
+            lineSpread=0.5,
+            oddsSpread=15,
+            numBookmakers=3
+        ),
+        PropOpportunity(
+            id="test2",
+            player="Another Player",
+            playerImage=None,
+            team="TEST2",
+            teamLogo=None,
+            opponent="TEST",
+            opponentLogo=None,
+            sport=Sport.MLB,
+            market=Market.HOME_RUNS,
+            line=0.5,
+            pick=Pick.OVER,
+            odds=-120,
+            impliedProbability=0.54,
+            aiProbability=0.58,
+            edge=0.04,
+            confidence=82.0,
+            projectedValue=1.2,
+            volume=150,
+            trend=Trend.RISING,
+            trendStrength=4,
+            timeToGame="3 hours",
+            venue=Venue.AWAY,
+            weather="Clear",
+            injuries=[],
+            recentForm=[0.85, 0.90, 0.75],
+            matchupHistory=MatchupHistory(games=5, average=0.8, hitRate=0.8),
+            lineMovement=LineMovement(open=0.5, current=0.5, direction=Direction.NONE),
+            bookmakers=[],
+            isBookmarked=False,
+            tags=["sharp-money"],
+            socialSentiment=80,
+            sharpMoney=SharpMoney.HEAVY,
+            lastUpdated=datetime.now(),
+            alertTriggered=False,
+            alertSeverity=None,
+            bestBookmaker="DraftKings",
+            lineSpread=0.0,
+            oddsSpread=10,
+            numBookmakers=4
+        )
+    ]
+    
+    # Use AsyncMock for async methods
+    mock_service.get_prop_opportunities = AsyncMock(return_value=sample_opportunities)
+    mock_service._initialize_services = AsyncMock(return_value=None)
+    
+    return mock_service
+
+
+@pytest.fixture
+def mock_bookmark_service():
+    """Mock BookmarkService."""
+    from unittest.mock import AsyncMock, MagicMock
+    mock_service = MagicMock()
+    mock_service.get_user_bookmarks = AsyncMock(return_value=[])
+    return mock_service
+
+
+@pytest.fixture
+def clv_test_client(mock_propfinder_service, mock_bookmark_service):
+    """Test client with properly mocked dependencies for CLV tests."""
+    from fastapi.testclient import TestClient
+    from backend.main import app
+    from backend.routes.propfinder_routes import get_simple_propfinder_service, get_bookmark_service
+    
+    # Override dependencies
+    app.dependency_overrides[get_simple_propfinder_service] = lambda: mock_propfinder_service
+    app.dependency_overrides[get_bookmark_service] = lambda: mock_bookmark_service
+    
+    with TestClient(app) as client:
+        yield client
+    
+    # Clean up overrides
+    app.dependency_overrides.clear()

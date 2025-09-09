@@ -272,13 +272,24 @@ const UnifiedPropCard: React.FC<UnifiedPropCardProps> = ({
             />
           )}
 
+          {/* Placeholder for Player Performance Chart - Only show when expanded */}
+          {isExpanded && (
+            <div className="mt-4 p-4 bg-gray-800/50 rounded-lg border border-gray-600">
+              <div className="text-gray-300 text-sm font-medium">
+                📊 Player Performance vs Line Chart
+              </div>
+              <div className="text-gray-500 text-xs mt-1">
+                Chart integration available - see EnhancedPropCard or PlayerChartExample
+              </div>
+            </div>
+          )}
+
           {/* Line Movement Chart - Only show when expanded */}
           {isExpanded && (
             <div className="mt-4">
               <LineMovementChart
                 propId={`${player.name}-${prop.stat}`}
                 sportsbook="DraftKings" // Default sportsbook, should be configurable
-                sport={game.sport || 'MLB'}
                 className="bg-gray-800/50 rounded-lg"
               />
             </div>

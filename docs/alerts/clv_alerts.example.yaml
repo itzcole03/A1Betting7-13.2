@@ -1,0 +1,241 @@
+# CLV Metrics Alert Rules for Prometheus
+# Example configuration for monitoring Customer Lifetime Value (CLV) metrics
+# 
+# Usage:
+# 1. Copy this file to your Prometheus alerts directory
+# 2. Rename to clv_alerts.yaml
+# 3. Configure notification channels for your environment
+# 4. Adjust thresholds based on your business requirements
+
+groups:
+  - name: clv_metrics
+    rules:
+      # CLV Processing Performance Alerts
+      - alert: CLVProcessingHighLatency
+        expr: histogram_quantile(0.95, clv_processing_duration_seconds_bucket) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          service: clv_metrics
+          component: processing
+        annotations:
+          summary: "CLV processing latency is high"
+          description: "95th percentile CLV processing latency is {{ $value }}s, which exceeds the 500ms threshold for the last 5 minutes"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-high-latency"
+
+      - alert: CLVProcessingCriticalLatency
+        expr: histogram_quantile(0.95, clv_processing_duration_seconds_bucket) > 2.0
+        for: 2m
+        labels:
+          severity: critical
+          service: clv_metrics
+          component: processing
+        annotations:
+          summary: "CLV processing latency is critically high"
+          description: "95th percentile CLV processing latency is {{ $value }}s, which exceeds the critical 2s threshold"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-critical-latency"
+
+      # CLV Processing Error Rate Alerts
+      - alert: CLVProcessingErrorRate
+        expr: rate(clv_enrichments_failed_total[5m]) / rate(clv_enrichments_total[5m]) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          service: clv_metrics
+          component: processing
+        annotations:
+          summary: "CLV processing error rate is elevated"
+          description: "CLV processing error rate is {{ $value | humanizePercentage }} over the last 5 minutes, exceeding 5% threshold"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-error-rate"
+
+      - alert: CLVProcessingCriticalErrorRate
+        expr: rate(clv_enrichments_failed_total[5m]) / rate(clv_enrichments_total[5m]) > 0.20
+        for: 1m
+        labels:
+          severity: critical
+          service: clv_metrics
+          component: processing
+        annotations:
+          summary: "CLV processing error rate is critically high"
+          description: "CLV processing error rate is {{ $value | humanizePercentage }} over the last 5 minutes, exceeding 20% critical threshold"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-critical-error-rate"
+
+      # CLV Cache Performance Alerts
+      - alert: CLVCacheHitRateLow
+        expr: rate(clv_cache_hits_total[10m]) / (rate(clv_cache_hits_total[10m]) + rate(clv_cache_misses_total[10m])) < 0.80
+        for: 5m
+        labels:
+          severity: warning
+          service: clv_metrics
+          component: caching
+        annotations:
+          summary: "CLV cache hit rate is low"
+          description: "CLV cache hit rate is {{ $value | humanizePercentage }} over the last 10 minutes, below 80% threshold"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-cache-performance"
+
+      - alert: CLVCacheHitRateCritical
+        expr: rate(clv_cache_hits_total[10m]) / (rate(clv_cache_hits_total[10m]) + rate(clv_cache_misses_total[10m])) < 0.50
+        for: 2m
+        labels:
+          severity: critical
+          service: clv_metrics
+          component: caching
+        annotations:
+          summary: "CLV cache hit rate is critically low"
+          description: "CLV cache hit rate is {{ $value | humanizePercentage }} over the last 10 minutes, below 50% critical threshold"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-cache-critical"
+
+      # CLV Volume and Business Metrics
+      - alert: CLVProcessingVolumeDrop
+        expr: rate(clv_enrichments_total[10m]) < rate(clv_enrichments_total[1h] offset 1h) * 0.5
+        for: 10m
+        labels:
+          severity: warning
+          service: clv_metrics
+          component: business
+        annotations:
+          summary: "CLV processing volume has dropped significantly"
+          description: "CLV processing volume over the last 10 minutes is less than 50% of the volume from 1 hour ago"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-volume-drop"
+
+      - alert: CLVProcessingStalled
+        expr: rate(clv_enrichments_total[5m]) == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: clv_metrics
+          component: business
+        annotations:
+          summary: "CLV processing has stalled"
+          description: "No CLV enrichments have been processed in the last 5 minutes"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-processing-stalled"
+
+      # CLV Batch Processing Alerts
+      - alert: CLVBatchProcessingLatency
+        expr: histogram_quantile(0.95, clv_batch_processing_duration_seconds_bucket) > 5.0
+        for: 3m
+        labels:
+          severity: warning
+          service: clv_metrics
+          component: batch
+        annotations:
+          summary: "CLV batch processing latency is high"
+          description: "95th percentile CLV batch processing latency is {{ $value }}s, exceeding 5s threshold"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-batch-latency"
+
+      - alert: CLVBatchSizeExcessive
+        expr: clv_batch_size > 1000
+        for: 1m
+        labels:
+          severity: warning
+          service: clv_metrics
+          component: batch
+        annotations:
+          summary: "CLV batch size is excessive"
+          description: "CLV batch size is {{ $value }}, exceeding recommended maximum of 1000"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-batch-size"
+
+      # CLV System Health Alerts
+      - alert: CLVMetricsServiceDown
+        expr: up{job="clv_metrics"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: clv_metrics
+          component: service
+        annotations:
+          summary: "CLV metrics service is down"
+          description: "CLV metrics service has been down for more than 1 minute"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-service-down"
+
+      - alert: CLVMetricsMemoryUsage
+        expr: process_resident_memory_bytes{job="clv_metrics"} / 1024 / 1024 > 500
+        for: 5m
+        labels:
+          severity: warning
+          service: clv_metrics
+          component: resource
+        annotations:
+          summary: "CLV metrics service memory usage is high"
+          description: "CLV metrics service is using {{ $value }}MB of memory, exceeding 500MB threshold"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-memory-usage"
+
+  - name: clv_business_metrics
+    rules:
+      # Business-specific CLV alerts for A1Betting
+      - alert: CLVValueDistributionSkewed
+        expr: histogram_quantile(0.95, clv_value_distribution_bucket) / histogram_quantile(0.05, clv_value_distribution_bucket) > 20
+        for: 10m
+        labels:
+          severity: warning
+          service: clv_metrics
+          component: business
+        annotations:
+          summary: "CLV value distribution is highly skewed"
+          description: "The ratio between 95th and 5th percentile CLV values is {{ $value }}, indicating extreme skewness"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-distribution-skew"
+
+      - alert: CLVNegativeValueSpike
+        expr: rate(clv_negative_values_total[5m]) > rate(clv_enrichments_total[5m]) * 0.30
+        for: 5m
+        labels:
+          severity: warning
+          service: clv_metrics
+          component: business
+        annotations:
+          summary: "High rate of negative CLV values detected"
+          description: "{{ $value | humanizePercentage }} of CLV calculations are negative, exceeding 30% threshold"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-negative-values"
+
+      - alert: CLVAccuracyDegradation
+        expr: clv_accuracy_score < 0.85
+        for: 10m
+        labels:
+          severity: warning
+          service: clv_metrics
+          component: quality
+        annotations:
+          summary: "CLV prediction accuracy has degraded"
+          description: "CLV prediction accuracy is {{ $value }}, below the 85% quality threshold"
+          runbook_url: "https://docs.a1betting.com/runbooks/clv-accuracy-degradation"
+
+# Configuration for notification channels
+# Replace with your actual webhook URLs and channels
+
+notification_config:
+  # Slack notifications
+  slack_warnings:
+    webhook_url: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+    channel: "#clv-alerts"
+    title: "CLV Metrics Warning"
+    title_link: "https://grafana.a1betting.com/d/clv-dashboard"
+
+  slack_critical:
+    webhook_url: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+    channel: "#clv-critical"
+    title: "CLV Metrics Critical Alert"
+    title_link: "https://grafana.a1betting.com/d/clv-dashboard"
+
+  # PagerDuty for critical alerts
+  pagerduty:
+    integration_key: "YOUR_PAGERDUTY_INTEGRATION_KEY"
+    severity: "critical"
+
+  # Email notifications
+  email:
+    to: ["devops@a1betting.com", "analytics@a1betting.com"]
+    from: "alerts@a1betting.com"
+    subject: "CLV Metrics Alert: {{ .GroupLabels.alertname }}"
+
+# Grafana dashboard links for context
+dashboards:
+  clv_overview: "https://grafana.a1betting.com/d/clv-overview"
+  clv_performance: "https://grafana.a1betting.com/d/clv-performance" 
+  clv_business_metrics: "https://grafana.a1betting.com/d/clv-business"
+
+# Runbook URLs (replace with your actual documentation)
+runbooks:
+  base_url: "https://docs.a1betting.com/runbooks"
+  clv_troubleshooting: "https://docs.a1betting.com/runbooks/clv-troubleshooting"
+  clv_scaling: "https://docs.a1betting.com/runbooks/clv-scaling"
+  clv_maintenance: "https://docs.a1betting.com/runbooks/clv-maintenance"

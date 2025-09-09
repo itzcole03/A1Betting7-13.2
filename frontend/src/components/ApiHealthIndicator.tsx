@@ -1,15 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
 
 const ApiHealthIndicator = () => {
   const [status, setStatus] = useState<'checking' | 'ok' | 'down'>('checking');
 
   useEffect(() => {
-    axios
-      .get('/api/v2/health')
-      .then(() => setStatus('ok'))
-      .catch(() => setStatus('down'));
+    let active = true;
+    const MIN_DISPLAY_MS = 75; // guarantee users/tests see the Checking state briefly
+    const start = Date.now();
+
+    const applyWithMinDelay = (next: 'ok' | 'down') => {
+      const elapsed = Date.now() - start;
+      const remaining = MIN_DISPLAY_MS - elapsed;
+      if (remaining > 0) {
+        setTimeout(() => {
+          if (active) setStatus(next);
+        }, remaining);
+      } else {
+        if (active) setStatus(next);
+      }
+    };
+
+    // Slight async deferral so first paint is definitely 'Checking...'
+    const initialTimer = setTimeout(() => {
+      axios
+        .get('/api/v2/health')
+        .then(() => applyWithMinDelay('ok'))
+        .catch(() => applyWithMinDelay('down'));
+    }, 50); // small delay ensures deterministic initial state
+
+    return () => {
+      active = false;
+      clearTimeout(initialTimer);
+    };
   }, []);
 
   let color = 'gray';

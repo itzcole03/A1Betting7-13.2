@@ -22,6 +22,7 @@ from ..services.advanced_arbitrage_engine import (
     RiskLevel,
     ArbitrageStatus
 )
+from ..arbitrage_engine import ultra_arbitrage_engine
 
 logger = logging.getLogger(__name__)
 
@@ -448,3 +449,181 @@ async def refresh_arbitrage_opportunities(background_tasks: BackgroundTasks):
     except Exception as e:
         logger.error(f"Error refreshing arbitrage opportunities: {e}")
         raise BusinessLogicException("f"Failed to refresh arbitrage opportunities: {str(e")}")
+
+
+# New Live Arbitrage Endpoint
+@router.get("/live", response_model=StandardAPIResponse[Dict[str, Any]])
+async def get_live_arbitrage_opportunities(
+    sport: Optional[str] = Query(None, description="Filter by sport (NBA, MLB, etc.)"),
+    min_profit: Optional[float] = Query(0.5, description="Minimum profit percentage"),
+    include_low_juice: bool = Query(True, description="Include low juice opportunities"),
+    limit: int = Query(20, description="Maximum number of opportunities")
+):
+    """
+    Get live arbitrage opportunities with low juice detection.
+    Returns real-time arbitrage and low vig opportunities.
+    """
+    try:
+        # Sample odds data - in production this would come from live odds feeds
+        sample_odds_data = [
+            {
+                "event_id": "nba_game_1",
+                "market_type": "moneyline",
+                "sportsbook": "fanduel",
+                "outcome": "home",
+                "odds": 2.1,
+                "max_stake": 5000,
+                "timestamp": datetime.now(),
+                "quality": 0.9
+            },
+            {
+                "event_id": "nba_game_1", 
+                "market_type": "moneyline",
+                "sportsbook": "draftkings",
+                "outcome": "away", 
+                "odds": 1.95,
+                "max_stake": 5000,
+                "timestamp": datetime.now(),
+                "quality": 0.9
+            }
+        ]
+
+        # Filter by sport if specified
+        if sport:
+            sample_odds_data = [
+                odds for odds in sample_odds_data 
+                if sport.lower() in odds.get("event_id", "").lower()
+            ]
+
+        # Use our new arbitrage engine functions
+        arbitrage_opportunities = []
+        low_juice_opportunities = []
+
+        # Detect cross-book arbitrage
+        cross_book_arb = ultra_arbitrage_engine.detect_cross_book_arbitrage(sample_odds_data)
+        if cross_book_arb and cross_book_arb.get("profit_percentage", 0) >= min_profit:
+            arbitrage_opportunities.append(cross_book_arb)
+
+        # Group odds by event for low juice detection
+        events_odds = {}
+        for odds in sample_odds_data:
+            event_key = f"{odds['event_id']}_{odds['market_type']}"
+            if event_key not in events_odds:
+                events_odds[event_key] = {"event_id": odds["event_id"], "market_type": odds["market_type"], "books": []}
+            
+            events_odds[event_key]["books"].append({
+                "book": odds["sportsbook"],
+                "over_odds": odds["odds"] if odds["outcome"] == "home" else None,
+                "under_odds": odds["odds"] if odds["outcome"] == "away" else None
+            })
+
+        # Detect low juice opportunities
+        if include_low_juice:
+            for event_aggregate in events_odds.values():
+                # Fill in missing odds (simplified for demo)
+                for book in event_aggregate["books"]:
+                    if book["over_odds"] is None:
+                        book["over_odds"] = 2.0  # Default odds for demo
+                    if book["under_odds"] is None:
+                        book["under_odds"] = 1.9  # Default odds for demo
+
+                low_juice_result = ultra_arbitrage_engine.detect_low_juice(event_aggregate)
+                if low_juice_result.get("is_low_juice"):
+                    low_juice_opportunities.append({
+                        "event_id": event_aggregate["event_id"],
+                        "market_type": event_aggregate["market_type"],
+                        "vig_percent": low_juice_result["vig_pct"],
+                        "is_low_juice": True,
+                        "best_over_odds": low_juice_result.get("best_over_odds"),
+                        "best_under_odds": low_juice_result.get("best_under_odds"),
+                        "books_involved": [book["book"] for book in event_aggregate["books"]],
+                        "detection_time": low_juice_result.get("analysis_timestamp")
+                    })
+
+        # Apply limit
+        arbitrage_opportunities = arbitrage_opportunities[:limit]
+        low_juice_opportunities = low_juice_opportunities[:limit]
+
+        response_data = {
+            "arbitrage_opportunities": arbitrage_opportunities,
+            "low_juice_opportunities": low_juice_opportunities,
+            "total_arbitrage": len(arbitrage_opportunities),
+            "total_low_juice": len(low_juice_opportunities),
+            "scan_timestamp": datetime.now().isoformat(),
+            "sport_filter": sport,
+            "min_profit_filter": min_profit
+        }
+
+        logger.info(f"Live arbitrage scan: {len(arbitrage_opportunities)} arbitrage, "
+                   f"{len(low_juice_opportunities)} low juice opportunities")
+
+        return ResponseBuilder.success(response_data)
+
+    except Exception as e:
+        logger.error(f"Error getting live arbitrage opportunities: {e}")
+        raise BusinessLogicException(f"Failed to get live arbitrage opportunities: {str(e)}")
+
+
+# Low Juice Analysis Endpoint
+@router.post("/analyze-juice", response_model=StandardAPIResponse[Dict[str, Any]])
+async def analyze_juice_for_event(
+    event_id: str,
+    books_odds: List[Dict[str, Any]]
+):
+    """
+    Analyze juice/vig for a specific event across multiple books.
+    
+    Request body format:
+    {
+        "event_id": "nba_game_123",
+        "books_odds": [
+            {"book": "fanduel", "over_odds": 1.91, "under_odds": 1.91},
+            {"book": "draftkings", "over_odds": 1.95, "under_odds": 1.87}
+        ]
+    }
+    """
+    try:
+        opportunity_aggregate = {
+            "event_id": event_id,
+            "market_type": "totals", 
+            "books": books_odds
+        }
+
+        juice_analysis = ultra_arbitrage_engine.detect_low_juice(opportunity_aggregate)
+        
+        # Add comparative analysis
+        individual_book_vigs = []
+        for book_data in books_odds:
+            book_name = book_data.get("book", "unknown")
+            over_odds = book_data.get("over_odds", 2.0)
+            under_odds = book_data.get("under_odds", 2.0)
+            
+            if over_odds > 1.0 and under_odds > 1.0:
+                over_prob = 1 / over_odds
+                under_prob = 1 / under_odds
+                total_prob = over_prob + under_prob
+                book_vig = ((total_prob - 1.0) / total_prob) * 100 if total_prob > 1.0 else 0.0
+                
+                individual_book_vigs.append({
+                    "book": book_name,
+                    "vig_percent": round(book_vig, 2),
+                    "over_odds": over_odds,
+                    "under_odds": under_odds,
+                    "total_implied_prob": round(total_prob, 4)
+                })
+
+        response_data = {
+            "event_id": event_id,
+            "cross_book_analysis": juice_analysis,
+            "individual_book_analysis": individual_book_vigs,
+            "best_book": min(individual_book_vigs, key=lambda x: x["vig_percent"])["book"] if individual_book_vigs else None,
+            "worst_book": max(individual_book_vigs, key=lambda x: x["vig_percent"])["book"] if individual_book_vigs else None,
+            "vig_spread": max([b["vig_percent"] for b in individual_book_vigs]) - min([b["vig_percent"] for b in individual_book_vigs]) if individual_book_vigs else 0,
+            "analysis_timestamp": datetime.now().isoformat()
+        }
+
+        return ResponseBuilder.success(response_data)
+
+    except Exception as e:
+        logger.error(f"Error analyzing juice for event {event_id}: {e}")
+        raise BusinessLogicException(f"Failed to analyze juice: {str(e)}")

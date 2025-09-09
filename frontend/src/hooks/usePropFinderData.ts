@@ -25,6 +25,8 @@ type UsePropfinderOptions = {
   limit?: number;
   // Optional user id for syncing bookmarks (back-compat)
   userId?: string;
+  // NEW: CLV integration option
+  includeCLV?: boolean;
 };
 
 type PropfinderResult = {
@@ -201,6 +203,26 @@ export type PropOpportunity = {
   numBookmakers?: number;
   hasArbitrage?: boolean;
   arbitrageProfitPct?: number;
+  // NEW: EV fields for Phase 4.2 frontend integration
+  evValue?: number;
+  evPercent?: number;
+  evTier?: string; // EV tier classification: 'high', 'moderate', 'low', 'negative'
+  isOutlier?: boolean;
+  // NEW: Optional backend EV detail fields (non-breaking)
+  // These come from backend response enrichment when available
+  // Naming supports both snake_case and camelCase from API payloads
+  fairAmericanOdds?: number;
+  impliedProbMarket?: number;
+  impliedProbFair?: number;
+  edgePct?: number;
+  expectedValuePer100?: number;
+  // NEW: CLV fields for Step 4 frontend integration
+  clvPercent?: number;
+  closingLine?: number;
+  closingOdds?: number;
+  // NEW: Low juice fields for arbitrage expansion
+  vigPercent?: number;
+  isLowJuice?: boolean;
 };
 
 type PropFinderStats = {
@@ -257,11 +279,47 @@ export const usePropFinderData = (options?: UsePropfinderOptions) => {
       const rawOpp = json?.data?.opportunities || json?.opportunities || [];
       const opportunitiesData: unknown[] = Array.isArray(rawOpp) ? rawOpp : [];
 
+      // Fetch CLV data if requested
+      const clvMap = new Map<string, { clvPercent?: number; closingLine?: number; closingOdds?: number }>();
+      if (options?.includeCLV) {
+        try {
+          const clvRes = await fetch('/api/clv/leaderboard?limit=200');
+          if (clvRes.ok) {
+            const clvJson = await clvRes.json();
+            const clvData = clvJson?.data || clvJson?.items || [];
+            if (Array.isArray(clvData)) {
+              clvData.forEach((r: unknown) => {
+                const clvRecord = asRecord(r);
+                const propId = clvRecord.prop_id || clvRecord.propId;
+                if (propId) {
+                  clvMap.set(String(propId), {
+                    clvPercent: typeof (clvRecord.clv_percent || clvRecord.clvPercent || clvRecord.current_clv) === 'number' 
+                      ? Number(clvRecord.clv_percent || clvRecord.clvPercent || clvRecord.current_clv) : undefined,
+                    closingLine: typeof (clvRecord.closing_line || clvRecord.closingLine) === 'number' 
+                      ? Number(clvRecord.closing_line || clvRecord.closingLine) : undefined,
+                    closingOdds: typeof (clvRecord.closing_odds || clvRecord.closingOdds) === 'number' 
+                      ? Number(clvRecord.closing_odds || clvRecord.closingOdds) : undefined
+                  });
+                }
+              });
+            }
+          }
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.warn('[CLV] leaderboard fetch failed', e);
+        }
+      }
+
       // Transform to PropOpportunity format using real data
       const transformedOpportunities: PropOpportunity[] = opportunitiesData.map((op: unknown) => {
         const rec = asRecord(op);
+        const opportunityId = String(rec.id || `opp-${Math.random()}`);
+        
+        // Merge CLV data if available
+        const clvData = clvMap.get(opportunityId);
+        
         return {
-          id: String(rec.id || `opp-${Math.random()}`),
+          id: opportunityId,
           player: String(rec.player || 'Unknown Player'),
           playerImage: rec.playerImage ? String(rec.playerImage) : undefined,
           team: String(rec.team || 'Unknown Team'),
@@ -296,6 +354,7 @@ export const usePropFinderData = (options?: UsePropfinderOptions) => {
               line: Number(bookRec.line) || 0,
             };
           }) : [],
+          // Initialize bookmark status from backend data or default to false
           isBookmarked: Boolean(rec.isBookmarked || false),
           tags: Array.isArray(rec.tags) ? rec.tags.map(String) : [],
           socialSentiment: Number(rec.socialSentiment) || 50,
@@ -310,8 +369,60 @@ export const usePropFinderData = (options?: UsePropfinderOptions) => {
           numBookmakers: Number(rec.numBookmakers) || 0,
           hasArbitrage: Boolean(rec.hasArbitrage || false),
           arbitrageProfitPct: Number(rec.arbitrageProfitPct) || 0,
+          // NEW: EV fields for Phase 4.2 frontend integration
+          evValue: rec.evValue !== undefined && rec.evValue !== null ? Number(rec.evValue) : undefined,
+          evPercent: rec.evPercent !== undefined && rec.evPercent !== null ? Number(rec.evPercent) : undefined,
+          isOutlier: rec.isOutlier !== undefined && rec.isOutlier !== null ? Boolean(rec.isOutlier) : undefined,
+          // Optional backend EV details (mapped if present)
+          fairAmericanOdds:
+            rec.fairAmericanOdds !== undefined && rec.fairAmericanOdds !== null
+              ? Number(rec.fairAmericanOdds)
+              : (rec.fair_american_odds !== undefined && rec.fair_american_odds !== null
+                  ? Number(rec.fair_american_odds)
+                  : undefined),
+          impliedProbMarket:
+            rec.impliedProbMarket !== undefined && rec.impliedProbMarket !== null
+              ? Number(rec.impliedProbMarket)
+              : (rec.implied_prob_market !== undefined && rec.implied_prob_market !== null
+                  ? Number(rec.implied_prob_market)
+                  : undefined),
+          impliedProbFair:
+            rec.impliedProbFair !== undefined && rec.impliedProbFair !== null
+              ? Number(rec.impliedProbFair)
+              : (rec.implied_prob_fair !== undefined && rec.implied_prob_fair !== null
+                  ? Number(rec.implied_prob_fair)
+                  : undefined),
+          edgePct:
+            rec.edgePct !== undefined && rec.edgePct !== null
+              ? Number(rec.edgePct)
+              : (rec.edge_pct !== undefined && rec.edge_pct !== null
+                  ? Number(rec.edge_pct)
+                  : undefined),
+          expectedValuePer100:
+            rec.expectedValuePer100 !== undefined && rec.expectedValuePer100 !== null
+              ? Number(rec.expectedValuePer100)
+              : (rec.expected_value_per_100 !== undefined && rec.expected_value_per_100 !== null
+                  ? Number(rec.expected_value_per_100)
+                  : undefined),
+          // NEW: CLV fields for Step 4 frontend integration
+          clvPercent: clvData?.clvPercent !== undefined ? Number(clvData.clvPercent) : (rec.clvPercent !== undefined ? Number(rec.clvPercent) : undefined),
+          closingLine: clvData?.closingLine !== undefined ? Number(clvData.closingLine) : (rec.closingLine !== undefined ? Number(rec.closingLine) : undefined),
+          closingOdds: clvData?.closingOdds !== undefined ? Number(clvData.closingOdds) : (rec.closingOdds !== undefined ? Number(rec.closingOdds) : undefined),
         };
       });
+
+      // Update bookmark status asynchronously for better performance
+      setTimeout(async () => {
+        try {
+          const { bookmarkService } = await import('../services/BookmarkService');
+          setOpportunities(prev => prev.map(opp => ({
+            ...opp,
+            isBookmarked: bookmarkService.isBookmarked(opp.id)
+          })));
+        } catch {
+          // Failed to load bookmark service, keep existing state
+        }
+      }, 0);
 
       setOpportunities(transformedOpportunities);
 
@@ -335,7 +446,7 @@ export const usePropFinderData = (options?: UsePropfinderOptions) => {
     } finally {
       setRefreshing(false);
     }
-  }, []);
+  }, [options?.includeCLV]);
 
   // Fetch data on mount and when dependencies change
   useEffect(() => {
@@ -364,8 +475,36 @@ export const usePropFinderData = (options?: UsePropfinderOptions) => {
     refreshData: fetchRealOpportunities,
     updateFilters: (newFilters: Record<string, unknown>) => setFilters(newFilters),
     setSearchQuery,
-    bookmarkOpportunity: async (_opportunityId?: string, _opportunity?: PropOpportunity, _bookmarked?: boolean) => {
-      // TODO: Implement real bookmark functionality
+    bookmarkOpportunity: async (opportunityId?: string, opportunity?: PropOpportunity, bookmarked?: boolean) => {
+      if (!opportunityId) return;
+      
+      try {
+        // Import BookmarkService when needed to avoid unused import errors
+        const { bookmarkService } = await import('../services/BookmarkService');
+        
+        if (bookmarked) {
+          // Add bookmark
+          bookmarkService.addBookmark(opportunityId, {
+            player: opportunity?.player,
+            market: opportunity?.market,
+            sport: opportunity?.sport,
+            evPercent: opportunity?.evPercent,
+          });
+        } else {
+          // Remove bookmark
+          bookmarkService.removeBookmark(opportunityId);
+        }
+        
+        // Update local state to reflect bookmark status
+        setOpportunities(prev => prev.map(opp => 
+          opp.id === opportunityId 
+            ? { ...opp, isBookmarked: bookmarked }
+            : opp
+        ));
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to update bookmark:', error);
+      }
     },
     getOpportunityById: async (id: string) => {
       return opportunities.find(opp => opp.id === id) || null;

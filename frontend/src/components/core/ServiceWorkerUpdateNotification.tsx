@@ -17,8 +17,8 @@ interface ServiceWorkerUpdateProps {
 
 // Action for applying service worker updates
 async function applyUpdateAction(
-  previousState: { updating: boolean; error: string | null },
-  formData: FormData
+  _previousState: { updating: boolean; error: string | null },
+  _formData: FormData
 ) {
   try {
     const { serviceWorkerManager } = await import('../../services/serviceWorkerManager');
@@ -48,7 +48,7 @@ export const ServiceWorkerUpdateNotification: React.FC<ServiceWorkerUpdateProps>
   }>({ updating: false, error: null });
 
   // React 19: useActionState for form actions
-  const [actionState, submitAction, isPending] = useActionState(applyUpdateAction, {
+  const [_actionState, submitAction, isPending] = useActionState(applyUpdateAction, {
     updating: false,
     error: null,
   });
@@ -158,12 +158,10 @@ export const ServiceWorkerUpdateNotification: React.FC<ServiceWorkerUpdateProps>
                       A new version with improvements is ready.
                     </p>
                     <div className='mt-3 flex space-x-2'>
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                      <button
                         onClick={handleUpdate}
                         disabled={isPending || optimisticState.updating}
-                        className='px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                        className='px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-md text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transform transition duration-150 hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-white/40'
                       >
                         {isPending || optimisticState.updating ? (
                           <span className='flex items-center space-x-1'>
@@ -185,14 +183,12 @@ export const ServiceWorkerUpdateNotification: React.FC<ServiceWorkerUpdateProps>
                         ) : (
                           'Update Now'
                         )}
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className='px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-md text-xs font-medium transition-colors'
+                      </button>
+                      <button
+                        className='px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-md text-xs font-medium transform transition duration-150 hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-white/30'
                       >
                         Later
-                      </motion.button>
+                      </button>
                     </div>
                   </div>
                 </motion.div>

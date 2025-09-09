@@ -200,6 +200,7 @@ class FeatureFlagsConfig:
     enable_arbitrage: bool = True
     enable_kelly_criterion: bool = True
     enable_news_analysis: bool = True
+    enable_smart_signals: bool = False
 
     @classmethod
     def from_env(cls) -> "FeatureFlagsConfig":
@@ -212,6 +213,8 @@ class FeatureFlagsConfig:
             enable_kelly_criterion=os.getenv("ENABLE_KELLY_CRITERION", "true").lower()
             == "true",
             enable_news_analysis=os.getenv("ENABLE_NEWS_ANALYSIS", "true").lower()
+            == "true",
+            enable_smart_signals=os.getenv("ENABLE_SMART_SIGNALS", "false").lower()
             == "true",
         )
 

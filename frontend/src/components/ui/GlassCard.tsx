@@ -24,7 +24,7 @@ export const _GlassCard: React.FC<GlassCardProps> = ({
   animate = true,
   hover = true,
 }) => {
-  const _blurClasses = {
+  const blurClasses = {
     none: '',
     sm: 'backdrop-blur-sm',
     md: 'backdrop-blur-md',
@@ -32,7 +32,7 @@ export const _GlassCard: React.FC<GlassCardProps> = ({
     xl: 'backdrop-blur-xl',
   };
 
-  const _variantConfig = {
+  const variantConfig = {
     default: {
       background: `rgba(255, 255, 255, ${opacity})`,
       border: 'border-white/20',
@@ -65,9 +65,9 @@ export const _GlassCard: React.FC<GlassCardProps> = ({
     },
   };
 
-  const _config = variantConfig[variant];
+  const config = variantConfig[variant];
 
-  const _cardVariants = {
+  const cardVariants = {
     hidden: {
       opacity: 0,
       y: 20,
@@ -97,16 +97,16 @@ export const _GlassCard: React.FC<GlassCardProps> = ({
       : {},
   };
 
-  const _baseClasses = `
+  const baseClasses = `
     relative rounded-xl p-6 overflow-hidden
     ${config.backdrop}
     ${border ? config.border + ' border' : ''}
     ${shadow ? config.shadow : ''}
-    transition-all duration-300
+    transition-all duration-300 ${hover ? 'transition-transform hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03]' : ''}
     ${className}
   `;
 
-  const _backgroundStyle =
+  const backgroundStyle =
     variant === 'crystal' || variant === 'hologram'
       ? { backgroundImage: config.background }
       : { backgroundColor: config.background };
@@ -120,10 +120,10 @@ export const _GlassCard: React.FC<GlassCardProps> = ({
         transform: 'translateZ(0)', // Force hardware acceleration
       }}
       // @ts-expect-error TS(2322): Type '{ hidden: { opacity: number; y: number; scal... Remove this comment to see the full error message
-      variants={cardVariants}
+  variants={cardVariants}
       initial={animate ? 'hidden' : 'visible'}
       animate='visible'
-      whileHover={hover ? 'hover' : undefined}
+      // hover variant replaced by Tailwind scale classes
     >
       {/* Noise texture overlay */}
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

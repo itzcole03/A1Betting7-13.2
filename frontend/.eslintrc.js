@@ -2,7 +2,7 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'a1betting'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
@@ -30,7 +30,8 @@ module.exports = {
       schemaImportPatterns: ['../events/schema', '@/events/schema', './events/schema'],
       eventEmissionMethods: ['emit', 'publish', 'trigger', 'dispatch'],
       requiredVersionField: 'version'
-    }]
+    }],
+    'no-trivial-whilehover-scale': 'warn'
   },
   overrides: [
     {

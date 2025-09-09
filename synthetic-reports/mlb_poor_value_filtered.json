@@ -1,0 +1,12 @@
+{
+  "counts": {
+    "filtered": 0,
+    "total": 1
+  },
+  "note": "poor-value correctly filtered",
+  "request": {
+    "limit": 10,
+    "min_score": 70,
+    "sport": "MLB"
+  }
+}

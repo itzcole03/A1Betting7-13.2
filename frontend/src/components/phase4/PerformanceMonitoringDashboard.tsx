@@ -360,14 +360,12 @@ const PerformanceMonitoringDashboard: React.FC = () => {
           ) : (
             <Wifi className='w-4 h-4 text-green-400' />
           )}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={fetchData}
-            className='px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors'
+            className='px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transform transition duration-150 hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900'
           >
             Refresh
-          </motion.button>
+          </button>
         </div>
       </div>
 

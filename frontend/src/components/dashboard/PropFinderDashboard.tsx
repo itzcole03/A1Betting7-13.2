@@ -1,8 +1,17 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { enhancedLogger } from '../../utils/enhancedLogger';
-import { Search, Filter, Heart, Star, DollarSign, Target, Zap, TrendingUp, AlertTriangle, Users } from 'lucide-react';
+import { Search, Filter, Heart, Star, DollarSign, Target, Zap, TrendingUp, AlertTriangle, Users, ArrowUpDown, ArrowUp, ArrowDown, Bell } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { usePropFinderData, PropOpportunity } from '../../hooks/usePropFinderData';
+import { formatEvPercent, getEvBadgeColorClass, shouldShowEvBadge, isValuePlay } from '../../utils/evFormatting';
+import { formatClvPercent, clvColor, clvTooltip, sortByClv, hasClvData } from '../../utils/clvFormatting';
+import { bookmarkService } from '../../services/BookmarkService';
+import { evTelemetry } from '../../utils/evTelemetry';
+import LiveArbitragePanel from '../arbitrage/LiveArbitragePanel';
+import LineMovementModal from '../modals/LineMovementModal';
+import EvPill from '../propfinder/EvPill';
+import ArbitrageBadge from '../propfinder/ArbitrageBadge';
+import MiniLineSparkline from '../propfinder/MiniLineSparkline';
 
 // Debounce hook for search optimization
 function useDebounce<T>(value: T, delay: number): T {
@@ -56,13 +65,67 @@ const PropFinderDashboard: React.FC = () => {
   const [selectedSports, setSelectedSports] = useState<string[]>(['NBA', 'MLB']);
   const [confidenceRange, setConfidenceRange] = useState([60, 100]);
   const [edgeRange, setEdgeRange] = useState([0, 20]);
+  const [evRange, setEvRange] = useState([-5, 15]); // EV percentage range filter
+  const [selectedEvTiers, setSelectedEvTiers] = useState<string[]>(['high', 'moderate', 'low', 'negative']);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState('');
+  const [volatilityMin, setVolatilityMin] = useState<number>(0); // simple volatility threshold
 
   // Phase 1.2 specific filters
   const [showArbitrageOnly, setShowArbitrageOnly] = useState(false);
+  const [showLowJuiceOnly, setShowLowJuiceOnly] = useState(false);
   const [minBookmakers, setMinBookmakers] = useState(1);
   const [selectedSharpMoney, setSelectedSharpMoney] = useState<string[]>([]);
+
+  // NEW: EV-specific state for Phase 4.2
+  const [sortBy, setSortBy] = useState<'default' | 'ev' | 'confidence' | 'arbitrage' | 'clv'>('default');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [minEvPercent, setMinEvPercent] = useState(0);
+  const [customEvThreshold, setCustomEvThreshold] = useState(5.0);
+  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
+
+  // NEW: CLV-specific state for Step 4
+  const [showCLV, setShowCLV] = useState(false);
+  // removed unused leaderboard and legacy modal states to reduce clutter
+  const [showLineMovementModal, setShowLineMovementModal] = useState(false);
+  const [selectedOpportunity, setSelectedOpportunity] = useState<PropOpportunity | null>(null);
+  const [showArbitrage, setShowArbitrage] = useState(false);
+
+  // Store EV threshold in localStorage
+  React.useEffect(() => {
+    const stored = localStorage.getItem('propfinder.evThreshold');
+    if (stored) {
+      setCustomEvThreshold(Number(stored));
+    }
+  }, []);
+
+  React.useEffect(() => {
+    localStorage.setItem('propfinder.evThreshold', customEvThreshold.toString());
+  }, [customEvThreshold]);
+
+  // Store minEV filter in localStorage
+  React.useEffect(() => {
+    const stored = localStorage.getItem('propfinder.minEvPercent');
+    if (stored) {
+      setMinEvPercent(Number(stored));
+    }
+  }, []);
+
+  React.useEffect(() => {
+    localStorage.setItem('propfinder.minEvPercent', minEvPercent.toString());
+  }, [minEvPercent]);
+
+  // Store CLV settings in localStorage
+  React.useEffect(() => {
+    const stored = localStorage.getItem('propfinder.showCLV');
+    if (stored) {
+      setShowCLV(stored === 'true');
+    }
+  }, []);
+
+  React.useEffect(() => {
+    localStorage.setItem('propfinder.showCLV', showCLV.toString());
+  }, [showCLV]);
 
   // Real data integration using our enhanced hook
   const {
@@ -77,6 +140,7 @@ const PropFinderDashboard: React.FC = () => {
   } = usePropFinderData({
     autoRefresh: true,
     refreshInterval: 30,
+    includeCLV: showCLV, // Enable CLV data fetching when column is visible
     initialFilters: {
       sports: selectedSports,
       confidence_min: confidenceRange[0],
@@ -124,24 +188,64 @@ const PropFinderDashboard: React.FC = () => {
 
   // Filter opportunities based on current filters
   const filteredOpportunities = useMemo(() => {
-    return opportunities.filter(opp => {
+    let filtered = opportunities.filter(opp => {
       const matchesSearch = !debouncedSearchQuery || 
         opp.player.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        opp.market.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        opp.team.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+        (opp.market || '').toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        (opp.team || '').toLowerCase().includes(debouncedSearchQuery.toLowerCase());
       
-      const matchesSports = selectedSports.length === 0 || selectedSports.includes(opp.sport);
-      const matchesConfidence = opp.confidence >= confidenceRange[0] && opp.confidence <= confidenceRange[1];
-      const matchesEdge = opp.edge >= edgeRange[0] && opp.edge <= edgeRange[1];
-      const matchesArbitrage = !showArbitrageOnly || opp.hasArbitrage;
+      const matchesSports = selectedSports.length === 0 || selectedSports.includes(opp.sport || '');
+      const matchesConfidence = (opp.confidence || 0) >= confidenceRange[0] && (opp.confidence || 0) <= confidenceRange[1];
+      const matchesEdge = (opp.edge || 0) >= edgeRange[0] && (opp.edge || 0) <= edgeRange[1];
+      const matchesEvRange = (opp.evPercent || 0) >= evRange[0] && (opp.evPercent || 0) <= evRange[1];
+      const matchesEvTier = selectedEvTiers.length === 0 || selectedEvTiers.includes(opp.evTier || 'negative');
+  const matchesArbitrage = (!showArbitrageOnly || opp.hasArbitrage);
+      const matchesLowJuice = !showLowJuiceOnly || opp.isLowJuice;
       const matchesBookmakers = !opp.numBookmakers || opp.numBookmakers >= minBookmakers;
-      const matchesSharpMoney = selectedSharpMoney.length === 0 || selectedSharpMoney.includes(opp.sharpMoney);
+      const matchesSharpMoney = selectedSharpMoney.length === 0 || selectedSharpMoney.includes(opp.sharpMoney || '');
+      const volatility = Array.isArray(opp.recentForm) && opp.recentForm.length > 1
+        ? Math.max(...opp.recentForm) - Math.min(...opp.recentForm)
+        : 0;
+      const matchesVolatility = volatility >= volatilityMin;
+      
+      // NEW: EV filtering
+      const matchesEvPercent = (opp.evPercent || 0) >= minEvPercent;
+      const matchesBookmarked = !showBookmarkedOnly || opp.isBookmarked;
       
       return matchesSearch && matchesSports && matchesConfidence && matchesEdge && 
-             matchesArbitrage && matchesBookmakers && matchesSharpMoney;
+             matchesEvRange && matchesEvTier && matchesArbitrage && matchesLowJuice && 
+             matchesBookmakers && matchesSharpMoney && matchesEvPercent && matchesBookmarked && matchesVolatility;
     });
-  }, [opportunities, debouncedSearchQuery, selectedSports, confidenceRange, edgeRange, 
-      showArbitrageOnly, minBookmakers, selectedSharpMoney]);
+
+    // NEW: Sorting logic
+    if (sortBy !== 'default') {
+      evTelemetry.logEvent('ev_sort_applied', { sortBy: sortBy as 'ev' | 'confidence' | 'profit' });
+      
+      filtered = filtered.sort((a, b) => {
+        let comparison = 0;
+        
+        switch (sortBy) {
+          case 'ev':
+            comparison = (a.evPercent || 0) - (b.evPercent || 0);
+            break;
+          case 'confidence':
+            comparison = (a.confidence || 0) - (b.confidence || 0);
+            break;
+          case 'arbitrage':
+            comparison = (a.arbitrageProfitPct || 0) - (b.arbitrageProfitPct || 0);
+            break;
+          default:
+            comparison = 0;
+        }
+        
+        return sortOrder === 'desc' ? -comparison : comparison;
+      });
+    }
+
+    return filtered;
+  }, [opportunities, debouncedSearchQuery, selectedSports, confidenceRange, edgeRange, evRange, selectedEvTiers,
+    showArbitrageOnly, showLowJuiceOnly, minBookmakers, selectedSharpMoney, minEvPercent, 
+    showBookmarkedOnly, sortBy, sortOrder, volatilityMin]);
 
   // Virtualization setup
   const parentRef = useRef<HTMLDivElement>(null);
@@ -170,6 +274,13 @@ const PropFinderDashboard: React.FC = () => {
     try {
       const opportunity = opportunities.find(o => o.id === opportunityId);
       if (!opportunity) return;
+      
+      // Log telemetry for bookmark action
+      evTelemetry.logEvent('ev_bookmark_toggled', { 
+        opportunityId, 
+        evPercent: opportunity.evPercent || undefined
+      });
+      
       await bookmarkOpportunity(opportunityId, opportunity, !isBookmarked);
     } catch (error) {
       // Log error for debugging in development
@@ -225,11 +336,11 @@ const PropFinderDashboard: React.FC = () => {
                   <div className="text-xs text-gray-400">Total Opps</div>
                 </div>
                 <div className="bg-gray-800 p-3 rounded-lg">
-                  <div className="text-2xl font-bold text-green-400">{stats.avg_confidence.toFixed(1)}%</div>
+                  <div className="text-2xl font-bold text-green-400">{(stats?.avg_confidence || 0).toFixed(1)}%</div>
                   <div className="text-xs text-gray-400">Avg Confidence</div>
                 </div>
                 <div className="bg-gray-800 p-3 rounded-lg">
-                  <div className="text-2xl font-bold text-yellow-400">{stats.max_edge.toFixed(1)}%</div>
+                  <div className="text-2xl font-bold text-yellow-400">{(stats?.max_edge || 0).toFixed(1)}%</div>
                   <div className="text-xs text-gray-400">Max Edge</div>
                 </div>
               </div>
@@ -268,6 +379,89 @@ const PropFinderDashboard: React.FC = () => {
               }`}
             >
               🔄 Auto Refresh
+            </button>
+          </div>
+
+          {/* NEW: Sorting Controls */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-sm text-gray-400">Sort by:</span>
+            <div className="flex gap-1">
+              {[
+                { key: 'default', label: 'Default', icon: Target },
+                { key: 'ev', label: 'EV %', icon: DollarSign },
+                { key: 'confidence', label: 'Confidence', icon: Star },
+                { key: 'arbitrage', label: 'Arbitrage', icon: TrendingUp },
+              ].map(({ key, label, icon: Icon }) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    if (sortBy === key) {
+                      setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+                    } else {
+                      setSortBy(key as typeof sortBy);
+                      setSortOrder(key === 'default' ? 'desc' : 'desc');
+                    }
+                  }}
+                  className={`flex items-center gap-1 px-3 py-1 rounded transition-colors text-sm ${
+                    sortBy === key
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                  }`}
+                >
+                  <Icon className="w-3 h-3" />
+                  {label}
+                  {sortBy === key && (
+                    sortOrder === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />
+                  )}
+                </button>
+              ))}
+            </div>
+            
+            {/* Bookmark toggle */}
+            <button
+              onClick={() => setShowBookmarkedOnly(!showBookmarkedOnly)}
+              className={`flex items-center gap-1 px-3 py-1 rounded transition-colors text-sm ${
+                showBookmarkedOnly
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+              }`}
+            >
+              <Heart className={`w-3 h-3 ${showBookmarkedOnly ? 'fill-current' : ''}`} />
+              Bookmarked Only
+            </button>
+
+            {/* CLV toggle */}
+            <button
+              onClick={() => {
+                const newState = !showCLV;
+                setShowCLV(newState);
+                // Track CLV feature usage
+                evTelemetry.logEvent('ev_integration_active', {
+                  bookmarkCount: newState ? 1 : 0 // Simple tracking of CLV usage
+                });
+              }}
+              className={`flex items-center gap-1 px-3 py-1 rounded transition-colors text-sm ${
+                showCLV
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+              }`}
+              title="Show Closing Line Value column"
+            >
+              <TrendingUp className={`w-3 h-3 ${showCLV ? 'fill-current' : ''}`} />
+              Show CLV
+            </button>
+            
+            <button
+              onClick={() => setShowArbitrage(!showArbitrage)}
+              className={`flex items-center gap-1 px-3 py-1 rounded transition-colors text-sm ${
+                showArbitrage
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+              }`}
+              title="Show Live Arbitrage Panel"
+            >
+              <Zap className={`w-3 h-3 ${showArbitrage ? 'fill-current' : ''}`} />
+              Live Arbitrage
             </button>
           </div>
 
@@ -379,6 +573,65 @@ const PropFinderDashboard: React.FC = () => {
                 </div>
               </div>
 
+              {/* EV Filter Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-700">
+                {/* EV Range Filter */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    EV Range: {evRange[0]}% - {evRange[1]}%
+                  </label>
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="-10"
+                      max="25"
+                      step="1"
+                      value={evRange[0]}
+                      onChange={(e) => setEvRange([Number(e.target.value), evRange[1]])}
+                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                    />
+                    <input
+                      type="range"
+                      min="-10"
+                      max="25"
+                      step="1"
+                      value={evRange[1]}
+                      onChange={(e) => setEvRange([evRange[0], Number(e.target.value)])}
+                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+                </div>
+
+                {/* EV Tier Filter */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">EV Tiers</label>
+                  <div className="space-y-2">
+                    {[
+                      { tier: 'high', label: 'High (8%+)', color: 'text-green-400' },
+                      { tier: 'moderate', label: 'Moderate (3-8%)', color: 'text-yellow-400' },
+                      { tier: 'low', label: 'Low (0-3%)', color: 'text-gray-400' },
+                      { tier: 'negative', label: 'Negative (<0%)', color: 'text-red-400' }
+                    ].map(({ tier, label, color }) => (
+                      <label key={tier} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedEvTiers.includes(tier)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedEvTiers([...selectedEvTiers, tier]);
+                            } else {
+                              setSelectedEvTiers(selectedEvTiers.filter(t => t !== tier));
+                            }
+                          }}
+                          className="rounded bg-gray-700 border-gray-600"
+                        />
+                        <span className={`text-sm ${color}`}>{label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               {/* Phase 1.2 Enhanced Filters */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-gray-700">
                 {/* Arbitrage Filter */}
@@ -391,6 +644,24 @@ const PropFinderDashboard: React.FC = () => {
                       className="rounded bg-gray-700 border-gray-600"
                     />
                     <span className="text-sm font-medium">🎯 Arbitrage Opportunities Only</span>
+                  </label>
+                </div>
+
+                {/* Low Juice Filter */}
+                <div>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={showLowJuiceOnly}
+                      onChange={(e) => setShowLowJuiceOnly(e.target.checked)}
+                      className="rounded bg-gray-700 border-gray-600"
+                    />
+                    <span className="text-sm font-medium">⚡ Low Juice Only</span>
+                    {showLowJuiceOnly && (
+                      <span className="ml-2 px-2 py-1 bg-green-600 text-white text-xs rounded-full">
+                        &lt;3% Vig
+                      </span>
+                    )}
                   </label>
                 </div>
 
@@ -434,6 +705,87 @@ const PropFinderDashboard: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              {/* NEW: Phase 4.2 EV Filters */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-gray-700">
+                {/* EV Percent Filter */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Min EV: {formatEvPercent(minEvPercent)}
+                  </label>
+                  <input
+                    type="range"
+                    min="-10"
+                    max="20"
+                    step="0.5"
+                    value={minEvPercent}
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      setMinEvPercent(value);
+                      // Log telemetry for filter usage
+                      evTelemetry.logEvent('ev_filter_used', { filterThreshold: value });
+                    }}
+                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                    <span>-10%</span>
+                    <span>0%</span>
+                    <span>+20%</span>
+                  </div>
+                </div>
+
+                {/* Custom EV Threshold */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Value Threshold: {formatEvPercent(customEvThreshold)}
+                  </label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="15"
+                    step="0.5"
+                    value={customEvThreshold}
+                    onChange={(e) => setCustomEvThreshold(Number(e.target.value))}
+                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <div className="text-xs text-gray-400 mt-1">
+                    Opportunities above this % show "Value" badge
+                  </div>
+                </div>
+
+                {/* Bookmark Filter */}
+                <div className="flex flex-col gap-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={showBookmarkedOnly}
+                      onChange={(e) => setShowBookmarkedOnly(e.target.checked)}
+                      className="rounded bg-gray-700 border-gray-600"
+                    />
+                    <span className="text-sm font-medium">❤️ Show Bookmarked Only</span>
+                  </label>
+                  <div className="text-xs text-gray-400">
+                    {bookmarkService.getBookmarkCount()} opportunities bookmarked
+                  </div>
+                </div>
+                
+                {/* Volatility threshold */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Volatility Min: {volatilityMin.toFixed(1)}
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="20"
+                    step="0.5"
+                    value={volatilityMin}
+                    onChange={(e) => setVolatilityMin(Number(e.target.value))}
+                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <div className="text-xs text-gray-400 mt-1">Based on recent performance variation</div>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -461,12 +813,25 @@ const PropFinderDashboard: React.FC = () => {
         ) : (
           <>
             {/* Enhanced Table Header */}
-            <div className="grid grid-cols-8 gap-4 px-4 py-3 bg-gray-800 border-b border-gray-700 text-sm font-medium text-gray-300">
+            <div className={`grid gap-4 px-4 py-3 bg-gray-800 border-b border-gray-700 text-sm font-medium text-gray-300 ${showCLV ? 'grid-cols-10' : 'grid-cols-9'}`}>
               <div>Player</div>
               <div>Market & Line</div>
               <div>Best Odds</div>
               <div>Confidence</div>
               <div>Edge/Value</div>
+              <div>EV & Outliers</div>
+              {showCLV && (
+                <div 
+                  className="cursor-pointer hover:text-white transition-colors flex items-center gap-1"
+                  onClick={() => setSortBy('clv')}
+                  title="Click to sort by CLV"
+                >
+                  CLV%
+                  {sortBy === 'clv' && (
+                    sortOrder === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />
+                  )}
+                </div>
+              )}
               <div>Bookmakers</div>
               <div>Insights</div>
               <div>Actions</div>
@@ -499,12 +864,18 @@ const PropFinderDashboard: React.FC = () => {
                           height: `${virtualItem.size}px`,
                           transform: `translateY(${virtualItem.start}px)`,
                         }}
-                        className="grid grid-cols-8 gap-4 px-4 py-3 hover:bg-gray-800 transition-colors items-center border-b border-gray-700"
+                        className={`grid gap-4 px-4 py-3 hover:bg-gray-800 transition-colors items-center border-b border-gray-700 ${showCLV ? 'grid-cols-10' : 'grid-cols-9'}`}
                       >
-                        <OpportunityRow 
-                          opportunity={opportunity} 
-                          onBookmarkToggle={handleBookmarkToggle}
-                        />
+                    <OpportunityRow 
+                      opportunity={opportunity} 
+                      onBookmarkToggle={handleBookmarkToggle}
+                      customEvThreshold={customEvThreshold}
+                      showCLV={showCLV}
+                      onSetAlert={(_player, _sport, _market, _book) => {
+                        setSelectedOpportunity(opportunity);
+                        setShowLineMovementModal(true);
+                      }}
+                    />
                       </div>
                     );
                   })}
@@ -513,10 +884,16 @@ const PropFinderDashboard: React.FC = () => {
             ) : (
               <div className="divide-y divide-gray-700">
                 {filteredOpportunities.map((opportunity) => (
-                  <div key={opportunity.id} className="grid grid-cols-8 gap-4 px-4 py-3 hover:bg-gray-800 transition-colors items-center">
+                  <div key={opportunity.id} className={`grid gap-4 px-4 py-3 hover:bg-gray-800 transition-colors items-center ${showCLV ? 'grid-cols-10' : 'grid-cols-9'}`}>
                     <OpportunityRow 
                       opportunity={opportunity} 
                       onBookmarkToggle={handleBookmarkToggle}
+                      customEvThreshold={customEvThreshold}
+                      showCLV={showCLV}
+                      onSetAlert={(_player, _sport, _market, _book) => {
+                        setSelectedOpportunity(opportunity);
+                        setShowLineMovementModal(true);
+                      }}
                     />
                   </div>
                 ))}
@@ -525,22 +902,67 @@ const PropFinderDashboard: React.FC = () => {
           </>
         )}
       </div>
+      
+      {/* Live Arbitrage Panel */}
+      {showArbitrage && (
+        <div className="mt-6">
+          <LiveArbitragePanel 
+            selectedSport={selectedSports.length === 1 ? selectedSports[0] : 'NBA'}
+            autoRefresh={true}
+            refreshInterval={30000}
+          />
+        </div>
+      )}
+
+      {/* Line Movement Modal */}
+      {showLineMovementModal && selectedOpportunity && (
+        <LineMovementModal
+          isOpen={showLineMovementModal}
+          onClose={() => setShowLineMovementModal(false)}
+          player={selectedOpportunity.player}
+          sport={selectedOpportunity.sport || 'Unknown'}
+          market={selectedOpportunity.market || 'Unknown'}
+          book={selectedOpportunity.bestBookmaker || 'Unknown'}
+        />
+      )}
     </div>
   );
 };
 
-// Enhanced Opportunity row component with Phase 1.2 features
+//Enhanced Opportunity row component with Phase 4.2 EV features
 const OpportunityRow: React.FC<{ 
   opportunity: PropOpportunity; 
   onBookmarkToggle: (id: string, isBookmarked: boolean) => void;
-}> = ({ opportunity, onBookmarkToggle }) => {
+  onSetAlert: (player: string, sport: string, market: string, book: string) => void;
+  customEvThreshold: number;
+  showCLV: boolean;
+}> = ({ opportunity, onBookmarkToggle, onSetAlert, customEvThreshold, showCLV }) => {
   const [isFavorited, setIsFavorited] = useState(opportunity.isBookmarked || false);
 
   const handleBookmarkClick = () => {
     const newState = !isFavorited;
     setIsFavorited(newState);
-    onBookmarkToggle(opportunity.id, opportunity.isBookmarked);
+    onBookmarkToggle(opportunity.id, opportunity.isBookmarked || false);
   };
+
+  const handleSetAlert = () => {
+    onSetAlert(
+      opportunity.player,
+      safeSport,
+      opportunity.market || 'Unknown',
+      opportunity.bestBookmaker || 'Unknown'
+    );
+  };
+
+  // Safe accessors with defaults
+  const safeConfidence = opportunity.confidence || 0;
+  const safeEdge = opportunity.edge || 0;
+  const safeOdds = opportunity.odds || 0;
+  const safeAiProbability = opportunity.aiProbability || 0;
+  const safeProjectedValue = opportunity.projectedValue || 0;
+  const safeSport = opportunity.sport || 'Unknown';
+  const safePick = opportunity.pick || 'over';
+  const safeLine = opportunity.line || 0;
 
   return (
     <>
@@ -559,29 +981,29 @@ const OpportunityRow: React.FC<{
         <div>
           <div className="font-medium text-white">{opportunity.player}</div>
           <div className="text-xs text-gray-400 flex items-center gap-1">
-            <span>{getSportIcon(opportunity.sport)}</span>
-            <span>{opportunity.team}</span>
+            <span>{getSportIcon(safeSport)}</span>
+            <span>{opportunity.team || 'Unknown Team'}</span>
             <span className="mx-1">vs</span>
-            <span>{opportunity.opponent}</span>
+            <span>{opportunity.opponent || 'Unknown Opponent'}</span>
           </div>
         </div>
       </div>
       
       {/* Enhanced Market & Line Column */}
       <div className="space-y-1">
-        <div className="font-medium text-white">{opportunity.market}</div>
+        <div className="font-medium text-white">{opportunity.market || 'Unknown Market'}</div>
         <div className="text-sm text-blue-400">
-          {opportunity.pick.toUpperCase()} {opportunity.line}
+          {safePick.toUpperCase()} {safeLine}
         </div>
         <div className="text-xs text-gray-400">
-          {opportunity.timeToGame}
+          {opportunity.timeToGame || 'Unknown'}
         </div>
       </div>
       
       {/* Best Odds Column with Best Book */}
       <div className="space-y-1">
         <div className="font-bold text-lg text-white">
-          {formatOdds(opportunity.odds)}
+          {formatOdds(safeOdds)}
         </div>
         {opportunity.bestBookmaker && (
           <div className="text-xs text-green-400">
@@ -593,34 +1015,96 @@ const OpportunityRow: React.FC<{
             Spread: {opportunity.oddsSpread}
           </div>
         )}
+        {opportunity.isLowJuice && (
+          <div className="text-xs bg-green-600 text-white px-2 py-1 rounded-full font-bold">
+            ⚡ Low Juice
+          </div>
+        )}
+        {opportunity.vigPercent && (
+          <div className="text-xs text-gray-400">
+            Vig: {opportunity.vigPercent.toFixed(1)}%
+          </div>
+        )}
       </div>
       
       {/* Enhanced Confidence Column */}
       <div className="space-y-1">
         <div className="flex items-center gap-2">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white ${getConfidenceColor(opportunity.confidence)}`}>
-            {Math.round(opportunity.confidence)}%
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white ${getConfidenceColor(safeConfidence)}`}>
+            {Math.round(safeConfidence)}%
           </div>
         </div>
         <div className="text-xs text-gray-400">
-          AI: {opportunity.aiProbability.toFixed(1)}%
+          AI: {safeAiProbability.toFixed(1)}%
         </div>
       </div>
       
       {/* Enhanced Edge/Value Column */}
       <div className="space-y-1">
-        <div className={`font-bold text-lg ${getEdgeColor(opportunity.edge)}`}>
-          {opportunity.edge > 0 ? '+' : ''}{opportunity.edge.toFixed(1)}%
+        <div className={`font-bold text-lg ${getEdgeColor(safeEdge)}`}>
+          {safeEdge > 0 ? '+' : ''}{safeEdge.toFixed(1)}%
         </div>
         <div className="text-xs text-gray-400">
-          Value: ${opportunity.projectedValue.toFixed(2)}
+          Value: ${safeProjectedValue.toFixed(2)}
         </div>
         {opportunity.hasArbitrage && (
-          <div className="text-xs bg-green-600 text-white px-2 py-1 rounded-full font-bold">
-            ARB {opportunity.arbitrageProfitPct?.toFixed(1)}%
-          </div>
+          <ArbitrageBadge
+            profitPct={opportunity.arbitrageProfitPct}
+            books={Array.isArray(opportunity.bookmakers) ? opportunity.bookmakers.map(b => ({ name: b.name })) : []}
+          />
         )}
       </div>
+      
+      {/* NEW: EV & Outliers Column */}
+      <div className="space-y-1">
+        {opportunity.evPercent !== undefined && opportunity.evPercent !== null ? (
+          <>
+            <EvPill evPercent={opportunity.evPercent} />
+            {shouldShowEvBadge(opportunity.evPercent) && (
+              <div className={`text-xs text-white px-2 py-1 rounded-full font-bold ${getEvBadgeColorClass(opportunity.evPercent)}`}>
+                {(opportunity.evPercent >= 7 ? 'GREEN' : opportunity.evPercent >= 4 ? 'ORANGE' : opportunity.evPercent >= 2 ? 'YELLOW' : 'GRAY')} EV
+              </div>
+            )}
+            {isValuePlay(opportunity.evPercent, opportunity.isOutlier, customEvThreshold) && (
+              <div className="text-xs bg-yellow-600 text-white px-2 py-1 rounded-full font-bold flex items-center gap-1">
+                💎 VALUE
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-xs text-gray-500">EV: N/A</div>
+        )}
+      </div>
+      
+      {/* NEW: CLV Column */}
+      {showCLV && (
+        <div className="space-y-1">
+          {opportunity.clvPercent !== undefined && opportunity.clvPercent !== null ? (
+            <>
+              <span
+                style={{
+                  backgroundColor: clvColor(opportunity.clvPercent),
+                  color: '#ffffff',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}
+                title={clvTooltip(opportunity.clvPercent)}
+              >
+                {formatClvPercent(opportunity.clvPercent)}
+              </span>
+              {opportunity.closingLine && (
+                <div className="text-xs text-gray-400">
+                  Close: {opportunity.closingLine}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-xs text-gray-500">--</div>
+          )}
+        </div>
+      )}
       
       {/* Phase 1.2 - Bookmakers Column */}
       <div className="space-y-1">
@@ -639,6 +1123,8 @@ const OpportunityRow: React.FC<{
             Line Spread: {opportunity.lineSpread.toFixed(1)}
           </div>
         )}
+        {/* Mini sparkline using recentForm (fallback) */}
+        <MiniLineSparkline history={Array.isArray(opportunity.recentForm) ? opportunity.recentForm : []} />
       </div>
       
       {/* Insights Column */}
@@ -651,7 +1137,7 @@ const OpportunityRow: React.FC<{
           ))}
         </div>
         <div className="text-xs text-gray-400">
-          Sharp: {opportunity.sharpMoney}
+          Sharp: {opportunity.sharpMoney || 'moderate'}
         </div>
       </div>
       
@@ -663,17 +1149,42 @@ const OpportunityRow: React.FC<{
             isFavorited ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-400'
           }`}
         />
-        {opportunity.edge > 10 && (
+        <Bell
+          onClick={handleSetAlert}
+          className="w-5 h-5 cursor-pointer transition-colors text-gray-400 hover:text-yellow-400"
+        />
+        {safeEdge > 10 && (
           <div className="text-xs bg-yellow-600 text-white px-2 py-1 rounded-full font-bold">
             🔥 HOT
           </div>
         )}
         {opportunity.hasArbitrage && (
-          <div className="text-xs bg-green-600 text-white px-2 py-1 rounded-full font-bold">
-            💎 ARB
-          </div>
+          <ArbitrageBadge
+            profitPct={opportunity.arbitrageProfitPct}
+            books={Array.isArray(opportunity.bookmakers) ? opportunity.bookmakers.map(b => ({ name: b.name })) : []}
+          />
         )}
       </div>
+
+      {/* NEW: CLV Column (conditional) */}
+      {showCLV && (
+        <div 
+          className="space-y-1" 
+          title={clvTooltip(opportunity.clvPercent)}
+        >
+          <div 
+            className="font-bold text-lg"
+            style={{ color: clvColor(opportunity.clvPercent) }}
+          >
+            {formatClvPercent(opportunity.clvPercent)}
+          </div>
+          {opportunity.closingLine && opportunity.closingOdds && (
+            <div className="text-xs text-gray-400">
+              Close: {opportunity.closingLine} ({opportunity.closingOdds > 0 ? '+' : ''}{opportunity.closingOdds})
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 };

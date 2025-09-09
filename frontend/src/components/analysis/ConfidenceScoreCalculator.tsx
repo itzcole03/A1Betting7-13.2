@@ -388,24 +388,20 @@ const ConfidenceScoreCalculator: React.FC<{
         </div>
       )}
 
-      {/* Action Buttons */}
+      {/* Action Buttons (trivial scale motion removed) */}
       <div className="mt-6 flex space-x-3">
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+        <button
+          className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-150 hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03] focus:outline-none"
         >
           <Zap className="w-4 h-4" />
           <span>Track This Bet</span>
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+        </button>
+        <button
+          className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-150 hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03] focus:outline-none"
         >
           <Info className="w-4 h-4" />
           <span>Detailed Analysis</span>
-        </motion.button>
+        </button>
       </div>
     </motion.div>
   );

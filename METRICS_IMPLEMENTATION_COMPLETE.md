@@ -163,6 +163,10 @@ The A1Betting platform's metrics system has been successfully upgraded from a ba
 - **`GET /internal/metrics`** - Prometheus exposition format (feature-flagged)
 - **`GET /metrics`** - Public alias for Prometheus endpoint
 
+### **Customer Lifetime Value (CLV) Metrics**
+- **`GET /api/propfinder/opportunities?include_clv=1`** - PropFinder data with CLV metrics
+- **`GET /api/propfinder/opportunities?clv_diag=1`** - CLV diagnostic data
+
 ### **Health Integration**  
 - **`GET /health`** - Enhanced with percentile metrics and cache stats
 - **`GET /health/extended`** - Full metrics snapshot with event loop stats
@@ -217,12 +221,71 @@ METRICS_HISTOGRAM_BUCKETS=25,50,100,200,350,500,750,1000,1500,2500,5000
 
 ## 📈 **MONITORING INTEGRATION**
 
+### **Customer Lifetime Value (CLV) Metrics**
+
+#### **Prometheus Metric Names**
+```
+# CLV Performance Metrics
+clv_success_rate_total{endpoint="propfinder_opportunities"}  # Success rate counter
+clv_failure_rate_total{endpoint="propfinder_opportunities"}  # Failure rate counter  
+clv_latency_ms{endpoint="propfinder_opportunities",quantile="0.5"}  # Response latency
+clv_latency_ms{endpoint="propfinder_opportunities",quantile="0.95"}  # 95th percentile latency
+clv_latency_ms{endpoint="propfinder_opportunities",quantile="0.99"}  # 99th percentile latency
+
+# CLV Diagnostic Metrics
+clv_diagnostic_requests_total  # Total diagnostic requests
+clv_opportunities_generated_total  # Total opportunities generated
+clv_cache_hits_total  # CLV-specific cache hits
+clv_cache_misses_total  # CLV-specific cache misses
+```
+
+#### **Example Prometheus Scrape Configuration**
+```yaml
+# prometheus.yml
+scrape_configs:
+  - job_name: 'a1betting-clv'
+    static_configs:
+      - targets: ['localhost:8000']
+    metrics_path: '/internal/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    honor_labels: true
+    params:
+      format: ['prometheus']
+```
+
+#### **Example CLV Alert Rules**
+```yaml
+# clv_alerts.yml
+groups:
+  - name: clv_slo
+    rules:
+      - alert: CLVHighFailureRate
+        expr: clv_failure_rate_total / (clv_success_rate_total + clv_failure_rate_total) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CLV failure rate above 5%"
+          description: "CLV failure rate is {{ $value | humanizePercentage }} for 5 minutes"
+          
+      - alert: CLVHighLatency
+        expr: clv_latency_ms{quantile="0.95"} > 500
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CLV 95th percentile latency above 500ms"
+          description: "CLV latency is {{ $value }}ms at 95th percentile"
+```
+
 ### **Health Service Integration**
 The enhanced health collector now provides:
 - **Real-time percentiles** for request latency analysis
 - **Cache performance indicators** for optimization insights  
 - **Event loop health signals** for application responsiveness monitoring
 - **Error rate trending** for reliability tracking
+- **CLV-specific metrics** for PropFinder performance monitoring
 
 ### **Reliability Orchestrator Enhancement**  
 Extended monitoring capabilities include:
@@ -266,9 +329,155 @@ Extended monitoring capabilities include:
 
 **🎯 READY FOR PRODUCTION DEPLOYMENT** - All objectives completed with comprehensive testing and documentation. The metrics system provides enterprise-grade observability while maintaining the low-overhead characteristics required for high-performance applications.
 
+## 🎮 **ADMIN ANALYTICS UI IMPLEMENTATION** (Latest Addition)
+
+### **Overview**
+Added comprehensive admin analytics dashboard providing EV & Arbitrage insights for administrators at `/admin/analytics` route.
+
+### **Frontend Implementation** (`frontend/src/components/admin/AdminAnalytics.tsx`)
+- **Complete admin analytics dashboard** with real-time data visualization
+- **Admin auth guard** using `useAuth()` context - requires admin role or permissions
+- **Key Metrics Panels**:
+  - Average EV with trend indicators  
+  - Arbitrage count (24h vs previous 24h delta)
+  - Active provider status and response times
+  - Total opportunities with stake amounts
+- **EV Trend Visualization**:
+  - Interactive line chart with SVG rendering
+  - ASCII fallback mode for degraded environments
+  - 30-day historical EV trend display
+- **High EV Distribution**:
+  - Tier-based histogram (Ultra High: 10%+, High: 5-10%, Medium: 2-5%, Low: 0-2%)
+  - Visual percentage breakdowns with color coding
+- **Provider Confidence Table**:
+  - Real-time provider status (healthy/degraded/down)
+  - Confidence scores with visual progress bars
+  - Response time and error rate monitoring
+  - Last sync timestamps
+
+### **Features**
+- **Auto-refresh toggle** with 60-second intervals and proper cleanup
+- **Manual refresh button** for on-demand data updates
+- **Chart mode toggle** between interactive charts and ASCII fallback
+- **Graceful API failure handling** with fallback data
+- **Loading states** and error displays
+- **Responsive design** with Tailwind CSS styling
+- **Motion animations** using Framer Motion
+
+### **API Integration**
+Consumes the following endpoints as specified:
+- `/api/analytics/summary` - Overall analytics summary
+- `/api/odds/providers/status` - Provider confidence and status
+- `/api/analytics/daily-ev-stats` - EV trend data for charts
+- `/api/analytics/daily-arb-stats` - Arbitrage statistics and deltas
+
+### **Routing & Security**
+- **Route**: `/admin/analytics` added to `UserFriendlyApp.tsx`
+- **Admin Guard**: Component checks `user?.role === 'admin'` or `user?.permissions?.includes('admin')`
+- **Access Denied UI**: Shows security message for non-admin users
+- **Lazy Loading**: Component is React.lazy loaded for performance
+
+### **Testing** (`frontend/src/components/admin/__tests__/AdminAnalytics.test.tsx`)
+- **Comprehensive test suite** with 15+ test cases
+- **Admin auth testing** for both authorized and unauthorized access
+- **API mocking** with realistic response data
+- **User interaction testing** (refresh, auto-refresh toggle, chart mode)
+- **Error handling testing** for API failures
+- **Data calculation verification** (average response times, percentages)
+- **Loading state validation**
+- **UI component presence checks**
+
+### **Technical Implementation Details**
+- **TypeScript interfaces** for all data structures (AnalyticsSummary, EVTrendData, etc.)
+- **Custom UI components** (Card, Badge) matching existing admin design patterns
+- **Memoized calculations** for performance optimization
+- **Proper cleanup** of intervals and effects
+- **Error boundaries** with user-friendly messages
+- **Accessibility** considerations with proper ARIA labels
+
+### **Visual Design**
+- **Gradient backgrounds** matching A1Betting design system
+- **Color-coded status indicators**:
+  - Green: Healthy/positive trends
+  - Yellow: Warning/degraded states  
+  - Red: Down/negative trends
+  - Cyan/Purple: Accent colors for metrics
+- **Professional admin aesthetic** with card-based layout
+- **Consistent spacing** and typography throughout
+
 ## Next Steps
 1. **Review implementation** for any specific customization needs
 2. **Configure environment variables** for production deployment
 3. **Set up Grafana dashboards** using the Prometheus endpoint
 4. **Monitor initial deployment** using the enhanced health endpoints
 5. **Scale monitoring** as traffic increases using the provided configuration options
+6. **Access admin analytics** at `/admin/analytics` with administrator credentials
+
+## Admin Feature Flags Console (New)
+
+- Location: `/admin/feature-flags` (admin only)
+- Purpose: Toggle runtime feature flags safely without redeploys
+- Flags available:
+  - `ENABLE_EV_ENRICHMENT`
+  - `ENABLE_SMART_SIGNALS`
+  - `ENABLE_LINE_MOVEMENT`
+- Behavior:
+  - In-memory flags with last change timestamp and toggler identity (placeholder: `admin-system`)
+  - Simple audit trail (in-memory ring buffer) visible via API
+
+### Backend API
+
+- `GET /api/admin/feature-flags` → `{ success, data: { flags: [{ name, enabled, last_changed, toggler }] } }`
+- `POST /api/admin/feature-flags/{flag_name}` with body `{ "enabled": boolean }` → toggles a flag
+  - Returns `404` when `flag_name` is invalid
+- `GET /api/admin/feature-flags/audit` → `{ success, data: { audit: [{ timestamp, flag, enabled, toggler }] } }`
+
+These routes are mounted by the canonical app factory in `backend/core/app.py`.
+
+### Frontend
+
+- Page: `frontend/src/components/admin/AdminFeatureFlags.tsx`
+- Lists flags with toggle switches, shows last change time and toggler.
+- Uses fetch calls to the backend API above; no persistence beyond process memory.
+
+Note: This console is intended for development and CI flows. Production persistence or RBAC enforcement can be added later by replacing the in-memory service with a DB-backed implementation and wiring to the existing auth/permissions system.
+
+## Observability Timings & Operation Metrics (New)
+
+The observability layer exposes standardized timing aggregates and operation counters used across EV, arbitrage, odds normalization, and line movement subsystems.
+
+- Endpoints:
+  - `GET /api/observability/snapshot` → holistic snapshot (timings, operationMetrics, errors, flags)
+  - `GET /api/observability/timings` → timing aggregates only
+  - `GET /api/observability/metrics/operations` → operation counters
+  - `GET /api/observability/flags` → runtime observability toggles (e.g., `tracing_enabled`)
+
+- Timing keys (asserted in tests):
+  - `ev_ms_avg`
+  - `arbitrage_ms_avg`
+  - `odds_norm_ms_avg`
+  - `line_movement_ms_avg`
+
+- Representative operation metrics:
+  - `arbitrage_detection`
+  - `odds_normalization`
+  - `line_movement_snapshot`
+  - `ev_calculation`
+
+These keys are validated by `tests/backend/test_observability_routes.py` and `tests/backend/test_instrumentation_service.py` to ensure the schema remains stable.
+
+## Feature Flags Surfaces (Admin vs Observability)
+
+Two flag surfaces exist and serve different purposes:
+
+- Admin feature flags (business features):
+  - Endpoint: `GET/POST /api/admin/feature-flags` (and `/api/admin/feature-flags/audit`)
+  - Canonical flags: `ENABLE_EV_ENRICHMENT`, `ENABLE_SMART_SIGNALS`, `ENABLE_LINE_MOVEMENT`
+  - Scope: Enables/disables feature domains exposed via routes like `/api/ev/*`, `/api/signals/*`, `/api/lines/*`
+
+- Observability flags (runtime diagnostics toggles):
+  - Endpoint: `GET /api/observability/flags`, `POST /api/observability/flags/{flag_name}`
+  - Example: `tracing_enabled`
+  - Scope: Controls diagnostics/tracing behavior without affecting feature availability
+
+Both surfaces are collected in the main application factory (`backend/core/app.py`) and are exempted from legacy middleware interception.

@@ -65,38 +65,31 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
   const [displayValue, setDisplayValue] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
-  const _numericValue = typeof value === 'number' ? value : parseFloat(value as string) || 0;
+  const numericValue = typeof value === 'number' ? value : parseFloat(value as string) || 0;
 
   // Animate numeric values
   useEffect(() => {
     if (animated && typeof value === 'number') {
-      const _startValue = displayValue;
-      const _endValue = value;
-      const _duration = 1000;
-      const _startTime = Date.now();
-
-      const _animate = () => {
-        const _elapsed = Date.now() - startTime;
-        const _progress = Math.min(elapsed / duration, 1);
-
-        const _easeOutCubic = 1 - Math.pow(1 - progress, 3);
-        const _currentValue = startValue + (endValue - startValue) * easeOutCubic;
-
-        setDisplayValue(currentValue);
-
-        if (progress < 1) {
-          requestAnimationFrame(animate);
-        }
+      const startValue = displayValue;
+      const endValue = value;
+      const duration = 1000;
+      const startTime = performance.now();
+      const tick = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = startValue + (endValue - startValue) * eased;
+        setDisplayValue(current);
+        if (progress < 1) requestAnimationFrame(tick);
       };
-
-      requestAnimationFrame(animate);
+      requestAnimationFrame(tick);
     } else {
       setDisplayValue(numericValue);
     }
-  }, [value, animated]);
+  }, [value, animated, displayValue, numericValue]);
 
-  const _getColorClasses = (colorType: string) => {
-    const _colors = {
+  const getColorClasses = (colorType: string) => {
+    const colors = {
       blue: {
         bg: variant === 'cyber' ? 'bg-blue-500/20' : 'bg-blue-100 dark:bg-blue-900/30',
         text: variant === 'cyber' ? 'text-blue-400' : 'text-blue-700 dark:text-blue-400',
@@ -137,7 +130,7 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
     return colors[colorType as keyof typeof colors] || colors.blue;
   };
 
-  const _getStatusColor = () => {
+  const getStatusColor = () => {
     if (!thresholds) return color;
 
     if (numericValue >= thresholds.critical) return 'red';
@@ -145,7 +138,7 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
     return 'green';
   };
 
-  const _formatValue = (val: number) => {
+  const formatValue = (val: number) => {
     if (val >= 1000000) {
       return `${(val / 1000000).toFixed(precision)}M`;
     }
@@ -155,20 +148,18 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
     return precision > 0 ? val.toFixed(precision) : Math.round(val).toLocaleString();
   };
 
-  const _getTrendIcon = () => {
+  const getTrendIcon = () => {
     if (!trend) return null;
 
     switch (trend.direction) {
       case 'up':
         return (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <svg
             className='w-4 h-4 text-green-500'
             fill='none'
             stroke='currentColor'
             viewBox='0 0 24 24'
           >
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <path
               strokeLinecap='round'
               strokeLinejoin='round'
@@ -179,14 +170,12 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
         );
       case 'down':
         return (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <svg
             className='w-4 h-4 text-red-500'
             fill='none'
             stroke='currentColor'
             viewBox='0 0 24 24'
           >
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <path
               strokeLinecap='round'
               strokeLinejoin='round'
@@ -197,42 +186,35 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
         );
       case 'flat':
         return (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <svg
             className='w-4 h-4 text-gray-500'
             fill='none'
             stroke='currentColor'
             viewBox='0 0 24 24'
           >
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M20 12H4' />
           </svg>
         );
     }
   };
 
-  const _renderSparkline = () => {
+  const renderSparkline = () => {
     if (!showSparkline || history.length < 2) return null;
-
-    const _width = 60;
-    const _height = 20;
-    const _values = history.map(h => h.value);
-    const _min = Math.min(...values);
-    const _max = Math.max(...values);
-    const _range = max - min || 1;
-
-    const _points = values
-      .map((val, index) => {
-        const _x = (index / (values.length - 1)) * width;
-        const _y = height - ((val - min) / range) * height;
+    const width = 60;
+    const height = 20;
+    const values = history.map(h => h.value);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+    const points = values
+      .map((val, idx) => {
+        const x = (idx / (values.length - 1)) * width;
+        const y = height - ((val - min) / range) * height;
         return `${x},${y}`;
       })
       .join(' ');
-
     return (
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <svg width={width} height={height} className='opacity-60'>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <polyline
           points={points}
           fill='none'
@@ -244,15 +226,15 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
     );
   };
 
-  const _progressPercentage = target ? Math.min((numericValue / target) * 100, 100) : 0;
+  const progressPercentage = target ? Math.min((numericValue / target) * 100, 100) : 0;
 
-  const _sizeClasses = {
+  const sizeClasses = {
     sm: 'p-3',
     md: 'p-4',
     lg: 'p-6',
   };
 
-  const _baseClasses = `
+  const baseClasses = `
     rounded-lg border transition-all duration-200 cursor-pointer
     ${
       variant === 'cyber'
@@ -266,49 +248,38 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
     ${className}
   `;
 
-  const _colorClasses = getColorClasses(getStatusColor());
+  const colorClasses = getColorClasses(getStatusColor());
 
   return (
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <motion.div
-      className={baseClasses}
+      className={`${baseClasses} ${onClick ? 'transition-transform hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03]' : ''}`}
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       initial={animated ? { opacity: 0, y: 20 } : false}
       animate={animated ? { opacity: 1, y: 0 } : false}
-      whileHover={onClick ? { scale: 1.02 } : undefined}
-      whileTap={onClick ? { scale: 0.98 } : undefined}
+      // hover/tap scaling replaced by Tailwind classes
     >
       {/* Cyber grid overlay */}
       {variant === 'cyber' && (
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='absolute inset-0 opacity-10 pointer-events-none'>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='grid grid-cols-6 grid-rows-4 h-full w-full'>
             {Array.from({ length: 24 }).map((_, i) => (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div key={i} className='border border-cyan-400/20' />
             ))}
           </div>
         </div>
       )}
 
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='relative z-10'>
         {/* Header */}
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='flex items-start justify-between mb-2'>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex items-center space-x-2'>
             {icon && (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className={`p-1 rounded ${colorClasses.bg}`}>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className={colorClasses.text}>{icon}</div>
               </div>
             )}
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h3
               className={`font-medium text-sm ${
                 variant === 'cyber' ? 'text-cyan-300' : 'text-gray-700 dark:text-gray-300'
@@ -322,19 +293,15 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
         </div>
 
         {/* Value */}
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='mb-2'>
           {isLoading ? (
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`animate-pulse h-8 rounded ${
                 variant === 'cyber' ? 'bg-cyan-400/20' : 'bg-gray-200 dark:bg-gray-700'
               }`}
             />
           ) : (
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex items-end space-x-1'>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span
                 className={`text-2xl font-bold ${
                   variant === 'cyber' ? 'text-cyan-400' : 'text-gray-900 dark:text-white'
@@ -343,7 +310,6 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
                 {typeof value === 'string' ? value : formatValue(displayValue)}
               </span>
               {unit && (
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <span
                   className={`text-sm ${
                     variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500'
@@ -358,7 +324,6 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
 
         {/* Description */}
         {description && (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <p
             className={`text-xs mb-2 ${
               variant === 'cyber' ? 'text-cyan-300/70' : 'text-gray-600 dark:text-gray-400'
@@ -370,15 +335,12 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
 
         {/* Progress Bar */}
         {showProgress && target && (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='mb-2'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div
               className={`w-full rounded-full h-2 ${
                 variant === 'cyber' ? 'bg-gray-800' : 'bg-gray-200 dark:bg-gray-700'
               }`}
             >
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <motion.div
                 className={`h-2 rounded-full ${colorClasses.bg.replace('/30', '/60')}`}
                 initial={{ width: 0 }}
@@ -386,11 +348,8 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
                 transition={{ duration: 1, ease: 'easeOut' }}
               />
             </div>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex justify-between text-xs mt-1'>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span className={variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500'}>0</span>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span className={variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500'}>
                 {formatValue(target)}
               </span>
@@ -400,17 +359,13 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
 
         {/* Trend */}
         {trend && (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <motion.div
             className={`flex items-center space-x-2 ${
-              onTrendClick ? 'cursor-pointer hover:opacity-80' : ''
+              onTrendClick ? 'cursor-pointer hover:opacity-80 transition-transform hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03]' : ''
             }`}
             onClick={onTrendClick}
-            whileHover={onTrendClick ? { scale: 1.05 } : undefined}
-            whileTap={onTrendClick ? { scale: 0.95 } : undefined}
           >
             {getTrendIcon()}
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <span
               className={`text-xs font-medium ${
                 trend.direction === 'up'
@@ -430,19 +385,14 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
 
         {/* Thresholds Indicator */}
         {thresholds && variant === 'detailed' && (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='mt-2 pt-2 border-t border-gray-200 dark:border-gray-700'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='flex justify-between text-xs'>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span className='text-green-600 dark:text-green-400'>
                 Good: &lt;{thresholds.warning}
               </span>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span className='text-yellow-600 dark:text-yellow-400'>
                 Warning: {thresholds.warning}-{thresholds.critical}
               </span>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <span className='text-red-600 dark:text-red-400'>
                 Critical: &gt;{thresholds.critical}
               </span>
@@ -451,17 +401,14 @@ export const _EnhancedMetricCard: React.FC<EnhancedMetricCardProps> = ({
         )}
 
         {/* Loading overlay */}
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <AnimatePresence>
           {isLoading && (
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className='absolute inset-0 bg-black/20 flex items-center justify-center rounded-lg'
             >
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div
                 className={`animate-spin rounded-full h-6 w-6 border-2 border-transparent ${
                   variant === 'cyber' ? 'border-t-cyan-400' : 'border-t-blue-500'

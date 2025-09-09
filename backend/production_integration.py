@@ -541,6 +541,16 @@ class ProductionApp:
                 f"❌ Critical error in simple enhanced API setup: {e}", exc_info=True
             )
 
+        # Include PropFinder routes via centralized registrar for idempotency
+        try:
+            from backend.core.app import register_feature_routers
+            register_feature_routers(self.app)
+            self.logger.info("✅ PropFinder routes registered via register_feature_routers()")
+        except ImportError as e:
+            self.logger.warning(f"⚠️ Could not import register_feature_routers: {e}")
+        except Exception as e:
+            self.logger.error(f"Error registering PropFinder routes: {e}")
+
         # Include health routes with /api prefix for frontend compatibility
         try:
             from backend.routes import health

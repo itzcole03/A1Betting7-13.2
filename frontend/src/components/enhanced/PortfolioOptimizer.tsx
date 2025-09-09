@@ -1,18 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, KeyboardEvent } from 'react';
 import { motion } from 'framer-motion';
-import {
-  TrendingUp,
-  DollarSign,
-  Target,
-  PieChart,
-  AlertCircle,
-  CheckCircle,
-  Calculator,
-  BarChart3,
-  Settings,
-  Zap,
-  RefreshCw,
-} from 'lucide-react';
+import { TrendingUp, DollarSign, Target, PieChart, AlertCircle, CheckCircle, Calculator, Zap, RefreshCw } from 'lucide-react';
 import {
   PortfolioMetrics,
   EnhancedPrediction,
@@ -28,8 +16,8 @@ interface PortfolioOptimizerProps {
   isLoading?: boolean;
 }
 
-const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
-  metrics,
+const PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
+  metrics: _metrics,
   predictions,
   onOptimize,
   investmentAmount,
@@ -41,66 +29,62 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
     'balanced' | 'aggressive' | 'conservative'
   >('balanced');
   const [maxPositions, setMaxPositions] = useState(5);
-  const [portfolioAnalysis, setPortfolioAnalysis] = useState<PortfolioAnalysis | null>(null);
+  const [_portfolioAnalysis, _setPortfolioAnalysis] = useState<PortfolioAnalysis | null>(null); // reserved for future detailed analysis view
 
   // Auto-select top bets based on optimization mode
   useEffect(() => {
-    if (predictions.length > 0) {
-      const _sortedPredictions = [...predictions];
-
-      switch (optimizationMode) {
-        case 'aggressive':
-          sortedPredictions.sort((a, b) => b.expected_value - a.expected_value);
-          break;
-        case 'conservative':
-          sortedPredictions.sort(
-            (a, b) =>
-              b.confidence * (1 - b.risk_assessment.overall_risk) -
-              a.confidence * (1 - a.risk_assessment.overall_risk)
-          );
-          break;
-        default: // balanced
-          sortedPredictions.sort(
-            (a, b) =>
-              (b.expected_value * b.confidence) / 100 - (a.expected_value * a.confidence) / 100
-          );
-      }
-
-      const _topBets = sortedPredictions.slice(0, maxPositions).map(bet => bet.id);
-      setSelectedBets(new Set(topBets));
+    if (predictions.length === 0) return;
+    const sortedPredictions = [...predictions];
+    switch (optimizationMode) {
+      case 'aggressive':
+        sortedPredictions.sort((a, b) => b.expected_value - a.expected_value);
+        break;
+      case 'conservative':
+        sortedPredictions.sort(
+          (a, b) =>
+            b.confidence * (1 - b.risk_assessment.overall_risk) -
+            a.confidence * (1 - a.risk_assessment.overall_risk)
+        );
+        break;
+      default: // balanced
+        sortedPredictions.sort(
+          (a, b) =>
+            (b.expected_value * b.confidence) / 100 - (a.expected_value * a.confidence) / 100
+        );
     }
+    const topBets = sortedPredictions.slice(0, maxPositions).map(bet => bet.id);
+    setSelectedBets(new Set(topBets));
   }, [predictions, optimizationMode, maxPositions]);
 
-  const _toggleBetSelection = (betId: string) => {
-    const _newSelected = new Set(selectedBets);
-    if (newSelected.has(betId)) {
-      newSelected.delete(betId);
-    } else {
-      newSelected.add(betId);
-    }
+  const toggleBetSelection = (betId: string) => {
+    const newSelected = new Set(selectedBets);
+    if (newSelected.has(betId)) newSelected.delete(betId); else newSelected.add(betId);
     setSelectedBets(newSelected);
   };
 
-  const _selectedPredictions = predictions.filter(bet => selectedBets.has(bet.id));
+  const handleKeyActivate = (e: KeyboardEvent<HTMLDivElement>, betId: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleBetSelection(betId);
+    }
+  };
+
+  const selectedPredictions = predictions.filter(bet => selectedBets.has(bet.id));
 
   // Calculate portfolio metrics for selected bets
-  const _calculatePortfolioMetrics = () => {
+  const calculatePortfolioMetrics = () => {
     if (selectedPredictions.length === 0) return null;
-
-    const _totalEV = selectedPredictions.reduce((sum, bet) => sum + bet.expected_value, 0);
-    const _avgConfidence =
+    const totalEV = selectedPredictions.reduce((sum, bet) => sum + bet.expected_value, 0);
+    const avgConfidence =
       selectedPredictions.reduce((sum, bet) => sum + bet.confidence, 0) /
       selectedPredictions.length;
-    const _totalKelly = selectedPredictions.reduce((sum, bet) => sum + bet.kelly_fraction, 0);
-    const _avgRisk =
+    const totalKelly = selectedPredictions.reduce((sum, bet) => sum + bet.kelly_fraction, 0);
+    const avgRisk =
       selectedPredictions.reduce((sum, bet) => sum + bet.risk_assessment.overall_risk, 0) /
       selectedPredictions.length;
-
-    // Diversification score
-    const _uniqueSports = new Set(selectedPredictions.map(bet => bet.sport)).size;
-    const _uniqueTeams = new Set(selectedPredictions.map(bet => bet.team)).size;
-    const _diversificationScore = (uniqueSports + uniqueTeams) / (2 * selectedPredictions.length);
-
+    const uniqueSports = new Set(selectedPredictions.map(bet => bet.sport)).size;
+    const uniqueTeams = new Set(selectedPredictions.map(bet => bet.team)).size;
+    const diversificationScore = (uniqueSports + uniqueTeams) / (2 * selectedPredictions.length);
     return {
       totalExpectedValue: totalEV,
       averageConfidence: avgConfidence,
@@ -111,47 +95,35 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
       riskAdjustedReturn: totalEV / Math.max(avgRisk, 0.1),
     };
   };
-
-  const _currentMetrics = calculatePortfolioMetrics();
-
-  const _getRiskColor = (risk: number) => {
+  const currentMetrics = calculatePortfolioMetrics();
+  const getRiskColor = (risk: number) => {
     if (risk < 0.3) return 'text-green-400';
     if (risk < 0.6) return 'text-yellow-400';
     return 'text-red-400';
   };
-
-  const _getRiskLevel = (risk: number) => {
+  const getRiskLevel = (risk: number) => {
     if (risk < 0.3) return 'LOW';
     if (risk < 0.6) return 'MEDIUM';
     return 'HIGH';
   };
 
   return (
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-    <div className='bg-gradient-to-br from-gray-800 via-gray-800 to-gray-900 border border-green-500/30 rounded-xl p-6 space-y-6'>
+  <div className='bg-gradient-to-br from-gray-800 via-gray-800 to-gray-900 border border-green-500/30 rounded-xl p-6 space-y-6'>
       {/* Header */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-      <div className='flex items-center justify-between'>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-        <div className='flex items-center space-x-3'>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+  <div className='flex items-center justify-between'>
+  <div className='flex items-center space-x-3'>
           <div className='p-2 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-lg'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <PieChart className='w-6 h-6 text-green-400' />
           </div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <h3 className='text-xl font-bold text-white'>Portfolio Optimizer</h3>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <p className='text-sm text-gray-400'>Modern Portfolio Theory + Kelly Criterion</p>
           </div>
         </div>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <button
           onClick={() => onOptimize(Array.from(selectedBets))}
           disabled={selectedBets.size === 0 || isLoading}
-          className='flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 disabled:from-gray-600 disabled:to-gray-600 text-white rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-green-500/25'
+          className='flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 disabled:from-gray-600 disabled:to-gray-600 text-white rounded-lg font-medium transition duration-150 transform hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-green-500 shadow-lg hover:shadow-green-500/25'
         >
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           {isLoading ? <RefreshCw className='w-4 h-4 animate-spin' /> : <Zap className='w-4 h-4' />}
@@ -161,8 +133,7 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
       </div>
 
       {/* Investment Amount Input */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-      <div className='bg-gray-700/30 rounded-lg p-4'>
+  <div className='bg-gray-700/30 rounded-lg p-4'>
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <label className='block text-sm font-medium text-gray-300 mb-2' htmlFor='po-investment-amount'>
           Total Investment Amount
@@ -187,8 +158,7 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
       </div>
 
       {/* Optimization Settings */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-      <div className='grid grid-cols-2 gap-4'>
+  <div className='grid grid-cols-2 gap-4'>
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -197,7 +167,7 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
           <select
             id='po-optimization-mode'
             value={optimizationMode}
-            onChange={e => setOptimizationMode(e.target.value as unknown)}
+            onChange={e => setOptimizationMode(e.target.value as 'balanced' | 'aggressive' | 'conservative')}
             className='w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500'
           >
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -234,7 +204,6 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
 
       {/* Portfolio Metrics */}
       {currentMetrics && (
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-lg p-4'>
@@ -307,10 +276,8 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
       )}
 
       {/* Bet Selection */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-      <div className='space-y-3'>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-        <div className='flex items-center justify-between'>
+  <div className='space-y-3'>
+  <div className='flex items-center justify-between'>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <h4 className='text-sm font-semibold text-gray-300'>
             Portfolio Composition ({selectedBets.size} bets)
@@ -322,24 +289,23 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
           </div>
         </div>
 
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='max-h-64 overflow-y-auto space-y-2'>
           {predictions.slice(0, 10).map(bet => {
-            const _isSelected = selectedBets.has(bet.id);
-            const _kellyStake = bet.kelly_fraction * investmentAmount;
+            const isSelected = selectedBets.has(bet.id);
+            const kellyStake = bet.kelly_fraction * investmentAmount;
 
             return (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
-              <motion.div
+              <div
                 key={bet.id}
-                className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 ${
+                className={`p-4 rounded-lg border cursor-pointer transition duration-150 transform focus:outline-none focus:ring-2 focus:ring-green-500 ${
                   isSelected
                     ? 'bg-green-500/20 border-green-400/50 shadow-lg shadow-green-500/10'
-                    : 'bg-gray-700/30 border-gray-600/50 hover:bg-gray-700/50 hover:border-gray-500/50'
+                    : 'bg-gray-700/30 border-gray-600/50 hover:bg-gray-700/50 hover:border-gray-500/50 hover:scale-[1.02] active:scale-[0.98] focus-visible:scale-[1.02]'
                 }`}
                 onClick={() => toggleBetSelection(bet.id)}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
+                role='button'
+                tabIndex={0}
+                onKeyDown={e => handleKeyActivate(e, bet.id)}
               >
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div className='flex items-center justify-between'>
@@ -382,7 +348,6 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
                 </div>
 
                 {isSelected && (
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
@@ -392,14 +357,12 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
                     <div className='grid grid-cols-4 gap-2 text-xs'>
                       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div>
-                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div className='text-gray-400'>Confidence</div>
                         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div className='text-white font-medium'>{bet.confidence.toFixed(1)}%</div>
                       </div>
                       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                       <div>
-                        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div className='text-gray-400'>Expected Value</div>
                         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                         <div className='text-green-400 font-medium'>
@@ -429,7 +392,7 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
                     </div>
                   </motion.div>
                 )}
-              </motion.div>
+              </div>
             );
           })}
         </div>
@@ -437,7 +400,6 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
 
       {/* Recommendations */}
       {currentMetrics && (
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-lg p-4'>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <h5 className='text-sm font-semibold text-cyan-400 mb-3 flex items-center space-x-2'>
@@ -450,7 +412,6 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='space-y-2 text-sm text-gray-300'>
             {currentMetrics.totalKellyAllocation > 0.5 && (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-start space-x-2'>
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <AlertCircle className='w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0' />
@@ -463,7 +424,6 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
             )}
 
             {currentMetrics.diversificationScore < 0.6 && (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-start space-x-2'>
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <AlertCircle className='w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0' />
@@ -476,7 +436,6 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
             )}
 
             {currentMetrics.averageRisk < 0.3 && (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-start space-x-2'>
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <CheckCircle className='w-4 h-4 text-green-400 mt-0.5 flex-shrink-0' />
@@ -486,7 +445,6 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
             )}
 
             {currentMetrics.riskAdjustedReturn > 5 && (
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex items-start space-x-2'>
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <CheckCircle className='w-4 h-4 text-green-400 mt-0.5 flex-shrink-0' />
@@ -503,7 +461,6 @@ const _PortfolioOptimizer: React.FC<PortfolioOptimizerProps> = ({
 
       {/* Empty State */}
       {predictions.length === 0 && (
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='text-center py-8'>
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <PieChart className='w-12 h-12 text-gray-400 mx-auto mb-3' />

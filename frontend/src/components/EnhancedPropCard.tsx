@@ -2,6 +2,7 @@ import React from 'react';
 import { EnhancedPropAnalysis } from '../services/EnhancedPropAnalysisService';
 import { FeaturedProp } from '../services/unified/FeaturedPropsService';
 import PropCard from './PropCard';
+import PlayerLineTrendChart from './charts/PlayerLineTrendChart';
 
 interface EnhancedPropCardProps {
   proj: FeaturedProp;
@@ -196,25 +197,39 @@ const EnhancedPropCard: React.FC<EnhancedPropCardProps> = ({
     }
   };
 
-  const { stats, insights, summary, deepAnalysis } = getStatsAndInsights();
+  const { stats, insights, summary } = getStatsAndInsights();
 
   // Keep the summary clean and concise - just show the betting recommendation
   // Don't append additional metadata about alternative props
   return (
-    <PropCard
-      player={proj.player}
-      team={proj.matchup || ''}
-      position={''}
-      score={Math.round(proj.confidence || 0)}
-      summary={summary}
-      analysis={enhancedData?.deep_analysis || analysisNode}
-      onCollapse={onCollapse}
-      onRequestAnalysis={handleRequestAnalysis}
-      isAnalysisLoading={isLoadingEnhanced || loadingAnalysis.has(cacheKey)}
-      hasAnalysis={!!enhancedData?.deep_analysis || hasRequestedAnalysis}
-      stats={stats}
-      insights={insights}
-    />
+    <div>
+      {/* Player Performance Chart */}
+      <div className="mb-4">
+        <PlayerLineTrendChart
+          player={proj.player || ''}
+          sport="MLB" // Default to MLB, should be passed as prop
+          market={proj.stat || ''}
+          window={10}
+          height={300}
+          showStats={true}
+        />
+      </div>
+      
+      <PropCard
+        player={proj.player}
+        team={proj.matchup || ''}
+        position={''}
+        score={Math.round(proj.confidence || 0)}
+        summary={summary}
+        analysis={enhancedData?.deep_analysis || analysisNode}
+        onCollapse={onCollapse}
+        onRequestAnalysis={handleRequestAnalysis}
+        isAnalysisLoading={isLoadingEnhanced || loadingAnalysis.has(cacheKey)}
+        hasAnalysis={!!enhancedData?.deep_analysis || hasRequestedAnalysis}
+        stats={stats}
+        insights={insights}
+      />
+    </div>
   );
 };
 

@@ -273,26 +273,22 @@ const OptimizedPropFinderDashboard: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => setShowPerformancePanel(!showPerformancePanel)}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-transform duration-150 hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03] focus:outline-none"
             >
               <Gauge className="w-4 h-4" />
               <span>Performance</span>
-            </motion.button>
+            </button>
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={handleRefresh}
               disabled={loading || isPending}
-              className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50"
+              className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-transform duration-150 hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03] focus:outline-none disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${(loading || isPending) ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
-            </motion.button>
+            </button>
           </div>
         </div>
 

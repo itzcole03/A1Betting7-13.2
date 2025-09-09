@@ -1,3 +1,79 @@
+"""
+Thin EV service wrapper.
+
+Builds on backend.utils.odds_math and backend.models.ev_models to offer
+decoupled EV calculations and tagging. Keeps no heavy imports at module level
+so tests can import quickly.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Optional, Dict, Any
+
+
+@dataclass
+class EVComputation:
+    ev_percent: float
+    ev_dollar: float
+    implied_probability: float
+    fair_probability: float
+    is_positive: bool
+    fair_odds_decimal: float
+    fair_odds_american: int
+    tags: list[str]
+
+
+class EVService:
+    def __init__(self) -> None:
+        pass
+
+    def compute_ev(
+        self,
+        *,
+        market_odds: int,
+        fair_odds_decimal: float,
+        stake: float = 100.0,
+    ) -> EVComputation:
+        """Compute EV metrics from market and fair odds.
+
+        Uses existing odds_math helpers and ev_models.calculate_expected_value.
+        """
+        from backend.utils.odds_math import decimal_to_american, implied_probability_from_odds
+        from backend.models.ev_models import calculate_expected_value
+
+        fair_odds_american = decimal_to_american(fair_odds_decimal)
+        ev = calculate_expected_value(market_odds=market_odds, fair_odds=fair_odds_american, stake=stake)
+
+        tags: list[str] = []
+        # Tagging rules (acceptance criteria): HIGH_EV and LOW_JUICE
+        if ev.ev_percent >= 4.0:
+            tags.append("HIGH_EV")
+
+        # Low juice proxy: price near even money
+        if -105 <= market_odds <= 105:
+            tags.append("LOW_JUICE")
+
+        return EVComputation(
+            ev_percent=ev.ev_percent,
+            ev_dollar=ev.ev_dollar,
+            implied_probability=ev.implied_probability,
+            fair_probability=ev.fair_probability,
+            is_positive=ev.is_positive,
+            fair_odds_decimal=fair_odds_decimal,
+            fair_odds_american=fair_odds_american,
+            tags=tags,
+        )
+
+
+_singleton: Optional[EVService] = None
+
+
+def get_ev_service() -> EVService:
+    global _singleton
+    if _singleton is None:
+        _singleton = EVService()
+    return _singleton
 """EV utilities and expected value calculations.
 
 This module provides small, self-contained functions to compute expected

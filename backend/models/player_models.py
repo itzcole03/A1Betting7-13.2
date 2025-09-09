@@ -57,6 +57,47 @@ class PlayerPerformanceTrends(BaseModel):
     vs_righties: Dict[str, Any]
 
 
+class PlayerPerformanceGame(BaseModel):
+    """Individual game performance vs line data"""
+    date: str
+    stat_value: float
+    line_at_time: float
+    result_over: bool
+    opponent: Optional[str] = None
+    home: Optional[bool] = None
+    confidence: Optional[float] = None
+
+
+class PlayerPerformanceStats(BaseModel):
+    """Aggregated performance statistics"""
+    rolling_avg: float
+    hit_rate: float  # Percentage of times player went over the line
+    std_dev: float
+    total_games: int
+    over_count: int
+    under_count: int
+    avg_line: float
+    avg_actual: float
+
+
+class PlayerPerformanceResponse(BaseModel):
+    """Response model for player performance API"""
+    success: bool
+    data: Dict[str, Any]
+    error: Optional[Dict[str, str]] = None
+
+
+class PlayerPerformanceData(BaseModel):
+    """Player performance data structure"""
+    player: str
+    sport: str
+    market: str
+    window: int
+    recent_games: List[PlayerPerformanceGame]
+    stats: PlayerPerformanceStats
+    timestamp: str
+
+
 class PlayerDashboardResponse(BaseModel):
     id: str
     name: str

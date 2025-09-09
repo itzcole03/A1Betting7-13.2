@@ -38,18 +38,18 @@ export interface TabsContentProps {
 }
 
 // Context
-const _TabsContext = createContext<TabsContextType | undefined>(undefined);
+const TabsContext = createContext<TabsContextType | undefined>(undefined);
 
-const _useTabsContext = () => {
-  const _context = useContext(_TabsContext);
-  if (!_context) {
+const useTabsContext = () => {
+  const context = useContext(TabsContext);
+  if (!context) {
     throw new Error('Tabs components must be used within a Tabs provider');
   }
-  return _context;
+  return context;
 };
 
 // Main Tabs Component
-export const _Tabs: React.FC<TabsProps> = ({
+export const TabsComponent: React.FC<TabsProps> = ({
   value: controlledValue,
   defaultValue = '',
   onValueChange,
@@ -77,7 +77,7 @@ export const _Tabs: React.FC<TabsProps> = ({
   };
 
   return (
-    <_TabsContext.Provider value={_contextValue}>
+    <TabsContext.Provider value={_contextValue}>
       <div
         className={`
           ${orientation === 'vertical' ? 'flex' : ''}
@@ -86,13 +86,13 @@ export const _Tabs: React.FC<TabsProps> = ({
       >
         {children}
       </div>
-    </_TabsContext.Provider>
+    </TabsContext.Provider>
   );
 };
 
 // Tabs List Component
-export const _TabsList: React.FC<TabsListProps> = ({ children, className = '' }) => {
-  const { orientation, variant } = _useTabsContext();
+export const TabsList: React.FC<TabsListProps> = ({ children, className = '' }) => {
+  const { orientation, variant } = useTabsContext();
 
   const _variantClasses = {
     default: `
@@ -128,13 +128,13 @@ export const _TabsList: React.FC<TabsListProps> = ({ children, className = '' })
 };
 
 // Tabs Trigger Component
-export const _TabsTrigger: React.FC<TabsTriggerProps> = ({
+export const TabsTrigger: React.FC<TabsTriggerProps> = ({
   value,
   children,
   disabled = false,
   className = '',
 }) => {
-  const { value: selectedValue, onValueChange, variant } = _useTabsContext();
+  const { value: selectedValue, onValueChange, variant } = useTabsContext();
   const _isSelected = selectedValue === value;
 
   const _variantClasses = {
@@ -152,14 +152,9 @@ export const _TabsTrigger: React.FC<TabsTriggerProps> = ({
       : 'bg-slate-700/50 text-gray-400 hover:text-white hover:bg-slate-600/50',
   };
 
-  const _triggerVariants = {
-    inactive: { scale: 1, opacity: 0.8 },
-    active: { scale: 1.02, opacity: 1 },
-    hover: { scale: 1.01, opacity: 1 },
-  };
-
   return (
-    <motion.button
+    <button
+      id={`tab-${value}`}
       role="tab"
       aria-selected={_isSelected}
       aria-controls={`tabpanel-${value}`}
@@ -167,16 +162,15 @@ export const _TabsTrigger: React.FC<TabsTriggerProps> = ({
       disabled={disabled}
       onClick={() => !disabled && onValueChange(value)}
       className={`
-        relative px-4 py-2 rounded-md font-medium text-sm transition-all duration-200
+        relative px-4 py-2 rounded-md font-medium text-sm
         border focus:outline-none focus:ring-2 focus:ring-cyan-400/50
         disabled:opacity-50 disabled:cursor-not-allowed
+        transition-transform duration-150 transform
+        hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03]
+        ${_isSelected ? 'opacity-100' : 'opacity-80'}
         ${_variantClasses[variant]}
         ${className}
       `}
-      variants={_triggerVariants}
-      initial="inactive"
-      animate={_isSelected ? 'active' : 'inactive'}
-      whileHover={!disabled ? 'hover' : undefined}
     >
       {children}
 
@@ -194,13 +188,13 @@ export const _TabsTrigger: React.FC<TabsTriggerProps> = ({
       {variant === 'pills' && _isSelected && (
         <div className="absolute inset-0 rounded-md bg-gradient-to-r from-cyan-500/20 to-blue-600/20 animate-pulse" />
       )}
-    </motion.button>
+    </button>
   );
 };
 
 // Tabs Content Component
-export const _TabsContent: React.FC<TabsContentProps> = ({ value, children, className = '' }) => {
-  const { value: selectedValue } = _useTabsContext();
+export const TabsContent: React.FC<TabsContentProps> = ({ value, children, className = '' }) => {
+  const { value: selectedValue } = useTabsContext();
   const _isSelected = selectedValue === value;
 
   const _contentVariants = {
@@ -251,4 +245,10 @@ export const _TabsContent: React.FC<TabsContentProps> = ({ value, children, clas
 };
 
 // Export all components
-export default _Tabs;
+export const Tabs = Object.assign(TabsComponent, {
+  List: TabsList,
+  Trigger: TabsTrigger,
+  Content: TabsContent,
+});
+
+export default Tabs;

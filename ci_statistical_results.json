@@ -1,12 +1,12 @@
 {
   "suite_summary": {
     "success": true,
-    "timestamp": "2025-08-29T14:20:46.259605",
+    "timestamp": "2025-09-08T22:26:32.866078",
     "total_tests": 12,
     "passed_tests": 12,
     "failed_tests": 0,
     "pass_rate": 1.0,
-    "duration_seconds": 0.017916,
+    "duration_seconds": 0.016294,
     "seed_used": 42,
     "categories": {
       "monte_carlo": {
@@ -42,7 +42,7 @@
   "detailed_results": [
     {
       "test_name": "normal_distribution_mc_vs_analytic",
-      "timestamp": "2025-08-29T14:20:46.243027",
+      "timestamp": "2025-09-08T22:26:32.851251",
       "passed": "True",
       "metric_value": 0.003674476700887941,
       "threshold_value": 0.01,
@@ -61,7 +61,7 @@
     },
     {
       "test_name": "normal_distribution_mc_vs_analytic",
-      "timestamp": "2025-08-29T14:20:46.243027",
+      "timestamp": "2025-09-08T22:26:32.851251",
       "passed": "True",
       "metric_value": 0.003674476700887941,
       "threshold_value": 0.01,
@@ -80,7 +80,7 @@
     },
     {
       "test_name": "exponential_distribution_mc_vs_analytic",
-      "timestamp": "2025-08-29T14:20:46.244619",
+      "timestamp": "2025-09-08T22:26:32.852745",
       "passed": "True",
       "metric_value": 0.013847909257064861,
       "threshold_value": 0.01,
@@ -99,7 +99,7 @@
     },
     {
       "test_name": "exponential_distribution_mc_vs_analytic",
-      "timestamp": "2025-08-29T14:20:46.244619",
+      "timestamp": "2025-09-08T22:26:32.852745",
       "passed": "True",
       "metric_value": 0.013847909257064861,
       "threshold_value": 0.01,
@@ -118,7 +118,7 @@
     },
     {
       "test_name": "beta_distribution_mc_vs_analytic",
-      "timestamp": "2025-08-29T14:20:46.246651",
+      "timestamp": "2025-09-08T22:26:32.854680",
       "passed": "True",
       "metric_value": 0.009229360294874311,
       "threshold_value": 0.01,
@@ -137,7 +137,7 @@
     },
     {
       "test_name": "beta_distribution_mc_vs_analytic",
-      "timestamp": "2025-08-29T14:20:46.246651",
+      "timestamp": "2025-09-08T22:26:32.854680",
       "passed": "True",
       "metric_value": 0.009229360294874311,
       "threshold_value": 0.01,
@@ -156,7 +156,7 @@
     },
     {
       "test_name": "betting_probability_distribution",
-      "timestamp": "2025-08-29T14:20:46.254626",
+      "timestamp": "2025-09-08T22:26:32.862253",
       "passed": "True",
       "metric_value": 0.0063266743408449955,
       "threshold_value": 0.01,
@@ -175,7 +175,7 @@
     },
     {
       "test_name": "correlation_psd_validation_valid_test_matrix",
-      "timestamp": "2025-08-29T14:20:46.255277",
+      "timestamp": "2025-09-08T22:26:32.862575",
       "passed": true,
       "metric_value": 0.6631388770708478,
       "threshold_value": 1e-08,
@@ -210,7 +210,7 @@
     },
     {
       "test_name": "correlation_drift_detection",
-      "timestamp": "2025-08-29T14:20:46.255579",
+      "timestamp": "2025-09-08T22:26:32.862742",
       "passed": true,
       "metric_value": 0.007001073117719123,
       "threshold_value": 0.15,
@@ -230,7 +230,7 @@
     },
     {
       "test_name": "correlation_psd_validation_drift_test_matrix",
-      "timestamp": "2025-08-29T14:20:46.255717",
+      "timestamp": "2025-09-08T22:26:32.862832",
       "passed": true,
       "metric_value": 0.6619786679400911,
       "threshold_value": 1e-08,
@@ -265,7 +265,7 @@
     },
     {
       "test_name": "ci_width_regression_betting_probabilities",
-      "timestamp": "2025-08-29T14:20:46.257808",
+      "timestamp": "2025-09-08T22:26:32.864504",
       "passed": true,
       "metric_value": 0.021834977797160565,
       "threshold_value": 0.05,
@@ -290,7 +290,7 @@
     },
     {
       "test_name": "ci_width_regression_dispersed_probabilities",
-      "timestamp": "2025-08-29T14:20:46.259347",
+      "timestamp": "2025-09-08T22:26:32.865904",
       "passed": true,
       "metric_value": 0.0,
       "threshold_value": 0.05,

@@ -395,9 +395,55 @@ async def get_arbitrage_opportunities(
         data = []
         for arb in arbitrage_ops:
             if isinstance(arb, dict):
+                # Non-breaking enrichment: add optional leg_ev_details if odds present
+                try:
+                    over_odds = arb.get('overOdds') or arb.get('over_odds')
+                    under_odds = arb.get('underOdds') or arb.get('under_odds')
+                    if over_odds is not None and under_odds is not None:
+                        # Simple fair probability midpoint heuristic
+                        def _imp_prob(o):
+                            try:
+                                o = float(o)
+                                return 100 / (o + 100) if o > 0 else abs(o) / (abs(o) + 100)
+                            except Exception:
+                                return None
+                        over_p = _imp_prob(over_odds)
+                        under_p = _imp_prob(under_odds)
+                        if over_p is not None and under_p is not None:
+                            midpoint = (over_p + under_p) / 2.0
+                            # Edge for each leg vs midpoint fair prob (convert back to fair odds then EV%)
+                            def _ev_pct(market_odds, fair_prob):
+                                try:
+                                    # Expected value per $100 stake
+                                    if market_odds > 0:
+                                        payout = market_odds / 100.0 * 100.0
+                                    else:
+                                        payout = 100.0 / (abs(market_odds) / 100.0)
+                                    ev_dollar = (fair_prob * payout) - ((1 - fair_prob) * 100.0)
+                                    return round((ev_dollar / 100.0) * 100.0, 2)
+                                except Exception:
+                                    return None
+                            leg_ev_details = {
+                                'over': {
+                                    'odds': over_odds,
+                                    'implied_prob': round(over_p, 4) if over_p is not None else None,
+                                    'edgePct': _ev_pct(over_odds, midpoint)
+                                },
+                                'under': {
+                                    'odds': under_odds,
+                                    'implied_prob': round(under_p, 4) if under_p is not None else None,
+                                    'edgePct': _ev_pct(under_odds, midpoint)
+                                }
+                            }
+                            # Only attach if both edges computed
+                            if (leg_ev_details['over']['edgePct'] is not None and
+                                leg_ev_details['under']['edgePct'] is not None):
+                                arb.setdefault('leg_ev_details', leg_ev_details)
+                except Exception as e:  # defensive: never break response
+                    logger.debug("leg_ev_enrichment_failed", extra={"err": str(e), "context": "dict_arb"})
                 data.append(arb)
             else:
-                data.append({
+                item = {
                     'playerName': getattr(arb, 'player_name', None),
                     'betType': getattr(arb, 'bet_type', None),
                     'line': getattr(arb, 'line', None),
@@ -406,7 +452,49 @@ async def get_arbitrage_opportunities(
                     'underOdds': getattr(arb, 'under_odds', None),
                     'underProvider': getattr(arb, 'under_provider', None),
                     'guaranteedProfitPercentage': getattr(arb, 'guaranteed_profit_percentage', None),
-                })
+                }
+                try:
+                    over_odds = item.get('overOdds')
+                    under_odds = item.get('underOdds')
+                    if over_odds is not None and under_odds is not None:
+                        def _imp_prob(o):
+                            try:
+                                o = float(o)
+                                return 100 / (o + 100) if o > 0 else abs(o) / (abs(o) + 100)
+                            except Exception:
+                                return None
+                        over_p = _imp_prob(over_odds)
+                        under_p = _imp_prob(under_odds)
+                        if over_p is not None and under_p is not None:
+                            midpoint = (over_p + under_p) / 2.0
+                            def _ev_pct(market_odds, fair_prob):
+                                try:
+                                    if market_odds > 0:
+                                        payout = market_odds / 100.0 * 100.0
+                                    else:
+                                        payout = 100.0 / (abs(market_odds) / 100.0)
+                                    ev_dollar = (fair_prob * payout) - ((1 - fair_prob) * 100.0)
+                                    return round((ev_dollar / 100.0) * 100.0, 2)
+                                except Exception:
+                                    return None
+                            over_edge = _ev_pct(over_odds, midpoint)
+                            under_edge = _ev_pct(under_odds, midpoint)
+                            if over_edge is not None and under_edge is not None:
+                                item['leg_ev_details'] = {
+                                    'over': {
+                                        'odds': over_odds,
+                                        'implied_prob': round(over_p, 4),
+                                        'edgePct': over_edge
+                                    },
+                                    'under': {
+                                        'odds': under_odds,
+                                        'implied_prob': round(under_p, 4),
+                                        'edgePct': under_edge
+                                    }
+                                }
+                except Exception as e:  # defensive
+                    logger.debug("leg_ev_enrichment_failed", extra={"err": str(e), "context": "obj_arb"})
+                data.append(item)
 
         if data:
             await connection_manager.broadcast({

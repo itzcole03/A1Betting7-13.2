@@ -199,6 +199,9 @@ class PerformanceConfig:
     # Monitoring
     performance_monitoring_enabled: bool = True
     metrics_collection_enabled: bool = True
+    
+    # CLV Metrics
+    enable_clv_metrics: bool = True
 
 
 @dataclass

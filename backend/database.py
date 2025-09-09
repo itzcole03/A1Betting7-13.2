@@ -37,11 +37,18 @@ SessionLocal = SQLModelSession
 
 from backend.models.base import Base
 from backend.models.user import User  # Ensure User model is registered for Alembic
+# Ensure SQLModel-based tables are registered in metadata before create_all
+try:
+    # Importing the model is sufficient for SQLModel to register it
+    from backend.models.odds_snapshot_sqlmodel import OddsSnapshotRecord  # noqa: F401
+except Exception:
+    # Safe to ignore in environments/tests that don't include this module
+    pass
 
 
 # Dependency to get database session (sync for legacy, async for new)
 def get_db():
-    db = SessionLocal
+    db = SessionLocal(sync_engine)
     try:
         yield db
     finally:

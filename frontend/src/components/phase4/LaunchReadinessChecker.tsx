@@ -482,15 +482,14 @@ const LaunchReadinessChecker: React.FC = () => {
               </div>
 
               {criticalIssues === 0 && (
-                <motion.button
-                  initial={{ scale: 0.9 }}
-                  animate={{ scale: 1 }}
-                  whileHover={{ scale: 1.05 }}
-                  className='mt-4 flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 px-6 py-3 rounded-lg font-semibold transition-all shadow-lg'
-                >
-                  <Rocket className='w-5 h-5' />
-                  <span>Deploy to Production</span>
-                </motion.button>
+                <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className='mt-4'>
+                  <button
+                    className='flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 px-6 py-3 rounded-lg font-semibold shadow-lg transform transition duration-150 hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-900'
+                  >
+                    <Rocket className='w-5 h-5' />
+                    <span>Deploy to Production</span>
+                  </button>
+                </motion.div>
               )}
             </div>
           </div>

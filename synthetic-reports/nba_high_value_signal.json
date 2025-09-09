@@ -1,0 +1,19 @@
+{
+  "counts": {
+    "filtered": 1,
+    "total": 1
+  },
+  "request": {
+    "limit": 10,
+    "min_score": 75,
+    "sport": "NBA"
+  },
+  "top_factors": [
+    "arbitrage",
+    "book_diversity",
+    "ev_percent",
+    "line_movement",
+    "vig"
+  ],
+  "top_smartScore": 81.25
+}

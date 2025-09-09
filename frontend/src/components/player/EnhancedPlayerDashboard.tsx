@@ -238,22 +238,18 @@ const EnhancedPlayerDashboard: React.FC = () => {
               <p className="text-slate-400 mt-1">PropFinder-style analytics with AI insights</p>
             </div>
             <div className="flex items-center space-x-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-200"
+              <button
+                className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 px-4 py-2 rounded-lg flex items-center space-x-2 transition-transform duration-150 hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03] focus:outline-none"
               >
                 <BookOpen className="w-4 h-4" />
                 <span>Tutorials</span>
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-200"
+              </button>
+              <button
+                className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg flex items-center space-x-2 transition-transform duration-150 hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03] focus:outline-none"
               >
                 <Download className="w-4 h-4" />
                 <span>Export</span>
-              </motion.button>
+              </button>
             </div>
           </div>
         </div>
@@ -673,13 +669,11 @@ const EnhancedPlayerDashboard: React.FC = () => {
                       <p className="text-slate-400 mb-6">
                         Track your bets, analyze performance, and build your betting portfolio with comprehensive analytics.
                       </p>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 px-6 py-3 rounded-lg transition-all duration-200"
+                      <button
+                        className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 px-6 py-3 rounded-lg transition-transform duration-150 hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03] focus:outline-none"
                       >
                         Get Notified When Available
-                      </motion.button>
+                      </button>
                     </div>
                   </div>
                 </motion.div>

@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Activity, 
   TrendingUp, 
-  TrendingDown,
   DollarSign, 
-  Calendar, 
   Filter,
   Plus,
   Target,
@@ -14,12 +12,7 @@ import {
   Eye,
   Edit,
   Trash2,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Star,
-  Download,
-  RefreshCw
+  Download
 } from 'lucide-react';
 
 interface BetEntry {
@@ -72,10 +65,10 @@ const BetTrackingDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'bets' | 'analytics' | 'add'>('overview');
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [filterDateRange, setFilterDateRange] = useState<string>('ALL');
-  const [isAddingBet, setIsAddingBet] = useState(false);
+  // Removed isAddingBet temporary state (unused after animation hygiene refactor)
 
-  // Mock data for demonstration
-  const mockBets: BetEntry[] = [
+  // Mock data for demonstration (memoized to keep stable reference for effects)
+  const mockBets: BetEntry[] = useMemo(() => ([
     {
       id: '1',
       timestamp: new Date('2025-01-13'),
@@ -128,19 +121,14 @@ const BetTrackingDashboard: React.FC = () => {
       notes: 'Wind favoring right field',
       tags: ['homer-prop', 'weather-play']
     }
-  ];
+  ]), []);
 
   useEffect(() => {
-    // Load mock data
     setBets(mockBets);
     setFilteredBets(mockBets);
     calculateStats(mockBets);
     calculateMetrics(mockBets);
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [bets, filterStatus, filterDateRange]);
+  }, [mockBets]);
 
   const calculateStats = (betData: BetEntry[]): void => {
     if (betData.length === 0) {
@@ -299,7 +287,7 @@ const BetTrackingDashboard: React.FC = () => {
     });
   };
 
-  const applyFilters = (): void => {
+  const applyFilters = useCallback((): void => {
     let filtered = [...bets];
 
     if (filterStatus !== 'ALL') {
@@ -328,7 +316,11 @@ const BetTrackingDashboard: React.FC = () => {
     }
 
     setFilteredBets(filtered);
-  };
+  }, [bets, filterStatus, filterDateRange]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -365,23 +357,18 @@ const BetTrackingDashboard: React.FC = () => {
               <p className="text-slate-400 mt-1">Track performance, analyze trends, and optimize your betting strategy</p>
             </div>
             <div className="flex items-center space-x-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsAddingBet(true)}
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-200"
+              <button
+                className="bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-150 hover:scale-[1.02] active:scale-[0.97] focus-visible:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/40"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Bet</span>
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-200"
+              </button>
+              <button
+                className="bg-blue-600 px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-150 hover:scale-[1.02] active:scale-[0.97] focus-visible:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40 hover:bg-blue-500"
               >
                 <Download className="w-4 h-4" />
                 <span>Export</span>
-              </motion.button>
+              </button>
             </div>
           </div>
         </div>
@@ -390,7 +377,7 @@ const BetTrackingDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Tab Navigation */}
         <div className="flex space-x-1 bg-slate-800/30 rounded-lg p-1 mb-8">
-          {[
+          {[ 
             { key: 'overview', label: 'Overview', icon: Eye },
             { key: 'bets', label: 'Bet History', icon: Activity },
             { key: 'analytics', label: 'Analytics', icon: BarChart3 },
@@ -398,7 +385,7 @@ const BetTrackingDashboard: React.FC = () => {
           ].map(({ key, label, icon: Icon }) => (
             <button
               key={key}
-              onClick={() => setActiveTab(key as any)}
+              onClick={() => setActiveTab(key as 'overview' | 'bets' | 'analytics' | 'add')}
               className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all duration-200 ${
                 activeTab === key
                   ? 'bg-cyan-600 text-white'
@@ -689,13 +676,11 @@ const BetTrackingDashboard: React.FC = () => {
                 <p className="text-slate-400 mb-6">
                   Track your bets by adding them manually or importing from sportsbooks.
                 </p>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 px-6 py-3 rounded-lg transition-all duration-200"
+                <button
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 rounded-lg transition-all duration-150 hover:scale-[1.02] active:scale-[0.97] focus-visible:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/40 hover:from-green-500 hover:to-emerald-500"
                 >
                   Get Started
-                </motion.button>
+                </button>
               </div>
             </motion.div>
           )}

@@ -311,6 +311,41 @@ class MasterServiceRegistry {
     return this.serviceHealth.get(name) || null;
   }
 
+  // Expose service metrics for a single service or all services.
+  // Tests and legacy callers expect to be able to query metrics by name
+  // or obtain an array of all metrics when no name is provided.
+  public getServiceMetrics(name?: string): ServiceMetrics[] | ServiceMetrics | null {
+    if (typeof name === 'string') {
+      return this.serviceMetrics.get(name) || null;
+    }
+    return Array.from(this.serviceMetrics.values());
+  }
+
+  // Compatibility aliases to match the external UnifiedServiceRegistry API
+  // Some legacy code and tests pass the MasterServiceRegistry instance directly
+  // and expect methods like `get`, `register`, `has`, `unregister`, and `clear`.
+  public register(name: string, service: unknown): void {
+    this.registerService(name, service);
+  }
+
+  public get<T = unknown>(name: string): T | undefined {
+    return (this.getService<T>(name) as T) || undefined;
+  }
+
+  public has(name: string): boolean {
+    return this.services.has(name);
+  }
+
+  public unregister(name: string): boolean {
+    return this.services.delete(name);
+  }
+
+  public clear(): void {
+    this.services.clear();
+    this.serviceHealth.clear();
+    this.serviceMetrics.clear();
+  }
+
   // Provide a temporary alias for use by legacy unified services that expect
   // the external `UnifiedServiceRegistry` shape. This is intentionally loose
   // while we migrate callers; we'll tighten types in a follow-up.

@@ -70,7 +70,7 @@ export const _Grid: React.FC<GridProps> = ({
       11: 'grid-cols-11',
       12: 'grid-cols-12',
     };
-    return colsMap[colCount as keyof typeof colsMap] || 'grid-cols-12';
+    return _colsMap[colCount as keyof typeof _colsMap] || 'grid-cols-12';
   };
 
   const _getRowsClass = () => {
@@ -83,7 +83,7 @@ export const _Grid: React.FC<GridProps> = ({
       5: 'grid-rows-5',
       6: 'grid-rows-6',
     };
-    return rowsMap[rows as keyof typeof rowsMap] || '';
+    return _rowsMap[rows as keyof typeof _rowsMap] || '';
   };
 
   const _getGapClass = () => {
@@ -96,19 +96,17 @@ export const _Grid: React.FC<GridProps> = ({
       xl: 'gap-8',
       '2xl': 'gap-12',
     };
-    return gapMap[gap];
+    return _gapMap[gap];
   };
 
   const _getResponsiveClasses = () => {
     if (!responsive) return '';
-
-    const _classes = '';
-    if (responsive.sm) classes += ` sm:${getColsClass(responsive.sm)}`;
-    if (responsive.md) classes += ` md:${getColsClass(responsive.md)}`;
-    if (responsive.lg) classes += ` lg:${getColsClass(responsive.lg)}`;
-    if (responsive.xl) classes += ` xl:${getColsClass(responsive.xl)}`;
-
-    return classes;
+    let _classes = '';
+    if (responsive.sm) _classes += ` sm:${_getColsClass(responsive.sm)}`;
+    if (responsive.md) _classes += ` md:${_getColsClass(responsive.md)}`;
+    if (responsive.lg) _classes += ` lg:${_getColsClass(responsive.lg)}`;
+    if (responsive.xl) _classes += ` xl:${_getColsClass(responsive.xl)}`;
+    return _classes;
   };
 
   const _getAutoFlowClass = () => {
@@ -119,7 +117,7 @@ export const _Grid: React.FC<GridProps> = ({
       'row-dense': 'grid-flow-row-dense',
       'column-dense': 'grid-flow-col-dense',
     };
-    return flowMap[autoFlow];
+    return _flowMap[autoFlow];
   };
 
   const _getAlignItemsClass = () => {
@@ -129,7 +127,7 @@ export const _Grid: React.FC<GridProps> = ({
       center: 'items-center',
       stretch: 'items-stretch',
     };
-    return alignMap[alignItems];
+    return _alignMap[alignItems];
   };
 
   const _getJustifyItemsClass = () => {
@@ -139,18 +137,18 @@ export const _Grid: React.FC<GridProps> = ({
       center: 'justify-items-center',
       stretch: 'justify-items-stretch',
     };
-    return justifyMap[justifyItems];
+    return _justifyMap[justifyItems];
   };
 
   const _baseClasses = `
     grid
-    ${getColsClass(cols)}
-    ${getRowsClass()}
-    ${getGapClass()}
-    ${getResponsiveClasses()}
-    ${getAutoFlowClass()}
-    ${getAlignItemsClass()}
-    ${getJustifyItemsClass()}
+    ${_getColsClass(cols)}
+    ${_getRowsClass()}
+    ${_getGapClass()}
+    ${_getResponsiveClasses()}
+    ${_getAutoFlowClass()}
+    ${_getAlignItemsClass()}
+    ${_getJustifyItemsClass()}
     ${variant === 'cyber' ? 'relative' : ''}
     ${className}
   `;
@@ -172,9 +170,9 @@ export const _Grid: React.FC<GridProps> = ({
   if (animated) {
     return (
       <motion.div
-        className={baseClasses}
-        style={gridStyle}
-        variants={containerVariants}
+        className={_baseClasses}
+        style={_gridStyle}
+        variants={_containerVariants}
         initial='hidden'
         animate='visible'
       >
@@ -194,7 +192,7 @@ export const _Grid: React.FC<GridProps> = ({
   }
 
   return (
-    <div className={baseClasses} style={gridStyle}>
+    <div className={_baseClasses} style={_gridStyle}>
       {/* Cyber grid overlay */}
       {variant === 'cyber' && (
         <div className='absolute inset-0 opacity-10 pointer-events-none'>
@@ -224,7 +222,7 @@ export const _GridItem: React.FC<GridItemProps> = ({
   justifySelf = 'auto',
   alignSelf = 'auto',
   animated = false,
-  delay = 0,
+  // removed unused delay prop (animation handled via variants timing)
   onClick,
 }) => {
   const _getColSpanClass = () => {
@@ -245,7 +243,7 @@ export const _GridItem: React.FC<GridItemProps> = ({
       11: 'col-span-11',
       12: 'col-span-12',
     };
-    return spanMap[colSpan as keyof typeof spanMap] || '';
+    return _spanMap[colSpan as keyof typeof _spanMap] || '';
   };
 
   const _getRowSpanClass = () => {
@@ -260,7 +258,7 @@ export const _GridItem: React.FC<GridItemProps> = ({
       5: 'row-span-5',
       6: 'row-span-6',
     };
-    return spanMap[rowSpan as keyof typeof spanMap] || '';
+    return _spanMap[rowSpan as keyof typeof _spanMap] || '';
   };
 
   const _getColStartClass = () => {
@@ -280,7 +278,7 @@ export const _GridItem: React.FC<GridItemProps> = ({
       12: 'col-start-12',
       13: 'col-start-13',
     };
-    return startMap[colStart as keyof typeof startMap] || '';
+    return _startMap[colStart as keyof typeof _startMap] || '';
   };
 
   const _getColEndClass = () => {
@@ -300,7 +298,7 @@ export const _GridItem: React.FC<GridItemProps> = ({
       12: 'col-end-12',
       13: 'col-end-13',
     };
-    return endMap[colEnd as keyof typeof endMap] || '';
+    return _endMap[colEnd as keyof typeof _endMap] || '';
   };
 
   const _getRowStartClass = () => {
@@ -314,7 +312,7 @@ export const _GridItem: React.FC<GridItemProps> = ({
       6: 'row-start-6',
       7: 'row-start-7',
     };
-    return startMap[rowStart as keyof typeof startMap] || '';
+    return _startMap[rowStart as keyof typeof _startMap] || '';
   };
 
   const _getRowEndClass = () => {
@@ -328,7 +326,7 @@ export const _GridItem: React.FC<GridItemProps> = ({
       6: 'row-end-6',
       7: 'row-end-7',
     };
-    return endMap[rowEnd as keyof typeof endMap] || '';
+    return _endMap[rowEnd as keyof typeof _endMap] || '';
   };
 
   const _getJustifySelfClass = () => {
@@ -339,7 +337,7 @@ export const _GridItem: React.FC<GridItemProps> = ({
       center: 'justify-self-center',
       stretch: 'justify-self-stretch',
     };
-    return justifyMap[justifySelf];
+    return _justifyMap[justifySelf];
   };
 
   const _getAlignSelfClass = () => {
@@ -350,7 +348,7 @@ export const _GridItem: React.FC<GridItemProps> = ({
       center: 'self-center',
       stretch: 'self-stretch',
     };
-    return alignMap[alignSelf];
+    return _alignMap[alignSelf];
   };
 
   const _getVariantClasses = () => {
@@ -367,15 +365,15 @@ export const _GridItem: React.FC<GridItemProps> = ({
   };
 
   const _baseClasses = `
-    ${getColSpanClass()}
-    ${getRowSpanClass()}
-    ${getColStartClass()}
-    ${getColEndClass()}
-    ${getRowStartClass()}
-    ${getRowEndClass()}
-    ${getJustifySelfClass()}
-    ${getAlignSelfClass()}
-    ${getVariantClasses()}
+    ${_getColSpanClass()}
+    ${_getRowSpanClass()}
+    ${_getColStartClass()}
+    ${_getColEndClass()}
+    ${_getRowStartClass()}
+    ${_getRowEndClass()}
+    ${_getJustifySelfClass()}
+    ${_getAlignSelfClass()}
+    ${_getVariantClasses()}
     ${onClick ? 'cursor-pointer' : ''}
     ${className}
   `;
@@ -403,32 +401,23 @@ export const _GridItem: React.FC<GridItemProps> = ({
 
   if (animated) {
     return (
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <motion.div
-        className={baseClasses}
-        style={itemStyle}
-        // @ts-expect-error TS(2322): Type '{ hidden: { opacity: number; y: number; scal... Remove this comment to see the full error message
-        variants={itemVariants}
-        whileHover={onClick ? { scale: 1.02 } : undefined}
-        whileTap={onClick ? { scale: 0.98 } : undefined}
+        className={_baseClasses}
+        style={_itemStyle}
+        variants={_itemVariants}
+        initial='hidden'
+        animate='visible'
         onClick={onClick}
       >
-        {/* Cyber grid overlay for cyber variant */}
         {variant === 'cyber' && (
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='absolute inset-0 opacity-10 pointer-events-none'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
-            Remove this comment to see the full error message
             <div className='grid grid-cols-4 grid-rows-3 h-full w-full'>
               {Array.from({ length: 12 }).map((_, i) => (
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                 <div key={i} className='border border-cyan-400/30' />
               ))}
             </div>
           </div>
         )}
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
-        this comment to see the full error message
         <div className='relative z-10'>{children}</div>
       </motion.div>
     );
@@ -436,15 +425,15 @@ export const _GridItem: React.FC<GridItemProps> = ({
 
   return (
     <div
-      className={baseClasses}
-      style={itemStyle}
+      className={_baseClasses}
+      style={_itemStyle}
       onClick={onClick}
       role='button'
       tabIndex={0}
       onKeyDown={e => {
         if (onClick && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
-          onClick(e);
+          onClick();
         }
       }}
     >

@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  BarChart3, TrendingUp, Activity, ArrowLeftRight, Target, 
-  Brain, Zap, Calculator, Database, LineChart, PieChart,
-  Users, Trophy, Timer, Flame, Eye, Shield, AlertTriangle,
-  ChevronDown, ChevronUp, Filter, Settings, Download,
-  Calendar, Clock, MapPin, Cloud, ThermometerSun
+import { motion } from 'framer-motion';
+import {
+  BarChart3, Activity, ArrowLeftRight, Target,
+  Brain, Zap, Calculator, Database, LineChart,
+  Users, Settings, Download,
+  Clock, MapPin, ThermometerSun, CheckCircle
 } from 'lucide-react';
 
 // Advanced statistical modeling interfaces
@@ -790,15 +789,13 @@ const AdvancedMatchupAnalysisTools: React.FC = () => {
                   const Icon = analysis.icon;
                   const isActive = activeAnalysis.includes(analysis.id);
                   const hasResults = analysisResults[analysis.id];
-                  
+
                   return (
-                    <motion.div
+                    <div
                       key={analysis.id}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                        isActive 
-                          ? 'bg-purple-600/20 border-purple-500 shadow-lg' 
+                      className={`p-4 rounded-lg border cursor-pointer transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98] focus-visible:scale-[1.02] focus:outline-none ${
+                        isActive
+                          ? 'bg-purple-600/20 border-purple-500 shadow-lg'
                           : 'bg-gray-700/50 border-gray-600 hover:border-gray-500'
                       }`}
                       onClick={() => {
@@ -811,6 +808,20 @@ const AdvancedMatchupAnalysisTools: React.FC = () => {
                           }
                         }
                       }}
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          if (isActive) {
+                            setActiveAnalysis(prev => prev.filter(id => id !== analysis.id));
+                          } else {
+                            setActiveAnalysis(prev => [...prev, analysis.id]);
+                            if (!hasResults) performAnalysis(analysis.id);
+                          }
+                        }
+                      }}
+                      role="button"
+                      aria-pressed={isActive}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <Icon className={`w-5 h-5 ${isActive ? 'text-purple-400' : 'text-gray-400'}`} />
@@ -832,7 +843,7 @@ const AdvancedMatchupAnalysisTools: React.FC = () => {
                         <span className="text-gray-500">~{analysis.computationTime}ms</span>
                         {isActive && <span className="text-purple-400">Active</span>}
                       </div>
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>

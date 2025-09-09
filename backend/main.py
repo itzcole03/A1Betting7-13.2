@@ -47,8 +47,13 @@ except ImportError:
 
 # Use the canonical app factory
 try:
-    from backend.core.app import create_app
+    from backend.core.app import create_app, register_feature_routers
     app = create_app()  # Use the canonical app factory
+    # Ensure feature routers (like PropFinder) are registered when importing via legacy entrypoint
+    try:
+        register_feature_routers(app)
+    except Exception as _e:
+        logger.warning(f"Feature router registration (main.py) skipped: {_e}")
     logger.info("✅ Using canonical app from backend.core.app.create_app()")
 except ImportError as e:
     logger.error(f"❌ Cannot import canonical app factory: {e}")

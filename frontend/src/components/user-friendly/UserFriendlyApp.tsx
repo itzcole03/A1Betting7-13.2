@@ -27,6 +27,7 @@ const ArbitrageOpportunities = React.lazy(
 const PlayerDashboard = React.lazy(() => import('../player/PlayerDashboardWrapper'));
 const EnhancedPlayerDashboard = React.lazy(() => import('../player/EnhancedPlayerDashboard'));
 const BetTrackingDashboard = React.lazy(() => import('../tracking/BetTrackingDashboard'));
+const BankrollPage = React.lazy(() => import('../BankrollPage'));
 const PlayerDashboardTest = React.lazy(() => import('../../pages/PlayerDashboardTest'));
 const UltimateMoneyMaker = React.lazy(() => import('../MoneyMaker/UltimateMoneyMaker'));
 
@@ -36,6 +37,7 @@ const CheatsheetsDashboard = React.lazy(
   () => import('../features/cheatsheets/CheatsheetsDashboard')
 );
 const KellyCalculator = React.lazy(() => import('../features/risk/KellyCalculator'));
+const FairOddsCalculator = React.lazy(() => import('../tools/FairOddsCalculator'));
 const PropFinderCompetitorDashboard = React.lazy(
   () => import('../welcome/PropFinderCompetitorDashboard')
 );
@@ -86,6 +88,21 @@ const UnifiedAIPredictionsDashboard = React.lazy(
 
 // NEW: SmartAlerts component for alert rule management
 const SmartAlerts = React.lazy(() => import('../SmartAlerts'));
+
+// NEW: CLV Metrics Admin Dashboard
+const CLVMetricsDashboard = React.lazy(() => import('../admin/CLVMetricsDashboard'));
+
+// NEW: Admin Analytics Dashboard
+const AdminAnalytics = React.lazy(() => import('../admin/AdminAnalytics'));
+
+// NEW: Lineup Builder Page with Enhanced Parlay Analytics
+const LineupBuilderPage = React.lazy(() => import('../../pages/LineupBuilderPage'));
+
+// NEW: +EV Feed Dashboard
+const PositiveEVFeed = React.lazy(() => import('../PositiveEVFeed'));
+
+// NEW: Smart Signals Page
+const SmartSignalsPage = React.lazy(() => import('../pages/SmartSignalsPage'));
 
 // Phase 3 Components
 const Phase3Page = React.lazy(() => import('../../pages/Phase3Page'));
@@ -184,12 +201,17 @@ const UserFriendlyApp: React.FC = memo(() => {
               <Route path='/advanced-arbitrage' element={<AdvancedArbitrageDashboard />} />
               <Route path='/kelly-calculator' element={<KellyCalculator />} />
               <Route path='/advanced-kelly' element={<AdvancedKellyDashboard />} />
+              <Route path='/fair-odds-calculator' element={<FairOddsCalculator />} />
               <Route path='/odds-comparison' element={<OddsComparison />} />
               <Route path='/line-tracker' element={<PropFinderKillerDashboard />} />
               <Route path='/cheatsheets' element={<CheatsheetsDashboard />} />
+              <Route path='/lineup-builder' element={<LineupBuilderPage />} />
+              <Route path='/parlay-analytics' element={<LineupBuilderPage />} />
+              <Route path='/smart-signals' element={<SmartSignalsPage />} />
 
               {/* Analytics Routes */}
               <Route path='/tracking' element={<BetTrackingDashboard />} />
+              <Route path='/bankroll' element={<BankrollPage />} />
               <Route path='/ml-models' element={<MLModelCenter />} />
               <Route path='/performance' element={<BetTrackingDashboard />} />
               <Route path='/comparison' element={<SuccessMetricsPage />} />
@@ -217,6 +239,20 @@ const UserFriendlyApp: React.FC = memo(() => {
 
               {/* NEW: SmartAlerts Route */}
               <Route path='/smart-alerts' element={<SmartAlerts />} />
+
+              {/* NEW: +EV Feed Route */}
+              <Route path='/ev-feed' element={<PositiveEVFeed />} />
+
+              {/* NEW: CLV Metrics Admin Dashboard Route */}
+              <Route path='/admin/clv-metrics' element={<CLVMetricsDashboard />} />
+
+              {/* NEW: Admin Analytics Dashboard Route */}
+              <Route path='/admin/analytics' element={<AdminAnalytics />} />
+
+              {/* NEW: Admin Feature Flags Route */}
+              <Route path='/admin/feature-flags' element={
+                React.createElement(React.lazy(() => import('../admin/AdminFeatureFlags')))
+              } />
 
               {/* Fallback to PropFinder Killer Dashboard */}
               <Route path='*' element={<PropFinderKillerDashboard />} />

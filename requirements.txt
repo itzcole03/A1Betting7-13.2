@@ -18,6 +18,9 @@ statsmodels>=0.14.0
 pandera>=0.17.2  # Modern data validation framework
 great-expectations>=0.18.0  # Enterprise data validation (optional)
 
+# Configuration and YAML parsing
+PyYAML>=6.0
+
 # SHAP for Explainable AI
 shap>=0.43.0
 

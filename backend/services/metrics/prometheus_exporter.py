@@ -204,6 +204,22 @@ def generate_prometheus_metrics() -> str:
             websocket_stats.get("messages_sent", 0)
         ))
     
+    # Arbitrage metrics
+    try:
+        from backend.arbitrage_engine import ultra_arbitrage_engine
+        arbitrage_metrics = ultra_arbitrage_engine.get_prometheus_metrics()
+        
+        for metric_name, value in arbitrage_metrics.items():
+            metrics_lines.append(format_prometheus_metric(
+                f"a1betting_{metric_name}",
+                "counter",
+                f"Total {metric_name.replace('_', ' ')}",
+                value
+            ))
+    except ImportError:
+        # Arbitrage engine not available
+        pass
+    
     # Metadata
     metrics_lines.append(format_prometheus_metric(
         "a1betting_metrics_timestamp_seconds",

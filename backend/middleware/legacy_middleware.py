@@ -11,6 +11,7 @@ endpoint access before routing to handlers.
 
 import time
 import logging
+import os
 from typing import Callable, Dict, Any
 from datetime import datetime, timezone
 
@@ -175,7 +176,18 @@ class LegacyMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
         
         # Check if this is a legacy endpoint
-        if self._is_legacy_endpoint(path):
+        is_legacy = self._is_legacy_endpoint(path)
+
+        # Optional diagnostics for route classification
+        if os.getenv("LEGACY_DEBUG", "0").lower() in {"1", "true", "yes"}:
+            try:
+                logger.info(
+                    f"[LegacyMiddleware] classify method={method} path={path} is_legacy={is_legacy}"
+                )
+            except Exception:
+                pass
+
+        if is_legacy:
             # Check if legacy endpoints are disabled
             if not self.registry.is_enabled():
                 return self._create_410_response(path)

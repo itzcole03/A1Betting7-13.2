@@ -20,10 +20,94 @@ jobs:
       - name: Install backend dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r backend/requirements.txt
+          pip install -r requirements.txt
 
       - name: Run backend tests
         env:
           DATABASE_URL: "sqlite+aiosqlite:///:memory:"
         run: |
           pytest -q backend/tests
+
+      - name: Run CLV metrics tests
+        env:
+          DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+        run: |
+          pytest -m 'clv' -q
+
+      - name: Validate CLV alert configuration
+        run: |
+          # Check if CLV alerts configuration file exists and is valid YAML
+          if [ -f "docs/alerts/clv_alerts.example.yaml" ]; then
+            echo "✅ CLV alerts configuration file exists"
+            # Basic YAML validation (requires python-yaml)
+            python -c "import yaml; yaml.safe_load(open('docs/alerts/clv_alerts.example.yaml'))" && echo "✅ CLV alerts YAML is valid"
+          else
+            echo "❌ CLV alerts configuration file missing"
+            exit 1
+          fi
+          
+          # Validate that required alert rules are present
+          python -c "
+          import yaml
+          with open('docs/alerts/clv_alerts.example.yaml') as f:
+              config = yaml.safe_load(f)
+          
+          required_alerts = [
+              'CLVProcessingHighLatency',
+              'CLVProcessingErrorRate', 
+              'CLVCacheHitRateLow',
+              'CLVProcessingStalled'
+          ]
+          
+          found_alerts = []
+          for group in config.get('groups', []):
+              for rule in group.get('rules', []):
+                  if 'alert' in rule:
+                      found_alerts.append(rule['alert'])
+          
+          missing = [alert for alert in required_alerts if alert not in found_alerts]
+          if missing:
+              print(f'❌ Missing required alert rules: {missing}')
+              exit(1)
+          else:
+              print('✅ All required CLV alert rules are present')
+          "
+
+      - name: Test CLV metrics endpoints
+        env:
+          DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+        run: |
+          # Start the backend server in the background
+          cd backend
+          python -m uvicorn main:app --host 127.0.0.1 --port 8000 &
+          SERVER_PID=$!
+          cd ..
+          
+          # Wait for server to start
+          sleep 10
+          
+          # Test CLV metrics summary endpoint
+          echo "Testing CLV metrics summary endpoint..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/api/propfinder/opportunities/metrics-summary)
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "✅ CLV metrics summary endpoint is accessible"
+          else
+            echo "❌ CLV metrics summary endpoint failed (HTTP $RESPONSE)"
+            kill $SERVER_PID 2>/dev/null
+            exit 1
+          fi
+          
+          # Test PropFinder opportunities endpoint with CLV
+          echo "Testing PropFinder opportunities endpoint with CLV..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:8000/api/propfinder/opportunities?include_clv=1")
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "✅ PropFinder opportunities endpoint with CLV is accessible"
+          else
+            echo "❌ PropFinder opportunities endpoint with CLV failed (HTTP $RESPONSE)"
+            kill $SERVER_PID 2>/dev/null
+            exit 1
+          fi
+          
+          # Clean up
+          kill $SERVER_PID 2>/dev/null
+          echo "✅ All CLV endpoint tests passed"

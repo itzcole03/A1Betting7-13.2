@@ -1,4 +1,5 @@
 # Import all models here for Alembic autogeneration
+from .analytics import EVOpportunityHistory, ArbitrageHistory
 from .expanded_models import Event, Odds, Team
 from .historical import Casino, GameSpread, Score
 from .match import Match

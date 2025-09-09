@@ -334,12 +334,34 @@ export class UnifiedAnalyticsService extends BaseService {
 
   async getRecentActivity(limit: number = 10): Promise<RecentActivity[]> {
     try {
-      const [_bets, _predictions] = await Promise.all([
-        this.bettingService.getBetHistory(),
-        this.predictionService.getPredictionHistory(),
+      const betsPromise =
+        typeof this.bettingService.getBetHistory === 'function'
+          ? this.bettingService.getBetHistory()
+          : typeof this.bettingService.getRecentBets === 'function'
+          ? this.bettingService.getRecentBets()
+          : Promise.resolve([]);
+
+      const predictionsPromise =
+        typeof this.predictionService.getPredictionHistory === 'function'
+          ? this.predictionService.getPredictionHistory()
+          : typeof this.predictionService.getRecentPredictions === 'function'
+          ? this.predictionService.getRecentPredictions()
+          : Promise.resolve([]);
+
+      const opportunitiesPromise =
+        typeof this.predictionService.getRecentOpportunities === 'function'
+          ? this.predictionService.getRecentOpportunities()
+          : Promise.resolve([]);
+
+      const [_bets, _predictions, _opportunities] = await Promise.all([
+        betsPromise,
+        predictionsPromise,
+        opportunitiesPromise,
       ]);
 
-      const betActivities: RecentActivity[] = _bets.slice(0, limit).map(_bet => ({
+      const betActivities: RecentActivity[] = _bets.slice(0, limit).map((
+        _bet: any
+      ) => ({
         id: typeof _bet.id === 'string' ? _bet.id : '',
         type: 'bet',
         description:
@@ -354,17 +376,31 @@ export class UnifiedAnalyticsService extends BaseService {
             : 'pending',
       }));
 
-      const predictionActivities: RecentActivity[] = _predictions.slice(0, limit).map(_pred => ({
+      const predictionActivities: RecentActivity[] = _predictions.slice(0, limit).map((
+        _pred: any
+      ) => ({
         id: typeof _pred.modelUsed === 'string' ? _pred.modelUsed : '',
         type: 'prediction',
         description: `Prediction made (confidence: ${
           typeof _pred.confidence === 'number' ? _pred.confidence : 'N/A'
         })`,
-        timestamp: _pred.timestamp instanceof Date ? _pred.timestamp.getTime() : Date.now(),
+  timestamp: typeof _pred.timestamp === 'number' ? _pred.timestamp : _pred.timestamp instanceof Date ? _pred.timestamp.getTime() : Date.now(),
         status: 'success',
       }));
 
-      const activities: RecentActivity[] = [...betActivities, ...predictionActivities]
+      const opportunityActivities: RecentActivity[] = Array.isArray(_opportunities)
+        ? _opportunities.slice(0, limit).map((o: any) => ({
+            id: typeof o.id === 'string' ? o.id : '',
+            type: 'opportunity' as const,
+            description: typeof o.description === 'string' ? o.description : '',
+            amount: typeof o.amount === 'number' ? o.amount : undefined,
+            odds: typeof o.odds === 'number' ? o.odds : undefined,
+            timestamp: typeof o.timestamp === 'number' ? o.timestamp : Date.now(),
+            status: 'success' as const,
+          }))
+        : [];
+
+      const activities: RecentActivity[] = [...betActivities, ...predictionActivities, ...opportunityActivities]
         .sort((a, b) => b.timestamp - a.timestamp)
         .slice(0, limit);
 

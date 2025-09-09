@@ -16,7 +16,7 @@ module.exports = {
 
   // Setup files - run before each test
   setupFiles: ['<rootDir>/jest.polyfill.textencoder.js', '<rootDir>/jest.env.mock.js'],
-  setupFilesAfterEnv: ['<rootDir>/jest.dom.setup.js', '<rootDir>/src/setupTests.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.dom.setup.js', '<rootDir>/src/setupTests.ts'],
 
   // Module handling
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'],

@@ -14,6 +14,9 @@ import os
 import httpx
 from fastapi import HTTPException
 
+# Import line movement tracking for integration
+from .line_movement_service import trigger_snapshot
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -255,6 +258,26 @@ class OddsAggregationService:
             )
             
             canonical_lines.append(canonical_line)
+            
+            # 🚀 TRIGGER LINE MOVEMENT SNAPSHOT
+            try:
+                # Use best line for movement tracking
+                best_line = best_over.line  # or choose based on strategy
+                best_odds = best_over.over_price
+                
+                await trigger_snapshot(
+                    sport=sport.upper().replace("BASEBALL_", "").replace("_", ""),  # MLB
+                    player=lines[0].player_name,
+                    market=lines[0].stat_type,
+                    line=best_line,
+                    best_odds=best_odds,
+                    source="odds_aggregation"
+                )
+                
+                logger.debug(f"Line movement snapshot triggered for {lines[0].player_name} {lines[0].stat_type}")
+                
+            except Exception as e:
+                logger.warning(f"Failed to trigger line movement snapshot: {e}")
         
         # Sort by arbitrage profit (highest first)
         canonical_lines.sort(key=lambda x: x.arbitrage_profit, reverse=True)

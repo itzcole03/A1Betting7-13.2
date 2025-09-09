@@ -1,0 +1,28 @@
+{
+  "average_score": 70.0,
+  "counts": {
+    "filtered": 1,
+    "total": 2
+  },
+  "request": {
+    "limit": 10,
+    "min_score": 70,
+    "sport": "MLB"
+  },
+  "top_opportunity": {
+    "arbitrageProfitPct": 2.6,
+    "factors": [
+      "arbitrage",
+      "book_diversity",
+      "ev_percent",
+      "line_movement",
+      "vig"
+    ],
+    "hasArbitrage": true,
+    "id": "mlb_test_player_total_bases_123",
+    "market": "Total Bases",
+    "numBookmakers": 3,
+    "player": "Test Player",
+    "smartScore": 70.0
+  }
+}

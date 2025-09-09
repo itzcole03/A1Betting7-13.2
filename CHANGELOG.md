@@ -1,5 +1,117 @@
 # A1Betting7-13.2 Changelog
 
+## [2025-09-08] - Feature Group: EV Hardening, Provider Status, Arbitrage Validation, Line Movement, Smart Signals
+
+### Added
+
+- EV Hardening
+  - Endpoint: `POST /api/ev/calc` with instrumentation hooks
+  - Observability timing: `ev_ms_avg`
+
+- Odds Provider Status
+  - Router: `/api/odds/providers/*` (status, statistics, confidence-scores, health dashboard)
+  - Backed by `provider_statistics_integration`; system health dashboard available
+
+- Hardened Arbitrage Validation
+  - Router: `/api/arbitrage/*`
+  - Validation warnings visible under `/api/data/validation/summary` with keys like `arbitrage_probability_violation`, `arbitrage_missing_sides`
+  - Observability timing: `arbitrage_ms_avg`
+
+- Line Movement Subsystem
+  - Router: `/api/lines/*` (snapshot, metrics, recent-significant, health)
+  - Operation metric: `line_movement_snapshot`; timing: `line_movement_ms_avg`
+
+- Smart Signals
+  - Router: `/api/signals/*` (health, smart, player lookups)
+  - Prometheus counter: `smart_signals_generated_total`
+  - Gated by feature flag `ENABLE_SMART_SIGNALS`
+
+### Feature Flags
+
+- Admin Feature Flags API: `/api/admin/feature-flags` (+ `/audit`)
+- Flags introduced/maintained: `ENABLE_EV_ENRICHMENT`, `ENABLE_SMART_SIGNALS`, `ENABLE_LINE_MOVEMENT`
+
+### Observability
+
+- Standard timing set exposed in `/api/observability/{snapshot,timings}`
+  - Keys: `ev_ms_avg`, `arbitrage_ms_avg`, `odds_norm_ms_avg`, `line_movement_ms_avg`
+- Operation counters available at `/api/observability/metrics/operations`
+- Flags surface at `/api/observability/flags`
+
+### Notes
+
+- Middleware compatibility: admin and observability routes are exempt from legacy forwarding.
+- Tests assert timing keys and validation warnings to guarantee contract stability.
+
+## [2025-09-04] - Step 7: CLV Metrics Instrumentation Complete
+
+### 🎯 CLV (Customer Lifetime Value) Metrics System Implementation
+
+### Status
+
+✅ STEP 7 COMPLETE
+
+Comprehensive implementation of CLV metrics instrumentation for PropFinder opportunities with production-ready monitoring and diagnostics.
+
+#### 🔧 Core Features Implemented
+
+- **CLV Metrics Instrumentation**: `backend/utils/clv_metrics.py` - Production-grade metrics collection with failure rate and latency tracking
+- **PropFinder Integration**: Enhanced `/api/propfinder/opportunities` endpoint with `?include_clv=1` parameter for CLV data enrichment
+- **Diagnostics Interface**: New `/api/propfinder/opportunities/diagnostics?clv_diag=1` endpoint for comprehensive CLV system monitoring
+- **Prometheus Metrics**: CLV-specific metrics exposed at `/internal/metrics` with proper naming conventions
+- **Alert System**: Configurable alert thresholds (failure_rate >5%, avg_latency >500ms) with automated monitoring
+
+#### 📊 Prometheus Metrics Exposed
+
+```text
+# CLV Performance Metrics
+clv_success_rate_total{endpoint="propfinder_opportunities"}  # Success rate counter
+clv_failure_rate_total{endpoint="propfinder_opportunities"}  # Failure rate counter  
+clv_latency_ms{endpoint="propfinder_opportunities",quantile="0.5"}  # Response latency percentiles
+clv_diagnostic_requests_total  # Total diagnostic requests
+clv_opportunities_generated_total  # Total opportunities with CLV data
+clv_cache_hits_total / clv_cache_misses_total  # CLV-specific cache performance
+```
+
+#### 🛡️ Production Integration
+
+- **Production App Wiring**: CLV metrics properly integrated into `backend/production_integration.py`
+- **Health Monitoring**: CLV system health checks integrated into existing health endpoints
+- **Error Handling**: Comprehensive error boundaries with graceful degradation
+- **Performance Optimization**: CLV enrichment with 60-second caching to minimize performance impact
+
+#### 🧪 Comprehensive Testing
+
+- **Unit Tests**: `backend/tests/test_clv_metrics.py` - Core CLV metrics functionality validation
+- **Integration Tests**: `backend/tests/test_clv_integration.py` - End-to-end PropFinder CLV integration
+- **Performance Tests**: `backend/tests/test_clv_performance.py` - CLV enrichment performance validation
+- **Edge Case Testing**: `backend/tests/test_clv_edge_cases.py` - Error conditions and boundary scenarios
+
+#### 📚 Documentation & Operations
+
+- **CLV Operations Runbook**: `docs/clv_metrics_runbook.md` - Complete operational procedures with troubleshooting
+- **Metrics Documentation**: Enhanced `METRICS_IMPLEMENTATION_COMPLETE.md` with CLV-specific Prometheus configuration
+- **OpenAPI Integration**: Comprehensive parameter documentation for `?include_clv=1` and `?clv_diag=1`
+- **Alert Configuration**: Production-ready Prometheus alert rules with escalation procedures
+
+#### 🔍 Monitoring & Alerting
+
+* **Alert Thresholds**: 
+  * CLV failure rate >5% for 5 minutes (Warning)
+  * CLV P95 latency >500ms for 2 minutes (Warning)
+  * CLV cache hit rate <70% for 10 minutes (Warning)
+* **Grafana Dashboards**: Ready-to-use PromQL queries for CLV performance visualization
+* **Escalation Procedures**: Defined escalation paths from Platform Team → Engineering Team → Architecture Team
+
+#### 🚀 Optional Enhancement
+
+* **Internal Metrics Endpoint**: `/api/propfinder/opportunities/metrics-summary` for lightweight CLV metrics access
+* **Real-time Monitoring**: CLV system status available through existing health and diagnostics endpoints
+
+**Impact**: Enterprise-grade CLV metrics system enabling data-driven optimization of PropFinder opportunities with comprehensive observability and operational procedures.
+
+---
+
 ## [2025-08-15] - PR10 Drift Monitoring & Calibration Baseline
 
 ### Added

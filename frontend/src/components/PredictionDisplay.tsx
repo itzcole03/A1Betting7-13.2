@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, 
-  TrendingUp, 
   Target, 
   Clock, 
-  Star,
   Activity,
   RefreshCw,
   Calendar,
-  ChevronRight,
   Trophy,
   AlertCircle
 } from 'lucide-react';
@@ -39,7 +36,7 @@ const PredictionDisplay: React.FC = () => {
   const [timeFilter, setTimeFilter] = useState('today');
 
   // Mock data for demonstration
-  const mockPredictions: GamePrediction[] = [
+  const mockPredictions: GamePrediction[] = useMemo(() => ([
     {
       id: '1',
       homeTeam: 'Los Angeles Lakers',
@@ -91,11 +88,11 @@ const PredictionDisplay: React.FC = () => {
       reasoning: 'Oilers strong at home with McDavid leading elite offense',
       status: 'live'
     }
-  ];
+  ]), []);
 
   useEffect(() => {
     setPredictions(mockPredictions);
-  }, []);
+  }, [mockPredictions]);
 
   const refreshPredictions = async () => {
     setIsLoading(true);
@@ -185,17 +182,15 @@ const PredictionDisplay: React.FC = () => {
               </select>
             </div>
 
-            {/* Refresh */}
-            <motion.button
+            {/* Refresh (trivial scale animation replaced with Tailwind utilities) */}
+            <button
               onClick={refreshPredictions}
               disabled={isLoading}
-              className="flex items-center gap-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded-lg px-4 py-2 text-blue-400 transition-colors disabled:opacity-50"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              className="flex items-center gap-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded-lg px-4 py-2 text-blue-400 transition duration-150 transform hover:scale-[1.03] active:scale-[0.97] focus-visible:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
-            </motion.button>
+            </button>
           </div>
         </motion.div>
 

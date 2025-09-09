@@ -232,6 +232,9 @@ jobs:
           cd ..
           python -m pytest tests/backend/routes/ -v --tb=short --asyncio-mode=auto --disable-warnings --junitxml=test-results.xml --cov=backend/routes --cov-report=xml --cov-report=html
           
+          # Run CLV metrics tests
+          python -m pytest -m 'clv' -q --tb=short
+          
           # Also run any existing backend tests
           cd backend
           pytest --cov=backend --cov-report=xml --cov-report=html
