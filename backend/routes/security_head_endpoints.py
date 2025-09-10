@@ -393,3 +393,29 @@ async def head_analytics(request: Request):
     except Exception as e:
         logger.error(f"HEAD /analytics error: {e}")
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@router.head("/propfinder/opportunities")
+async def head_propfinder_opportunities(request: Request):
+    """HEAD endpoint indicating PropFinder opportunities route is available.
+
+    Some environments do not automatically enable HEAD for GET routes; provide
+    an explicit handler to ensure monitors and tests receive a 200/204 without
+    a response body.
+    """
+    try:
+        response = head_handler.create_head_response(
+            exists=True,
+            content_type="application/json",
+            last_modified=datetime.utcnow(),
+            etag=f"propfinder_opps_{datetime.utcnow().date()}",
+            cache_control="public, max-age=60"
+        )
+        logger.info("HEAD /propfinder/opportunities", extra={
+            "client_ip": request.client.host if request.client else "unknown",
+            "response_status": response.status_code
+        })
+        return response
+    except Exception as e:
+        logger.error(f"HEAD /propfinder/opportunities error: {e}")
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
