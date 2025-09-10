@@ -326,3 +326,70 @@ async def head_capabilities(request: Request):
     except Exception as e:
         logger.error(f"HEAD /system/capabilities error: {e}")
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@router.head("/props")
+async def head_props(request: Request):
+    """HEAD endpoint indicating props service category exists.
+
+    This is a lightweight existence probe used by the frontend/monitors.
+    Returns 200 with no body to avoid console 404 noise.
+    """
+    try:
+        response = head_handler.create_head_response(
+            exists=True,
+            content_type="application/json",
+            last_modified=datetime.utcnow(),
+            etag=f"props_service_{datetime.utcnow().date()}",
+            cache_control="public, max-age=60"
+        )
+        logger.info("HEAD /props", extra={
+            "client_ip": request.client.host if request.client else "unknown",
+            "response_status": response.status_code
+        })
+        return response
+    except Exception as e:
+        logger.error(f"HEAD /props error: {e}")
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@router.head("/predictions")
+async def head_predictions(request: Request):
+    """HEAD endpoint indicating predictions service category exists."""
+    try:
+        response = head_handler.create_head_response(
+            exists=True,
+            content_type="application/json",
+            last_modified=datetime.utcnow(),
+            etag=f"predictions_service_{datetime.utcnow().date()}",
+            cache_control="public, max-age=60"
+        )
+        logger.info("HEAD /predictions", extra={
+            "client_ip": request.client.host if request.client else "unknown",
+            "response_status": response.status_code
+        })
+        return response
+    except Exception as e:
+        logger.error(f"HEAD /predictions error: {e}")
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@router.head("/analytics")
+async def head_analytics(request: Request):
+    """HEAD endpoint indicating analytics service category exists."""
+    try:
+        response = head_handler.create_head_response(
+            exists=True,
+            content_type="application/json",
+            last_modified=datetime.utcnow(),
+            etag=f"analytics_service_{datetime.utcnow().date()}",
+            cache_control="public, max-age=60"
+        )
+        logger.info("HEAD /analytics", extra={
+            "client_ip": request.client.host if request.client else "unknown",
+            "response_status": response.status_code
+        })
+        return response
+    except Exception as e:
+        logger.error(f"HEAD /analytics error: {e}")
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
