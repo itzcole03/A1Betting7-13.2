@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    // Modern ES2022 target for better performance and features
-    "target": "ES2017",
+    // Modern ES target for better compatibility with Node-based quickchecks
+    "target": "ES2019",
     "useDefineForClassFields": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
-  "module": "ESNext",
+    "lib": ["ES2019", "DOM", "DOM.Iterable", "WebWorker"],
+    "module": "ESNext",
     "types": [
       "@testing-library/jest-dom",
       "vite/client",
@@ -14,9 +14,9 @@
       "node"
     ],
 
-  // Enhanced module resolution for 2025 - use NodeNext to match module: NodeNext
-  "moduleResolution": "bundler",
-  "allowImportingTsExtensions": true,
+    // Enhanced module resolution for 2025 - use NodeNext to match module: NodeNext
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -38,19 +38,19 @@
     },
 
     // Enhanced strict mode for better code quality
-  "strict": false,
-  "strictNullChecks": false,
-  "noImplicitAny": false,
-  "strictFunctionTypes": false,
-  "alwaysStrict": true,
-  "noImplicitThis": false,
-  "strictBindCallApply": false,
-  "noUnusedLocals": false,
-  "noUnusedParameters": false,
-  "noFallthroughCasesInSwitch": true,
-  "noImplicitReturns": false,
-  "noImplicitOverride": false,
-  "exactOptionalPropertyTypes": false,
+    "strict": false,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictFunctionTypes": false,
+    "alwaysStrict": true,
+    "noImplicitThis": false,
+    "strictBindCallApply": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": false,
+    "noImplicitOverride": false,
+    "exactOptionalPropertyTypes": false,
     "skipLibCheck": true,
 
     // Modern TypeScript features
@@ -71,7 +71,11 @@
     "node_modules",
     "dist",
     "dist-electron",
-    "build"
+    "build",
+    // Temporarily exclude legacy/garbage files that produce many unrelated
+    // TypeScript syntax errors. BankrollPageOld.tsx is a legacy file with
+    // malformed JSX; move it to `src/legacy/` or fix the file to re-include.
+    "src/pages/BankrollPageOld.tsx"
   ],
 
   "references": [{ "path": "./tsconfig.node.json" }]
