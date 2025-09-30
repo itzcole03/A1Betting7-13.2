@@ -4,7 +4,9 @@
  * Tracks performance, errors, and user engagement metrics
  */
 
+/* eslint-disable no-console */
 import { webVitalsService } from './webVitalsService';
+import { safeObserve, disconnectObserver } from '../utils/safePerformanceObserver';
 
 interface DemoMetrics {
   performanceScore: number;
@@ -39,6 +41,7 @@ class DemoMonitoringService {
   private startTime = Date.now();
   private monitoringInterval: NodeJS.Timeout | null = null;
   private isMonitoring = false;
+  private perfObserver: PerformanceObserver | null = null;
 
   constructor() {
     this.initializeMonitoring();
@@ -99,6 +102,10 @@ class DemoMonitoringService {
     }
 
     console.log('[DemoMonitor] Monitoring stopped');
+    if (this.perfObserver) {
+      disconnectObserver(this.perfObserver);
+      this.perfObserver = null;
+    }
   }
 
   /**
@@ -109,9 +116,12 @@ class DemoMonitoringService {
     this.metrics.uptime = (Date.now() - this.startTime) / 1000;
 
     // Update memory usage
-    if ('memory' in performance && (performance as any).memory) {
-      const memory = (performance as any).memory;
-      this.metrics.memoryUsage = memory.usedJSHeapSize / memory.jsHeapSizeLimit;
+    type PerfMemory = { usedJSHeapSize: number; jsHeapSizeLimit: number };
+    if ('memory' in performance) {
+      const mem = (performance as unknown as { memory?: PerfMemory }).memory;
+      if (mem) {
+        this.metrics.memoryUsage = mem.usedJSHeapSize / mem.jsHeapSizeLimit;
+      }
     }
 
     // Calculate performance score based on Web Vitals
@@ -129,10 +139,10 @@ class DemoMonitoringService {
     let score = 100;
 
     // Penalize based on Web Vitals thresholds
-    if (vitals.LCP && vitals.LCP > 2500) score -= 20;
-    if (vitals.FID && vitals.FID > 100) score -= 15;
-    if (vitals.CLS && vitals.CLS > 0.1) score -= 15;
-    if (vitals.TTFB && vitals.TTFB > 600) score -= 10;
+  if (vitals.lcp && vitals.lcp > 2500) score -= 20;
+  if (vitals.inp && vitals.inp > 200) score -= 15;
+  if (vitals.cls && vitals.cls > 0.1) score -= 15;
+  if (vitals.ttfb && vitals.ttfb > 600) score -= 10;
 
     // Penalize for errors
     score -= Math.min(this.metrics.errorCount * 5, 30);
@@ -147,8 +157,9 @@ class DemoMonitoringService {
    * Update network latency estimation
    */
   private updateNetworkLatency(): void {
-    if ('connection' in navigator && (navigator as any).connection) {
-      const connection = (navigator as any).connection;
+    type NetworkInformationLike = { rtt?: number };
+    const connection = (navigator as Navigator & { connection?: NetworkInformationLike }).connection;
+    if (connection && typeof connection.rtt === 'number') {
       this.metrics.networkLatency = connection.rtt || 0;
     }
   }
@@ -262,17 +273,14 @@ class DemoMonitoringService {
    * Setup performance observer for monitoring component load times
    */
   private setupPerformanceObserver(): void {
-    if ('PerformanceObserver' in window) {
-      const observer = new PerformanceObserver((list) => {
-        list.getEntries().forEach((entry) => {
-          if (entry.entryType === 'measure') {
-            this.metrics.componentLoadTimes[entry.name] = entry.duration;
-          }
-        });
+    const observer = safeObserve(['measure', 'navigation'], (list: PerformanceObserverEntryList) => {
+      list.getEntries().forEach((entry) => {
+        if (entry.entryType === 'measure') {
+          this.metrics.componentLoadTimes[entry.name] = entry.duration;
+        }
       });
-
-      observer.observe({ entryTypes: ['measure', 'navigation'] });
-    }
+    });
+    this.perfObserver = observer;
   }
 
   /**

@@ -18,9 +18,14 @@ env:
   PYTHON_VERSION: "3.12"
 
 jobs:
+  changelog:
+    name: Changelog Normalization
+    uses: ./.github/workflows/changelog-normalize.yml
+
   # Security and Code Quality
   security-scan:
     name: Security & Quality Scan
+    needs: [changelog]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -58,6 +63,7 @@ jobs:
   # Backend Testing
   backend-test:
     name: Backend Tests
+    needs: [changelog]
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -124,6 +130,7 @@ jobs:
   # Frontend Testing
   frontend-test:
     name: Frontend Tests
+    needs: [changelog]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

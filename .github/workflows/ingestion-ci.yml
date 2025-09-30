@@ -7,8 +7,12 @@ on:
     branches: [ main ]
 
 jobs:
+  changelog:
+    uses: ./.github/workflows/changelog-normalize.yml
+
   ingestion-tests:
     runs-on: ubuntu-latest
+    needs: [changelog]
     env:
       USE_FREE_INGESTION: "false"
     steps:

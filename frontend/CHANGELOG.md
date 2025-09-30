@@ -12,6 +12,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Live Demo Monitoring**: Added comprehensive performance monitoring and health tracking for live demo
 - **Changelog Integration**: Implemented automated changelog management with transparency flagging
 
+## [9.2.1] - 2025-09-09
+
+### Added
+
+- Enriched arbitrage summary integration in Value/Arbitrage panels (median margin, pair frequencies, top opportunity) with graceful fallback to legacy shape.
+- Feature flag `ENABLE_LEGACY_ARBITRAGE_SUMMARY` support surfaced in UI components (tolerant parsing logic).
+- Documentation synchronization for arbitrage summary fields and flag behavior.
+
+### Tooling
+
+- Markdown fenced language normalization (README) and planned remark/prettier pre-commit pipeline.
+
+## [9.2.0] - 2025-09-08
+
+### Added
+
+- Initial ValuePanel tolerance for dual response shapes (pre‑flatten and flattened) preparing for enriched arbitrage summary rollout.
+- Internal test harness adjustments for odds summary compatibility.
+
 ## [8.0.0] - 2025-01-20
 
 ### 🚀 Major Features Added

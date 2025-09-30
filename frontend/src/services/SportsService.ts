@@ -28,7 +28,27 @@ function logApiEvent(event: string, details: Record<string, unknown>) {
  * Checks which sports activation API version is available.
  * Returns 'v2', 'v1', or 'none'.
  */
+// One-shot detection cache to avoid repeated OPTIONS probes
+let cachedVersion: 'v2' | 'v1' | 'none' | null = null;
+let inFlightDetection: Promise<'v2' | 'v1' | 'none'> | null = null;
+
 export async function detectSportsApiVersion(): Promise<'v2' | 'v1' | 'none'> {
+  // Use sessionStorage to persist across HMR/refresh in dev
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const stored = window.sessionStorage.getItem('sportsApiVersion');
+      if (stored === 'v2' || stored === 'v1' || stored === 'none') {
+        cachedVersion = stored;
+      }
+    }
+  } catch {
+    // ignore storage errors
+  }
+
+  if (cachedVersion) return cachedVersion;
+  if (inFlightDetection) return inFlightDetection;
+
+  inFlightDetection = (async () => {
   // Try v2 endpoint with OPTIONS (safe, no side effects)
   try {
     const v2resp = await httpFetch('/api/v2/sports/activate', {
@@ -42,7 +62,10 @@ export async function detectSportsApiVersion(): Promise<'v2' | 'v1' | 'none'> {
         // eslint-disable-next-line no-console
         console.debug('[SportsService] v2 API detected via OPTIONS preflight');
       }
-      return 'v2';
+  const result = 'v2' as const;
+      cachedVersion = result;
+  try { window.sessionStorage?.setItem('sportsApiVersion', result); } catch { /* noop */ }
+      return result;
     } else if (v2resp.status === 405) {
       // 405 can indicate endpoint exists but OPTIONS not explicitly handled  
       const isTest2 = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
@@ -50,7 +73,10 @@ export async function detectSportsApiVersion(): Promise<'v2' | 'v1' | 'none'> {
         // eslint-disable-next-line no-console
         console.debug('[SportsService] v2 API detected via 405 (method not allowed for OPTIONS)');
       }
-      return 'v2';
+  const result = 'v2' as const;
+      cachedVersion = result;
+  try { window.sessionStorage?.setItem('sportsApiVersion', result); } catch { /* noop */ }
+      return result;
     }
   } catch (error) {
     // Handle network errors gracefully
@@ -60,7 +86,10 @@ export async function detectSportsApiVersion(): Promise<'v2' | 'v1' | 'none'> {
         // eslint-disable-next-line no-console
         console.warn('[SportsService] Backend unavailable, falling back to demo mode');
       }
-      return 'none';
+  const result = 'none' as const;
+      cachedVersion = result;
+  try { window.sessionStorage?.setItem('sportsApiVersion', result); } catch { /* noop */ }
+      return result;
     }
     const isTest4 = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
     if (!isTest4) {
@@ -75,7 +104,10 @@ export async function detectSportsApiVersion(): Promise<'v2' | 'v1' | 'none'> {
       logLabel: 'SportsService',
     });
     if (v1resp.ok || v1resp.status === 405) {
-      return 'v1';
+      const result = 'v1' as const;
+      cachedVersion = result;
+      try { window.sessionStorage?.setItem('sportsApiVersion', result); } catch { /* noop */ }
+      return result;
     }
   } catch (error) {
     // Handle network errors gracefully
@@ -85,10 +117,21 @@ export async function detectSportsApiVersion(): Promise<'v2' | 'v1' | 'none'> {
         // eslint-disable-next-line no-console
         console.warn('[SportsService] Backend unavailable, falling back to demo mode');
       }
-      return 'none';
+      const result = 'none' as const;
+      cachedVersion = result;
+      try { window.sessionStorage?.setItem('sportsApiVersion', result); } catch { /* noop */ }
+      return result;
     }
   }
-  return 'none';
+  const result = 'none' as const;
+  cachedVersion = result;
+  try { window.sessionStorage?.setItem('sportsApiVersion', result); } catch { /* noop */ }
+  return result;
+  })();
+
+  const final = await inFlightDetection;
+  inFlightDetection = null;
+  return final;
 }
 
 /**

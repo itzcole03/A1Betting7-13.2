@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Reliability Monitoring Orchestrator
  * Coordinates all monitoring systems and implements iterative improvements
@@ -132,6 +133,13 @@ class ReliabilityMonitoringOrchestrator {
    * Start comprehensive monitoring as recommended in Issues Report
    */
   async startMonitoring(): Promise<void> {
+    // Additional global guard to handle React StrictMode double-invoke and HMR
+    const g = globalThis as typeof globalThis & { __A1_RELIABILITY_STARTED__?: boolean };
+    if (g.__A1_RELIABILITY_STARTED__) {
+      logger.warn('Reliability monitoring already started (global)', undefined, 'ReliabilityOrchestrator');
+      return;
+    }
+
     // Stabilization: Check for lean mode to prevent heavy monitoring in development
     if (isLeanMode()) {
       logger.info('Lean mode enabled - skipping heavy monitoring', undefined, 'ReliabilityOrchestrator');
@@ -143,7 +151,8 @@ class ReliabilityMonitoringOrchestrator {
       return;
     }
 
-    this.isActive = true;
+  this.isActive = true;
+  g.__A1_RELIABILITY_STARTED__ = true;
     logger.info(
       'Starting comprehensive reliability monitoring...',
       {
@@ -193,6 +202,8 @@ class ReliabilityMonitoringOrchestrator {
     if (!this.isActive) return;
 
     this.isActive = false;
+    const g = globalThis as typeof globalThis & { __A1_RELIABILITY_STARTED__?: boolean };
+    g.__A1_RELIABILITY_STARTED__ = false;
 
     // Stop component monitors
     this.performanceMonitor.stopMonitoring();

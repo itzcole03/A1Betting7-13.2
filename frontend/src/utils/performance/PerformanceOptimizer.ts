@@ -1,4 +1,6 @@
+/* eslint-disable no-console */
 import { useCallback, useRef, useEffect, useState } from 'react';
+import { safeObserve, disconnectObserver } from '../safePerformanceObserver';
 
 // Performance monitoring interfaces
 interface PerformanceMetric {
@@ -47,44 +49,38 @@ export class PerformanceOptimizer {
   }
 
   private startMonitoring(): void {
-    // Monitor Long Tasks
-    if ('PerformanceObserver' in window) {
-      try {
-        const longTaskObserver = new PerformanceObserver((list) => {
-          list.getEntries().forEach((entry) => {
-            this.recordMetric('longTask', {
-              name: 'Long Task',
-              value: entry.duration,
-              timestamp: Date.now(),
-              threshold: 50,
-              type: 'duration'
-            });
-          });
+    // Monitor Long Tasks (safe wrapper)
+    const longTaskObserver = safeObserve(['longtask'], (list) => {
+      list.getEntries().forEach((entry) => {
+        this.recordMetric('longTask', {
+          name: 'Long Task',
+          value: entry.duration,
+          timestamp: Date.now(),
+          threshold: 50,
+          type: 'duration',
         });
-        longTaskObserver.observe({ entryTypes: ['longtask'] });
-        this.observers.set('longtask', longTaskObserver);
-      } catch (error) {
-        console.warn('Long task monitoring not supported:', error);
-      }
+      });
+    });
+    if (longTaskObserver) {
+      this.observers.set('longtask', longTaskObserver);
+    }
 
-      // Monitor Layout Shifts
-      try {
-        const clsObserver = new PerformanceObserver((list) => {
-          list.getEntries().forEach((entry: any) => {
-            this.recordMetric('cls', {
-              name: 'Cumulative Layout Shift',
-              value: entry.value,
-              timestamp: Date.now(),
-              threshold: 0.1,
-              type: 'percentage'
-            });
-          });
+    // Monitor Layout Shifts (safe wrapper)
+    type CLSLike = PerformanceEntry & { value?: number };
+    const clsObserver = safeObserve(['layout-shift'], (list) => {
+      list.getEntries().forEach((entry) => {
+        const e = entry as CLSLike;
+        this.recordMetric('cls', {
+          name: 'Cumulative Layout Shift',
+          value: e.value ?? 0,
+          timestamp: Date.now(),
+          threshold: 0.1,
+          type: 'percentage',
         });
-        clsObserver.observe({ entryTypes: ['layout-shift'] });
-        this.observers.set('layout-shift', clsObserver);
-      } catch (error) {
-        console.warn('Layout shift monitoring not supported:', error);
-      }
+      });
+    });
+    if (clsObserver) {
+      this.observers.set('layout-shift', clsObserver);
     }
   }
 
@@ -151,8 +147,9 @@ export class PerformanceOptimizer {
 
   // Memory monitoring
   checkMemoryUsage(): { used: number; total: number; percentage: number } | null {
+    type PerfMemory = { usedJSHeapSize: number; totalJSHeapSize: number };
     if ('memory' in performance) {
-      const memory = (performance as any).memory;
+      const memory = (performance as unknown as { memory: PerfMemory }).memory;
       const used = memory.usedJSHeapSize / 1024 / 1024; // MB
       const total = memory.totalJSHeapSize / 1024 / 1024; // MB
       const percentage = (used / total) * 100;
@@ -172,7 +169,7 @@ export class PerformanceOptimizer {
 
   // Cleanup
   cleanup(): void {
-    this.observers.forEach(observer => observer.disconnect());
+    this.observers.forEach((observer) => disconnectObserver(observer));
     this.observers.clear();
     this.metrics.clear();
     this.componentMetrics.clear();
@@ -244,8 +241,8 @@ export const useThrottle = <T>(value: T, limit: number): T => {
 };
 
 // Virtual scrolling for large lists
-export const useVirtualScrolling = (
-  items: any[],
+export const useVirtualScrolling = <T>(
+  items: T[],
   itemHeight: number,
   containerHeight: number
 ) => {

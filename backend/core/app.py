@@ -121,6 +121,11 @@ def create_app() -> FastAPI:
         version="1.0.0",
         description="A1Betting Sports Analysis Platform - Canonical Entry Point"
     )
+    # Lightweight dev flag to disable heavy startup hooks that can hang locally
+    try:
+        _disable_startup_hooks = str(os.getenv("DISABLE_STARTUP_HOOKS", "false")).lower() in {"1", "true", "yes", "on"}
+    except Exception:
+        _disable_startup_hooks = False
     # ENV FLAG DOCS (non-invasive):
     # POSITIVE_EV_FEED_DISABLED=1 → disables all /api/ev/feed* (+EV feed, search, stats, forecast)
     #   Health endpoint /api/ev/health remains available for monitoring.
@@ -468,6 +473,26 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"Error including mlb_extras router: {e}")
 
+    # --- Extended Health & Performance routes (compatibility noise reduction)
+    try:
+        from backend.routes.health_extended import router as health_extended_router
+        _app.include_router(health_extended_router)
+        logger.info("SUCCESS: Extended health/performance routes included (/api/health/extended, /performance/stats)")
+    except ImportError as e:
+        logger.warning(f"WARNING: Could not import extended health/performance routes: {e}")
+    except Exception as e:
+        logger.error(f"ERROR: Failed to register extended health/performance routes: {e}")
+
+    # --- Sports Activation preflight/HEAD handlers (CORS/preflight compatibility)
+    try:
+        from backend.routes.sports_activation_extras import router as sports_activation_extras_router
+        _app.include_router(sports_activation_extras_router)
+        logger.info("SUCCESS: Sports activation extras included (OPTIONS/HEAD for /api/sports/activate/{sport})")
+    except ImportError as e:
+        logger.warning(f"WARNING: Could not import sports activation extras routes: {e}")
+    except Exception as e:
+        logger.error(f"ERROR: Failed to register sports activation extras routes: {e}")
+
     # --- Admin Feature Flags Routes ---
     try:
         from backend.routes.admin_feature_flags_routes import router as admin_ff_router
@@ -491,6 +516,9 @@ def create_app() -> FastAPI:
 
     # --- Startup Initialization Hook ---
     try:
+        if _disable_startup_hooks:
+            logger.info("[LeanMode] Skipping heavy startup hooks (odds init, sports services, ev feed, analytics, alerts)")
+            raise Exception("STARTUP_HOOKS_DISABLED")
         from backend.services.odds_store import odds_store_service
         from backend.database import async_engine
 
@@ -556,6 +584,9 @@ def create_app() -> FastAPI:
 
     # --- Ingestion Scheduler Background Task (Phase 2) ---
     try:
+        if _disable_startup_hooks or is_lean_mode:
+            logger.info("[LeanMode] Skipping ingestion scheduler background task")
+            raise Exception("INGESTION_SCHEDULER_DISABLED")
         # Use a dedicated runner to avoid colliding with existing scheduler package
         from backend.ingestion import scheduler_runner
 
@@ -1353,6 +1384,13 @@ def create_app() -> FastAPI:
         from backend.routes.odds_routes import router as odds_router
         _app.include_router(odds_router, prefix="/v1/odds", tags=["Odds & Line Movement"])
         logger.info("SUCCESS: Odds & Line Movement routes included (/v1/odds/* endpoints)")
+        # Stable alias for consensus MVP
+        try:
+            from backend.routes.odds_routes import alias_router as odds_alias_router
+            _app.include_router(odds_alias_router)
+            logger.info("SUCCESS: Odds alias routes included (/api/odds/* endpoints)")
+        except Exception as _e:
+            logger.warning(f"WARNING: Could not include odds alias router: {_e}")
     except ImportError as e:
         logger.warning(f"WARNING: Could not import Odds routes: {e}")
     except Exception as e:

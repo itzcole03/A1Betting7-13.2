@@ -1,111 +1,138 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+"""EV (Expected Value) opportunities API routes - Phase 1 foundation.
+
+Provides a lightweight read-only endpoint that surfaces Positive EV
+opportunities derived from existing projections (or sample fallback).
+"""
+
+from __future__ import annotations
+
+from datetime import datetime, timezone
 from typing import List, Optional
 
-from backend.services import ev_service
+from fastapi import APIRouter, Query
+from pydantic import BaseModel
 
-router = APIRouter()
+from backend.betting.ev_calculator import compute_ev
+from backend.betting.ev_data_adapter import fetch_candidate_markets
+from backend.betting.kelly import compute_kelly_fraction
+from backend.services.unified_error_handler import unified_error_handler  # type: ignore
+
+try:
+    from backend.services.unified_logging import unified_logging  # type: ignore
+    logger = unified_logging.get_logger("ev.routes")  # type: ignore
+except Exception:  # pragma: no cover - fallback
+    import logging
+
+    logger = logging.getLogger("ev.routes")
 
 
-class EVRequest(BaseModel):
-    probability: float = Field(..., ge=0.0, le=1.0, description="Projected win probability (0..1)")
-    odds: float = Field(..., description="Market odds (decimal or American)")
-    odds_format: str | None = Field(None, description="Optional: 'decimal' or 'american'. If omitted, parser will guess")
-    stake: float = Field(1.0, gt=0.0, description="Stake amount")
+router = APIRouter(tags=["EV"])
 
 
-class EVResponse(BaseModel):
-    success: bool
-    data: dict
-    error: dict | None = None
+class EVOpportunity(BaseModel):
+    id: str
+    sport: str
+    player: str | None
+    market: str
+    line: float
+    fair_odds: int
+    market_odds: int
+    edge_pct: float
+    implied_prob: float
+    fair_prob: float
+    source_book: str
+    timestamp: datetime
 
 
-@router.post("/calc", response_model=EVResponse)
-async def calculate_ev(payload: EVRequest):
+@router.get("/opportunities")
+async def get_ev_opportunities(
+    sport: Optional[str] = None,
+    min_edge: float = Query(2.0, ge=0.0),
+    limit: int = Query(25, ge=1, le=100),
+    include_kelly: bool = Query(False),
+    bankroll: float = Query(0.0, ge=0.0),
+):
+    """Return Positive EV opportunities.
+
+    The list is deterministic for a given runtime and filters by *edge_pct*.
+    Results are ordered by descending edge then id for stable pagination.
+    """
     try:
-        # Determine decimal odds
-        if payload.odds_format and payload.odds_format.lower() == "american":
-            decimal = ev_service.american_to_decimal(payload.odds)
-        elif payload.odds_format and payload.odds_format.lower() == "decimal":
-            decimal = float(payload.odds)
-        else:
-            decimal = ev_service.parse_odds(payload.odds)
-
-        ev, ev_pct = ev_service.compute_ev(payload.probability, decimal, stake=payload.stake)
-
-        label = "+EV" if ev > 0 else ("ZeroEV" if abs(ev) < 1e-9 else "-EV")
-
-        return {
-            "success": True,
-            "data": {
-                "probability": payload.probability,
-                "odds_decimal": decimal,
-                "stake": payload.stake,
-                "ev": ev,
-                "ev_pct": ev_pct,
-                "label": label,
-            },
-            "error": None,
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-class BatchItem(BaseModel):
-    id: str
-    probability: float = Field(..., ge=0.0, le=1.0)
-    odds: float
-    odds_format: str | None = None
-    stake: float = 1.0
-
-
-class BatchResponseItem(BaseModel):
-    id: str
-    probability: float
-    odds_decimal: float
-    stake: float
-    ev: float
-    ev_pct: float
-    is_plus_ev: bool
-
-
-class BatchResponse(BaseModel):
-    success: bool
-    results: List[BatchResponseItem]
-
-
-@router.post("/feed", response_model=BatchResponse)
-async def ev_feed_batch(items: List[BatchItem]):
-    if not items:
-        raise HTTPException(status_code=400, detail="No items provided")
-
-    results: List[BatchResponseItem] = []
-    for it in items:
-        try:
-            # determine decimal odds
-            if it.odds_format and it.odds_format.lower() == "american":
-                decimal = ev_service.american_to_decimal(it.odds)
-            elif it.odds_format and it.odds_format.lower() == "decimal":
-                decimal = float(it.odds)
-            else:
-                decimal = ev_service.parse_odds(it.odds)
-
-            ev, ev_pct = ev_service.compute_ev(it.probability, decimal, stake=it.stake)
-
-            results.append(
-                BatchResponseItem(
-                    id=it.id,
-                    probability=it.probability,
-                    odds_decimal=decimal,
-                    stake=it.stake,
-                    ev=ev,
-                    ev_pct=ev_pct,
-                    is_plus_ev=(ev > 0),
-                )
+        candidates = await fetch_candidate_markets(sport=sport)
+        # Store as list of dicts to allow conditional Kelly enrichment without re-parsing
+        opportunities: List[dict] = []
+        now = datetime.now(timezone.utc)
+        for c in candidates:
+            ev = compute_ev(c.fair_prob, c.market_odds)
+            record = EVOpportunity(
+                id=c.id,
+                sport=c.sport,
+                player=c.player,
+                market=c.market,
+                line=c.line,
+                fair_odds=int(ev["fair_odds"]),
+                market_odds=c.market_odds,
+                edge_pct=ev["edge_pct"],
+                implied_prob=ev["implied_prob"],
+                fair_prob=ev["fair_prob"],
+                source_book=c.source_book,
+                timestamp=now,
             )
-        except Exception as e:
-            raise HTTPException(status_code=422, detail=str(e))
+            if record.edge_pct >= min_edge:
+                data = record.dict()
+                if include_kelly and bankroll > 0 and data["edge_pct"] > 0:
+                    try:
+                        k = compute_kelly_fraction(
+                            fair_prob=data["fair_prob"],
+                            market_american=data["market_odds"],
+                            bankroll=bankroll,
+                        )
+                        data["kelly_fraction"] = k["kelly_fraction"]
+                        data["recommended_stake"] = k["recommended_stake"]
+                    except Exception as ke:  # pragma: no cover minimal
+                        logger.debug(f"Kelly calc failed: {ke}")
+                opportunities.append(data)  # store as dict now
+        # Order by edge desc then id for deterministic ordering
+        opportunities.sort(key=lambda x: (-x["edge_pct"], x["id"]))
+        if len(opportunities) > limit:
+            opportunities = opportunities[:limit]
+        return {
+            "data": opportunities,
+            "count": len(opportunities),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        }
+    except Exception as e:  # pragma: no cover - exercised via integration test
+        logger.error(f"EV route error: {e}")
+        return unified_error_handler.handle_error(e, context=None)
 
-    return BatchResponse(success=True, results=results)
+
+@router.get("/summary")
+async def get_ev_summary(sport: Optional[str] = None):
+    """Aggregate summary metrics for current EV opportunities."""
+    try:
+        candidates = await fetch_candidate_markets(sport=sport)
+        edges: List[float] = []
+        for c in candidates:
+            ev = compute_ev(c.fair_prob, c.market_odds)
+            edges.append(ev["edge_pct"])
+        if not edges:
+            return {
+                "total": 0,
+                "edges_gt_2": 0,
+                "edges_gt_5": 0,
+                "avg_edge": 0.0,
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+            }
+        return {
+            "total": len(edges),
+            "edges_gt_2": sum(1 for e in edges if e >= 2),
+            "edges_gt_5": sum(1 for e in edges if e >= 5),
+            "avg_edge": sum(edges) / len(edges),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        }
+    except Exception as e:  # pragma: no cover
+        logger.error(f"EV summary error: {e}")
+        return unified_error_handler.handle_error(e, context=None)
+
+
+__all__ = ["router", "EVOpportunity"]

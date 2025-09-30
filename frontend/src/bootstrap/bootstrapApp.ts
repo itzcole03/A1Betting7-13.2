@@ -19,6 +19,7 @@ import { getRuntimeEnv, type RuntimeEnv } from './env';
 // Lazily populated logger. Tests mock the logger module and may rely on dynamic
 // imports; to ensure the test mocks are used we load the logger at runtime with
 // a safe console fallback. This avoids TypeErrors when a mock isn't wired up.
+/* eslint-disable no-console */
 let logger: {
   info: (...args: unknown[]) => void;
   debug: (...args: unknown[]) => void;
@@ -30,6 +31,7 @@ let logger: {
   error: console.error.bind(console),
   warn: console.warn.bind(console),
 };
+/* eslint-enable no-console */
 
 async function ensureLoggerLoaded(): Promise<void> {
   try {
@@ -393,6 +395,16 @@ async function initializeReliabilityOrchestrator(): Promise<void> {
   // The orchestrator already has built-in singleton and isActive checks
   // This ensures idempotent initialization
   await reliabilityMonitoringOrchestrator.startMonitoring();
+
+  // Emit a one-time info log to confirm reliability monitoring started
+  // Keep logs quiet during tests to avoid noise
+  if (process.env.NODE_ENV !== 'test') {
+    logger.info(
+      '🛡️ Reliability monitoring started (bootstrap)',
+      { timestamp: new Date().toISOString() },
+      'Bootstrap'
+    );
+  }
 }
 
 /**

@@ -4,6 +4,7 @@ Provides real-time odds aggregation and best-line identification
 """
 
 import logging
+import os
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
@@ -24,6 +25,9 @@ from backend.services.odds_aggregation_service import (
 from backend.services.unified_odds_aggregation_service import get_unified_odds_service
 
 logger = logging.getLogger(__name__)
+
+# Module-level feature flag (mutable in tests)
+ENABLE_LEGACY_ARBITRAGE_SUMMARY = os.getenv("ENABLE_LEGACY_ARBITRAGE_SUMMARY", "false").lower() == "true"
 
 router = APIRouter(tags=["Odds Aggregation"])
 
@@ -404,3 +408,446 @@ async def get_line_history(
     except Exception as e:
         logger.error(f"Line history error: {e}")
         raise BusinessLogicException("Failed to retrieve line history")
+
+# === Stable Alias Router for Odds MVP Endpoints ===
+# Provides /api/odds/* stable paths delegating to MVP handlers mounted under /v1/odds/api/odds-mvp/*
+alias_router = APIRouter(prefix="/api/odds", tags=["Odds Consensus"])
+
+@alias_router.post("/refresh")
+async def refresh_alias(sport: str = Query(...), market: str = Query(...)):
+    # Delegate to MVP refresh (path-level logic reused)
+    return await mvp_refresh(sport=sport, market=market)
+
+@alias_router.get("/snapshots")
+async def snapshots_alias(sport: Optional[str] = None, market: Optional[str] = None, limit: int = 100):
+    return await mvp_snapshots(sport=sport, market=market, limit=limit)
+
+@alias_router.get("/consensus")
+async def consensus_alias(sport: str, market: str, include_ev: bool = False):
+    return await mvp_consensus(sport=sport, market=market, include_ev=include_ev)
+
+@alias_router.get("/best-book")
+async def best_book_alias(
+    sport: str,
+    market: str,
+    include_consensus: bool = False
+):
+    return await best_book_mvp(sport=sport, market=market, include_consensus=include_consensus)
+
+@alias_router.get("/arbitrage")
+async def arbitrage_alias(
+    sport: str,
+    market: str,
+    min_margin: float = 0.25
+):
+    return await arbitrage_mvp(sport=sport, market=market, min_margin=min_margin)
+
+@alias_router.get("/arbitrage/summary")
+async def arbitrage_summary_alias(
+    sport: str,
+    market: str,
+    min_margin: float = 0.25
+):
+    # Delegate to enriched summary for alias
+    return await enriched_arbitrage_summary(sport=sport, market=market, min_margin=min_margin)
+
+
+# === LIGHTWEIGHT ODDS INGESTION MVP ENDPOINTS (In-Memory Multi-Book Snapshots) ===
+# These endpoints expose the new deterministic multi-book odds snapshot service while
+# coexisting with the existing aggregation service. They are intentionally prefixed
+# under /api/odds-mvp to avoid path collisions with the already published odds API.
+
+try:
+    from backend.odds.odds_ingestion_service import refresh_market as _refresh_market
+    from backend.odds.odds_snapshot_store import odds_snapshot_store as _snapshot_store
+    from backend.odds.odds_models import ConsensusEntry as _ConsensusEntry
+    from datetime import timezone, timedelta as _timedelta
+except Exception as _e:  # pragma: no cover - graceful degradation if modules missing
+    _refresh_market = None  # type: ignore
+    _snapshot_store = None  # type: ignore
+    _ConsensusEntry = None  # type: ignore
+    from datetime import timezone, timedelta as _timedelta  # fallback import so names exist
+    logger.warning(f"Odds ingestion MVP modules unavailable: {_e}")
+
+MVP_STALE_MINUTES = 5
+
+@router.post("/api/odds-mvp/refresh")
+async def mvp_refresh(sport: str = Query(...), market: str = Query(...)):
+    """Trigger a deterministic in-memory refresh of multi-book odds snapshots.
+
+    Returns count of generated snapshots. Safe no-op if ingestion modules not present.
+    """
+    if _refresh_market is None:
+        return {"refreshed": 0, "status": "ingestion_unavailable"}
+    try:
+        snaps = await _refresh_market(sport, market)
+        return {"refreshed": len(snaps), "status": "ok"}
+    except Exception as e:  # pragma: no cover
+        logger.error(f"MVP refresh error: {e}")
+        return {"refreshed": 0, "status": "error", "error": str(e)}
+
+
+@router.get("/api/odds-mvp/snapshots")
+async def mvp_snapshots(
+    sport: Optional[str] = Query(None),
+    market: Optional[str] = Query(None),
+    limit: int = Query(100, ge=1, le=500)
+):
+    """List latest in-memory snapshots (most recent first)."""
+    if _snapshot_store is None:
+        return {"data": [], "count": 0, "status": "ingestion_unavailable"}
+    snaps = await _snapshot_store.get_latest(sport=sport, market=market, limit=limit)
+    return {"data": [s.dict() for s in snaps], "count": len(snaps), "status": "ok"}
+
+
+@router.get("/api/odds-mvp/consensus")
+async def mvp_consensus(
+    sport: str = Query(...),
+    market: str = Query(...),
+    include_ev: bool = Query(False, description="If true attempt EV enrichment if projection service available")
+):
+    """Compute consensus implied probability & American odds per selection across non-stale snapshots.
+
+    Stale definition: captured_at older than MVP_STALE_MINUTES. Optional EV enrichment attempts
+    to attach projection probability and edge percentage; if projection service unavailable this is skipped silently.
+    """
+    if _snapshot_store is None or _ConsensusEntry is None:
+        return {"data": [], "count": 0, "status": "ingestion_unavailable"}
+    snaps = await _snapshot_store.get_latest(sport=sport, market=market, limit=1000)
+    cutoff = datetime.now(timezone.utc) - _timedelta(minutes=MVP_STALE_MINUTES)
+    grouped: dict[str, list] = {}
+    for s in snaps:
+        if s.captured_at < cutoff:
+            continue
+        grouped.setdefault(s.selection_key, []).append(s)
+    results = []
+    for selection_key, group in grouped.items():
+        if not group:
+            continue
+        avg_prob = sum(g.implied_prob for g in group) / len(group)
+        american = _ConsensusEntry.implied_to_american(avg_prob)
+        entry = _ConsensusEntry(
+            selection_key=selection_key,
+            sport=sport,
+            market=market,
+            line=group[0].line,
+            consensus_implied_prob=avg_prob,
+            consensus_american=american,
+            books=len(group),
+            last_updated=max(g.captured_at for g in group)
+        )
+        if include_ev:
+            try:  # pragma: no cover optional path
+                from backend.services.enhanced_prop_analysis_service import legacy_predict  # type: ignore
+                # Placeholder: reuse consensus as projection (edge=0). Real integration would differ.
+                entry.projection_prob = avg_prob
+                entry.ev_edge_pct = 0.0
+            except Exception:
+                pass
+        results.append(entry)
+    return {"data": [r.dict() for r in results], "count": len(results), "status": "ok"}
+
+# === BEST BOOK MVP (select single best sportsbook odds per selection) ===
+try:
+    from backend.odds.odds_snapshot_store import odds_snapshot_store as odds_snapshot_store  # reuse existing store
+except Exception:
+    odds_snapshot_store = None  # type: ignore
+
+def _select_best_odds(snaps):  # simple bettor-favorable chooser
+    best = None
+    for s in snaps:
+        if best is None:
+            best = s
+            continue
+        # higher American odds number is better for bettor (e.g. -105>-120 and +150>+140)
+        if s.american_odds > best.american_odds:
+            best = s
+    return best
+
+"""Real two-way arbitrage scanning utilities.
+
+We now ingest explicit over and under snapshots (side field) for each book, so
+arbitrage detection pairs an over snapshot from one book with an under snapshot
+from a different book sharing the same selection_key and identical line.
+"""
+
+def _american_to_decimal(american: int) -> float:
+    return (american / 100) + 1 if american > 0 else (100 / -american) + 1
+
+def _compute_arbitrage_opportunities(snaps, sport: str, market: str, min_margin: float) -> list:
+    """Compute arbitrage opportunities using real over/under snapshots.
+
+    Rules:
+      * Pair over (side=="over") with under (side=="under") of same selection_key & line.
+      * Books must differ.
+      * Condition: 1/d_over + 1/d_under < 1.
+      * margin_pct = (1 - (1/d_over + 1/d_under))*100.
+    """
+    by_selection: dict[str, list] = {}
+    for s in snaps:
+        by_selection.setdefault(s.selection_key, []).append(s)
+    opps: list = []
+    for sel_key, group in by_selection.items():
+        overs = [g for g in group if getattr(g, "side", "over") == "over"]
+        unders = [g for g in group if getattr(g, "side", "over") == "under"]
+        if not overs or not unders:
+            continue
+        for o in overs:
+            for u in unders:
+                if o.book == u.book:
+                    continue
+                # require same line for clean two-way pairing
+                if o.line != u.line:
+                    continue
+                d_over = _american_to_decimal(o.american_odds)
+                d_under = _american_to_decimal(u.american_odds)
+                inv_sum = (1 / d_over) + (1 / d_under)
+                if inv_sum < 1:
+                    margin_pct = (1 - inv_sum) * 100
+                    if margin_pct >= min_margin:
+                        target = 100 / inv_sum
+                        stake_over = target / d_over
+                        stake_under = target / d_under
+                        opps.append({
+                            "selection_key": sel_key,
+                            "sport": sport,
+                            "market": market,
+                            "line": o.line,
+                            "over_book": o.book,
+                            "under_book": u.book,
+                            "over_american": o.american_odds,
+                            "under_american": u.american_odds,
+                            "margin_pct": round(margin_pct, 3),
+                            "stake_over": round(stake_over, 2),
+                            "stake_under": round(stake_under, 2),
+                            "total_stake": round(stake_over + stake_under, 2),
+                            "guaranteed_return": round(target, 2),
+                            "guaranteed_profit": round(target - (stake_over + stake_under), 2),
+                            "last_updated": max(o.captured_at, u.captured_at).isoformat(),
+                        })
+    opps.sort(key=lambda o: o["margin_pct"], reverse=True)
+    return opps
+
+@router.get("/api/odds-mvp/arbitrage")
+async def arbitrage_mvp(
+    sport: str,
+    market: str,
+    min_margin: float = 0.25
+):
+    """Real two-way arbitrage scan using explicit over/under snapshots."""
+    if odds_snapshot_store is None:
+        return {"count": 0, "data": [], "status": "ingestion_unavailable"}
+    try:
+        snaps = await odds_snapshot_store.get_latest(sport=sport, market=market, limit=4000)
+        if not snaps:
+            return {"count": 0, "data": []}
+        opps = _compute_arbitrage_opportunities(snaps, sport, market, min_margin)
+        return {"count": len(opps), "data": opps}
+    except Exception as e:  # pragma: no cover
+        try:
+            from backend.services.unified_error_handler import unified_error_handler, ErrorContext  # type: ignore
+            return unified_error_handler.handle_error(e, context=ErrorContext(endpoint="/api/odds-mvp/arbitrage", method="GET")).__dict__
+        except Exception:
+            return {"error": str(e), "context": "arbitrage_mvp"}
+
+@router.get("/api/odds-mvp/arbitrage/summary")
+async def arbitrage_summary_mvp(
+    sport: str,
+    market: str,
+    min_margin: float = 0.25
+):
+    """Aggregate summary for arbitrage opportunities (real two-way)."""
+    if odds_snapshot_store is None:
+        return {"status": "ingestion_unavailable", "data": {}}
+    try:
+        snaps = await odds_snapshot_store.get_latest(sport=sport, market=market, limit=4000)
+        opps = _compute_arbitrage_opportunities(snaps, sport, market, min_margin) if snaps else []
+        if not opps:
+            # Provide full shape with zeroed defaults for deterministic client parsing
+            return {
+                "status": "ok",
+                "data": {
+                    "count": 0,
+                    "unique_selections": 0,
+                    "books_involved": 0,
+                    "avg_margin": 0,
+                    "avg_margin_pct": 0,
+                    "max_margin": 0,
+                    "max_margin_pct": 0,
+                    "top_opportunity": None,
+                },
+            }
+        avg_margin = sum(o["margin_pct"] for o in opps) / len(opps)
+        max_margin = max(o["margin_pct"] for o in opps)
+        books = set()
+        selections = set()
+        for o in opps:
+            books.add(o["over_book"])
+            books.add(o["under_book"])
+            selections.add(o["selection_key"])
+        top = opps[0]
+        return {
+            "status": "ok",
+            "data": {
+                "count": len(opps),
+                "unique_selections": len(selections),
+                "books_involved": len(books),
+                # pct fields represent percentage; raw fields represent decimal form
+                "avg_margin": round(avg_margin / 100, 6),
+                "avg_margin_pct": round(avg_margin, 3),
+                "max_margin": round(max_margin / 100, 6),
+                "max_margin_pct": max_margin,
+                "top_opportunity": top,
+            },
+        }
+    except Exception as e:  # pragma: no cover
+        try:
+            from backend.services.unified_error_handler import unified_error_handler, ErrorContext  # type: ignore
+            return unified_error_handler.handle_error(e, context=ErrorContext(endpoint="/api/odds-mvp/arbitrage/summary", method="GET")).__dict__
+        except Exception:
+            return {"error": str(e), "context": "arbitrage_summary_mvp"}
+
+@router.get("/api/odds/arbitrage/summary")
+async def enriched_arbitrage_summary(
+    sport: str,
+    market: str,
+    min_margin: float = 0.0,
+):
+    """Enriched arbitrage summary (flattened) with median and book pair frequencies.
+
+    Returned fields (all flattened, no status/data envelope):
+      count: total opportunities
+      avg_margin / max_margin / median_margin: percentage values (already in % units)
+      top_books: top 5 book pair frequencies [{pair, count}]
+      book_pair_counts: full list of pair frequencies
+      top_opportunity: highest margin opportunity dict (or None)
+      sampled: number of opportunities sampled (same as count)
+    """
+    try:
+        detail = await arbitrage_mvp(sport=sport, market=market, min_margin=min_margin)
+        if not isinstance(detail, dict) or "data" not in detail:
+            return detail
+        # detail["data"] from arbitrage_mvp is a list of dict entries (opportunities)
+        raw_data = detail["data"]
+        # Defensive: ensure we operate on list of dicts; filter out unexpected types
+        data = [d for d in raw_data if isinstance(d, dict)]
+        if len(data) != len(raw_data):  # pragma: no cover - diagnostic path
+            try:
+                logger.warning("Filtered non-dict entries in arbitrage data list for enriched summary")
+            except Exception:
+                pass
+        if not data:
+            empty_resp = {
+                "count": 0,
+                "avg_margin": 0.0,
+                "max_margin": 0.0,
+                "median_margin": 0.0,
+                "top_books": [],
+                "book_pair_counts": [],
+                "top_opportunity": None,
+                "sampled": 0,
+            }
+            if ENABLE_LEGACY_ARBITRAGE_SUMMARY:
+                empty_resp["status"] = "ok"
+            return empty_resp
+
+        # Extract margins list
+        margins = [float(d.get("margin_pct", 0)) for d in data]
+
+        # Book pair frequency analysis
+        pair_freq: dict[str, int] = {}
+        for d in data:
+            over_b = d.get("over_book", "?")
+            under_b = d.get("under_book", "?")
+            pair_key = f"{over_b}|{under_b}"
+            pair_freq[pair_key] = pair_freq.get(pair_key, 0) + 1
+        book_pair_counts = sorted(
+            [{"pair": k, "count": v} for k, v in pair_freq.items()],
+            key=lambda x: x["count"],
+            reverse=True,
+        )
+
+        from statistics import median
+
+        top_opportunity = max(data, key=lambda x: float(x.get("margin_pct", 0))) if data else None
+
+        resp = {
+            "count": len(data),
+            "avg_margin": round(sum(margins) / len(margins), 3),
+            "max_margin": round(max(margins), 3),
+            "median_margin": round(median(margins), 3),
+            "top_books": book_pair_counts[:5],
+            "book_pair_counts": book_pair_counts,
+            "top_opportunity": top_opportunity,
+            "sampled": len(margins),
+        }
+        # Feature flag: optionally add legacy style status field for backward compatibility
+        try:
+            if ENABLE_LEGACY_ARBITRAGE_SUMMARY:
+                resp["status"] = "ok"
+        except Exception:
+            pass
+        return resp
+    except Exception as e:  # pragma: no cover
+        try:
+            from backend.services.unified_error_handler import unified_error_handler, ErrorContext  # type: ignore
+            return unified_error_handler.handle_error(e, context=ErrorContext(endpoint="/api/odds/arbitrage/summary", method="GET")).__dict__
+        except Exception:
+            return {"error": str(e), "context": "enriched_arbitrage_summary"}
+
+@router.get("/api/odds-mvp/best-book")
+async def best_book_mvp(
+    sport: str,
+    market: str,
+    include_consensus: bool = False,
+):
+    if odds_snapshot_store is None:
+        return {"count": 0, "data": [], "status": "ingestion_unavailable"}
+    try:
+        snaps = await odds_snapshot_store.get_latest(sport=sport, market=market, limit=2000)
+        if not snaps:
+            return {"count": 0, "data": []}
+        by_selection: dict[str, list] = {}
+        for s in snaps:
+            by_selection.setdefault(s.selection_key, []).append(s)
+        data = []
+        for key, group in by_selection.items():
+            best = _select_best_odds(group)
+            if not best:
+                continue
+            entry = {
+                "selection_key": key,
+                "sport": sport,
+                "market": market,
+                "line": best.line,
+                "best_american": best.american_odds,
+                "best_book": best.book,
+                "books_considered": len(group),
+                "last_updated": max(g.captured_at for g in group).isoformat(),
+            }
+            if include_consensus and group:
+                ci = sum(g.implied_prob for g in group) / len(group)
+                if ci <= 0:
+                    consensus_american = 400
+                elif ci >= 1:
+                    consensus_american = -400
+                else:
+                    consensus_american = int(round(-100 * ci / (1 - ci))) if ci >= 0.5 else int(round(100 * (1 - ci) / ci))
+                entry["consensus_american"] = consensus_american
+                entry["consensus_implied_prob"] = ci
+                edge = None
+                if 0 < ci < 1:
+                    if best.american_odds > 0:
+                        best_implied = 100 / (best.american_odds + 100)
+                    else:
+                        best_implied = (-best.american_odds) / ((-best.american_odds) + 100)
+                    edge = (ci - best_implied) * 100
+                entry["consensus_edge_pct"] = round(edge, 4) if edge is not None else None
+            data.append(entry)
+        return {"count": len(data), "data": data}
+    except Exception as e:  # pragma: no cover
+        try:
+            from backend.services.unified_error_handler import unified_error_handler, ErrorContext  # type: ignore
+            return unified_error_handler.handle_error(e, context=ErrorContext(endpoint="/api/odds-mvp/best-book", method="GET")).__dict__
+        except Exception:
+            return {"error": str(e), "context": "best_book_mvp"}

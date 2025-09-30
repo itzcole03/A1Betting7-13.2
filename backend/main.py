@@ -55,6 +55,12 @@ try:
     except Exception as _e:
         logger.warning(f"Feature router registration (main.py) skipped: {_e}")
     logger.info("✅ Using canonical app from backend.core.app.create_app()")
+    # Bets / CLV foundation routes (Phase 3 start) - included here for legacy entrypoint usage
+    try:
+        from backend.routes.bets_routes import router as bets_router  # type: ignore
+        app.include_router(bets_router)
+    except Exception as _be:  # pragma: no cover - defensive include
+        logger.warning(f"Bets router inclusion skipped: {_be}")
 except ImportError as e:
     logger.error(f"❌ Cannot import canonical app factory: {e}")
     raise RuntimeError("Canonical app factory not available") from e

@@ -27,7 +27,12 @@
     "load-test:inference": "pwsh scripts/run-load-tests.ps1 -Scenario inference_throughput",
     "load-test:cache": "pwsh scripts/run-load-tests.ps1 -Scenario cache_performance",
     "load-test:pagination": "pwsh scripts/run-load-tests.ps1 -Scenario pagination_stress",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint-md": "remark .",
+    "lint-md:fix": "remark . --frail",
+    "precommit:md": "npm run lint-md",
+    "changelog:check": "python scripts/normalize_changelog.py --file CHANGELOG.md --strict",
+    "changelog:fix": "python scripts/normalize_changelog.py --file CHANGELOG.md --write"
   },
   "keywords": [
     "electron",

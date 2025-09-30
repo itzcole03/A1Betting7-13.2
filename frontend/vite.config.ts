@@ -1,4 +1,6 @@
 import react from '@vitejs/plugin-react';
+import autoprefixer from 'autoprefixer';
+import tailwindcss from '@tailwindcss/postcss';
 import dns from 'node:dns';
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
@@ -53,6 +55,12 @@ export default defineConfig(({ mode, command }) => {
     },
 
     plugins: [react(), viteTsconfigPaths()],
+    // Force PostCSS to resolve plugins from the frontend workspace
+    css: {
+      postcss: {
+        plugins: [tailwindcss(), autoprefixer()],
+      },
+    },
 
     resolve: {
       alias: {

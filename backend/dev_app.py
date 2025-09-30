@@ -24,6 +24,21 @@ async def _mount_auth_router():
         pass
 
 
+@app.get("/health")
+@app.head("/health")
+async def health():
+    """Lightweight health endpoint for smoke checks."""
+    return JSONResponse(
+        content={
+            "success": True,
+            "data": {"status": "ok"},
+            "error": None,
+            "meta": {},
+        },
+        status_code=200,
+    )
+
+
 @app.get("/dev/auth/users")
 async def dev_list_auth_users():
     try:

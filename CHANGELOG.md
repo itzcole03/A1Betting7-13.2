@@ -1,5 +1,42 @@
 # A1Betting7-13.2 Changelog
 
+<!--
+Anchor links added for GitHub release diffs.
+Older release sections now marked "(Archived)" to reduce markdownlint MD024 noise
+and clarify maintenance status.
+-->
+
+<!-- markdownlint-disable MD024 -->
+## [Unreleased] - Observer Centralization & Bootstrap Reliability Log
+
+<!-- ARCHIVE NOTE:
+All sections below are historical (Archived). Only correct factual errors if needed.
+-->
+
+### Added
+
+- Centralized PerformanceObserver usage via `frontend/src/utils/safePerformanceObserver.ts`.
+- Documentation: `frontend/docs/observability.md` (safe observer API, guarantees, verification).
+- One-time bootstrap reliability start log: "🛡️ Reliability monitoring started (bootstrap)" (suppressed in test).
+
+### Changed
+
+- All direct `new PerformanceObserver()` calls replaced with `safeObserve` + `disconnectObserver`.
+- Bootstrap tests extended to assert single emission and test-environment suppression.
+
+### Verification
+
+- Type check: passed.
+- Tests: observer + bootstrap suites green.
+- Scan: only one `new PerformanceObserver` (in wrapper).
+
+### Migration Notes
+
+- Use `safeObserve(entryTypes, callback)` instead of direct construction.
+- Always call `disconnectObserver(observer)` on teardown (HMR, unmount, service stop).
+- Avoid adding new direct PerformanceObserver usages—extend wrapper if new entry types needed.
+<!-- markdownlint-enable MD024 -->
+
 ## [2025-09-08] - Feature Group: EV Hardening, Provider Status, Arbitrage Validation, Line Movement, Smart Signals
 
 ### Added
@@ -1423,3 +1460,11 @@ npm run test
 Batch 2 establishes a robust, unified WebSocket contract across backend and frontend, with strict validation, improved developer ergonomics, and comprehensive test coverage. Legacy test failures are now fully isolated and do not impact CI or release quality.
 
 **Audit performed by GitHub Copilot, August 2025.**
+
+<!-- markdownlint-disable MD053 -->
+[Unreleased]: https://github.com/your-org/your-repo/compare/v2025.09.0...HEAD
+[v2025.09.0]: https://github.com/your-org/your-repo/compare/v2025.08.15...v2025.09.0
+[v2025.08.15]: https://github.com/your-org/your-repo/compare/v2025.08.14...v2025.08.15
+[v2025.08.14]: https://github.com/your-org/your-repo/compare/v2025.01.20...v2025.08.14
+[v2025.01.20]: https://github.com/your-org/your-repo/releases/tag/v2025.01.20
+<!-- markdownlint-enable MD053 -->

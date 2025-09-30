@@ -1,4 +1,5 @@
 import { startTransition } from 'react';
+import { safeObserve, disconnectObserver } from '../../utils/safePerformanceObserver';
 
 // Performance optimization interfaces
 interface PerformanceMetrics {
@@ -412,24 +413,31 @@ class PerformanceOptimizationService {
 
   public stopMonitoring(): void {
     this.isMonitoring = false;
-    this.observers.forEach(observer => observer.disconnect());
+    this.observers.forEach(observer => disconnectObserver(observer));
     this.observers.clear();
   }
 
   private setupWebVitalsObserver(): void {
-    if (typeof PerformanceObserver !== 'undefined') {
-      const observer = new PerformanceObserver((list) => {
+    const vitalsObserver = safeObserve(
+      ['largest-contentful-paint', 'first-input', 'layout-shift', 'paint'],
+      (list: PerformanceObserverEntryList) => {
         list.getEntries().forEach((entry) => {
           switch (entry.entryType) {
             case 'largest-contentful-paint':
               this.metrics.webVitals.lcp = entry.startTime;
               break;
-            case 'first-input':
-              this.metrics.webVitals.fid = (entry as any).processingStart - entry.startTime;
+            case 'first-input': {
+              const e = entry as PerformanceEntry & { processingStart?: number };
+              if (typeof e.processingStart === 'number') {
+                this.metrics.webVitals.fid = e.processingStart - entry.startTime;
+              }
               break;
-            case 'layout-shift':
-              this.metrics.webVitals.cls += (entry as any).value;
+            }
+            case 'layout-shift': {
+              const e = entry as PerformanceEntry & { value?: number };
+              this.metrics.webVitals.cls += e.value || 0;
               break;
+            }
             case 'paint':
               if (entry.name === 'first-contentful-paint') {
                 this.metrics.webVitals.fcp = entry.startTime;
@@ -437,38 +445,24 @@ class PerformanceOptimizationService {
               break;
           }
         });
-      });
-
-      try {
-        observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift', 'paint'] });
-        this.observers.set('webVitals', observer);
-      } catch (e) {
-        console.warn('Web Vitals observer not supported');
       }
-    }
+    );
+    if (vitalsObserver) this.observers.set('webVitals', vitalsObserver);
   }
 
   private setupPerformanceObserver(): void {
-    if (typeof PerformanceObserver !== 'undefined') {
-      const observer = new PerformanceObserver((list) => {
-        list.getEntries().forEach((entry) => {
-          if (entry.entryType === 'measure') {
-            if (entry.name.includes('render')) {
-              this.metrics.renderTime = entry.duration;
-            } else if (entry.name.includes('network')) {
-              this.metrics.networkRequests++;
-            }
+    const perfObserver = safeObserve(['measure'], (list: PerformanceObserverEntryList) => {
+      list.getEntries().forEach((entry) => {
+        if (entry.entryType === 'measure') {
+          if (entry.name.includes('render')) {
+            this.metrics.renderTime = entry.duration;
+          } else if (entry.name.includes('network')) {
+            this.metrics.networkRequests++;
           }
-        });
+        }
       });
-
-      try {
-        observer.observe({ entryTypes: ['measure'] });
-        this.observers.set('performance', observer);
-      } catch (e) {
-        console.warn('Performance observer not supported');
-      }
-    }
+    });
+    if (perfObserver) this.observers.set('performance', perfObserver);
   }
 
   private setupMemoryMonitoring(): void {

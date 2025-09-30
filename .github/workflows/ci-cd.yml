@@ -30,12 +30,17 @@ permissions:
   id-token: write
 
 jobs:
+  changelog:
+    name: Changelog Normalization
+    uses: ./.github/workflows/changelog-normalize.yml
+
   # ================================
   # Pre-flight Checks
   # ================================
   pre-flight:
     name: 🔍 Pre-flight Checks
     runs-on: ubuntu-latest
+    needs: [changelog]
     outputs:
       backend-changed: ${{ steps.changes.outputs.backend }}
       frontend-changed: ${{ steps.changes.outputs.frontend }}

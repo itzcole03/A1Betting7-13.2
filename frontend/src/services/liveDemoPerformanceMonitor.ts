@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-console */
 import { isLeanMode } from '../utils/leanMode';
+import { safeObserve, disconnectObserver } from '../utils/safePerformanceObserver';
 
 interface PerformanceMetrics {
   timestamp: Date;
@@ -70,24 +73,15 @@ class LiveDemoPerformanceMonitor {
   }
 
   private initializePerformanceObserver(): void {
-    if (typeof window === 'undefined' || !('PerformanceObserver' in window)) {
-      return;
-    }
-
-    try {
-      this.performanceObserver = new PerformanceObserver((list) => {
+    this.performanceObserver = safeObserve(
+      ['navigation', 'paint', 'layout-shift', 'largest-contentful-paint'],
+      (list) => {
         const entries = list.getEntries();
         entries.forEach((entry) => {
           this.processPerformanceEntry(entry);
         });
-      });
-
-      this.performanceObserver.observe({ 
-        entryTypes: ['navigation', 'paint', 'layout-shift', 'largest-contentful-paint'] 
-      });
-    } catch (error) {
-      console.warn('PerformanceObserver not supported:', error);
-    }
+      }
+    );
   }
 
   private initializeMutationObserver(): void {
@@ -178,20 +172,17 @@ class LiveDemoPerformanceMonitor {
 
   async startMonitoring(intervalMs: number = 30000): Promise<void> {
     if (this.isMonitoring) {
-      // eslint-disable-next-line no-console
       console.warn('Live demo monitoring is already running');
       return;
     }
 
     // Skip entirely if lean mode is active
     if (isLeanMode()) {
-      // eslint-disable-next-line no-console
       console.log('Lean mode active - skipping performance monitoring');
       return;
     }
 
     this.isMonitoring = true;
-    // eslint-disable-next-line no-console
     console.log('Starting live demo performance monitoring...');
 
     // Initial metrics collection
@@ -203,7 +194,6 @@ class LiveDemoPerformanceMonitor {
         await this.collectCurrentMetrics();
         await this.analyzePerformanceTrends();
       } catch (error) {
-        // eslint-disable-next-line no-console
         console.error('Error during performance monitoring:', error);
       }
     }, intervalMs);
@@ -215,9 +205,7 @@ class LiveDemoPerformanceMonitor {
       this.monitoringInterval = null;
     }
     
-    if (this.performanceObserver) {
-      this.performanceObserver.disconnect();
-    }
+    disconnectObserver(this.performanceObserver);
     
     if (this.mutationObserver) {
       this.mutationObserver.disconnect();
@@ -266,7 +254,6 @@ class LiveDemoPerformanceMonitor {
       if (now - this.lastMemoryLogTime > this.MEMORY_LOG_THROTTLE) {
         this.lastMemoryLogTime = now;
         const memoryInfo = (window.performance as any).memory;
-        // eslint-disable-next-line no-console
         console.log('[Performance] Memory Usage:', {
           used: `${(memoryInfo.usedJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
           total: `${(memoryInfo.totalJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
@@ -296,7 +283,7 @@ class LiveDemoPerformanceMonitor {
         await fetch(endpoint, { method: 'HEAD' });
         const end = performance.now();
         responseTimes[endpoint] = end - start;
-      } catch (error) {
+      } catch {
         responseTimes[endpoint] = -1; // Indicate error
       }
     }
@@ -326,7 +313,7 @@ class LiveDemoPerformanceMonitor {
         // Use modern Navigation Timing API
         const start = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
         return Math.round(start.duration);
-      } catch (error) {
+      } catch {
         // Fallback to deprecated timing API if available
         if (window.performance.timing) {
           return window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
@@ -352,7 +339,7 @@ class LiveDemoPerformanceMonitor {
           const entries = window.performance.getEntriesByType('largest-contentful-paint');
           return entries.length > 0 ? entries[entries.length - 1].startTime : 0;
         }
-      } catch (error) {
+      } catch {
         // Silently handle unsupported entry type
       }
     }

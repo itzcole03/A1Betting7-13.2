@@ -1,0 +1,32 @@
+name: Markdown Lint
+
+on:
+  pull_request:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  markdown-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+            node-version: 20
+
+      - name: Install remark tooling
+        run: |
+          npm pkg set name="temp-md-lint" >/dev/null 2>&1 || true
+          npm install --no-audit --no-fund --save-dev remark remark-cli remark-preset-lint-recommended
+
+      - name: Run remark-lint
+        run: npx remark . --frail
+
+      - name: Prettier check (non-Markdown)
+        run: |
+          npx prettier . --check --ignore-path .gitignore --log-level warn \
+            --no-error-on-unmatched-pattern \
+            "**/*.{js,jsx,ts,tsx,json,yml,yaml,css,scss,html}"

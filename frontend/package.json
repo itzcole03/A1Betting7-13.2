@@ -83,6 +83,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "postcss": {
+    "plugins": {
+      "@tailwindcss/postcss": {},
+      "autoprefixer": {}
+    }
+  },
   "devDependencies": {
     "@babel/preset-env": "^7.28.0",
     "@babel/preset-react": "^7.27.1",

@@ -454,4 +454,59 @@ describe('Bootstrap App', () => {
       );
     });
   });
+
+  describe('Reliability Start Log', () => {
+    it('logs reliability start only once across multiple bootstraps when not in test env', async () => {
+      // Arrange: ensure not in test env so the log isn't suppressed
+      const prevEnv = process.env.NODE_ENV;
+      Object.defineProperty(process, 'env', {
+        value: { NODE_ENV: 'development' },
+        writable: true,
+      });
+
+      __resetBootstrapForTesting();
+      jest.clearAllMocks();
+
+      // Act: call bootstrap twice; second call should no-op
+      await bootstrapApp();
+      await bootstrapApp();
+
+      // Assert: find the specific reliability started log once
+      const infoMessages = (mockLogger.info.mock.calls || []).map((c) => c[0]);
+      const reliabilityLogs = infoMessages.filter(
+        (msg) => typeof msg === 'string' && msg.includes('🛡️ Reliability monitoring started (bootstrap)')
+      );
+      expect(reliabilityLogs.length).toBe(1);
+
+      // Cleanup: restore env
+      Object.defineProperty(process, 'env', {
+        value: { NODE_ENV: prevEnv || 'test' },
+        writable: true,
+      });
+    });
+
+    it('suppresses reliability start log in test environment', async () => {
+      const prevEnv = process.env.NODE_ENV;
+      Object.defineProperty(process, 'env', {
+        value: { NODE_ENV: 'test' },
+        writable: true,
+      });
+
+      __resetBootstrapForTesting();
+      jest.clearAllMocks();
+
+      await bootstrapApp();
+
+      const infoMessages = (mockLogger.info.mock.calls || []).map((c) => c[0]);
+      const reliabilityLogs = infoMessages.filter(
+        (msg) => typeof msg === 'string' && msg.includes('🛡️ Reliability monitoring started (bootstrap)')
+      );
+      expect(reliabilityLogs.length).toBe(0);
+
+      Object.defineProperty(process, 'env', {
+        value: { NODE_ENV: prevEnv || 'test' },
+        writable: true,
+      });
+    });
+  });
 });

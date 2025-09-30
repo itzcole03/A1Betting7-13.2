@@ -10,6 +10,8 @@
  * - Integration with backend /api/metrics/v1 endpoint
  */
 
+import { safeObserve } from '../utils/safePerformanceObserver';
+
 // Types for metrics
 export interface WebVitalsMetric {
   name: string;
@@ -217,35 +219,32 @@ class WebVitalsCollector {
   }
 
   private initPerformanceAPI(): void {
-    if (typeof PerformanceObserver === 'undefined') {
+    if (typeof window === 'undefined') {
       this.warn('PerformanceObserver not available');
       return;
     }
 
-    try {
+      try {
       // Observe navigation timing
-      const navObserver = new PerformanceObserver((list) => {
+      safeObserve(['navigation'], (list: PerformanceObserverEntryList) => {
         for (const entry of list.getEntries()) {
           this.buffer.performance_entries.push(entry.toJSON());
         }
       });
-      navObserver.observe({ entryTypes: ['navigation'] });
 
       // Observe resource timing
-      const resourceObserver = new PerformanceObserver((list) => {
+      safeObserve(['resource'], (list: PerformanceObserverEntryList) => {
         for (const entry of list.getEntries()) {
           this.buffer.performance_entries.push(entry.toJSON());
         }
       });
-      resourceObserver.observe({ entryTypes: ['resource'] });
 
       // Observe user timing
-      const userObserver = new PerformanceObserver((list) => {
+      safeObserve(['measure'], (list: PerformanceObserverEntryList) => {
         for (const entry of list.getEntries()) {
           this.buffer.performance_entries.push(entry.toJSON());
         }
       });
-      userObserver.observe({ entryTypes: ['measure'] });
 
       this.debug('Performance API observers initialized');
     } catch (err) {

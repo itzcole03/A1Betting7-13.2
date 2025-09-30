@@ -72,7 +72,7 @@ repos:
     rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
-        files: '^frontend/.*\.(js|jsx|ts|tsx|json|css|md)$'
+        files: '^frontend/.*\.(js|jsx|ts|tsx|json|ya?ml|css|scss|html)$'
         exclude: "^frontend/dist/.*$"
 
   - repo: https://github.com/pre-commit/mirrors-eslint
@@ -90,6 +90,11 @@ repos:
   # TypeScript type checking
   - repo: local
     hooks:
+      - id: changelog-normalize
+        name: Normalize CHANGELOG
+        entry: python scripts/normalize_changelog.py --file CHANGELOG.md --strict
+        language: system
+        pass_filenames: false
       - id: typescript-check
         name: TypeScript Type Check
         entry: bash -c 'cd frontend && npm run type-check'
@@ -112,12 +117,20 @@ repos:
       - id: yamllint
         args: [-c=.yamllint.yml]
 
-  # Markdown linting
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.38.0
+  # (Removed markdownlint-cli) Remark-lint is the single markdown linter
+
+  # Remark lint for Markdown (complements markdownlint for custom rules)
+  - repo: https://github.com/remarkjs/remark-lint
+    rev: 9.1.2
     hooks:
-      - id: markdownlint
-        args: ["--config", ".markdownlint.yml"]
+      - id: remark-lint
+        additional_dependencies:
+          - remark-preset-lint-recommended
+          - remark-lint-heading-increment
+          - remark-lint-maximum-line-length
+          - remark-lint-fenced-code-flag
+          - remark-lint-no-dead-urls
+        files: '.*\\.md$'
 
   # Shell script linting
   - repo: https://github.com/shellcheck-py/shellcheck-py

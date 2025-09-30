@@ -1,0 +1,277 @@
+{
+  "generated_at": "2025-09-30T04:56:06.299Z",
+  "input": "frontend_tsc_normalized_104b5938.txt",
+  "result": {
+    "total_errors": 14,
+    "topFiles": [
+      {
+        "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+        "count": 14,
+        "errors": [
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 304,
+            "column": 129,
+            "code": "TS1005",
+            "message": "'}' expected.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 306,
+            "column": 22,
+            "code": "TS1382",
+            "message": "Unexpected token. Did you mean `{'>'}` or `&gt;`?",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 491,
+            "column": 153,
+            "code": "TS1005",
+            "message": "'}' expected.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 493,
+            "column": 21,
+            "code": "TS1382",
+            "message": "Unexpected token. Did you mean `{'>'}` or `&gt;`?",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 495,
+            "column": 23,
+            "code": "TS17002",
+            "message": "Expected corresponding JSX closing tag for 'div'.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 496,
+            "column": 19,
+            "code": "TS1005",
+            "message": "')' expected.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 496,
+            "column": 21,
+            "code": "TS17002",
+            "message": "Expected corresponding JSX closing tag for 'CardContent'.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 504,
+            "column": 18,
+            "code": "TS1381",
+            "message": "Unexpected token. Did you mean `{'}'}` or `&rbrace;`?",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 505,
+            "column": 17,
+            "code": "TS17002",
+            "message": "Expected corresponding JSX closing tag for 'Card'.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 506,
+            "column": 15,
+            "code": "TS17002",
+            "message": "Expected corresponding JSX closing tag for 'div'.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 508,
+            "column": 9,
+            "code": "TS1005",
+            "message": "')' expected.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 540,
+            "column": 5,
+            "code": "TS1128",
+            "message": "Declaration or statement expected.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 541,
+            "column": 3,
+            "code": "TS1109",
+            "message": "Expression expected.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 542,
+            "column": 1,
+            "code": "TS1128",
+            "message": "Declaration or statement expected.",
+            "details": []
+          }
+        ]
+      }
+    ],
+    "codes": [
+      {
+        "code": "TS1005",
+        "count": 4,
+        "examples": [
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 304,
+            "column": 129,
+            "code": "TS1005",
+            "message": "'}' expected.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 491,
+            "column": 153,
+            "code": "TS1005",
+            "message": "'}' expected.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 496,
+            "column": 19,
+            "code": "TS1005",
+            "message": "')' expected.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 508,
+            "column": 9,
+            "code": "TS1005",
+            "message": "')' expected.",
+            "details": []
+          }
+        ]
+      },
+      {
+        "code": "TS17002",
+        "count": 4,
+        "examples": [
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 495,
+            "column": 23,
+            "code": "TS17002",
+            "message": "Expected corresponding JSX closing tag for 'div'.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 496,
+            "column": 21,
+            "code": "TS17002",
+            "message": "Expected corresponding JSX closing tag for 'CardContent'.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 505,
+            "column": 17,
+            "code": "TS17002",
+            "message": "Expected corresponding JSX closing tag for 'Card'.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 506,
+            "column": 15,
+            "code": "TS17002",
+            "message": "Expected corresponding JSX closing tag for 'div'.",
+            "details": []
+          }
+        ]
+      },
+      {
+        "code": "TS1382",
+        "count": 2,
+        "examples": [
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 306,
+            "column": 22,
+            "code": "TS1382",
+            "message": "Unexpected token. Did you mean `{'>'}` or `&gt;`?",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 493,
+            "column": 21,
+            "code": "TS1382",
+            "message": "Unexpected token. Did you mean `{'>'}` or `&gt;`?",
+            "details": []
+          }
+        ]
+      },
+      {
+        "code": "TS1128",
+        "count": 2,
+        "examples": [
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 540,
+            "column": 5,
+            "code": "TS1128",
+            "message": "Declaration or statement expected.",
+            "details": []
+          },
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 542,
+            "column": 1,
+            "code": "TS1128",
+            "message": "Declaration or statement expected.",
+            "details": []
+          }
+        ]
+      },
+      {
+        "code": "TS1381",
+        "count": 1,
+        "examples": [
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 504,
+            "column": 18,
+            "code": "TS1381",
+            "message": "Unexpected token. Did you mean `{'}'}` or `&rbrace;`?",
+            "details": []
+          }
+        ]
+      },
+      {
+        "code": "TS1109",
+        "count": 1,
+        "examples": [
+          {
+            "file": "frontend\\src\\pages\\BankrollPageOld.tsx",
+            "line": 541,
+            "column": 3,
+            "code": "TS1109",
+            "message": "Expression expected.",
+            "details": []
+          }
+        ]
+      }
+    ]
+  }
+}

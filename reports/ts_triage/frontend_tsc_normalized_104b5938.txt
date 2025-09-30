@@ -1,0 +1,29 @@
+
+frontend/src/pages/BankrollPageOld.tsx(304,129):
+error TS1005: '}' expected.
+frontend/src/pages/BankrollPageOld.tsx(306,22):
+error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+frontend/src/pages/BankrollPageOld.tsx(491,153):
+error TS1005: '}' expected.
+frontend/src/pages/BankrollPageOld.tsx(493,21):
+error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+frontend/src/pages/BankrollPageOld.tsx(495,23):
+error TS17002: Expected corresponding JSX closing tag for 'div'.
+frontend/src/pages/BankrollPageOld.tsx(496,19):
+error TS1005: ')' expected.
+frontend/src/pages/BankrollPageOld.tsx(496,21):
+error TS17002: Expected corresponding JSX closing tag for 'CardContent'.
+frontend/src/pages/BankrollPageOld.tsx(504,18):
+error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+frontend/src/pages/BankrollPageOld.tsx(505,17):
+error TS17002: Expected corresponding JSX closing tag for 'Card'.
+frontend/src/pages/BankrollPageOld.tsx(506,15):
+error TS17002: Expected corresponding JSX closing tag for 'div'.
+frontend/src/pages/BankrollPageOld.tsx(508,9):
+error TS1005: ')' expected.
+frontend/src/pages/BankrollPageOld.tsx(540,5):
+error TS1128: Declaration or statement expected.
+frontend/src/pages/BankrollPageOld.tsx(541,3):
+error TS1109: Expression expected.
+frontend/src/pages/BankrollPageOld.tsx(542,1):
+error TS1128: Declaration or statement expected.

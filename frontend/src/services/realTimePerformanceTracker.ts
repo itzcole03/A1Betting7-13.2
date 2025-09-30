@@ -1,4 +1,8 @@
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { CLSMetric, FCPMetric, FIDMetric, LCPMetric, TTFBMetric } from 'web-vitals';
+import { safeObserve } from '../utils/safePerformanceObserver';
 /**
  * Real-Time Performance Tracker
  * Monitors live demo performance, user interactions, and system metrics
@@ -91,43 +95,28 @@ export class RealTimePerformanceTracker {
     // Performance Observer for Core Web Vitals
     if ('PerformanceObserver' in window) {
       // Long Task Observer
-      try {
-        const longTaskObserver = new PerformanceObserver(list => {
-          for (const entry of list.getEntries()) {
-            this.recordLongTask(entry);
-          }
-        });
-        longTaskObserver.observe({ entryTypes: ['longtask'] });
-        this.observers.set('longtask', longTaskObserver);
-      } catch (e) {
-        console.warn('Long task observer not supported');
-      }
+      const longTaskObserver = safeObserve(['longtask'], list => {
+        for (const entry of list.getEntries()) {
+          this.recordLongTask(entry);
+        }
+      });
+      if (longTaskObserver) this.observers.set('longtask', longTaskObserver);
 
       // Layout Shift Observer
-      try {
-        const layoutShiftObserver = new PerformanceObserver(list => {
-          for (const entry of list.getEntries()) {
-            this.recordLayoutShift(entry);
-          }
-        });
-        layoutShiftObserver.observe({ entryTypes: ['layout-shift'] });
-        this.observers.set('layout-shift', layoutShiftObserver);
-      } catch (e) {
-        console.warn('Layout shift observer not supported');
-      }
+      const layoutShiftObserver = safeObserve(['layout-shift'], list => {
+        for (const entry of list.getEntries()) {
+          this.recordLayoutShift(entry);
+        }
+      });
+      if (layoutShiftObserver) this.observers.set('layout-shift', layoutShiftObserver);
 
       // First Input Observer
-      try {
-        const firstInputObserver = new PerformanceObserver(list => {
-          for (const entry of list.getEntries()) {
-            this.recordFirstInput(entry);
-          }
-        });
-        firstInputObserver.observe({ entryTypes: ['first-input'] });
-        this.observers.set('first-input', firstInputObserver);
-      } catch (e) {
-        console.warn('First input observer not supported');
-      }
+      const firstInputObserver = safeObserve(['first-input'], list => {
+        for (const entry of list.getEntries()) {
+          this.recordFirstInput(entry);
+        }
+      });
+      if (firstInputObserver) this.observers.set('first-input', firstInputObserver);
     }
 
     // Intersection Observer for visibility tracking

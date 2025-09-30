@@ -1,0 +1,35 @@
+name: MD Changed Enforcement
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  enforce-md-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect changed Markdown files
+        id: md
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=1 || true
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.md')
+          if [ -z "$CHANGED" ]; then
+            echo "changed=none" >> $GITHUB_OUTPUT
+          else
+            echo "Changed markdown files:" && echo "$CHANGED"
+            echo "changed=$CHANGED" >> $GITHUB_OUTPUT
+          fi
+      - name: Setup Node
+        if: steps.md.outputs.changed != 'none'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install remark tooling
+        if: steps.md.outputs.changed != 'none'
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund remark remark-cli remark-preset-lint-recommended remark-lint-heading-increment remark-lint-maximum-line-length remark-lint-fenced-code-flag remark-lint-no-dead-urls
+      - name: Lint changed markdown
+        if: steps.md.outputs.changed != 'none'
+        run: npx remark ${{ steps.md.outputs.changed }} --frail
