@@ -652,7 +652,6 @@ async def get_prop_opportunities(
 
         # Fetch opportunities
         opportunities = await data_service.get_prop_opportunities(
-            sport_filter=sport_filter,
             confidence_range=confidence_range,
             edge_range=edge_range,
             limit=limit,
@@ -660,6 +659,7 @@ async def get_prop_opportunities(
             include_diagnostics=diagnostics,
         )
         # EV Engine enrichment - add evPercent and evTier to opportunities
+        enriched_opportunities = []
         try:
             for opp in opportunities:
                 # Extract data for EV computation
@@ -667,16 +667,29 @@ async def get_prop_opportunities(
                 market_odds = None
 
                 # Try to derive fair odds from confidence/ai_probability
-                if hasattr(opp, "aiProbability") and opp.aiProbability > 0:
+                if hasattr(opp, "aiProbability") and getattr(opp, "aiProbability"):
                     # Convert AI probability to decimal odds
-                    our_fair_odds = 100 / opp.aiProbability
-                elif hasattr(opp, "confidence") and opp.confidence > 0:
+                    try:
+                        ai_prob_val = float(getattr(opp, "aiProbability"))
+                        if ai_prob_val > 0:
+                            our_fair_odds = 100.0 / ai_prob_val
+                    except Exception:
+                        our_fair_odds = None
+                elif hasattr(opp, "confidence") and getattr(opp, "confidence"):
                     # Use confidence as probability proxy
-                    our_fair_odds = 100 / opp.confidence
+                    try:
+                        conf_val = float(getattr(opp, "confidence"))
+                        if conf_val > 0:
+                            our_fair_odds = 100.0 / conf_val
+                    except Exception:
+                        our_fair_odds = None
 
                 # Extract market odds (convert American to decimal)
-                if hasattr(opp, "odds") and opp.odds != 0:
-                    market_odds = ev_engine.american_to_decimal(opp.odds)
+                if hasattr(opp, "odds") and getattr(opp, "odds"):
+                    try:
+                        market_odds = ev_engine.american_to_decimal(int(getattr(opp, "odds")))
+                    except Exception:
+                        market_odds = None
 
                 # Compute EV if we have both inputs
                 if (
@@ -685,24 +698,25 @@ async def get_prop_opportunities(
                     and our_fair_odds > 0
                     and market_odds > 0
                 ):
-                    ev_percent = ev_engine.compute_ev(our_fair_odds, market_odds)
-                    ev_tier = ev_engine.classify_ev(ev_percent).value
-
-                    # Update opportunity with EV data
-                    opp.evPercent = ev_percent
-                    opp.evTier = ev_tier
-
-                    logger.debug(
-                        f"EV computed for {opp.id}: {ev_percent:.2f}% ({ev_tier})"
-                    )
+                    try:
+                        ev_percent = ev_engine.compute_ev(our_fair_odds, market_odds)
+                        ev_tier = ev_engine.classify_ev(ev_percent).value
+                        # Update opportunity with EV data
+                        setattr(opp, "evPercent", ev_percent)
+                        setattr(opp, "evTier", ev_tier)
+                        logger.debug(f"EV computed for {getattr(opp, 'id', 'unknown')}: {ev_percent:.2f}% ({ev_tier})")
+                    except Exception:
+                        setattr(opp, "evPercent", None)
+                        setattr(opp, "evTier", None)
                 else:
                     # Set defaults when EV cannot be computed
-                    opp.evPercent = None
-                    opp.evTier = None
+                    setattr(opp, "evPercent", None)
+                    setattr(opp, "evTier", None)
 
+                enriched_opportunities.append(opp)
         except Exception as e:
             logger.warning(f"EV enrichment failed, continuing without EV data: {e}")
-            # Continue without EV data if enrichment fails
+            enriched_opportunities = opportunities  # Use original without EV data
 
         # Step 5: Server-side CLV enrichment with 60s cache (feature flagged)
         clv_was_enabled = False
@@ -720,13 +734,9 @@ async def get_prop_opportunities(
                         opportunities = compute_clv_batch(
                             opportunities, include_diagnostics=diagnostics
                         )
-                        clv_metrics.record_batch(
-                            len(opportunities), 0
-                        )  # duration handled by context
+                        clv_metrics.record_batch(len(opportunities), 0)  # duration handled by context
                         clv_computation_succeeded = True
-                        logger.info(
-                            f"Enriched {len(opportunities)} opportunities with CLV data"
-                        )
+                        logger.info(f"Enriched {len(opportunities)} opportunities with CLV data")
                 else:
                     logger.info("CLV enrichment requested but disabled by feature flag")
             except ImportError as e:
@@ -735,9 +745,7 @@ async def get_prop_opportunities(
                 )
                 clv_computation_succeeded = False
             except Exception as e:
-                logger.warning(
-                    f"CLV enrichment failed, continuing without CLV data: {e}"
-                )
+                logger.warning(f"CLV enrichment failed, continuing without CLV data: {e}")
                 clv_computation_succeeded = False
                 # Record failure in metrics if available - swallow any metrics errors
                 try:
@@ -1004,18 +1012,35 @@ async def get_prop_opportunities(
 
         # Persist last payload to in-memory debug slot and optionally to disk
         try:
-                if _prop_debug_is_enabled_effective():
-                    import json, io
-
-                    _PROP_DEBUG_LAST_PAYLOAD = payload
+            if _prop_debug_is_enabled_effective():
                 try:
+                    import json, io, os
+
+                    # set in-memory slot (module-level globals declared at function top)
+                    _PROP_DEBUG_LAST_PAYLOAD = payload
+
+                    # Ensure dump path is resolved
+                    if not _PROP_DEBUG_DUMP_PATH:
+                        _prop_set_dump_path()
+
                     # Best-effort write to dump path for offline retrieval
                     if _PROP_DEBUG_DUMP_PATH:
-                        with open(_PROP_DEBUG_DUMP_PATH, "w", encoding="utf-8") as fh:
+                        dump_path = os.path.abspath(_PROP_DEBUG_DUMP_PATH)
+                        # create parent dir if necessary
+                        parent = os.path.dirname(dump_path)
+                        if parent and not os.path.exists(parent):
+                            try:
+                                os.makedirs(parent, exist_ok=True)
+                            except Exception:
+                                # ignore mkdir failures; we'll try the write and log if it fails
+                                pass
+
+                        with open(dump_path, "w", encoding="utf-8") as fh:
                             json.dump(payload, fh, ensure_ascii=False, indent=2)
-                        logger.debug(f"Wrote debug propfinder payload to {_PROP_DEBUG_DUMP_PATH}")
+                        logger.debug(f"Wrote debug propfinder payload to {dump_path}")
                 except Exception as dump_err:
-                    logger.debug(f"Failed to write debug payload to disk: {dump_err}")
+                    # Don't raise - debug persistence is non-critical. Log full traceback.
+                    logger.exception(f"Failed to write debug payload to disk: {dump_err}")
         except Exception:
             # Non-fatal - debug persistence should not influence API behavior
             pass
@@ -1094,13 +1119,26 @@ async def get_prop_opportunities(
             # Try to persist debug payload if enabled
             try:
                 if _prop_debug_is_enabled_effective():
-                    import json
+                    try:
+                        import json, os
 
-                    _PROP_DEBUG_LAST_PAYLOAD = payload
-                    if _PROP_DEBUG_DUMP_PATH:
-                        with open(_PROP_DEBUG_DUMP_PATH, "w", encoding="utf-8") as fh:
-                            json.dump(payload, fh, ensure_ascii=False, indent=2)
-                        logger.debug(f"Wrote debug propfinder payload to {_PROP_DEBUG_DUMP_PATH} (fallback)")
+                        # set in-memory slot (module-level globals declared at function top)
+                        _PROP_DEBUG_LAST_PAYLOAD = payload
+                        if not _PROP_DEBUG_DUMP_PATH:
+                            _prop_set_dump_path()
+                        if _PROP_DEBUG_DUMP_PATH:
+                            dump_path = os.path.abspath(_PROP_DEBUG_DUMP_PATH)
+                            parent = os.path.dirname(dump_path)
+                            if parent and not os.path.exists(parent):
+                                try:
+                                    os.makedirs(parent, exist_ok=True)
+                                except Exception:
+                                    pass
+                            with open(dump_path, "w", encoding="utf-8") as fh:
+                                json.dump(payload, fh, ensure_ascii=False, indent=2)
+                            logger.debug(f"Wrote debug propfinder payload to {dump_path} (fallback)")
+                    except Exception as dump_err:
+                        logger.exception(f"Failed to write debug payload to disk (fallback): {dump_err}")
             except Exception:
                 pass
 
@@ -1363,10 +1401,17 @@ async def get_ev_opportunities(
                 market_odds = None
 
                 # Try to derive fair odds from confidence/ai_probability
-                if hasattr(opp, "aiProbability") and opp.aiProbability > 0:
-                    our_fair_odds = 100 / opp.aiProbability
-                elif hasattr(opp, "confidence") and opp.confidence > 0:
-                    our_fair_odds = 100 / opp.confidence
+                if hasattr(opp, "aiProbability") and getattr(opp, "aiProbability") > 0:
+                    # aiProbability is a percent-like value (0-100)
+                    try:
+                        our_fair_odds = 100 / float(getattr(opp, "aiProbability"))
+                    except Exception:
+                        our_fair_odds = None
+                elif hasattr(opp, "confidence") and getattr(opp, "confidence") > 0:
+                    try:
+                        our_fair_odds = 100 / float(getattr(opp, "confidence"))
+                    except Exception:
+                        our_fair_odds = None
 
                 # Extract market odds (convert American to decimal)
                 if hasattr(opp, "odds") and opp.odds != 0:
